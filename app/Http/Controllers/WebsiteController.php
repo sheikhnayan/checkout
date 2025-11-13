@@ -303,7 +303,7 @@ class WebsiteController extends Controller
                             $paymentLogo->save();
                         }
                     } else {
-                        dd('ss');
+                        dd($add->id);
                         // Create new logo
                         $paymentLogo = new PaymentLogo();
                         $paymentLogo->website_id = $add->id;
