@@ -29,6 +29,9 @@ Route::get('/run-migrate', function () {
     }
 });
 
+// Test route - must be before the catch-all slug route
+Route::get('/test', [TransactionController::class, 'test'])->name('test');
+
 // Frontend routes with slug parameter
 Route::get('/{slug}', [FrontendController::class, 'index'])->name('index');
 
@@ -39,8 +42,6 @@ Route::get('/{slug}/check/{code}', [FrontendController::class, 'checkCode'])->na
 Route::post('/{slug}/checkout/store', [TransactionController::class, 'store'])->name('checkout.store');
 
 Route::post('/{slug}/reservation/store', [TransactionController::class, 'reservation_store'])->name('reservations.store');
-
-Route::get('/test', [TransactionController::class, 'test'])->name('test');
 
 Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => 'auth'], function () {
     Route::get('/', [AdminController::class,'index'])->name('index');
