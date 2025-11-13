@@ -189,7 +189,7 @@ label{
                                                         <textarea name="description" class="form-control" id="description" rows="4" placeholder="Event Description" required> {{ $data->description }} </textarea>
                                                     </div>
                                                 </div>
-{{-- 
+
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
                                                         <label for="status">Status</label>
@@ -198,7 +198,7 @@ label{
                                                             <option value="0">Inactive</option>
                                                         </select>
                                                     </div>
-                                                </div> --}}
+                                                </div>
                                             </div>
                                             <input type="hidden" name="website_id" value="{{ $id }}">
                                             </div>
