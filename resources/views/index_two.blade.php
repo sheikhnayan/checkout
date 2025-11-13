@@ -2071,7 +2071,7 @@ a {
                 const title = event.target.closest('.addon-item').querySelector('label').getAttribute('data-title');
 
                 $('.modal-title').text(title);
-                $('.modal-body').html(`<p style="color: #000">${description}</p>`);
+                $('.modal-body').html(`<p style="color: #000 !important">${description}</p>`);
                 $('.modal').modal('show');
 
             }
@@ -2083,7 +2083,7 @@ a {
                 const title = event.target.closest('.vip-card').querySelector('.items').getAttribute('data-title');
 
                 $('.modal-title').text(title);
-                $('.modal-body').html(`<p style="color: #000">${description}</p>`);
+                $('.modal-body').html(`<p style="color: #000 !important">${description}</p>`);
                 $('.modal').modal('show');
 
             }
