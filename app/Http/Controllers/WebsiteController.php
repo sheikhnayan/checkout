@@ -274,7 +274,7 @@ class WebsiteController extends Controller
 
         // Handle payment logos
         dd($request->all());
-        if ($request->has('payment_logos')) {
+        if ($request->payment_logos) {
             dd('r');
             foreach ($request->payment_logos as $logoData) {
                 if (!empty($logoData['name'])) {
