@@ -273,7 +273,6 @@ class WebsiteController extends Controller
         $smtp->save();
 
         // Handle payment logos
-        dd($request->all());
         if ($request->payment_logos) {
             dd('r');
             foreach ($request->payment_logos as $logoData) {
@@ -330,6 +329,8 @@ class WebsiteController extends Controller
                 ->whereNotIn('id', $submittedIds)
                 ->delete();
         }
+        dd($request->all());
+
 
         return redirect()->route('admin.website.index')->with('success', 'Website updated successfully.');
     }
