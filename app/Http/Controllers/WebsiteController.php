@@ -273,7 +273,7 @@ class WebsiteController extends Controller
         $smtp->save();
 
         // Handle payment logos
-        dd('s');
+        dd($request->all());
         if ($request->has('payment_logos')) {
             dd('r');
             foreach ($request->payment_logos as $logoData) {
