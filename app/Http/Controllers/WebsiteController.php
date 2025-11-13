@@ -325,10 +325,10 @@ class WebsiteController extends Controller
             }
 
             // Remove logos that are not in the submitted data (deleted by user)
-            // $submittedIds = array_filter(array_column($request->payment_logos, 'id'));
-            // PaymentLogo::where('website_id', $id)
-            //     ->whereNotIn('id', $submittedIds)
-            //     ->delete();
+            $submittedIds = array_filter(array_column($request->payment_logos, 'id'));
+            PaymentLogo::where('website_id', $id)
+                ->whereNotIn('id', $submittedIds)
+                ->delete();
         }
         // dd($request->all());
 
