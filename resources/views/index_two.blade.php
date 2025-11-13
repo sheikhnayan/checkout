@@ -968,7 +968,7 @@ a {
                             <div class="row">
                                 <div class="col-md-12">
     
-                                    <h2 style="margin-bottom: 35px;">VIP Packages</h2>
+                                    <h2 style="margin-bottom: 35px;">{{ $data->package_button_text ?? 'Packages' }}</h2>
     
                                     @php
                                         $packages = \App\Models\Package::where('website_id', $data->id)->where('event_id', null)->get();
