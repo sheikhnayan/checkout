@@ -1598,7 +1598,7 @@ a {
                                                             {{ \Carbon\Carbon::parse($item->date)->format('d') }}</span></div>
                                                 </div>
                                                 <div class="event-location">{{ $data->location }}</div>
-                                                <div class="event-location">Book Guestlist</div>
+                                                <div class="event-location">Reserve</div>
                                             </div>
                                         </a>
                                     </div>
