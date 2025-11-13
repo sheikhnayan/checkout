@@ -303,7 +303,7 @@ class WebsiteController extends Controller
                             $paymentLogo->save();
                         }
                     } else {
-                        dd($add->id);
+                        // dd($add->id);
                         // Create new logo
                         $paymentLogo = new PaymentLogo();
                         $paymentLogo->website_id = $add->id;
@@ -325,10 +325,10 @@ class WebsiteController extends Controller
             }
 
             // Remove logos that are not in the submitted data (deleted by user)
-            $submittedIds = array_filter(array_column($request->payment_logos, 'id'));
-            PaymentLogo::where('website_id', $id)
-                ->whereNotIn('id', $submittedIds)
-                ->delete();
+            // $submittedIds = array_filter(array_column($request->payment_logos, 'id'));
+            // PaymentLogo::where('website_id', $id)
+            //     ->whereNotIn('id', $submittedIds)
+            //     ->delete();
         }
         // dd($request->all());
 
