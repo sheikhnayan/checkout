@@ -273,7 +273,9 @@ class WebsiteController extends Controller
         $smtp->save();
 
         // Handle payment logos
+        dd('s');
         if ($request->has('payment_logos')) {
+            dd('r');
             foreach ($request->payment_logos as $logoData) {
                 if (!empty($logoData['name'])) {
                     // Check if this is an existing logo (has ID) or new one
