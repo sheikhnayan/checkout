@@ -277,6 +277,7 @@ class WebsiteController extends Controller
             // dd('r');
             foreach ($request->payment_logos as $logoData) {
                 if (!empty($logoData['name'])) {
+                    dd('ss');
                     // Check if this is an existing logo (has ID) or new one
                     if (isset($logoData['id']) && $logoData['id']) {
                         // Update existing logo
