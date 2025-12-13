@@ -113,7 +113,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => 'auth'], fu
 
     // Website Users Management
     Route::resource('website-users', App\Http\Controllers\Admin\WebsiteUserController::class);
-    Route::post('website-users/archive/{id}', [App\Http\Controllers\Admin\WebsiteUserController::class, 'archive'])->name('admin.website-users.archive');
+    Route::post('website-users/archive/{id}', [App\Http\Controllers\Admin\WebsiteUserController::class, 'archive'])->name('website-users.archive');
 });
 
 // Payment Logo routes (outside admin group for direct access)
