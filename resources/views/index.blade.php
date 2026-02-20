@@ -721,7 +721,7 @@ a {
             </button>
         </nav>
         @endif
-        <main>  
+        <main>
             <div class="container mt-4">
                 @if ($data->reservation == 1)
                     <div class="guest">
@@ -929,13 +929,12 @@ a {
                                                 </div>
                                                 <br>
                                                 <button class="vip-btn btn-{{ $item->id }}" style="background-color: {{ $data->color }} !important;"
-                                                    data-id="{{ $item->id }}" data-price="{{ $item->price }}"
+                                                    data-id="{{ $item->id }}" data-name="{{ $item->name }}" data-price="{{ $item->price }}"
                                                     data-gratuity="{{ $data->gratuity_fee }}"
                                                     data-refundable="{{ $data->refundable_fee }}"
                                                     data-sales_tax="{{ $data->sales_tax_fee ?? 10}}"
                                                     data-transportation="{{ $item->transportation }}"
-                                                    data-service_charge="{{ $data->service_charge_fee ?? 10}}">Add
-                                                    Package</button>
+                                                    data-service_charge="{{ $data->service_charge_fee ?? 10}}">Add to Cart</button>
                                             </div>
 
                                             <div class="d-flex ">
@@ -1003,6 +1002,11 @@ a {
                                                     class="default-total">Total: <span>$0.00</span></div>
                                             </div>
     
+                                                <!-- Shareable Link Button - Moved Below -->
+                                                <div class="mt-3" id="shareLinkContainer" style="display:none;">
+                                                    <button type="button" class="btn btn-primary" id="generateShareLink" style="background: {{ $data->color }}; color: #000; font-weight: bold;">Generate Shareable Link</button>
+                                                    <input type="text" id="shareableLink" readonly style="width:100%;margin-top:8px;display:none;" onclick="this.select()" />
+                                                </div>
     
                                             <hr>
                                             <div class="vip-price default-deposit"
@@ -1016,6 +1020,11 @@ a {
                                                 <div style="font-size: 16px; font-weight: 700; color: {{ $data->secondary_color }} !important;"
                                                     class="vip-price default-due">DUE ON ARRIVAL: <span>$0.00</span></div>
                                             @endif
+                                            <!-- Shareable Link Button - Moved Below DUE ON ARRIVAL -->
+                                            <div class="mt-3" id="shareLinkContainer" style="display:none;">
+                                                <button type="button" class="btn btn-primary" id="generateShareLink" style="background: {{ $data->color }}; color: #000; font-weight: bold;">Generate Shareable Link</button>
+                                                <input type="text" id="shareableLink" readonly style="width:100%;margin-top:8px;display:none;" onclick="this.select()" />
+                                            </div>
                                             @if ($data->sales_tax_name == 0)
                                                 <div style="font-size: 10px; font-weight: 700; color: {{ $data->secondary_color }} !important;"
                                                     class="vip-price"><span>*No sales tax applied. Services sold are not subject to sales tax under Nevada law. Please consult a tax advisor for your local region if applicable.</span></div>
@@ -1056,6 +1065,15 @@ a {
 
                                     <form action="{{ route('checkout.store', ['slug' => $data->slug]) }}" id="payment-form" method="post">
                                         @csrf
+                                        
+                                        <!-- Cart Section -->
+                                        <section id="cart-section" class="container py-4" style="background:#222; border-radius:10px; margin-bottom:2rem; display:none;">
+                                            <h3 style="color:#fff;">Your Cart</h3>
+                                            <div id="cart-list"></div>
+                                            <div id="cart-total" style="color:#fff; font-size:18px; margin-top:10px;"></div>
+                                            <div id="cart-coupon" style="color:#fff; margin-top:10px;"></div>
+                                        </section>
+                                        
                                         <!-- Step 1: Package Holder Info -->
                                         <section class="checkout-section holder-info dynamic-price mt-4" id="section-1" style="display: none; width: 100%;">
                                             <div class="">
@@ -1566,6 +1584,110 @@ a {
         <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
         <script>
+            // --- Shareable Link Refinement ---
+            function openPackageTab() {
+                // If reservation tabs exist, switch to package tab
+                var packageTab = $("nav .tab[data-name='package']");
+                if(packageTab.length) {
+                    packageTab.trigger('click');
+                } else {
+                    // If no nav, just show .package section
+                    $('.guest').hide();
+                    $('.package').show();
+                }
+            }
+            // --- Shareable Link Logic ---
+            function getCurrentSelections() {
+                // Get selected package
+                var packageId = $('#package_id').val() || '';
+                // Get selected add-ons (comma separated)
+                var addons = $('#addons').val() || '';
+                // Get guest count
+                var guests = $('.package_number_of_guest').val() || '';
+                // Get use date
+                var useDate = $('.package_use_date').val() || '';
+                return { packageId, addons, guests, useDate };
+            }
+
+            function setSelectionsFromParams(params) {
+                    // Always open package tab if package param exists
+                    if(params.package) {
+                        openPackageTab();
+                    }
+                    // Open all packages (simulate click on all .vip-btn)
+                    setTimeout(function() {
+                        $('.vip-btn').each(function(){
+                            if(!$(this).text().toLowerCase().includes('added')) {
+                                $(this).trigger('click');
+                            }
+                        });
+                        // Set package selection and guest count
+                        if(params.package) {
+                            var sel = $('.package_number_of_guestss[data-id="'+params.package+'"]');
+                            if(params.guests && sel.length) {
+                                sel.val(params.guests).trigger('change');
+                            }
+                        }
+                        // Show all add-ons and check those in params
+                        if(params.addons) {
+                            var ids = params.addons.split(',');
+                            // Show add-ons section
+                            $('.addons').show();
+                            ids.forEach(function(id) {
+                                var cb = $('.addons-list input[type="checkbox"]#'+id);
+                                if(cb.length && !cb.prop('checked')) {
+                                    cb.prop('checked', true).trigger('click');
+                                }
+                            });
+                        }
+                        // Show cost breakdown
+                        $('.dynamic-price').show();
+                        $('.default-price').hide();
+                        $('.default-total').show();
+                    }, 700);
+                    // Set use date
+                    if(params.use_date) {
+                        $('#package_use_date').val(params.use_date).trigger('change');
+                    }
+            }
+
+            function getUrlWithSelections() {
+                var sel = getCurrentSelections();
+                var url = window.location.origin + window.location.pathname + '?package=' + encodeURIComponent(sel.packageId) + '&addons=' + encodeURIComponent(sel.addons) + '&guests=' + encodeURIComponent(sel.guests) + '&use_date=' + encodeURIComponent(sel.useDate);
+                return url;
+            }
+
+            $(document).ready(function() {
+                    // Generate link button
+                    $('#generateShareLink').on('click', function() {
+                        var link = getUrlWithSelections();
+                        $('#shareableLink').val(link).show();
+                    });
+
+                    // On page load, check for params
+                    var urlParams = new URLSearchParams(window.location.search);
+                    var packageParam = urlParams.get('package');
+                    var addonsParam = urlParams.get('addons');
+                    var guestsParam = urlParams.get('guests');
+                    var useDateParam = urlParams.get('use_date');
+                    if(packageParam || addonsParam || guestsParam || useDateParam) {
+                        setSelectionsFromParams({
+                            package: packageParam,
+                            addons: addonsParam,
+                            guests: guestsParam,
+                            use_date: useDateParam
+                        });
+                        // Optionally, jump to payment step if all present
+                        setTimeout(function() {
+                            if(packageParam) {
+                                $('#checkout-steps').show();
+                                showStep(3); // Go to payment
+                            }
+                        }, 1500);
+                    }
+            });
+            // --- End Shareable Link Logic ---
+                // --- End Shareable Link Refinement ---
             $('#businessExpenseCheckbox').on('change', function () {
                 if ($(this).is(':checked')) {
                     $('#businessFields').slideDown();
@@ -1617,6 +1739,160 @@ a {
         </script>
 
         <script>
+            // ======= CART SYSTEM ======= Define immediately in global scope
+            window.cart = window.cart || [];
+            window.cartCoupon = window.cartCoupon || null;
+
+            window.addPackageToCart = function(packageId, packageName, packagePrice, guests) {
+                console.log('addPackageToCart called', packageId, packageName);
+                var existing = window.cart.find(p => p.packageId == packageId);
+                    if (!existing) {
+                        window.cart.push({
+                            packageId: packageId,
+                            packageName: packageName,
+                            packagePrice: parseFloat(packagePrice),
+                            guests: parseInt(guests),
+                            addons: [],
+                            transportation: $('.vip-btn[data-id="'+packageId+'"]').data('transportation') == 1
+                        });
+                        $('#cart-section').show();
+                        $('#shareLinkContainer').show();
+                        window.renderCart();
+                        window.calculateCartTotal();
+                    }
+                };
+
+                window.removePackageFromCart = function(packageId) {
+                    window.cart = window.cart.filter(p => p.packageId != packageId);
+                    if (window.cart.length === 0) {
+                        $('#cart-section').hide();
+                        $('#shareLinkContainer').hide();
+                    }
+                    window.renderCart();
+                    window.calculateCartTotal();
+                };
+
+                window.renderCart = function() {
+                var html = '';
+                window.cart.forEach(function(pkg) {
+                    html += '<div style="background:#333; padding:10px; margin:5px; border-radius:5px;">';
+                    html += '<strong>' + pkg.packageName + '</strong> - $' + pkg.packagePrice.toFixed(2) + ' x ' + pkg.guests + ' guests';
+                    if (pkg.addons.length > 0) {
+                        html += '<ul style="margin:5px 0; padding-left:20px;">';
+                        pkg.addons.forEach(function(addon) {
+                            html += '<li>' + addon.name + ': $' + addon.price.toFixed(2) + '</li>';
+                        });
+                        html += '</ul>';
+                    }
+                    html += '<button onclick="window.removePackageFromCart('+pkg.packageId+')" style="background:#c00; color:#fff; border:none; padding:5px 10px; border-radius:3px; cursor:pointer; margin-top:5px;">Remove</button>';
+                    html += '</div>';
+                });
+                $('#cart-list').html(html);
+            };
+
+            window.calculateCartTotal = function() {
+                var subtotal = 0;
+                window.cart.forEach(function(pkg) {
+                    subtotal += pkg.packagePrice * pkg.guests;
+                    pkg.addons.forEach(function(addon) {
+                        subtotal += addon.price;
+                    });
+                });
+
+                var service_charge = parseFloat($('#service_charge').val()) || 0;
+                var sales_tax = parseFloat($('#sales_tax').val()) || 0;
+                var gratuity = parseFloat($('#gratuity').val()) || 0;
+
+                var service_charge_price = ("{{ $data->service_charge_name }}" != "0") ? (subtotal / 100) * service_charge : 0;
+                var sales_tax_price = ("{{ $data->sales_tax_name }}" != "0") ? (subtotal / 100) * sales_tax : 0;
+                var gratuited_price = ("{{ $data->gratuity_name }}" != "0") ? ((subtotal + sales_tax_price + service_charge_price) / 100) * gratuity : 0;
+
+                var totalBeforeCoupon = subtotal + service_charge_price + sales_tax_price + gratuited_price;
+                var couponDiscount = 0;
+
+                if (window.cartCoupon) {
+                    if (window.cartCoupon.type === 'percentage') {
+                        couponDiscount = (totalBeforeCoupon / 100) * window.cartCoupon.discount;
+                    } else {
+                        couponDiscount = window.cartCoupon.discount;
+                    }
+                }
+
+                var grandTotal = totalBeforeCoupon - couponDiscount;
+
+                $('#cart-total').html('Subtotal: $' + subtotal.toFixed(2) + '<br>Service Charge: $' + service_charge_price.toFixed(2) + '<br>Sales Tax: $' + sales_tax_price.toFixed(2) + '<br>Gratuity: $' + gratuited_price.toFixed(2) + '<br><strong>Grand Total: $' + grandTotal.toFixed(2) + '</strong>');
+                
+                if (window.cartCoupon) {
+                    $('#cart-coupon').html('Coupon "' + window.cartCoupon.code + '" applied: -$' + couponDiscount.toFixed(2));
+                } else {
+                    $('#cart-coupon').html('');
+                }
+
+                $('.payment_total').val(grandTotal.toFixed(2));
+                $('#subtotal').val(grandTotal.toFixed(2));
+                $('.default-deposit span').text('$' + grandTotal.toFixed(2));
+                $('.default-total span').text('$' + grandTotal.toFixed(2));
+                $('.discounted_amount').val(couponDiscount.toFixed(2));
+            };
+            console.log('Cart functions initialized:', typeof window.addPackageToCart);
+
+            // Shareable link functions
+            function getCurrentSelections() {
+                var data = {
+                    cart: window.cart,
+                    coupon: window.cartCoupon ? window.cartCoupon.code : null
+                };
+                return data;
+            }
+
+            function setSelectionsFromParams() {
+                var params = new URLSearchParams(window.location.search);
+                var cartParam = params.get('cart');
+                var couponParam = params.get('coupon');
+
+                if (cartParam) {
+                    try {
+                        var decoded = JSON.parse(decodeURIComponent(cartParam));
+                        window.cart = decoded;
+                        if (window.cart.length > 0) {
+                            $('#cart-section').show();
+                            $('#shareLinkContainer').show();
+                            window.renderCart();
+                            window.calculateCartTotal();
+                        }
+                    } catch(e) {
+                        console.error('Failed to parse cart param', e);
+                    }
+                }
+
+                if (couponParam) {
+                    $('#promo_code').val(couponParam);
+                    $('#applyPromoBtn').trigger('click');
+                }
+            }
+
+            function getUrlWithSelections() {
+                var data = getCurrentSelections();
+                var params = new URLSearchParams();
+                if (data.cart.length > 0) {
+                    params.set('cart', encodeURIComponent(JSON.stringify(data.cart)));
+                }
+                if (data.coupon) {
+                    params.set('coupon', data.coupon);
+                }
+                return window.location.origin + window.location.pathname + '?' + params.toString();
+            }
+
+            $(document).ready(function() {
+                setSelectionsFromParams();
+
+                $('#generateShareLink').on('click', function() {
+                    var link = getUrlWithSelections();
+                    $('#shareableLink').val(link).show();
+                });
+            });
+
+            // ======= END CART SYSTEM =======
 
             // Auto-populate hidden payment fields when moving to payment step
             function populatePaymentFields() {
@@ -1756,100 +2032,73 @@ a {
 
             $(document).ready(function () {
                 $('.vip-btn').on('click', function () {
-                    $('.vip-btn').not(this).text('Add Package');
-                    $(this).text('Added');
-                    let price = parseFloat($(this).data('price'));
-                    let gratuity = parseFloat($(this).data('gratuity'));
-                    let refundable = parseFloat($(this).data('refundable'));
-                    let sales_tax = parseFloat($('#sales_tax').val() || 0);
-                    let service_charge = parseFloat($('#service_charge').val() || 0);
-                    let id = $(this).data('id');
-
-                    let transportation = $(this).data('transportation');
-
-                    let service_charge_price = 0;
-                    let sales_tax_price = 0;
-                    let gratuited_price = 0;
-
-                    if ("{{ $data->service_charge }}" != "0") {
-                        service_charge_price = (price / 100) * service_charge;
-                    } else {
-                        service_charge_price = 0;
-                    }
-
-                    if ("{{ $data->sales_tax_name }}" != "0") {
-                        sales_tax_price = (price / 100) * sales_tax;
-                    } else {
-                        sales_tax_price = 0;
-                    }
-
-                    if ("{{ $data->gratuity_name }}" != "0") {
-                        gratuited_price = ((price + sales_tax_price + service_charge_price) / 100) * gratuity;
-                    } else {
-                        gratuity = 0;
-                    }
-
-                    let refundable_price = ((price + sales_tax_price + service_charge_price + gratuited_price) / 100) * refundable;
+                    var $btn = $(this);
+                    var packageId = $btn.data('id');
+                    var packageName = $btn.data('name');
+                    var packagePrice = parseFloat($btn.data('price'));
+                    var guests = parseInt($('#package_number_of_guest').val()) || 1;
 
                     $.ajax({
-                        url: "/{{ $data->slug }}/addons/" + id,
+                        url: "/{{ $data->slug }}/addons/" + packageId,
                         type: 'GET',
                         dataType: 'json',
                         success: function (res) {
-                            let htmls = ``;
+                            window.addPackageToCart(packageId, packageName, packagePrice, guests);
+                            
+                            var htmls = '';
                             res.forEach(function (addon) {
-                                let html = `<div class=\"addon-item\" style=\"height: 25px;\">\n                                    <div style=\"float: left;\">\n                                        <label for=\"${addon.id}\" data-title=\"${addon.name}\" data-description=\"${addon.description}\" style=\"float: left; cursor: pointer;\">${addon.name} ($${addon.price})</label>\n                                        <div onClick=\"openModal()\" style=\"float: right; margin-left: 10px;\">\n                                            <svg style=\"fill: {{ $data->secondary_color }}; height: 20px; width: 20px; cursor: pointer;\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\" viewBox=\"0 0 512 512\" xml:space=\"preserve\">\n                                                <g>\n                                                    <path d=\"M256,0C115.39,0,0,115.39,0,256s115.39,256,256,256s256-115.39,256-256S396.61,0,256,0z M286,376\n                                                    c0,16.538-13.462,30-30,30c-16.538,0-30-13.462-30-30V226c0-16.538,13.462-30,30-30c16.538,0,30,13.462,30,30V376z M256,166\n                                                    c-16.538,0-30-13.462-30-30c0-16.538,13.462-30,30-30c16.538,0,30,13.462,30,30C286,152.538,272.538,166,256,166z\"></path>\n                                                </g>\n                                            </svg>\n                                        </div>\n                                    </div>\n                                    <input style=\"float: right; margin-top: 3px;\" type=\"checkbox\" class=\"termsConsent\" onClick=\"addToTotal(${addon.price},'${addon.name}',${addon.id})\" data-price=\"${addon.price}\" id=\"${addon.id}\" />\n                                </div>`;
+                                var html = `<div class="addon-item" style="height: 25px;">
+                                    <div style="float: left;">
+                                        <label for="${addon.id}" data-title="${addon.name}" data-description="${addon.description}" style="float: left; cursor: pointer;">${addon.name} ($${addon.price})</label>
+                                        <div onClick="openModal()" style="float: right; margin-left: 10px;">
+                                            <svg style="fill: {{ $data->secondary_color }}; height: 20px; width: 20px; cursor: pointer;" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" xml:space="preserve">
+                                                <g>
+                                                    <path d="M256,0C115.39,0,0,115.39,0,256s115.39,256,256,256s256-115.39,256-256S396.61,0,256,0z M286,376
+                                                    c0,16.538-13.462,30-30,30c-16.538,0-30-13.462-30-30V226c0-16.538,13.462-30,30-30c16.538,0,30,13.462,30,30V376z M256,166
+                                                    c-16.538,0-30-13.462-30-30c0-16.538,13.462-30,30-30c16.538,0,30,13.462,30,30C286,152.538,272.538,166,256,166z"></path>
+                                                </g>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <input style="float: right; margin-top: 3px;" type="checkbox" class="termsConsent" data-price="${addon.price}" data-name="${addon.name}" data-packageid="${packageId}" id="${addon.id}" />
+                                </div>`;
                                 htmls += html;
                             });
-                            $('.addons-list').empty();
-                            $('.addons-list').html(htmls);
+                            $('.addons-list').empty().html(htmls);
                             $('.addons').show();
-                            $('#package_id').val(id);
+                            $('#package_id').val(packageId);
+
+                            // Handler for addon checkbox changes
+                            $('.termsConsent').on('change', function() {
+                                var pkgId = $(this).data('packageid');
+                                var pkg = cart.find(p => p.packageId == pkgId);
+                                if (pkg) {
+                                    pkg.addons = [];
+                                    $('.termsConsent[data-packageid="'+pkgId+'"]:checked').each(function() {
+                                        pkg.addons.push({
+                                            id: $(this).attr('id'),
+                                            name: $(this).data('name'),
+                                            price: parseFloat($(this).data('price'))
+                                        });
+                                    });
+                                    window.renderCart();
+                                    window.calculateCartTotal();
+                                }
+                            });
                         }
                     });
 
-                    $('.default-package-price span').text('$' + price.toFixed(2));
-                    $('.default-gratuity span').text('$' + gratuited_price.toFixed(2));
-                    $('.default-refundable span').text('$' + refundable_price.toFixed(2));
-                    if ("{{ $data->sales_tax_name }}" != "0") {
-                        if ($('.default-sales-tax').length === 0) {
-                            $('.sales_tax').after('<div style="font-size: 12px;" class="default-sales-tax">Sales Tax: <span>$0.00</span></div>');
-                        }
-                    } else {
-                        $('.default-sales-tax').remove();
-
-                    }
-                    $('.default-sales-tax span').text('$' + sales_tax_price.toFixed(2));
-                    $('.default-service-charge span').text('$' + service_charge_price.toFixed(2));
-
-                    let total = price + gratuited_price + sales_tax_price + service_charge_price;
-                    $('.default-total span').text('$' + total.toFixed(2));
-                    $('.payment_total').val(total.toFixed(2));
-                    $('.default-deposit span').text('$' + total.toFixed(2));
-                    $('.default-due span').text('$' + (total - refundable_price).toFixed(2));
-                    if (refundable_price > 0) {
-                        $('#subtotal').val(refundable_price.toFixed(2));
-                    } else {
-                        $('#subtotal').val(total.toFixed(2));
-
-                    }
-
                     $('.dynamic-price').show();
                     $('.default-price').hide();
-                    
-                    // Show step indicators and first step
                     $('#checkout-steps').show();
                     showStep(1);
 
-                    // Store transportation requirement globally
-                    window.requiresTransportation = transportation == 1;
-                    
-                    // Update step 2 based on transportation requirement
+                    window.requiresTransportation = ($btn.data('transportation') == 1);
                     if (window.requiresTransportation) {
                         $('#step-2 .step-title').text('Transportation');
                         $('#next-to-transport').text('Next: Transportation Details');
                     } else {
-                        $('#step-2 .step-title').text('Confirmation');  
+                        $('#step-2 .step-title').text('Confirmation');
                         $('#next-to-transport').text('Next: Transportation Confirmation');
                     }
                 });
@@ -2016,65 +2265,8 @@ a {
             }
 
             function addToTotal(price, name, id) {
-                // Gather all selected addon prices
-                let addonTotal = 0;
-                let selectedAddons = [];
-                $('.termsConsent:checked').each(function () {
-                    let addonPrice = parseFloat($(this).data('price'));
-                    addonTotal += addonPrice;
-                    selectedAddons.push($(this).attr('id'));
-                });
-
-                // Update addon display
-                $('.addonns').empty();
-                $('.termsConsent:checked').each(function () {
-                    let addonName = $(this).closest('.addon-item').find('label').text().split(' ($')[0];
-                    let addonPrice = parseFloat($(this).data('price'));
-                    $('.addonns').append(`<div style="font-size: 12px;" class="default-refundabless">${addonName}: <span>$${addonPrice.toFixed(2)}</span></div>`);
-                });
-                $('#addons').val(selectedAddons.join(','));
-
-                // Get base package price
-                let baseTotal = parseFloat($('.default-package-price span').text().replace('$', '')) || 0;
-                let total = baseTotal + addonTotal;
-
-                // Recalculate fees
-                let gratuity = parseFloat($('#gratuity').val()) || 0;
-                let refundable = parseFloat($('#refundable').val()) || 0;
-                let sales_tax = parseFloat($('#sales_tax').val()) || 0;
-                let service_charge = parseFloat($('#service_charge').val()) || 0;
-
-                let service_charge_price = ("{{ $data->service_charge_name }}" != "0") ? (total / 100) * service_charge : 0;
-                let sales_tax_price = ("{{ $data->sales_tax_name }}" != "0") ? (total / 100) * sales_tax : 0;
-                let gratuited_price = ("{{ $data->gratuity_name }}" != "0") ? ((total + sales_tax_price + service_charge_price) / 100) * gratuity : 0;
-                let refundable_price = ((total + sales_tax_price + service_charge_price + gratuited_price) / 100) * refundable;
-
-                // Update fee displays
-                $('.default-gratuity span').text('$' + gratuited_price.toFixed(2));
-                $('.default-refundable span').text('$' + refundable_price.toFixed(2));
-                if ("{{ $data->sales_tax_name }}" != "0") {
-                    if ($('.default-sales-tax').length === 0) {
-                        $('.sales_tax').after('<div style="font-size: 12px;" class="default-sales-tax">Sales Tax: <span>$0.00</span></div>');
-                    }
-                } else {
-                    $('.default-sales-tax').remove();
-                }
-                $('.default-sales-tax span').text('$' + sales_tax_price.toFixed(2));
-                $('.default-service-charge span').text('$' + service_charge_price.toFixed(2));
-
-                // Add new fees to total
-                let grandTotal = total + gratuited_price + sales_tax_price + service_charge_price;
-                $('.default-total span').text('$' + grandTotal.toFixed(2));
-                $('.payment_total').val(grandTotal.toFixed(2));
-                if (refundable_price > 0) {
-                    $('#subtotal').val(refundable_price.toFixed(2));
-                } else {
-                    $('#subtotal').val(grandTotal.toFixed(2));
-                }
-                console.log(grandTotal);
-                $('.default-deposit span').text('$' + grandTotal.toFixed(2));
-                $('.default-due span').text('$' + (grandTotal - refundable_price).toFixed(2));
-                recalculateTotals();
+                // This function is now handled by cart system
+                // Keeping for backward compatibility
             }
 
             function transportation(){
@@ -2088,220 +2280,44 @@ a {
         </script>
 
         <script>
-            $('.package_number_of_guestss').on('change', function () {
+            $('.package_number_of_guestss').on('change', function() {
                 var selectedValue = $(this).val();
                 $('.package_number_of_guest').val(selectedValue);
-
-                idd = $(this).data('id');
-                multiple = $(this).data('multiple');
-
-                // console.log(multiple);
-
-                if (multiple == 1) {
-                    price = $('.price-'+idd).data('price');
-
-                    $('#old_price').val(parseFloat($('.default-package-price span').text().replace('$', '')) || 0);
-
-                    price = price * selectedValue;
-
-                    $('.price-'+idd).text('$'+price);
-
-                    $('.btn-'+idd).attr('data-price', price);
-
-                    $('.default-package-price span').text('$'+price);
-
-                    total = price;
-
-                    // total -+ $('#old_price').val();
-
-                    // total +=  parseFloat($('.default-package-price span').text().replace('$', '')) || 0;
-
-                    let service_charge_price = 0;
-                    let sales_tax_price = 0;
-                    let gratuited_price = 0;
-
-                    let gratuity = parseFloat($('#gratuity').val()) || 0;
-                    let sales_tax = parseFloat($('#sales_tax').val()) || 0;
-                    let refundable = parseFloat($('#refundable').val()) || 0;
-                    let service_charge = parseFloat($('#service_charge').val()) || 0;
-
-                    if ("{{ $data->sales_tax_name }}" != "0") {
-                        sales_tax_price = (parseFloat(total) / 100) * sales_tax;
-                    } else {
-                        sales_tax_price = 0;
-                    }
-
-                    if ("{{ $data->service_charge_name }}" != "0") {
-                        service_charge_price = (parseFloat(total) / 100) * service_charge;
-                    } else {
-                        service_charge_price = 0;
-                    }
-
-                    if ("{{ $data->gratuity_name }}" != "0") {
-                        gratuited_price = ((total + sales_tax_price + service_charge_price) / 100) * gratuity;
-
-                    } else {
-                        gratuited_price = 0;
-                    }
-
-
-
-
-                    let refundable_price = ((total + sales_tax_price + service_charge_price + gratuited_price) / 100) * refundable;
-
-                // Update fee displays
-                $('.default-gratuity span').text('$' + gratuited_price.toFixed(2));
-                $('.default-refundable span').text('$' + refundable_price.toFixed(2));
-                if ("{{ $data->sales_tax_name }}" != "0") {
-                    if ($('.default-sales-tax').length === 0) {
-                        $('.sales_tax').after('<div style="font-size: 12px;" class="default-sales-tax">Sales Tax: <span>$0.00</span></div>');
-                    }
-                } else {
-                    $('.default-sales-tax').remove();
-
+                var packageId = $(this).data('id');
+                var pkg = window.cart.find(p => p.packageId == packageId);
+                if (pkg) {
+                    pkg.guests = parseInt(selectedValue);
+                    window.renderCart();
+                    window.calculateCartTotal();
                 }
-                // console.log(service_charge);
-                $('.default-sales-tax span').text('$' + sales_tax_price.toFixed(2));
-                $('.default-service-charge span').text('$' + service_charge_price.toFixed(2));
-
-                // Add new fees to total
-                total += gratuited_price;
-                // total += refundable_price;
-                total += sales_tax_price;
-                total += service_charge_price;
-
-                console.log(total);
-
-                $('.default-total span').text('$' + total.toFixed(2));
-                $('.payment_total').val(total.toFixed(2));
-                if (refundable_price > 0) {
-                    $('#subtotal').val(refundable_price.toFixed(2));
-                } else {
-                    $('#subtotal').val(total.toFixed(2));
-
-                }
-                // $('#subtotal').val(total.toFixed(2));
-                $('.default-deposit span').text('$' + total.toFixed(2));
-                $('.default-due span').text('$' + (total - refundable_price).toFixed(2));
-
-                }
-
-                recalculateTotals();
-
             });
         </script>
 
 
 
         <script>
-            let promoDiscountPercent = 0;
-            let promoDiscountAmount = 0;
-            let promoType = 'percent'; // Default to percent discount
-
-            
-
-            function recalculateTotals() {
-                let total = 0;
-                // Add package price (if any)
-                let packagePrice = parseFloat($('.default-package-price span').text().replace('$', '')) || 0;
-                let old_price = $('#old_price').val();
-
-                // console.log(old_price);
-                // console.log(packagePrice);
-
-                total = $('.default-deposit span').text().replace('$', '');
-                // total -= old_price;
-                // total += packagePrice;
-                // total = parseFloat(total);
-
-                // console.log(old_price);
-                // console.log(packagePrice);
-                // console.log(total);
-
-                let gratuity = parseFloat($('#gratuity').val()) || 0;
-                let sales_tax = parseFloat($('#sales_tax').val()) || 0;
-                let refundable = parseFloat($('#refundable').val()) || 0;
-                let service_charge = parseFloat($('#service_charge').val()) || 0;
-
-                let service_charge_price = 0;
-                let sales_tax_price = 0;
-                let gratuited_price = 0;
-
-                
-                if ("{{ $data->sales_tax_name }}" != "0") {
-                    sales_tax_price = (total / 100) * sales_tax;
-                } else {
-                    sales_tax_price = 0;
-                }
-                
-                if ("{{ $data->service_charge_name }}" != "0") {
-                    service_charge_price = (total / 100) * service_charge;
-                } else {
-                    service_charge_price = 0;
-                }
-                
-                if ("{{ $data->gratuity_name }}" != "0") {
-                    gratuited_price = ((total + sales_tax_price + service_charge_price) / 100) * gratuity;
-                } else {
-                    gratuited_price = 0;
-                }
-
-                // Calculate promo discount
-                let promoDiscount = 0;
-                if (promoDiscountPercent > 0) {
-                    if (promoType == 'percentage') {
-                        promoDiscount = (total / 100) * promoDiscountPercent;
-                    } else {
-                        promoDiscount = promoDiscountPercent; // Fixed amount discount
-                    }
-                }
-
-                let refundable_base = total + gratuited_price + sales_tax_price + service_charge_price - promoDiscount;
-                let refundable_price = (((total / 100) * refundable) / 100) * promoDiscountPercent;
-
-                if (promoDiscountPercent > 0) {
-                    if ($('.default-promo-discount').length === 0) {
-                        $('.default-gratuity').after('<div style="font-size: 12px;" class="default-promo-discount">Promo Code Discount: <span>$0.00</span></div>');
-                    }
-                }
-                $('.default-promo-discount span').text('-$' + promoDiscount.toFixed(2));
-
-                let grandTotal = total - promoDiscount;
-
-                $('.default-refundable span').text('$' + ((grandTotal / 100) * refundable).toFixed(2));
-
-                $('.default-total span').text('$' + grandTotal.toFixed(2));
-                $('.payment_total').val(grandTotal.toFixed(2));
-                $('.default-deposit span').text('$' + grandTotal.toFixed(2));
-                $('.default-due span').text('$' + (grandTotal - ((grandTotal / 100) * refundable)).toFixed(2));
-                $('#subtotal').val(refundable > 0 ? ((grandTotal / 100) * refundable).toFixed(2) : grandTotal.toFixed(2));
-
-                $('.discounted_amount').val(promoDiscount);
-            }
-
-            $('#applyPromoBtn').on('click', function () {
+            // Coupon logic for cart
+            $('#applyPromoBtn').on('click', function() {
                 let code = $('#promo_code').val().trim();
                 if (!code) return;
-                $.get('/{{ $data->slug }}/check/' + encodeURIComponent(code), function (res) {
+                $.get('/{{ $data->slug }}/check/' + encodeURIComponent(code), function(res) {
                     if (res.valid === false || res.valid === "false") {
-                        promoDiscountPercent = 0;
-                        promoDiscountAmount = 0;
-                        $('.default-promo-discount span').text('$0.00');
+                        window.cartCoupon = null;
                         alert('Invalid promo code');
+                        window.calculateCartTotal();
                     } else {
-                        promoDiscountPercent = parseFloat(res.discount);
-                        promoType = res.type || 'percent';
+                        window.cartCoupon = {
+                            code: code,
+                            id: res.id,
+                            discount: parseFloat(res.discount),
+                            type: res.type || 'percentage'
+                        };
                         $('#applyPromoBtn').prop('disabled', true);
                         $('.promo_code').val(res.id);
-                        recalculateTotals();
+                        window.calculateCartTotal();
                     }
                 });
             });
-
-            // Recalculate totals on page load and after any price change
-            // $(document).on('change', '.vip-btn', function () {
-            //     setTimeout(recalculateTotals, 100); // Wait for DOM updates
-            // });
         </script>
 
         <script>

@@ -12,6 +12,7 @@ use App\Http\Controllers\PromoCodeController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\PaymentLogoController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 
 
 // Authentication Routes
@@ -109,6 +110,11 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => 'auth'], fu
     Route::group(['prefix'=> 'setting', 'as' => 'setting.'], function () {
         Route::get('/edit/{id}', [SettingController::class,'edit'])->name('edit');
         Route::post('/update/{id}', [SettingController::class,'update'])->name('update');
+    });
+
+    Route::group(['prefix'=> 'profile', 'as' => 'profile.'], function () {
+        Route::get('/', [ProfileController::class,'edit'])->name('edit');
+        Route::post('/update-password', [ProfileController::class,'updatePassword'])->name('update-password');
     });
 
     // Website Users Management

@@ -186,6 +186,12 @@
     </a>
   </li>
 
+  <li class="menu-item">
+    <a href="{{ route('admin.profile.edit') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-user"></i>
+      <div class="text-truncate">Profile</div>
+    </a>
+  </li>
 
   <li class="menu-item" style="position: absolute; bottom: 0px;">
     <a href="/logout" class="menu-link" style="background: red; color: #fff;">
