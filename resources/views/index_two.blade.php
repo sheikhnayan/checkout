@@ -4,6 +4,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>Checkout</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css"
             integrity="sha512-fw7f+TcMjTb7bpbLJZlP8g2Y4XcCyFZW8uy8HsRZsH/SwbMw0plKHFHr99DN3l04VsYNwvzicUX/6qurvIxbxw=="
@@ -1840,12 +1841,21 @@
         <script>
             // --- Cart System --- Define immediately at top level
             // Initialize cart variables
-            window.cart = window.cart || [];
+            window.cart = [];
             window.cartCoupon = window.cartCoupon || null;
+            
+            // Ensure cart is always an array
+            function ensureCartArray() {
+                if (!Array.isArray(window.cart)) {
+                    console.warn('window.cart was not an array, resetting');
+                    window.cart = [];
+                }
+            }
             
             // Define cart functions directly on window
             window.addPackageToCart = function(packageId, packageName, packagePrice, guests, addons, transportation) {
                 console.log('addPackageToCart called', packageId, packageName);
+                ensureCartArray();
                 let existing = window.cart.find(p => p.packageId === packageId);
                 if (existing) {
                     existing.guests = guests;
@@ -1859,12 +1869,14 @@
             };
 
             window.removePackageFromCart = function(packageId) {
+                ensureCartArray();
                 window.cart = window.cart.filter(p => p.packageId != packageId);
                 window.renderCart();
                 window.calculateCartTotal();
             };
 
             window.renderCart = function() {
+                ensureCartArray();
                 if (window.cart.length === 0) {
                     $('#cart-section').hide();
                     return;
@@ -1884,6 +1896,7 @@
             };
             
             window.calculateCartTotal = function() {
+                ensureCartArray();
                 let subtotal = 0;
                 window.cart.forEach(pkg => {
                     subtotal += (pkg.packagePrice * pkg.guests) + pkg.addons.reduce((sum, a) => sum + parseFloat(a.price), 0);
@@ -1947,6 +1960,7 @@
             
             // Update addon checkboxes to refresh cart when changed
             $(document).on('change', '.termsConsent', function() {
+                ensureCartArray();
                 let packageId = $('#package_id').val();
                 if (packageId) {
                     let pkg = window.cart.find(p => p.packageId == packageId);
@@ -2021,8 +2035,29 @@
                         alert('Please add at least one package to cart');
                         return;
                     }
-                    var link = getUrlWithSelections();
-                    $('#shareableLink').val(link).show();
+                    
+                    var selections = getCurrentSelections();
+                    
+                    $.ajax({
+                        url: '/cart/share',
+                        type: 'POST',
+                        data: {
+                            cart: selections.cart,
+                            website_slug: '{{ $data->slug }}',
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(res) {
+                            if (res.success) {
+                                $('#shareableLink').val(res.short_url).show();
+                            } else {
+                                alert('Error: ' + res.message);
+                            }
+                        },
+                        error: function(err) {
+                            alert('Error generating share link. Please try again.');
+                            console.error(err);
+                        }
+                    });
                 });
 
                 // On page load, check for params
@@ -2284,14 +2319,12 @@
                 selectIds.forEach(function(id) {
                     const element = document.getElementById(id);
                     if (element) {
-                        // Force re-apply CSS styles for Safari/iOS
                         element.style.setProperty('-webkit-appearance', 'none', 'important');
+                        // Force re-apply CSS styles for Safari/iOS
                         element.style.setProperty('-moz-appearance', 'none', 'important');
-                        element.style.setProperty('appearance', 'none', 'important');
                         element.style.setProperty('background-color', 'transparent', 'important');
-                        element.style.setProperty('background-image',
-                            'url("data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'white\'><path d=\'M7 10l5 5 5-5z\'/></svg>")',
-                            'important');
+                        element.style.setProperty('appearance', 'none', 'important');
+                        element.style.setProperty('background-image', 'url("data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'white\'><path d=\'M7 10l5 5 5-5z\'/></svg>")', 'important');
                         element.style.setProperty('background-repeat', 'no-repeat', 'important');
                         element.style.setProperty('background-position', 'right 15px center', 'important');
                         element.style.setProperty('background-size', '20px', 'important');
@@ -2595,6 +2628,7 @@
 
         <script>
             $('.package_number_of_guestss').on('change', function() {
+                ensureCartArray();
                 var selectedValue = $(this).val();
                 $('.package_number_of_guest').val(selectedValue);
                 var packageId = $(this).data('id');

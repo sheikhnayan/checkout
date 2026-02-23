@@ -13,6 +13,7 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\PaymentLogoController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CartController;
 
 
 // Authentication Routes
@@ -43,6 +44,10 @@ Route::get('/{slug}/check/{code}', [FrontendController::class, 'checkCode'])->na
 Route::post('/{slug}/checkout/store', [TransactionController::class, 'store'])->name('checkout.store');
 
 Route::post('/{slug}/reservation/store', [TransactionController::class, 'reservation_store'])->name('reservations.store');
+
+// Cart sharing routes
+Route::post('/cart/share', [CartController::class, 'generateSharedLink'])->name('cart.generate-share');
+Route::get('/cart/{code}', [CartController::class, 'viewSharedCart'])->name('shared-cart.view');
 
 Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => 'auth'], function () {
     Route::get('/', [AdminController::class,'index'])->name('index');

@@ -4,6 +4,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>Checkout</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css"
             integrity="sha512-fw7f+TcMjTb7bpbLJZlP8g2Y4XcCyFZW8uy8HsRZsH/SwbMw0plKHFHr99DN3l04VsYNwvzicUX/6qurvIxbxw=="
@@ -1660,8 +1661,33 @@ a {
             $(document).ready(function() {
                     // Generate link button
                     $('#generateShareLink').on('click', function() {
-                        var link = getUrlWithSelections();
-                        $('#shareableLink').val(link).show();
+                        if (window.cart.length === 0) {
+                            alert('Please add at least one package to cart');
+                            return;
+                        }
+                        
+                        var selections = getCurrentSelections();
+                        
+                        $.ajax({
+                            url: '/cart/share',
+                            type: 'POST',
+                            data: {
+                                cart: selections.cart,
+                                website_slug: '{{ $data->slug }}',
+                                _token: $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function(res) {
+                                if (res.success) {
+                                    $('#shareableLink').val(res.short_url).show();
+                                } else {
+                                    alert('Error: ' + res.message);
+                                }
+                            },
+                            error: function(err) {
+                                alert('Error generating share link. Please try again.');
+                                console.error(err);
+                            }
+                        });
                     });
 
                     // On page load, check for params
@@ -1740,11 +1766,20 @@ a {
 
         <script>
             // ======= CART SYSTEM ======= Define immediately in global scope
-            window.cart = window.cart || [];
+            window.cart = [];
             window.cartCoupon = window.cartCoupon || null;
+
+            // Ensure cart is always an array
+            function ensureCartArray() {
+                if (!Array.isArray(window.cart)) {
+                    console.warn('window.cart was not an array, resetting');
+                    window.cart = [];
+                }
+            }
 
             window.addPackageToCart = function(packageId, packageName, packagePrice, guests) {
                 console.log('addPackageToCart called', packageId, packageName);
+                ensureCartArray();
                 var existing = window.cart.find(p => p.packageId == packageId);
                     if (!existing) {
                         window.cart.push({
@@ -1763,6 +1798,7 @@ a {
                 };
 
                 window.removePackageFromCart = function(packageId) {
+                    ensureCartArray();
                     window.cart = window.cart.filter(p => p.packageId != packageId);
                     if (window.cart.length === 0) {
                         $('#cart-section').hide();
@@ -1773,6 +1809,7 @@ a {
                 };
 
                 window.renderCart = function() {
+                ensureCartArray();
                 var html = '';
                 window.cart.forEach(function(pkg) {
                     html += '<div style="background:#333; padding:10px; margin:5px; border-radius:5px;">';
@@ -1791,6 +1828,7 @@ a {
             };
 
             window.calculateCartTotal = function() {
+                ensureCartArray();
                 var subtotal = 0;
                 window.cart.forEach(function(pkg) {
                     subtotal += pkg.packagePrice * pkg.guests;
@@ -1887,8 +1925,33 @@ a {
                 setSelectionsFromParams();
 
                 $('#generateShareLink').on('click', function() {
-                    var link = getUrlWithSelections();
-                    $('#shareableLink').val(link).show();
+                    if (window.cart.length === 0) {
+                        alert('Please add at least one package to cart');
+                        return;
+                    }
+                    
+                    var selections = getCurrentSelections();
+                    
+                    $.ajax({
+                        url: '/cart/share',
+                        type: 'POST',
+                        data: {
+                            cart: selections.cart,
+                            website_slug: '{{ $data->slug }}',
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(res) {
+                            if (res.success) {
+                                $('#shareableLink').val(res.short_url).show();
+                            } else {
+                                alert('Error: ' + res.message);
+                            }
+                        },
+                        error: function(err) {
+                            alert('Error generating share link. Please try again.');
+                            console.error(err);
+                        }
+                    });
                 });
             });
 
