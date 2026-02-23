@@ -1174,9 +1174,14 @@
                                                 <button type="button" class="btn btn-primary" id="generateShareLink"
                                                     style="background: {{ $data->color }}; color: #000; font-weight: bold;">Generate
                                                     Shareable Link</button>
-                                                <input type="text" id="shareableLink" readonly
-                                                    style="width:100%;margin-top:8px;display:none;"
-                                                    onclick="this.select()" />
+                                                <div style="position: relative;">
+                                                    <input type="text" id="shareableLink" readonly
+                                                        style="width:100%;margin-top:8px;display:none;padding-right:40px;"
+                                                        />
+                                                    <div id="copyTooltip" style="position: absolute; top: -35px; right: 0; background: #28a745; color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; display: none; white-space: nowrap; z-index: 1000;">
+                                                        URL Copied!
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             <hr>
@@ -2057,6 +2062,24 @@
                             alert('Error generating share link. Please try again.');
                             console.error(err);
                         }
+                    });
+                });
+
+                // Copy to clipboard when clicking the shareable link field
+                $('#shareableLink').on('click', function() {
+                    const url = $(this).val();
+                    navigator.clipboard.writeText(url).then(function() {
+                        // Show tooltip
+                        const tooltip = $('#copyTooltip');
+                        tooltip.show();
+                        // Hide tooltip after 2 seconds
+                        setTimeout(function() {
+                            tooltip.hide();
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('Failed to copy:', err);
+                        // Fallback: select the text
+                        $(this).select();
                     });
                 });
 
