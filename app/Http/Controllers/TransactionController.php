@@ -171,7 +171,11 @@ class TransactionController extends Controller
     
     
     
-                    return redirect($website->success_page);
+                    // Redirect to thank you page with transaction details
+                    return redirect()->route('thank-you')
+                        ->with('transaction', $add)
+                        ->with('website', $website)
+                        ->with('paymentType', 'full');
               
             
 
@@ -356,7 +360,11 @@ class TransactionController extends Controller
     
     
     
-                    return redirect($website->success_page);
+                    // Redirect to thank you page with transaction details
+                    return redirect()->route('thank-you')
+                        ->with('transaction', $add)
+                        ->with('website', $website)
+                        ->with('paymentType', 'full');
                 }else{
                     return back()->with('error', "Payment failed: ". $response->getMessages()->getMessage()[0]->getText());
                 }
@@ -392,14 +400,16 @@ class TransactionController extends Controller
         
         if ($user->isAdmin()) {
             // Admin can see all transactions
-            $data = Transaction::with(['event', 'package'])
+            $data = Transaction::with(['event', 'package', 'website'])
                               ->latest()
                               ->get();
         } elseif ($user->isWebsiteUser() && $user->website_id) {
             // Website user can only see their website's transactions
             $data = Transaction::where(function($query) use ($user) {
-                                // Transactions with events from their website
-                                $query->whereHas('event', function($subQuery) use ($user) {
+                                // Direct website_id match
+                                $query->where('website_id', $user->website_id)
+                                // OR transactions with events from their website
+                                ->orWhereHas('event', function($subQuery) use ($user) {
                                     $subQuery->where('website_id', $user->website_id);
                                 })
                                 // OR transactions with packages from their website
@@ -407,7 +417,7 @@ class TransactionController extends Controller
                                     $subQuery->where('website_id', $user->website_id);
                                 });
                             })
-                            ->with(['event', 'package'])
+                            ->with(['event', 'package', 'website'])
                             ->latest()
                             ->get();
         } else {
@@ -514,7 +524,12 @@ class TransactionController extends Controller
                         // dd($th);
                     }
 
-            return redirect($website->success_page)->with('success', 'Reservation successful!');
+            // Redirect to thank you page with transaction details
+            return redirect()->route('thank-you')
+                ->with('transaction', $new)
+                ->with('website', $website)
+                ->with('paymentType', 'full')
+                ->with('success', 'Reservation successful!');
         
 
 
@@ -575,6 +590,20 @@ class TransactionController extends Controller
         $change->update();
 
         return back();
+    }
+
+    /**
+     * Show thank you page after successful payment
+     */
+    public function thankYou()
+    {
+        // Get data from session (passed from payment processing)
+        $transaction = session('transaction');
+        $invoice = session('invoice');
+        $website = session('website');
+        $paymentType = session('paymentType');
+
+        return view('thank-you', compact('transaction', 'invoice', 'website', 'paymentType'));
     }
 
 }

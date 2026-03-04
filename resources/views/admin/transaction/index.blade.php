@@ -534,9 +534,21 @@
 
                     function updateAmountTotal() {
                         let total = 0;
+                        let amountColumnIndex = -1;
+                        
+                        // Find the Amount column index dynamically
+                        table.columns().every(function (index) {
+                            let header = this.header();
+                            if ($(header).text().trim() === 'Amount') {
+                                amountColumnIndex = index;
+                            }
+                        });
+                        
+                        if (amountColumnIndex === -1) return; // If Amount column not found, exit
+                        
                         table.rows({ search: 'applied' }).every(function () {
                             let data = this.data();
-                            let amountCell = data[10]; // Amount column is at index 10
+                            let amountCell = data[amountColumnIndex];
                             // Remove HTML tags if present
                             let tempDiv = document.createElement('div');
                             tempDiv.innerHTML = amountCell;

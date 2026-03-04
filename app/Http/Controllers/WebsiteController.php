@@ -15,15 +15,30 @@ class WebsiteController extends Controller
      */
     public function index()
     {
-
-        $data = Website::all();
+        $user = auth()->user();
+        
+        if ($user->isAdmin()) {
+            $data = Website::all();
+        } elseif ($user->isWebsiteUser() && $user->website_id) {
+            // Website users can only see their own website
+            $data = Website::where('id', $user->website_id)->get();
+        } else {
+            $data = collect();
+        }
 
         return view('admin.website.index', compact('data'));
     }
 
     public function archive($id)
     {
+        $user = auth()->user();
         $data = Website::where('id',$id)->first();
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $data->id != $user->website_id) {
+            abort(403, 'Access denied. You can only manage your own website.');
+        }
+        
         $data->is_archieved = 1;
         $data->update();
 
@@ -32,7 +47,14 @@ class WebsiteController extends Controller
 
     public function unarchive($id)
     {
+        $user = auth()->user();
         $data = Website::where('id',$id)->first();
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $data->id != $user->website_id) {
+            abort(403, 'Access denied. You can only manage your own website.');
+        }
+        
         $data->is_archieved = 0;
         $data->update();
 
@@ -44,6 +66,13 @@ class WebsiteController extends Controller
      */
     public function create()
     {
+        $user = auth()->user();
+        
+        // Only admins can create new websites
+        if ($user->isWebsiteUser()) {
+            abort(403, 'Access denied. Only administrators can create new websites.');
+        }
+        
         return view('admin.website.create');
     }
 
@@ -175,7 +204,14 @@ class WebsiteController extends Controller
      */
     public function edit(string $id)
     {
+        $user = auth()->user();
         $data = Website::with('paymentLogos')->findOrFail($id);
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $data->id != $user->website_id) {
+            abort(403, 'Access denied. You can only edit your own website.');
+        }
+        
         return view('admin.website.edit', compact('data'));
     }
 
@@ -184,8 +220,15 @@ class WebsiteController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        // dd($request->all());
+        $user = auth()->user();
         $add = Website::find($id);
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $add->id != $user->website_id) {
+            abort(403, 'Access denied. You can only update your own website.');
+        }
+        
+        // dd($request->all());
         $add->name = $request->name;
         $add->domain = $request->domain;
         

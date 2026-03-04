@@ -111,7 +111,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @forelse(App\Models\Transaction::latest()->take(5)->get() as $transaction)
+                                                @forelse($recentTransactions ?? [] as $transaction)
                                                     <tr>
                                                         <td>{{ $transaction->id }}</td>
                                                         <td>

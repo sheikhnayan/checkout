@@ -16,14 +16,30 @@ class PackageController extends Controller
      */
     public function index()
     {
-        $data = Website::where('is_archieved',0)->get();
+        $user = auth()->user();
+        
+        if ($user->isAdmin()) {
+            $data = Website::where('is_archieved',0)->get();
+        } elseif ($user->isWebsiteUser() && $user->website_id) {
+            // Website users can only see their own website
+            $data = Website::where('id', $user->website_id)->where('is_archieved',0)->get();
+        } else {
+            $data = collect();
+        }
 
         return view('admin.package.index', compact('data'));
     }
 
     public function archive($id)
     {
+        $user = auth()->user();
         $data = Package::where('id',$id)->first();
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
+            abort(403, 'Access denied. You can only manage packages for your own website.');
+        }
+        
         $data->is_archieved = 1;
         $data->update();
 
@@ -32,7 +48,14 @@ class PackageController extends Controller
 
     public function unarchive($id)
     {
+        $user = auth()->user();
         $data = Package::where('id',$id)->first();
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
+            abort(403, 'Access denied. You can only manage packages for your own website.');
+        }
+        
         $data->is_archieved = 0;
         $data->update();
 
@@ -44,6 +67,13 @@ class PackageController extends Controller
      */
     public function create($id)
     {
+        $user = auth()->user();
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $id != $user->website_id) {
+            abort(403, 'Access denied. You can only create packages for your own website.');
+        }
+        
         $events = Event::where('website_id', $id)->get();
         $addons = GeneralAddon::where('website_id', $id)->get();
         return view('admin.package.create', compact('id', 'events', 'addons'));
@@ -54,6 +84,13 @@ class PackageController extends Controller
      */
     public function store(Request $request)
     {
+        $user = auth()->user();
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $request->website_id != $user->website_id) {
+            abort(403, 'Access denied. You can only create packages for your own website.');
+        }
+        
         // dd($request->all());
         $add = new Package;
         $add->name = $request->name;
@@ -96,6 +133,13 @@ class PackageController extends Controller
      */
     public function show(string $id)
     {
+        $user = auth()->user();
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $id != $user->website_id) {
+            abort(403, 'Access denied. You can only view packages for your own website.');
+        }
+        
         $data = Package::where('website_id', $id)->get();
 
         $website_id = $id;
@@ -108,7 +152,13 @@ class PackageController extends Controller
      */
     public function edit(string $id)
     {
+        $user = auth()->user();
         $data = Package::findOrFail($id);
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
+            abort(403, 'Access denied. You can only edit packages for your own website.');
+        }
 
         $events = Event::where('website_id', $data->website_id)->get();
 
@@ -122,8 +172,15 @@ class PackageController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        // dd($request->all());
+        $user = auth()->user();
         $data = Package::findOrFail($id);
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
+            abort(403, 'Access denied. You can only update packages for your own website.');
+        }
+        
+        // dd($request->all());
         $data->name = $request->name;
         $data->price = $request->price;
         $data->description = $request->description;

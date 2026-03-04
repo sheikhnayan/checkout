@@ -13,14 +13,30 @@ class PromoCodeController extends Controller
      */
     public function index()
     {
-        $data = Website::where('is_archieved',0)->get();
+        $user = auth()->user();
+        
+        if ($user->isAdmin()) {
+            $data = Website::where('is_archieved',0)->get();
+        } elseif ($user->isWebsiteUser() && $user->website_id) {
+            // Website users can only see their own website
+            $data = Website::where('id', $user->website_id)->where('is_archieved',0)->get();
+        } else {
+            $data = collect();
+        }
 
         return view('admin.promo_code.index', compact('data'));
     }
 
     public function archive($id)
     {
+        $user = auth()->user();
         $data = PromoCode::where('id',$id)->first();
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
+            abort(403, 'Access denied. You can only manage promo codes for your own website.');
+        }
+        
         $data->is_archieved = 1;
         $data->update();
 
@@ -29,7 +45,14 @@ class PromoCodeController extends Controller
 
     public function unarchive($id)
     {
+        $user = auth()->user();
         $data = PromoCode::where('id',$id)->first();
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
+            abort(403, 'Access denied. You can only manage promo codes for your own website.');
+        }
+        
         $data->is_archieved = 0;
         $data->update();
 
@@ -41,6 +64,13 @@ class PromoCodeController extends Controller
      */
     public function create($id)
     {
+        $user = auth()->user();
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $id != $user->website_id) {
+            abort(403, 'Access denied. You can only create promo codes for your own website.');
+        }
+        
         return view('admin.promo_code.create', compact('id',));
     }
 
@@ -49,6 +79,13 @@ class PromoCodeController extends Controller
      */
     public function store(Request $request)
     {
+        $user = auth()->user();
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $request->website_id != $user->website_id) {
+            abort(403, 'Access denied. You can only create promo codes for your own website.');
+        }
+        
         // dd($request->all());
         $add = new PromoCode;
         $add->name = $request->name;
@@ -67,6 +104,13 @@ class PromoCodeController extends Controller
      */
     public function show(string $id)
     {
+        $user = auth()->user();
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $id != $user->website_id) {
+            abort(403, 'Access denied. You can only view promo codes for your own website.');
+        }
+        
         $data = PromoCode::where('website_id', $id)
         ->get();
 
@@ -80,9 +124,15 @@ class PromoCodeController extends Controller
      */
     public function edit(string $id)
     {
-        // dd('s');
+        $user = auth()->user();
         $data = PromoCode::find($id);
-
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
+            abort(403, 'Access denied. You can only edit promo codes for your own website.');
+        }
+        
+        // dd('s');
         return view('admin.promo_code.edit', compact('data', 'id'));
     }
 
@@ -91,8 +141,15 @@ class PromoCodeController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        // dd('s');
+        $user = auth()->user();
         $add = PromoCode::findOrFail($id);
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $add->website_id != $user->website_id) {
+            abort(403, 'Access denied. You can only update promo codes for your own website.');
+        }
+        
+        // dd('s');
         $add->name = $request->name;
         $add->percentage = $request->percentage;
         $add->promo_code = $request->promo_code;

@@ -44,6 +44,13 @@ class SettingController extends Controller
      */
     public function edit(string $id)
     {
+        $user = auth()->user();
+        
+        // Only admins can access global settings
+        if ($user->isWebsiteUser()) {
+            abort(403, 'Access denied. Global payment settings are only accessible to administrators. Please configure payment settings for your website in the Website settings.');
+        }
+        
         $data = Setting::find($id);
 
         return view('admin.setting.edit', compact('data'));
@@ -54,6 +61,13 @@ class SettingController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $user = auth()->user();
+        
+        // Only admins can update global settings
+        if ($user->isWebsiteUser()) {
+            abort(403, 'Access denied. Global payment settings are only accessible to administrators.');
+        }
+        
         $data = Setting::find($id);
         $data->authorize_key = $request->authorize_key;
         $data->authorize_secret = $request->authorize_secret;

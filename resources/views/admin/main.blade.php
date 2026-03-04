@@ -135,14 +135,18 @@
       <div class="text-truncate">Websites</div>
     </a>
   </li>
+  @endif
 
+  @if(auth()->check() && auth()->user()->isAdmin())
   <li class="menu-item {{ request()->is('admins/website-users*') ? 'active' : '' }}">
     <a href="{{ route('admin.website-users.index') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-user"></i>
       <div class="text-truncate">Website Users</div>
     </a>
   </li>
+  @endif
 
+  @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isWebsiteUser()))
   <li class="menu-item {{ request()->is('admins/event') ? 'active' : '' }}">
     <a href="/admins/event" class="menu-link">
       <i class="menu-icon tf-icons bx bx-package"></i>
@@ -170,7 +174,9 @@
       <div class="text-truncate">Promo Codes</div>
     </a>
   </li>
+  @endif
 
+  @if(auth()->check() && auth()->user()->isAdmin())
   <li class="menu-item {{ request()->is('admins/setting/edit/1') ? 'active' : '' }}">
     <a href="/admins/setting/edit/1" class="menu-link">
       <i class="menu-icon tf-icons bx bx-package"></i>
@@ -183,6 +189,13 @@
     <a href="/admins/transaction" class="menu-link">
       <i class="menu-icon tf-icons bx bx-package"></i>
       <div class="text-truncate">Transactions</div>
+    </a>
+  </li>
+
+  <li class="menu-item {{ request()->is('admins/custom-invoice') ? 'active' : '' }}">
+    <a href="{{ route('admin.custom-invoice.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-file"></i>
+      <div class="text-truncate">Custom Invoices</div>
     </a>
   </li>
 

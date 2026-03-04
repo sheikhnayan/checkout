@@ -13,13 +13,24 @@ class AdminController extends Controller
     {
         $user = auth()->user();
         
-        // If website user, redirect to transactions only
-        if ($user->isWebsiteUser()) {
-            return redirect()->route('admin.transaction.index');
+        // Get transactions based on user type
+        if ($user->isAdmin()) {
+            $recentTransactions = \App\Models\Transaction::latest()->take(5)->get();
+        } elseif ($user->isWebsiteUser() && $user->website_id) {
+            // Website user sees only their website's transactions
+            $recentTransactions = \App\Models\Transaction::where(function($query) use ($user) {
+                $query->whereHas('event', function($subQuery) use ($user) {
+                    $subQuery->where('website_id', $user->website_id);
+                })
+                ->orWhereHas('package', function($subQuery) use ($user) {
+                    $subQuery->where('website_id', $user->website_id);
+                });
+            })->latest()->take(5)->get();
+        } else {
+            $recentTransactions = collect();
         }
         
-        // Admin dashboard with statistics
-        return view('admin.dashboard');
+        return view('admin.dashboard', compact('recentTransactions'));
     }
 
     /**

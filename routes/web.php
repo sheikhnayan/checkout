@@ -14,6 +14,7 @@ use App\Http\Controllers\PaymentLogoController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CustomInvoiceController;
 
 
 // Authentication Routes
@@ -33,6 +34,14 @@ Route::get('/run-migrate', function () {
 
 // Test route - must be before the catch-all slug route
 Route::get('/test', [TransactionController::class, 'test'])->name('test');
+
+// Thank You page (after successful payment)
+Route::get('/thank-you', [TransactionController::class, 'thankYou'])->name('thank-you');
+
+// Custom Invoice Payment routes (client-facing, no auth required)
+// MUST be before slug route to avoid 404
+Route::get('/custom-invoice/{token}/pay', [CustomInvoiceController::class, 'showPayment'])->name('custom-invoice.pay');
+Route::post('/custom-invoice/{token}/process-payment', [CustomInvoiceController::class, 'processPayment'])->name('custom-invoice.process-payment');
 
 // Frontend routes with slug parameter
 Route::get('/{slug}', [FrontendController::class, 'index'])->name('index');
@@ -120,6 +129,19 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => 'auth'], fu
     Route::group(['prefix'=> 'profile', 'as' => 'profile.'], function () {
         Route::get('/', [ProfileController::class,'edit'])->name('edit');
         Route::post('/update-password', [ProfileController::class,'updatePassword'])->name('update-password');
+    });
+
+    // Custom Invoice routes
+    Route::group(['prefix'=> 'custom-invoice', 'as' => 'custom-invoice.'], function () {
+        Route::get('/', [CustomInvoiceController::class,'index'])->name('index');
+        Route::get('/create', [CustomInvoiceController::class,'create'])->name('create');
+        Route::post('/store', [CustomInvoiceController::class,'store'])->name('store');
+        Route::post('/store-and-send', [CustomInvoiceController::class,'storeAndSend'])->name('store-and-send');
+        Route::get('/{customInvoice}', [CustomInvoiceController::class,'show'])->name('show');
+        Route::get('/{customInvoice}/edit', [CustomInvoiceController::class,'edit'])->name('edit');
+        Route::put('/{customInvoice}', [CustomInvoiceController::class,'update'])->name('update');
+        Route::post('/{customInvoice}/send', [CustomInvoiceController::class,'send'])->name('send');
+        Route::delete('/{customInvoice}', [CustomInvoiceController::class,'destroy'])->name('destroy');
     });
 
     // Website Users Management

@@ -14,14 +14,30 @@ class EventController extends Controller
      */
     public function index()
     {
-        $data = Website::where('is_archieved',0)->get();
+        $user = auth()->user();
+        
+        if ($user->isAdmin()) {
+            $data = Website::where('is_archieved',0)->get();
+        } elseif ($user->isWebsiteUser() && $user->website_id) {
+            // Website users can only see their own website
+            $data = Website::where('id', $user->website_id)->where('is_archieved',0)->get();
+        } else {
+            $data = collect();
+        }
 
         return view('admin.event.index', compact('data'));
     }
 
     public function archive($id)
     {
+        $user = auth()->user();
         $data = Event::where('id',$id)->first();
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
+            abort(403, 'Access denied. You can only manage events for your own website.');
+        }
+        
         $data->is_archieved = 1;
         $data->update();
 
@@ -30,7 +46,14 @@ class EventController extends Controller
 
     public function unarchive($id)
     {
+        $user = auth()->user();
         $data = Event::where('id',$id)->first();
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
+            abort(403, 'Access denied. You can only manage events for your own website.');
+        }
+        
         $data->is_archieved = 0;
         $data->update();
 
@@ -42,6 +65,13 @@ class EventController extends Controller
      */
     public function create($id)
     {
+        $user = auth()->user();
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $id != $user->website_id) {
+            abort(403, 'Access denied. You can only create events for your own website.');
+        }
+        
         return view('admin.event.create', compact('id'));
     }
 
@@ -50,6 +80,13 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
+        $user = auth()->user();
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $request->website_id != $user->website_id) {
+            abort(403, 'Access denied. You can only create events for your own website.');
+        }
+        
         // dd($request->all());
         $time = $request->time_start.' - '.$request->time_end;
 
@@ -83,6 +120,13 @@ class EventController extends Controller
      */
     public function show(string $id)
     {
+        $user = auth()->user();
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $id != $user->website_id) {
+            abort(403, 'Access denied. You can only view events for your own website.');
+        }
+        
         $data = Event::where('website_id', $id)->get();
 
         $website_id = $id;
@@ -95,7 +139,13 @@ class EventController extends Controller
      */
     public function edit(string $id)
     {
+        $user = auth()->user();
         $data = Event::find($id);
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
+            abort(403, 'Access denied. You can only edit events for your own website.');
+        }
 
         return view('admin.event.edit', compact('data', 'id'));
     }
@@ -105,6 +155,13 @@ class EventController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $user = auth()->user();
+        $add = Event::findOrFail($id);
+        
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $add->website_id != $user->website_id) {
+            abort(403, 'Access denied. You can only update events for your own website.');
+        }
 
         $time = $request->time_start.' - '.$request->time_end;
 
