@@ -8,6 +8,7 @@ use App\Models\Package;
 use App\Models\Addon;
 use App\Models\GeneralAddon;
 use App\Models\Event;
+use App\Models\PackageCategory;
 
 class PackageController extends Controller
 {
@@ -76,7 +77,9 @@ class PackageController extends Controller
         
         $events = Event::where('website_id', $id)->get();
         $addons = GeneralAddon::where('website_id', $id)->get();
-        return view('admin.package.create', compact('id', 'events', 'addons'));
+        $categories = PackageCategory::where('website_id', $id)->orderBy('name')->get();
+
+        return view('admin.package.create', compact('id', 'events', 'addons', 'categories'));
     }
 
     /**
@@ -101,18 +104,18 @@ class PackageController extends Controller
         $add->transportation = isset($request->transportation) ? 1 :0;
         $add->number_of_guest = $request->number_of_guest;
         $add->website_id = $request->website_id;
+        $add->package_category_id = $this->resolveCategoryId($request, $request->website_id);
         $add->event_id = $request->event_id;
         $add->save();
 
-        $addons = explode(',', $request->addons);
+        $addons = array_filter(explode(',', (string) $request->addons));
 
-
-        // $del = Addon::where('package_id', $data->id)->delete();
-
-
-        foreach ($addons as $key => $value) {
-
+        foreach ($addons as $value) {
             $addon = GeneralAddon::where('id', $value)->first();
+
+            if (!$addon) {
+                continue;
+            }
 
             $addona = new Addon;
             $addona->name = $addon->name;
@@ -122,7 +125,6 @@ class PackageController extends Controller
             $addona->status = $addon->status;
             $addona->package_id = $add->id;
             $addona->save();
-
         }
 
         return redirect()->route('admin.package.show', $add->website_id);
@@ -140,7 +142,7 @@ class PackageController extends Controller
             abort(403, 'Access denied. You can only view packages for your own website.');
         }
         
-        $data = Package::where('website_id', $id)->get();
+        $data = Package::with('category')->where('website_id', $id)->get();
 
         $website_id = $id;
 
@@ -164,7 +166,9 @@ class PackageController extends Controller
 
         $addons = GeneralAddon::where('website_id', $data->website_id)->get();
 
-        return view('admin.package.edit', compact('data', 'id', 'events', 'addons'));
+        $categories = PackageCategory::where('website_id', $data->website_id)->orderBy('name')->get();
+
+        return view('admin.package.edit', compact('data', 'id', 'events', 'addons', 'categories'));
     }
 
     /**
@@ -188,18 +192,19 @@ class PackageController extends Controller
         $data->multiple = isset($request->multiple) ? 1 :0;
         $data->transportation = isset($request->transportation) ? 1 :0;
         $data->number_of_guest = $request->number_of_guest;
+        $data->package_category_id = $this->resolveCategoryId($request, $data->website_id);
         // $data->website_id = $request->website_id;
         $data->event_id = $request->event_id;
         $data->update();
 
-        $addons = explode(',', $request->addons);
+        $addons = array_filter(explode(',', (string) $request->addons));
 
 
         $del = Addon::where('package_id', $data->id)->delete();
         
 
 
-        foreach ($addons as $key => $value) {
+        foreach ($addons as $value) {
 
             $addon = GeneralAddon::where('id', $value)->first();
 
@@ -220,6 +225,30 @@ class PackageController extends Controller
 
         return redirect()->route('admin.package.show', $data->website_id);
 
+    }
+
+    private function resolveCategoryId(Request $request, $websiteId)
+    {
+        $newCategoryName = trim((string) $request->input('new_category_name'));
+
+        if ($newCategoryName !== '') {
+            return PackageCategory::firstOrCreate([
+                'website_id' => (int) $websiteId,
+                'name' => $newCategoryName,
+            ])->id;
+        }
+
+        $categoryId = $request->input('category_id');
+
+        if (!$categoryId) {
+            return null;
+        }
+
+        $category = PackageCategory::where('id', $categoryId)
+            ->where('website_id', (int) $websiteId)
+            ->first();
+
+        return $category ? $category->id : null;
     }
 
     /**

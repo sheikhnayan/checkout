@@ -1,0 +1,170 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Affiliate;
+use App\Models\AffiliatePackage;
+use App\Models\Package;
+use App\Models\Website;
+use Illuminate\Http\Request;
+
+class AffiliatePortalController extends Controller
+{
+    private function getAffiliateOrAbort(): Affiliate
+    {
+        $user = auth()->user();
+
+        if (!$user || !$user->isAffiliate() || !$user->affiliate || $user->affiliate->status !== 'approved') {
+            abort(403, 'Affiliate access denied.');
+        }
+
+        return $user->affiliate;
+    }
+
+    public function dashboard()
+    {
+        $affiliate = $this->getAffiliateOrAbort();
+        $affiliate->loadCount('affiliatePackages');
+
+        $commissions = $affiliate->walletTransactions()->where('type', 'commission')->sum('amount');
+
+        return view('affiliate.dashboard', compact('affiliate', 'commissions'));
+    }
+
+    public function packages()
+    {
+        $affiliate = $this->getAffiliateOrAbort();
+
+        $websites = Website::where('is_archieved', 0)->with(['packages' => function ($query) {
+            $query->where('status', 1);
+        }])->get();
+
+        $selected = AffiliatePackage::where('affiliate_id', $affiliate->id)->pluck('package_id')->toArray();
+
+        return view('affiliate.packages', compact('affiliate', 'websites', 'selected'));
+    }
+
+    public function savePackages(Request $request)
+    {
+        $affiliate = $this->getAffiliateOrAbort();
+
+        $request->validate([
+            'package_ids' => 'nullable|array',
+            'package_ids.*' => 'integer|exists:packages,id',
+        ]);
+
+        $packageIds = collect($request->input('package_ids', []))->map(fn ($id) => (int) $id)->unique()->values();
+
+        AffiliatePackage::where('affiliate_id', $affiliate->id)
+            ->whereNotIn('package_id', $packageIds->all())
+            ->delete();
+
+        foreach ($packageIds as $packageId) {
+            $package = Package::find($packageId);
+            if (!$package) {
+                continue;
+            }
+
+            AffiliatePackage::updateOrCreate(
+                [
+                    'affiliate_id' => $affiliate->id,
+                    'package_id' => $packageId,
+                ],
+                [
+                    'website_id' => $package->website_id,
+                    'commission_percentage' => $affiliate->default_commission_percentage,
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        return redirect()->back()->with('success', 'Packages updated successfully.');
+    }
+
+    public function settings()
+    {
+        $affiliate = $this->getAffiliateOrAbort();
+        return view('affiliate.settings', compact('affiliate'));
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $affiliate = $this->getAffiliateOrAbort();
+
+        $request->validate([
+            'display_name' => 'required|string|max:255',
+            'hero_title' => 'nullable|string|max:255',
+            'hero_subtitle' => 'nullable|string|max:500',
+            'description' => 'nullable|string|max:5000',
+            'secondary_description' => 'nullable|string|max:5000',
+            'facebook_url' => 'nullable|url|max:255',
+            'instagram_url' => 'nullable|url|max:255',
+            'youtube_url' => 'nullable|url|max:255',
+            'tiktok_url' => 'nullable|url|max:255',
+            'website_url' => 'nullable|url|max:255',
+            'theme_color' => 'nullable|string|max:20',
+            'accent_color' => 'nullable|string|max:20',
+            'background_color' => 'nullable|string|max:20',
+            'text_color' => 'nullable|string|max:20',
+            'font_family' => 'nullable|string|max:120',
+            'profile_image' => 'nullable|image|max:4096',
+            'banner_image' => 'nullable|image|max:4096',
+            'gallery_images' => 'nullable|array|max:6',
+            'gallery_images.*' => 'image|max:4096',
+        ]);
+
+        $affiliate->fill($request->only([
+            'display_name',
+            'hero_title',
+            'hero_subtitle',
+            'description',
+            'secondary_description',
+            'facebook_url',
+            'instagram_url',
+            'youtube_url',
+            'tiktok_url',
+            'website_url',
+            'theme_color',
+            'accent_color',
+            'background_color',
+            'text_color',
+            'font_family',
+        ]));
+
+        if ($request->hasFile('profile_image')) {
+            $name = 'affiliate_profile_' . $affiliate->id . '_' . time() . '.' . $request->file('profile_image')->getClientOriginalExtension();
+            $request->file('profile_image')->move(public_path('uploads'), $name);
+            $affiliate->profile_image = $name;
+        }
+
+        if ($request->hasFile('banner_image')) {
+            $name = 'affiliate_banner_' . $affiliate->id . '_' . time() . '.' . $request->file('banner_image')->getClientOriginalExtension();
+            $request->file('banner_image')->move(public_path('uploads'), $name);
+            $affiliate->banner_image = $name;
+        }
+
+        if ($request->hasFile('gallery_images')) {
+            $galleryImages = [];
+
+            foreach ($request->file('gallery_images') as $index => $image) {
+                $name = 'affiliate_gallery_' . $affiliate->id . '_' . time() . '_' . $index . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads'), $name);
+                $galleryImages[] = $name;
+            }
+
+            $affiliate->gallery_images = $galleryImages;
+        }
+
+        $affiliate->save();
+
+        return redirect()->back()->with('success', 'Affiliate page settings updated successfully.');
+    }
+
+    public function wallet()
+    {
+        $affiliate = $this->getAffiliateOrAbort();
+        $transactions = $affiliate->walletTransactions()->latest()->paginate(20);
+
+        return view('affiliate.wallet', compact('affiliate', 'transactions'));
+    }
+}

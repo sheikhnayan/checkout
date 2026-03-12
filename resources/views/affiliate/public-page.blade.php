@@ -1,0 +1,1088 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{{ $affiliate->display_name ?: $affiliate->user->name }} — Book Now</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --aff-accent: {{ $affiliate->accent_color ?? "#ffcc00" }};
+            --aff-bg:     {{ $affiliate->background_color ?? "#0b0e1a" }};
+            --aff-text:   {{ $affiliate->text_color ?? "#e8eaf6" }};
+            --aff-theme:  {{ $affiliate->theme_color ?? "#1a75ff" }};
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: var(--aff-bg);
+            color: var(--aff-text);
+            font-family: {{ $affiliate->font_family ?? "'Inter', sans-serif" }};
+            min-height: 100vh;
+        }
+        a { color: var(--aff-accent); }
+
+        /* Hero */
+        .aff-hero {
+            background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 20px 0 18px;
+        }
+        .aff-avatar { width:68px; height:68px; border-radius:50%; object-fit:cover; border:2px solid var(--aff-accent); }
+        .aff-initials { width:68px; height:68px; border-radius:50%; border:2px solid var(--aff-accent); background:rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800; }
+
+        /* Club label badge */
+        .club-badge { display:inline-block; font-size:10px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; padding:2px 8px; border-radius:4px; background:rgba(255,255,255,0.1); margin-bottom:6px; }
+
+        /* Package cards */
+        .vip-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin-bottom: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            transition: border-color .2s;
+        }
+        .vip-card:hover { border-color: rgba(255,255,255,0.28); }
+        .vip-card.selected { border-color: var(--aff-accent) !important; background: rgba(255,255,255,0.06); }
+        .vip-title { font-size:15px; font-weight:700; margin-bottom:2px; }
+        .vip-meta { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+        .vip-price-tag { font-size:18px; font-weight:800; color: var(--aff-accent); }
+        .vip-btn {
+            background: var(--aff-accent);
+            color: #000;
+            font-weight: 700;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: opacity .2s, transform .15s;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+        .vip-btn:hover { opacity:.85; transform:translateY(-1px); }
+        .club-detail-trigger {
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            width:24px;
+            height:24px;
+            border-radius:50%;
+            border:1px solid rgba(255,255,255,0.18);
+            background:rgba(255,255,255,0.07);
+            color:var(--aff-text);
+            cursor:pointer;
+            font-size:12px;
+        }
+        .club-detail-trigger:hover { border-color:var(--aff-accent); color:var(--aff-accent); }
+        .club-popover { max-width: 340px; }
+        .club-popover .popover-header { background:#141a2d; color:#fff; border-bottom:1px solid rgba(255,255,255,0.08); }
+        .club-popover .popover-body { background:#0e1324; color:#d8def0; }
+        .club-popover-logo { width:100%; max-height:120px; object-fit:contain; margin-bottom:10px; border-radius:8px; background:rgba(255,255,255,0.03); }
+        .club-tooltip-row { margin-bottom:6px; font-size:13px; line-height:1.45; }
+        .club-tooltip-row i { width:16px; color:var(--aff-accent); }
+
+        .aff-banner {
+            position:relative;
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:18px;
+            overflow:hidden;
+            min-height:220px;
+            margin:20px 0 24px;
+            background:
+                linear-gradient(125deg, rgba(8,11,22,0.82), rgba(8,11,22,0.52)),
+                radial-gradient(circle at top right, rgba(255,255,255,0.08), transparent 35%),
+                var(--aff-theme);
+        }
+        .aff-banner.has-image {
+            background:
+                linear-gradient(125deg, rgba(8,11,22,0.84), rgba(8,11,22,0.48)),
+                url('{{ $affiliate->banner_image ? asset('uploads/' . $affiliate->banner_image) : '' }}') center/cover no-repeat;
+        }
+        .aff-banner-content { position:relative; z-index:1; padding:28px; }
+        .aff-kicker { font-size:11px; letter-spacing:1px; text-transform:uppercase; opacity:.64; font-weight:700; }
+        .aff-display-title { font-size:clamp(2rem, 5vw, 3.8rem); line-height:1; font-weight:800; max-width:9ch; margin:10px 0 12px; }
+        .aff-display-copy { max-width:620px; font-size:15px; opacity:.82; }
+        .aff-gallery { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; margin-top:18px; }
+        .aff-gallery-item { border-radius:14px; overflow:hidden; border:1px solid rgba(255,255,255,0.08); min-height:125px; background:rgba(255,255,255,0.04); }
+        .aff-gallery-item img { width:100%; height:100%; object-fit:cover; display:block; }
+        .aff-story { margin:0 0 24px; padding:18px 20px; border:1px solid rgba(255,255,255,0.08); border-radius:16px; background:rgba(255,255,255,0.03); }
+
+        /* Steps */
+        .checkout-steps { display:flex; justify-content:center; align-items:center; margin:1.5rem 0; padding:0; list-style:none; }
+        .step { flex:1; text-align:center; position:relative; padding:0 .5rem; }
+        .step-number { display:inline-block; width:38px; height:38px; border-radius:50%; background:#444; color:#fff; line-height:38px; font-weight:bold; margin-bottom:.4rem; border:2px solid #444; font-size:15px; }
+        .step.active .step-number { background:var(--aff-accent); border-color:var(--aff-accent); color:#000; }
+        .step.completed .step-number { background:#28a745; border-color:#28a745; color:#fff; }
+        .step-title { font-size:.8rem; color:#888; margin:0; }
+        .step.active .step-title, .step.completed .step-title { color:#ddd; font-weight:600; }
+        .step::after { content:''; position:absolute; top:19px; right:-50%; width:100%; height:2px; background:#444; z-index:-1; }
+        .step:last-child::after { display:none; }
+        .step.completed::after { background:#28a745; }
+        .checkout-section { display:none; }
+        .checkout-section.active { display:block; }
+
+        /* Forms */
+        .form-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:.9rem; }
+        .form-group { flex:1; min-width:130px; }
+        label { font-size:13px; margin-bottom:4px; display:block; opacity:.85; }
+        input[type="text"], input[type="email"], input[type="tel"], input[type="number"], textarea, select.form-select {
+            background: rgba(255,255,255,0.07) !important;
+            border: 1px solid #9797a0 !important;
+            border-radius: 10px !important;
+            color: #fff !important;
+            padding: 10px 14px;
+            width: 100%;
+            margin-bottom: 4px;
+            font-size: 15px;
+        }
+        textarea { min-height:80px; resize:vertical; }
+        input::placeholder, textarea::placeholder { color:rgba(255,255,255,0.35) !important; }
+        select.form-select { -webkit-appearance:none !important; appearance:none !important; }
+        select option { background:#1a1d2e !important; color:#fff; }
+
+        /* Buttons */
+        .btn-next, .submit-btn {
+            background: var(--aff-accent) !important;
+            color: #000 !important;
+            border: none;
+            padding: 11px 28px;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 15px;
+            min-width: 180px;
+            transition: opacity .2s, transform .15s;
+        }
+        .btn-prev { background:#555 !important; color:#fff !important; border:none; padding:11px 28px; border-radius:25px; font-weight:700; cursor:pointer; font-size:15px; min-width:140px; }
+        .btn-next:hover, .submit-btn:hover { opacity:.85; transform:translateY(-1px); }
+        .step-navigation { display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin:1.5rem 0; }
+        .same-as-info, .same-as-info-transport { background:var(--aff-accent) !important; color:#000 !important; border:none; padding:9px 20px; border-radius:25px; font-weight:700; margin-bottom:16px; cursor:pointer; font-size:13px; display:inline-block; }
+
+        /* Cart */
+        #cart-section { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:16px 18px; margin-bottom:1.2rem; display:none; }
+
+        /* Addons */
+        .addons-wrap { display:none; margin:12px 0 4px; }
+        .addon-item { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.07); }
+        .addon-item:last-child { border-bottom:none; }
+        .addon-item input[type="checkbox"] { width:auto !important; padding:0 !important; margin:0 !important; cursor:pointer; accent-color:var(--aff-accent); }
+
+        /* Price summary */
+        .price-summary { display:none; background:rgba(255,255,255,0.04); border-radius:10px; padding:14px 16px; margin-bottom:1rem; font-size:14px; }
+
+        /* Promo */
+        #promo-section { display:none; margin-bottom:1rem; }
+        .promo-row { display:flex; }
+        #promo_code { border-top-right-radius:0 !important; border-bottom-right-radius:0 !important; margin-bottom:0; }
+        #applyPromoBtn { background:var(--aff-accent); color:#000; font-weight:700; border:none; border-top-right-radius:10px; border-bottom-right-radius:10px; padding:0 18px; cursor:pointer; white-space:nowrap; font-size:14px; }
+
+        /* StripeElement */
+        .StripeElement { padding:10px 14px; border:1px solid #9797a0; border-radius:10px; margin-bottom:8px; background:rgba(255,255,255,0.07); }
+
+        /* Club info */
+        #club-info-section { display:none; margin-top:2.5rem; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,0.1); }
+        #club-info-map-frame { width:100%; height:260px; border:0; border-radius:10px; margin-top:8px; }
+
+        /* Consent checkboxes */
+        .consent-label { display:flex; gap:10px; align-items:flex-start; cursor:pointer; margin-bottom:10px; font-size:13px; }
+        .consent-label input { width:auto !important; padding:0 !important; margin-top:2px !important; flex-shrink:0; accent-color:var(--aff-accent); }
+
+        /* Required field highlight */
+        .required-field { border-color:#ff6b6b !important; }
+
+        /* Mobile */
+        @media(max-width:768px) {
+            .step-title { font-size:.55rem !important; }
+            input, select, textarea { font-size:16px !important; }
+            .vip-card { flex-direction:column; align-items:flex-start; }
+            .aff-banner-content { padding:22px 18px; }
+            .aff-gallery { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+
+{{-- Per-club config for JS --}}
+<script>
+const clubConfigs = {
+    @foreach($clubGroups as $clubId => $mappings)
+    @php $club = $mappings->first()->package->website; $sk = $club->stripe_app_key ?? ($setting ? $setting->stripe_key : ''); @endphp
+    "{{ $club->slug }}": {
+        id: {{ $club->id }},
+        slug: "{{ addslashes($club->slug) }}",
+        name: "{{ addslashes($club->name) }}",
+        color: "{{ $club->color ?? '#ffcc00' }}",
+        paymentMethod: "{{ $club->payment_method ?? 'authorize' }}",
+        stripeKey: "{{ addslashes($sk ?? '') }}",
+        gratuityFee: {{ (float)($club->gratuity_fee ?? 0) }},
+        gratuityName: "{{ addslashes($club->gratuity_name ?? 'Gratuity') }}",
+        refundableFee: {{ (float)($club->refundable_fee ?? 0) }},
+        refundableName: "{{ addslashes($club->refundable_name ?? 'Non Refundable Processing Fees') }}",
+        salesTaxFee: {{ (float)($club->sales_tax_fee ?? 0) }},
+        salesTaxName: "{{ addslashes($club->sales_tax_name ?? '0') }}",
+        serviceChargeFee: {{ (float)($club->service_charge_fee ?? 0) }},
+        serviceChargeName: "{{ addslashes($club->service_charge_name ?? '0') }}",
+        transportConfirmText: "{{ addslashes($club->transportation_confirmation_text ?? 'I confirm I am not arriving via Uber, Lyft, limo, taxi, ride-sharing or any other paid service. I am arriving in a personal vehicle.') }}",
+        terms: "{{ addslashes($club->terms ?? '#') }}",
+        privacy: "{{ addslashes($club->privacy ?? $club->policy ?? '#') }}",
+        promoCodeName: "{{ addslashes($club->promo_code_name ?? 'Promo Code') }}",
+        location: "{{ addslashes($club->location ?? '') }}",
+        phone: "{{ addslashes($club->phone ?? '') }}",
+        email: "{{ addslashes($club->email ?? '') }}",
+    },
+    @endforeach
+};
+</script>
+
+{{-- Affiliate Hero --}}
+<section class="aff-hero">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                @if($affiliate->profile_image)
+                    <img src="{{ asset('uploads/' . $affiliate->profile_image) }}" alt="Profile" class="aff-avatar">
+                @else
+                    <div class="aff-initials">{{ strtoupper(substr($affiliate->display_name ?: $affiliate->user->name, 0, 2)) }}</div>
+                @endif
+                <div>
+                    <h2 class="mb-0" style="font-size:1.35rem;font-weight:800;">{{ $affiliate->display_name ?: $affiliate->user->name }}</h2>
+                    @if($affiliate->description)
+                        <p class="mb-0 mt-1" style="opacity:.75;font-size:13px;">{{ $affiliate->description }}</p>
+                    @endif
+                </div>
+            </div>
+            <div class="d-flex gap-3" style="font-size:18px;">
+                @if($affiliate->facebook_url)<a href="{{ $affiliate->facebook_url }}" target="_blank" style="color:var(--aff-text);opacity:.7;"><i class="fab fa-facebook"></i></a>@endif
+                @if($affiliate->instagram_url)<a href="{{ $affiliate->instagram_url }}" target="_blank" style="color:var(--aff-text);opacity:.7;"><i class="fab fa-instagram"></i></a>@endif
+                @if($affiliate->tiktok_url)<a href="{{ $affiliate->tiktok_url }}" target="_blank" style="color:var(--aff-text);opacity:.7;"><i class="fab fa-tiktok"></i></a>@endif
+                @if($affiliate->youtube_url)<a href="{{ $affiliate->youtube_url }}" target="_blank" style="color:var(--aff-text);opacity:.7;"><i class="fab fa-youtube"></i></a>@endif
+            </div>
+        </div>
+    </div>
+</section>
+
+<main>
+<div class="container py-4">
+
+    <section class="aff-banner {{ $affiliate->banner_image ? 'has-image' : '' }}">
+        <div class="aff-banner-content">
+            <div class="aff-kicker">Affiliate Booking Page</div>
+            <div class="aff-display-title">{{ $affiliate->hero_title ?: ($affiliate->display_name ?: $affiliate->user->name) }}</div>
+            <div class="aff-display-copy">
+                {{ $affiliate->hero_subtitle ?: ($affiliate->description ?: 'Book premium experiences from multiple clubs in one curated flow.') }}
+            </div>
+
+            @if(!empty($affiliate->gallery_images))
+                <div class="aff-gallery">
+                    @foreach($affiliate->gallery_images as $galleryImage)
+                        <div class="aff-gallery-item">
+                            <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image">
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    </section>
+
+    @if($affiliate->secondary_description)
+        <section class="aff-story">
+            {{ $affiliate->secondary_description }}
+        </section>
+    @endif
+
+    @session('success')
+        <div class="alert alert-success">Purchase Successful! Check your email for confirmation.</div>
+    @endsession
+    @session('error')
+        <div class="alert alert-danger">{{ $value }}</div>
+    @endsession
+
+    {{-- ===== PACKAGES ===== --}}
+    <h5 class="mb-3" style="opacity:.6;font-size:.85rem;text-transform:uppercase;letter-spacing:.8px;font-weight:700;">Select a Package to Book</h5>
+
+    @if($packageCategoryGroups->count())
+        <div class="d-flex flex-wrap gap-2 mb-3 package-category-tiles">
+            @foreach($packageCategoryGroups as $categoryGroup)
+                <button
+                    type="button"
+                    class="btn btn-outline-light package-category-tile"
+                    data-target="#{{ $categoryGroup['id'] }}"
+                    style="border-color:var(--aff-accent); color:var(--aff-accent);"
+                >
+                    {{ $categoryGroup['club']->name }} - {{ $categoryGroup['name'] }}
+                </button>
+            @endforeach
+        </div>
+
+        @foreach($packageCategoryGroups as $categoryGroup)
+            <div id="{{ $categoryGroup['id'] }}" class="package-category-group" style="display: none;">
+                @foreach($categoryGroup['mappings'] as $mapping)
+                    @php $package = $mapping->package; $club = $package->website; @endphp
+                    <div class="vip-card" id="pkg-card-{{ $package->id }}">
+                        <div>
+                            <div class="vip-meta">
+                                <span class="club-badge">{{ $club->name }}</span>
+                                <button
+                                    type="button"
+                                    class="club-detail-trigger"
+                                    data-bs-toggle="popover"
+                                    data-bs-placement="top"
+                                    data-bs-custom-class="club-popover"
+                                    data-bs-html="true"
+                                    data-bs-title="{{ e($club->name) }}"
+                                    data-bs-content="
+                                        @if($club->logo)
+                                            &lt;img src='{{ asset('uploads/' . $club->logo) }}' alt='{{ e($club->name) }}' class='club-popover-logo'&gt;
+                                        @endif
+                                        @if($club->location)
+                                            &lt;div class='club-tooltip-row'&gt;&lt;i class='fas fa-location-dot'&gt;&lt;/i&gt; {{ e($club->location) }}&lt;/div&gt;
+                                        @endif
+                                        @if($club->phone)
+                                            &lt;div class='club-tooltip-row'&gt;&lt;i class='fas fa-phone'&gt;&lt;/i&gt; {{ e($club->phone) }}&lt;/div&gt;
+                                        @endif
+                                        @if($club->email)
+                                            &lt;div class='club-tooltip-row'&gt;&lt;i class='fas fa-envelope'&gt;&lt;/i&gt; {{ e($club->email) }}&lt;/div&gt;
+                                        @endif
+                                        @if($club->text_description)
+                                            &lt;div class='club-tooltip-row' style='margin-top:10px; opacity:.82;'&gt;{{ e(\Illuminate\Support\Str::limit(strip_tags($club->text_description), 220)) }}&lt;/div&gt;
+                                        @endif
+                                    "
+                                >
+                                    <i class="fas fa-info"></i>
+                                </button>
+                            </div>
+                            <div class="vip-title">{{ $package->name }}</div>
+                            <button
+                                type="button"
+                                class="vip-btn mt-2"
+                                data-id="{{ $package->id }}"
+                                data-name="{{ addslashes($package->name) }}"
+                                data-price="{{ $package->price }}"
+                                data-transportation="{{ $package->transportation }}"
+                                data-club-id="{{ $club->id }}"
+                                data-club-slug="{{ $club->slug }}"
+                            >Add to Cart</button>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="text-center">
+                                <div style="font-size:11px;opacity:.6;margin-bottom:4px;">Guests</div>
+                                <select style="width:70px;padding:5px 8px !important;margin-bottom:0;" class="form-select package_number_of_guestss" data-id="{{ $package->id }}">
+                                    @for($i = 1; $i <= $package->number_of_guest; $i++)
+                                        <option value="{{ $i }}">{{ $i }}</option>
+                                    @endfor
+                                </select>
+                            </div>
+                            <div class="vip-price-tag">${{ $package->price }}</div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @endforeach
+    @else
+        <p style="opacity:.5;">No packages are available on this page yet.</p>
+    @endif
+
+    {{-- ===== ADD-ONS ===== --}}
+    <div class="addons-wrap" id="addons-section">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0" style="font-weight:700;">Add-ons <span style="opacity:.5;font-size:12px;">(optional)</span></h6>
+            <span style="font-size:12px;opacity:.5;">Toggle to include</span>
+        </div>
+        <div class="addons-list"></div>
+    </div>
+
+    {{-- ===== PRICE SUMMARY ===== --}}
+    <div class="price-summary" id="price-summary">
+        <div style="font-weight:600;margin-bottom:6px;">Price Summary</div>
+        <div class="default-package-price"><span class="summary-label">Package</span>: <span class="summary-value">$0.00</span></div>
+        <div id="sc-row" style="display:none;" class="default-service-charge"><span id="sc-lbl" class="summary-label">Service Charge</span>: <span class="summary-value">$0.00</span></div>
+        <div id="st-row" style="display:none;" class="default-sales-tax"><span id="st-lbl" class="summary-label">Sales Tax</span>: <span class="summary-value">$0.00</span></div>
+        <div id="gr-row" style="display:none;" class="default-gratuity"><span id="gr-lbl" class="summary-label">Gratuity</span>: <span class="summary-value">$0.00</span></div>
+        <hr style="border-color:rgba(255,255,255,0.15);margin:8px 0;">
+        <div style="font-size:16px;font-weight:800;" class="default-deposit"><span class="summary-label">Total</span>: <span class="summary-value">$0.00</span></div>
+        <div id="rf-row" style="display:none;font-weight:700;" class="default-refundable"><span id="rf-lbl" class="summary-label">Processing Fees</span>: <span class="summary-value">$0.00</span> (Pay Now)</div>
+        <div id="due-row" style="display:none;font-weight:700;" class="default-due"><span class="summary-label">DUE ON ARRIVAL</span>: <span class="summary-value">$0.00</span></div>
+    </div>
+
+    {{-- ===== PROMO CODE ===== --}}
+    <div id="promo-section">
+        <label id="promo-lbl" style="font-size:12px;opacity:.6;margin-bottom:4px;display:block;">Promo Code</label>
+        <div class="promo-row">
+            <input type="text" id="promo_code" placeholder="Enter promo or referral code">
+            <button type="button" id="applyPromoBtn">Apply</button>
+        </div>
+    </div>
+
+    {{-- ===== CART ===== --}}
+    <div id="cart-section">
+        <div style="font-weight:700;font-size:15px;margin-bottom:10px;">Your Cart</div>
+        <div id="cart-list"></div>
+        <div id="cart-total" style="font-size:15px;margin-top:8px;font-weight:600;"></div>
+        <div id="cart-coupon" style="font-size:13px;color:#4caf7d;margin-top:4px;"></div>
+    </div>
+
+    {{-- ===== CHECKOUT STEPS ===== --}}
+    <ul class="checkout-steps" id="checkout-steps" style="display:none;">
+        <li class="step active" id="step-1"><div class="step-number">1</div><p class="step-title">Personal Details</p></li>
+        <li class="step" id="step-2"><div class="step-number">2</div><p class="step-title">Transportation</p></li>
+        <li class="step" id="step-3"><div class="step-number">3</div><p class="step-title">Payment</p></li>
+    </ul>
+
+    {{-- ===== CHECKOUT FORM ===== --}}
+    <form id="payment-form" action="#" method="post">
+        @csrf
+        <input type="hidden" name="package_id"              id="package_id">
+        <input type="hidden" name="website_id"              id="website_id">
+        <input type="hidden" name="addons"                  id="addons">
+        <input type="hidden" name="total"                   id="subtotal">
+        <input type="hidden" name="payment_total"           class="payment_total">
+        <input type="hidden" name="affiliate_slug"          value="{{ $affiliate->slug }}">
+        <input type="hidden" name="package_number_of_guest" class="package_number_of_guest" value="1">
+        <input type="hidden" name="package_use_date"        class="package_use_date" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
+        <input type="hidden" name="promo_code"              class="promo_code">
+        <input type="hidden" name="discounted_amount"       class="discounted_amount">
+
+        {{-- Step 1: Personal Details --}}
+        <section class="checkout-section" id="section-1">
+            <h5 class="mb-3" style="font-weight:700;">Personal Details</h5>
+            <div class="form-row">
+                <div class="form-group"><label>First Name</label><input type="text" name="package_first_name" placeholder="First Name" required></div>
+                <div class="form-group"><label>Last Name</label><input type="text" name="package_last_name" placeholder="Last Name" required></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Phone Number</label><input type="tel" name="package_phone" placeholder="Phone Number" required></div>
+                <div class="form-group"><label>Email <small style="font-size:10px;">(confirmation sent here)</small></label><input type="email" name="package_email" placeholder="email@example.com" required></div>
+            </div>
+            <div class="form-group mb-3">
+                <label>Date of Birth</label>
+                <div class="d-flex gap-2">
+                    <select id="package-dob-month" name="package_month" class="form-select" style="flex:1;padding:10px 8px !important;" required></select>
+                    <select id="package-dob-day"   name="package_day"   class="form-select" style="flex:1;padding:10px 8px !important;" required></select>
+                    <select id="package-dob-year"  name="package_year"  class="form-select" style="flex:1;padding:10px 8px !important;" required></select>
+                </div>
+            </div>
+            <div class="form-group mb-3">
+                <label>Reservation Date</label>
+                <input type="date" id="pkg-use-date" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" style="max-width:220px;">
+            </div>
+            <div class="form-group mb-3"><label>Booking Note</label><textarea name="package_note" placeholder="Your occasion or special request?"></textarea></div>
+            <div class="step-navigation"><button type="button" class="btn-next" id="next-to-transport">Next: Transportation &rarr;</button></div>
+        </section>
+
+        {{-- Step 2: Transportation --}}
+        <section class="checkout-section" id="section-2">
+            {{-- No transport needed --}}
+            <div id="transport-confirmation" style="display:none;">
+                <h5 class="mb-3" style="font-weight:700;">Transportation</h5>
+                <label class="consent-label">
+                    <input type="checkbox" id="transportation_part">
+                    <span id="transport-confirm-text">I confirm I am not arriving via a paid transportation service.</span>
+                </label>
+                <div class="step-navigation">
+                    <button type="button" class="btn-prev" id="prev-to-pkg">← Personal Details</button>
+                    <button type="button" class="btn-next" id="next-to-pay-confirm">Next: Payment →</button>
+                </div>
+            </div>
+            {{-- Transport form --}}
+            <div id="transport-form" style="display:none;">
+                <h5 class="mb-3" style="font-weight:700;">Transportation Details</h5>
+                <button type="button" class="same-as-info-transport">Same as personal details</button>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Pick-up Time</label>
+                        <input name="transportation_pickup_time" type="text" id="Pick-up-time" class="flatpickr-time" placeholder="Select Time" value="{{ \Carbon\Carbon::now()->format('h:i A') }}">
+                    </div>
+                    <div class="form-group"><label>Contact Phone (for driver)</label><input type="tel" name="transportation_phone" placeholder=""></div>
+                </div>
+                <div class="form-group mb-2"><label>Pick-up Address</label><input type="text" name="transportation_address" placeholder=""></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Number of Guests</label><input type="number" name="transportation_guest" value="0" style="max-width:100px;"></div>
+                </div>
+                <div class="form-group mb-2"><label>Pickup Note</label><textarea name="transportation_note" placeholder="Any special instructions?"></textarea></div>
+                <div class="step-navigation">
+                    <button type="button" class="btn-prev" id="prev-to-pkg-from-form">← Personal Details</button>
+                    <button type="button" class="btn-next" id="next-to-pay">Next: Payment →</button>
+                </div>
+            </div>
+        </section>
+
+        {{-- Step 3: Payment --}}
+        <section class="checkout-section" id="section-3">
+            <h5 class="mb-3" style="font-weight:700;">Payment Information</h5>
+            <button type="button" class="same-as-info">Same as personal details</button>
+            <div class="form-row">
+                <div class="form-group"><label>First Name</label><input name="payment_first_name" type="text" required></div>
+                <div class="form-group"><label>Last Name</label><input name="payment_last_name" type="text" required></div>
+            </div>
+            <input type="hidden" name="payment_phone"  id="hidden_payment_phone">
+            <input type="hidden" name="payment_email"  id="hidden_payment_email">
+            <input type="hidden" name="payment_month"  id="hidden_payment_month">
+            <input type="hidden" name="payment_day"    id="hidden_payment_day">
+            <input type="hidden" name="payment_year"   id="hidden_payment_year">
+            <div class="form-group mb-2"><label>Billing Address</label><input name="payment_address" type="text" required></div>
+            <div class="form-row">
+                <div class="form-group"><label>Country</label><select id="country" name="payment_country" class="form-select" required></select></div>
+                <div class="form-group"><label>State / Province</label><select name="payment_state" id="st-pv" class="form-select" required><option value="null" disabled selected>Select State/Province</option></select></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>City</label><input type="text" name="payment_city" required></div>
+                <div class="form-group"><label>Zip / Postal Code</label><input type="text" name="payment_zip_code" required></div>
+            </div>
+
+            <div id="payment-logos" class="mb-3">
+                <img src="https://img.icons8.com/color/48/visa.png" alt="Visa" style="height:30px;margin-right:4px;">
+                <img src="https://img.icons8.com/color/48/mastercard-logo.png" alt="MC" style="height:30px;margin-right:4px;">
+                <img src="https://img.icons8.com/color/48/amex.png" alt="Amex" style="height:30px;margin-right:4px;">
+            </div>
+
+            {{-- Authorize.net raw card fields --}}
+            <div id="authorize-section" style="display:none;">
+                <div class="form-group mb-2"><label>Card Number</label><input type="tel" name="card_number" placeholder=""></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Month (MM)</label><input type="tel" maxlength="2" name="card_month" placeholder="MM" required></div>
+                    <div class="form-group"><label>Year (YY)</label><input type="tel" maxlength="2" name="card_year" placeholder="YY" required></div>
+                    <div class="form-group"><label>CVV</label><input type="tel" name="card_cvv" placeholder="CVV" required></div>
+                </div>
+            </div>
+
+            {{-- Stripe element fields --}}
+            <div id="stripe-section" style="display:none;">
+                <div class="form-group mb-1"><label>Card Number</label><div id="card_number" class="StripeElement"></div></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Expiry Date</label><div id="expiration_date" class="StripeElement"></div></div>
+                    <div class="form-group"><label>CVV</label><div id="cvv" class="StripeElement"></div></div>
+                </div>
+            </div>
+
+            {{-- Business expense --}}
+            <label class="consent-label mt-2" style="margin-bottom:6px;">
+                <input type="checkbox" id="businessExpenseCheckbox">
+                <span>This purchase is for business purposes</span>
+            </label>
+            <div id="businessFields" style="display:none;margin-bottom:10px;">
+                <div class="form-row">
+                    <div class="form-group"><label>Company Name</label><input type="text" name="business_company" placeholder="Company Name"></div>
+                    <div class="form-group"><label>VAT / Tax ID</label><input type="text" name="business_vat" placeholder="VAT or Tax ID"></div>
+                </div>
+                <div class="form-group mb-2"><label>Business Address</label><input type="text" name="business_address" placeholder="Business Address"></div>
+                <div class="form-group mb-2"><label>Purpose of Purchase</label><input type="text" name="business_purpose" placeholder="e.g. team event, client entertainment"></div>
+            </div>
+
+            <label class="consent-label">
+                <input type="checkbox" id="smsConsent" required>
+                <span id="sms-consent-text">I agree to receive SMS communications regarding my upcoming reservation. Message and data rates may apply. Reply STOP to opt out at any time.</span>
+            </label>
+            <label class="consent-label">
+                <input type="checkbox" id="termsConsent" required>
+                <span>I have read and agree to the <a id="terms-link" href="#" target="_blank">Terms of Service</a> and <a id="privacy-link" href="#" target="_blank">Privacy Policy</a>.</span>
+            </label>
+
+            <div class="step-navigation">
+                <button type="button" class="btn-prev" id="prev-to-transport">← Transportation</button>
+                <button class="submit-btn" id="submitBtn" type="submit">Complete Purchase</button>
+            </div>
+        </section>
+    </form>
+
+    {{-- Club info (location + contact) --}}
+    <section id="club-info-section">
+        <h5 id="club-info-name" style="font-weight:700;"></h5>
+        <iframe id="club-info-map-frame" src="" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" style="display:none;"></iframe>
+        <div id="club-info-contact" class="mt-2" style="font-size:14px;opacity:.8;"></div>
+    </section>
+
+</div>
+</main>
+
+{{-- Modal for package / addon description --}}
+<div class="modal fade" tabindex="-1">
+    <div class="modal-dialog"><div class="modal-content" style="background:#1a1d2e;color:#ddd;">
+        <div class="modal-header"><h5 class="modal-title" style="color:#fff;"></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body"></div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
+    </div></div>
+</div>
+
+<div class="modal fade" id="addonSelectionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background:#1a1d2e;color:#ddd;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addonSelectionModalTitle" style="color:#fff;">Select Add-ons</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="addonSelectionModalBody"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn" id="addonModalConfirmBtn" style="background:var(--aff-accent);color:#000;font-weight:700;">Confirm & Add to Cart</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://js.stripe.com/v3/"></script>
+
+<script>
+// ============================================================
+//  CART SYSTEM
+// ============================================================
+window.cart = [];
+window.cartCoupon = null;
+window.activeClub = null;
+let stripeObj = null, cardNum_el = null, cardExp_el = null, cardCvc_el = null, loadedStripeKey = '';
+
+function ensureCart() { if (!Array.isArray(window.cart)) window.cart = []; }
+
+window.addToCart = function(pkgId, pkgName, pkgPrice, guests, addons, transport) {
+    ensureCart();
+    window.cart = [{ pkgId, pkgName, pkgPrice, guests, addons, transport }];
+    renderCart(); calcTotal();
+};
+
+window.removeFromCart = function(pkgId) {
+    ensureCart();
+    window.cart = window.cart.filter(p => p.pkgId != pkgId);
+    renderCart(); calcTotal();
+};
+
+function renderCart() {
+    ensureCart();
+    if (!window.cart.length) { $('#cart-section').hide(); return; }
+    $('#cart-section').show();
+    let html = '';
+    window.cart.forEach(p => {
+        let addonTotal = p.addons.reduce((s, a) => s + parseFloat(a.price), 0);
+        html += `<div style="border-bottom:1px solid rgba(255,255,255,0.08);padding:8px 0;">`
+            + `<strong>${p.pkgName}</strong> &times;${p.guests} &mdash; <span style="color:var(--aff-accent)">$${(p.pkgPrice * p.guests).toFixed(2)}</span>`
+            + `<button onclick="window.removeFromCart('${p.pkgId}')" style="float:right;background:#c00;color:#fff;border:none;border-radius:5px;padding:3px 9px;cursor:pointer;font-size:12px;">Remove</button>`
+            + (p.addons.length ? `<div style="margin-left:18px;font-size:12px;opacity:.6;">Add-ons: ${p.addons.map(a => a.name + ' ($' + a.price + ')').join(', ')}</div>` : '')
+            + '</div>';
+    });
+    $('#cart-list').html(html);
+}
+
+function calcTotal() {
+    ensureCart();
+    if (!window.activeClub) return;
+    const c = window.activeClub;
+    let sub = 0;
+    window.cart.forEach(p => { sub += (p.pkgPrice * p.guests) + p.addons.reduce((s, a) => s + parseFloat(a.price), 0); });
+
+    let scAmt = (c.serviceChargeName !== '0' && c.serviceChargeName !== 0) ? sub * c.serviceChargeFee / 100 : 0;
+    let stAmt = (c.salesTaxName !== '0' && c.salesTaxName !== 0) ? sub * c.salesTaxFee / 100 : 0;
+    let grAmt = (c.gratuityName !== '0' && c.gratuityName !== 0) ? (sub + scAmt + stAmt) * c.gratuityFee / 100 : 0;
+    let grand = sub + scAmt + stAmt + grAmt;
+
+    let promoDisc = 0;
+    if (window.cartCoupon) {
+        promoDisc = window.cartCoupon.type === 'percentage' ? grand * window.cartCoupon.discount / 100 : window.cartCoupon.discount;
+        grand -= promoDisc;
+    }
+    let rfAmt = grand * c.refundableFee / 100;
+
+    $('.default-package-price .summary-value').text('$' + sub.toFixed(2));
+    scAmt > 0 ? ($('#sc-row').show(), $('#sc-row .summary-value').text('$' + scAmt.toFixed(2))) : $('#sc-row').hide();
+    stAmt > 0 ? ($('#st-row').show(), $('#st-row .summary-value').text('$' + stAmt.toFixed(2))) : $('#st-row').hide();
+    grAmt > 0 ? ($('#gr-row').show(), $('#gr-row .summary-value').text('$' + grAmt.toFixed(2))) : $('#gr-row').hide();
+
+    if (promoDisc > 0) {
+        if (!$('.promo-disc-row').length) $('.default-gratuity').after('<div class="promo-disc-row" style="font-size:13px;">Promo Discount: <span>$0.00</span></div>');
+        $('.promo-disc-row span').text('-$' + promoDisc.toFixed(2));
+    } else { $('.promo-disc-row').remove(); }
+
+    c.refundableFee > 0 ? ($('#rf-row').show(), $('#due-row').show(), $('#rf-row .summary-value').text('$' + rfAmt.toFixed(2)), $('#due-row .summary-value').text('$' + (grand - rfAmt).toFixed(2))) : ($('#rf-row').hide(), $('#due-row').hide());
+    $('.default-deposit .summary-value').text('$' + grand.toFixed(2));
+    $('.payment_total').val(grand.toFixed(2));
+    $('#subtotal').val(c.refundableFee > 0 ? rfAmt.toFixed(2) : grand.toFixed(2));
+    $('#cart-total').text('Total: $' + grand.toFixed(2));
+    window.cartCoupon && promoDisc > 0 ? $('#cart-coupon').text('Coupon: ' + window.cartCoupon.code + ' (-$' + promoDisc.toFixed(2) + ')') : $('#cart-coupon').text('');
+}
+</script>
+
+<script>
+// ============================================================
+//  ACTIVATE CLUB (switches form action, payment, labels)
+// ============================================================
+function activateClub(slug) {
+    const c = clubConfigs[slug];
+    if (!c) return;
+    window.activeClub = c;
+    $('#payment-form').attr('action', '/' + slug + '/checkout/store');
+    $('#website_id').val(c.id);
+    $('#sc-lbl').text(c.serviceChargeName !== '0' ? c.serviceChargeName : 'Service Charge');
+    $('#st-lbl').text(c.salesTaxName !== '0' ? c.salesTaxName : 'Sales Tax');
+    $('#gr-lbl').text(c.gratuityName !== '0' ? c.gratuityName : 'Gratuity');
+    $('#rf-lbl').text(c.refundableName || 'Processing Fees');
+    $('#promo-lbl').text(c.promoCodeName || 'Promo Code');
+    $('#terms-link').attr('href', c.terms);
+    $('#privacy-link').attr('href', c.privacy);
+    $('#sms-consent-text').text('I agree to receive SMS communications from ' + c.name + ' regarding my upcoming reservation. Message and data rates may apply. Reply STOP to opt out.');
+    $('#transport-confirm-text').text(c.transportConfirmText);
+
+    if (c.paymentMethod === 'stripe') {
+        $('#stripe-section').show(); $('#authorize-section').hide();
+        $('#authorize-section').find('input').prop('required', false).prop('disabled', true);
+        if (c.stripeKey && c.stripeKey !== loadedStripeKey) initStripe(c.stripeKey);
+    } else {
+        $('#authorize-section').show(); $('#stripe-section').hide();
+        $('#authorize-section').find('input').prop('disabled', false);
+        $('#authorize-section').find('input[name="card_number"]').prop('required', true);
+        $('#authorize-section').find('input[name="card_month"]').prop('required', true);
+        $('#authorize-section').find('input[name="card_year"]').prop('required', true);
+        $('#authorize-section').find('input[name="card_cvv"]').prop('required', true);
+    }
+
+    // Club info at bottom
+    $('#club-info-name').text(c.name);
+    if (c.location) {
+        $('#club-info-map-frame').attr('src', 'https://www.google.com/maps?q=' + encodeURIComponent(c.location) + '&output=embed').show();
+    } else {
+        $('#club-info-map-frame').hide();
+    }
+    let contact = '';
+    if (c.phone) contact += '<p style="margin-bottom:4px;"><a href="tel:' + c.phone + '" style="color:var(--aff-accent);">' + c.phone + '</a></p>';
+    if (c.email) contact += '<p style="margin-bottom:0;"><a href="mailto:' + c.email + '" style="color:var(--aff-accent);">' + c.email + '</a></p>';
+    $('#club-info-contact').html(contact);
+    $('#club-info-section').show();
+}
+
+function initStripe(key) {
+    loadedStripeKey = key;
+    stripeObj = Stripe(key);
+    const els = stripeObj.elements();
+    const style = { base: { color: '#fff', fontSize: '15px', '::placeholder': { color: '#aab7cc' } }, invalid: { color: '#f87' } };
+    if (cardNum_el) { try { cardNum_el.unmount(); cardExp_el.unmount(); cardCvc_el.unmount(); } catch(e){} }
+    $('#card_number').empty(); $('#expiration_date').empty(); $('#cvv').empty();
+    cardNum_el = els.create('cardNumber', { style }); cardNum_el.mount('#card_number');
+    cardExp_el = els.create('cardExpiry', { style }); cardExp_el.mount('#expiration_date');
+    cardCvc_el = els.create('cardCvc', { style });    cardCvc_el.mount('#cvv');
+}
+</script>
+
+<script>
+// ============================================================
+//  VIP-BTN CLICK → LOAD ADDONS, SHOW CHECKOUT
+// ============================================================
+window.pendingPackageSelection = null;
+
+function escapeAddonHtml(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function openAddonSelectionModal(selection) {
+    const addons = selection.addons || [];
+    let html = '';
+
+    if (!addons.length) {
+        html = '<p style="margin:0;opacity:.8;">No add-ons available for this package. Click confirm to continue.</p>';
+    } else {
+        addons.forEach(function(a) {
+            html += '<label style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.12);">'
+                + '<span>' + escapeAddonHtml(a.name) + ' <span style="opacity:.6;">($' + parseFloat(a.price || 0).toFixed(2) + ')</span></span>'
+                + '<input type="checkbox" class="addon-modal-check" data-id="' + a.id + '" data-name="' + escapeAddonHtml(a.name) + '" data-price="' + parseFloat(a.price || 0) + '">'
+                + '</label>';
+        });
+    }
+
+    $('#addonSelectionModalTitle').text('Select Add-ons for ' + selection.pkgName);
+    $('#addonSelectionModalBody').html(html);
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('addonSelectionModal')).show();
+}
+
+$(document).ready(function() {
+    document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (element) {
+        new bootstrap.Popover(element, {
+            trigger: 'focus hover',
+            html: true,
+            sanitize: false,
+        });
+    });
+
+    $(document).on('click', '.package-category-tile', function() {
+        const target = $(this).data('target');
+        const isOpen = $(this).hasClass('active');
+
+        $('.package-category-tile').removeClass('active').css({ background: 'transparent', color: 'var(--aff-accent)' });
+        $('.package-category-group').hide();
+
+        if (!isOpen) {
+            $(this).addClass('active').css({ background: 'var(--aff-accent)', color: '#000' });
+            $(target).show();
+        }
+    });
+
+    $(document).on('click', '.vip-btn', function() {
+        const pkgId     = $(this).data('id');
+        const pkgName   = $(this).data('name');
+        const pkgPrice  = parseFloat($(this).data('price'));
+        const guests    = parseInt($('.package_number_of_guestss[data-id="' + pkgId + '"]').val()) || 1;
+        const transport = $(this).data('transportation');
+        const clubSlug  = $(this).data('club-slug');
+
+        // Highlight selected card
+        $('.vip-card').removeClass('selected');
+        $('#pkg-card-' + pkgId).addClass('selected');
+
+        // Activate club config
+        activateClub(clubSlug);
+        $('#package_id').val(pkgId);
+        $('.package_number_of_guest').val(guests);
+        window.requiresTransport = (transport == 1 || transport === '1' || transport === true);
+
+        $.ajax({
+            url: '/' + clubSlug + '/addons/' + pkgId,
+            type: 'GET', dataType: 'json',
+            success: function(res) {
+                window.pendingPackageSelection = {
+                    pkgId: pkgId,
+                    pkgName: pkgName,
+                    pkgPrice: pkgPrice,
+                    guests: guests,
+                    transport: transport,
+                    addons: Array.isArray(res) ? res : []
+                };
+
+                openAddonSelectionModal(window.pendingPackageSelection);
+            }
+        });
+    });
+
+    $('#addonModalConfirmBtn').on('click', function() {
+        if (!window.pendingPackageSelection) {
+            return;
+        }
+
+        const selection = window.pendingPackageSelection;
+        const addons = [];
+
+        $('#addonSelectionModalBody .addon-modal-check:checked').each(function() {
+            addons.push({
+                id: $(this).data('id'),
+                name: $(this).data('name'),
+                price: parseFloat($(this).data('price'))
+            });
+        });
+
+        window.addToCart(selection.pkgId, selection.pkgName, selection.pkgPrice, selection.guests, addons, selection.transport);
+        $('#package_id').val(selection.pkgId);
+        $('.package_number_of_guest').val(selection.guests);
+
+        $('.price-summary').show();
+        $('#promo-section').show();
+        $('#checkout-steps').show();
+        showStep(1);
+
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('addonSelectionModal')).hide();
+        window.pendingPackageSelection = null;
+    });
+
+    // Guest select change → update cart
+    $(document).on('change', '.package_number_of_guestss', function() {
+        $('.package_number_of_guest').val($(this).val());
+        const pkgId = $(this).data('id');
+        let p = window.cart.find(x => x.pkgId == pkgId);
+        if (p) { p.guests = parseInt($(this).val()); renderCart(); calcTotal(); }
+    });
+
+    // Reservation date change → sync hidden field
+    $('#pkg-use-date').on('change', function() {
+        $('.package_use_date').val($(this).val());
+    });
+
+    // Business expense toggle
+    $('#businessExpenseCheckbox').on('change', function() {
+        $(this).is(':checked') ? $('#businessFields').slideDown() : $('#businessFields').slideUp();
+    });
+});
+</script>
+
+<script>
+// ============================================================
+//  STEP MANAGEMENT
+// ============================================================
+let currentStep = 1;
+window.requiresTransport = false;
+
+function showStep(n) {
+    $('.checkout-section').removeClass('active').hide();
+    $('#section-' + n).addClass('active').show();
+    $('.step').removeClass('active completed');
+    for (let i = 1; i < n; i++) $('#step-' + i).addClass('completed');
+    $('#step-' + n).addClass('active');
+    currentStep = n;
+    if (n === 2) {
+        window.requiresTransport ? ($('#transport-form').show(), $('#transport-confirmation').hide())
+                                 : ($('#transport-confirmation').show(), $('#transport-form').hide());
+    }
+    window.scrollTo({ top: ($('#section-' + n).offset().top - 90), behavior: 'smooth' });
+}
+
+function validateStep(n) {
+    if (n === 1) {
+        const req = ['[name="package_first_name"]','[name="package_last_name"]','[name="package_phone"]','[name="package_email"]','[name="package_month"]','[name="package_day"]','[name="package_year"]'];
+        let ok = true;
+        req.forEach(s => { const f=$(s); if (!f.val()?.trim()) { f.addClass('required-field'); ok=false; } else f.removeClass('required-field'); });
+        if (!ok) { alert('Please fill in all required fields.'); return false; }
+    }
+    if (n === 2) {
+        if (window.requiresTransport) {
+            const req = ['[name="transportation_pickup_time"]','[name="transportation_address"]','[name="transportation_phone"]'];
+            let ok = true;
+            req.forEach(s => { const f=$(s); if (!f.val()?.trim()) { f.addClass('required-field'); ok=false; } else f.removeClass('required-field'); });
+            if (!ok) { alert('Please fill in transportation details.'); return false; }
+        } else {
+            if (!$('#transportation_part').is(':checked')) { alert('Please confirm your transportation arrangement.'); return false; }
+        }
+    }
+    return true;
+}
+
+function populatePaymentFields() {
+    $('#hidden_payment_phone').val($('[name="package_phone"]').val());
+    $('#hidden_payment_email').val($('[name="package_email"]').val());
+    $('#hidden_payment_month').val($('[name="package_month"]').val());
+    $('#hidden_payment_day').val($('[name="package_day"]').val());
+    $('#hidden_payment_year').val($('[name="package_year"]').val());
+}
+
+$(document).ready(function() {
+    $('#next-to-transport').click(() => { if (validateStep(1)) showStep(2); });
+    $('#prev-to-pkg').click(() => showStep(1));
+    $('#prev-to-pkg-from-form').click(() => showStep(1));
+    $('#next-to-pay-confirm').click(() => { if (validateStep(2)) { populatePaymentFields(); showStep(3); } });
+    $('#next-to-pay').click(() => { if (validateStep(2)) { populatePaymentFields(); showStep(3); } });
+    $('#prev-to-transport').click(() => showStep(2));
+
+    $(document).on('click', '.same-as-info', function() {
+        $('[name="payment_first_name"]').val($('[name="package_first_name"]').val());
+        $('[name="payment_last_name"]').val($('[name="package_last_name"]').val());
+        populatePaymentFields();
+    });
+    $(document).on('click', '.same-as-info-transport', function() {
+        $('[name="transportation_phone"]').val($('[name="package_phone"]').val());
+    });
+    $(document).on('input change', 'input, select, textarea', function() { $(this).removeClass('required-field'); });
+});
+</script>
+
+<script>
+// ============================================================
+//  FORM SUBMIT (Stripe token or direct Authorize.net POST)
+// ============================================================
+$('#payment-form').on('submit', async function(e) {
+    e.preventDefault();
+    const c = window.activeClub;
+    if (!c) { alert('Please select a package first.'); return; }
+    if (!window.cart.length) { alert('Your cart is empty.'); return; }
+    if (!this.reportValidity()) { return; }
+
+    // Populate addons field from cart
+    const pkgId = $('#package_id').val();
+    const pkg = window.cart.find(p => p.pkgId == pkgId);
+    if (pkg) {
+        $('#addons').val(pkg.addons.map(a => a.name + ' ($' + a.price + ')').join(', '));
+    }
+
+    if (c.paymentMethod === 'stripe') {
+        if (!stripeObj || !cardNum_el) { alert('Payment not ready. Please try again.'); return; }
+        const { token, error } = await stripeObj.createToken(cardNum_el);
+        if (error) { alert(error.message); return; }
+        const h = document.createElement('input');
+        h.type = 'hidden'; h.name = 'stripeToken'; h.value = token.id;
+        this.appendChild(h);
+    }
+
+    this.submit();
+});
+</script>
+
+<script>
+// ============================================================
+//  PROMO CODE
+// ============================================================
+$('#applyPromoBtn').on('click', function() {
+    const c = window.activeClub;
+    if (!c) return;
+    const code = $('#promo_code').val().trim();
+    if (!code) return;
+    $.get('/' + c.slug + '/check/' + encodeURIComponent(code), function(res) {
+        if (!res.valid || res.valid === 'false') {
+            window.cartCoupon = null; alert('Invalid promo code.'); calcTotal();
+        } else {
+            window.cartCoupon = { code, id: res.id, discount: parseFloat(res.discount), type: res.type || 'percentage' };
+            $('#applyPromoBtn').prop('disabled', true);
+            $('.promo_code').val(res.id);
+            calcTotal();
+        }
+    });
+});
+</script>
+
+<script>
+// ============================================================
+//  COUNTRY / STATE / DOB SELECTS
+// ============================================================
+function fillCountry(id) {
+    const CC = ['United States','Canada','United Kingdom','Australia','Germany','France','Italy','Spain','Netherlands','Brazil','India','China','Japan','South Korea','Mexico','Russia','South Africa','New Zealand','Sweden','Norway','Denmark','Finland','Ireland','Switzerland','Austria','Belgium','Portugal','Poland','Turkey','Argentina','Chile','Colombia','Czech Republic','Greece','Hungary','Iceland','Indonesia','Israel','Malaysia','Philippines','Saudi Arabia','Singapore','Slovakia','Thailand','Ukraine','United Arab Emirates','Vietnam','Egypt','Morocco','Nigeria','Pakistan','Romania','Serbia','Croatia','Slovenia','Bulgaria','Estonia','Latvia','Lithuania','Luxembourg','Malta','Monaco','Montenegro','Qatar','Kuwait','Oman','Bahrain','Jordan','Lebanon','Cyprus','Georgia','Kazakhstan','Uzbekistan','Bangladesh','Sri Lanka','Nepal','Cambodia','Laos','Myanmar','Mongolia','Afghanistan','Albania','Armenia','Azerbaijan','Belarus','Bosnia and Herzegovina','Botswana','Brunei','Burkina Faso','Burundi','Cameroon','Cape Verde','Central African Republic','Chad','Comoros','Congo','Costa Rica','Cuba','Djibouti','Dominica','Dominican Republic','Ecuador','El Salvador','Equatorial Guinea','Eritrea','Eswatini','Ethiopia','Fiji','Gabon','Gambia','Ghana','Grenada','Guatemala','Guinea','Guinea-Bissau','Guyana','Haiti','Honduras','Jamaica','Kenya','Kiribati','Lesotho','Liberia','Libya','Liechtenstein','Madagascar','Malawi','Maldives','Mali','Marshall Islands','Mauritania','Mauritius','Micronesia','Moldova','Mozambique','Namibia','Nauru','Nicaragua','Niger','North Korea','North Macedonia','Palau','Palestine','Panama','Papua New Guinea','Paraguay','Peru','Rwanda','Saint Kitts and Nevis','Saint Lucia','Saint Vincent and the Grenadines','Samoa','San Marino','Sao Tome and Principe','Senegal','Seychelles','Sierra Leone','Solomon Islands','Somalia','South Sudan','Sudan','Suriname','Syria','Tajikistan','Tanzania','Timor-Leste','Togo','Tonga','Trinidad and Tobago','Tunisia','Turkmenistan','Tuvalu','Uganda','Uruguay','Vanuatu','Vatican City','Venezuela','Yemen','Zambia','Zimbabwe'];
+    const el = document.getElementById(id); if (!el) return;
+    el.innerHTML = '<option value="">Select Country</option>';
+    CC.forEach(c => el.innerHTML += `<option value="${c}">${c}</option>`);
+}
+
+function fillDOB(mId, dId, yId) {
+    const m = document.getElementById(mId), d = document.getElementById(dId), y = document.getElementById(yId);
+    if (!m || !d || !y) return;
+    m.innerHTML = d.innerHTML = y.innerHTML = '';
+    for (let i=1; i<=12; i++) m.innerHTML += `<option value="${String(i).padStart(2,'0')}">${String(i).padStart(2,'0')}</option>`;
+    for (let i=1; i<=31; i++) d.innerHTML += `<option value="${String(i).padStart(2,'0')}">${String(i).padStart(2,'0')}</option>`;
+    const yr = new Date().getFullYear();
+    for (let i=yr; i>=yr-100; i--) y.innerHTML += `<option value="${i}">${i}</option>`;
+}
+
+$(function() {
+    fillCountry('country');
+    fillDOB('package-dob-month','package-dob-day','package-dob-year');
+    // Set min date
+    const now = new Date(), yy=now.getFullYear(), mm=String(now.getMonth()+1).padStart(2,'0'), dd=String(now.getDate()).padStart(2,'0');
+    $('#pkg-use-date').attr('min', `${yy}-${mm}-${dd}`);
+});
+
+$(document).on('change', '#country', function() {
+    const country = $(this).val(), $st = $('#st-pv');
+    $st.html('<option>Loading…</option>');
+    if (!country) { $st.html('<option disabled selected>Select State/Province</option>'); return; }
+    $.ajax({
+        url: 'https://countriesnow.space/api/v0.1/countries/states',
+        type: 'POST', contentType: 'application/json',
+        data: JSON.stringify({ country }),
+        success: function(res) {
+            if (res?.data?.states?.length) {
+                let o = '<option value="null" disabled selected>Select State/Province</option>';
+                res.data.states.forEach(s => o += `<option value="${s.name}">${s.name}</option>`);
+                $st.html(o);
+            } else { $st.html('<option disabled>No states found</option>'); }
+        },
+        error: function() { $st.html('<option disabled>Error loading states</option>'); }
+    });
+});
+
+flatpickr('.flatpickr-time', { enableTime:true, noCalendar:true, dateFormat:'h:i K', time_24hr:false });
+</script>
+
+</body>
+</html>

@@ -185,19 +185,71 @@
   </li>
   @endif
 
+  @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isWebsiteUser()))
   <li class="menu-item {{ request()->is('admins/transaction') ? 'active' : '' }}">
     <a href="/admins/transaction" class="menu-link">
       <i class="menu-icon tf-icons bx bx-package"></i>
       <div class="text-truncate">Transactions</div>
     </a>
   </li>
+  @endif
 
+  @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isWebsiteUser()))
   <li class="menu-item {{ request()->is('admins/custom-invoice') ? 'active' : '' }}">
     <a href="{{ route('admin.custom-invoice.index') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-file"></i>
       <div class="text-truncate">Custom Invoices</div>
     </a>
   </li>
+  @endif
+
+  @if(auth()->check() && auth()->user()->isAdmin())
+  <li class="menu-item {{ request()->is('admins/affiliate*') ? 'active' : '' }}">
+    <a href="{{ route('admin.affiliate.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-group"></i>
+      <div class="text-truncate">Affiliates</div>
+    </a>
+  </li>
+  @endif
+
+  @if(auth()->check() && auth()->user()->isAffiliate())
+  <li class="menu-item {{ request()->is('affiliate-portal/dashboard') ? 'active' : '' }}">
+    <a href="{{ route('affiliate.portal.dashboard') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-home-alt-2"></i>
+      <div class="text-truncate">Affiliate Dashboard</div>
+    </a>
+  </li>
+
+  <li class="menu-item {{ request()->is('affiliate-portal/packages') ? 'active' : '' }}">
+    <a href="{{ route('affiliate.portal.packages') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-list-ul"></i>
+      <div class="text-truncate">My Packages</div>
+    </a>
+  </li>
+
+  <li class="menu-item {{ request()->is('affiliate-portal/settings') ? 'active' : '' }}">
+    <a href="{{ route('affiliate.portal.settings') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-palette"></i>
+      <div class="text-truncate">Page Customization</div>
+    </a>
+  </li>
+
+  <li class="menu-item {{ request()->is('affiliate-portal/wallet') ? 'active' : '' }}">
+    <a href="{{ route('affiliate.portal.wallet') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-wallet"></i>
+      <div class="text-truncate">Wallet</div>
+    </a>
+  </li>
+
+  @if(auth()->user()->affiliate && auth()->user()->affiliate->slug)
+  <li class="menu-item">
+    <a href="{{ route('affiliate.public', auth()->user()->affiliate->slug) }}" target="_blank" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-link-external"></i>
+      <div class="text-truncate">My Affiliate Page</div>
+    </a>
+  </li>
+  @endif
+  @endif
 
   <li class="menu-item">
     <a href="{{ route('admin.profile.edit') }}" class="menu-link">

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Affiliate;
 
 class User extends Authenticatable
 {
@@ -57,6 +58,11 @@ class User extends Authenticatable
         return $this->belongsTo(Website::class);
     }
 
+    public function affiliate()
+    {
+        return $this->hasOne(Affiliate::class);
+    }
+
     /**
      * Check if the user is an admin.
      */
@@ -71,6 +77,11 @@ class User extends Authenticatable
     public function isWebsiteUser()
     {
         return $this->user_type === 'website_user';
+    }
+
+    public function isAffiliate()
+    {
+        return $this->user_type === 'affiliate';
     }
 
     /**

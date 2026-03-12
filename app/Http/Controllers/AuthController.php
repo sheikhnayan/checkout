@@ -15,7 +15,7 @@ class AuthController extends Controller
     public function showLoginForm()
     {
         if (Auth::check()) {
-            return redirect()->route('admin.transaction.index');
+            return $this->redirectByUserType(Auth::user());
         }
         
         return view('auth.login');
@@ -35,8 +35,22 @@ class AuthController extends Controller
         
         if (Auth::attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
+
+            $user = Auth::user();
+            if ($user && $user->isAffiliate()) {
+                $affiliate = $user->affiliate;
+                if (!$affiliate || $affiliate->status !== 'approved' || !$affiliate->is_active) {
+                    Auth::logout();
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+
+                    return back()->withErrors([
+                        'email' => 'Your affiliate application is still under review. We will notify you once approved.',
+                    ])->onlyInput('email');
+                }
+            }
             
-            return redirect()->intended(route('admin.transaction.index'));
+            return $this->redirectByUserType($user);
         }
 
         return back()->withErrors([
@@ -55,5 +69,14 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
         
         return redirect()->route('login');
+    }
+
+    private function redirectByUserType(User $user)
+    {
+        if ($user->isAffiliate()) {
+            return redirect()->route('affiliate.portal.dashboard');
+        }
+
+        return redirect()->route('admin.transaction.index');
     }
 }

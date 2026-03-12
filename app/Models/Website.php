@@ -63,6 +63,11 @@ class Website extends Model
         return $this->hasMany(Package::class);
     }
 
+    public function packageCategories()
+    {
+        return $this->hasMany(PackageCategory::class);
+    }
+
     public function events()
     {
         return $this->hasMany(Event::class);

@@ -102,6 +102,7 @@
                                                     <tr>
                                                         <th>SI</th>
                                                         <th>Name</th>
+                                                        <th>Category</th>
                                                         <th>Price</th>
                                                         <th>Status</th>
                                                         <th>Action</th>
@@ -114,6 +115,7 @@
                                                         <tr>
                                                             <td>{{ $activeIndex++ }}</td>
                                                             <td>{{ $item->name }}</td>
+                                                            <td>{{ optional($item->category)->name ?: 'Uncategorized' }}</td>
                                                             <td>{{ $item->price }}</td>
                                                             <td>
                                                                 @if ($item->status == 1)
@@ -149,6 +151,7 @@
                                                     <tr>
                                                         <th>SI</th>
                                                         <th>Name</th>
+                                                        <th>Category</th>
                                                         <th>Price</th>
                                                         <th>Status</th>
                                                         <th>Action</th>
@@ -161,6 +164,7 @@
                                                         <tr>
                                                             <td>{{ $archivedIndex++ }}</td>
                                                             <td>{{ $item->name }}</td>
+                                                            <td>{{ optional($item->category)->name ?: 'Uncategorized' }}</td>
                                                             <td>{{ $item->price }}</td>
                                                             <td>
                                                                 @if ($item->status == 1)

@@ -57,7 +57,7 @@
 
                         <div class="row">
                             <div class="col-lg-8">
-                                <div class="card-shadow-primary card-border text-white mb-3 card bg-primary p-4" style="background: #fff !important;">
+                                <div class="card-shadow-primary card-border mb-3 card p-4" style="background: #fff !important; color: #212529;">
                                     <div class="card-header border-bottom p-0 pb-3">
                                         <h5 class="card-title">Invoice Details</h5>
                                     </div>
@@ -72,10 +72,12 @@
                                             <div class="col-md-6">
                                                 <p><strong>Invoice Date:</strong> {{ $customInvoice->created_at->format('M d, Y') }}</p>
                                                 <p><strong>Status:</strong> 
-                                                    @if($customInvoice->status === 'draft')
+                                                    @if($customInvoice->archived_at)
+                                                        <span class="badge bg-dark">Archived</span>
+                                                    @elseif($customInvoice->status === 'draft')
                                                         <span class="badge bg-secondary">Draft</span>
                                                     @elseif($customInvoice->status === 'sent')
-                                                        <span class="badge bg-info">Sent</span>
+                                                        <span class="badge bg-primary">Sent</span>
                                                     @elseif($customInvoice->status === 'paid')
                                                         <span class="badge bg-success">Paid</span>
                                                     @else
@@ -154,7 +156,7 @@
                                     </div>
 
                                     <div class="card-footer border-top p-3">
-                                        @if($customInvoice->status === 'draft')
+                                        @if(!$customInvoice->archived_at && $customInvoice->status === 'draft')
                                             <a href="{{ route('admin.custom-invoice.edit', $customInvoice->id) }}" class="btn btn-primary">
                                                 <i class="fas fa-edit"></i> Edit
                                             </a>
@@ -162,6 +164,21 @@
                                                 @csrf
                                                 <button type="submit" class="btn btn-success" onclick="return confirm('Send invoice to {{ $customInvoice->client_email }}?');">
                                                     <i class="fas fa-paper-plane"></i> Send to Client
+                                                </button>
+                                            </form>
+                                        @endif
+                                        @if($customInvoice->archived_at)
+                                            <form action="{{ route('admin.custom-invoice.unarchive', $customInvoice->id) }}" method="POST" style="display:inline;">
+                                                @csrf
+                                                <button type="submit" class="btn btn-warning" onclick="return confirm('Restore this archived invoice?');">
+                                                    <i class="fas fa-box-open"></i> Restore
+                                                </button>
+                                            </form>
+                                        @else
+                                            <form action="{{ route('admin.custom-invoice.archive', $customInvoice->id) }}" method="POST" style="display:inline;">
+                                                @csrf
+                                                <button type="submit" class="btn btn-dark" onclick="return confirm('Archive this invoice?');">
+                                                    <i class="fas fa-box-archive"></i> Archive
                                                 </button>
                                             </form>
                                         @endif
@@ -177,17 +194,19 @@
                             </div>
 
                             <div class="col-lg-4">
-                                <div class="card-shadow-primary card-border text-white mb-3 card bg-primary p-4" style="background: #fff !important;">
+                                <div class="card-shadow-primary card-border mb-3 card p-4" style="background: #fff !important; color: #212529;">
                                     <div class="card-header border-bottom p-0 pb-3">
                                         <h5 class="card-title">Invoice Status</h5>
                                     </div>
                                     <div class="card-body pt-3">
                                         <div class="mb-3">
                                             <strong>Current Status:</strong><br>
-                                            @if($customInvoice->status === 'draft')
+                                            @if($customInvoice->archived_at)
+                                                <span class="badge bg-dark" style="font-size: 14px;">Archived</span>
+                                            @elseif($customInvoice->status === 'draft')
                                                 <span class="badge bg-secondary" style="font-size: 14px;">Draft (Not Sent)</span>
                                             @elseif($customInvoice->status === 'sent')
-                                                <span class="badge bg-info" style="font-size: 14px;">Sent to Client</span>
+                                                <span class="badge bg-primary" style="font-size: 14px;">Sent to Client</span>
                                             @elseif($customInvoice->status === 'paid')
                                                 <span class="badge bg-success" style="font-size: 14px;">Paid</span>
                                             @else
@@ -204,8 +223,15 @@
 
                                         @if($customInvoice->sent_at)
                                         <div class="mb-3">
-                                            <strong>Sent At:</strong><br>
+                                            <strong>Email Sent At:</strong><br>
                                             {{ $customInvoice->sent_at->format('M d, Y H:i') }}
+                                        </div>
+                                        @endif
+
+                                        @if($customInvoice->archived_at)
+                                        <div class="mb-3">
+                                            <strong>Archived At:</strong><br>
+                                            {{ $customInvoice->archived_at->format('M d, Y H:i') }}
                                         </div>
                                         @endif
 
@@ -218,7 +244,7 @@
                                     </div>
                                 </div>
 
-                                <div class="card-shadow-primary card-border text-white mb-3 card bg-primary p-4" style="background: #fff !important;">
+                                <div class="card-shadow-primary card-border mb-3 card p-4" style="background: #fff !important; color: #212529;">
                                     <div class="card-header border-bottom p-0 pb-3">
                                         <h5 class="card-title">Payment Link</h5>
                                     </div>

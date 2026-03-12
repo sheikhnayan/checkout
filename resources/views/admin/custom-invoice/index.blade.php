@@ -38,6 +38,9 @@
                                         <li class="active breadcrumb-item">Custom Invoices</li>
                                     </ol>
                                     <div style="float: right">
+                                        <a href="{{ route('admin.custom-invoice.index', ['include_archived' => $includeArchived ? 0 : 1]) }}" class="btn btn-outline-secondary me-2">
+                                            <i class="fas fa-box-archive"></i> {{ $includeArchived ? 'Hide Archived' : 'Show Archived' }}
+                                        </a>
                                         <a href="{{ route('admin.custom-invoice.create') }}" class="btn btn-primary">
                                             <i class="fas fa-plus"></i> Create Invoice
                                         </a>
@@ -48,7 +51,28 @@
 
                         <div class="row">
                             <div class="col-lg">
-                                <div class="card-shadow-primary card-border text-white mb-3 card bg-primary p-2" style="background: #fff !important;">
+                                @if (session('success'))
+                                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                        {{ session('success') }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                @endif
+
+                                @if (session('error'))
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        {{ session('error') }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                @endif
+
+                                @if (session('info'))
+                                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                                        {{ session('info') }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                @endif
+
+                                <div class="card-shadow-primary card-border mb-3 card p-2" style="background: #fff !important; color: #212529;">
                                     <table class="table" id="invoicesTable">
                                         <thead>
                                             <tr>
@@ -75,10 +99,15 @@
                                                 @endif
                                                 <td>${{ number_format($invoice->total, 2) }}</td>
                                                 <td>
-                                                    @if($invoice->status === 'draft')
+                                                    @if($invoice->archived_at)
+                                                        <span class="badge bg-dark">Archived</span>
+                                                    @elseif($invoice->status === 'draft')
                                                         <span class="badge bg-secondary">Draft</span>
                                                     @elseif($invoice->status === 'sent')
-                                                        <span class="badge bg-info">Sent</span>
+                                                        <span class="badge bg-primary">Sent</span>
+                                                        @if($invoice->sent_at)
+                                                            <div style="font-size: 11px; color: #6c757d; margin-top: 4px;">{{ $invoice->sent_at->format('M d, Y h:i A') }}</div>
+                                                        @endif
                                                     @elseif($invoice->status === 'paid')
                                                         <span class="badge bg-success">Paid</span>
                                                     @else
@@ -90,7 +119,7 @@
                                                     <a href="{{ route('admin.custom-invoice.show', $invoice->id) }}" class="btn btn-sm btn-info">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
-                                                    @if($invoice->status === 'draft')
+                                                    @if(!$invoice->archived_at && $invoice->status === 'draft')
                                                         <a href="{{ route('admin.custom-invoice.edit', $invoice->id) }}" class="btn btn-sm btn-primary">
                                                             <i class="fas fa-edit"></i>
                                                         </a>
@@ -98,6 +127,21 @@
                                                             @csrf
                                                             <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Send this invoice to {{ $invoice->client_email }}?');">
                                                                 <i class="fas fa-paper-plane"></i> Send
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                    @if($invoice->archived_at)
+                                                        <form action="{{ route('admin.custom-invoice.unarchive', $invoice->id) }}" method="POST" style="display:inline;">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Restore this archived invoice?');">
+                                                                <i class="fas fa-box-open"></i>
+                                                            </button>
+                                                        </form>
+                                                    @else
+                                                        <form action="{{ route('admin.custom-invoice.archive', $invoice->id) }}" method="POST" style="display:inline;">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-sm btn-outline-dark" onclick="return confirm('Archive this invoice?');">
+                                                                <i class="fas fa-box-archive"></i>
                                                             </button>
                                                         </form>
                                                     @endif

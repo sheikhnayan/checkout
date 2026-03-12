@@ -66,6 +66,14 @@
                     </div>
                     
                     <div class="card-body p-4">
+                        @if(session('success'))
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fas fa-check-circle me-2"></i>
+                                {{ session('success') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        @endif
+
                         @if($errors->any())
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                 <i class="fas fa-exclamation-triangle me-2"></i>
@@ -139,6 +147,12 @@
                                 <i class="fas fa-shield-alt me-1"></i>
                                 Change these credentials after first login for security.
                             </small>
+                        </div>
+
+                        <div class="text-center mt-3">
+                            <a href="{{ route('affiliate.apply') }}" class="text-decoration-none fw-semibold">
+                                <i class="fas fa-bullhorn me-1"></i> Apply as Affiliate
+                            </a>
                         </div>
                     </div>
                 </div>

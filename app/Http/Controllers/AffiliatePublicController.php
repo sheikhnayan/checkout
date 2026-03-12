@@ -1,0 +1,62 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Affiliate;
+use App\Models\Setting;
+use Illuminate\Support\Collection;
+
+class AffiliatePublicController extends Controller
+{
+    public function show($slug)
+    {
+        $affiliate = Affiliate::with(['user', 'affiliatePackages.package.website'])
+            ->where('slug', $slug)
+            ->where('status', 'approved')
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        $packageMappings = $affiliate->affiliatePackages()
+            ->with(['package.website', 'package.addons', 'package.event', 'package.category'])
+            ->where('is_active', true)
+            ->latest()
+            ->get()
+            ->filter(function ($mapping) {
+                return $mapping->package && $mapping->package->website && (int) $mapping->package->status === 1;
+            })
+            ->values();
+
+        $clubGroups = $packageMappings
+            ->groupBy(function ($mapping) {
+                return $mapping->package->website->id;
+            });
+
+        $packageCategoryGroups = $this->buildPackageCategoryGroups($packageMappings);
+
+        $setting = Setting::find(1);
+
+        return view('affiliate.public-page', compact('affiliate', 'packageMappings', 'clubGroups', 'packageCategoryGroups', 'setting'));
+    }
+
+    private function buildPackageCategoryGroups(Collection $packageMappings)
+    {
+        return $packageMappings
+            ->groupBy(function ($mapping) {
+                $package = $mapping->package;
+
+                return $package->website->id . '-' . ($package->package_category_id ?: 'uncategorized');
+            })
+            ->map(function ($group, $key) {
+                $firstMapping = $group->first();
+                $package = $firstMapping->package;
+
+                return [
+                    'id' => 'category-' . $key,
+                    'name' => optional($package->category)->name ?: 'Uncategorized',
+                    'club' => $package->website,
+                    'mappings' => $group->values(),
+                ];
+            })
+            ->values();
+    }
+}

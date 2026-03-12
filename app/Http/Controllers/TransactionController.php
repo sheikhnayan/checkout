@@ -8,6 +8,9 @@ use App\Models\Event;
 use App\Models\Package;
 use App\Models\Website;
 use App\Models\Setting;
+use App\Models\Affiliate;
+use App\Models\AffiliatePackage;
+use App\Models\AffiliateWalletTransaction;
 use App\Mail\TransactionMail;
 use Illuminate\Support\Facades\Mail;
 use net\authorize\api\contract\v1 as AnetAPI;
@@ -106,6 +109,7 @@ class TransactionController extends Controller
                     $add->addons = $request->input('addons');
                     $add->type = 'package';
                     $add->save();
+                    $this->applyAffiliateCommission($request, $add);
     
                     try {
                         //code...
@@ -295,6 +299,7 @@ class TransactionController extends Controller
                     $add->addons = $request->input('addons');
                     $add->type = 'package';
                     $add->save();
+                    $this->applyAffiliateCommission($request, $add);
     
                     try {
                         //code...
@@ -462,6 +467,7 @@ class TransactionController extends Controller
             $new->men = $request->men_count;
             $new->women = $request->women_count;
             $new->save();
+            $this->applyAffiliateCommission($request, $new);
 
             try {
                         //code...
@@ -604,6 +610,84 @@ class TransactionController extends Controller
         $paymentType = session('paymentType');
 
         return view('thank-you', compact('transaction', 'invoice', 'website', 'paymentType'));
+    }
+
+    private function applyAffiliateCommission(Request $request, Transaction $transaction): void
+    {
+        $affiliate = $this->resolveAffiliateFromRequest($request);
+        if (!$affiliate) {
+            return;
+        }
+
+        $packageId = (int) $request->input('package_id');
+        if ($packageId <= 0) {
+            $transaction->affiliate_id = $affiliate->id;
+            $transaction->affiliate_source = $affiliate->slug;
+            $transaction->save();
+            session()->forget(['affiliate_referral_id', 'affiliate_referral_slug']);
+            return;
+        }
+
+        $mapping = AffiliatePackage::where('affiliate_id', $affiliate->id)
+            ->where('package_id', $packageId)
+            ->where('is_active', true)
+            ->first();
+
+        if (!$mapping) {
+            return;
+        }
+
+        $commissionPercentage = (float) ($mapping->commission_percentage ?? $affiliate->default_commission_percentage);
+        $baseAmount = (float) ($transaction->total ?? 0);
+        $commissionAmount = round(max($baseAmount, 0) * ($commissionPercentage / 100), 2);
+
+        $transaction->affiliate_id = $affiliate->id;
+        $transaction->affiliate_commission_percentage = $commissionPercentage;
+        $transaction->affiliate_commission_amount = $commissionAmount;
+        $transaction->affiliate_source = $affiliate->slug;
+        $transaction->save();
+
+        if ($commissionAmount > 0) {
+            $newBalance = round((float) $affiliate->wallet_balance + $commissionAmount, 2);
+            $affiliate->wallet_balance = $newBalance;
+            $affiliate->save();
+
+            AffiliateWalletTransaction::create([
+                'affiliate_id' => $affiliate->id,
+                'transaction_id' => $transaction->id,
+                'type' => 'commission',
+                'status' => 'credited',
+                'amount' => $commissionAmount,
+                'balance_after' => $newBalance,
+                'description' => 'Commission earned from package purchase #' . $transaction->id,
+                'meta' => [
+                    'package_id' => $packageId,
+                    'website_id' => $transaction->website_id,
+                    'commission_percentage' => $commissionPercentage,
+                ],
+            ]);
+        }
+
+        session()->forget(['affiliate_referral_id', 'affiliate_referral_slug']);
+    }
+
+    private function resolveAffiliateFromRequest(Request $request): ?Affiliate
+    {
+        if ($request->filled('affiliate_slug')) {
+            return Affiliate::where('slug', $request->input('affiliate_slug'))
+                ->where('status', 'approved')
+                ->where('is_active', true)
+                ->first();
+        }
+
+        if (session()->has('affiliate_referral_id')) {
+            return Affiliate::where('id', session('affiliate_referral_id'))
+                ->where('status', 'approved')
+                ->where('is_active', true)
+                ->first();
+        }
+
+        return null;
     }
 
 }

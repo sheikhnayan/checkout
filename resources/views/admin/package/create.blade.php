@@ -136,6 +136,26 @@ label{
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
+                                                        <label for="category_id" class="form-label">Category</label>
+                                                        <select name="category_id" class="form-control" id="category_id">
+                                                            <option value="">Select Existing Category</option>
+                                                            @foreach($categories as $category)
+                                                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        <small class="text-muted">Categories are scoped to this website.</small>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="new_category_name" class="form-label">Or Create New Category</label>
+                                                        <input type="text" name="new_category_name" class="form-control" id="new_category_name" placeholder="Example: VIP Tables">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
                                                         <label for="name" class="form-label">Number Of Guests</label>
                                                         <input type="number" name="number_of_guest" class="form-control" id="name" placeholder="Enter Number Of Guests" required>
                                                     </div>

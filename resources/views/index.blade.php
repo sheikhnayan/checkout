@@ -729,6 +729,7 @@ a {
                         <form action="{{ route('reservations.store', ['slug' => $data->slug]) }}" method="post">
                             @csrf
                             <input type="hidden" name="website_id" value="{{ $data->id }}">
+                            <input type="hidden" name="affiliate_slug" value="{{ $affiliateReferral->slug ?? '' }}">
                             <section style="width: 100%">
                                 <div class="">
     
@@ -898,78 +899,76 @@ a {
     
                                     <h2 style="margin-bottom: 35px;">{{ $data->package_button_text ?? 'Packages' }}</h2>
     
-                                    @php
-                                        $packages = \App\Models\Package::where('website_id', $data->id)->where('event_id', $event->id)->get();
-                                    @endphp
-    
-                                    @foreach ($packages as $item)
-                                    @if ($item->status == 1)
-                                        <div class="vip-card d-flex flex-wrap justify-content-between align-items-center"
-                                            style="border-color: {{ $data->color }} !important;">
-                                            <div>
-                                                <div style="min-width: 210px;">
-                                                    <div class="vip-title" style="float: left; width: 125px;">{{ $item->name }} </div>
-                                                    <div class="items"
-                                                        style="float: right; margin-top: -6px; margin-left: 10px;"
-                                                        onClick='openPackageModal()'
-                                                        data-description="{!! $item->description !!}"
-                                                        data-title="{{ $item->name }}">
-                                                        <svg style="fill: {{ $data->secondary_color }}; height: 20px; width: 20px; cursor: pointer;"
-                                                            version="1.1" xmlns="http://www.w3.org/2000/svg"
-                                                            xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-                                                            viewBox="0 0 512 512" xml:space="preserve">
-                                                            <g>
-                                                                <path
-                                                                    d="M256,0C115.39,0,0,115.39,0,256s115.39,256,256,256s256-115.39,256-256S396.61,0,256,0z M286,376
-                                                                c0,16.538-13.462,30-30,30c-16.538,0-30-13.462-30-30V226c0-16.538,13.462-30,30-30c16.538,0,30,13.462,30,30V376z M256,166
-                                                                c-16.538,0-30-13.462-30-30c0-16.538,13.462-30,30-30c16.538,0,30,13.462,30,30C286,152.538,272.538,166,256,166z">
-                                                                </path>
-                                                            </g>
-                                                        </svg>
+                                    @if(isset($packageCategories) && $packageCategories->count())
+                                        <div class="d-flex flex-wrap gap-2 mb-3 package-category-tiles">
+                                            @foreach ($packageCategories as $category)
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-outline-light package-category-tile"
+                                                    data-target="#category-group-{{ $category['id'] }}"
+                                                    style="border-color: {{ $data->color }}; color: {{ $data->color }};"
+                                                >
+                                                    {{ $category['name'] }}
+                                                </button>
+                                            @endforeach
+                                        </div>
+
+                                        @foreach ($packageCategories as $category)
+                                            <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: none;">
+                                                @foreach ($category['packages'] as $item)
+                                                    <div class="vip-card d-flex flex-wrap justify-content-between align-items-center"
+                                                        style="border-color: {{ $data->color }} !important;">
+                                                        <div>
+                                                            <div style="min-width: 210px;">
+                                                                <div class="vip-title" style="float: left; width: 125px;">{{ $item->name }} </div>
+                                                                <div class="items"
+                                                                    style="float: right; margin-top: -6px; margin-left: 10px;"
+                                                                    onClick='openPackageModal()'
+                                                                    data-description="{!! $item->description !!}"
+                                                                    data-title="{{ $item->name }}">
+                                                                    <svg style="fill: {{ $data->secondary_color }}; height: 20px; width: 20px; cursor: pointer;"
+                                                                        version="1.1" xmlns="http://www.w3.org/2000/svg"
+                                                                        xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                                                                        viewBox="0 0 512 512" xml:space="preserve">
+                                                                        <g>
+                                                                            <path
+                                                                                d="M256,0C115.39,0,0,115.39,0,256s115.39,256,256,256s256-115.39,256-256S396.61,0,256,0z M286,376
+                                                                                c0,16.538-13.462,30-30,30c-16.538,0-30-13.462-30-30V226c0-16.538,13.462-30,30-30c16.538,0,30,13.462,30,30V376z M256,166
+                                                                                c-16.538,0-30-13.462-30-30c0-16.538,13.462-30,30-30c16.538,0,30,13.462,30,30C286,152.538,272.538,166,256,166z">
+                                                                            </path>
+                                                                        </g>
+                                                                    </svg>
+                                                                </div>
+                                                            </div>
+                                                            <br>
+                                                            <button class="vip-btn btn-{{ $item->id }}" style="background-color: {{ $data->color }} !important;"
+                                                                data-id="{{ $item->id }}" data-name="{{ $item->name }}" data-price="{{ $item->price }}"
+                                                                data-gratuity="{{ $data->gratuity_fee }}"
+                                                                data-refundable="{{ $data->refundable_fee }}"
+                                                                data-sales_tax="{{ $data->sales_tax_fee ?? 10}}"
+                                                                data-transportation="{{ $item->transportation }}"
+                                                                data-service_charge="{{ $data->service_charge_fee ?? 10}}">Add to Cart</button>
+                                                        </div>
+
+                                                        <div class="d-flex ">
+                                                            <div class="vip-price me-3 price-{{ $item->id }}" data-price="{{ $item->price }}" style="color: {{ $data->color }} !important">
+                                                                ${{ $item->price }}</div>
+                                                        </div>
+                                                        <div class="d-flex flex-column align-items-center " style="margin-right: 30px;">
+                                                            <p>Guests total</p>
+                                                            <select data-multiple="{{ $item->multiple }}" data-id="{{ $item->id }}" style="padding: 5px !important" class="form-select vip-select me-2 gue-1 package_number_of_guestss">
+                                                                @for ($i = 1; $i <= $item->number_of_guest; $i++)
+                                                                    <option value="{{ $i }}">{{ $i }}</option>
+                                                                @endfor
+                                                            </select>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <br>
-                                                <button class="vip-btn btn-{{ $item->id }}" style="background-color: {{ $data->color }} !important;"
-                                                    data-id="{{ $item->id }}" data-name="{{ $item->name }}" data-price="{{ $item->price }}"
-                                                    data-gratuity="{{ $data->gratuity_fee }}"
-                                                    data-refundable="{{ $data->refundable_fee }}"
-                                                    data-sales_tax="{{ $data->sales_tax_fee ?? 10}}"
-                                                    data-transportation="{{ $item->transportation }}"
-                                                    data-service_charge="{{ $data->service_charge_fee ?? 10}}">Add to Cart</button>
+                                                @endforeach
                                             </div>
-
-                                            <div class="d-flex ">
-                                                <div class="vip-price me-3 price-{{ $item->id }}" data-price="{{ $item->price }}" style="color: {{ $data->color }} !important">
-                                                    ${{ $item->price }}</div>
-                                            </div>
-                                            <div class="d-flex flex-column align-items-center " style="margin-right: 30px;">
-                                                <p>Guests total</p>
-                                                <select id="package_number_of_guest" data-multiple="{{ $item->multiple }}" data-id="{{ $item->id }}" style="padding: 5px !important" class="form-select vip-select me-2 gue-1 package_number_of_guestss">
-                                                    @for ($i = 1; $i <= $item->number_of_guest; $i++)
-                                                        <option value="{{ $i }}">{{ $i }}</option>
-                                                    @endfor
-
-                                                </select>
-
-                                            </div>
-
-                                        </div>
+                                        @endforeach
+                                    @else
+                                        <p style="opacity:.6;">No packages are available yet.</p>
                                     @endif
-                                    @endforeach
-    
-                                    <div class="addons" style="display: none;">
-                                        <div class="row">
-                                            <div class="col-md-6 col-6" style="padding-right: 0px;">
-                                                <h5>Add-ons (optional)</h5>
-                                            </div>
-                                            <div class="col-md-6 col-6" style="text-align: end; padding-left: 0px;">
-                                                <h5>Add To Package</h5>
-                                            </div>
-                                        </div>
-                                        <div class="addons-list">
-                                            <!-- Addons will be dynamically added here -->
-                                        </div>
-                                    </div>
     
                                     <div class="row">
                                         <div class="text-start mt-3 col-md-6">
@@ -1266,6 +1265,8 @@ a {
                                         <input type="hidden" name="payment_total" class="payment_total">
 
                                         <input type="hidden" name="website_id" value="{{ $data->id }}">
+
+                                        <input type="hidden" name="affiliate_slug" value="{{ $affiliateReferral->slug ?? '' }}">
     
                                         <input type="hidden" name="package_number_of_guest" class="package_number_of_guest" value="1">
     
@@ -1578,6 +1579,22 @@ a {
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="addonSelectionModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="addonSelectionModalTitle" style="color: #000 !important;">Select Add-ons</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="addonSelectionModalBody"></div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary" id="addonModalConfirmBtn" style="background-color: {{ $data->color }}; border-color: {{ $data->color }}; color:#000;">Confirm & Add to Cart</button>
                             </div>
                         </div>
                     </div>
@@ -2139,70 +2156,108 @@ a {
             });
 
 
+            window.pendingPackageSelection = null;
+
+            function escapeAddonHtml(value) {
+                return String(value || '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            function openAddonSelectionModal(selection) {
+                var addons = selection.addons || [];
+                var html = '';
+
+                if (!addons.length) {
+                    html = '<p style="margin:0; color:#333;">No add-ons available for this package. Click confirm to add the package to your cart.</p>';
+                } else {
+                    html = addons.map(function(addon) {
+                        return '<label style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #e8e8e8;">'
+                            + '<span style="color:#222;">' + escapeAddonHtml(addon.name) + ' <span style="opacity:.7;">($' + parseFloat(addon.price || 0).toFixed(2) + ')</span></span>'
+                            + '<input type="checkbox" class="addon-modal-check" data-id="' + addon.id + '" data-name="' + escapeAddonHtml(addon.name) + '" data-price="' + parseFloat(addon.price || 0) + '">'
+                            + '</label>';
+                    }).join('');
+                }
+
+                $('#addonSelectionModalTitle').text('Select Add-ons for ' + selection.packageName);
+                $('#addonSelectionModalBody').html(html);
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('addonSelectionModal')).show();
+            }
+
             $(document).ready(function () {
-                $('.vip-btn').on('click', function () {
+                $(document).on('click', '.package-category-tile', function() {
+                    var target = $(this).data('target');
+                    var isOpen = $(this).hasClass('active');
+
+                    $('.package-category-tile').removeClass('active').css({ backgroundColor: 'transparent', color: '{{ $data->color }}' });
+                    $('.package-category-group').hide();
+
+                    if (!isOpen) {
+                        $(this).addClass('active').css({ backgroundColor: '{{ $data->color }}', color: '#000' });
+                        $(target).show();
+                    }
+                });
+
+                $(document).on('click', '.vip-btn', function () {
                     var $btn = $(this);
                     var packageId = $btn.data('id');
                     var packageName = $btn.data('name');
                     var packagePrice = parseFloat($btn.data('price'));
-                    var guests = parseInt($('#package_number_of_guest').val()) || 1;
+                    var guests = parseInt($('.package_number_of_guestss[data-id="' + packageId + '"]').val()) || 1;
 
                     $.ajax({
                         url: "/{{ $data->slug }}/addons/" + packageId,
                         type: 'GET',
                         dataType: 'json',
                         success: function (res) {
-                            window.addPackageToCart(packageId, packageName, packagePrice, guests);
-                            
-                            var htmls = '';
-                            res.forEach(function (addon) {
-                                var html = `<div class="addon-item" style="height: 25px;">
-                                    <div style="float: left;">
-                                        <label for="${addon.id}" data-title="${addon.name}" data-description="${addon.description}" style="float: left; cursor: pointer;">${addon.name} ($${addon.price})</label>
-                                        <div onClick="openModal()" style="float: right; margin-left: 10px;">
-                                            <svg style="fill: {{ $data->secondary_color }}; height: 20px; width: 20px; cursor: pointer;" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" xml:space="preserve">
-                                                <g>
-                                                    <path d="M256,0C115.39,0,0,115.39,0,256s115.39,256,256,256s256-115.39,256-256S396.61,0,256,0z M286,376
-                                                    c0,16.538-13.462,30-30,30c-16.538,0-30-13.462-30-30V226c0-16.538,13.462-30,30-30c16.538,0,30,13.462,30,30V376z M256,166
-                                                    c-16.538,0-30-13.462-30-30c0-16.538,13.462-30,30-30c16.538,0,30,13.462,30,30C286,152.538,272.538,166,256,166z"></path>
-                                                </g>
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <input style="float: right; margin-top: 3px;" type="checkbox" class="termsConsent" data-price="${addon.price}" data-name="${addon.name}" data-packageid="${packageId}" id="${addon.id}" />
-                                </div>`;
-                                htmls += html;
-                            });
-                            $('.addons-list').empty().html(htmls);
-                            $('.addons').show();
-                            $('#package_id').val(packageId);
+                            window.pendingPackageSelection = {
+                                packageId: packageId,
+                                packageName: packageName,
+                                packagePrice: packagePrice,
+                                guests: guests,
+                                transportation: ($btn.data('transportation') == 1),
+                                addons: Array.isArray(res) ? res : []
+                            };
 
-                            // Handler for addon checkbox changes
-                            $('.termsConsent').on('change', function() {
-                                var pkgId = $(this).data('packageid');
-                                var pkg = cart.find(p => p.packageId == pkgId);
-                                if (pkg) {
-                                    pkg.addons = [];
-                                    $('.termsConsent[data-packageid="'+pkgId+'"]:checked').each(function() {
-                                        pkg.addons.push({
-                                            id: $(this).attr('id'),
-                                            name: $(this).data('name'),
-                                            price: parseFloat($(this).data('price'))
-                                        });
-                                    });
-                                    window.renderCart();
-                                    window.calculateCartTotal();
-                                }
-                            });
+                            openAddonSelectionModal(window.pendingPackageSelection);
                         }
                     });
+                });
 
+                $('#addonModalConfirmBtn').on('click', function() {
+                    if (!window.pendingPackageSelection) {
+                        return;
+                    }
+
+                    var selection = window.pendingPackageSelection;
+                    var selectedAddons = [];
+
+                    $('#addonSelectionModalBody .addon-modal-check:checked').each(function() {
+                        selectedAddons.push({
+                            id: $(this).data('id'),
+                            name: $(this).data('name'),
+                            price: parseFloat($(this).data('price'))
+                        });
+                    });
+
+                    window.addPackageToCart(selection.packageId, selection.packageName, selection.packagePrice, selection.guests);
+                    var pkg = window.cart.find(function(p) { return p.packageId == selection.packageId; });
+                    if (pkg) {
+                        pkg.addons = selectedAddons;
+                    }
+                    window.renderCart();
+                    window.calculateCartTotal();
+
+                    $('#package_id').val(selection.packageId);
                     $('.dynamic-price').show();
                     $('.default-price').hide();
                     $('#checkout-steps').show();
                     showStep(1);
 
-                    window.requiresTransportation = ($btn.data('transportation') == 1);
+                    window.requiresTransportation = selection.transportation;
                     if (window.requiresTransportation) {
                         $('#step-2 .step-title').text('Transportation');
                         $('#next-to-transport').text('Next: Transportation Details');
@@ -2210,6 +2265,9 @@ a {
                         $('#step-2 .step-title').text('Confirmation');
                         $('#next-to-transport').text('Next: Transportation Confirmation');
                     }
+
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('addonSelectionModal')).hide();
+                    window.pendingPackageSelection = null;
                 });
             });
             
@@ -2542,6 +2600,25 @@ a {
                 </script>
         @endif
 
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const requestedPackageId = @json($requestedPackageId ?? null);
+                if (!requestedPackageId) {
+                    return;
+                }
+
+                setTimeout(function() {
+                    const targetButton = document.querySelector('.vip-btn[data-id="' + requestedPackageId + '"]');
+                    if (targetButton) {
+                        targetButton.click();
+                        const steps = document.getElementById('checkout-steps');
+                        if (steps) {
+                            steps.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }
+                }, 350);
+            });
+        </script>
 
     </body>
 

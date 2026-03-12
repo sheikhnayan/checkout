@@ -28,12 +28,14 @@ class CustomInvoice extends Model
         'payment_token',
         'sent_at',
         'paid_at',
+        'archived_at',
         'payment_transaction_id',
     ];
 
     protected $casts = [
         'sent_at' => 'datetime',
         'paid_at' => 'datetime',
+        'archived_at' => 'datetime',
         'subtotal' => 'decimal:2',
         'gratuity' => 'decimal:2',
         'refundable' => 'decimal:2',

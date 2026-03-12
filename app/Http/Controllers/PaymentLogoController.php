@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace App\Http\Controllers;
 
@@ -16,7 +16,7 @@ class PaymentLogoController extends Controller
             'website_id' => 'required|exists:websites,id',
             'payment_name' => 'required|string|max:255',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'order' => 'nullable|integer|min:0'
+            'order' => 'nullable|integer|min:0',
         ]);
 
         $logoName = null;
@@ -30,7 +30,7 @@ class PaymentLogoController extends Controller
             'name' => $request->payment_name,
             'logo' => $logoName,
             'order' => $request->order ?? 0,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         return back()->with('success', 'Payment logo added successfully!');
@@ -66,14 +66,13 @@ class PaymentLogoController extends Controller
     public function destroy(string $id)
     {
         $paymentLogo = PaymentLogo::findOrFail($id);
-        
-        // Delete the logo file
+
         if (file_exists(public_path('uploads/' . $paymentLogo->logo))) {
             unlink(public_path('uploads/' . $paymentLogo->logo));
         }
-        
+
         $paymentLogo->delete();
-        
+
         return back()->with('success', 'Payment logo deleted successfully!');
     }
 }

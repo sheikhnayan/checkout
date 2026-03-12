@@ -15,6 +15,10 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CustomInvoiceController;
+use App\Http\Controllers\AffiliateRegistrationController;
+use App\Http\Controllers\AffiliatePublicController;
+use App\Http\Controllers\AffiliateAdminController;
+use App\Http\Controllers\AffiliatePortalController;
 
 
 // Authentication Routes
@@ -42,6 +46,11 @@ Route::get('/thank-you', [TransactionController::class, 'thankYou'])->name('than
 // MUST be before slug route to avoid 404
 Route::get('/custom-invoice/{token}/pay', [CustomInvoiceController::class, 'showPayment'])->name('custom-invoice.pay');
 Route::post('/custom-invoice/{token}/process-payment', [CustomInvoiceController::class, 'processPayment'])->name('custom-invoice.process-payment');
+
+// Affiliate public routes (must stay before slug route)
+Route::get('/affiliate/apply', [AffiliateRegistrationController::class, 'showForm'])->name('affiliate.apply');
+Route::post('/affiliate/apply', [AffiliateRegistrationController::class, 'submit'])->name('affiliate.apply.submit');
+Route::get('/affiliate/{slug}', [AffiliatePublicController::class, 'show'])->name('affiliate.public');
 
 // Frontend routes with slug parameter
 Route::get('/{slug}', [FrontendController::class, 'index'])->name('index');
@@ -137,6 +146,8 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => 'auth'], fu
         Route::get('/create', [CustomInvoiceController::class,'create'])->name('create');
         Route::post('/store', [CustomInvoiceController::class,'store'])->name('store');
         Route::post('/store-and-send', [CustomInvoiceController::class,'storeAndSend'])->name('store-and-send');
+        Route::post('/{customInvoice}/archive', [CustomInvoiceController::class,'archive'])->name('archive');
+        Route::post('/{customInvoice}/unarchive', [CustomInvoiceController::class,'unarchive'])->name('unarchive');
         Route::get('/{customInvoice}', [CustomInvoiceController::class,'show'])->name('show');
         Route::get('/{customInvoice}/edit', [CustomInvoiceController::class,'edit'])->name('edit');
         Route::put('/{customInvoice}', [CustomInvoiceController::class,'update'])->name('update');
@@ -144,9 +155,27 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => 'auth'], fu
         Route::delete('/{customInvoice}', [CustomInvoiceController::class,'destroy'])->name('destroy');
     });
 
+    // Affiliate admin routes
+    Route::group(['prefix'=> 'affiliate', 'as' => 'affiliate.'], function () {
+        Route::get('/', [AffiliateAdminController::class, 'index'])->name('index');
+        Route::get('/{affiliate}', [AffiliateAdminController::class, 'show'])->name('show');
+        Route::post('/{affiliate}/approve', [AffiliateAdminController::class, 'approve'])->name('approve');
+        Route::post('/{affiliate}/reject', [AffiliateAdminController::class, 'reject'])->name('reject');
+        Route::post('/{affiliate}/packages', [AffiliateAdminController::class, 'updatePackages'])->name('packages.update');
+    });
+
     // Website Users Management
     Route::resource('website-users', App\Http\Controllers\Admin\WebsiteUserController::class);
     Route::post('website-users/archive/{id}', [App\Http\Controllers\Admin\WebsiteUserController::class, 'archive'])->name('website-users.archive');
+});
+
+Route::group(['prefix'=> 'affiliate-portal', 'as' => 'affiliate.portal.', 'middleware' => 'auth'], function () {
+    Route::get('/dashboard', [AffiliatePortalController::class, 'dashboard'])->name('dashboard');
+    Route::get('/packages', [AffiliatePortalController::class, 'packages'])->name('packages');
+    Route::post('/packages', [AffiliatePortalController::class, 'savePackages'])->name('packages.save');
+    Route::get('/settings', [AffiliatePortalController::class, 'settings'])->name('settings');
+    Route::post('/settings', [AffiliatePortalController::class, 'updateSettings'])->name('settings.update');
+    Route::get('/wallet', [AffiliatePortalController::class, 'wallet'])->name('wallet');
 });
 
 // Payment Logo routes (outside admin group for direct access)

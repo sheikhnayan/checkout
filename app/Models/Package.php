@@ -18,4 +18,14 @@ class Package extends Model
     {
         return $this->belongsTo(Website::class);
     }
+
+    public function category()
+    {
+        return $this->belongsTo(PackageCategory::class, 'package_category_id');
+    }
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class);
+    }
 }

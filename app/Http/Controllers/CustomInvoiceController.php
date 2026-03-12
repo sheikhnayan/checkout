@@ -7,6 +7,7 @@ use App\Models\CustomInvoice;
 use App\Models\CustomInvoiceItem;
 use App\Models\Website;
 use App\Models\Setting;
+use App\Models\SMTP;
 use App\Mail\CustomInvoiceMail;
 use Illuminate\Support\Facades\Mail;
 use Stripe;
@@ -21,11 +22,20 @@ class CustomInvoiceController extends Controller
     public function index()
     {
         $user = auth()->user();
+        $includeArchived = request()->boolean('include_archived');
         
         if ($user->isAdmin()) {
-            $invoices = CustomInvoice::with(['website', 'items'])->latest()->get();
+            $invoices = CustomInvoice::with(['website', 'items'])
+                                    ->when(!$includeArchived, function ($query) {
+                                        $query->whereNull('archived_at');
+                                    })
+                                    ->latest()
+                                    ->get();
         } elseif ($user->isWebsiteUser() && $user->website_id) {
             $invoices = CustomInvoice::where('website_id', $user->website_id)
+                                    ->when(!$includeArchived, function ($query) {
+                                        $query->whereNull('archived_at');
+                                    })
                                     ->with(['items'])
                                     ->latest()
                                     ->get();
@@ -33,7 +43,7 @@ class CustomInvoiceController extends Controller
             $invoices = collect();
         }
 
-        return view('admin.custom-invoice.index', compact('invoices'));
+        return view('admin.custom-invoice.index', compact('invoices', 'includeArchived'));
     }
 
     /**
@@ -101,6 +111,8 @@ class CustomInvoiceController extends Controller
         // Check if we should send immediately
         if ($request->input('action') === 'send') {
             try {
+                $this->applyInvoiceSmtpConfig($invoice, $user);
+
                 Mail::to($invoice->client_email)->send(
                     new CustomInvoiceMail($invoice)
                 );
@@ -147,6 +159,10 @@ class CustomInvoiceController extends Controller
             abort(403, 'Unauthorized');
         }
 
+        if ($customInvoice->archived_at) {
+            return redirect()->back()->with('error', 'Archived invoices cannot be edited. Please restore it first.');
+        }
+
         if ($customInvoice->status !== 'draft') {
             return redirect()->back()->with('error', 'Can only edit draft invoices!');
         }
@@ -167,6 +183,10 @@ class CustomInvoiceController extends Controller
         
         if ($user->isWebsiteUser() && $customInvoice->website_id != $user->website_id) {
             abort(403, 'Unauthorized');
+        }
+
+        if ($customInvoice->archived_at) {
+            return redirect()->back()->with('error', 'Archived invoices cannot be updated. Please restore it first.');
         }
 
         if ($customInvoice->status !== 'draft') {
@@ -221,11 +241,17 @@ class CustomInvoiceController extends Controller
             abort(403, 'Unauthorized');
         }
 
+        if ($customInvoice->archived_at) {
+            return redirect()->back()->with('error', 'Archived invoices cannot be sent. Please restore it first.');
+        }
+
         if ($customInvoice->status !== 'draft') {
             return redirect()->back()->with('error', 'Can only send draft invoices!');
         }
 
         try {
+            $this->applyInvoiceSmtpConfig($customInvoice, $user);
+
             Mail::to($customInvoice->client_email)->send(
                 new CustomInvoiceMail($customInvoice)
             );
@@ -261,11 +287,115 @@ class CustomInvoiceController extends Controller
     }
 
     /**
+     * Archive the specified custom invoice
+     */
+    public function archive(CustomInvoice $customInvoice)
+    {
+        $user = auth()->user();
+
+        if ($user->isWebsiteUser() && $customInvoice->website_id != $user->website_id) {
+            abort(403, 'Unauthorized');
+        }
+
+        if ($customInvoice->archived_at) {
+            return redirect()->back()->with('info', 'Invoice is already archived.');
+        }
+
+        $customInvoice->archived_at = now();
+        $customInvoice->save();
+
+        return redirect()->route('admin.custom-invoice.index')->with('success', 'Invoice archived successfully!');
+    }
+
+    /**
+     * Restore an archived custom invoice
+     */
+    public function unarchive(CustomInvoice $customInvoice)
+    {
+        $user = auth()->user();
+
+        if ($user->isWebsiteUser() && $customInvoice->website_id != $user->website_id) {
+            abort(403, 'Unauthorized');
+        }
+
+        if (!$customInvoice->archived_at) {
+            return redirect()->back()->with('info', 'Invoice is not archived.');
+        }
+
+        $customInvoice->archived_at = null;
+        $customInvoice->save();
+
+        return redirect()->route('admin.custom-invoice.index', ['include_archived' => 1])->with('success', 'Invoice restored successfully!');
+    }
+
+    /**
+     * Configure mail transport for invoice emails with fallback strategy.
+     */
+    private function applyInvoiceSmtpConfig(CustomInvoice $invoice, $user): void
+    {
+        $smtp = optional($invoice->website)->smtp;
+
+        if (!$this->hasUsableSmtp($smtp) && $user && $user->website_id) {
+            $userWebsite = Website::with('smtp')->find($user->website_id);
+            $smtp = optional($userWebsite)->smtp;
+        }
+
+        if (!$this->hasUsableSmtp($smtp)) {
+            $smtp = SMTP::latest()->first();
+        }
+
+        if ($this->hasUsableSmtp($smtp)) {
+            config([
+                'mail.default' => 'smtp',
+                'mail.mailers.smtp.host' => $smtp->host,
+                'mail.mailers.smtp.port' => $smtp->port,
+                'mail.mailers.smtp.username' => $smtp->username,
+                'mail.mailers.smtp.password' => $smtp->password,
+                'mail.mailers.smtp.encryption' => $this->normalizeSmtpEncryption($smtp->encryption),
+                'mail.from.address' => $smtp->from_email ?: config('mail.from.address'),
+                'mail.from.name' => $smtp->from_name ?: config('mail.from.name'),
+            ]);
+        }
+    }
+
+    /**
+     * Validate that the SMTP record has minimum required fields.
+     */
+    private function hasUsableSmtp($smtp): bool
+    {
+        return $smtp
+            && !empty($smtp->host)
+            && !empty($smtp->port)
+            && !empty($smtp->username)
+            && !empty($smtp->password);
+    }
+
+    /**
+     * Convert legacy SMTP encryption values into valid mailer options.
+     */
+    private function normalizeSmtpEncryption($value): ?string
+    {
+        if (in_array($value, ['tls', 'ssl'], true)) {
+            return $value;
+        }
+
+        if ((string) $value === '1' || $value === true) {
+            return 'tls';
+        }
+
+        return null;
+    }
+
+    /**
      * Show payment page for client
      */
     public function showPayment($token)
     {
         $invoice = CustomInvoice::where('payment_token', $token)->firstOrFail();
+
+        if ($invoice->archived_at) {
+            return redirect('/')->with('error', 'This invoice is archived and no longer available for payment.');
+        }
 
         if ($invoice->status === 'paid') {
             return redirect('/')->with('error', 'This invoice has already been paid!');
