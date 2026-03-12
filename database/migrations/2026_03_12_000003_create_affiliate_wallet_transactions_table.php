@@ -24,9 +24,6 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->json('meta')->nullable();
             $table->timestamps();
-
-            $table->foreign('affiliate_id')->references('id')->on('affiliates')->onDelete('cascade');
-            $table->foreign('transaction_id')->references('id')->on('transactions')->nullOnDelete();
         });
 
         Schema::enableForeignKeyConstraints();

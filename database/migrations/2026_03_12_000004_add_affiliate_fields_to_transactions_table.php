@@ -18,8 +18,6 @@ return new class extends Migration
             $table->decimal('affiliate_commission_percentage', 5, 2)->nullable()->after('affiliate_id');
             $table->decimal('affiliate_commission_amount', 12, 2)->default(0)->after('affiliate_commission_percentage');
             $table->string('affiliate_source')->nullable()->after('affiliate_commission_amount');
-
-            $table->foreign('affiliate_id')->references('id')->on('affiliates')->nullOnDelete();
         });
 
         Schema::enableForeignKeyConstraints();
