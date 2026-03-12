@@ -1,45 +1,38 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     private array $fks = [
-        'affiliates'                   => ['user_id', 'approved_by'],
-        'affiliate_packages'           => ['affiliate_id', 'website_id', 'package_id'],
-        'affiliate_wallet_transactions'=> ['affiliate_id', 'transaction_id'],
+        'affiliates'                    => ['affiliates_user_id_foreign', 'affiliates_approved_by_foreign'],
+        'affiliate_packages'            => ['affiliate_packages_affiliate_id_foreign', 'affiliate_packages_website_id_foreign', 'affiliate_packages_package_id_foreign'],
+        'affiliate_wallet_transactions' => ['affiliate_wallet_transactions_affiliate_id_foreign', 'affiliate_wallet_transactions_transaction_id_foreign'],
+        'transactions'                  => ['transactions_affiliate_id_foreign'],
     ];
 
     public function up(): void
     {
         Schema::disableForeignKeyConstraints();
 
-        foreach ($this->fks as $table => $columns) {
+        $db = DB::connection()->getDatabaseName();
+
+        foreach ($this->fks as $table => $constraintNames) {
             if (!Schema::hasTable($table)) {
                 continue;
             }
-            Schema::table($table, function (Blueprint $table) use ($columns) {
-                foreach ($columns as $column) {
-                    try {
-                        $table->dropForeign([$column]);
-                    } catch (\Throwable $e) {
-                        // FK didn't exist — skip silently
-                    }
+            foreach ($constraintNames as $constraint) {
+                $exists = DB::selectOne(
+                    "SELECT CONSTRAINT_NAME FROM information_schema.TABLE_CONSTRAINTS
+                     WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND CONSTRAINT_NAME = ? AND CONSTRAINT_TYPE = 'FOREIGN KEY'",
+                    [$db, $table, $constraint]
+                );
+                if ($exists) {
+                    DB::statement("ALTER TABLE `{$table}` DROP FOREIGN KEY `{$constraint}`");
                 }
-            });
-        }
-
-        // Drop the affiliate_id FK added to the transactions table
-        if (Schema::hasTable('transactions') && Schema::hasColumn('transactions', 'affiliate_id')) {
-            Schema::table('transactions', function (Blueprint $table) {
-                try {
-                    $table->dropForeign(['affiliate_id']);
-                } catch (\Throwable $e) {
-                    // FK didn't exist — skip silently
-                }
-            });
+            }
         }
 
         Schema::enableForeignKeyConstraints();
