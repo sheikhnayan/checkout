@@ -1047,15 +1047,16 @@
                                     </h2>
 
                                     @if(isset($packageCategories) && $packageCategories->count())
-                                        <div class="d-flex flex-wrap gap-2 mb-3 package-category-tiles">
+                                        <div class="mb-3 package-category-tiles" style="width:100%;">
                                             @foreach ($packageCategories as $category)
                                                 <button
                                                     type="button"
-                                                    class="btn btn-outline-light package-category-tile"
+                                                    class="btn btn-outline-light package-category-tile mb-2 w-100"
                                                     data-target="#category-group-{{ $category['id'] }}"
-                                                    style="border-color: {{ $data->color }}; color: {{ $data->color }};"
+                                                    style="border-color: {{ $data->color }}; color: {{ $data->color }}; display:flex; justify-content:space-between; align-items:center; text-align:left; padding:14px 16px; border-radius:12px; font-size:15px; font-weight:600;"
                                                 >
                                                     {{ $category['name'] }}
+                                                    <span style="opacity:.7; font-size:12px;">+</span>
                                                 </button>
                                             @endforeach
                                         </div>

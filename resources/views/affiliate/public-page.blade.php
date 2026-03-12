@@ -147,6 +147,41 @@
         select.form-select { -webkit-appearance:none !important; appearance:none !important; }
         select option { background:#1a1d2e !important; color:#fff; }
 
+        .date-input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        #package_use_date {
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+            padding: 10px 45px 10px 14px !important;
+            margin-bottom: 0 !important;
+        }
+        #package_use_date::-webkit-calendar-picker-indicator {
+            opacity: 0;
+            display: none;
+        }
+        .custom-calendar-icon {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>') no-repeat center;
+            background-size: contain;
+            opacity: .8;
+        }
+
+        #package_use_date{
+            width: 33%;
+            border-radius: 10px;
+            background: #1c1f29;
+            color: #fff;
+        }
+
         /* Buttons */
         .btn-next, .submit-btn {
             background: var(--aff-accent) !important;
@@ -185,10 +220,6 @@
 
         /* StripeElement */
         .StripeElement { padding:10px 14px; border:1px solid #9797a0; border-radius:10px; margin-bottom:8px; background:rgba(255,255,255,0.07); }
-
-        /* Club info */
-        #club-info-section { display:none; margin-top:2.5rem; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,0.1); }
-        #club-info-map-frame { width:100%; height:260px; border:0; border-radius:10px; margin-top:8px; }
 
         /* Consent checkboxes */
         .consent-label { display:flex; gap:10px; align-items:flex-start; cursor:pointer; margin-bottom:10px; font-size:13px; }
@@ -308,15 +339,16 @@ const clubConfigs = {
     <h5 class="mb-3" style="opacity:.6;font-size:.85rem;text-transform:uppercase;letter-spacing:.8px;font-weight:700;">Select a Package to Book</h5>
 
     @if($packageCategoryGroups->count())
-        <div class="d-flex flex-wrap gap-2 mb-3 package-category-tiles">
+        <div class="mb-3 package-category-tiles" style="width:100%;">
             @foreach($packageCategoryGroups as $categoryGroup)
                 <button
                     type="button"
-                    class="btn btn-outline-light package-category-tile"
+                    class="btn btn-outline-light package-category-tile mb-2 w-100"
                     data-target="#{{ $categoryGroup['id'] }}"
-                    style="border-color:var(--aff-accent); color:var(--aff-accent);"
+                    style="border-color:var(--aff-accent); color:var(--aff-accent); display:flex; justify-content:space-between; align-items:center; text-align:left; padding:14px 16px; border-radius:12px; font-size:15px; font-weight:600;"
                 >
                     {{ $categoryGroup['club']->name }} - {{ $categoryGroup['name'] }}
+                    <span style="opacity:.7; font-size:12px;">+</span>
                 </button>
             @endforeach
         </div>
@@ -470,7 +502,10 @@ const clubConfigs = {
             </div>
             <div class="form-group mb-3">
                 <label>Reservation Date</label>
-                <input type="date" id="pkg-use-date" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" style="max-width:220px;">
+                <div class="date-input-wrapper">
+                    <input id="package_use_date" type="date" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" onclick="this.showPicker && this.showPicker()">
+                    <span class="custom-calendar-icon" onclick="document.getElementById('package_use_date').showPicker && document.getElementById('package_use_date').showPicker()"></span>
+                </div>
             </div>
             <div class="form-group mb-3"><label>Booking Note</label><textarea name="package_note" placeholder="Your occasion or special request?"></textarea></div>
             <div class="step-navigation"><button type="button" class="btn-next" id="next-to-transport">Next: Transportation &rarr;</button></div>
@@ -590,13 +625,6 @@ const clubConfigs = {
             </div>
         </section>
     </form>
-
-    {{-- Club info (location + contact) --}}
-    <section id="club-info-section">
-        <h5 id="club-info-name" style="font-weight:700;"></h5>
-        <iframe id="club-info-map-frame" src="" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" style="display:none;"></iframe>
-        <div id="club-info-contact" class="mt-2" style="font-size:14px;opacity:.8;"></div>
-    </section>
 
 </div>
 </main>
@@ -742,18 +770,6 @@ function activateClub(slug) {
         $('#authorize-section').find('input[name="card_cvv"]').prop('required', true);
     }
 
-    // Club info at bottom
-    $('#club-info-name').text(c.name);
-    if (c.location) {
-        $('#club-info-map-frame').attr('src', 'https://www.google.com/maps?q=' + encodeURIComponent(c.location) + '&output=embed').show();
-    } else {
-        $('#club-info-map-frame').hide();
-    }
-    let contact = '';
-    if (c.phone) contact += '<p style="margin-bottom:4px;"><a href="tel:' + c.phone + '" style="color:var(--aff-accent);">' + c.phone + '</a></p>';
-    if (c.email) contact += '<p style="margin-bottom:0;"><a href="mailto:' + c.email + '" style="color:var(--aff-accent);">' + c.email + '</a></p>';
-    $('#club-info-contact').html(contact);
-    $('#club-info-section').show();
 }
 
 function initStripe(key) {
@@ -900,7 +916,7 @@ $(document).ready(function() {
     });
 
     // Reservation date change → sync hidden field
-    $('#pkg-use-date').on('change', function() {
+    $('#package_use_date').on('change', function() {
         $('.package_use_date').val($(this).val());
     });
 
@@ -1059,7 +1075,7 @@ $(function() {
     fillDOB('package-dob-month','package-dob-day','package-dob-year');
     // Set min date
     const now = new Date(), yy=now.getFullYear(), mm=String(now.getMonth()+1).padStart(2,'0'), dd=String(now.getDate()).padStart(2,'0');
-    $('#pkg-use-date').attr('min', `${yy}-${mm}-${dd}`);
+    $('#package_use_date').attr('min', `${yy}-${mm}-${dd}`);
 });
 
 $(document).on('change', '#country', function() {
