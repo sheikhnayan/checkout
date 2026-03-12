@@ -73,13 +73,13 @@
 
                                     </ol>
 
-                                    <div class="btn-group" role="group" aria-label="Basic example" style="float: right">
+                        <div class="btn-group" role="group" aria-label="Basic example" style="float: right">
                                         <a href="/admins/package/create/{{ $website_id }}" class="btn btn-primary">Add Package</a>
                                 </nav>
                             </div>
                         </div>
 
-                        <!-- Tabs for Active and Archived Packages -->
+                        <!-- Tabs for Active / Archived Packages + Categories -->
                         <ul class="nav nav-tabs mb-3" id="packageTabs" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#activePackages" type="button" role="tab" aria-controls="activePackages" aria-selected="true">
@@ -89,6 +89,11 @@
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="archived-tab" data-bs-toggle="tab" data-bs-target="#archivedPackages" type="button" role="tab" aria-controls="archivedPackages" aria-selected="false">
                                     Archived Packages
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categoriesPanel" type="button" role="tab" aria-controls="categoriesPanel" aria-selected="false">
+                                    Categories
                                 </button>
                             </li>
                         </ul>
@@ -190,11 +195,73 @@
                                     </div>
                                 </div>
                             </div>
+                            {{-- ===== CATEGORIES TAB ===== --}}
+                            <div class="tab-pane fade" id="categoriesPanel" role="tabpanel" aria-labelledby="categories-tab">
+                                @if(session('success'))
+                                    <div class="alert alert-success">{{ session('success') }}</div>
+                                @endif
+
+                                {{-- Add new category --}}
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h6 class="card-title fw-bold">Add New Category</h6>
+                                        <form method="POST" action="{{ route('admin.package-category.store', $website_id) }}" class="d-flex gap-2">
+                                            @csrf
+                                            <input type="text" name="name" class="form-control" placeholder="Category name" required style="max-width:320px;">
+                                            <button type="submit" class="btn btn-primary">Add</button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                {{-- Existing categories --}}
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title fw-bold">Existing Categories</h6>
+                                        @if($categories->isEmpty())
+                                            <p class="text-muted">No categories yet for this website.</p>
+                                        @else
+                                            <table class="table" id="categoriesTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Name</th>
+                                                        <th>Packages</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($categories as $i => $cat)
+                                                    <tr>
+                                                        <td>{{ $i + 1 }}</td>
+                                                        <td>
+                                                            <form method="POST" action="{{ route('admin.package-category.update', $cat->id) }}" class="d-flex gap-2 align-items-center">
+                                                                @csrf
+                                                                <input type="text" name="name" value="{{ $cat->name }}" class="form-control form-control-sm" style="max-width:240px;" required>
+                                                                <button type="submit" class="btn btn-sm btn-outline-primary">Rename</button>
+                                                            </form>
+                                                        </td>
+                                                        <td>{{ $cat->packages()->count() }}</td>
+                                                        <td>
+                                                            <form method="POST" action="{{ route('admin.package-category.destroy', $cat->id) }}" onsubmit="return confirm('Delete this category? Packages will become Uncategorized.')">
+                                                                @csrf
+                                                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             <!-- / Content -->
+        </div>
+    </div>
 
             <!-- Include DataTables and jQuery CDN (jQuery first, then DataTables, then Bootstrap) -->
             <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">

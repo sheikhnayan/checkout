@@ -19,6 +19,7 @@ use App\Http\Controllers\AffiliateRegistrationController;
 use App\Http\Controllers\AffiliatePublicController;
 use App\Http\Controllers\AffiliateAdminController;
 use App\Http\Controllers\AffiliatePortalController;
+use App\Http\Controllers\PackageCategoryController;
 
 
 // Authentication Routes
@@ -78,6 +79,12 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => 'auth'], fu
         Route::post('/store', [WebsiteController::class,'store'])->name('store');
         Route::get('/edit/{id}', [WebsiteController::class,'edit'])->name('edit');
         Route::post('/update/{id}', [WebsiteController::class,'update'])->name('update');
+    });
+
+    Route::group(['prefix'=> 'package-category', 'as' => 'package-category.'], function () {
+        Route::post('/store/{websiteId}', [PackageCategoryController::class, 'store'])->name('store');
+        Route::post('/update/{id}', [PackageCategoryController::class, 'update'])->name('update');
+        Route::post('/destroy/{id}', [PackageCategoryController::class, 'destroy'])->name('destroy');
     });
 
     Route::group(['prefix'=> 'package', 'as' => 'package.'], function () {

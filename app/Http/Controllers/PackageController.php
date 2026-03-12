@@ -146,7 +146,9 @@ class PackageController extends Controller
 
         $website_id = $id;
 
-        return view('admin.package.show', compact('data', 'website_id'));
+        $categories = PackageCategory::where('website_id', $id)->orderBy('name')->get();
+
+        return view('admin.package.show', compact('data', 'website_id', 'categories'));
     }
 
     /**
