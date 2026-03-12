@@ -11,6 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::disableForeignKeyConstraints();
+
         Schema::table('transactions', function (Blueprint $table) {
             $table->unsignedBigInteger('affiliate_id')->nullable()->after('website_id');
             $table->decimal('affiliate_commission_percentage', 5, 2)->nullable()->after('affiliate_id');
@@ -19,6 +21,8 @@ return new class extends Migration
 
             $table->foreign('affiliate_id')->references('id')->on('affiliates')->nullOnDelete();
         });
+
+        Schema::enableForeignKeyConstraints();
     }
 
     /**

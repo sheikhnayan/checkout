@@ -11,6 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::disableForeignKeyConstraints();
+
         if (!Schema::hasTable('package_categories')) {
             Schema::create('package_categories', function (Blueprint $table) {
                 $table->id();
@@ -27,6 +29,8 @@ return new class extends Migration
                 $table->unsignedBigInteger('package_category_id')->nullable()->after('website_id')->index();
             });
         }
+
+        Schema::enableForeignKeyConstraints();
     }
 
     /**

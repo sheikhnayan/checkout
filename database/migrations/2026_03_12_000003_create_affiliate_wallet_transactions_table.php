@@ -11,6 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::disableForeignKeyConstraints();
+
         Schema::create('affiliate_wallet_transactions', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('affiliate_id');
@@ -26,6 +28,8 @@ return new class extends Migration
             $table->foreign('affiliate_id')->references('id')->on('affiliates')->onDelete('cascade');
             $table->foreign('transaction_id')->references('id')->on('transactions')->nullOnDelete();
         });
+
+        Schema::enableForeignKeyConstraints();
     }
 
     /**
