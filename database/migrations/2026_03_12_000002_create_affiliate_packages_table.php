@@ -24,7 +24,6 @@ return new class extends Migration
 
             $table->unique(['affiliate_id', 'package_id']);
             $table->foreign('affiliate_id')->references('id')->on('affiliates')->onDelete('cascade');
-            $table->foreign('website_id')->references('id')->on('websites')->onDelete('cascade');
             $table->foreign('package_id')->references('id')->on('packages')->onDelete('cascade');
         });
 

@@ -105,8 +105,8 @@ class AffiliateAdminController extends Controller
             ->delete();
 
         foreach ($packageIds as $packageId) {
-            $package = Package::find($packageId);
-            if (!$package) {
+            $package = Package::with('website')->find($packageId);
+            if (!$package || !$package->website) {
                 continue;
             }
 
@@ -119,7 +119,7 @@ class AffiliateAdminController extends Controller
                     'package_id' => $packageId,
                 ],
                 [
-                    'website_id' => $package->website_id,
+                    'website_id' => $package->website->id,
                     'commission_percentage' => $commission,
                     'is_active' => true,
                 ]
