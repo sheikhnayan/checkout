@@ -9,16 +9,16 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --aff-accent: {{ $affiliate->accent_color ?? "#ffcc00" }};
-            --aff-bg:     {{ $affiliate->background_color ?? "#0b0e1a" }};
-            --aff-text:   {{ $affiliate->text_color ?? "#e8eaf6" }};
-            --aff-theme:  {{ $affiliate->theme_color ?? "#1a75ff" }};
+            --aff-accent: #ffcc00;
+            --aff-bg: #0b0e1a;
+            --aff-text: #e8eaf6;
+            --aff-theme: #1a75ff;
         }
         * { box-sizing: border-box; }
         body {
             background: var(--aff-bg);
             color: var(--aff-text);
-            font-family: {{ $affiliate->font_family ?? "'Inter', sans-serif" }};
+            font-family: 'Inter', sans-serif;
             min-height: 100vh;
         }
         a { color: var(--aff-accent); }
@@ -53,7 +53,49 @@
         .vip-card.selected { border-color: var(--aff-accent) !important; background: rgba(255,255,255,0.06); }
         .vip-title { font-size:15px; font-weight:700; margin-bottom:2px; }
         .vip-meta { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-        .vip-price-tag { font-size:18px; font-weight:800; color: var(--aff-accent); }
+        .vip-title-row { display:flex; align-items:center; gap:8px; }
+        .vip-card-main { flex:1; min-width:220px; }
+        .vip-card-side {
+            width: 170px;
+            min-width: 170px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-end;
+            gap: 18px;
+        }
+        .vip-guest-control {
+            width: 76px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .vip-guest-label {
+            font-size: 11px;
+            opacity: .6;
+            margin-bottom: 4px;
+            min-height: 16px;
+        }
+        .package_number_of_guestss {
+            width: 76px !important;
+            min-width: 76px;
+            padding: 5px 8px !important;
+            margin-bottom: 0 !important;
+            text-align: center;
+        }
+        .vip-price-tag {
+            width: 76px;
+            min-width: 76px;
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--aff-accent);
+            text-align: right;
+            line-height: 36px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
         .vip-btn {
             background: var(--aff-accent);
             color: #000;
@@ -117,7 +159,7 @@
         /* Steps */
         .checkout-steps { display:flex; justify-content:center; align-items:center; margin:1.5rem 0; padding:0; list-style:none; }
         .step { flex:1; text-align:center; position:relative; padding:0 .5rem; }
-        .step-number { display:inline-block; width:38px; height:38px; border-radius:50%; background:#444; color:#fff; line-height:38px; font-weight:bold; margin-bottom:.4rem; border:2px solid #444; font-size:15px; }
+        .step-number { display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:50%; background:#444; color:#fff; font-weight:bold; margin-bottom:.4rem; border:2px solid #444; font-size:15px; }
         .step.active .step-number { background:var(--aff-accent); border-color:var(--aff-accent); color:#000; }
         .step.completed .step-number { background:#28a745; border-color:#28a745; color:#fff; }
         .step-title { font-size:.8rem; color:#888; margin:0; }
@@ -180,6 +222,19 @@
             border-radius: 10px;
             background: #1c1f29;
             color: #fff;
+        }
+
+        @media (max-width: 767.98px) {
+            .vip-card-side {
+                width: 100%;
+                min-width: 100%;
+                justify-content: space-between;
+                margin-top: 8px;
+            }
+
+            #package_use_date {
+                width: 100%;
+            }
         }
 
         /* Buttons */
@@ -358,9 +413,12 @@ const clubConfigs = {
                 @foreach($categoryGroup['mappings'] as $mapping)
                     @php $package = $mapping->package; $club = $package->website; @endphp
                     <div class="vip-card" id="pkg-card-{{ $package->id }}">
-                        <div>
+                        <div class="vip-card-main">
                             <div class="vip-meta">
                                 <span class="club-badge">{{ $club->name }}</span>
+                            </div>
+                            <div class="vip-title-row">
+                                <div class="vip-title">{{ $package->name }}</div>
                                 <button
                                     type="button"
                                     class="club-detail-trigger"
@@ -390,7 +448,6 @@ const clubConfigs = {
                                     <i class="fas fa-info"></i>
                                 </button>
                             </div>
-                            <div class="vip-title">{{ $package->name }}</div>
                             <button
                                 type="button"
                                 class="vip-btn mt-2"
@@ -402,16 +459,16 @@ const clubConfigs = {
                                 data-club-slug="{{ $club->slug }}"
                             >Add to Cart</button>
                         </div>
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="text-center">
-                                <div style="font-size:11px;opacity:.6;margin-bottom:4px;">Guests</div>
-                                <select style="width:70px;padding:5px 8px !important;margin-bottom:0;" class="form-select package_number_of_guestss" data-id="{{ $package->id }}">
+                        <div class="vip-card-side">
+                            <div class="vip-guest-control">
+                                <div class="vip-guest-label">Guests</div>
+                                <select class="form-select package_number_of_guestss" data-id="{{ $package->id }}">
                                     @for($i = 1; $i <= $package->number_of_guest; $i++)
                                         <option value="{{ $i }}">{{ $i }}</option>
                                     @endfor
                                 </select>
                             </div>
-                            <div class="vip-price-tag">${{ $package->price }}</div>
+                            <div class="vip-price-tag">${{ number_format((float) $package->price, 2) }}</div>
                         </div>
                     </div>
                 @endforeach
@@ -430,19 +487,6 @@ const clubConfigs = {
         <div class="addons-list"></div>
     </div>
 
-    {{-- ===== PRICE SUMMARY ===== --}}
-    <div class="price-summary" id="price-summary">
-        <div style="font-weight:600;margin-bottom:6px;">Price Summary</div>
-        <div class="default-package-price"><span class="summary-label">Package</span>: <span class="summary-value">$0.00</span></div>
-        <div id="sc-row" style="display:none;" class="default-service-charge"><span id="sc-lbl" class="summary-label">Service Charge</span>: <span class="summary-value">$0.00</span></div>
-        <div id="st-row" style="display:none;" class="default-sales-tax"><span id="st-lbl" class="summary-label">Sales Tax</span>: <span class="summary-value">$0.00</span></div>
-        <div id="gr-row" style="display:none;" class="default-gratuity"><span id="gr-lbl" class="summary-label">Gratuity</span>: <span class="summary-value">$0.00</span></div>
-        <hr style="border-color:rgba(255,255,255,0.15);margin:8px 0;">
-        <div style="font-size:16px;font-weight:800;" class="default-deposit"><span class="summary-label">Total</span>: <span class="summary-value">$0.00</span></div>
-        <div id="rf-row" style="display:none;font-weight:700;" class="default-refundable"><span id="rf-lbl" class="summary-label">Processing Fees</span>: <span class="summary-value">$0.00</span> (Pay Now)</div>
-        <div id="due-row" style="display:none;font-weight:700;" class="default-due"><span class="summary-label">DUE ON ARRIVAL</span>: <span class="summary-value">$0.00</span></div>
-    </div>
-
     {{-- ===== PROMO CODE ===== --}}
     <div id="promo-section">
         <label id="promo-lbl" style="font-size:12px;opacity:.6;margin-bottom:4px;display:block;">Promo Code</label>
@@ -458,6 +502,27 @@ const clubConfigs = {
         <div id="cart-list"></div>
         <div id="cart-total" style="font-size:15px;margin-top:8px;font-weight:600;"></div>
         <div id="cart-coupon" style="font-size:13px;color:#4caf7d;margin-top:4px;"></div>
+    </div>
+
+    <div id="shareLinkContainer" style="display:none;margin-bottom:1rem;">
+        <button type="button" id="generateShareLink" style="background:var(--aff-accent);color:#000;font-weight:700;border:none;padding:8px 20px;border-radius:25px;cursor:pointer;font-size:14px;">&#128279; Share Cart Link</button>
+        <div style="position:relative;margin-top:8px;">
+            <input type="text" id="shareableLink" readonly style="width:100%;display:none;padding-right:40px;">
+            <div id="copyTooltip" style="display:none;position:absolute;top:-35px;right:0;background:#28a745;color:white;padding:8px 12px;border-radius:4px;font-size:12px;white-space:nowrap;z-index:1000;">URL Copied!</div>
+        </div>
+    </div>
+
+    {{-- ===== PRICE SUMMARY ===== --}}
+    <div class="price-summary" id="price-summary">
+        <div style="font-weight:600;margin-bottom:6px;">Price Summary</div>
+        <div class="default-package-price"><span class="summary-label">Package</span>: <span class="summary-value">$0.00</span></div>
+        <div id="sc-row" style="display:none;" class="default-service-charge"><span id="sc-lbl" class="summary-label">Service Charge</span>: <span class="summary-value">$0.00</span></div>
+        <div id="st-row" style="display:none;" class="default-sales-tax"><span id="st-lbl" class="summary-label">Sales Tax</span>: <span class="summary-value">$0.00</span></div>
+        <div id="gr-row" style="display:none;" class="default-gratuity"><span id="gr-lbl" class="summary-label">Gratuity</span>: <span class="summary-value">$0.00</span></div>
+        <hr style="border-color:rgba(255,255,255,0.15);margin:8px 0;">
+        <div style="font-size:16px;font-weight:800;" class="default-deposit"><span class="summary-label">Total</span>: <span class="summary-value">$0.00</span></div>
+        <div id="rf-row" style="display:none;font-weight:700;" class="default-refundable"><span id="rf-lbl" class="summary-label">Processing Fees</span>: <span class="summary-value">$0.00</span> (Pay Now)</div>
+        <div id="due-row" style="display:none;font-weight:700;" class="default-due"><span class="summary-label">DUE ON ARRIVAL</span>: <span class="summary-value">$0.00</span></div>
     </div>
 
     {{-- ===== CHECKOUT STEPS ===== --}}
@@ -503,8 +568,8 @@ const clubConfigs = {
             <div class="form-group mb-3">
                 <label>Reservation Date</label>
                 <div class="date-input-wrapper">
-                    <input id="package_use_date" type="date" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" onclick="this.showPicker && this.showPicker()">
-                    <span class="custom-calendar-icon" onclick="document.getElementById('package_use_date').showPicker && document.getElementById('package_use_date').showPicker()"></span>
+                    <input id="package_use_date" type="text" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" readonly>
+                    <span class="custom-calendar-icon"></span>
                 </div>
             </div>
             <div class="form-group mb-3"><label>Booking Note</label><textarea name="package_note" placeholder="Your occasion or special request?"></textarea></div>
@@ -667,33 +732,55 @@ const clubConfigs = {
 window.cart = [];
 window.cartCoupon = null;
 window.activeClub = null;
+window.activeClubSlug = null;
 let stripeObj = null, cardNum_el = null, cardExp_el = null, cardCvc_el = null, loadedStripeKey = '';
 
 function ensureCart() { if (!Array.isArray(window.cart)) window.cart = []; }
 
+function formatCurrency(value) {
+    return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(Number(value || 0));
+}
+
+function cartRequiresTransport() {
+    ensureCart();
+    return window.cart.some(function(item) {
+        return item.transport == 1 || item.transport === '1' || item.transport === true;
+    });
+}
+
+function syncTransportStateFromCart() {
+    window.requiresTransport = cartRequiresTransport();
+}
+
 window.addToCart = function(pkgId, pkgName, pkgPrice, guests, addons, transport) {
     ensureCart();
     window.cart = [{ pkgId, pkgName, pkgPrice, guests, addons, transport }];
+    syncTransportStateFromCart();
     renderCart(); calcTotal();
 };
 
 window.removeFromCart = function(pkgId) {
     ensureCart();
     window.cart = window.cart.filter(p => p.pkgId != pkgId);
+    syncTransportStateFromCart();
     renderCart(); calcTotal();
 };
 
 function renderCart() {
     ensureCart();
-    if (!window.cart.length) { $('#cart-section').hide(); return; }
+    if (!window.cart.length) { $('#cart-section').hide(); $('#shareLinkContainer').hide(); return; }
     $('#cart-section').show();
+    $('#shareLinkContainer').show();
     let html = '';
     window.cart.forEach(p => {
         let addonTotal = p.addons.reduce((s, a) => s + parseFloat(a.price), 0);
         html += `<div style="border-bottom:1px solid rgba(255,255,255,0.08);padding:8px 0;">`
-            + `<strong>${p.pkgName}</strong> &times;${p.guests} &mdash; <span style="color:var(--aff-accent)">$${(p.pkgPrice * p.guests).toFixed(2)}</span>`
+            + `<strong>${p.pkgName}</strong> &times;${p.guests} &mdash; <span style="color:var(--aff-accent)">$${formatCurrency(p.pkgPrice * p.guests)}</span>`
             + `<button onclick="window.removeFromCart('${p.pkgId}')" style="float:right;background:#c00;color:#fff;border:none;border-radius:5px;padding:3px 9px;cursor:pointer;font-size:12px;">Remove</button>`
-            + (p.addons.length ? `<div style="margin-left:18px;font-size:12px;opacity:.6;">Add-ons: ${p.addons.map(a => a.name + ' ($' + a.price + ')').join(', ')}</div>` : '')
+            + (p.addons.length ? `<div style="margin-left:18px;font-size:12px;opacity:.6;">Add-ons: ${p.addons.map(a => a.name + ' ($' + formatCurrency(a.price) + ')').join(', ')}</div>` : '')
             + '</div>';
     });
     $('#cart-list').html(html);
@@ -718,22 +805,80 @@ function calcTotal() {
     }
     let rfAmt = grand * c.refundableFee / 100;
 
-    $('.default-package-price .summary-value').text('$' + sub.toFixed(2));
-    scAmt > 0 ? ($('#sc-row').show(), $('#sc-row .summary-value').text('$' + scAmt.toFixed(2))) : $('#sc-row').hide();
-    stAmt > 0 ? ($('#st-row').show(), $('#st-row .summary-value').text('$' + stAmt.toFixed(2))) : $('#st-row').hide();
-    grAmt > 0 ? ($('#gr-row').show(), $('#gr-row .summary-value').text('$' + grAmt.toFixed(2))) : $('#gr-row').hide();
+    $('.default-package-price .summary-value').text('$' + formatCurrency(sub));
+    scAmt > 0 ? ($('#sc-row').show(), $('#sc-row .summary-value').text('$' + formatCurrency(scAmt))) : $('#sc-row').hide();
+    stAmt > 0 ? ($('#st-row').show(), $('#st-row .summary-value').text('$' + formatCurrency(stAmt))) : $('#st-row').hide();
+    grAmt > 0 ? ($('#gr-row').show(), $('#gr-row .summary-value').text('$' + formatCurrency(grAmt))) : $('#gr-row').hide();
 
     if (promoDisc > 0) {
         if (!$('.promo-disc-row').length) $('.default-gratuity').after('<div class="promo-disc-row" style="font-size:13px;">Promo Discount: <span>$0.00</span></div>');
-        $('.promo-disc-row span').text('-$' + promoDisc.toFixed(2));
+        $('.promo-disc-row span').text('-$' + formatCurrency(promoDisc));
     } else { $('.promo-disc-row').remove(); }
 
-    c.refundableFee > 0 ? ($('#rf-row').show(), $('#due-row').show(), $('#rf-row .summary-value').text('$' + rfAmt.toFixed(2)), $('#due-row .summary-value').text('$' + (grand - rfAmt).toFixed(2))) : ($('#rf-row').hide(), $('#due-row').hide());
-    $('.default-deposit .summary-value').text('$' + grand.toFixed(2));
+    c.refundableFee > 0 ? ($('#rf-row').show(), $('#due-row').show(), $('#rf-row .summary-value').text('$' + formatCurrency(rfAmt)), $('#due-row .summary-value').text('$' + formatCurrency(grand - rfAmt))) : ($('#rf-row').hide(), $('#due-row').hide());
+    $('.default-deposit .summary-value').text('$' + formatCurrency(grand));
     $('.payment_total').val(grand.toFixed(2));
     $('#subtotal').val(c.refundableFee > 0 ? rfAmt.toFixed(2) : grand.toFixed(2));
-    $('#cart-total').text('Total: $' + grand.toFixed(2));
-    window.cartCoupon && promoDisc > 0 ? $('#cart-coupon').text('Coupon: ' + window.cartCoupon.code + ' (-$' + promoDisc.toFixed(2) + ')') : $('#cart-coupon').text('');
+    $('#cart-total').text('Total: $' + formatCurrency(grand));
+    window.cartCoupon && promoDisc > 0 ? $('#cart-coupon').text('Coupon: ' + window.cartCoupon.code + ' (-$' + formatCurrency(promoDisc) + ')') : $('#cart-coupon').text('');
+}
+
+function getCurrentSelections() {
+    return {
+        club: window.activeClubSlug || '',
+        cart: window.cart,
+        coupon: window.cartCoupon ? window.cartCoupon.code : ''
+    };
+}
+
+function getUrlWithSelections() {
+    const data = getCurrentSelections();
+    const params = new URLSearchParams();
+    if (data.club) params.set('club', data.club);
+    if (data.cart && data.cart.length) params.set('cart', encodeURIComponent(JSON.stringify(data.cart)));
+    if (data.coupon) params.set('coupon', data.coupon);
+    return window.location.origin + window.location.pathname + '?' + params.toString();
+}
+
+function setSelectionsFromParams() {
+    const params = new URLSearchParams(window.location.search);
+    const club = params.get('club');
+    const cartParam = params.get('cart');
+    const couponParam = params.get('coupon');
+
+    if (club && clubConfigs[club]) {
+        activateClub(club);
+    }
+
+    if (cartParam) {
+        try {
+            const decoded = JSON.parse(decodeURIComponent(cartParam));
+            if (Array.isArray(decoded) && decoded.length) {
+                window.cart = decoded;
+                const firstPackage = decoded[0];
+                if (firstPackage) {
+                    $('#package_id').val(firstPackage.pkgId || '');
+                    $('.package_number_of_guest').val(firstPackage.guests || 1);
+                    $('.package_number_of_guestss[data-id="' + firstPackage.pkgId + '"]').val(firstPackage.guests || 1);
+                    $('#pkg-card-' + firstPackage.pkgId).addClass('selected');
+                }
+                syncTransportStateFromCart();
+                renderCart();
+                calcTotal();
+                $('.price-summary').show();
+                $('#promo-section').show();
+                $('#checkout-steps').show();
+                showStep(1);
+            }
+        } catch (e) {
+            console.error('Failed to parse shared cart', e);
+        }
+    }
+
+    if (couponParam) {
+        $('#promo_code').val(couponParam);
+        $('#applyPromoBtn').trigger('click');
+    }
 }
 </script>
 
@@ -745,6 +890,7 @@ function activateClub(slug) {
     const c = clubConfigs[slug];
     if (!c) return;
     window.activeClub = c;
+    window.activeClubSlug = slug;
     $('#payment-form').attr('action', '/' + slug + '/checkout/store');
     $('#website_id').val(c.id);
     $('#sc-lbl').text(c.serviceChargeName !== '0' ? c.serviceChargeName : 'Service Charge');
@@ -809,7 +955,7 @@ function openAddonSelectionModal(selection) {
     } else {
         addons.forEach(function(a) {
             html += '<label style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.12);">'
-                + '<span>' + escapeAddonHtml(a.name) + ' <span style="opacity:.6;">($' + parseFloat(a.price || 0).toFixed(2) + ')</span></span>'
+                + '<span>' + escapeAddonHtml(a.name) + ' <span style="opacity:.6;">($' + formatCurrency(a.price || 0) + ')</span></span>'
                 + '<input type="checkbox" class="addon-modal-check" data-id="' + a.id + '" data-name="' + escapeAddonHtml(a.name) + '" data-price="' + parseFloat(a.price || 0) + '">'
                 + '</label>';
         });
@@ -843,6 +989,10 @@ $(document).ready(function() {
     });
 
     $(document).on('click', '.vip-btn', function() {
+        if (this.id === 'generateShareLink') {
+            return;
+        }
+
         const pkgId     = $(this).data('id');
         const pkgName   = $(this).data('name');
         const pkgPrice  = parseFloat($(this).data('price'));
@@ -901,10 +1051,34 @@ $(document).ready(function() {
         $('.price-summary').show();
         $('#promo-section').show();
         $('#checkout-steps').show();
+        syncTransportStateFromCart();
         showStep(1);
 
         bootstrap.Modal.getOrCreateInstance(document.getElementById('addonSelectionModal')).hide();
         window.pendingPackageSelection = null;
+    });
+
+    $('#generateShareLink').on('click', function() {
+        if (!window.cart.length) {
+            alert('Please add at least one package to cart');
+            return;
+        }
+        if (!window.activeClubSlug) {
+            alert('Please select a club/package first');
+            return;
+        }
+        $('#shareableLink').val(getUrlWithSelections()).show();
+    });
+
+    $('#shareableLink').on('click', function() {
+        const url = $(this).val();
+        navigator.clipboard.writeText(url).then(function() {
+            const tooltip = $('#copyTooltip');
+            tooltip.show();
+            setTimeout(function() { tooltip.hide(); }, 2000);
+        }).catch(function() {
+            $('#shareableLink').select();
+        });
     });
 
     // Guest select change → update cart
@@ -912,7 +1086,7 @@ $(document).ready(function() {
         $('.package_number_of_guest').val($(this).val());
         const pkgId = $(this).data('id');
         let p = window.cart.find(x => x.pkgId == pkgId);
-        if (p) { p.guests = parseInt($(this).val()); renderCart(); calcTotal(); }
+        if (p) { p.guests = parseInt($(this).val()); syncTransportStateFromCart(); renderCart(); calcTotal(); }
     });
 
     // Reservation date change → sync hidden field
@@ -924,6 +1098,8 @@ $(document).ready(function() {
     $('#businessExpenseCheckbox').on('change', function() {
         $(this).is(':checked') ? $('#businessFields').slideDown() : $('#businessFields').slideUp();
     });
+
+    setSelectionsFromParams();
 });
 </script>
 
@@ -941,6 +1117,7 @@ function showStep(n) {
     for (let i = 1; i < n; i++) $('#step-' + i).addClass('completed');
     $('#step-' + n).addClass('active');
     currentStep = n;
+    syncTransportStateFromCart();
     if (n === 2) {
         window.requiresTransport ? ($('#transport-form').show(), $('#transport-confirmation').hide())
                                  : ($('#transport-confirmation').show(), $('#transport-form').hide());
@@ -1073,9 +1250,6 @@ function fillDOB(mId, dId, yId) {
 $(function() {
     fillCountry('country');
     fillDOB('package-dob-month','package-dob-day','package-dob-year');
-    // Set min date
-    const now = new Date(), yy=now.getFullYear(), mm=String(now.getMonth()+1).padStart(2,'0'), dd=String(now.getDate()).padStart(2,'0');
-    $('#package_use_date').attr('min', `${yy}-${mm}-${dd}`);
 });
 
 $(document).on('change', '#country', function() {
@@ -1098,6 +1272,19 @@ $(document).on('change', '#country', function() {
 });
 
 flatpickr('.flatpickr-time', { enableTime:true, noCalendar:true, dateFormat:'h:i K', time_24hr:false });
+flatpickr('#package_use_date', {
+    dateFormat: 'Y-m-d',
+    defaultDate: '{{ \Carbon\Carbon::now()->format('Y-m-d') }}',
+    minDate: 'today',
+    allowInput: false,
+    clickOpens: true
+});
+$('.custom-calendar-icon').on('click', function() {
+    const picker = document.getElementById('package_use_date')._flatpickr;
+    if (picker) {
+        picker.open();
+    }
+});
 </script>
 
 </body>

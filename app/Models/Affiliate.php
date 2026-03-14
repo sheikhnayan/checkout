@@ -60,6 +60,11 @@ class Affiliate extends Model
         return $this->hasMany(AffiliatePackage::class);
     }
 
+    public function affiliateWebsites()
+    {
+        return $this->hasMany(AffiliateWebsite::class);
+    }
+
     public function packages()
     {
         return $this->belongsToMany(Package::class, 'affiliate_packages')

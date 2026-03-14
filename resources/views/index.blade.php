@@ -1,5 +1,11 @@
+﻿@php
+    $data->color = '#ffcc00';
+    $data->secondary_color = '#1a75ff';
+    $data->background_color = '#0b0e1a';
+    $data->font_color = '#e8eaf6';
+@endphp
 <!DOCTYPE html>
-<r lang="en">
+<html lang="en">
 
     <head>
         <meta charset="UTF-8">
@@ -9,6 +15,7 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css"
             integrity="sha512-fw7f+TcMjTb7bpbLJZlP8g2Y4XcCyFZW8uy8HsRZsH/SwbMw0plKHFHr99DN3l04VsYNwvzicUX/6qurvIxbxw=="
             crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
         <link rel="stylesheet" href="{{ asset('styles/main.css') }}">
         <style>
             #Pick-up-time::placeholder {
@@ -48,15 +55,17 @@
 }
 
 .step-number {
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 40px;
     height: 40px;
     border-radius: 50%;
     background: #444;
     color: #fff;
-    line-height: 40px;
+    line-height: 1;
     font-weight: bold;
-    margin-bottom: 0.5rem;
+    margin: 0 auto 0.5rem;
     border: 2px solid #444;
 }
 
@@ -302,17 +311,12 @@ option{
   margin-bottom: 20px;
 }
 
-/* Safari/iOS Date Input Calendar Icon Fix */
+/* Hide native date indicator; keep only custom icon */
 input[type="date"]::-webkit-calendar-picker-indicator {
-    background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>') no-repeat;
-    background-size: 20px;
-    color: transparent !important;
-    opacity: 1 !important;
-    cursor: pointer;
-    width: 20px;
-    height: 20px;
-    border: none;
-    outline: none;
+    display: none !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 /* Ensure date input shows calendar icon in all browsers */
@@ -434,8 +438,10 @@ input[type="date"]:focus {
     }
     
     input[type="date"]::-webkit-calendar-picker-indicator {
-        opacity: 1 !important;
-        display: block !important;
+        display: none !important;
+        opacity: 0 !important;
+        width: 0 !important;
+        height: 0 !important;
     }
     
     /* Force proper rendering of JavaScript-generated select fields */
@@ -632,85 +638,501 @@ a {
     line-height: 1.6;
 }
 
+/* ===================================================
+   AFFILIATE PAGE DESIGN SYSTEM
+   =================================================== */
+:root {
+    --accent:    {{ $data->color }};
+    --bg:        {{ $data->background_color }};
+    --text-main: {{ $data->font_color ?? '#e8eaf6' }};
+    --aff-accent: var(--accent);
+    --aff-text: var(--text-main);
+}
+
+/* Glassmorphism package cards */
+.vip-card {
+    background: rgba(255,255,255,0.03) !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    border-radius: 14px !important;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    transition: border-color .2s;
+}
+.vip-card:hover { border-color: rgba(255,255,255,0.28) !important; }
+
+/* Form inputs — frosted glass background */
+input[type="text"], input[type="email"], input[type="tel"],
+input[type="number"], textarea {
+    background: rgba(255,255,255,0.07) !important;
+    border: 1px solid #9797a0 !important;
+    border-radius: 10px !important;
+    color: #fff !important;
+    padding: 10px 14px;
+    width: 100%;
+    font-size: 15px;
+}
+input::placeholder, textarea::placeholder {
+    color: rgba(255,255,255,0.35) !important;
+}
+
+/* Checkbox containers — consent-label layout */
+.checkbox-container label {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    cursor: pointer;
+    margin-bottom: 10px;
+    font-size: 13px;
+    line-height: 1.4;
+}
+.checkbox-container input[type="checkbox"] {
+    width: auto !important;
+    padding: 0 !important;
+    margin-top: 2px !important;
+    flex-shrink: 0;
+    accent-color: var(--accent);
+}
+
+/* Cart section card */
+#cart-section {
+    background: rgba(255,255,255,0.04) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    border-radius: 12px !important;
+    padding: 16px 18px;
+}
+
+/* Step navigation — centered flex row */
+.step-navigation {
+    display: flex !important;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 1.5rem 0;
+}
+
+/* Promo apply button */
+.vip-btn-submit, #applyPromoBtn {
+    background: var(--accent) !important;
+    color: #000 !important;
+    font-weight: 700;
+    border: none;
+    padding: 0 18px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 14px;
+}
+
+/* Section headings */
+.checkout-section h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+}
+
+/* Addon selection modal — dark theme */
+#addonSelectionModal .modal-content {
+    background: #1a1d2e;
+    color: #ddd;
+}
+#addonSelectionModal .modal-title { color: #fff !important; }
+#addonModalConfirmBtn {
+    background: var(--accent) !important;
+    color: #000 !important;
+    font-weight: 700;
+}
+
+/* Exact affiliate-page layout surfaces */
+body {
+    background: var(--accent) !important;
+    background: var(--bg) !important;
+    color: var(--text-main) !important;
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+}
+
+.aff-hero {
+    background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 20px 0 18px;
+}
+
+.aff-avatar {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--accent);
+    background: rgba(255,255,255,0.08);
+}
+
+.aff-initials {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.aff-hero-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+}
+
+.aff-hero-copy {
+    opacity: .75;
+    font-size: 13px;
+}
+
+.aff-banner {
+    position: relative;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    overflow: hidden;
+    min-height: 220px;
+    margin: 20px 0 24px;
+    background:
+        linear-gradient(125deg, rgba(8,11,22,0.82), rgba(8,11,22,0.52)),
+        radial-gradient(circle at top right, rgba(255,255,255,0.08), transparent 35%),
+        var(--accent);
+}
+
+.aff-banner-content {
+    position: relative;
+    z-index: 1;
+    padding: 28px;
+}
+
+.aff-kicker {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: .64;
+    font-weight: 700;
+}
+
+.aff-display-title {
+    font-size: clamp(2rem, 5vw, 3.8rem);
+    line-height: 1;
+    font-weight: 800;
+    max-width: 9ch;
+    margin: 10px 0 12px;
+    color: #fff !important;
+}
+
+.aff-display-copy {
+    max-width: 620px;
+    font-size: 15px;
+    opacity: .82;
+    color: #d8def0 !important;
+}
+
+.hero-date-card {
+    margin-top: 20px;
+    max-width: 360px;
+    padding: 16px 18px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.04);
+}
+
+.hero-date-card label {
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: .8px;
+    opacity: .7;
+}
+
+.hero-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.hero-gallery-item {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.15);
+}
+
+.aff-story,
+.guest > form > section,
+.guest-count,
+.vip-pack,
+.package > section,
+.checkout-section,
+.upcoming-events-card,
+.location-card {
+    margin: 0 0 24px;
+    padding: 18px 20px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    background: rgba(255,255,255,0.03);
+}
+
+.story-copy {
+    font-size: 15px;
+    opacity: .82;
+    line-height: 1.7;
+}
+
+.story-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.1);
+    margin: 16px 0;
+}
+
+nav {
+    max-width: 420px;
+    margin: 0 auto 24px;
+    padding: 4px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+nav .tab {
+    border-radius: 10px;
+    flex: 1 1 0;
+    background: transparent;
+    color: var(--text-main);
+    padding: 10px 20px;
+}
+
+nav .tab.active,
+nav .tab:hover {
+    background: var(--accent);
+    color: #000 !important;
+}
+
+.package-category-tile.active {
+    background: var(--accent) !important;
+    color: #000 !important;
+}
+
+.vip-card.selected {
+    border-color: var(--accent) !important;
+    background: rgba(255,255,255,0.06) !important;
+}
+.vip-card-main {
+    flex: 1 1 280px;
+    min-width: 0;
+}
+.vip-title-row { display:flex; align-items:center; gap:8px; }
+.vip-card-side {
+    flex: 0 0 220px;
+    display: grid;
+    grid-template-columns: 84px minmax(110px, 1fr);
+    gap: 16px;
+    align-items: start;
+    justify-content: end;
+}
+.vip-guest-control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+.vip-guest-label {
+    font-size: 11px;
+    opacity: .6;
+    margin-bottom: 4px;
+}
+.package_number_of_guestss {
+    width: 70px;
+    padding: 5px 8px !important;
+    margin-bottom: 0 !important;
+}
+.vip-price-tag {
+    min-width: 110px;
+    padding-top: 18px;
+    text-align: right;
+    white-space: nowrap;
+    font-size:18px;
+    font-weight:800;
+    color:var(--accent);
+}
+.club-detail-trigger { display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.07); color:var(--text-main); cursor:pointer; font-size:12px; }
+.club-detail-trigger:hover { border-color:var(--accent); color:var(--accent); }
+.club-popover .popover-header { background:#141a2d; color:#fff; border-bottom:1px solid rgba(255,255,255,0.08); }
+.club-popover .popover-body { background:#0e1324; color:#d8def0; }
+
+#addonSelectionModal .addon-modal-check {
+    width: auto !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+    accent-color: var(--aff-accent);
+}
+
+.vip-price {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--accent) !important;
+}
+
+.dynamic-price {
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    padding: 14px 16px;
+}
+
+.guest-section {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+}
+
+.section-kicker-lg {
+    opacity: .6;
+    font-size: .85rem;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.guest-count .container,
+.location-card .row,
+.upcoming-events-card .event-header,
+.upcoming-events-card #events-list {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.pricing-shell > div {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.location-card iframe {
+    width: 100%;
+    min-height: 280px;
+    border: 0;
+    border-radius: 14px;
+}
+
+/* Keep a single custom calendar icon in hero date input */
+body #package_use_date::-webkit-calendar-picker-indicator {
+    display: none !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+@media(max-width:768px) {
+    .aff-banner-content { padding: 22px 18px; }
+    .hero-date-card { max-width: 100%; }
+    .vip-card-side { flex: 1 1 100%; }
+    .hero-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media(max-width:576px) {
+    .hero-gallery-grid { grid-template-columns: 1fr; }
+}
+
         </style>
     </head>
 
     <body>
         <div class="background-glow"></div>
-        <header>
-            <section class="hero" max-width="620px" ;>
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-12">
-                            @session('success')
-                                <div class="alert alert-success mt-4" role="alert">
-                                    Purchase Successfull!
-                                </div>
-                            @endsession
 
-                            @session('error')
-                                <div class="alert alert-danger mt-4" role="alert">
-                                    {{ $value }}
-                                </div>
-                            @endsession
-                        </div>
-                        <div class="col-md-12 text-center mb-4 mt-4">
-                            <a href="{{ $data->back_link }}" class="btn tbn-success" style="background: {{ $data->color }}; color: #000">{{ $data->back_text }}</a>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="row justify-content-center">
-                                <div class="col-md-5">
-                                    <div class="logo-section">
-                                        <img src="{{ asset('uploads/' . $event->image) }}" alt="Event Logo"
-                                            class="logo" 
-                                            @if($event->logo_width || $event->logo_height)
-                                                style="
-                                                    @if($event->logo_width) width: {{ $event->logo_width }}px; @endif
-                                                    @if($event->logo_height) height: {{ $event->logo_height }}px; @endif
-                                                "
-                                            @endif>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12" style="text-align: center;">
-                            <div class="row justify-content-center">
-                                <div class="col-md-6">
-                                    <div class="event-info">
-                                        <div class="date">
-                                            <label>Date</label>
-                                            <div class="event-date" style="border: unset;">       
-                                                <input id="package_use_date" type="date" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}"
-                                                    readonly style="-webkit-text-fill-color: #fff !important; color: #fff !important; opacity: 1 !important;">
-                                            </div>
-                                            <div class="event-day mt-4" style="text-align: center;">{{ $event->name }}</div>
-                                            <div class="event-time" style="text-align: center;">{{ $event->time }}</div>
-                                            <div class="event-day" style="text-align: center;">{{ \Carbon\Carbon::parse($event->date)->format('l') }}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="event-desc">
-                                <h2>{{ $data->description_label ?? 'Description' }}</h2>
-                                <ul>
-                                    <li class="my-scrollable-div">{{ $event->description }}</li>
-                                </ul>
-                            </div>
-                            
-                            @if($data->text_description)
-                            <div class="website-desc mt-4">
-                                <h2>About</h2>
-                                <div class="website-description-content">
-                                    {{ $data->text_description }}
-                                </div>
-                            </div>
+        <section class="aff-hero">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        @if ($data->logo)
+                            <img src="{{ asset('uploads/' . $data->logo) }}" alt="{{ $data->name }}" class="aff-avatar">
+                        @else
+                            <div class="aff-initials">{{ strtoupper(substr($data->name, 0, 2)) }}</div>
+                        @endif
+                        <div>
+                            <h2 class="mb-0 aff-hero-title">{{ $data->name }}</h2>
+                            @if ($data->location)
+                                <p class="mb-0 mt-1 aff-hero-copy">{{ $data->location }}</p>
                             @endif
                         </div>
                     </div>
+                    @if ($data->back_link && $data->back_text)
+                        <a href="{{ $data->back_link }}" class="vip-btn">{{ $data->back_text }}</a>
+                    @endif
                 </div>
-            </section>
+            </div>
+        </section>
 
+        <header>
+            <div class="container py-4">
+                @session('success')
+                    <div class="alert alert-success" role="alert">Purchase Successfull!</div>
+                @endsession
 
+                @session('error')
+                    <div class="alert alert-danger" role="alert">{{ $value }}</div>
+                @endsession
+
+                <section class="aff-banner" style="background:
+                    linear-gradient(125deg, rgba(8,11,22,0.84), rgba(8,11,22,0.48)),
+                    url('{{ asset('uploads/' . $event->image) }}') center/cover no-repeat;">
+                    <div class="aff-banner-content">
+                        <div class="aff-kicker">Event Checkout</div>
+                        <div class="aff-display-title">{{ $data->hero_title ?: $event->name }}</div>
+                        <div class="aff-display-copy">
+                            {{ $data->hero_subtitle ?: (\Carbon\Carbon::parse($event->date)->format('l, F d') . ($event->time ? ' • ' . $event->time : '')) }}
+                        </div>
+
+                        <div class="hero-date-card">
+                            <label>Choose Your Reservation Date</label>
+                            <div class="date-input-wrapper">
+                                <input id="package_use_date" type="text" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}"
+                                    readonly style="-webkit-text-fill-color: #fff !important; color: #fff !important; opacity: 1 !important; width: 100%;">
+                                <span class="custom-calendar-icon"></span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                @if(!empty($data->gallery_images))
+                    <div class="hero-gallery-grid">
+                        @foreach((array) $data->gallery_images as $galleryImage)
+                            <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image" class="hero-gallery-item">
+                        @endforeach
+                    </div>
+                @endif
+
+                <section class="aff-story">
+                    <h2>{{ $data->description_label ?? 'Description' }}</h2>
+                    <div class="story-copy">{{ $event->description }}</div>
+                    @if ($data->text_description)
+                        <div class="story-divider"></div>
+                        <h3 style="font-size:1rem;font-weight:700;margin-bottom:8px;">About</h3>
+                        <div class="story-copy">{{ $data->text_description }}</div>
+                    @endif
+                    @if ($data->secondary_description)
+                        <div class="story-divider"></div>
+                        <div class="story-copy">{{ $data->secondary_description }}</div>
+                    @endif
+                </section>
+            </div>
         </header>
         @if ($data->reservation == 1)
         <nav>
@@ -731,6 +1153,7 @@ a {
                             <input type="hidden" name="website_id" value="{{ $data->id }}">
                             <input type="hidden" name="affiliate_slug" value="{{ $affiliateReferral->slug ?? '' }}">
                             <section style="width: 100%">
+                                <h5 class="section-kicker-lg">Guest List Reservation</h5>
                                 <div class="">
     
                                     <div class="row">
@@ -865,24 +1288,26 @@ a {
                                 </div>
     
                             </section>
-    
-                            <section style="width: 100%">
+
+                            <section class="location-card" style="width: 100%">
                                 <div class="row">
                                     <div class="col-md-12">
-                                            <div class="">
-                                                <h2 style="margin-top: 4rem;">Location</h2>
-                                                <p>{{ $data->location }}</p>
-                                                <iframe
-                                                    src="https://www.google.com/maps?q={{ urlencode($data->location) }}&output=embed"
-                                                    allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade">
-                                                </iframe>
-                                                <h2 style="margin-top: 2rem;">Contact</h2>
-                                                <p><a href="tel:{{ $data->phone }}">{{ $data->phone }}</a></p>
-                                                <p><a href="mailto:{{ $data->email }}">{{ $data->email }}</a></p>
-                                            </div>
+                                        <div class="">
+                                            <h2 style="margin-top: 4rem;">Location</h2>
+                                            <p>{{ $data->location }}</p>
+                                            <iframe
+                                                src="https://www.google.com/maps?q={{ urlencode($data->location) }}&output=embed"
+                                                allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                                            </iframe>
+                                            <h2 style="margin-top: 2rem;">Contact</h2>
+                                            <p><a href="tel:{{ $data->phone }}">{{ $data->phone }}</a></p>
+                                            <p><a href="mailto:{{ $data->email }}">{{ $data->email }}</a></p>
                                         </div>
+                                    </div>
                                 </div>
                             </section>
+    
+
                             <input type="hidden" name="type" value="guest">
     
                         </form>
@@ -897,7 +1322,7 @@ a {
                             <div class="row">
                                 <div class="col-md-12">
     
-                                    <h2 style="margin-bottom: 35px;">{{ $data->package_button_text ?? 'Packages' }}</h2>
+                                    <h5 class="section-kicker-lg">{{ $data->package_button_text ?? 'Packages' }}</h5>
     
                                     @if(isset($packageCategories) && $packageCategories->count())
                                         <div class="mb-3 package-category-tiles" style="width:100%;">
@@ -917,32 +1342,20 @@ a {
                                         @foreach ($packageCategories as $category)
                                             <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: none;">
                                                 @foreach ($category['packages'] as $item)
-                                                    <div class="vip-card d-flex flex-wrap justify-content-between align-items-center"
-                                                        style="border-color: {{ $data->color }} !important;">
-                                                        <div>
-                                                            <div style="min-width: 210px;">
-                                                                <div class="vip-title" style="float: left; width: 125px;">{{ $item->name }} </div>
-                                                                <div class="items"
-                                                                    style="float: right; margin-top: -6px; margin-left: 10px;"
-                                                                    onClick='openPackageModal()'
-                                                                    data-description="{!! $item->description !!}"
-                                                                    data-title="{{ $item->name }}">
-                                                                    <svg style="fill: {{ $data->secondary_color }}; height: 20px; width: 20px; cursor: pointer;"
-                                                                        version="1.1" xmlns="http://www.w3.org/2000/svg"
-                                                                        xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-                                                                        viewBox="0 0 512 512" xml:space="preserve">
-                                                                        <g>
-                                                                            <path
-                                                                                d="M256,0C115.39,0,0,115.39,0,256s115.39,256,256,256s256-115.39,256-256S396.61,0,256,0z M286,376
-                                                                                c0,16.538-13.462,30-30,30c-16.538,0-30-13.462-30-30V226c0-16.538,13.462-30,30-30c16.538,0,30,13.462,30,30V376z M256,166
-                                                                                c-16.538,0-30-13.462-30-30c0-16.538,13.462-30,30-30c16.538,0,30,13.462,30,30C286,152.538,272.538,166,256,166z">
-                                                                            </path>
-                                                                        </g>
-                                                                    </svg>
-                                                                </div>
+                                                    <div class="vip-card" id="pkg-card-{{ $item->id }}">
+                                                        <div class="vip-card-main">
+                                                            <div class="vip-title-row">
+                                                                <div class="vip-title">{{ $item->name }}</div>
+                                                                @if($item->description)
+                                                                    <button type="button" class="club-detail-trigger"
+                                                                        data-bs-toggle="popover" data-bs-placement="top"
+                                                                        data-bs-custom-class="club-popover" data-bs-html="true"
+                                                                        data-bs-title="{{ e($item->name) }}"
+                                                                        data-bs-content="{{ e(strip_tags($item->description ?? '')) }}"
+                                                                    ><i class="fas fa-info"></i></button>
+                                                                @endif
                                                             </div>
-                                                            <br>
-                                                            <button class="vip-btn btn-{{ $item->id }}" style="background-color: {{ $data->color }} !important;"
+                                                            <button class="vip-btn btn-{{ $item->id }} mt-2" style="background-color: {{ $data->color }} !important;"
                                                                 data-id="{{ $item->id }}" data-name="{{ $item->name }}" data-price="{{ $item->price }}"
                                                                 data-gratuity="{{ $data->gratuity_fee }}"
                                                                 data-refundable="{{ $data->refundable_fee }}"
@@ -951,17 +1364,16 @@ a {
                                                                 data-service_charge="{{ $data->service_charge_fee ?? 10}}">Add to Cart</button>
                                                         </div>
 
-                                                        <div class="d-flex ">
-                                                            <div class="vip-price me-3 price-{{ $item->id }}" data-price="{{ $item->price }}" style="color: {{ $data->color }} !important">
-                                                                ${{ $item->price }}</div>
-                                                        </div>
-                                                        <div class="d-flex flex-column align-items-center " style="margin-right: 30px;">
-                                                            <p>Guests total</p>
-                                                            <select data-multiple="{{ $item->multiple }}" data-id="{{ $item->id }}" style="padding: 5px !important" class="form-select vip-select me-2 gue-1 package_number_of_guestss">
-                                                                @for ($i = 1; $i <= $item->number_of_guest; $i++)
-                                                                    <option value="{{ $i }}">{{ $i }}</option>
-                                                                @endfor
-                                                            </select>
+                                                        <div class="vip-card-side">
+                                                            <div class="vip-guest-control">
+                                                                <div class="vip-guest-label">Guests</div>
+                                                                <select data-multiple="{{ $item->multiple }}" data-id="{{ $item->id }}" class="form-select package_number_of_guestss">
+                                                                    @for ($i = 1; $i <= $item->number_of_guest; $i++)
+                                                                        <option value="{{ $i }}">{{ $i }}</option>
+                                                                    @endfor
+                                                                </select>
+                                                            </div>
+                                                            <div class="vip-price-tag price-{{ $item->id }}" data-price="{{ $item->price }}">${{ number_format((float) $item->price, 2) }}</div>
                                                         </div>
                                                     </div>
                                                 @endforeach
@@ -971,7 +1383,13 @@ a {
                                         <p style="opacity:.6;">No packages are available yet.</p>
                                     @endif
     
-                                    <div class="row">
+                                    <section id="cart-section" class="container py-4" style="display:none; margin-bottom:2rem;">
+                                        <div style="font-weight:700;font-size:15px;margin-bottom:10px;">Your Cart</div>
+                                        <div id="cart-list"></div>
+                                        <div id="cart-total" style="font-size:15px;margin-top:8px;font-weight:600;"></div>
+                                        <div id="cart-coupon" style="font-size:13px;color:#4caf7d;margin-top:4px;"></div>
+                                    </section>
+                                    <div class="row pricing-shell g-3">
                                         <div class="text-start mt-3 col-md-6">
                                             <div style="font-size: 16px;" class="default-price">Package: <span>$0.00</span>
                                             </div>
@@ -1003,17 +1421,8 @@ a {
                                                     class="default-total">Total: <span>$0.00</span></div>
                                             </div>
     
-                                                <!-- Shareable Link Button - Moved Below -->
-                                                <div class="mt-3" id="shareLinkContainer" style="display:none;">
-                                                    <button type="button" class="btn btn-primary" id="generateShareLink" style="background: {{ $data->color }}; color: #000; font-weight: bold;">Generate Shareable Link</button>
-                                                    <div style="position: relative;">
-                                                        <input type="text" id="shareableLink" readonly style="width:100%;margin-top:8px;display:none;padding-right:40px;" />
-                                                        <div id="copyTooltip" style="position: absolute; top: -35px; right: 0; background: #28a745; color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; display: none; white-space: nowrap; z-index: 1000;">
-                                                            URL Copied!
-                                                        </div>
-                                                    </div>
-                                                </div>
-    
+
+
                                             <hr>
                                             <div class="vip-price default-deposit"
                                                 style="font-size: 16px; font-weight: 700; color: {{ $data->secondary_color }} !important;">
@@ -1026,16 +1435,7 @@ a {
                                                 <div style="font-size: 16px; font-weight: 700; color: {{ $data->secondary_color }} !important;"
                                                     class="vip-price default-due">DUE ON ARRIVAL: <span>$0.00</span></div>
                                             @endif
-                                            <!-- Shareable Link Button - Moved Below DUE ON ARRIVAL -->
-                                            <div class="mt-3" id="shareLinkContainer" style="display:none;">
-                                                <button type="button" class="btn btn-primary" id="generateShareLink" style="background: {{ $data->color }}; color: #000; font-weight: bold;">Generate Shareable Link</button>
-                                                <div style="position: relative;">
-                                                    <input type="text" id="shareableLink" readonly style="width:100%;margin-top:8px;display:none;padding-right:40px;" />
-                                                    <div id="copyTooltip" style="position: absolute; top: -35px; right: 0; background: #28a745; color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; display: none; white-space: nowrap; z-index: 1000;">
-                                                        URL Copied!
-                                                    </div>
-                                                </div>
-                                            </div>
+
                                             @if ($data->sales_tax_name == 0)
                                                 <div style="font-size: 10px; font-weight: 700; color: {{ $data->secondary_color }} !important;"
                                                     class="vip-price"><span>*No sales tax applied. Services sold are not subject to sales tax under Nevada law. Please consult a tax advisor for your local region if applicable.</span></div>
@@ -1058,6 +1458,15 @@ a {
                                         </div>
                                     </div>
     
+                                    <div class="mt-3" id="shareLinkContainer" style="display:none;">
+                                        <button type="button" class="btn btn-primary" id="generateShareLink" style="background: {{ $data->color }}; color: #000; font-weight: bold;">Generate Shareable Link</button>
+                                        <div style="position: relative;">
+                                            <input type="text" id="shareableLink" readonly style="width:100%;margin-top:8px;display:none;padding-right:40px;" />
+                                            <div id="copyTooltip" style="position: absolute; top: -35px; right: 0; background: #28a745; color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; display: none; white-space: nowrap; z-index: 1000;">
+                                                URL Copied!
+                                            </div>
+                                        </div>
+                                    </div>
                                     <!-- Step Progress Indicator -->
                                     <ul class="checkout-steps" id="checkout-steps" style="display: none;">
                                         <li class="step active" id="step-1">
@@ -1077,13 +1486,8 @@ a {
                                     <form action="{{ route('checkout.store', ['slug' => $data->slug]) }}" id="payment-form" method="post">
                                         @csrf
                                         
-                                        <!-- Cart Section -->
-                                        <section id="cart-section" class="container py-4" style="background:#222; border-radius:10px; margin-bottom:2rem; display:none;">
-                                            <h3 style="color:#fff;">Your Cart</h3>
-                                            <div id="cart-list"></div>
-                                            <div id="cart-total" style="color:#fff; font-size:18px; margin-top:10px;"></div>
-                                            <div id="cart-coupon" style="color:#fff; margin-top:10px;"></div>
-                                        </section>
+
+
                                         
                                         <!-- Step 1: Package Holder Info -->
                                         <section class="checkout-section holder-info dynamic-price mt-4" id="section-1" style="display: none; width: 100%;">
@@ -1539,7 +1943,7 @@ a {
                         </div>
                         <div class="row g-4" id="events-list">
                             @foreach ($data->events as $item)
-                                @if (\Carbon\Carbon::parse($item->date)->gt(\Carbon\CArbon::now()))
+                                  @if (!$item->is_archieved && \Carbon\Carbon::parse($item->date)->gt(\Carbon\CArbon::now()))
                                     <div class="col-md-4 event-card-item"
                                         data-date="{{ \Carbon\Carbon::parse($item->date)->format('Y-m-d') }}">
                                         <a href="/{{ $data->slug }}?event_name={{ $item->name }}" class="event-card"
@@ -1587,15 +1991,15 @@ a {
 
                 <div class="modal fade" id="addonSelectionModal" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
+                        <div class="modal-content" style="background:#1a1d2e;color:#ddd;">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="addonSelectionModalTitle" style="color: #000 !important;">Select Add-ons</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <h5 class="modal-title" id="addonSelectionModalTitle" style="color:#fff;">Select Add-ons</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body" id="addonSelectionModalBody"></div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="button" class="btn btn-primary" id="addonModalConfirmBtn" style="background-color: {{ $data->color }}; border-color: {{ $data->color }}; color:#000;">Confirm & Add to Cart</button>
+                                <button type="button" class="btn" id="addonModalConfirmBtn" style="background:var(--aff-accent);color:#000;font-weight:700;">Confirm & Add to Cart</button>
                             </div>
                         </div>
                     </div>
@@ -1686,79 +2090,8 @@ a {
                 return url;
             }
 
-            $(document).ready(function() {
-                    // Generate link button
-                    $('#generateShareLink').on('click', function() {
-                        if (window.cart.length === 0) {
-                            alert('Please add at least one package to cart');
-                            return;
-                        }
-                        
-                        var selections = getCurrentSelections();
-                        
-                        $.ajax({
-                            url: '/cart/share',
-                            type: 'POST',
-                            data: {
-                                cart: selections.cart,
-                                website_slug: '{{ $data->slug }}',
-                                _token: $('meta[name="csrf-token"]').attr('content')
-                            },
-                            success: function(res) {
-                                if (res.success) {
-                                    $('#shareableLink').val(res.short_url).show();
-                                } else {
-                                    alert('Error: ' + res.message);
-                                }
-                            },
-                            error: function(err) {
-                                alert('Error generating share link. Please try again.');
-                                console.error(err);
-                            }
-                        });
-                    });
-
-                    // Copy to clipboard when clicking the shareable link field
-                    $('#shareableLink').on('click', function() {
-                        const url = $(this).val();
-                        navigator.clipboard.writeText(url).then(function() {
-                            // Show tooltip
-                            const tooltip = $('#copyTooltip');
-                            tooltip.show();
-                            // Hide tooltip after 2 seconds
-                            setTimeout(function() {
-                                tooltip.hide();
-                            }, 2000);
-                        }).catch(function(err) {
-                            console.error('Failed to copy:', err);
-                            // Fallback: select the text
-                            $(this).select();
-                        });
-                    });
-
-                    // On page load, check for params
-                    var urlParams = new URLSearchParams(window.location.search);
-                    var packageParam = urlParams.get('package');
-                    var addonsParam = urlParams.get('addons');
-                    var guestsParam = urlParams.get('guests');
-                    var useDateParam = urlParams.get('use_date');
-                    if(packageParam || addonsParam || guestsParam || useDateParam) {
-                        setSelectionsFromParams({
-                            package: packageParam,
-                            addons: addonsParam,
-                            guests: guestsParam,
-                            use_date: useDateParam
-                        });
-                        // Optionally, jump to payment step if all present
-                        setTimeout(function() {
-                            if(packageParam) {
-                                $('#checkout-steps').show();
-                                showStep(3); // Go to payment
-                            }
-                        }, 1500);
-                    }
-            });
             // --- End Shareable Link Logic ---
+
                 // --- End Shareable Link Refinement ---
             $('#businessExpenseCheckbox').on('change', function () {
                 if ($(this).is(':checked')) {
@@ -1823,51 +2156,74 @@ a {
                 }
             }
 
+            function formatCurrency(value) {
+                return '$' + new Intl.NumberFormat('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(Number(value) || 0);
+            }
+
+            function cartRequiresTransportation() {
+                ensureCartArray();
+                return window.cart.some(function(pkg) {
+                    return pkg.transportation === true || pkg.transportation === 1 || pkg.transportation === '1';
+                });
+            }
+
+            function syncTransportationStateFromCart() {
+                window.requiresTransportation = cartRequiresTransportation();
+                if (window.requiresTransportation) {
+                    $('#step-2 .step-title').text('Transportation');
+                    $('#next-to-transport').text('Next: Transportation Details');
+                } else {
+                    $('#step-2 .step-title').text('Confirmation');
+                    $('#next-to-transport').text('Next: Transportation Confirmation');
+                }
+            }
+
             window.addPackageToCart = function(packageId, packageName, packagePrice, guests) {
                 console.log('addPackageToCart called', packageId, packageName);
                 ensureCartArray();
                 var existing = window.cart.find(p => p.packageId == packageId);
-                    if (!existing) {
-                        window.cart.push({
-                            packageId: packageId,
-                            packageName: packageName,
-                            packagePrice: parseFloat(packagePrice),
-                            guests: parseInt(guests),
-                            addons: [],
-                            transportation: $('.vip-btn[data-id="'+packageId+'"]').data('transportation') == 1
-                        });
-                        $('#cart-section').show();
-                        $('#shareLinkContainer').show();
-                        window.renderCart();
-                        window.calculateCartTotal();
-                    }
-                };
+                if (!existing) {
+                    window.cart.push({
+                        packageId: packageId,
+                        packageName: packageName,
+                        packagePrice: parseFloat(packagePrice),
+                        guests: parseInt(guests),
+                        addons: [],
+                        transportation: $('.vip-btn[data-id="'+packageId+'"]').data('transportation') == 1
+                    });
+                }
+                $('#cart-section').show();
+                $('#shareLinkContainer').show();
+                window.renderCart();
+                window.calculateCartTotal();
+                syncTransportationStateFromCart();
+            };
 
-                window.removePackageFromCart = function(packageId) {
-                    ensureCartArray();
-                    window.cart = window.cart.filter(p => p.packageId != packageId);
-                    if (window.cart.length === 0) {
-                        $('#cart-section').hide();
-                        $('#shareLinkContainer').hide();
-                    }
-                    window.renderCart();
-                    window.calculateCartTotal();
-                };
+            window.removePackageFromCart = function(packageId) {
+                ensureCartArray();
+                window.cart = window.cart.filter(p => p.packageId != packageId);
+                if (window.cart.length === 0) {
+                    $('#cart-section').hide();
+                    $('#shareLinkContainer').hide();
+                }
+                window.renderCart();
+                window.calculateCartTotal();
+                syncTransportationStateFromCart();
+            };
 
-                window.renderCart = function() {
+            window.renderCart = function() {
                 ensureCartArray();
                 var html = '';
                 window.cart.forEach(function(pkg) {
-                    html += '<div style="background:#333; padding:10px; margin:5px; border-radius:5px;">';
-                    html += '<strong>' + pkg.packageName + '</strong> - $' + pkg.packagePrice.toFixed(2) + ' x ' + pkg.guests + ' guests';
+                    html += '<div style="border-bottom:1px solid rgba(255,255,255,0.08);padding:8px 0;">';
+                    html += '<strong>' + pkg.packageName + '</strong> &times;' + pkg.guests + ' &mdash; <span style="color:var(--accent)">' + formatCurrency(pkg.packagePrice * pkg.guests) + '</span>';
+                    html += '<button onclick="window.removePackageFromCart(' + pkg.packageId + ')" style="float:right;background:#c00;color:#fff;border:none;border-radius:5px;padding:3px 9px;cursor:pointer;font-size:12px;">Remove</button>';
                     if (pkg.addons.length > 0) {
-                        html += '<ul style="margin:5px 0; padding-left:20px;">';
-                        pkg.addons.forEach(function(addon) {
-                            html += '<li>' + addon.name + ': $' + addon.price.toFixed(2) + '</li>';
-                        });
-                        html += '</ul>';
+                        html += '<div style="margin-left:18px;font-size:12px;opacity:.6;">Add-ons: ' + pkg.addons.map(function(a) { return a.name + ' (' + formatCurrency(a.price) + ')'; }).join(', ') + '</div>';
                     }
-                    html += '<button onclick="window.removePackageFromCart('+pkg.packageId+')" style="background:#c00; color:#fff; border:none; padding:5px 10px; border-radius:3px; cursor:pointer; margin-top:5px;">Remove</button>';
                     html += '</div>';
                 });
                 $('#cart-list').html(html);
@@ -1904,18 +2260,18 @@ a {
 
                 var grandTotal = totalBeforeCoupon - couponDiscount;
 
-                $('#cart-total').html('Subtotal: $' + subtotal.toFixed(2) + '<br>Service Charge: $' + service_charge_price.toFixed(2) + '<br>Sales Tax: $' + sales_tax_price.toFixed(2) + '<br>Gratuity: $' + gratuited_price.toFixed(2) + '<br><strong>Grand Total: $' + grandTotal.toFixed(2) + '</strong>');
+                $('#cart-total').html('Subtotal: ' + formatCurrency(subtotal) + '<br>Service Charge: ' + formatCurrency(service_charge_price) + '<br>Sales Tax: ' + formatCurrency(sales_tax_price) + '<br>Gratuity: ' + formatCurrency(gratuited_price) + '<br><strong>Grand Total: ' + formatCurrency(grandTotal) + '</strong>');
                 
                 if (window.cartCoupon) {
-                    $('#cart-coupon').html('Coupon "' + window.cartCoupon.code + '" applied: -$' + couponDiscount.toFixed(2));
+                    $('#cart-coupon').html('Coupon "' + window.cartCoupon.code + '" applied: -' + formatCurrency(couponDiscount));
                 } else {
                     $('#cart-coupon').html('');
                 }
 
                 $('.payment_total').val(grandTotal.toFixed(2));
                 $('#subtotal').val(grandTotal.toFixed(2));
-                $('.default-deposit span').text('$' + grandTotal.toFixed(2));
-                $('.default-total span').text('$' + grandTotal.toFixed(2));
+                $('.default-deposit span').text(formatCurrency(grandTotal));
+                $('.default-total span').text(formatCurrency(grandTotal));
                 $('.discounted_amount').val(couponDiscount.toFixed(2));
             };
             console.log('Cart functions initialized:', typeof window.addPackageToCart);
@@ -1939,10 +2295,15 @@ a {
                         var decoded = JSON.parse(decodeURIComponent(cartParam));
                         window.cart = decoded;
                         if (window.cart.length > 0) {
+                            $('#package_id').val(window.cart[0].packageId);
+                            $('.package_number_of_guest').val(window.cart[0].guests);
                             $('#cart-section').show();
                             $('#shareLinkContainer').show();
                             window.renderCart();
                             window.calculateCartTotal();
+                            syncTransportationStateFromCart();
+                            $('#checkout-steps').show();
+                            showStep(1);
                         }
                     } catch(e) {
                         console.error('Failed to parse cart param', e);
@@ -2173,22 +2534,32 @@ a {
                 var html = '';
 
                 if (!addons.length) {
-                    html = '<p style="margin:0; color:#333;">No add-ons available for this package. Click confirm to add the package to your cart.</p>';
+                    html = '<p style="margin:0;opacity:.8;">No add-ons available for this package. Click confirm to continue.</p>';
                 } else {
-                    html = addons.map(function(addon) {
-                        return '<label style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #e8e8e8;">'
-                            + '<span style="color:#222;">' + escapeAddonHtml(addon.name) + ' <span style="opacity:.7;">($' + parseFloat(addon.price || 0).toFixed(2) + ')</span></span>'
+                    addons.forEach(function(addon) {
+                        html += '<label style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.12);">'
+                            + '<span>' + escapeAddonHtml(addon.name) + ' <span style="opacity:.6;">(' + formatCurrency(addon.price || 0) + ')</span></span>'
                             + '<input type="checkbox" class="addon-modal-check" data-id="' + addon.id + '" data-name="' + escapeAddonHtml(addon.name) + '" data-price="' + parseFloat(addon.price || 0) + '">'
                             + '</label>';
-                    }).join('');
+                    });
                 }
 
-                $('#addonSelectionModalTitle').text('Select Add-ons for ' + selection.packageName);
+                $('#addonSelectionModalTitle').text('Select Add-ons for ' + (selection.pkgName || selection.packageName));
                 $('#addonSelectionModalBody').html(html);
                 bootstrap.Modal.getOrCreateInstance(document.getElementById('addonSelectionModal')).show();
             }
 
             $(document).ready(function () {
+                var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+                popoverTriggerList.forEach(function (popoverTriggerEl) {
+                    bootstrap.Popover.getOrCreateInstance(popoverTriggerEl, {
+                        trigger: 'focus hover',
+                        html: true,
+                        sanitize: true,
+                        container: 'body'
+                    });
+                });
+
                 $(document).on('click', '.package-category-tile', function() {
                     var target = $(this).data('target');
                     var isOpen = $(this).hasClass('active');
@@ -2208,6 +2579,9 @@ a {
                     var packageName = $btn.data('name');
                     var packagePrice = parseFloat($btn.data('price'));
                     var guests = parseInt($('.package_number_of_guestss[data-id="' + packageId + '"]').val()) || 1;
+
+                    $('.vip-card').removeClass('selected');
+                    $btn.closest('.vip-card').addClass('selected');
 
                     $.ajax({
                         url: "/{{ $data->slug }}/addons/" + packageId,
@@ -2256,16 +2630,8 @@ a {
                     $('.dynamic-price').show();
                     $('.default-price').hide();
                     $('#checkout-steps').show();
+                    syncTransportationStateFromCart();
                     showStep(1);
-
-                    window.requiresTransportation = selection.transportation;
-                    if (window.requiresTransportation) {
-                        $('#step-2 .step-title').text('Transportation');
-                        $('#next-to-transport').text('Next: Transportation Details');
-                    } else {
-                        $('#step-2 .step-title').text('Confirmation');
-                        $('#next-to-transport').text('Next: Transportation Confirmation');
-                    }
 
                     bootstrap.Modal.getOrCreateInstance(document.getElementById('addonSelectionModal')).hide();
                     window.pendingPackageSelection = null;
@@ -2290,6 +2656,7 @@ a {
                 $('#step-' + stepNumber).addClass('active');
                 
                 currentStep = stepNumber;
+                syncTransportationStateFromCart();
                 
                 // Handle transportation logic for step 2
                 if (stepNumber === 2) {
@@ -2537,15 +2904,28 @@ a {
                 dateFormat: "h:i K",
                 time_24hr: false
             });
+
+            flatpickr("#package_use_date", {
+                dateFormat: "Y-m-d",
+                defaultDate: "{{ \Carbon\Carbon::now()->format('Y-m-d') }}",
+                minDate: "today",
+                allowInput: false,
+                clickOpens: true
+            });
+
+            $('.custom-calendar-icon').on('click', function() {
+                const picker = document.getElementById('package_use_date')._flatpickr;
+                if (picker) {
+                    picker.open();
+                }
+            });
         </script>
 
         <script>
             $('#package_use_date').on('change', function(){
-                val = $('#package_use_date').val();
-
+                const val = $('#package_use_date').val();
                 $('.package_use_date').val(val);
-
-            })
+            });
         </script>
 
         @if ($data->payment_method == 'stripe')

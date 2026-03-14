@@ -129,16 +129,15 @@ label{
                                                         <textarea name="description" class="form-control" id="description" rows="4" placeholder="Addon Description" required> {{ $data->description }} </textarea>
                                                     </div>
                                                 </div>
-{{--
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
                                                         <label for="status">Status</label>
                                                         <select name="status" class="form-control" id="status" required>
-                                                            <option value="1">Active</option>
-                                                            <option value="0">Inactive</option>
+                                                            <option {{ (int) ($data->status ?? 1) === 1 ? 'selected' : '' }} value="1">Active</option>
+                                                            <option {{ (int) ($data->status ?? 1) === 0 ? 'selected' : '' }} value="0">Inactive</option>
                                                         </select>
                                                     </div>
-                                                </div> --}}
+                                                </div>
                                             </div>
                                             <input type="hidden" name="website_id" value="{{ $id }}">
                                             </div>

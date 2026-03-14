@@ -15,8 +15,11 @@ class FrontendController extends Controller
 {
     public function index($slug, Request $request)
     {
-        // Get website by slug instead of domain
-        $data = Website::where('slug', $slug)->first();
+        // Get only active, non-archived website by slug
+        $data = Website::where('slug', $slug)
+            ->where('status', 1)
+            ->where('is_archieved', 0)
+            ->first();
         
         // Return 404 if website not found
         if (!$data) {
@@ -50,7 +53,10 @@ class FrontendController extends Controller
         $requestedPackageId = $request->filled('package') ? (int) $request->input('package') : null;
 
         if (isset($request->event_name)) {
-            $event = Event::where('name', $request->event_name)->first();
+            $event = Event::where('website_id', $data->id)
+                ->where('name', $request->event_name)
+                ->where('is_archieved', 0)
+                ->first();
             $packageCategories = $this->buildPackageCategories($data, $event ? (int) $event->id : -1, false);
 
             return view('index', compact('data', 'event', 'affiliateReferral', 'requestedPackageId', 'packageCategories'));
@@ -64,7 +70,11 @@ class FrontendController extends Controller
 
     public function addons($slug, $id)
     {
-        $data = Addon::where('package_id', $id)->get();
+           $data = Addon::where('package_id', $id)
+               ->where(function ($query) {
+                   $query->where('status', 1)->orWhereNull('status');
+               })
+               ->get();
 
         return response()->json($data);
     }
@@ -85,6 +95,7 @@ class FrontendController extends Controller
         $packagesQuery = Package::with('category')
             ->where('website_id', $website->id)
             ->where('status', 1)
+                ->where('is_archieved', 0)
             ->when($nullEventOnly, function ($query) {
                 $query->whereNull('event_id');
             })

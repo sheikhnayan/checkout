@@ -37,21 +37,10 @@
                         <textarea class="form-control" rows="4" name="secondary_description">{{ old('secondary_description', $affiliate->secondary_description) }}</textarea>
                     </div>
 
-                    <div class="col-md-3">
-                        <label class="form-label">Theme Color</label>
-                        <input type="color" class="form-control form-control-color" name="theme_color" value="{{ old('theme_color', $affiliate->theme_color) }}">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Accent Color</label>
-                        <input type="color" class="form-control form-control-color" name="accent_color" value="{{ old('accent_color', $affiliate->accent_color) }}">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Background Color</label>
-                        <input type="color" class="form-control form-control-color" name="background_color" value="{{ old('background_color', $affiliate->background_color) }}">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Text Color</label>
-                        <input type="color" class="form-control form-control-color" name="text_color" value="{{ old('text_color', $affiliate->text_color) }}">
+                    <div class="col-12">
+                        <div class="alert alert-info mb-0">
+                            Theme colors are fixed globally and are no longer editable here.
+                        </div>
                     </div>
 
                     <div class="col-md-6">

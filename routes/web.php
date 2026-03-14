@@ -75,6 +75,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => 'auth'], fu
         Route::get('/', [WebsiteController::class,'index'])->name('index');
         Route::post('/archive/{id}', [WebsiteController::class,'archive'])->name('archive');
         Route::post('/unarchive/{id}', [WebsiteController::class,'unarchive'])->name('unarchive');
+        Route::post('/toggle-status/{id}', [WebsiteController::class,'toggleStatus'])->name('toggle-status');
         Route::get('/create', [WebsiteController::class,'create'])->name('create');
         Route::post('/store', [WebsiteController::class,'store'])->name('store');
         Route::get('/edit/{id}', [WebsiteController::class,'edit'])->name('edit');
@@ -92,6 +93,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => 'auth'], fu
         Route::get('/show/{id}', [PackageController::class,'show'])->name('show');
         Route::post('/archive/{id}', [PackageController::class,'archive'])->name('archive');
         Route::post('/unarchive/{id}', [PackageController::class,'unarchive'])->name('unarchive');
+            Route::post('/toggle-status/{id}', [PackageController::class,'toggleStatus'])->name('toggle-status');
         Route::get('/create/{id}', [PackageController::class,'create'])->name('create');
         Route::post('/store', [PackageController::class,'store'])->name('store');
         Route::get('/edit/{id}', [PackageController::class,'edit'])->name('edit');
@@ -114,10 +116,12 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => 'auth'], fu
         Route::get('/show/{id}', [AddonController::class,'show'])->name('show');
         Route::post('/archive/{id}', [AddonController::class,'archive'])->name('archive');
         Route::post('/unarchive/{id}', [AddonController::class,'unarchive'])->name('unarchive');
+        Route::post('/toggle-status/{id}', [AddonController::class,'toggleStatus'])->name('toggle-status');
         Route::get('/create/{id}', [AddonController::class,'create'])->name('create');
         Route::post('/store', [AddonController::class,'store'])->name('store');
         Route::get('/edit/{id}', [AddonController::class,'edit'])->name('edit');
         Route::post('/update/{id}', [AddonController::class,'update'])->name('update');
+            Route::post('/destroy/{id}', [AddonController::class,'destroy'])->name('destroy');
     });
     
     Route::group(['prefix'=> 'promo_code', 'as' => 'promo_code.'], function () {

@@ -277,22 +277,8 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="color" class="form-label">Color</label>
-                                                        <input type="color" name="color" class="form-control form-control-color" id="color" value="{{ $data->color }}" placeholder="Color" required style="height: 38px; width: 100px; padding: 2px;">
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="color" class="form-label">Secondary Color</label>
-                                                        <input type="color" name="secondary_color" class="form-control form-control-color" id="secondary_color" value="{{ $data->secondary_color }}" placeholder="Secondary Color" required style="height: 38px; width: 100px; padding: 2px;">
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="color" class="form-label">Background Color</label>
-                                                        <input type="color" name="background_color" class="form-control form-control-color" id="background_color" value="{{ $data->background_color }}" placeholder="Background Color" required style="height: 38px; width: 100px; padding: 2px;">
+                                                    <div class="alert alert-info mb-3">
+                                                        Website theme colors are fixed globally and are no longer editable here.
                                                     </div>
                                                 </div>
 
@@ -337,6 +323,42 @@
                                                     <div class="mb-3">
                                                         <label for="password" class="form-label">Description</label>
                                                         <textarea name="description" class="form-control" id="description" placeholder="Description" required>{{ $data->description }}</textarea>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="hero_title" class="form-label">Hero Title</label>
+                                                        <input type="text" name="hero_title" class="form-control" id="hero_title" value="{{ $data->hero_title }}" placeholder="Main headline for public page">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="hero_subtitle" class="form-label">Hero Subtitle</label>
+                                                        <input type="text" name="hero_subtitle" class="form-control" id="hero_subtitle" value="{{ $data->hero_subtitle }}" placeholder="Short supporting line under hero title">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label for="secondary_description" class="form-label">Secondary Description</label>
+                                                        <textarea name="secondary_description" class="form-control" id="secondary_description" rows="3" placeholder="Additional section text for the new layout">{{ $data->secondary_description }}</textarea>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label for="gallery_images" class="form-label">Gallery Images</label>
+                                                        <input type="file" name="gallery_images[]" class="form-control" id="gallery_images" accept="image/*" multiple>
+                                                        <small class="form-text text-muted">Upload multiple images. Uploading new ones replaces current gallery images.</small>
+                                                        @if(!empty($data->gallery_images))
+                                                            <div class="d-flex flex-wrap gap-2 mt-2">
+                                                                @foreach((array) $data->gallery_images as $galleryImage)
+                                                                    <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image" style="width:90px;height:60px;object-fit:cover;border-radius:6px;border:1px solid #ddd;">
+                                                                @endforeach
+                                                            </div>
+                                                        @endif
                                                     </div>
                                                 </div>
                                                 
@@ -463,13 +485,6 @@
                                                     <div class="row">
                                                         <div class="col-md-4">
                                                             <div class="mb-3">
-                                                                <label for="font_color" class="form-label">Font Color</label>
-                                                                <input type="color" name="font_color" class="form-control form-control-color" id="font_color" value="{{ $data->font_color ?? '#000000' }}" title="Choose font color">
-                                                                <small class="form-text text-muted">Select the font color for text elements on your website</small>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-4">
-                                                            <div class="mb-3">
                                                                 <label for="description_label" class="form-label">Description Label</label>
                                                                 <input type="text" name="description_label" class="form-control" id="description_label" value="{{ $data->description_label ?? 'Description' }}" placeholder="Description">
                                                                 <small class="form-text text-muted">Label text that appears above the event description</small>
@@ -480,6 +495,11 @@
                                                                 <label for="text_description" class="form-label">Website Description</label>
                                                                 <textarea name="text_description" class="form-control" id="text_description" rows="3" placeholder="Enter a description for your website that will be displayed on the front-end">{{ $data->text_description ?? '' }}</textarea>
                                                                 <small class="form-text text-muted">This text will be displayed on your website's front-end</small>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="alert alert-info mb-0 mt-4">
+                                                                Theme and font colors are fixed globally.
                                                             </div>
                                                         </div>
                                                     </div>

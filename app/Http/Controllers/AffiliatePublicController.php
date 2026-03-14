@@ -22,7 +22,12 @@ class AffiliatePublicController extends Controller
             ->latest()
             ->get()
             ->filter(function ($mapping) {
-                return $mapping->package && $mapping->package->website && (int) $mapping->package->status === 1;
+                return $mapping->package
+                    && $mapping->package->website
+                    && (int) $mapping->package->status === 1
+                    && (int) ($mapping->package->is_archieved ?? 0) === 0
+                    && (int) ($mapping->package->website->status ?? 0) === 1
+                    && (int) ($mapping->package->website->is_archieved ?? 0) === 0;
             })
             ->values();
 

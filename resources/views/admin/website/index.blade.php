@@ -118,11 +118,14 @@
                                                             <td><code>{{ $item->slug }}</code></td>
                                                             <td>{{ $item->domain }}</td>
                                                             <td>
-                                                                @if ($item->status == 1)
-                                                                    Active
-                                                                @else
-                                                                    Deactive
-                                                                @endif
+                                                                <form action="/admins/website/toggle-status/{{ $item->id }}" method="POST" style="display:inline;">
+                                                                    @csrf
+                                                                    @if ($item->status == 1)
+                                                                        <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Deactivate this website?');">Active</button>
+                                                                    @else
+                                                                        <button type="submit" class="btn btn-sm btn-secondary" onclick="return confirm('Activate this website?');">Inactive</button>
+                                                                    @endif
+                                                                </form>
                                                             </td>
                                                             <td>
                                                                 <a href="/admins/website/edit/{{ $item->id }}" class="btn btn-primary">Edit</a>
@@ -167,14 +170,17 @@
                                                             <td><code>{{ $item->slug }}</code></td>
                                                             <td>{{ $item->domain }}</td>
                                                             <td>
-                                                                @if ($item->status == 1)
-                                                                    Active
-                                                                @else
-                                                                    Deactive
-                                                                @endif
+                                                                <form action="/admins/website/toggle-status/{{ $item->id }}" method="POST" style="display:inline;">
+                                                                    @csrf
+                                                                    @if ($item->status == 1)
+                                                                        <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Deactivate this website?');">Active</button>
+                                                                    @else
+                                                                        <button type="submit" class="btn btn-sm btn-secondary" onclick="return confirm('Activate this website?');">Inactive</button>
+                                                                    @endif
+                                                                </form>
                                                             </td>
                                                             <td>
-                                                                <form action="/admins/website/archive/{{ $item->id }}" method="POST" style="display:inline;">
+                                                                <form action="/admins/website/unarchive/{{ $item->id }}" method="POST" style="display:inline;">
                                                                     @csrf
                                                                     <button type="submit" class="btn btn-success" onclick="return confirm('Unarchive this website?');">
                                                                         Unarchive

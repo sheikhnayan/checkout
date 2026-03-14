@@ -37,41 +37,22 @@
         </div>
 
         <div class="card p-4">
-            <h5 class="mb-3">Assign Packages + Commission</h5>
+            <h5 class="mb-3">Assign Clubs / Websites</h5>
             <form method="POST" action="{{ route('admin.affiliate.packages.update', $affiliate->id) }}">
                 @csrf
                 @foreach($websites as $website)
                     <div class="border rounded p-3 mb-3">
-                        <h6 class="mb-3">{{ $website->name }}</h6>
-                        @if($website->packages->count())
-                            <div class="row g-3">
-                                @foreach($website->packages as $package)
-                                    @php
-                                        $mapping = $affiliate->affiliatePackages->firstWhere('package_id', $package->id);
-                                    @endphp
-                                    <div class="col-md-6">
-                                        <div class="d-flex align-items-center justify-content-between border rounded p-2">
-                                            <div>
-                                                <label class="form-check-label">
-                                                    <input class="form-check-input me-2" type="checkbox" name="package_ids[]" value="{{ $package->id }}" {{ $mapping ? 'checked' : '' }}>
-                                                    {{ $package->name }}
-                                                </label>
-                                                <div class="text-muted" style="font-size:12px;">${{ number_format($package->price, 2) }}</div>
-                                            </div>
-                                            <div style="max-width: 110px;">
-                                                <input type="number" class="form-control form-control-sm" min="0" max="100" step="0.01" name="commissions[{{ $package->id }}]" value="{{ $mapping ? $mapping->commission_percentage : $affiliate->default_commission_percentage }}">
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <p class="text-muted mb-0">No active packages.</p>
-                        @endif
+                        <label class="form-check-label d-flex align-items-center justify-content-between">
+                            <span>
+                                <input class="form-check-input me-2" type="checkbox" name="website_ids[]" value="{{ $website->id }}" {{ in_array($website->id, $selectedWebsiteIds ?? []) ? 'checked' : '' }}>
+                                {{ $website->name }}
+                            </span>
+                            <span class="text-muted" style="font-size:12px;">{{ $website->packages_count }} active packages</span>
+                        </label>
                     </div>
                 @endforeach
 
-                <button type="submit" class="btn btn-primary">Save Package Commissions</button>
+                <button type="submit" class="btn btn-primary">Save Club Access</button>
             </form>
         </div>
     </div>

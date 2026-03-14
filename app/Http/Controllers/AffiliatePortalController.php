@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Affiliate;
 use App\Models\AffiliatePackage;
+use App\Models\AffiliateWebsite;
 use App\Models\Package;
 use App\Models\Website;
 use Illuminate\Http\Request;
@@ -35,11 +36,23 @@ class AffiliatePortalController extends Controller
     {
         $affiliate = $this->getAffiliateOrAbort();
 
-        $websites = Website::where('is_archieved', 0)->with(['packages' => function ($query) {
-            $query->where('status', 1);
-        }])->get();
+        $allowedWebsiteIds = AffiliateWebsite::where('affiliate_id', $affiliate->id)
+            ->where('is_active', true)
+            ->pluck('website_id')
+            ->toArray();
 
-        $selected = AffiliatePackage::where('affiliate_id', $affiliate->id)->pluck('package_id')->toArray();
+        $websites = Website::where('is_archieved', 0)
+            ->where('status', 1)
+            ->whereIn('id', $allowedWebsiteIds)
+            ->with(['packages' => function ($query) {
+                $query->where('status', 1)->where('is_archieved', 0);
+            }])
+            ->get();
+
+        $selected = AffiliatePackage::where('affiliate_id', $affiliate->id)
+            ->whereIn('website_id', $allowedWebsiteIds)
+            ->pluck('package_id')
+            ->toArray();
 
         return view('affiliate.packages', compact('affiliate', 'websites', 'selected'));
     }
@@ -53,9 +66,27 @@ class AffiliatePortalController extends Controller
             'package_ids.*' => 'integer|exists:packages,id',
         ]);
 
-        $packageIds = collect($request->input('package_ids', []))->map(fn ($id) => (int) $id)->unique()->values();
+        $allowedWebsiteIds = AffiliateWebsite::where('affiliate_id', $affiliate->id)
+            ->where('is_active', true)
+            ->pluck('website_id')
+            ->toArray();
+
+        if (empty($allowedWebsiteIds)) {
+            AffiliatePackage::where('affiliate_id', $affiliate->id)->delete();
+            return redirect()->back()->with('success', 'No clubs assigned yet. Package selection cleared.');
+        }
+
+        $requestedPackageIds = collect($request->input('package_ids', []))->map(fn ($id) => (int) $id)->unique()->values();
+
+        $packageIds = Package::whereIn('id', $requestedPackageIds->all())
+            ->whereIn('website_id', $allowedWebsiteIds)
+            ->where('status', 1)
+            ->where('is_archieved', 0)
+            ->pluck('id')
+            ->values();
 
         AffiliatePackage::where('affiliate_id', $affiliate->id)
+            ->whereIn('website_id', $allowedWebsiteIds)
             ->whereNotIn('package_id', $packageIds->all())
             ->delete();
 
@@ -78,7 +109,7 @@ class AffiliatePortalController extends Controller
             );
         }
 
-        return redirect()->back()->with('success', 'Packages updated successfully.');
+        return redirect()->back()->with('success', 'Packages updated for assigned clubs successfully.');
     }
 
     public function settings()
@@ -102,10 +133,6 @@ class AffiliatePortalController extends Controller
             'youtube_url' => 'nullable|url|max:255',
             'tiktok_url' => 'nullable|url|max:255',
             'website_url' => 'nullable|url|max:255',
-            'theme_color' => 'nullable|string|max:20',
-            'accent_color' => 'nullable|string|max:20',
-            'background_color' => 'nullable|string|max:20',
-            'text_color' => 'nullable|string|max:20',
             'font_family' => 'nullable|string|max:120',
             'profile_image' => 'nullable|image|max:4096',
             'banner_image' => 'nullable|image|max:4096',
@@ -124,10 +151,6 @@ class AffiliatePortalController extends Controller
             'youtube_url',
             'tiktok_url',
             'website_url',
-            'theme_color',
-            'accent_color',
-            'background_color',
-            'text_color',
             'font_family',
         ]));
 

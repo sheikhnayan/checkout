@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\GeneralAddon;
 use App\Models\Website;
+use App\Models\Addon;
 
 class AddonController extends Controller
 {
@@ -38,7 +39,11 @@ class AddonController extends Controller
         }
         
         $data->is_archieved = 1;
-        $data->update();
+        $data->status = 0;
+        $data->save();
+
+            // Deactivate all package-level addon instances linked to this general addon
+            Addon::where('addon_id', $id)->update(['status' => 0]);
 
         return back();
     } 
@@ -54,7 +59,11 @@ class AddonController extends Controller
         }
         
         $data->is_archieved = 0;
-        $data->update();
+        $data->status = 1;
+        $data->save();
+
+            // Re-activate all package-level addon instances linked to this general addon
+            Addon::where('addon_id', $id)->update(['status' => 1]);
 
         return back();
     } 
@@ -91,6 +100,7 @@ class AddonController extends Controller
         $add->name = $request->name;
         $add->price = $request->price;
         $add->description = $request->description;
+        $add->status = $request->status ?? 1;
         $add->website_id = $request->website_id;
         $add->save();
 
@@ -151,6 +161,7 @@ class AddonController extends Controller
         $add->name = $request->name;
         $add->price = $request->price;
         $add->description = $request->description;
+        $add->status = $request->status ?? $add->status ?? 1;
         $add->update();
 
 
@@ -163,6 +174,37 @@ class AddonController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+           $user = auth()->user();
+           $data = GeneralAddon::findOrFail($id);
+
+           if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
+              abort(403, 'Access denied. You can only delete addons for your own website.');
+           }
+
+           $website_id = $data->website_id;
+
+           // Delete all package-level addon instances linked to this general addon
+           Addon::where('addon_id', $id)->delete();
+
+           $data->delete();
+
+           return redirect()->route('admin.addon.show', $website_id);
+    }
+
+    public function toggleStatus(string $id)
+    {
+        $user = auth()->user();
+        $data = GeneralAddon::findOrFail($id);
+
+        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
+            abort(403, 'Access denied. You can only manage addons for your own website.');
+        }
+
+        $data->status = (string) ((int) $data->status === 1 ? 0 : 1);
+        $data->save();
+
+        Addon::where('addon_id', $id)->update(['status' => (int) $data->status]);
+
+        return back();
     }
 }

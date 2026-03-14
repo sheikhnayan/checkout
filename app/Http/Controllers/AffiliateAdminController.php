@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\AffiliateApprovedMail;
 use App\Models\Affiliate;
 use App\Models\AffiliatePackage;
+use App\Models\AffiliateWebsite;
 use App\Models\Package;
 use App\Models\SMTP;
 use App\Models\Website;
@@ -39,12 +40,20 @@ class AffiliateAdminController extends Controller
     public function show(Affiliate $affiliate)
     {
         $this->ensureAdmin();
-        $affiliate->load(['user', 'affiliatePackages.package.website']);
-        $websites = Website::where('is_archieved', 0)->with(['packages' => function ($query) {
-            $query->where('status', 1);
-        }])->get();
+        $affiliate->load(['user', 'affiliateWebsites.website']);
+        $websites = Website::where('is_archieved', 0)
+            ->where('status', 1)
+            ->withCount(['packages' => function ($query) {
+                $query->where('status', 1)->where('is_archieved', 0);
+            }])
+            ->get();
 
-        return view('admin.affiliate.show', compact('affiliate', 'websites'));
+        $selectedWebsiteIds = $affiliate->affiliateWebsites()
+            ->where('is_active', true)
+            ->pluck('website_id')
+            ->toArray();
+
+        return view('admin.affiliate.show', compact('affiliate', 'websites', 'selectedWebsiteIds'));
     }
 
     public function approve(Request $request, Affiliate $affiliate)
@@ -93,40 +102,34 @@ class AffiliateAdminController extends Controller
     {
         $this->ensureAdmin();
         $request->validate([
-            'package_ids' => 'nullable|array',
-            'package_ids.*' => 'integer|exists:packages,id',
-            'commissions' => 'nullable|array',
+            'website_ids' => 'nullable|array',
+            'website_ids.*' => 'integer|exists:websites,id',
         ]);
 
-        $packageIds = collect($request->input('package_ids', []))->map(fn ($id) => (int) $id)->unique()->values();
+        $websiteIds = collect($request->input('website_ids', []))->map(fn ($id) => (int) $id)->unique()->values();
 
-        AffiliatePackage::where('affiliate_id', $affiliate->id)
-            ->whereNotIn('package_id', $packageIds->all())
+        AffiliateWebsite::where('affiliate_id', $affiliate->id)
+            ->whereNotIn('website_id', $websiteIds->all())
             ->delete();
 
-        foreach ($packageIds as $packageId) {
-            $package = Package::with('website')->find($packageId);
-            if (!$package || !$package->website) {
-                continue;
-            }
-
-            $commission = $request->input('commissions.' . $packageId, $affiliate->default_commission_percentage);
-            $commission = is_numeric($commission) ? max(0, min(100, (float) $commission)) : (float) $affiliate->default_commission_percentage;
-
-            AffiliatePackage::updateOrCreate(
+        foreach ($websiteIds as $websiteId) {
+            AffiliateWebsite::updateOrCreate(
                 [
                     'affiliate_id' => $affiliate->id,
-                    'package_id' => $packageId,
+                    'website_id' => $websiteId,
                 ],
                 [
-                    'website_id' => $package->website->id,
-                    'commission_percentage' => $commission,
                     'is_active' => true,
                 ]
             );
         }
 
-        return redirect()->back()->with('success', 'Affiliate packages and commissions updated successfully.');
+        // Remove previously selected package mappings from clubs no longer assigned.
+        AffiliatePackage::where('affiliate_id', $affiliate->id)
+            ->whereNotIn('website_id', $websiteIds->all())
+            ->delete();
+
+        return redirect()->back()->with('success', 'Affiliate club access updated successfully.');
     }
 
     private function applyGlobalSmtp(): void

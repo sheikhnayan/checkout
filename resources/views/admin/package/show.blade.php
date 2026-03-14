@@ -1,4 +1,4 @@
-@extends('admin.main')
+﻿@extends('admin.main')
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('user/extra.css') }}">
@@ -73,8 +73,9 @@
 
                                     </ol>
 
-                        <div class="btn-group" role="group" aria-label="Basic example" style="float: right">
+                                    <div class="btn-group" role="group" aria-label="Basic example" style="float: right">
                                         <a href="/admins/package/create/{{ $website_id }}" class="btn btn-primary">Add Package</a>
+                                    </div>
                                 </nav>
                             </div>
                         </div>
@@ -123,11 +124,14 @@
                                                             <td>{{ optional($item->category)->name ?: 'Uncategorized' }}</td>
                                                             <td>{{ $item->price }}</td>
                                                             <td>
-                                                                @if ($item->status == 1)
-                                                                    Active
-                                                                @else
-                                                                    Deactive
-                                                                @endif
+                                                                <form action="/admins/package/toggle-status/{{ $item->id }}" method="POST" style="display:inline;">
+                                                                    @csrf
+                                                                    @if ($item->status == 1)
+                                                                        <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Deactivate this package?');">Active</button>
+                                                                    @else
+                                                                        <button type="submit" class="btn btn-sm btn-secondary" onclick="return confirm('Activate this package?');">Inactive</button>
+                                                                    @endif
+                                                                </form>
                                                             </td>
                                                             <td>
                                                                 <a href="/admins/package/edit/{{ $item->id }}" class="btn btn-primary">Edit</a>
@@ -172,11 +176,14 @@
                                                             <td>{{ optional($item->category)->name ?: 'Uncategorized' }}</td>
                                                             <td>{{ $item->price }}</td>
                                                             <td>
-                                                                @if ($item->status == 1)
-                                                                    Active
-                                                                @else
-                                                                    Deactive
-                                                                @endif
+                                                                <form action="/admins/package/toggle-status/{{ $item->id }}" method="POST" style="display:inline;">
+                                                                    @csrf
+                                                                    @if ($item->status == 1)
+                                                                        <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Deactivate this package?');">Active</button>
+                                                                    @else
+                                                                        <button type="submit" class="btn btn-sm btn-secondary" onclick="return confirm('Activate this package?');">Inactive</button>
+                                                                    @endif
+                                                                </form>
                                                             </td>
                                                             <td>
                                                                 <form action="/admins/package/unarchive/{{ $item->id }}" method="POST" style="display:inline;">

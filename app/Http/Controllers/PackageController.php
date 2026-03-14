@@ -42,7 +42,8 @@ class PackageController extends Controller
         }
         
         $data->is_archieved = 1;
-        $data->update();
+        $data->status = 0;
+        $data->save();
 
         return back();
     } 
@@ -58,10 +59,26 @@ class PackageController extends Controller
         }
         
         $data->is_archieved = 0;
-        $data->update();
+        $data->status = 1;
+        $data->save();
 
         return back();
     } 
+
+    public function toggleStatus($id)
+    {
+        $user = auth()->user();
+        $package = Package::findOrFail($id);
+
+        if ($user->isWebsiteUser() && $package->website_id != $user->website_id) {
+            abort(403, 'Access denied. You can only manage packages for your own website.');
+        }
+
+        $package->status = $package->status == 1 ? 0 : 1;
+        $package->save();
+
+        return back();
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -75,8 +92,11 @@ class PackageController extends Controller
             abort(403, 'Access denied. You can only create packages for your own website.');
         }
         
-        $events = Event::where('website_id', $id)->get();
-        $addons = GeneralAddon::where('website_id', $id)->get();
+        $events = Event::where('website_id', $id)->where('is_archieved', 0)->get();
+        $addons = GeneralAddon::where('website_id', $id)
+            ->where('is_archieved', 0)
+            ->where('status', 1)
+            ->get();
         $categories = PackageCategory::where('website_id', $id)->orderBy('name')->get();
 
         return view('admin.package.create', compact('id', 'events', 'addons', 'categories'));
@@ -164,9 +184,12 @@ class PackageController extends Controller
             abort(403, 'Access denied. You can only edit packages for your own website.');
         }
 
-        $events = Event::where('website_id', $data->website_id)->get();
+        $events = Event::where('website_id', $data->website_id)->where('is_archieved', 0)->get();
 
-        $addons = GeneralAddon::where('website_id', $data->website_id)->get();
+        $addons = GeneralAddon::where('website_id', $data->website_id)
+            ->where('is_archieved', 0)
+            ->where('status', 1)
+            ->get();
 
         $categories = PackageCategory::where('website_id', $data->website_id)->orderBy('name')->get();
 

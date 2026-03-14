@@ -8,9 +8,14 @@
         @endif
 
         <div class="card p-4">
-            <h4 class="mb-3">Select Packages for Your Affiliate Page</h4>
+            <h4 class="mb-3">Select Packages From Your Assigned Clubs</h4>
             <form method="POST" action="{{ route('affiliate.portal.packages.save') }}">
                 @csrf
+                @if($websites->isEmpty())
+                    <div class="alert alert-warning">
+                        No clubs are assigned to your affiliate account yet. Please contact super admin.
+                    </div>
+                @endif
                 @foreach($websites as $website)
                     <div class="border rounded p-3 mb-3">
                         <h6>{{ $website->name }}</h6>

@@ -103,6 +103,7 @@
                                                         <th>SI</th>
                                                         <th>Name</th>
                                                         <th>Price</th>
+                                                        <th>Status</th>
                                                         <th>Action</th>
                                                     </tr>
                                                 </thead>
@@ -115,6 +116,16 @@
                                                             <td>{{ $item->name }}</td>
                                                             <td>{{ $item->price }}</td>
                                                             <td>
+                                                                <form action="/admins/addon/toggle-status/{{ $item->id }}" method="POST" style="display:inline;">
+                                                                    @csrf
+                                                                    @if ((int) ($item->status ?? 1) === 1)
+                                                                        <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Deactivate this addon?');">Active</button>
+                                                                    @else
+                                                                        <button type="submit" class="btn btn-sm btn-secondary" onclick="return confirm('Activate this addon?');">Inactive</button>
+                                                                    @endif
+                                                                </form>
+                                                            </td>
+                                                            <td>
                                                                 <a href="/admins/addon/edit/{{ $item->id }}" class="btn btn-primary">Edit</a>
                                                                 <form action="/admins/addon/archive/{{ $item->id }}" method="POST" style="display:inline;">
                                                                     @csrf
@@ -122,6 +133,12 @@
                                                                         Archive
                                                                     </button>
                                                                 </form>
+                                                                    <form action="/admins/addon/destroy/{{ $item->id }}" method="POST" style="display:inline;">
+                                                                        @csrf
+                                                                        <button type="submit" class="btn btn-danger" onclick="return confirm('Permanently delete this addon? This cannot be undone.');">
+                                                                            Delete
+                                                                        </button>
+                                                                    </form>
                                                             </td>
                                                         </tr>
                                                         @endif
@@ -142,6 +159,7 @@
                                                         <th>SI</th>
                                                         <th>Name</th>
                                                         <th>Price</th>
+                                                        <th>Status</th>
                                                         <th>Action</th>
                                                     </tr>
                                                 </thead>
@@ -154,12 +172,28 @@
                                                             <td>{{ $item->name }}</td>
                                                             <td>{{ $item->price }}</td>
                                                             <td>
+                                                                <form action="/admins/addon/toggle-status/{{ $item->id }}" method="POST" style="display:inline;">
+                                                                    @csrf
+                                                                    @if ((int) ($item->status ?? 1) === 1)
+                                                                        <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Deactivate this addon?');">Active</button>
+                                                                    @else
+                                                                        <button type="submit" class="btn btn-sm btn-secondary" onclick="return confirm('Activate this addon?');">Inactive</button>
+                                                                    @endif
+                                                                </form>
+                                                            </td>
+                                                            <td>
                                                                 <form action="/admins/addon/unarchive/{{ $item->id }}" method="POST" style="display:inline;">
                                                                     @csrf
                                                                     <button type="submit" class="btn btn-success" onclick="return confirm('Unarchive this addon?');">
                                                                         Unarchive
                                                                     </button>
                                                                 </form>
+                                                                    <form action="/admins/addon/destroy/{{ $item->id }}" method="POST" style="display:inline;">
+                                                                        @csrf
+                                                                        <button type="submit" class="btn btn-danger" onclick="return confirm('Permanently delete this addon? This cannot be undone.');">
+                                                                            Delete
+                                                                        </button>
+                                                                    </form>
                                                             </td>
                                                         </tr>
                                                         @endif

@@ -31,6 +31,10 @@ class Website extends Model
         'font_color',
         'text_description',
         'description_label',
+        'hero_title',
+        'hero_subtitle',
+        'secondary_description',
+        'gallery_images',
         'status',
         'is_archieved',
         'location',
@@ -53,6 +57,10 @@ class Website extends Model
         'policy',
         'terms',
         'footer_text',
+    ];
+
+    protected $casts = [
+        'gallery_images' => 'array',
     ];
    
     /**

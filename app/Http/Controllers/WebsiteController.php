@@ -40,7 +40,8 @@ class WebsiteController extends Controller
         }
         
         $data->is_archieved = 1;
-        $data->update();
+        $data->status = 0;
+        $data->save();
 
         return back();
     } 
@@ -56,10 +57,27 @@ class WebsiteController extends Controller
         }
         
         $data->is_archieved = 0;
-        $data->update();
+        $data->status = 1;
+        $data->save();
 
         return back();
     } 
+
+    public function toggleStatus($id)
+    {
+        $user = auth()->user();
+        $data = Website::findOrFail($id);
+
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $data->id != $user->website_id) {
+            abort(403, 'Access denied. You can only manage your own website.');
+        }
+
+        $data->status = $data->status == 1 ? 0 : 1;
+        $data->save();
+
+        return back();
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -86,6 +104,7 @@ class WebsiteController extends Controller
         $add = new Website;
         $add->name = $request->name;
         $add->domain = $request->domain;
+        $add->status = '1';
         
         // Generate slug from name or use provided slug
         if ($request->slug) {
@@ -101,13 +120,12 @@ class WebsiteController extends Controller
         $add->policy = $request->policy;
         $add->terms = $request->terms;
         $add->success_page = $request->success_page;
-        $add->font_color = $request->font_color;
         $add->text_description = $request->text_description;
+        $add->secondary_description = $request->secondary_description;
         $add->description_label = $request->description_label;
+        $add->hero_title = $request->hero_title;
+        $add->hero_subtitle = $request->hero_subtitle;
         $add->phone = $request->phone;
-        $add->color = $request->color;
-        $add->secondary_color = $request->secondary_color;
-        $add->background_color = $request->background_color;
         $add->reservation = $request->reservation;
         $add->email = $request->email;
         $add->gratuity_fee = $request->gratuity_fee;
@@ -142,6 +160,16 @@ class WebsiteController extends Controller
         // Handle logo dimensions
         $add->logo_width = $request->logo_width;
         $add->logo_height = $request->logo_height;
+
+        if ($request->hasFile('gallery_images')) {
+            $galleryImages = [];
+            foreach ($request->file('gallery_images') as $index => $image) {
+                $name = 'website_gallery_' . time() . '_' . $index . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads'), $name);
+                $galleryImages[] = $name;
+            }
+            $add->gallery_images = $galleryImages;
+        }
 
         $add->save();
 
@@ -246,9 +274,6 @@ class WebsiteController extends Controller
         $add->reservation = $request->reservation;
         $add->location = $request->location;
         $add->phone = $request->phone;
-        $add->color = $request->color;
-        $add->secondary_color = $request->secondary_color;
-        $add->background_color = $request->background_color;
         $add->email = $request->email;
         $add->policy = $request->policy;
         $add->success_page = $request->success_page;
@@ -273,9 +298,11 @@ class WebsiteController extends Controller
         $add->guest_list_button_text = $request->guest_list_button_text;
         $add->package_button_text = $request->package_button_text;
         $add->transportation_confirmation_text = $request->transportation_confirmation_text;
-        $add->font_color = $request->font_color;
         $add->text_description = $request->text_description;
+        $add->secondary_description = $request->secondary_description;
         $add->description_label = $request->description_label;
+        $add->hero_title = $request->hero_title;
+        $add->hero_subtitle = $request->hero_subtitle;
 
         $image = $request->file('logo');
         if ($image) {
@@ -288,6 +315,16 @@ class WebsiteController extends Controller
         // Handle logo dimensions
         $add->logo_width = $request->logo_width;
         $add->logo_height = $request->logo_height;
+
+        if ($request->hasFile('gallery_images')) {
+            $galleryImages = [];
+            foreach ($request->file('gallery_images') as $index => $image) {
+                $name = 'website_gallery_' . $add->id . '_' . time() . '_' . $index . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads'), $name);
+                $galleryImages[] = $name;
+            }
+            $add->gallery_images = $galleryImages;
+        }
 
          $emails = json_decode($request->emails);
 
