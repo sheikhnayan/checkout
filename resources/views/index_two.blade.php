@@ -1,6 +1,6 @@
 @php
-    $data->color = $data->color ?: '#3aa7ff';
-    $data->secondary_color = $data->secondary_color ?: '#1a75ff';
+    $data->color = $data->color ?: '#c99c4d';
+    $data->secondary_color = $data->secondary_color ?: '#ddb774';
     $data->background_color = $data->background_color ?: '#0b0e1a';
     $data->font_color = $data->font_color ?: '#e8eaf6';
 @endphp
@@ -783,6 +783,7 @@
             --text-main: {{ $data->font_color ?? '#e8eaf6' }};
             --aff-accent: var(--accent);
             --aff-text: var(--text-main);
+            --brand-gradient: linear-gradient(135deg, #f7e2b4 0%, #ddb774 52%, #c99c4d 100%);
         }
 
         /* Glassmorphism package cards */
@@ -877,8 +878,8 @@
         }
         #addonSelectionModal .modal-title { color: #fff !important; }
         #addonModalConfirmBtn {
-            background: var(--accent) !important;
-            color: #000 !important;
+            background: var(--brand-gradient) !important;
+            color: #1f1400 !important;
             font-weight: 700;
         }
 
@@ -938,7 +939,7 @@
             margin: 20px 0 24px;
             background:
                 linear-gradient(130deg, rgba(4, 10, 24, 0.9), rgba(7, 16, 35, 0.72)),
-                radial-gradient(circle at top right, rgba(58, 167, 255, 0.16), transparent 42%),
+                radial-gradient(circle at top right, rgba(221, 183, 116, 0.22), transparent 42%),
                 var(--bg);
         }
 
@@ -1010,16 +1011,16 @@
         }
 
         .flatpickr-day:hover {
-            background: rgba(58, 167, 255, 0.2);
-            border-color: rgba(58, 167, 255, 0.45);
+            background: rgba(221, 183, 116, 0.28);
+            border-color: rgba(201, 156, 77, 0.62);
         }
 
         .flatpickr-day.selected,
         .flatpickr-day.startRange,
         .flatpickr-day.endRange {
-            background: #3aa7ff;
-            border-color: #3aa7ff;
-            color: #041021;
+            background: #c99c4d;
+            border-color: #c99c4d;
+            color: #1f1400;
         }
 
         .flatpickr-calendar .flatpickr-months .flatpickr-month {
@@ -1204,18 +1205,73 @@
         }
         .club-detail-trigger { display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.07); color:var(--text-main); cursor:pointer; font-size:12px; }
         .club-detail-trigger:hover { border-color:var(--accent); color:var(--accent); }
-        .club-popover .popover-header { font-weight:700; }
-        .club-popover .popover-body { font-size:13px; line-height:1.5; }
+        .club-popover { border: 1px solid rgba(255,255,255,0.12) !important; background: #0e1324 !important; }
+        .club-popover .popover-header { background:#141a2d !important; color:#fff !important; border-bottom:1px solid rgba(255,255,255,0.08) !important; font-weight:700; }
+        .club-popover .popover-body { background:#0e1324 !important; color:#d8def0 !important; font-size:13px; line-height:1.5; }
+        .club-popover .popover-header,
+        .club-popover .popover-body,
+        .club-popover .popover-body * { color:#d8def0 !important; }
+        .club-popover .popover-header { color:#fff !important; }
 
-        #addonSelectionModal .addon-modal-check {
-            width: auto !important;
-            min-height: 0 !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            border: none !important;
-            box-shadow: none !important;
-            transform: none !important;
-            accent-color: var(--aff-accent);
+        #addonSelectionModal .addon-modal-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+        }
+
+        #addonSelectionModal .addon-modal-label {
+            display: inline-block;
+            color: #e8eaf6 !important;
+            font-size: 14px;
+        }
+
+        #addonSelectionModal .addon-switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 26px;
+            flex-shrink: 0;
+        }
+
+        #addonSelectionModal .addon-modal-switch-input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        #addonSelectionModal .addon-switch-slider {
+            position: absolute;
+            inset: 0;
+            cursor: pointer;
+            background: rgba(255,255,255,0.18);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 999px;
+            transition: all .2s ease;
+        }
+
+        #addonSelectionModal .addon-switch-slider::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            left: 2px;
+            top: 2px;
+            border-radius: 50%;
+            background: #fff;
+            transition: transform .2s ease;
+        }
+
+        #addonSelectionModal .addon-modal-switch-input:checked + .addon-switch-slider {
+            background: var(--brand-gradient);
+            border-color: rgba(247,226,180,0.65);
+        }
+
+        #addonSelectionModal .addon-modal-switch-input:checked + .addon-switch-slider::before {
+            transform: translateX(20px);
         }
 
         .vip-price {
@@ -3002,9 +3058,12 @@
                     html = '<p style="margin:0;opacity:.8;">No add-ons available for this package. Click confirm to continue.</p>';
                 } else {
                     addons.forEach(function(addon) {
-                        html += '<label style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.12);">'
-                            + '<span>' + escapeAddonHtml(addon.name) + ' <span style="opacity:.6;">(' + formatCurrency(addon.price || 0) + ')</span></span>'
-                            + '<input type="checkbox" class="addon-modal-check" data-id="' + addon.id + '" data-name="' + escapeAddonHtml(addon.name) + '" data-price="' + parseFloat(addon.price || 0) + '">'
+                        html += '<label class="addon-modal-row">'
+                            + '<span class="addon-modal-label">' + escapeAddonHtml(addon.name) + ' <span style="opacity:.6;">(' + formatCurrency(addon.price || 0) + ')</span></span>'
+                            + '<span class="addon-switch">'
+                            + '<input type="checkbox" class="addon-modal-switch-input" data-id="' + addon.id + '" data-name="' + escapeAddonHtml(addon.name) + '" data-price="' + parseFloat(addon.price || 0) + '">'
+                            + '<span class="addon-switch-slider"></span>'
+                            + '</span>'
                             + '</label>';
                     });
                 }
@@ -3076,7 +3135,7 @@
                     let selection = window.pendingPackageSelection;
                     let selectedAddons = [];
 
-                    $('#addonSelectionModalBody .addon-modal-check:checked').each(function() {
+                    $('#addonSelectionModalBody .addon-modal-switch-input:checked').each(function() {
                         selectedAddons.push({
                             id: $(this).data('id'),
                             name: $(this).data('name'),
