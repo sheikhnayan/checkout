@@ -118,6 +118,20 @@ label{
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
+                                                        <label for="hero_title" class="form-label">Hero Title</label>
+                                                        <input type="text" name="hero_title" class="form-control" id="hero_title" placeholder="Optional hero title for event page">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label for="hero_subtitle" class="form-label">Hero Subtitle</label>
+                                                        <input type="text" name="hero_subtitle" class="form-control" id="hero_subtitle" placeholder="Optional hero subtitle for event page">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
                                                         <label for="image" class="form-label">Image</label>
                                                         <input type="file" name="image" class="form-control" id="image" placeholder="Image" required>
                                                     </div>
@@ -184,6 +198,13 @@ label{
                                                     <div class="mb-3">
                                                         <label for="description" class="form-label">Description</label>
                                                         <textarea name="description" class="form-control" id="description" rows="4" placeholder="Event Description" required></textarea>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label for="secondary_description" class="form-label">Secondary Description</label>
+                                                        <textarea name="secondary_description" class="form-control" id="secondary_description" rows="3" placeholder="Optional secondary description shown on the event page"></textarea>
                                                     </div>
                                                 </div>
 

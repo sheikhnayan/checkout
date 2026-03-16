@@ -68,7 +68,7 @@ Route::post('/{slug}/reservation/store', [TransactionController::class, 'reserva
 Route::post('/cart/share', [CartController::class, 'generateSharedLink'])->name('cart.generate-share');
 Route::get('/cart/{code}', [CartController::class, 'viewSharedCart'])->name('shared-cart.view');
 
-Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => 'auth'], function () {
+Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'image.upload.guard']], function () {
     Route::get('/', [AdminController::class,'index'])->name('index');
 
     Route::group(['prefix'=> 'website', 'as' => 'website.'], function () {
@@ -180,7 +180,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => 'auth'], fu
     Route::post('website-users/archive/{id}', [App\Http\Controllers\Admin\WebsiteUserController::class, 'archive'])->name('website-users.archive');
 });
 
-Route::group(['prefix'=> 'affiliate-portal', 'as' => 'affiliate.portal.', 'middleware' => 'auth'], function () {
+Route::group(['prefix'=> 'affiliate-portal', 'as' => 'affiliate.portal.', 'middleware' => ['auth', 'image.upload.guard']], function () {
     Route::get('/dashboard', [AffiliatePortalController::class, 'dashboard'])->name('dashboard');
     Route::get('/packages', [AffiliatePortalController::class, 'packages'])->name('packages');
     Route::post('/packages', [AffiliatePortalController::class, 'savePackages'])->name('packages.save');
@@ -190,5 +190,5 @@ Route::group(['prefix'=> 'affiliate-portal', 'as' => 'affiliate.portal.', 'middl
 });
 
 // Payment Logo routes (outside admin group for direct access)
-Route::post('/payment-logos', [PaymentLogoController::class, 'store'])->name('payment-logos.store');
+Route::post('/payment-logos', [PaymentLogoController::class, 'store'])->middleware('image.upload.guard')->name('payment-logos.store');
 Route::delete('/payment-logos/{id}', [PaymentLogoController::class, 'destroy'])->name('payment-logos.destroy');

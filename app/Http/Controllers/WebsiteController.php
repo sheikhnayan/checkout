@@ -7,6 +7,7 @@ use App\Models\Website;
 use App\Models\Email;
 use App\Models\SMTP;
 use App\Models\PaymentLogo;
+use Illuminate\Http\UploadedFile;
 
 class WebsiteController extends Controller
 {
@@ -161,13 +162,13 @@ class WebsiteController extends Controller
         $add->logo_width = $request->logo_width;
         $add->logo_height = $request->logo_height;
 
-        if ($request->hasFile('gallery_images')) {
-            $galleryImages = [];
-            foreach ($request->file('gallery_images') as $index => $image) {
-                $name = 'website_gallery_' . time() . '_' . $index . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('uploads'), $name);
-                $galleryImages[] = $name;
-            }
+        $galleryImages = [];
+        foreach ($this->normalizeImageFiles($request->file('gallery_images')) as $index => $image) {
+            $name = 'website_gallery_' . time() . '_' . $index . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('uploads'), $name);
+            $galleryImages[] = $name;
+        }
+        if (!empty($galleryImages)) {
             $add->gallery_images = $galleryImages;
         }
 
@@ -316,14 +317,25 @@ class WebsiteController extends Controller
         $add->logo_width = $request->logo_width;
         $add->logo_height = $request->logo_height;
 
-        if ($request->hasFile('gallery_images')) {
-            $galleryImages = [];
-            foreach ($request->file('gallery_images') as $index => $image) {
-                $name = 'website_gallery_' . $add->id . '_' . time() . '_' . $index . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('uploads'), $name);
-                $galleryImages[] = $name;
+        $currentGalleryImages = array_values(array_filter((array) $add->gallery_images));
+        $existingGalleryImages = $this->decodeGalleryImages($request->input('existing_gallery_images'));
+        $newGalleryImages = [];
+
+        foreach ($this->normalizeImageFiles($request->file('gallery_images')) as $index => $image) {
+            $name = 'website_gallery_' . $add->id . '_' . time() . '_' . $index . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('uploads'), $name);
+            $newGalleryImages[] = $name;
+        }
+
+        $finalGalleryImages = array_values(array_filter(array_merge($existingGalleryImages, $newGalleryImages)));
+        $add->gallery_images = !empty($finalGalleryImages) ? $finalGalleryImages : null;
+
+        $removedGalleryImages = array_diff($currentGalleryImages, $finalGalleryImages);
+        foreach ($removedGalleryImages as $removedImage) {
+            $path = public_path('uploads/' . $removedImage);
+            if ($removedImage && file_exists($path)) {
+                @unlink($path);
             }
-            $add->gallery_images = $galleryImages;
         }
 
          $emails = json_decode($request->emails);
@@ -422,5 +434,41 @@ class WebsiteController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    private function normalizeImageFiles($files): array
+    {
+        if (!$files) {
+            return [];
+        }
+
+        if ($files instanceof UploadedFile) {
+            return [$files];
+        }
+
+        if (is_array($files)) {
+            return array_values(array_filter($files, fn ($file) => $file instanceof UploadedFile));
+        }
+
+        return [];
+    }
+
+    private function decodeGalleryImages($value): array
+    {
+        if (is_array($value)) {
+            return array_values(array_filter($value, fn ($item) => is_string($item) && $item !== ''));
+        }
+
+        if (!is_string($value) || trim($value) === '') {
+            return [];
+        }
+
+        $decoded = json_decode($value, true);
+
+        if (!is_array($decoded)) {
+            return [];
+        }
+
+        return array_values(array_filter($decoded, fn ($item) => is_string($item) && $item !== ''));
     }
 }

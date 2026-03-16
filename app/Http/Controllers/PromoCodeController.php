@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\PromoCode;
 use App\Models\Website;
+use Illuminate\Validation\Rule;
 
 class PromoCodeController extends Controller
 {
@@ -85,12 +86,28 @@ class PromoCodeController extends Controller
         if ($user->isWebsiteUser() && $request->website_id != $user->website_id) {
             abort(403, 'Access denied. You can only create promo codes for your own website.');
         }
+
+        $request->validate([
+            'website_id' => 'required|integer|exists:websites,id',
+            'name' => 'nullable|string|max:255',
+            'percentage' => 'nullable|numeric|min:0',
+            'promo_code' => [
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('promo_codes', 'promo_code')->where(function ($query) use ($request) {
+                    return $query->where('website_id', $request->website_id);
+                }),
+            ],
+            'type' => 'nullable|string|max:50',
+            'description' => 'nullable|string|max:1000',
+        ]);
         
         // dd($request->all());
         $add = new PromoCode;
         $add->name = $request->name;
         $add->percentage = $request->percentage;
-        $add->promo_code = $request->promo_code;
+        $add->promo_code = strtoupper(trim((string) $request->promo_code));
         $add->type = $request->type;
         $add->description = $request->description;
         $add->website_id = $request->website_id;
@@ -148,11 +165,28 @@ class PromoCodeController extends Controller
         if ($user->isWebsiteUser() && $add->website_id != $user->website_id) {
             abort(403, 'Access denied. You can only update promo codes for your own website.');
         }
+
+        $request->validate([
+            'name' => 'nullable|string|max:255',
+            'percentage' => 'nullable|numeric|min:0',
+            'promo_code' => [
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('promo_codes', 'promo_code')
+                    ->where(function ($query) use ($add) {
+                        return $query->where('website_id', $add->website_id);
+                    })
+                    ->ignore($add->id),
+            ],
+            'type' => 'nullable|string|max:50',
+            'description' => 'nullable|string|max:1000',
+        ]);
         
         // dd('s');
         $add->name = $request->name;
         $add->percentage = $request->percentage;
-        $add->promo_code = $request->promo_code;
+        $add->promo_code = strtoupper(trim((string) $request->promo_code));
         $add->type = $request->type;
         $add->description = $request->description;
         $add->update();

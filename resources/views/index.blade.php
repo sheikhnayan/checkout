@@ -1,8 +1,8 @@
 ﻿@php
-    $data->color = '#ffcc00';
-    $data->secondary_color = '#1a75ff';
-    $data->background_color = '#0b0e1a';
-    $data->font_color = '#e8eaf6';
+    $data->color = $data->color ?: '#3aa7ff';
+    $data->secondary_color = $data->secondary_color ?: '#1a75ff';
+    $data->background_color = $data->background_color ?: '#0b0e1a';
+    $data->font_color = $data->font_color ?: '#e8eaf6';
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -555,6 +555,9 @@ nav .tab {
     border: none;
     color: #fff;
     padding: 0px 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
     border-radius: 0;
@@ -562,6 +565,9 @@ nav .tab {
     white-space: nowrap;
     font-size: 16px;
     min-width: 120px;
+    min-height: 44px;
+    line-height: 1.2;
+    text-align: center;
 }
 
 nav .tab:first-child {
@@ -591,6 +597,7 @@ nav .tab:hover {
 nav .tab p {
     margin: 0;
     font-weight: 600;
+    line-height: 1.2;
 }
 
 /* Mobile responsive navigation */
@@ -907,9 +914,15 @@ nav {
 nav .tab {
     border-radius: 10px;
     flex: 1 1 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background: transparent;
     color: var(--text-main);
     padding: 10px 20px;
+    min-height: 44px;
+    line-height: 1.2;
+    text-align: center;
 }
 
 nav .tab.active,
@@ -1095,25 +1108,25 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     url('{{ asset('uploads/' . $event->image) }}') center/cover no-repeat;">
                     <div class="aff-banner-content">
                         <div class="aff-kicker">Event Checkout</div>
-                        <div class="aff-display-title">{{ $data->hero_title ?: $event->name }}</div>
+                        <div class="aff-display-title">{{ $event->hero_title ?: $event->name }}</div>
                         <div class="aff-display-copy">
-                            {{ $data->hero_subtitle ?: (\Carbon\Carbon::parse($event->date)->format('l, F d') . ($event->time ? ' • ' . $event->time : '')) }}
+                            {{ $event->hero_subtitle ?: (\Carbon\Carbon::parse($event->date)->format('l, F d') . ($event->time ? ' • ' . $event->time : '')) }}
                         </div>
 
                         <div class="hero-date-card">
-                            <label>Choose Your Reservation Date</label>
+                            <label>Reservation Date</label>
                             <div class="date-input-wrapper">
-                                <input id="package_use_date" type="text" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}"
+                                <input id="package_use_date" type="text" value="{{ \Carbon\Carbon::parse($event->date)->format('Y-m-d') }}"
                                     readonly style="-webkit-text-fill-color: #fff !important; color: #fff !important; opacity: 1 !important; width: 100%;">
-                                <span class="custom-calendar-icon"></span>
+                                <span class="custom-calendar-icon" style="display:none;"></span>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                @if(!empty($data->gallery_images))
+                @if(!empty($event->gallery_images))
                     <div class="hero-gallery-grid">
-                        @foreach((array) $data->gallery_images as $galleryImage)
+                        @foreach((array) $event->gallery_images as $galleryImage)
                             <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image" class="hero-gallery-item">
                         @endforeach
                     </div>
@@ -1122,14 +1135,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 <section class="aff-story">
                     <h2>{{ $data->description_label ?? 'Description' }}</h2>
                     <div class="story-copy">{{ $event->description }}</div>
-                    @if ($data->text_description)
+                    @if ($event->secondary_description)
                         <div class="story-divider"></div>
-                        <h3 style="font-size:1rem;font-weight:700;margin-bottom:8px;">About</h3>
-                        <div class="story-copy">{{ $data->text_description }}</div>
-                    @endif
-                    @if ($data->secondary_description)
-                        <div class="story-divider"></div>
-                        <div class="story-copy">{{ $data->secondary_description }}</div>
+                        <div class="story-copy">{{ $event->secondary_description }}</div>
                     @endif
                 </section>
             </div>
@@ -1869,7 +1877,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 </label>
                                                             </div>
 
-                                                            <input type="hidden" class="package_use_date" name="package_use_date" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
+                                                            <input type="hidden" class="package_use_date" name="package_use_date" value="{{ \Carbon\Carbon::parse($event->date)->format('Y-m-d') }}">
                                                             <input type="hidden" class="promo_code" name="promo_code">
                                                             <input type="hidden" class="discounted_amount" name="discounted_amount">
                                                             
@@ -2078,10 +2086,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         $('.default-price').hide();
                         $('.default-total').show();
                     }, 700);
-                    // Set use date
-                    if(params.use_date) {
-                        $('#package_use_date').val(params.use_date).trigger('change');
-                    }
+                    // Keep event checkout locked to the event date.
+                    $('#package_use_date').val("{{ \Carbon\Carbon::parse($event->date)->format('Y-m-d') }}").trigger('change');
             }
 
             function getUrlWithSelections() {
@@ -2907,10 +2913,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
             flatpickr("#package_use_date", {
                 dateFormat: "Y-m-d",
-                defaultDate: "{{ \Carbon\Carbon::now()->format('Y-m-d') }}",
-                minDate: "today",
+                defaultDate: "{{ \Carbon\Carbon::parse($event->date)->format('Y-m-d') }}",
+                minDate: "{{ \Carbon\Carbon::parse($event->date)->format('Y-m-d') }}",
                 allowInput: false,
-                clickOpens: true
+                clickOpens: false
             });
 
             $('.custom-calendar-icon').on('click', function() {

@@ -1,8 +1,8 @@
 @php
-    $data->color = '#ffcc00';
-    $data->secondary_color = '#1a75ff';
-    $data->background_color = '#0b0e1a';
-    $data->font_color = '#e8eaf6';
+    $data->color = $data->color ?: '#3aa7ff';
+    $data->secondary_color = $data->secondary_color ?: '#1a75ff';
+    $data->background_color = $data->background_color ?: '#0b0e1a';
+    $data->font_color = $data->font_color ?: '#e8eaf6';
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -690,6 +690,9 @@
                 border: none;
                 color: #fff;
                 padding: 0px 20px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
                 cursor: pointer;
                 transition: all 0.3s ease;
                 border-radius: 0;
@@ -697,6 +700,9 @@
                 white-space: nowrap;
                 font-size: 16px;
                 min-width: 120px;
+                min-height: 44px;
+                line-height: 1.2;
+                text-align: center;
             }
 
             nav .tab:first-child {
@@ -726,6 +732,7 @@
             nav .tab p {
                 margin: 0;
                 font-weight: 600;
+                line-height: 1.2;
             }
 
             /* Mobile responsive navigation */
@@ -930,9 +937,9 @@
             min-height: 220px;
             margin: 20px 0 24px;
             background:
-                linear-gradient(125deg, rgba(8,11,22,0.82), rgba(8,11,22,0.52)),
-                radial-gradient(circle at top right, rgba(255,255,255,0.08), transparent 35%),
-                var(--accent);
+                linear-gradient(130deg, rgba(4, 10, 24, 0.9), rgba(7, 16, 35, 0.72)),
+                radial-gradient(circle at top right, rgba(58, 167, 255, 0.16), transparent 42%),
+                var(--bg);
         }
 
         .aff-banner-content {
@@ -980,6 +987,101 @@
             font-size: 11px;
             letter-spacing: .8px;
             opacity: .7;
+        }
+
+        #package_use_date {
+            color: #f5f8ff !important;
+            -webkit-text-fill-color: #f5f8ff !important;
+            font-weight: 600;
+        }
+
+        .flatpickr-calendar {
+            background: #0f172a;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            box-shadow: 0 16px 32px rgba(2, 6, 23, 0.45);
+        }
+
+        .flatpickr-month,
+        .flatpickr-current-month .flatpickr-monthDropdown-months,
+        .flatpickr-current-month input.cur-year,
+        .flatpickr-weekday,
+        .flatpickr-day {
+            color: #e2e8f0;
+        }
+
+        .flatpickr-day:hover {
+            background: rgba(58, 167, 255, 0.2);
+            border-color: rgba(58, 167, 255, 0.45);
+        }
+
+        .flatpickr-day.selected,
+        .flatpickr-day.startRange,
+        .flatpickr-day.endRange {
+            background: #3aa7ff;
+            border-color: #3aa7ff;
+            color: #041021;
+        }
+
+        .flatpickr-calendar .flatpickr-months .flatpickr-month {
+            background: #0f172a;
+            height: 44px;
+        }
+
+        .flatpickr-calendar .flatpickr-current-month {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding-top: 6px;
+            height: 44px;
+        }
+
+        .flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months {
+            background: #111d33 !important;
+            color: #e2e8f0 !important;
+            border: 1px solid rgba(148, 163, 184, 0.45) !important;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            height: 32px;
+            line-height: 30px;
+            padding: 0 26px 3px 10px;
+            box-sizing: border-box;
+        }
+
+        .flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months option {
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        .flatpickr-calendar .flatpickr-current-month .numInputWrapper {
+            width: 84px;
+            height: 32px;
+        }
+
+        .flatpickr-calendar .flatpickr-current-month input.cur-year {
+            background: #111d33 !important;
+            color: #e2e8f0 !important;
+            border: 1px solid rgba(148, 163, 184, 0.45) !important;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            height: 32px;
+            line-height: 30px;
+            padding: 0 8px 3px 8px !important;
+            box-sizing: border-box;
+        }
+
+        .flatpickr-calendar .flatpickr-current-month .numInputWrapper span {
+            border-color: rgba(148, 163, 184, 0.55);
+        }
+
+        .flatpickr-calendar .flatpickr-current-month .numInputWrapper span.arrowUp::after {
+            border-bottom-color: #ffffff !important;
+        }
+
+        .flatpickr-calendar .flatpickr-current-month .numInputWrapper span.arrowDown::after {
+            border-top-color: #ffffff !important;
         }
 
         .hero-gallery-grid {
@@ -1035,9 +1137,15 @@
         nav .tab {
             border-radius: 10px;
             flex: 1 1 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             background: transparent;
             color: var(--text-main);
             padding: 10px 20px;
+            min-height: 44px;
+            line-height: 1.2;
+            text-align: center;
         }
 
         nav .tab.active,

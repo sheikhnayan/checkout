@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Website;
 use App\Models\Event;
 use App\Models\Package;
+use Illuminate\Http\UploadedFile;
 
 class EventController extends Controller
 {
@@ -92,14 +93,28 @@ class EventController extends Controller
 
         $add = new Event;
         $add->name = $request->name;
+        $add->hero_title = $request->hero_title;
+        $add->hero_subtitle = $request->hero_subtitle;
         $add->date = $request->date;
         $add->description = $request->description;
+        $add->secondary_description = $request->secondary_description;
         
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $filename = time() . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('uploads'), $filename);
             $add->image = $filename;
+        }
+
+        $galleryImages = [];
+        foreach ($this->normalizeImageFiles($request->file('gallery_images')) as $index => $file) {
+            $galleryName = 'event_gallery_' . time() . '_' . $index . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads'), $galleryName);
+            $galleryImages[] = $galleryName;
+        }
+
+        if (!empty($galleryImages)) {
+            $add->gallery_images = $galleryImages;
         }
         
         // Set logo dimensions if provided
@@ -167,14 +182,38 @@ class EventController extends Controller
 
         $add = Event::findOrFail($id);
         $add->name = $request->name;
+        $add->hero_title = $request->hero_title;
+        $add->hero_subtitle = $request->hero_subtitle;
         $add->date = $request->date;
         $add->description = $request->description;
+        $add->secondary_description = $request->secondary_description;
         
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $filename = time() . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('uploads'), $filename);
             $add->image = $filename;
+        }
+
+        $currentGalleryImages = array_values(array_filter((array) $add->gallery_images));
+        $existingGalleryImages = $this->decodeGalleryImages($request->input('existing_gallery_images'));
+        $newGalleryImages = [];
+
+        foreach ($this->normalizeImageFiles($request->file('gallery_images')) as $index => $file) {
+            $galleryName = 'event_gallery_' . $add->id . '_' . time() . '_' . $index . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads'), $galleryName);
+            $newGalleryImages[] = $galleryName;
+        }
+
+        $finalGalleryImages = array_values(array_filter(array_merge($existingGalleryImages, $newGalleryImages)));
+        $add->gallery_images = !empty($finalGalleryImages) ? $finalGalleryImages : null;
+
+        $removedGalleryImages = array_diff($currentGalleryImages, $finalGalleryImages);
+        foreach ($removedGalleryImages as $removedImage) {
+            $path = public_path('uploads/' . $removedImage);
+            if ($removedImage && file_exists($path)) {
+                @unlink($path);
+            }
         }
         
         // Set logo dimensions if provided
@@ -197,5 +236,41 @@ class EventController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    private function normalizeImageFiles($files): array
+    {
+        if (!$files) {
+            return [];
+        }
+
+        if ($files instanceof UploadedFile) {
+            return [$files];
+        }
+
+        if (is_array($files)) {
+            return array_values(array_filter($files, fn ($file) => $file instanceof UploadedFile));
+        }
+
+        return [];
+    }
+
+    private function decodeGalleryImages($value): array
+    {
+        if (is_array($value)) {
+            return array_values(array_filter($value, fn ($item) => is_string($item) && $item !== ''));
+        }
+
+        if (!is_string($value) || trim($value) === '') {
+            return [];
+        }
+
+        $decoded = json_decode($value, true);
+
+        if (!is_array($decoded)) {
+            return [];
+        }
+
+        return array_values(array_filter($decoded, fn ($item) => is_string($item) && $item !== ''));
     }
 }

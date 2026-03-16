@@ -10,6 +10,7 @@ use App\Models\Website;
 use App\Models\Setting;
 use App\Models\Affiliate;
 use App\Models\AffiliatePackage;
+use App\Models\AffiliateWebsite;
 use App\Models\AffiliateWalletTransaction;
 use App\Mail\TransactionMail;
 use Illuminate\Support\Facades\Mail;
@@ -673,21 +674,47 @@ class TransactionController extends Controller
 
     private function resolveAffiliateFromRequest(Request $request): ?Affiliate
     {
+        $websiteId = (int) $request->input('website_id');
+
         if ($request->filled('affiliate_slug')) {
-            return Affiliate::where('slug', $request->input('affiliate_slug'))
+            $affiliate = Affiliate::where('slug', $request->input('affiliate_slug'))
                 ->where('status', 'approved')
                 ->where('is_active', true)
                 ->first();
+
+            if ($affiliate && $this->affiliateAllowedForWebsite($affiliate->id, $websiteId)) {
+                return $affiliate;
+            }
+
+            return null;
         }
 
         if (session()->has('affiliate_referral_id')) {
-            return Affiliate::where('id', session('affiliate_referral_id'))
+            $affiliate = Affiliate::where('id', session('affiliate_referral_id'))
                 ->where('status', 'approved')
                 ->where('is_active', true)
                 ->first();
+
+            if ($affiliate && $this->affiliateAllowedForWebsite($affiliate->id, $websiteId)) {
+                return $affiliate;
+            }
+
+            session()->forget(['affiliate_referral_id', 'affiliate_referral_slug']);
         }
 
         return null;
+    }
+
+    private function affiliateAllowedForWebsite(int $affiliateId, int $websiteId): bool
+    {
+        if ($affiliateId <= 0 || $websiteId <= 0) {
+            return false;
+        }
+
+        return AffiliateWebsite::where('affiliate_id', $affiliateId)
+            ->where('website_id', $websiteId)
+            ->where('is_active', true)
+            ->exists();
     }
 
 }

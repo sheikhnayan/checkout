@@ -9,6 +9,7 @@ use App\Models\Event;
 use App\Models\Package;
 use App\Models\PromoCode;
 use App\Models\Affiliate;
+use App\Models\AffiliateWebsite;
 use Illuminate\Support\Facades\Schema;
 
 class FrontendController extends Controller
@@ -30,6 +31,9 @@ class FrontendController extends Controller
             $affiliate = Affiliate::where('slug', $request->input('aff'))
                 ->where('status', 'approved')
                 ->where('is_active', true)
+                ->whereHas('affiliateWebsites', function ($query) use ($data) {
+                    $query->where('website_id', $data->id)->where('is_active', true);
+                })
                 ->first();
 
             if ($affiliate) {
@@ -47,7 +51,14 @@ class FrontendController extends Controller
             $affiliateReferral = Affiliate::where('id', session('affiliate_referral_id'))
                 ->where('status', 'approved')
                 ->where('is_active', true)
+                ->whereHas('affiliateWebsites', function ($query) use ($data) {
+                    $query->where('website_id', $data->id)->where('is_active', true);
+                })
                 ->first();
+
+            if (!$affiliateReferral) {
+                session()->forget(['affiliate_referral_id', 'affiliate_referral_slug']);
+            }
         }
 
         $requestedPackageId = $request->filled('package') ? (int) $request->input('package') : null;
@@ -81,7 +92,21 @@ class FrontendController extends Controller
 
     public function checkCode($slug, $code)
     {
-        $check = PromoCode::where('promo_code', $code)->first();
+        $website = Website::where('slug', $slug)
+            ->where('status', 1)
+            ->where('is_archieved', 0)
+            ->first();
+
+        if (!$website) {
+            return response()->json(['valid' => false]);
+        }
+
+        $normalizedCode = trim((string) $code);
+
+        $check = PromoCode::where('website_id', $website->id)
+            ->where('is_archieved', 0)
+            ->whereRaw('LOWER(promo_code) = ?', [strtolower($normalizedCode)])
+            ->first();
 
         if ($check) {
             return response()->json(['valid' => true, 'discount' => $check->percentage, 'type' => $check->type, 'id' => $check->id]);

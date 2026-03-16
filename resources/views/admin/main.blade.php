@@ -272,6 +272,14 @@
         <!-- Layout container -->
         <div class="layout-page">
           <!-- Navbar -->
+          @if(session('warning'))
+          <div class="container-xxl mt-3">
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+              {{ session('warning') }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          </div>
+          @endif
 
 
 
@@ -318,6 +326,99 @@
 
     <!-- Page JS -->
     <script src="{{asset('user/assets/js/dashboards-analytics.js')}}"></script>
+
+    <script>
+      (function () {
+        const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'];
+        const MAX_BYTES = 4 * 1024 * 1024;
+        const CRITERIA_TEXT = 'Allowed image types: JPG, PNG, WEBP, GIF, SVG. Max size: 4MB per image.';
+
+        function isImageInput(input) {
+          const key = ((input.name || '') + ' ' + (input.id || '') + ' ' + (input.className || '')).toLowerCase();
+          return /image|logo|banner|gallery|photo|avatar|icon/.test(key);
+        }
+
+        function ensureCriteriaText(input) {
+          if (input.dataset.criteriaBound === '1') {
+            return;
+          }
+
+          if (!input.accept) {
+            input.accept = 'image/jpeg,image/png,image/webp,image/gif,image/svg+xml';
+          }
+
+          const note = document.createElement('small');
+          note.className = 'text-muted d-block mt-1 image-upload-criteria';
+          note.textContent = CRITERIA_TEXT;
+          input.insertAdjacentElement('afterend', note);
+          input.dataset.criteriaBound = '1';
+        }
+
+        function showInputWarning(input, message) {
+          clearInputWarning(input);
+          const warning = document.createElement('div');
+          warning.className = 'text-danger mt-1 image-upload-warning';
+          warning.style.fontSize = '0.85rem';
+          warning.textContent = message;
+          input.insertAdjacentElement('afterend', warning);
+        }
+
+        function clearInputWarning(input) {
+          const next = input.parentElement ? input.parentElement.querySelector('.image-upload-warning') : null;
+          if (next) {
+            next.remove();
+          }
+        }
+
+        function validateSelectedFiles(input) {
+          clearInputWarning(input);
+
+          const files = Array.from(input.files || []);
+          if (!files.length) {
+            return;
+          }
+
+          for (const file of files) {
+            const extension = (file.name.split('.').pop() || '').toLowerCase();
+            const mime = (file.type || '').toLowerCase();
+            const mimeAllowed = mime.startsWith('image/');
+            const extensionAllowed = ALLOWED_EXTENSIONS.includes(extension);
+
+            if (!mimeAllowed || !extensionAllowed) {
+              input.value = '';
+              showInputWarning(input, 'Invalid image type. Please upload JPG, PNG, WEBP, GIF, or SVG.');
+              return;
+            }
+
+            if (file.size > MAX_BYTES) {
+              input.value = '';
+              showInputWarning(input, 'Image is too large. Maximum allowed size is 4MB per image.');
+              return;
+            }
+          }
+        }
+
+        function bindUploadCriteria() {
+          document.querySelectorAll('input[type="file"]').forEach(function (input) {
+            if (!isImageInput(input)) {
+              return;
+            }
+
+            ensureCriteriaText(input);
+
+            input.addEventListener('change', function () {
+              validateSelectedFiles(input);
+            });
+          });
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', bindUploadCriteria);
+        } else {
+          bindUploadCriteria();
+        }
+      })();
+    </script>
 
     <!-- Place this tag before closing body tag for github widget button. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
