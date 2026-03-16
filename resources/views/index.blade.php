@@ -1,6 +1,9 @@
-﻿@php
-    $data->color = $data->color ?: '#c99c4d';
-    $data->secondary_color = $data->secondary_color ?: '#ddb774';
+@php
+    $brandPrimary = '#c99c4d';
+    $brandSecondary = '#ddb774';
+    $brandGradient = 'linear-gradient(135deg, #f7e2b4 0%, #ddb774 52%, #c99c4d 100%)';
+    $data->color = $brandPrimary;
+    $data->secondary_color = $brandSecondary;
     $data->background_color = $data->background_color ?: '#0b0e1a';
     $data->font_color = $data->font_color ?: '#e8eaf6';
 @endphp
@@ -70,8 +73,8 @@
 }
 
 .step.active .step-number {
-    background: {{ $data->color }};
-    border-color: {{ $data->color }};
+    background: {{ $brandPrimary }};
+    border-color: {{ $brandPrimary }};
     color: #000;
 }
 
@@ -126,7 +129,7 @@
 }
 
 .btn-next, .btn-prev {
-    background: {{ $data->color }};
+    background: {{ $brandPrimary }};
     color: #000;
     border: none;
     padding: 12px 30px;
@@ -160,7 +163,7 @@
 
 /* Consistent button styles */
 .same-as-info, .same-as-info-transport {
-    background: {{ $data->color }} !important;
+    background: {{ $brandPrimary }} !important;
     color: #000 !important;
     border: none;
     padding: 12px 25px;
@@ -181,7 +184,7 @@
 }
 
 .btn-next, .btn-prev, .submit-btn {
-    background: {{ $data->color }} !important;
+    background: {{ $brandPrimary }} !important;
     color: #000 !important;
     border: none;
     padding: 12px 30px;
@@ -241,39 +244,39 @@
 }
             .checkbox-container input[type="checkbox"]:checked {
                 background-color:
-                    {{ $data->color }}
+                    {{ $brandPrimary }}
                     !important;
                 border-color:
-                    {{ $data->color }}
+                    {{ $brandPrimary }}
                     !important;
             }
 
             .card:hover {
                 border-color:
-                    {{ $data->color }}
+                    {{ $brandPrimary }}
                     !important;
             }
 
             .submit-btn {
                 background:
-                    {{ $data->color }}
+                    {{ $brandPrimary }}
                     !important;
                 color: #000 !important;
             }
 
             .event-filters .active{
-                background-color: {{ $data->color }} !important;
+                background-color: {{ $brandPrimary }} !important;
                 color: #000 !important;
             }
 
             .event-filter:hover{
-                background-color: {{ $data->color }} !important;
+                background-color: {{ $brandPrimary }} !important;
                 color: #000 !important;
             }
 
             .submit-btn.active {
                 background:
-                    {{ $data->color }}
+                    {{ $brandPrimary }}
                 ;
             }
             body{
@@ -342,7 +345,7 @@ input[type="date"]:read-only {
 
 input[type="date"]:focus {
     outline: none;
-    border-color: {{ $data->color }};
+    border-color: {{ $brandPrimary }};
 }
 
 /* Mobile/Safari form field padding fixes */
@@ -363,7 +366,7 @@ input[type="date"]:focus {
     
     select.form-select:focus {
         outline: none;
-        border-color: {{ $data->color }};
+        border-color: {{ $brandPrimary }};
     }
     
     /* Fix for guest total select padding */
@@ -585,12 +588,12 @@ nav .tab:only-child {
 }
 
 nav .tab.active {
-    background: {{ $data->color }};
+    background: {{ $brandPrimary }};
     color: #000;
 }
 
 nav .tab:hover {
-    background: {{ $data->color }};
+    background: {{ $brandPrimary }};
     color: #000;
 }
 
@@ -649,7 +652,7 @@ a {
    AFFILIATE PAGE DESIGN SYSTEM
    =================================================== */
 :root {
-    --accent:    {{ $data->color }};
+    --accent:    {{ $brandPrimary }};
     --bg:        {{ $data->background_color }};
     --text-main: {{ $data->font_color ?? '#e8eaf6' }};
     --aff-accent: var(--accent);
@@ -673,7 +676,7 @@ a {
 }
 .vip-card:hover { border-color: rgba(255,255,255,0.28) !important; }
 
-/* Form inputs — frosted glass background */
+/* Form inputs � frosted glass background */
 input[type="text"], input[type="email"], input[type="tel"],
 input[type="number"], textarea {
     background: rgba(255,255,255,0.07) !important;
@@ -688,7 +691,7 @@ input::placeholder, textarea::placeholder {
     color: rgba(255,255,255,0.35) !important;
 }
 
-/* Checkbox containers — consent-label layout */
+/* Checkbox containers � consent-label layout */
 .checkbox-container label {
     display: flex;
     gap: 10px;
@@ -714,7 +717,7 @@ input::placeholder, textarea::placeholder {
     padding: 16px 18px;
 }
 
-/* Step navigation — centered flex row */
+/* Step navigation � centered flex row */
 .step-navigation {
     display: flex !important;
     justify-content: center;
@@ -742,7 +745,7 @@ input::placeholder, textarea::placeholder {
     margin-bottom: 1.2rem;
 }
 
-/* Addon selection modal — dark theme */
+/* Addon selection modal � dark theme */
 #addonSelectionModal .modal-content {
     background: #1a1d2e;
     color: #ddd;
@@ -1166,7 +1169,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         <div class="aff-kicker">Event Checkout</div>
                         <div class="aff-display-title">{{ $event->hero_title ?: $event->name }}</div>
                         <div class="aff-display-copy">
-                            {{ $event->hero_subtitle ?: (\Carbon\Carbon::parse($event->date)->format('l, F d') . ($event->time ? ' • ' . $event->time : '')) }}
+                            {{ $event->hero_subtitle ?: (\Carbon\Carbon::parse($event->date)->format('l, F d') . ($event->time ? ' � ' . $event->time : '')) }}
                         </div>
 
                         <div class="hero-date-card">
@@ -1291,35 +1294,35 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     <div class="row">
                                         <div class="col-md-12">
                                             <h2>Total Guests</h2>
-                                            <div class="guest-section" style="border-color: {{ $data->color }} !important;">
+                                            <div class="guest-section" style="border-color: {{ $brandPrimary }} !important;">
                                                 <span class="label">Women</span>
                                                 <div class="counter">
                                                     <span class="count" id="womenCount">0</span>
                                                     <button class="btn-gray" type="button"
-                                                        onclick="decrements('women')">−</button>
+                                                        onclick="decrements('women')">-</button>
                                                     <button class="btn-yellow"
-                                                        style="background-color: {{ $data->color }} !important;" type="button"
+                                                        style="background-color: {{ $brandPrimary }} !important;" type="button"
                                                         onclick="increments('women')">+</button>
                                                 </div>
                                             </div>
-                                            <div class="guest-section" style="border-color: {{ $data->color }} !important;">
+                                            <div class="guest-section" style="border-color: {{ $brandPrimary }} !important;">
                                                 <span class="label">Men</span>
                                                 <div class="counter">
                                                     <span class="count" id="menCount">0</span>
                                                     <button class="btn-gray" type="button"
-                                                        onclick="decrements('men')">−</button>
+                                                        onclick="decrements('men')">-</button>
                                                     <button class="btn-yellow"
-                                                        style="background-color: {{ $data->color }} !important;" type="button"
+                                                        style="background-color: {{ $brandPrimary }} !important;" type="button"
                                                         onclick="increments('men')">+</button>
                                                 </div>
                                             </div>
-                                            <div class="guest-section" style="border-color: {{ $data->color }} !important;">
+                                            <div class="guest-section" style="border-color: {{ $brandPrimary }} !important;">
                                                 <span class="label">Total Guests</span>
                                                 <div class="counter">
                                                     <span class="count" id="totalCount">0</span>
-                                                    <button class="btn-gray" type="button" onclick="resets()">−</button>
+                                                    <button class="btn-gray" type="button" onclick="resets()">-</button>
                                                     <button class="btn-yellow"
-                                                        style="background-color: {{ $data->color }} !important;" type="button"
+                                                        style="background-color: {{ $brandPrimary }} !important;" type="button"
                                                         onclick="increments('total')">+</button>
                                                 </div>
                                             </div>
@@ -1395,7 +1398,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                     type="button"
                                                     class="btn btn-outline-light package-category-tile mb-2 w-100"
                                                     data-target="#category-group-{{ $category['id'] }}"
-                                                    style="border-color: {{ $data->color }}; color: {{ $data->color }}; display:flex; justify-content:space-between; align-items:center; text-align:left; padding:14px 16px; border-radius:12px; font-size:15px; font-weight:600;"
+                                                    style="border-color: {{ $brandPrimary }}; color: {{ $brandPrimary }}; display:flex; justify-content:space-between; align-items:center; text-align:left; padding:14px 16px; border-radius:12px; font-size:15px; font-weight:600;"
                                                 >
                                                     {{ $category['name'] }}
                                                     <span style="opacity:.7; font-size:12px;">+</span>
@@ -1419,7 +1422,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                     ><i class="fas fa-info"></i></button>
                                                                 @endif
                                                             </div>
-                                                            <button class="vip-btn btn-{{ $item->id }} mt-2" style="background-color: {{ $data->color }} !important;"
+                                                            <button class="vip-btn btn-{{ $item->id }} mt-2" style="background-color: {{ $brandPrimary }} !important;"
                                                                 data-id="{{ $item->id }}" data-name="{{ $item->name }}" data-price="{{ $item->price }}"
                                                                 data-gratuity="{{ $data->gratuity_fee }}"
                                                                 data-refundable="{{ $data->refundable_fee }}"
@@ -1489,20 +1492,20 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                                             <hr>
                                             <div class="vip-price default-deposit"
-                                                style="font-size: 16px; font-weight: 700; color: {{ $data->secondary_color }} !important;">
+                                                style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;">
                                                 Total: <span>$0.00</span></div>
                                             @if ($data->refundable_fee > 0)
-                                                <div style="font-size: 16px; font-weight: 700; color: {{ $data->secondary_color }} !important;"
+                                                <div style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;"
                                                     class="vip-price default-refundable">
                                                     {{ $data->refundable_name ?? 'Non Refundable Processing Fees' }}:
                                                     <span>$0.00</span> (Pay Now)</div>
-                                                <div style="font-size: 16px; font-weight: 700; color: {{ $data->secondary_color }} !important;"
+                                                <div style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;"
                                                     class="vip-price default-due">DUE ON ARRIVAL: <span>$0.00</span></div>
                                             @endif
 
                                             @if ($data->sales_tax_name == 0)
-                                                <div style="font-size: 10px; font-weight: 700; color: {{ $data->secondary_color }} !important;"
-                                                    class="vip-price"><span>*No sales tax applied. Services sold are not subject to sales tax under Nevada law. Please consult a tax advisor for your local region if applicable.</span></div>
+                                                <div style="font-size: 10px; font-weight: 700; color: {{ $brandSecondary }} !important;"
+                                                    class="vip-price"><span>*No sales tax applied. Services sold are not subject to sales tax under Nevada law. Please consult a tax advisor for your local region�if�applicable.</span></div>
                                             @endif
                                         </div>
                                         <div class="col-md-6 dynamic-price" style="display: none;">
@@ -1515,7 +1518,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                 </div>
                                                 <div class="col-md-4 col-4" style="padding-left: 0%;">
                                                     <button type="button" class="vip-btn-submit"
-                                                        style="width: 100%; height: 100%; font-weight: normal; background-color: {{ $data->color }} !important; border-top-right-radius: 10px !important; border-bottom-right-radius: 10px !important;"
+                                                        style="width: 100%; height: 100%; font-weight: normal; background-color: {{ $brandPrimary }} !important; border-top-right-radius: 10px !important; border-bottom-right-radius: 10px !important;"
                                                         id="applyPromoBtn">Submit</button>
                                                 </div>
                                             </div>
@@ -1523,7 +1526,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     </div>
     
                                     <div class="mt-3" id="shareLinkContainer" style="display:none;">
-                                        <button type="button" class="btn btn-primary" id="generateShareLink" style="background: {{ $data->color }}; color: #000; font-weight: bold;">Generate Shareable Link</button>
+                                        <button type="button" class="btn btn-primary" id="generateShareLink" style="background: {{ $brandPrimary }}; color: #000; font-weight: bold;">Generate Shareable Link</button>
                                         <div style="position: relative;">
                                             <input type="text" id="shareableLink" readonly style="width:100%;margin-top:8px;display:none;padding-right:40px;" />
                                             <div id="copyTooltip" style="position: absolute; top: -35px; right: 0; background: #28a745; color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; display: none; white-space: nowrap; z-index: 1000;">
@@ -1560,7 +1563,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     
                                                     <div class="col-md-12">
     
-                                                        <h2 style="margin-bottom: 35px;">Personal details <span style="font-size: 1rem;"> (Gifting? Enter their legal details here) </span></h2>
+                                                        <h2 style="margin-bottom: 35px;">Personal details <span style="font-size: 1rem;"> (Gifting? Enter their legal�details�here) </span></h2>
     
                                                         <!-- Left: Form Fields -->
                                                         <div class="form-left">
@@ -1689,7 +1692,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 <div class="form-group" style="width: 100%;">
                                                                     <label for="phone">Contact Phone Number or WhatsApp</label>
                                                                     <input type="tel" name="transportation_phone" id="phone"
-                                                                        placeholder="For driver/dispatch to coordinate pickup"  />
+                                                                        placeholder="For driver/dispatch to coordinate�pickup"  />
                                                                 </div>
     
                                                             </div>
@@ -1995,13 +1998,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             <h2>Upcoming Events</h2>
                             <div class="event-filters" style="display: flex; gap: 10px;">
                                 <button type="button" class="btn btn-outline-primary event-filter" data-filter="week"
-                                    style="border-color: {{ $data->color }} !important; color: {{ $data->color }}; font-size: 14px; padding: 5px;">This
+                                    style="border-color: {{ $brandPrimary }} !important; color: {{ $brandPrimary }}; font-size: 14px; padding: 5px;">This
                                     Week</button>
                                 <button type="button" class="btn btn-outline-primary event-filter" data-filter="month"
-                                    style="border-color: {{ $data->color }} !important; color: {{ $data->color }}; font-size: 14px; padding: 5px;">This
+                                    style="border-color: {{ $brandPrimary }} !important; color: {{ $brandPrimary }}; font-size: 14px; padding: 5px;">This
                                     Month</button>
                                 <button type="button" class="btn btn-outline-primary event-filter" data-filter="year"
-                                    style="border-color: {{ $data->color }} !important; color: {{ $data->color }}; font-size: 14px; padding: 5px;">This
+                                    style="border-color: {{ $brandPrimary }} !important; color: {{ $brandPrimary }}; font-size: 14px; padding: 5px;">This
                                     Year</button>
                             </div>
                         </div>
@@ -2019,7 +2022,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                     <div class="event-day" style="width: 50%;">
                                                         {{ \Carbon\Carbon::parse($item->date)->format('l') }}</div>
                                                     <div class="event-dates"
-                                                        style="width: 50%; color: {{ $data->color }} !important;">
+                                                        style="width: 50%; color: {{ $brandPrimary }} !important;">
                                                         {{ \Carbon\Carbon::parse($item->date)->format('M') }}<span> <br>
                                                             {{ \Carbon\Carbon::parse($item->date)->format('d') }}</span></div>
                                                 </div>
@@ -2629,11 +2632,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     var target = $(this).data('target');
                     var isOpen = $(this).hasClass('active');
 
-                    $('.package-category-tile').removeClass('active').css({ backgroundColor: 'transparent', color: '{{ $data->color }}' });
+                    $('.package-category-tile').removeClass('active').css({ backgroundColor: 'transparent', color: '{{ $brandPrimary }}' });
                     $('.package-category-group').hide();
 
                     if (!isOpen) {
-                        $(this).addClass('active').css({ backgroundColor: '{{ $data->color }}', color: '#000' });
+                        $(this).addClass('active').css({ backgroundColor: '{{ $brandPrimary }}', color: '#000' });
                         $(target).show();
                     }
                 });

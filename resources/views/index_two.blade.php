@@ -1,6 +1,9 @@
 @php
-    $data->color = $data->color ?: '#c99c4d';
-    $data->secondary_color = $data->secondary_color ?: '#ddb774';
+    $brandPrimary = '#c99c4d';
+    $brandSecondary = '#ddb774';
+    $brandGradient = 'linear-gradient(135deg, #f7e2b4 0%, #ddb774 52%, #c99c4d 100%)';
+    $data->color = $brandPrimary;
+    $data->secondary_color = $brandSecondary;
     $data->background_color = $data->background_color ?: '#0b0e1a';
     $data->font_color = $data->font_color ?: '#e8eaf6';
 @endphp
@@ -71,8 +74,8 @@
             }
 
             .step.active .step-number {
-                background: {{ $data->color }};
-                border-color: {{ $data->color }};
+                background: {{ $brandPrimary }};
+                border-color: {{ $brandPrimary }};
                 color: #000;
             }
 
@@ -128,7 +131,7 @@
 
             .btn-next,
             .btn-prev {
-                background: {{ $data->color }};
+                background: {{ $brandPrimary }};
                 color: #000;
                 border: none;
                 padding: 12px 30px;
@@ -164,7 +167,7 @@
             /* Consistent button styles */
             .same-as-info,
             .same-as-info-transport {
-                background: {{ $data->color }} !important;
+                background: {{ $brandPrimary }} !important;
                 color: #000 !important;
                 border: none;
                 padding: 12px 25px;
@@ -188,7 +191,7 @@
             .btn-next,
             .btn-prev,
             .submit-btn {
-                background: {{ $data->color }} !important;
+                background: {{ $brandPrimary }} !important;
                 color: #000 !important;
                 border: none;
                 padding: 12px 30px;
@@ -254,35 +257,35 @@
 
             .checkbox-container input[type="checkbox"]:checked {
                 background-color:
-                    {{ $data->color }} !important;
+                    {{ $brandPrimary }} !important;
                 border-color:
-                    {{ $data->color }} !important;
+                    {{ $brandPrimary }} !important;
             }
 
             .card:hover {
                 border-color:
-                    {{ $data->color }} !important;
+                    {{ $brandPrimary }} !important;
             }
 
             .submit-btn {
                 background:
-                    {{ $data->color }} !important;
+                    {{ $brandPrimary }} !important;
                 color: #000 !important;
             }
 
             .event-filters .active {
-                background-color: {{ $data->color }} !important;
+                background-color: {{ $brandPrimary }} !important;
                 color: #000 !important;
             }
 
             .event-filter:hover {
-                background-color: {{ $data->color }} !important;
+                background-color: {{ $brandPrimary }} !important;
                 color: #000 !important;
             }
 
             .submit-btn.active {
                 background:
-                    {{ $data->color }};
+                    {{ $brandPrimary }};
             }
 
             body {
@@ -345,7 +348,7 @@
 
                 select.form-select:focus {
                     outline: none !important;
-                    border-color: {{ $data->color }} !important;
+                    border-color: {{ $brandPrimary }} !important;
                     box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25) !important;
                 }
 
@@ -567,7 +570,7 @@
 
             input[type="date"]:focus {
                 outline: none !important;
-                border-color: {{ $data->color }} !important;
+                border-color: {{ $brandPrimary }} !important;
             }
 
             /* Custom calendar icon */
@@ -612,7 +615,7 @@
 
             #package_use_date:focus {
                 outline: none !important;
-                border-color: {{ $data->color }} !important;
+                border-color: {{ $brandPrimary }} !important;
             }
 
             #package_use_date::-webkit-calendar-picker-indicator {
@@ -720,12 +723,12 @@
             }
 
             nav .tab.active {
-                background: {{ $data->color }};
+                background: {{ $brandPrimary }};
                 color: #000;
             }
 
             nav .tab:hover {
-                background: {{ $data->color }};
+                background: {{ $brandPrimary }};
                 color: #000;
             }
 
@@ -778,7 +781,7 @@
            AFFILIATE PAGE DESIGN SYSTEM
            =================================================== */
         :root {
-            --accent:    {{ $data->color }};
+            --accent:    {{ $brandPrimary }};
             --bg:        {{ $data->background_color }};
             --text-main: {{ $data->font_color ?? '#e8eaf6' }};
             --aff-accent: var(--accent);
@@ -1529,38 +1532,38 @@
                                         <div class="col-md-12">
                                             <h2>Total Guests</h2>
                                             <div class="guest-section"
-                                                style="border-color: {{ $data->color }} !important;">
+                                                style="border-color: {{ $brandPrimary }} !important;">
                                                 <span class="label">Women</span>
                                                 <div class="counter">
                                                     <span class="count" id="womenCount">0</span>
                                                     <button class="btn-gray" type="button"
                                                         onclick="decrements('women')">−</button>
                                                     <button class="btn-yellow"
-                                                        style="background-color: {{ $data->color }} !important;"
+                                                        style="background-color: {{ $brandPrimary }} !important;"
                                                         type="button" onclick="increments('women')">+</button>
                                                 </div>
                                             </div>
                                             <div class="guest-section"
-                                                style="border-color: {{ $data->color }} !important;">
+                                                style="border-color: {{ $brandPrimary }} !important;">
                                                 <span class="label">Men</span>
                                                 <div class="counter">
                                                     <span class="count" id="menCount">0</span>
                                                     <button class="btn-gray" type="button"
                                                         onclick="decrements('men')">−</button>
                                                     <button class="btn-yellow"
-                                                        style="background-color: {{ $data->color }} !important;"
+                                                        style="background-color: {{ $brandPrimary }} !important;"
                                                         type="button" onclick="increments('men')">+</button>
                                                 </div>
                                             </div>
                                             <div class="guest-section"
-                                                style="border-color: {{ $data->color }} !important;">
+                                                style="border-color: {{ $brandPrimary }} !important;">
                                                 <span class="label">Total Guests</span>
                                                 <div class="counter">
                                                     <span class="count" id="totalCount">0</span>
                                                     <button class="btn-gray" type="button"
                                                         onclick="resets()">−</button>
                                                     <button class="btn-yellow"
-                                                        style="background-color: {{ $data->color }} !important;"
+                                                        style="background-color: {{ $brandPrimary }} !important;"
                                                         type="button" onclick="increments('total')">+</button>
                                                 </div>
                                             </div>
@@ -1641,7 +1644,7 @@
                                                     type="button"
                                                     class="btn btn-outline-light package-category-tile mb-2 w-100"
                                                     data-target="#category-group-{{ $category['id'] }}"
-                                                    style="border-color: {{ $data->color }}; color: {{ $data->color }}; display:flex; justify-content:space-between; align-items:center; text-align:left; padding:14px 16px; border-radius:12px; font-size:15px; font-weight:600;"
+                                                    style="border-color: {{ $brandPrimary }}; color: {{ $brandPrimary }}; display:flex; justify-content:space-between; align-items:center; text-align:left; padding:14px 16px; border-radius:12px; font-size:15px; font-weight:600;"
                                                 >
                                                     {{ $category['name'] }}
                                                     <span style="opacity:.7; font-size:12px;">+</span>
@@ -1666,7 +1669,7 @@
                                                                 @endif
                                                             </div>
                                                             <button class="vip-btn btn-{{ $item->id }} mt-2"
-                                                                style="background-color: {{ $data->color }} !important;"
+                                                                style="background-color: {{ $brandPrimary }} !important;"
                                                                 data-id="{{ $item->id }}"
                                                                 data-name="{{ $item->name }}"
                                                                 data-price="{{ $item->price }}"
@@ -1746,7 +1749,7 @@
                                             <!-- Shareable Link Button -->
                                             <div class="mt-3" id="shareLinkContainer" style="display:none;">
                                                 <button type="button" class="btn btn-primary" id="generateShareLink"
-                                                    style="background: {{ $data->color }}; color: #000; font-weight: bold;">Generate
+                                                    style="background: {{ $brandPrimary }}; color: #000; font-weight: bold;">Generate
                                                     Shareable Link</button>
                                                 <div style="position: relative;">
                                                     <input type="text" id="shareableLink" readonly
@@ -1760,20 +1763,20 @@
 
                                             <hr>
                                             <div class="vip-price default-deposit"
-                                                style="font-size: 16px; font-weight: 700; color: {{ $data->secondary_color }} !important;">
+                                                style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;">
                                                 Total: <span>$0.00</span></div>
                                             @if ($data->refundable_fee > 0)
-                                                <div style="font-size: 16px; font-weight: 700; color: {{ $data->secondary_color }} !important;"
+                                                <div style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;"
                                                     class="vip-price default-refundable">
                                                     {{ $data->refundable_name ?? 'Non Refundable Processing Fees' }}:
                                                     <span>$0.00</span> (Pay Now)
                                                 </div>
-                                                <div style="font-size: 16px; font-weight: 700; color: {{ $data->secondary_color }} !important;"
+                                                <div style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;"
                                                     class="vip-price default-due">DUE ON ARRIVAL: <span>$0.00</span>
                                                 </div>
                                             @endif
                                             @if ($data->sales_tax_name == 0)
-                                                <div style="font-size: 10px; font-weight: 700; color: {{ $data->secondary_color }} !important;"
+                                                <div style="font-size: 10px; font-weight: 700; color: {{ $brandSecondary }} !important;"
                                                     class="vip-price"><span>*No sales tax applied. Services sold are
                                                         not subject to sales tax under Nevada law. Please consult a tax
                                                         advisor for your local region if applicable.</span></div>
@@ -1790,7 +1793,7 @@
                                                 </div>
                                                 <div class="col-md-4 col-4" style="padding-left: 0%;">
                                                     <button type="button" class="vip-btn-submit"
-                                                        style="width: 100%; height: 100%; font-weight: normal; background-color: {{ $data->color }} !important; border-top-right-radius: 10px !important; border-bottom-right-radius: 10px !important;"
+                                                        style="width: 100%; height: 100%; font-weight: normal; background-color: {{ $brandPrimary }} !important; border-top-right-radius: 10px !important; border-bottom-right-radius: 10px !important;"
                                                         id="applyPromoBtn">Submit</button>
                                                 </div>
                                             </div>
@@ -2341,13 +2344,13 @@
                         <h2>Upcoming Events</h2>
                         <div class="event-filters" style="display: flex; gap: 10px;">
                             <button type="button" class="btn btn-outline-primary event-filter" data-filter="week"
-                                style="border-color: {{ $data->color }} !important; color: {{ $data->color }}; font-size: 14px; padding: 5px;">This
+                                style="border-color: {{ $brandPrimary }} !important; color: {{ $brandPrimary }}; font-size: 14px; padding: 5px;">This
                                 Week</button>
                             <button type="button" class="btn btn-outline-primary event-filter" data-filter="month"
-                                style="border-color: {{ $data->color }} !important; color: {{ $data->color }}; font-size: 14px; padding: 5px;">This
+                                style="border-color: {{ $brandPrimary }} !important; color: {{ $brandPrimary }}; font-size: 14px; padding: 5px;">This
                                 Month</button>
                             <button type="button" class="btn btn-outline-primary event-filter" data-filter="year"
-                                style="border-color: {{ $data->color }} !important; color: {{ $data->color }}; font-size: 14px; padding: 5px;">This
+                                style="border-color: {{ $brandPrimary }} !important; color: {{ $brandPrimary }}; font-size: 14px; padding: 5px;">This
                                 Year</button>
                         </div>
                     </div>
@@ -2366,7 +2369,7 @@
                                                 <div class="event-day" style="width: 50%;">
                                                     {{ \Carbon\Carbon::parse($item->date)->format('l') }}</div>
                                                 <div class="event-dates"
-                                                    style="width: 50%; color: {{ $data->color }} !important;">
+                                                    style="width: 50%; color: {{ $brandPrimary }} !important;">
                                                     {{ \Carbon\Carbon::parse($item->date)->format('M') }}<span> <br>
                                                         {{ \Carbon\Carbon::parse($item->date)->format('d') }}</span>
                                                 </div>
@@ -3088,11 +3091,11 @@
                     let target = $(this).data('target');
                     let isOpen = $(this).hasClass('active');
 
-                    $('.package-category-tile').removeClass('active').css({ backgroundColor: 'transparent', color: '{{ $data->color }}' });
+                    $('.package-category-tile').removeClass('active').css({ backgroundColor: 'transparent', color: '{{ $brandPrimary }}' });
                     $('.package-category-group').hide();
 
                     if (!isOpen) {
-                        $(this).addClass('active').css({ backgroundColor: '{{ $data->color }}', color: '#000' });
+                        $(this).addClass('active').css({ backgroundColor: '{{ $brandPrimary }}', color: '#000' });
                         $(target).show();
                     }
                 });
