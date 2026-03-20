@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login - Checkout System</title>
+    <title>Login - Checkout System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -59,10 +59,10 @@
                 <div class="card login-card">
                     <div class="login-header">
                         <h3 class="mb-0">
-                            <i class="fas fa-shield-alt me-2"></i>
-                            Admin Login
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            Login
                         </h3>
-                        <p class="mb-0 mt-2 opacity-75">Checkout Management System</p>
+                        <p class="mb-0 mt-2 opacity-75">Secure Access</p>
                     </div>
                     
                     <div class="card-body p-4">
@@ -131,23 +131,11 @@
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary btn-login text-white">
                                     <i class="fas fa-sign-in-alt me-2"></i>
-                                    Login to Admin Panel
+                                    Login
                                 </button>
                             </div>
                         </form>
 
-                        <div class="admin-info">
-                            <h6 class="text-primary mb-2">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Default Admin Credentials
-                            </h6>
-                            <p class="mb-1"><strong>Email:</strong> <code>admin@admin.com</code></p>
-                            <p class="mb-0"><strong>Password:</strong> <code>Admin@2025</code></p>
-                            <small class="text-muted">
-                                <i class="fas fa-shield-alt me-1"></i>
-                                Change these credentials after first login for security.
-                            </small>
-                        </div>
 
                         <div class="text-center mt-3">
                             <a href="{{ route('affiliate.apply') }}" class="text-decoration-none fw-semibold">
@@ -160,7 +148,7 @@
                 <div class="text-center mt-3">
                     <small class="text-white opacity-75">
                         <i class="fas fa-copyright me-1"></i>
-                        2025 Checkout Management System. All rights reserved.
+                        2025 Checkout System. All rights reserved.
                     </small>
                 </div>
             </div>
