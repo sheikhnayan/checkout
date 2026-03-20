@@ -3,69 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Checkout System</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Login - CartVIP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            font-family: "Poppins", sans-serif;
+            background: radial-gradient(circle at 10% 10%, #1f2b44, #0a1020 55%);
+            color: #f5f7ff;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 30px 15px;
         }
         .login-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 18px;
+            background: rgba(11, 17, 32, 0.9);
+            padding: 0;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
         }
         .login-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 20px 20px 0 0;
+            background: linear-gradient(140deg, rgba(33,44,68,0.82), rgba(12,18,35,0.92));
+            border-radius: 18px 18px 0 0;
             padding: 30px;
             text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+        }
+        .login-header h3 {
+            color: #f5f7ff;
+            font-weight: 700;
+        }
+        .login-header p {
+            color: #b8c0d9;
+            margin-bottom: 0;
+        }
+        .form-control {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            padding: 12px 14px;
+            border-radius: 10px;
+        }
+        .form-control::placeholder {
+            color: #b8c0d9;
         }
         .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            background: rgba(255,255,255,0.12);
+            border-color: rgba(255,212,102,0.6);
+            color: #fff;
+            box-shadow: 0 0 0 0.2rem rgba(244,180,0,0.15);
+        }
+        .form-label {
+            color: #f5f7ff;
+            font-weight: 500;
         }
         .btn-login {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(90deg, #f4b400, #ffd866);
+            color: #1a1a1a;
             border: none;
-            padding: 12px 30px;
+            font-weight: 700;
+            padding: 12px 28px;
             border-radius: 10px;
             transition: all 0.3s ease;
         }
         .btn-login:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 25px rgba(244,180,0,0.3);
+            background: linear-gradient(90deg, #ffd866, #f4b400);
         }
-        .admin-info {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 20px;
-            border-left: 4px solid #667eea;
+        .form-check-label {
+            color: #b8c0d9;
+        }
+        .alert {
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.05);
+        }
+        .alert-success {
+            background: rgba(76, 175, 125, 0.15);
+            border-color: rgba(76, 175, 125, 0.5);
+            color: #7fe5d0;
+        }
+        .alert-danger {
+            background: rgba(244, 67, 54, 0.15);
+            border-color: rgba(244, 67, 54, 0.5);
+            color: #ff8a7f;
+        }
+        .muted {
+            color: #b8c0d9;
+        }
+        a {
+            color: #ffd866;
+            text-decoration: none;
+        }
+        a:hover {
+            color: #f4b400;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-5">
+            <div class="col-12" style="max-width: 500px;">
                 <div class="card login-card">
                     <div class="login-header">
-                        <h3 class="mb-0">
+                        <h3 class="mb-2">
                             <i class="fas fa-sign-in-alt me-2"></i>
                             Login
                         </h3>
-                        <p class="mb-0 mt-2 opacity-75">Secure Access</p>
+                        <p class="mb-0 muted">Secure access to your account</p>
                     </div>
                     
-                    <div class="card-body p-4">
+                    <div style="padding: 30px;">
                         @if(session('success'))
                             <div class="alert alert-success alert-dismissible fade show" role="alert">
                                 <i class="fas fa-check-circle me-2"></i>
@@ -89,7 +142,7 @@
                             
                             <div class="mb-3">
                                 <label for="email" class="form-label">
-                                    <i class="fas fa-envelope me-1"></i>
+                                    <i class="fas fa-envelope me-2"></i>
                                     Email Address
                                 </label>
                                 <input type="email" 
@@ -107,7 +160,7 @@
 
                             <div class="mb-3">
                                 <label for="password" class="form-label">
-                                    <i class="fas fa-lock me-1"></i>
+                                    <i class="fas fa-lock me-2"></i>
                                     Password
                                 </label>
                                 <input type="password" 
@@ -129,32 +182,24 @@
                             </div>
 
                             <div class="d-grid">
-                                <button type="submit" class="btn btn-primary btn-login text-white">
+                                <button type="submit" class="btn btn-login">
                                     <i class="fas fa-sign-in-alt me-2"></i>
                                     Login
                                 </button>
                             </div>
                         </form>
 
-
-                        <div class="text-center mt-3">
-                            <a href="{{ route('affiliate.apply') }}" class="text-decoration-none fw-semibold">
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <a href="{{ route('affiliate.apply') }}" class="muted text-decoration-none">
                                 <i class="fas fa-bullhorn me-1"></i> Apply as Affiliate
                             </a>
                         </div>
                     </div>
                 </div>
-                
-                <div class="text-center mt-3">
-                    <small class="text-white opacity-75">
-                        <i class="fas fa-copyright me-1"></i>
-                        2025 Checkout System. All rights reserved.
-                    </small>
-                </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
