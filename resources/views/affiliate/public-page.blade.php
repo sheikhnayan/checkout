@@ -394,21 +394,16 @@ const clubConfigs = {
     <h5 class="mb-3" style="opacity:.6;font-size:.85rem;text-transform:uppercase;letter-spacing:.8px;font-weight:700;">Select a Package to Book</h5>
 
     @if($packageCategoryGroups->count())
-        <div class="mb-3 package-category-tiles" style="width:100%;">
-            @foreach($packageCategoryGroups as $categoryGroup)
-                <button
-                    type="button"
-                    class="btn btn-outline-light package-category-tile mb-2 w-100"
-                    data-target="#{{ $categoryGroup['id'] }}"
-                    style="border-color:var(--aff-accent); color:var(--aff-accent); display:flex; justify-content:space-between; align-items:center; text-align:left; padding:14px 16px; border-radius:12px; font-size:15px; font-weight:600;"
-                >
-                    {{ $categoryGroup['club']->name }} - {{ $categoryGroup['name'] }}
-                    <span style="opacity:.7; font-size:12px;">+</span>
-                </button>
-            @endforeach
-        </div>
-
         @foreach($packageCategoryGroups as $categoryGroup)
+            <button
+                type="button"
+                class="btn btn-outline-light package-category-tile mb-2 w-100"
+                data-target="#{{ $categoryGroup['id'] }}"
+                style="border-color:var(--aff-accent); color:var(--aff-accent); display:flex; justify-content:space-between; align-items:center; text-align:left; padding:14px 16px; border-radius:12px; font-size:15px; font-weight:600;"
+            >
+                {{ $categoryGroup['club']->name }} - {{ $categoryGroup['name'] }}
+                <span style="opacity:.7; font-size:12px;">+</span>
+            </button>
             <div id="{{ $categoryGroup['id'] }}" class="package-category-group" style="display: none;">
                 @foreach($categoryGroup['mappings'] as $mapping)
                     @php $package = $mapping->package; $club = $package->website; @endphp
