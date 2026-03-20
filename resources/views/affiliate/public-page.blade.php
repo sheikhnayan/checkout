@@ -1058,11 +1058,33 @@ $(document).ready(function() {
             alert('Please add at least one package to cart');
             return;
         }
-        if (!window.activeClubSlug) {
-            alert('Please select a club/package first');
-            return;
-        }
-        $('#shareableLink').val(getUrlWithSelections()).show();
+
+        var $btn = $(this);
+        $btn.prop('disabled', true).text('Generating…');
+
+        $.ajax({
+            url: '/cart/share',
+            type: 'POST',
+            data: {
+                cart: JSON.stringify(window.cart),
+                affiliate_slug: '{{ $affiliate->slug }}',
+                club_slug: window.activeClubSlug || '',
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(res) {
+                if (res.success) {
+                    $('#shareableLink').val(res.short_url).show();
+                } else {
+                    alert('Error: ' + res.message);
+                }
+            },
+            error: function() {
+                alert('Error generating share link. Please try again.');
+            },
+            complete: function() {
+                $btn.prop('disabled', false).html('&#128279; Share Cart Link');
+            }
+        });
     });
 
     $('#shareableLink').on('click', function() {
