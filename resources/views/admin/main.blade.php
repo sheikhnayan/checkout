@@ -49,9 +49,119 @@
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
 
     <script src="{{asset('user/assets/js/config.js')}}"></script>
+
+    <style>
+      .admin-mobile-menu-toggle {
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 1085;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border: 0;
+        border-radius: 12px;
+        background: #696cff;
+        color: #fff;
+        box-shadow: 0 10px 24px rgba(105, 108, 255, 0.28);
+      }
+
+      .admin-mobile-menu-toggle i {
+        font-size: 1.35rem;
+        line-height: 1;
+      }
+
+      .admin-table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .admin-table-responsive > .table {
+        min-width: 720px;
+        margin-bottom: 0;
+      }
+
+      .card .admin-table-responsive {
+        border-radius: inherit;
+      }
+
+      @media (max-width: 1199.98px) {
+        .admin-mobile-menu-toggle {
+          display: inline-flex;
+        }
+
+        .layout-page {
+          padding-top: 4.5rem;
+        }
+
+        .app-brand {
+          padding-right: 3rem;
+        }
+
+        .menu-inner {
+          padding-bottom: 5rem !important;
+        }
+
+        .menu-item[style*='position: absolute'] {
+          position: static !important;
+          margin-top: 1rem;
+        }
+
+        .content-wrapper,
+        .container-xxl,
+        .container-xl,
+        .container-lg,
+        .container-md,
+        .container-sm,
+        .container {
+          max-width: 100%;
+        }
+
+        .nav-tabs {
+          flex-wrap: nowrap;
+          overflow-x: auto;
+          overflow-y: hidden;
+          white-space: nowrap;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .nav-tabs .nav-link {
+          flex: 0 0 auto;
+        }
+      }
+
+      @media (max-width: 767.98px) {
+        .layout-page {
+          padding-top: 4.75rem;
+        }
+
+        .card-body,
+        .card,
+        .content-wrapper .row > [class*='col-'] {
+          min-width: 0;
+        }
+
+        .table td,
+        .table th {
+          white-space: nowrap;
+        }
+      }
+    </style>
   </head>
 
   <body>
+    <button
+      type="button"
+      class="admin-mobile-menu-toggle layout-menu-toggle"
+      aria-label="Open sidebar"
+      aria-controls="layout-menu"
+      aria-expanded="false">
+      <i class="bx bx-menu"></i>
+    </button>
+
     <!-- Layout wrapper -->
     <div class="layout-wrapper layout-content-navbar">
       <div class="layout-container">
@@ -328,6 +438,67 @@
     <script src="{{asset('user/assets/js/dashboards-analytics.js')}}"></script>
 
     <script>
+      (function () {
+        function wrapTablesForMobile() {
+          document.querySelectorAll('.layout-page table').forEach(function (table) {
+            if (table.closest('.table-responsive, .admin-table-responsive')) {
+              return;
+            }
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'table-responsive admin-table-responsive';
+            table.parentNode.insertBefore(wrapper, table);
+            wrapper.appendChild(table);
+          });
+        }
+
+        function bindMobileMenuToggle() {
+          const toggle = document.querySelector('.admin-mobile-menu-toggle');
+          const wrapper = document.querySelector('.layout-wrapper');
+          const overlay = document.querySelector('.layout-overlay');
+
+          if (!toggle || !wrapper) {
+            return;
+          }
+
+          function syncState() {
+            const expanded = wrapper.classList.contains('layout-menu-expanded');
+            toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+          }
+
+          toggle.addEventListener('click', function () {
+            wrapper.classList.toggle('layout-menu-expanded');
+            syncState();
+          });
+
+          if (overlay) {
+            overlay.addEventListener('click', function () {
+              wrapper.classList.remove('layout-menu-expanded');
+              syncState();
+            });
+          }
+
+          window.addEventListener('resize', function () {
+            if (window.innerWidth >= 1200) {
+              wrapper.classList.remove('layout-menu-expanded');
+              syncState();
+            }
+          });
+
+          syncState();
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function () {
+            wrapTablesForMobile();
+            bindMobileMenuToggle();
+          });
+        } else {
+          wrapTablesForMobile();
+          bindMobileMenuToggle();
+        }
+      })();
+
       (function () {
         const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'];
         const MAX_BYTES = 4 * 1024 * 1024;

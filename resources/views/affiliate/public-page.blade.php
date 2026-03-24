@@ -150,11 +150,44 @@
         .aff-banner-content { position:relative; z-index:1; padding:28px; }
         .aff-kicker { font-size:11px; letter-spacing:1px; text-transform:uppercase; opacity:.64; font-weight:700; }
         .aff-display-title { font-size:clamp(2rem, 5vw, 3.8rem); line-height:1; font-weight:800; max-width:9ch; margin:10px 0 12px; }
-        .aff-display-copy { max-width:620px; font-size:15px; opacity:.82; }
+        .aff-display-copy {
+            max-width: 620px;
+            font-size: 15px;
+            opacity: .82;
+            max-width: 100%;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
         .aff-gallery { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; margin-top:18px; }
         .aff-gallery-item { border-radius:14px; overflow:hidden; border:1px solid rgba(255,255,255,0.08); min-height:125px; background:rgba(255,255,255,0.04); }
         .aff-gallery-item img { width:100%; height:100%; object-fit:cover; display:block; }
-        .aff-story { margin:0 0 24px; padding:18px 20px; border:1px solid rgba(255,255,255,0.08); border-radius:16px; background:rgba(255,255,255,0.03); }
+        .aff-story {
+            margin: 0 0 24px;
+            padding: 18px 20px;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            background: rgba(255,255,255,0.03);
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        .aff-story,
+        .aff-story * {
+            max-width: 100%;
+        }
+        .aff-story img,
+        .aff-story iframe,
+        .aff-story video,
+        .aff-story table,
+        .aff-story pre,
+        .aff-story code,
+        .aff-display-copy img,
+        .aff-display-copy iframe,
+        .aff-display-copy video,
+        .aff-display-copy table,
+        .aff-display-copy pre,
+        .aff-display-copy code {
+            max-width: 100%;
+        }
 
         /* Steps */
         .checkout-steps { display:flex; justify-content:center; align-items:center; margin:1.5rem 0; padding:0; list-style:none; }
@@ -263,6 +296,60 @@
         .addon-item { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.07); }
         .addon-item:last-child { border-bottom:none; }
         .addon-item input[type="checkbox"] { width:auto !important; padding:0 !important; margin:0 !important; cursor:pointer; accent-color:var(--aff-accent); }
+
+        #addonSelectionModal .addon-modal-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+        }
+        #addonSelectionModal .addon-modal-label {
+            display: inline-block;
+            color: #e8eaf6 !important;
+            font-size: 14px;
+        }
+        #addonSelectionModal .addon-switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 26px;
+            flex-shrink: 0;
+        }
+        #addonSelectionModal .addon-modal-switch-input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        #addonSelectionModal .addon-switch-slider {
+            position: absolute;
+            inset: 0;
+            cursor: pointer;
+            background: rgba(255,255,255,0.18);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 999px;
+            transition: all .2s ease;
+        }
+        #addonSelectionModal .addon-switch-slider::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            left: 2px;
+            top: 2px;
+            border-radius: 50%;
+            background: #fff;
+            transition: transform .2s ease;
+        }
+        #addonSelectionModal .addon-modal-switch-input:checked + .addon-switch-slider {
+            background: linear-gradient(135deg, #f7e2b4 0%, #ddb774 52%, #c99c4d 100%);
+            border-color: rgba(247,226,180,0.65);
+        }
+        #addonSelectionModal .addon-modal-switch-input:checked + .addon-switch-slider::before {
+            transform: translateX(20px);
+        }
 
         /* Price summary */
         .price-summary { display:none; background:rgba(255,255,255,0.04); border-radius:10px; padding:14px 16px; margin-bottom:1rem; font-size:14px; }
@@ -394,7 +481,16 @@ const clubConfigs = {
     <h5 class="mb-3" style="opacity:.6;font-size:.85rem;text-transform:uppercase;letter-spacing:.8px;font-weight:700;">Select a Package to Book</h5>
 
     @if($packageCategoryGroups->count())
-        @foreach($packageCategoryGroups as $categoryGroup)
+        @php
+            $sortedPackageCategoryGroups = collect($packageCategoryGroups)
+                ->sortBy(function ($categoryGroup) {
+                    $clubName = strtolower((string) (($categoryGroup['club']->name ?? '')));
+                    $categoryName = strtolower((string) (($categoryGroup['name'] ?? '')));
+                    return $clubName . ' - ' . $categoryName;
+                })
+                ->values();
+        @endphp
+        @foreach($sortedPackageCategoryGroups as $categoryGroup)
             <button
                 type="button"
                 class="btn btn-outline-light package-category-tile mb-2 w-100"
@@ -949,9 +1045,12 @@ function openAddonSelectionModal(selection) {
         html = '<p style="margin:0;opacity:.8;">No add-ons available for this package. Click confirm to continue.</p>';
     } else {
         addons.forEach(function(a) {
-            html += '<label style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.12);">'
-                + '<span>' + escapeAddonHtml(a.name) + ' <span style="opacity:.6;">($' + formatCurrency(a.price || 0) + ')</span></span>'
-                + '<input type="checkbox" class="addon-modal-check" data-id="' + a.id + '" data-name="' + escapeAddonHtml(a.name) + '" data-price="' + parseFloat(a.price || 0) + '">'
+            html += '<label class="addon-modal-row">'
+                + '<span class="addon-modal-label">' + escapeAddonHtml(a.name) + ' <span style="opacity:.6;">($' + formatCurrency(a.price || 0) + ')</span></span>'
+                + '<span class="addon-switch">'
+                + '<input type="checkbox" class="addon-modal-switch-input" data-id="' + a.id + '" data-name="' + escapeAddonHtml(a.name) + '" data-price="' + parseFloat(a.price || 0) + '">'
+                + '<span class="addon-switch-slider"></span>'
+                + '</span>'
                 + '</label>';
         });
     }
@@ -1031,7 +1130,7 @@ $(document).ready(function() {
         const selection = window.pendingPackageSelection;
         const addons = [];
 
-        $('#addonSelectionModalBody .addon-modal-check:checked').each(function() {
+        $('#addonSelectionModalBody .addon-modal-switch-input:checked').each(function() {
             addons.push({
                 id: $(this).data('id'),
                 name: $(this).data('name'),

@@ -4,8 +4,8 @@
     $brandGradient = 'linear-gradient(135deg, #f7e2b4 0%, #ddb774 52%, #c99c4d 100%)';
     $data->color = $brandPrimary;
     $data->secondary_color = $brandSecondary;
-    $data->background_color = $data->background_color ?: '#0b0e1a';
-    $data->font_color = $data->font_color ?: '#e8eaf6';
+    $data->background_color = '#0b0e1a';
+    $data->font_color = '#e8eaf6';
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -132,22 +132,18 @@
     background: {{ $brandPrimary }};
     color: #000;
     border: none;
-    padding: 12px 30px;
+    padding: 11px 28px;
     border-radius: 25px;
-    font-weight: bold;
-    margin: 0 10px;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn-next:hover, .btn-prev:hover {
-    opacity: 0.8;
-    transform: translateY(-2px);
+    font-size: 15px;
+    transition: opacity .2s, transform .15s;
 }
 
 .btn-prev {
-    background: #666;
+    background: #555;
     color: #fff;
+    min-width: 140px;
 }
 
 .btn-next:disabled {
@@ -166,44 +162,39 @@
     background: {{ $brandPrimary }} !important;
     color: #000 !important;
     border: none;
-    padding: 12px 25px;
+    padding: 9px 20px;
     border-radius: 25px;
-    font-weight: bold;
-    margin-bottom: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: opacity .2s, transform .15s;
     display: inline-block;
     width: 280px;
     text-align: center;
-    font-size: 14px;
-}
-
-.same-as-info:hover, .same-as-info-transport:hover {
-    opacity: 0.8;
-    transform: translateY(-2px);
+    font-size: 13px;
 }
 
 .btn-next, .btn-prev, .submit-btn {
     background: {{ $brandPrimary }} !important;
     color: #000 !important;
     border: none;
-    padding: 12px 30px;
+    padding: 11px 28px;
     border-radius: 25px;
-    font-weight: bold;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 16px;
-    min-width: 200px;
+    transition: opacity .2s, transform .15s;
+    font-size: 15px;
+    min-width: 180px;
     text-align: center;
 }
 
-.btn-next:hover, .btn-prev:hover, .submit-btn:hover {
-    opacity: 0.8;
-    transform: translateY(-2px);
+.btn-next:hover, .submit-btn:hover {
+    opacity: .85;
+    transform: translateY(-1px);
 }
 
 .btn-prev {
-    background: #666 !important;
+    background: #555 !important;
     color: #fff !important;
 }
 
@@ -727,6 +718,29 @@ input::placeholder, textarea::placeholder {
 }
 
 /* Promo apply button */
+.vip-btn,
+#generateShareLink {
+    background: var(--accent) !important;
+    color: #000 !important;
+    font-weight: 700;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: opacity .2s, transform .15s;
+    white-space: nowrap;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.vip-btn:hover,
+#generateShareLink:hover {
+    opacity: .85;
+    transform: translateY(-1px);
+    color: #000 !important;
+}
+
 .vip-btn-submit, #applyPromoBtn {
     background: var(--accent) !important;
     color: #000 !important;
@@ -736,6 +750,8 @@ input::placeholder, textarea::placeholder {
     cursor: pointer;
     white-space: nowrap;
     font-size: 14px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
 }
 
 /* Section headings */
@@ -1392,8 +1408,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     <h5 class="section-kicker-lg">{{ $data->package_button_text ?? 'Packages' }}</h5>
     
                                     @if(isset($packageCategories) && $packageCategories->count())
+                                        @php
+                                            $sortedPackageCategories = collect($packageCategories)
+                                                ->sortBy(function ($category) {
+                                                    return strtolower((string) ($category['name'] ?? $category->name ?? ''));
+                                                })
+                                                ->values();
+                                        @endphp
                                         <div class="mb-3 package-category-tiles" style="width:100%;">
-                                            @foreach ($packageCategories as $category)
+                                            @foreach ($sortedPackageCategories as $category)
                                                 <button
                                                     type="button"
                                                     class="btn btn-outline-light package-category-tile mb-2 w-100"
@@ -1406,7 +1429,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                             @endforeach
                                         </div>
 
-                                        @foreach ($packageCategories as $category)
+                                        @foreach ($sortedPackageCategories as $category)
                                             <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: none;">
                                                 @foreach ($category['packages'] as $item)
                                                     <div class="vip-card" id="pkg-card-{{ $item->id }}">
@@ -1518,7 +1541,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                 </div>
                                                 <div class="col-md-4 col-4" style="padding-left: 0%;">
                                                     <button type="button" class="vip-btn-submit"
-                                                        style="width: 100%; height: 100%; font-weight: normal; background-color: {{ $brandPrimary }} !important; border-top-right-radius: 10px !important; border-bottom-right-radius: 10px !important;"
+                                                        style="width: 100%; height: 100%;"
                                                         id="applyPromoBtn">Submit</button>
                                                 </div>
                                             </div>
@@ -1526,7 +1549,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     </div>
     
                                     <div class="mt-3" id="shareLinkContainer" style="display:none;">
-                                        <button type="button" class="btn btn-primary" id="generateShareLink" style="background: {{ $brandPrimary }}; color: #000; font-weight: bold;">Generate Shareable Link</button>
+                                        <button type="button" id="generateShareLink">Generate Shareable Link</button>
                                         <div style="position: relative;">
                                             <input type="text" id="shareableLink" readonly style="width:100%;margin-top:8px;display:none;padding-right:40px;" />
                                             <div id="copyTooltip" style="position: absolute; top: -35px; right: 0; background: #28a745; color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; display: none; white-space: nowrap; z-index: 1000;">
@@ -1753,7 +1776,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                         <!-- Left: Form Fields -->
                                                         <div class="form-left">
     
-                                                            <button type="button" class="same-as-info" style="padding: 1px !important;">Same as package holder information</button>
+                                                            <button type="button" class="same-as-info">Same as package holder information</button>
     
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 50%;">
