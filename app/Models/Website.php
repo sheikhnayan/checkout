@@ -96,6 +96,16 @@ class Website extends Model
         return $this->hasMany(PaymentLogo::class)->where('is_active', true)->orderBy('order');
     }
 
+    public function feedModels()
+    {
+        return $this->hasMany(FeedModel::class)->latest();
+    }
+
+    public function feedPosts()
+    {
+        return $this->hasMany(FeedPost::class)->latest('posted_at');
+    }
+
     /**
      * Generate a unique slug from the website name.
      */

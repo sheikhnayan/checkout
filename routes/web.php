@@ -20,6 +20,9 @@ use App\Http\Controllers\AffiliatePublicController;
 use App\Http\Controllers\AffiliateAdminController;
 use App\Http\Controllers\AffiliatePortalController;
 use App\Http\Controllers\PackageCategoryController;
+use App\Http\Controllers\FeedController;
+use App\Http\Controllers\FeedModelController;
+use App\Http\Controllers\FeedPostController;
 
 
 // Authentication Routes
@@ -52,6 +55,13 @@ Route::post('/custom-invoice/{token}/process-payment', [CustomInvoiceController:
 Route::get('/affiliate/apply', [AffiliateRegistrationController::class, 'showForm'])->name('affiliate.apply');
 Route::post('/affiliate/apply', [AffiliateRegistrationController::class, 'submit'])->name('affiliate.apply.submit');
 Route::get('/affiliate/{slug}', [AffiliatePublicController::class, 'show'])->name('affiliate.public');
+
+// Public feed routes (must stay before slug route)
+Route::get('/feed', [FeedController::class, 'index'])->name('feed.index');
+Route::post('/feed/posts/{feedPost}/comments', [FeedController::class, 'storeComment'])->name('feed.comments.store');
+Route::get('/{slug}/feed/profile', [FeedController::class, 'clubProfile'])->name('club.feed.profile');
+Route::get('/{slug}/feed/models/{feedModel}', [FeedController::class, 'modelProfile'])->name('club.feed.model.profile');
+Route::get('/{slug}/feed', [FeedController::class, 'clubFeed'])->name('club.feed');
 
 // Frontend routes with slug parameter
 Route::get('/{slug}', [FrontendController::class, 'index'])->name('index');
@@ -173,6 +183,27 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::post('/{affiliate}/approve', [AffiliateAdminController::class, 'approve'])->name('approve');
         Route::post('/{affiliate}/reject', [AffiliateAdminController::class, 'reject'])->name('reject');
         Route::post('/{affiliate}/packages', [AffiliateAdminController::class, 'updatePackages'])->name('packages.update');
+    });
+
+    Route::group(['prefix' => 'feed-model', 'as' => 'feed-model.'], function () {
+        Route::get('/', [FeedModelController::class, 'index'])->name('index');
+        Route::get('/create', [FeedModelController::class, 'create'])->name('create');
+        Route::post('/store', [FeedModelController::class, 'store'])->name('store');
+        Route::get('/edit/{feedModel}', [FeedModelController::class, 'edit'])->name('edit');
+        Route::post('/update/{feedModel}', [FeedModelController::class, 'update'])->name('update');
+        Route::post('/destroy/{feedModel}', [FeedModelController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::group(['prefix' => 'feed-post', 'as' => 'feed-post.'], function () {
+        Route::get('/', [FeedPostController::class, 'index'])->name('index');
+        Route::get('/create', [FeedPostController::class, 'create'])->name('create');
+        Route::post('/store', [FeedPostController::class, 'store'])->name('store');
+        Route::get('/show/{feedPost}', [FeedPostController::class, 'show'])->name('show');
+        Route::get('/edit/{feedPost}', [FeedPostController::class, 'edit'])->name('edit');
+        Route::post('/update/{feedPost}', [FeedPostController::class, 'update'])->name('update');
+        Route::post('/destroy/{feedPost}', [FeedPostController::class, 'destroy'])->name('destroy');
+        Route::post('/{feedPost}/comments/{feedComment}/toggle', [FeedPostController::class, 'toggleCommentVisibility'])->name('comments.toggle');
+        Route::post('/{feedPost}/comments/{feedComment}/destroy', [FeedPostController::class, 'destroyComment'])->name('comments.destroy');
     });
 
     // Website Users Management

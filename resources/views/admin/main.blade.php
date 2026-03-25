@@ -284,6 +284,20 @@
       <div class="text-truncate">Promo Codes</div>
     </a>
   </li>
+
+  <li class="menu-item {{ request()->is('admins/feed-model*') ? 'active' : '' }}">
+    <a href="{{ route('admin.feed-model.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-user-circle"></i>
+      <div class="text-truncate">Feed Models</div>
+    </a>
+  </li>
+
+  <li class="menu-item {{ request()->is('admins/feed-post*') ? 'active' : '' }}">
+    <a href="{{ route('admin.feed-post.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-images"></i>
+      <div class="text-truncate">Feed Posts</div>
+    </a>
+  </li>
   @endif
 
   @if(auth()->check() && auth()->user()->isAdmin())
