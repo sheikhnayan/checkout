@@ -43,21 +43,27 @@ class FeedModelController extends Controller
             'bio' => 'nullable|string|max:5000',
             'profile_image' => 'nullable|image|max:4096',
             'is_active' => 'nullable|boolean',
+            'performance_dates' => 'nullable|array',
+            'performance_dates.*' => 'nullable|date',
         ]);
 
         $this->ensureWebsiteAccess((int) $validated['website_id']);
+        $performanceDates = $this->normalizedPerformanceDates($validated['performance_dates'] ?? []);
 
         $model = new FeedModel();
         $model->website_id = $validated['website_id'];
         $model->name = $validated['name'];
         $model->bio = $validated['bio'] ?? null;
-        $model->is_active = $request->boolean('is_active', true);
+        $model->is_active = $request->boolean('is_active');
 
         if ($request->hasFile('profile_image')) {
             $model->profile_image = $this->storeImage($request->file('profile_image'), 'feed_model');
         }
 
         $model->save();
+        $model->performanceDates()->createMany(
+            collect($performanceDates)->map(fn ($date) => ['performance_date' => $date])->all()
+        );
 
         return redirect()->route('admin.feed-model.index')->with('success', 'Feed model created successfully.');
     }
@@ -80,21 +86,28 @@ class FeedModelController extends Controller
             'bio' => 'nullable|string|max:5000',
             'profile_image' => 'nullable|image|max:4096',
             'is_active' => 'nullable|boolean',
+            'performance_dates' => 'nullable|array',
+            'performance_dates.*' => 'nullable|date',
         ]);
 
         $this->ensureWebsiteAccess($feedModel->website_id);
         $this->ensureWebsiteAccess((int) $validated['website_id']);
+        $performanceDates = $this->normalizedPerformanceDates($validated['performance_dates'] ?? []);
 
         $feedModel->website_id = $validated['website_id'];
         $feedModel->name = $validated['name'];
         $feedModel->bio = $validated['bio'] ?? null;
-        $feedModel->is_active = $request->boolean('is_active', true);
+        $feedModel->is_active = $request->boolean('is_active');
 
         if ($request->hasFile('profile_image')) {
             $feedModel->profile_image = $this->storeImage($request->file('profile_image'), 'feed_model');
         }
 
         $feedModel->save();
+        $feedModel->performanceDates()->delete();
+        $feedModel->performanceDates()->createMany(
+            collect($performanceDates)->map(fn ($date) => ['performance_date' => $date])->all()
+        );
 
         return redirect()->route('admin.feed-model.index')->with('success', 'Feed model updated successfully.');
     }
@@ -132,6 +145,17 @@ class FeedModelController extends Controller
         if (!in_array($websiteId, $this->accessibleWebsiteIds(), true)) {
             abort(403, 'Access denied for this website.');
         }
+    }
+
+    private function normalizedPerformanceDates(array $performanceDates): array
+    {
+        return collect($performanceDates)
+            ->map(fn ($date) => trim((string) $date))
+            ->filter(fn ($date) => $date !== '')
+            ->map(fn ($date) => date('Y-m-d', strtotime($date)))
+            ->unique()
+            ->sort()
+            ->all();
     }
 
     private function storeImage($file, string $prefix): string

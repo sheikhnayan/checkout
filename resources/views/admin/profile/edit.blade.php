@@ -69,7 +69,7 @@
 
                         <div class="row">
                             <div class="col-lg-6">
-                                <div class="card-shadow-primary card-border text-white mb-3 card bg-primary p-4" style="background: #fff !important;">
+                                <div class="card-shadow-primary card-border text-white mb-3 card bg-primary p-4">
                                     <div class="card-header border-bottom p-0 pb-3">
                                         <h5 class="card-title">Profile Information</h5>
                                     </div>
@@ -87,7 +87,7 @@
                             </div>
 
                             <div class="col-lg-6">
-                                <div class="card-shadow-primary card-border text-white mb-3 card bg-primary p-4" style="background: #fff !important;">
+                                <div class="card-shadow-primary card-border text-white mb-3 card bg-primary p-4">
                                     <div class="card-header border-bottom p-0 pb-3">
                                         <h5 class="card-title">Change Password</h5>
                                     </div>

@@ -27,4 +27,9 @@ class FeedModel extends Model
     {
         return $this->hasMany(FeedPost::class)->latest('posted_at');
     }
+
+    public function performanceDates()
+    {
+        return $this->hasMany(FeedModelPerformanceDate::class)->orderBy('performance_date');
+    }
 }

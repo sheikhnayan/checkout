@@ -100,7 +100,7 @@
 
                         <div class="row">
                             <div class="col-lg">
-                                <div class="card-shadow-primary card-border text-white mb-3 card bg-primary" style="background: #fff !important;">
+                                <div class="card-shadow-primary card-border text-white mb-3 card bg-primary">
                                     <form action="{{ route('admin.website.update', $data->id) }}" method="post" enctype="multipart/form-data">
                                         @csrf
 
@@ -507,54 +507,52 @@
                                             </div>
                                             
                                             <!-- Payment Logo Management -->
-                                            <div class="row">
+                                            <div class="row mb-4">
                                                 <div class="col-md-12">
-                                                    <h3>Payment Method Logos</h3>
+                                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                                        <h5 class="mb-0">Payment Method Logos</h5>
+                                                        <button type="button" class="btn btn-success btn-sm add-payment-logo">
+                                                            <i class="fa fa-plus me-1"></i> Add Payment Logo
+                                                        </button>
+                                                    </div>
                                                     <div id="payment-logos-wrapper">
-                                                        @foreach($data->paymentLogos as $index => $logo)
-                                                            <div class="row mb-2 payment-logo-group">
+                                                        @forelse($data->paymentLogos as $index => $logo)
+                                                            <div class="row mb-3 align-items-center payment-logo-group border rounded p-2">
                                                                 <div class="col-md-3">
-                                                                    <input type="text" name="payment_logos[{{ $index }}][name]" class="form-control" placeholder="Payment Method Name" value="{{ $logo->name }}" required>
+                                                                    <label class="form-label mb-1">Name</label>
+                                                                    <input type="text" name="payment_logos[{{ $index }}][name]" class="form-control" placeholder="e.g. Visa" value="{{ $logo->name }}" required>
                                                                 </div>
                                                                 <div class="col-md-3">
+                                                                    <label class="form-label mb-1">Logo Image</label>
+                                                                    @if($logo->logo)
+                                                                        <div class="mb-1">
+                                                                            <img src="{{ asset('uploads/' . $logo->logo) }}" alt="{{ $logo->name }}" style="height:36px;max-width:100px;object-fit:contain;border-radius:4px;background:#fff;padding:2px 4px;">
+                                                                        </div>
+                                                                    @endif
                                                                     <input type="file" name="payment_logos[{{ $index }}][logo]" class="form-control" accept="image/*">
-                                                                    <small class="text-muted">Current: {{ $logo->logo ?: 'No logo' }}</small>
+                                                                    <small class="text-muted">{{ $logo->logo ? 'Replace above image' : 'No logo yet' }}</small>
                                                                 </div>
                                                                 <div class="col-md-2">
-                                                                    <input type="number" name="payment_logos[{{ $index }}][order]" class="form-control" placeholder="Order" value="{{ $logo->order }}" min="0">
+                                                                    <label class="form-label mb-1">Order</label>
+                                                                    <input type="number" name="payment_logos[{{ $index }}][order]" class="form-control" placeholder="0" value="{{ $logo->order }}" min="0">
                                                                 </div>
                                                                 <div class="col-md-2">
+                                                                    <label class="form-label mb-1">Status</label>
                                                                     <select name="payment_logos[{{ $index }}][is_active]" class="form-control">
                                                                         <option value="1" {{ $logo->is_active ? 'selected' : '' }}>Active</option>
                                                                         <option value="0" {{ !$logo->is_active ? 'selected' : '' }}>Inactive</option>
                                                                     </select>
                                                                 </div>
-                                                                <div class="col-md-2">
-                                                                    <button type="button" class="btn btn-danger remove-payment-logo w-100" title="Remove"><i class="fa fa-minus"></i></button>
+                                                                <div class="col-md-2 pt-3">
+                                                                    <button type="button" class="btn btn-danger remove-payment-logo w-100" title="Remove">
+                                                                        <i class="fa fa-trash me-1"></i> Remove
+                                                                    </button>
                                                                 </div>
                                                                 <input type="hidden" name="payment_logos[{{ $index }}][id]" value="{{ $logo->id }}">
                                                             </div>
-                                                        @endforeach
-                                                        <div class="row mb-2 payment-logo-group">
-                                                            <div class="col-md-3">
-                                                                <input type="text" name="payment_logos[new][name]" class="form-control" placeholder="Payment Method Name">
-                                                            </div>
-                                                            <div class="col-md-3">
-                                                                <input type="file" name="payment_logos[new][logo]" class="form-control" accept="image/*">
-                                                            </div>
-                                                            <div class="col-md-2">
-                                                                <input type="number" name="payment_logos[new][order]" class="form-control" placeholder="Order" value="0" min="0">
-                                                            </div>
-                                                            <div class="col-md-2">
-                                                                <select name="payment_logos[new][is_active]" class="form-control">
-                                                                    <option value="1">Active</option>
-                                                                    <option value="0">Inactive</option>
-                                                                </select>
-                                                            </div>
-                                                            <div class="col-md-2">
-                                                                <button type="button" class="btn btn-success add-payment-logo w-100" title="Add Logo"><i class="fa fa-plus"></i></button>
-                                                            </div>
-                                                        </div>
+                                                        @empty
+                                                            <p class="text-muted" id="no-logos-msg">No payment logos added yet. Click "Add Payment Logo" to add one.</p>
+                                                        @endforelse
                                                     </div>
                                                 </div>
                                             </div>
@@ -641,35 +639,45 @@
             });
             
             // Dynamic payment logo functionality
-            let paymentLogoIndex = {{ $data->paymentLogos->count() }};
-            
+            let paymentLogoIndex = {{ $data->paymentLogos->count() + 100 }};
+
             $(document).on('click', '.add-payment-logo', function() {
                 paymentLogoIndex++;
-                const paymentLogoGroup = `<div class="row mb-2 payment-logo-group">
+                $('#no-logos-msg').remove();
+                const paymentLogoGroup = `<div class="row mb-3 align-items-center payment-logo-group border rounded p-2">
                     <div class="col-md-3">
-                        <input type="text" name="payment_logos[${paymentLogoIndex}][name]" class="form-control" placeholder="Payment Method Name" required>
+                        <label class="form-label mb-1">Name</label>
+                        <input type="text" name="payment_logos[${paymentLogoIndex}][name]" class="form-control" placeholder="e.g. Visa" required>
                     </div>
                     <div class="col-md-3">
+                        <label class="form-label mb-1">Logo Image</label>
                         <input type="file" name="payment_logos[${paymentLogoIndex}][logo]" class="form-control" accept="image/*">
                     </div>
                     <div class="col-md-2">
-                        <input type="number" name="payment_logos[${paymentLogoIndex}][order]" class="form-control" placeholder="Order" value="0" min="0">
+                        <label class="form-label mb-1">Order</label>
+                        <input type="number" name="payment_logos[${paymentLogoIndex}][order]" class="form-control" placeholder="0" value="0" min="0">
                     </div>
                     <div class="col-md-2">
+                        <label class="form-label mb-1">Status</label>
                         <select name="payment_logos[${paymentLogoIndex}][is_active]" class="form-control">
                             <option value="1">Active</option>
                             <option value="0">Inactive</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <button type="button" class="btn btn-danger remove-payment-logo w-100" title="Remove"><i class="fa fa-minus"></i></button>
+                    <div class="col-md-2 pt-3">
+                        <button type="button" class="btn btn-danger remove-payment-logo w-100" title="Remove">
+                            <i class="fa fa-trash me-1"></i> Remove
+                        </button>
                     </div>
                 </div>`;
                 $('#payment-logos-wrapper').append(paymentLogoGroup);
             });
-            
+
             $(document).on('click', '.remove-payment-logo', function() {
                 $(this).closest('.payment-logo-group').remove();
+                if ($('.payment-logo-group').length === 0) {
+                    $('#payment-logos-wrapper').append('<p class="text-muted" id="no-logos-msg">No payment logos added yet. Click "Add Payment Logo" to add one.</p>');
+                }
             });
             </script>
 @endsection

@@ -24,6 +24,36 @@
 .forms-wizard li.done em {
   font-family: Linearicons-Free;
 }
+
+.admin-transactions-card {
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: linear-gradient(165deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015)) !important;
+}
+
+.admin-transactions-filters label {
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.admin-transactions-card .table {
+    margin-top: 8px;
+}
+
+.admin-transactions-card .table td,
+.admin-transactions-card .table th {
+    padding-top: .75rem;
+    padding-bottom: .75rem;
+    vertical-align: middle;
+}
+
+.admin-transactions-card .btn-group .btn {
+    border-radius: 8px;
+}
+
+.admin-transactions-card .view-btn {
+    min-width: 36px;
+}
 </style>
     <!-- Content wrapper -->
     <div class="content-wrapper">
@@ -79,8 +109,13 @@
 
                         <div class="row">
                             <div class="col-lg">
-                                <div class="card-shadow-primary card-border text-white mb-3 card bg-primary p-4" style="background: #fff !important;">
-                                    <div class="row mb-3">
+                                <div class="card-shadow-primary card-border text-white mb-3 card bg-primary p-4 admin-transactions-card">
+                                    @php
+                                        $affiliateRows = $data->filter(function ($row) {
+                                            return !empty($row->affiliate_id) && !empty($row->affiliate);
+                                        })->unique('affiliate_id');
+                                    @endphp
+                                    <div class="row mb-3 admin-transactions-filters g-3 align-items-end">
                                         @if(auth()->user()->isAdmin())
                                         <div class="col-md-3">
                                             <label>Filter by Website:</label>
@@ -100,12 +135,27 @@
                                                 <option value="reservation">Reservation</option>
                                             </select>
                                         </div>
+                                        <div class="col-md-3">
+                                            <label>Filter by Affiliate:</label>
+                                            <select id="affiliateFilter" class="form-select">
+                                                <option value="">All Affiliates</option>
+                                                @foreach($affiliateRows as $affiliateRow)
+                                                    @php
+                                                        $affiliateName = $affiliateRow->affiliate->display_name ?: optional($affiliateRow->affiliate->user)->name;
+                                                    @endphp
+                                                    <option value="{{ $affiliateName ?: 'Affiliate #' . $affiliateRow->affiliate_id }}">
+                                                        {{ $affiliateName ?: 'Affiliate #' . $affiliateRow->affiliate_id }}
+                                                    </option>
+                                                @endforeach
+                                                <option value="Direct">Direct (No Affiliate)</option>
+                                            </select>
+                                        </div>
                                         {{-- <div class="col-md-4">
                                             <label>Date Range:</label>
                                             <input type="text" id="dateRange" class="form-control" placeholder="Select date range" autocomplete="off">
                                         </div> --}}
                                     </div>
-                                    <table class="table table-striped">
+                                    <table class="table table-striped align-middle">
                                         <thead>
                                             <tr>
                                                 <th><input type="checkbox" id="selectAll"></th>
@@ -120,6 +170,8 @@
                                                 @if(auth()->user()->isAdmin())
                                                 <th>Website</th>
                                                 @endif
+                                                <th>Affiliate</th>
+                                                <th>Affiliate Amount</th>
                                                 <th>Amount</th>
                                                 <th>Status</th>
                                                 <th>Date</th>
@@ -129,7 +181,7 @@
                                         <tbody>
                                             @if ($data->isEmpty())
                                                 <tr>
-                                                    <td colspan="{{ auth()->user()->isAdmin() ? '11' : '10' }}" class="text-center">No donations found.</td>
+                                                    <td colspan="{{ auth()->user()->isAdmin() ? '16' : '15' }}" class="text-center">No donations found.</td>
                                                 </tr>
                                             @else
                                                 @foreach ($data as $item)
@@ -151,6 +203,14 @@
                                                         @if(auth()->user()->isAdmin())
                                                         <td>{{ $item->website->name ?? 'N/A' }}</td>
                                                         @endif
+                                                        <td>
+                                                            @if(!empty($item->affiliate_id) && !empty($item->affiliate))
+                                                                {{ $item->affiliate->display_name ?: optional($item->affiliate->user)->name ?: ('Affiliate #' . $item->affiliate_id) }}
+                                                            @else
+                                                                <span class="badge bg-secondary">Direct</span>
+                                                            @endif
+                                                        </td>
+                                                        <td>${{ number_format((float)($item->affiliate_commission_amount ?? 0), 2) }}</td>
                                                         <td>${{ $item->total }}</td>
                                                         <td>
                                                             @if($item->status == 1)
@@ -163,7 +223,7 @@
                                                                 <span class="badge bg-secondary">Unknown</span>
                                                             @endif
                                                         </td>
-                                                        <td>{{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d') }}</td>
+                                                        <td>{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('Y-m-d h:i A T') }}</td>
                                                         <td>
                                                             @php
                                                                 $addons = '';
@@ -227,7 +287,7 @@
                                                                 data-promo_code="{{ $promo_code_name }}"
                                                                 data-discounted_amount="{{ $item->discounted_amount }}"
                                                                 data-package_use_date="{{ $item->package_use_date }}"
-                                                                data-date="{{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d h:i A') }}"
+                                                                data-date="{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('Y-m-d h:i A T') }}"
                                                                 title="View">
                                                                 <i class="fas fa-eye"></i>
                                                             </button>
@@ -263,6 +323,14 @@
                                                         @if(auth()->user()->isAdmin())
                                                         <td>{{ $item->website->name ?? 'N/A' }}</td>
                                                         @endif
+                                                        <td>
+                                                            @if(!empty($item->affiliate_id) && !empty($item->affiliate))
+                                                                {{ $item->affiliate->display_name ?: optional($item->affiliate->user)->name ?: ('Affiliate #' . $item->affiliate_id) }}
+                                                            @else
+                                                                <span class="badge bg-secondary">Direct</span>
+                                                            @endif
+                                                        </td>
+                                                        <td>${{ number_format((float)($item->affiliate_commission_amount ?? 0), 2) }}</td>
                                                         <td>${{ $item->total }}</td>
                                                         <td>
                                                             @if($item->status == 1)
@@ -275,7 +343,7 @@
                                                                 <span class="badge bg-secondary">Unknown</span>
                                                             @endif
                                                         </td>
-                                                        <td>{{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d') }}</td>
+                                                        <td>{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('Y-m-d h:i A T') }}</td>
                                                         <td>
                                                             <button type="button" class="btn btn-info btn-sm view-btn" data-bs-toggle="modal" data-bs-target="#viewTransactionModal"
                                                                 data-transaction_id="{{ $item->transaction_id ?? 'Free'}}"
@@ -305,7 +373,7 @@
                                                                 data-men="{{ $item->men }}"
                                                                 data-women="{{ $item->women }}"
                                                                 data-total="{{ $item->booking_fee }}"
-                                                                data-date="{{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d h:i A') }}"
+                                                                data-date="{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('Y-m-d h:i A T') }}"
                                                                 title="View">
                                                                 <i class="fas fa-eye"></i>
                                                             </button>
@@ -328,9 +396,9 @@
                                         </tbody>
                                         <tfoot>
                                             <tr>
-                                                <th colspan="{{ auth()->user()->isAdmin() ? '10' : '9' }}" class="text-end">Total:</th>
+                                                <th colspan="{{ auth()->user()->isAdmin() ? '12' : '11' }}" class="text-end">Total:</th>
                                                 <th id="amount-total"></th>
-                                                <th colspan="2"></th>
+                                                <th colspan="3"></th>
                                             </tr>
                                         </tfoot>
                                     </table>
@@ -402,7 +470,7 @@
                                         <li class="list-group-item"><strong>Non refundable deposit:</strong> <span id="modal-refundable"></span></li>
                                         <li class="list-group-item"><strong>Total Amount Paid:</strong> <span id="modal-total"></span></li>
                                         <li class="list-group-item"><strong>Total Due:</strong> <span id="modal-total_due"></span></li>
-                                        <li class="list-group-item"><strong>Date:</strong> <span id="modal-date"></span></li>
+                                        <li class="list-group-item"><strong>Date (Pacific Time):</strong> <span id="modal-date"></span></li>
                                         <li class="list-group-item"><strong>Accepted Terms and Conditions:</strong> <span id="modal-terms">Yes</span></li>
                                         <li class="list-group-item"><strong>Accepted SMS:</strong> <span id="modal-sms">Yes</span></li>
                                     </ul>
@@ -517,12 +585,44 @@
 
                     // Website filter
                     $('#websiteFilter').on('change', function() {
-                        table.column(9).search(this.value).draw();
+                        let websiteColumn = -1;
+                        table.columns().every(function(index) {
+                            if ($(this.header()).text().trim() === 'Website') {
+                                websiteColumn = index;
+                            }
+                        });
+
+                        if (websiteColumn !== -1) {
+                            table.column(websiteColumn).search(this.value).draw();
+                        }
                     });
 
                     // Type filter
                     $('#typeFilter').on('change', function() {
-                        table.column(8).search(this.value).draw();
+                        let typeColumn = -1;
+                        table.columns().every(function(index) {
+                            if ($(this.header()).text().trim() === 'Type') {
+                                typeColumn = index;
+                            }
+                        });
+
+                        if (typeColumn !== -1) {
+                            table.column(typeColumn).search(this.value).draw();
+                        }
+                    });
+
+                    // Affiliate filter
+                    $('#affiliateFilter').on('change', function() {
+                        let affiliateColumn = -1;
+                        table.columns().every(function(index) {
+                            if ($(this.header()).text().trim() === 'Affiliate') {
+                                affiliateColumn = index;
+                            }
+                        });
+
+                        if (affiliateColumn !== -1) {
+                            table.column(affiliateColumn).search(this.value).draw();
+                        }
                     });
 
 

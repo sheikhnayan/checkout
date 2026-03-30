@@ -103,7 +103,7 @@ label{
 
                         <div class="row">
                             <div class="col-lg">
-                                <div class="card-shadow-primary card-border text-white mb-3 card bg-primary" style="background: #fff !important;">
+                                <div class="card-shadow-primary card-border text-white mb-3 card bg-primary">
                                     <form action="{{ route('admin.package.store') }}" method="post" enctype="multipart/form-data">
                                         @csrf
 
@@ -113,7 +113,7 @@ label{
                                                     <div class="mb-3">
                                                         <label for="event_id" class="form-label">Event</label>
                                                         <select name="event_id" class="form-control" id="event_id">
-                                                            <option value="null" selected disabled>Select Event</option>
+                                                            <option value="" selected>No Event</option>
                                                             @foreach($events as $event)
                                                                 <option value="{{ $event->id }}">{{ $event->name }}</option>
                                                             @endforeach

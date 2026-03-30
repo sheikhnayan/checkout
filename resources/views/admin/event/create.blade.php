@@ -103,7 +103,7 @@ label{
 
                         <div class="row">
                             <div class="col-lg">
-                                <div class="card-shadow-primary card-border text-white mb-3 card bg-primary" style="background: #fff !important;">
+                                <div class="card-shadow-primary card-border text-white mb-3 card bg-primary">
                                     <form action="{{ route('admin.event.store') }}" method="post" enctype="multipart/form-data">
                                         @csrf
 

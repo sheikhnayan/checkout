@@ -67,13 +67,20 @@ class FrontendController extends Controller
             $event = Event::where('website_id', $data->id)
                 ->where('name', $request->event_name)
                 ->where('is_archieved', 0)
+                ->when(Schema::hasColumn('events', 'status'), function ($query) {
+                    $query->where('status', 1);
+                })
                 ->first();
             $packageCategories = $this->buildPackageCategories($data, $event ? (int) $event->id : -1, false);
+
+            $data->setRelation('events', $this->activeWebsiteEvents($data->id));
 
             return view('index', compact('data', 'event', 'affiliateReferral', 'requestedPackageId', 'packageCategories'));
         }
 
         $packageCategories = $this->buildPackageCategories($data, null, true);
+
+        $data->setRelation('events', $this->activeWebsiteEvents($data->id));
 
         return view('index_two', compact('data', 'affiliateReferral', 'requestedPackageId', 'packageCategories'));
 
@@ -150,5 +157,16 @@ class FrontendController extends Controller
                 ];
             })
             ->values();
+    }
+
+    private function activeWebsiteEvents(int $websiteId)
+    {
+        return Event::where('website_id', $websiteId)
+            ->where('is_archieved', 0)
+            ->when(Schema::hasColumn('events', 'status'), function ($query) {
+                $query->where('status', 1);
+            })
+            ->orderBy('date')
+            ->get();
     }
 }

@@ -1,7 +1,7 @@
 @php
-    $brandPrimary = '#c99c4d';
+    $brandPrimary = '#ffcc00';
     $brandSecondary = '#ddb774';
-    $brandGradient = 'linear-gradient(135deg, #f7e2b4 0%, #ddb774 52%, #c99c4d 100%)';
+    $brandGradient = 'linear-gradient(135deg, #f7e2b4 0%, #ddb774 52%, #ffcc00 100%)';
     $data->color = $brandPrimary;
     $data->secondary_color = $brandSecondary;
     $data->background_color = '#0b0e1a';
@@ -648,7 +648,7 @@ a {
     --text-main: {{ $data->font_color ?? '#e8eaf6' }};
     --aff-accent: var(--accent);
     --aff-text: var(--text-main);
-    --brand-gradient: linear-gradient(135deg, #f7e2b4 0%, #ddb774 52%, #c99c4d 100%);
+    --brand-gradient: #ffcc00;
 }
 
 /* Glassmorphism package cards */
@@ -682,7 +682,7 @@ input::placeholder, textarea::placeholder {
     color: rgba(255,255,255,0.35) !important;
 }
 
-/* Checkbox containers � consent-label layout */
+/* Checkbox containers - unified toggle switch */
 .checkbox-container label {
     display: flex;
     gap: 10px;
@@ -693,11 +693,41 @@ input::placeholder, textarea::placeholder {
     line-height: 1.4;
 }
 .checkbox-container input[type="checkbox"] {
-    width: auto !important;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 46px !important;
+    height: 26px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.28);
+    background: rgba(255,255,255,0.16);
+    position: relative;
+    margin-top: 0 !important;
     padding: 0 !important;
-    margin-top: 2px !important;
     flex-shrink: 0;
-    accent-color: var(--accent);
+    cursor: pointer;
+    transition: background .2s ease, border-color .2s ease;
+}
+.checkbox-container input[type="checkbox"]::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform .2s ease;
+}
+.checkbox-container input[type="checkbox"]:checked {
+    background: var(--accent);
+    border-color: var(--accent);
+}
+.checkbox-container input[type="checkbox"]:checked::before {
+    transform: translateX(20px);
+}
+.checkbox-container input[type="checkbox"]:focus-visible {
+    outline: 2px solid rgba(255,204,0,0.7);
+    outline-offset: 2px;
 }
 
 /* Cart section card */
@@ -739,6 +769,49 @@ input::placeholder, textarea::placeholder {
     opacity: .85;
     transform: translateY(-1px);
     color: #000 !important;
+}
+
+.back-home-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    max-width: min(100%, 360px);
+    min-height: 42px;
+    padding: 10px 18px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 204, 0, 0.45);
+    background: linear-gradient(135deg, rgba(255, 204, 0, 0.2), rgba(255, 204, 0, 0.08));
+    color: var(--text-main) !important;
+    text-decoration: none;
+    font-weight: 700;
+    letter-spacing: .02em;
+    line-height: 1.2;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(6px);
+    transition: transform .15s ease, border-color .15s ease, background .2s ease;
+}
+
+.back-home-btn i {
+    color: var(--accent);
+    font-size: 13px;
+}
+
+.back-home-btn:hover {
+    transform: translateY(-1px);
+    border-color: rgba(255, 204, 0, 0.7);
+    background: linear-gradient(135deg, rgba(255, 204, 0, 0.26), rgba(255, 204, 0, 0.12));
+    color: #fff !important;
+}
+
+@media (max-width: 575.98px) {
+    .back-home-btn {
+        width: 100%;
+        max-width: none;
+    }
 }
 
 .vip-btn-submit, #applyPromoBtn {
@@ -828,7 +901,7 @@ body {
     min-height: 220px;
     margin: 20px 0 24px;
     background:
-        linear-gradient(125deg, rgba(8,11,22,0.82), rgba(8,11,22,0.52)),
+        var(--brand-gradient),
         radial-gradient(circle at top right, rgba(255,255,255,0.08), transparent 35%),
         var(--accent);
 }
@@ -1120,6 +1193,83 @@ nav .tab:hover {
     border-radius: 14px;
 }
 
+.location-card {
+    overflow: hidden;
+}
+
+.location-shell {
+    display: grid;
+    grid-template-columns: minmax(240px, 0.95fr) minmax(0, 1.25fr);
+    gap: 18px;
+    align-items: stretch;
+}
+
+.location-copy {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 14px;
+    padding: 18px;
+}
+
+.location-kicker {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 0.9px;
+    text-transform: uppercase;
+    opacity: 0.65;
+    margin-bottom: 8px;
+}
+
+.location-copy h2 {
+    margin: 0 0 10px;
+    font-size: 1.5rem;
+}
+
+.location-address {
+    margin-bottom: 14px;
+    opacity: 0.9;
+    line-height: 1.6;
+}
+
+.location-contact-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.location-contact-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.04);
+    color: var(--text-main);
+    text-decoration: none;
+}
+
+.location-contact-chip:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.location-map-wrap {
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px;
+    overflow: hidden;
+    min-height: 320px;
+    background: rgba(255,255,255,0.02);
+}
+
+.location-map-wrap iframe {
+    width: 100%;
+    height: 100%;
+    min-height: 320px;
+    border: 0;
+    display: block;
+}
+
 /* Keep a single custom calendar icon in hero date input */
 body #package_use_date::-webkit-calendar-picker-indicator {
     display: none !important;
@@ -1133,6 +1283,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .hero-date-card { max-width: 100%; }
     .vip-card-side { flex: 1 1 100%; }
     .hero-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .location-shell { grid-template-columns: 1fr; }
+    .location-map-wrap,
+    .location-map-wrap iframe { min-height: 260px; }
 }
 
 @media(max-width:576px) {
@@ -1162,7 +1315,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         </div>
                     </div>
                     @if ($data->back_link && $data->back_text)
-                        <a href="{{ $data->back_link }}" class="vip-btn">{{ $data->back_text }}</a>
+                        <a href="{{ $data->back_link }}" class="back-home-btn"><i class="fas fa-arrow-left"></i><span>{{ $data->back_text }}</span></a>
                     @endif
                 </div>
             </div>
@@ -1179,8 +1332,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 @endsession
 
                 <section class="aff-banner" style="background:
-                    linear-gradient(125deg, rgba(8,11,22,0.84), rgba(8,11,22,0.48)),
-                    url('{{ asset('uploads/' . $event->image) }}') center/cover no-repeat;">
+                    url('{{ asset('uploads/' . $event->image) }}') center/cover no-repeat,
+                    #ffcc00;">
                     <div class="aff-banner-content">
                         <div class="aff-kicker">Event Checkout</div>
                         <div class="aff-display-title">{{ $event->hero_title ?: $event->name }}</div>
@@ -1373,19 +1526,33 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             </section>
 
                             <section class="location-card" style="width: 100%">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="">
-                                            <h2 style="margin-top: 4rem;">Location</h2>
-                                            <p>{{ $data->location }}</p>
-                                            <iframe
-                                                src="https://www.google.com/maps?q={{ urlencode($data->location) }}&output=embed"
-                                                allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade">
-                                            </iframe>
-                                            <h2 style="margin-top: 2rem;">Contact</h2>
-                                            <p><a href="tel:{{ $data->phone }}">{{ $data->phone }}</a></p>
-                                            <p><a href="mailto:{{ $data->email }}">{{ $data->email }}</a></p>
+                                <div class="location-shell">
+                                    <div class="location-copy">
+                                        <span class="location-kicker">Find Us</span>
+                                        <h2>Location</h2>
+                                        <p class="location-address">{{ $data->location }}</p>
+                                        <div class="location-contact-grid">
+                                            @if($data->phone)
+                                                <a class="location-contact-chip" href="tel:{{ $data->phone }}">
+                                                    <i class="fas fa-phone"></i>
+                                                    <span>{{ $data->phone }}</span>
+                                                </a>
+                                            @endif
+                                            @if($data->email)
+                                                <a class="location-contact-chip" href="mailto:{{ $data->email }}">
+                                                    <i class="fas fa-envelope"></i>
+                                                    <span>{{ $data->email }}</span>
+                                                </a>
+                                            @endif
                                         </div>
+                                    </div>
+                                    <div class="location-map-wrap">
+                                        <iframe
+                                            src="https://www.google.com/maps?q={{ urlencode($data->location) }}&output=embed"
+                                            allowfullscreen
+                                            loading="lazy"
+                                            referrerpolicy="no-referrer-when-downgrade">
+                                        </iframe>
                                     </div>
                                 </div>
                             </section>
@@ -1548,7 +1715,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         </div>
                                     </div>
     
-                                    <div class="mt-3" id="shareLinkContainer" style="display:none;">
+                                    <div class="mt-3" id="shareLinkContainer">
                                         <button type="button" id="generateShareLink">Generate Shareable Link</button>
                                         <div style="position: relative;">
                                             <input type="text" id="shareableLink" readonly style="width:100%;margin-top:8px;display:none;padding-right:40px;" />
@@ -1992,23 +2159,37 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     
                     <input type="hidden" name="type" value="package">
     
-                    <section>
-                    <div class="row">
-                        <div class="col-md-12">
-                                    <div class="">
-                                        <h2 style="margin-top: 4rem;">Location</h2>
-                                        <p>{{ $data->location }}</p>
-                                        <iframe
-                                            src="https://www.google.com/maps?q={{ urlencode($data->location) }}&output=embed"
-                                            allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade">
-                                        </iframe>
-                                        <h2 style="margin-top: 2rem;">Contact</h2>
-                                        <p><a href="">{{ $data->phone }}</a></p>
-                                        <p><a href="">{{ $data->email }}</a></p>
-                                    </div>
+                    <section class="location-card" style="width: 100%">
+                        <div class="location-shell">
+                            <div class="location-copy">
+                                <span class="location-kicker">Find Us</span>
+                                <h2>Location</h2>
+                                <p class="location-address">{{ $data->location }}</p>
+                                <div class="location-contact-grid">
+                                    @if($data->phone)
+                                        <a class="location-contact-chip" href="tel:{{ $data->phone }}">
+                                            <i class="fas fa-phone"></i>
+                                            <span>{{ $data->phone }}</span>
+                                        </a>
+                                    @endif
+                                    @if($data->email)
+                                        <a class="location-contact-chip" href="mailto:{{ $data->email }}">
+                                            <i class="fas fa-envelope"></i>
+                                            <span>{{ $data->email }}</span>
+                                        </a>
+                                    @endif
                                 </div>
-                    </div>
-                </section>
+                            </div>
+                            <div class="location-map-wrap">
+                                <iframe
+                                    src="https://www.google.com/maps?q={{ urlencode($data->location) }}&output=embed"
+                                    allowfullscreen
+                                    loading="lazy"
+                                    referrerpolicy="no-referrer-when-downgrade">
+                                </iframe>
+                            </div>
+                        </div>
+                    </section>
                 </div>
     
     
@@ -2260,16 +2441,32 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
             function syncTransportationStateFromCart() {
                 window.requiresTransportation = cartRequiresTransportation();
+                const transportationPhoneField = $('input[name="transportation_phone"]');
                 if (window.requiresTransportation) {
                     $('#step-2 .step-title').text('Transportation');
                     $('#next-to-transport').text('Next: Transportation Details');
+                    transportationPhoneField.prop('required', true).attr('aria-required', 'true');
                 } else {
                     $('#step-2 .step-title').text('Confirmation');
                     $('#next-to-transport').text('Next: Transportation Confirmation');
+                    transportationPhoneField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
                 }
             }
 
-            window.addPackageToCart = function(packageId, packageName, packagePrice, guests) {
+            function parseMultipleFlag(value) {
+                return value === true || value === 1 || value === '1' || value === 'true';
+            }
+
+            function getPackageMultipleFromDom(packageId) {
+                var multipleValue = $('.package_number_of_guestss[data-id="' + packageId + '"]').first().data('multiple');
+                return parseMultipleFlag(multipleValue);
+            }
+
+            function getBillableGuests(pkg) {
+                return parseMultipleFlag(pkg.isMultiple) ? (parseInt(pkg.guests) || 1) : 1;
+            }
+
+            window.addPackageToCart = function(packageId, packageName, packagePrice, guests, isMultiple) {
                 console.log('addPackageToCart called', packageId, packageName);
                 ensureCartArray();
                 var existing = window.cart.find(p => p.packageId == packageId);
@@ -2279,9 +2476,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         packageName: packageName,
                         packagePrice: parseFloat(packagePrice),
                         guests: parseInt(guests),
+                        isMultiple: parseMultipleFlag(isMultiple),
                         addons: [],
                         transportation: $('.vip-btn[data-id="'+packageId+'"]').data('transportation') == 1
                     });
+                } else {
+                    existing.guests = parseInt(guests) || 1;
+                    existing.isMultiple = parseMultipleFlag(isMultiple);
                 }
                 $('#cart-section').show();
                 $('#shareLinkContainer').show();
@@ -2295,7 +2496,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 window.cart = window.cart.filter(p => p.packageId != packageId);
                 if (window.cart.length === 0) {
                     $('#cart-section').hide();
-                    $('#shareLinkContainer').hide();
                 }
                 window.renderCart();
                 window.calculateCartTotal();
@@ -2306,8 +2506,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 ensureCartArray();
                 var html = '';
                 window.cart.forEach(function(pkg) {
+                    var billableGuests = getBillableGuests(pkg);
                     html += '<div style="border-bottom:1px solid rgba(255,255,255,0.08);padding:8px 0;">';
-                    html += '<strong>' + pkg.packageName + '</strong> &times;' + pkg.guests + ' &mdash; <span style="color:var(--accent)">' + formatCurrency(pkg.packagePrice * pkg.guests) + '</span>';
+                    html += '<strong>' + pkg.packageName + '</strong> ' + (parseMultipleFlag(pkg.isMultiple) ? ('&times;' + pkg.guests) : '(flat)') + ' &mdash; <span style="color:var(--accent)">' + formatCurrency(pkg.packagePrice * billableGuests) + '</span>';
                     html += '<button onclick="window.removePackageFromCart(' + pkg.packageId + ')" style="float:right;background:#c00;color:#fff;border:none;border-radius:5px;padding:3px 9px;cursor:pointer;font-size:12px;">Remove</button>';
                     if (pkg.addons.length > 0) {
                         html += '<div style="margin-left:18px;font-size:12px;opacity:.6;">Add-ons: ' + pkg.addons.map(function(a) { return a.name + ' (' + formatCurrency(a.price) + ')'; }).join(', ') + '</div>';
@@ -2321,7 +2522,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 ensureCartArray();
                 var subtotal = 0;
                 window.cart.forEach(function(pkg) {
-                    subtotal += pkg.packagePrice * pkg.guests;
+                    subtotal += pkg.packagePrice * getBillableGuests(pkg);
                     pkg.addons.forEach(function(addon) {
                         subtotal += addon.price;
                     });
@@ -2381,7 +2582,12 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 if (cartParam) {
                     try {
                         var decoded = JSON.parse(decodeURIComponent(cartParam));
-                        window.cart = decoded;
+                        window.cart = decoded.map(function(pkg) {
+                            if (typeof pkg.isMultiple === 'undefined') {
+                                pkg.isMultiple = getPackageMultipleFromDom(pkg.packageId);
+                            }
+                            return pkg;
+                        });
                         if (window.cart.length > 0) {
                             $('#package_id').val(window.cart[0].packageId);
                             $('.package_number_of_guest').val(window.cart[0].guests);
@@ -2669,7 +2875,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     var packageId = $btn.data('id');
                     var packageName = $btn.data('name');
                     var packagePrice = parseFloat($btn.data('price'));
-                    var guests = parseInt($('.package_number_of_guestss[data-id="' + packageId + '"]').val()) || 1;
+                    var $guestSelect = $('.package_number_of_guestss[data-id="' + packageId + '"]');
+                    var guests = parseInt($guestSelect.val()) || 1;
+                    var isMultiple = parseMultipleFlag($guestSelect.data('multiple'));
 
                     $('.vip-card').removeClass('selected');
                     $btn.closest('.vip-card').addClass('selected');
@@ -2684,6 +2892,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 packageName: packageName,
                                 packagePrice: packagePrice,
                                 guests: guests,
+                                isMultiple: isMultiple,
                                 transportation: ($btn.data('transportation') == 1),
                                 addons: Array.isArray(res) ? res : []
                             };
@@ -2709,7 +2918,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         });
                     });
 
-                    window.addPackageToCart(selection.packageId, selection.packageName, selection.packagePrice, selection.guests);
+                    window.addPackageToCart(selection.packageId, selection.packageName, selection.packagePrice, selection.guests, selection.isMultiple);
                     var pkg = window.cart.find(function(p) { return p.packageId == selection.packageId; });
                     if (pkg) {
                         pkg.addons = selectedAddons;
@@ -2913,6 +3122,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 var pkg = window.cart.find(p => p.packageId == packageId);
                 if (pkg) {
                     pkg.guests = parseInt(selectedValue);
+                    pkg.isMultiple = parseMultipleFlag($(this).data('multiple'));
                     window.renderCart();
                     window.calculateCartTotal();
                 }

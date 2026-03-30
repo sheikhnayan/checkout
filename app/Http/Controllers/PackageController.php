@@ -125,7 +125,7 @@ class PackageController extends Controller
         $add->number_of_guest = $request->number_of_guest;
         $add->website_id = $request->website_id;
         $add->package_category_id = $this->resolveCategoryId($request, $request->website_id);
-        $add->event_id = $request->event_id;
+        $add->event_id = $this->resolveEventId($request, (int) $request->website_id);
         $add->save();
 
         $addons = array_filter(explode(',', (string) $request->addons));
@@ -219,7 +219,7 @@ class PackageController extends Controller
         $data->number_of_guest = $request->number_of_guest;
         $data->package_category_id = $this->resolveCategoryId($request, $data->website_id);
         // $data->website_id = $request->website_id;
-        $data->event_id = $request->event_id;
+        $data->event_id = $this->resolveEventId($request, (int) $data->website_id);
         $data->update();
 
         $addons = array_filter(explode(',', (string) $request->addons));
@@ -274,6 +274,31 @@ class PackageController extends Controller
             ->first();
 
         return $category ? $category->id : null;
+    }
+
+    private function resolveEventId(Request $request, int $websiteId): ?int
+    {
+        $rawEventId = $request->input('event_id');
+
+        if ($rawEventId === null || $rawEventId === '' || $rawEventId === 'null') {
+            return null;
+        }
+
+        $eventId = (int) $rawEventId;
+
+        if ($eventId <= 0) {
+            return null;
+        }
+
+        $eventQuery = Event::where('id', $eventId)
+            ->where('website_id', $websiteId)
+            ->where('is_archieved', 0);
+
+        if (\Illuminate\Support\Facades\Schema::hasColumn('events', 'status')) {
+            $eventQuery->where('status', 1);
+        }
+
+        return $eventQuery->exists() ? $eventId : null;
     }
 
     /**

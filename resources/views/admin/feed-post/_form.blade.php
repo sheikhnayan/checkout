@@ -121,7 +121,7 @@
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
             <div>
                 <label class="form-label mb-0">Upload Media</label>
-                <div><small class="text-muted">Add image or video files one by one and remove any row before saving.</small></div>
+                <div><small class="text-muted">Add image or video files one by one and remove any row before saving. Actual dimensions are shown after selecting each file.</small></div>
             </div>
             <button type="button" class="btn btn-outline-primary btn-sm" id="add-upload-row">Add Upload</button>
         </div>
@@ -193,6 +193,7 @@
         <div>
             <input type="file" name="media_uploads[]" class="form-control" accept="image/*,video/*">
             <small class="text-muted d-block mt-2">Accepted: image and video files.</small>
+            <small class="text-muted d-block mt-1 upload-dimensions">Dimensions: -</small>
         </div>
         <button type="button" class="btn btn-outline-danger remove-dynamic-row">Remove</button>
     </div>
@@ -265,6 +266,61 @@ document.addEventListener('DOMContentLoaded', function () {
         uploadRows.appendChild(uploadTemplate.content.firstElementChild.cloneNode(true));
     }
 
+    function setRowDimensionsText(fileInput, message) {
+        const row = fileInput.closest('.upload-row');
+        if (!row) {
+            return;
+        }
+
+        const info = row.querySelector('.upload-dimensions');
+        if (info) {
+            info.textContent = message;
+        }
+    }
+
+    function detectMediaDimensions(fileInput) {
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) {
+            setRowDimensionsText(fileInput, 'Dimensions: -');
+            return;
+        }
+
+        const objectUrl = URL.createObjectURL(file);
+        setRowDimensionsText(fileInput, 'Dimensions: Reading...');
+
+        if ((file.type || '').startsWith('image/')) {
+            const img = new Image();
+            img.onload = function () {
+                setRowDimensionsText(fileInput, 'Dimensions: ' + img.naturalWidth + ' x ' + img.naturalHeight + ' px (image)');
+                URL.revokeObjectURL(objectUrl);
+            };
+            img.onerror = function () {
+                setRowDimensionsText(fileInput, 'Dimensions: Unable to read image dimensions');
+                URL.revokeObjectURL(objectUrl);
+            };
+            img.src = objectUrl;
+            return;
+        }
+
+        if ((file.type || '').startsWith('video/')) {
+            const video = document.createElement('video');
+            video.preload = 'metadata';
+            video.onloadedmetadata = function () {
+                setRowDimensionsText(fileInput, 'Dimensions: ' + video.videoWidth + ' x ' + video.videoHeight + ' px (video)');
+                URL.revokeObjectURL(objectUrl);
+            };
+            video.onerror = function () {
+                setRowDimensionsText(fileInput, 'Dimensions: Unable to read video dimensions');
+                URL.revokeObjectURL(objectUrl);
+            };
+            video.src = objectUrl;
+            return;
+        }
+
+        setRowDimensionsText(fileInput, 'Dimensions: Unsupported media type');
+        URL.revokeObjectURL(objectUrl);
+    }
+
     function addExternalRow() {
         externalRows.appendChild(externalTemplate.content.firstElementChild.cloneNode(true));
     }
@@ -278,6 +334,13 @@ document.addEventListener('DOMContentLoaded', function () {
             if (row) {
                 row.remove();
             }
+        }
+    });
+
+    document.addEventListener('change', function (event) {
+        const target = event.target;
+        if (target && target.matches('input[name="media_uploads[]"]')) {
+            detectMediaDimensions(target);
         }
     });
 

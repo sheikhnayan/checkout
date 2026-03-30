@@ -189,6 +189,79 @@
             max-width: 100%;
         }
 
+        .aff-location-card {
+            margin: 0 0 24px;
+            padding: 18px;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            background: rgba(255,255,255,0.03);
+        }
+        .aff-location-shell {
+            display: grid;
+            grid-template-columns: minmax(230px, 0.95fr) minmax(0, 1.25fr);
+            gap: 16px;
+            align-items: stretch;
+        }
+        .aff-location-copy {
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.04);
+            padding: 16px;
+        }
+        .aff-location-kicker {
+            display: inline-block;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .85px;
+            opacity: .62;
+            margin-bottom: 8px;
+        }
+        .aff-location-title {
+            margin: 0 0 8px;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+        .aff-location-address {
+            margin-bottom: 14px;
+            opacity: .88;
+            line-height: 1.6;
+        }
+        .aff-location-contact {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .aff-location-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(255,255,255,0.16);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.04);
+            padding: 8px 11px;
+            color: var(--aff-text);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .aff-location-chip:hover {
+            border-color: var(--aff-accent);
+            color: var(--aff-accent);
+        }
+        .aff-location-map {
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 12px;
+            overflow: hidden;
+            min-height: 300px;
+            background: rgba(255,255,255,0.02);
+        }
+        .aff-location-map iframe {
+            width: 100%;
+            min-height: 300px;
+            height: 100%;
+            border: 0;
+            display: block;
+        }
+
         /* Steps */
         .checkout-steps { display:flex; justify-content:center; align-items:center; margin:1.5rem 0; padding:0; list-style:none; }
         .step { flex:1; text-align:center; position:relative; padding:0 .5rem; }
@@ -295,7 +368,38 @@
         .addons-wrap { display:none; margin:12px 0 4px; }
         .addon-item { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.07); }
         .addon-item:last-child { border-bottom:none; }
-        .addon-item input[type="checkbox"] { width:auto !important; padding:0 !important; margin:0 !important; cursor:pointer; accent-color:var(--aff-accent); }
+        .addon-item input[type="checkbox"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 46px !important;
+            height: 26px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.28);
+            background: rgba(255,255,255,0.16);
+            position: relative;
+            margin: 0 !important;
+            padding: 0 !important;
+            cursor: pointer;
+            transition: background .2s ease, border-color .2s ease;
+        }
+        .addon-item input[type="checkbox"]::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            transition: transform .2s ease;
+        }
+        .addon-item input[type="checkbox"]:checked {
+            background: var(--aff-accent);
+            border-color: var(--aff-accent);
+        }
+        .addon-item input[type="checkbox"]:checked::before {
+            transform: translateX(20px);
+        }
 
         #addonSelectionModal .addon-modal-row {
             display: flex;
@@ -344,7 +448,7 @@
             transition: transform .2s ease;
         }
         #addonSelectionModal .addon-modal-switch-input:checked + .addon-switch-slider {
-            background: linear-gradient(135deg, #f7e2b4 0%, #ddb774 52%, #c99c4d 100%);
+            background: linear-gradient(135deg, #f7e2b4 0%, #ddb774 52%, #ffcc00 100%);
             border-color: rgba(247,226,180,0.65);
         }
         #addonSelectionModal .addon-modal-switch-input:checked + .addon-switch-slider::before {
@@ -365,10 +469,82 @@
 
         /* Consent checkboxes */
         .consent-label { display:flex; gap:10px; align-items:flex-start; cursor:pointer; margin-bottom:10px; font-size:13px; }
-        .consent-label input { width:auto !important; padding:0 !important; margin-top:2px !important; flex-shrink:0; accent-color:var(--aff-accent); }
+        .consent-label input {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 46px !important;
+            height: 26px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.28);
+            background: rgba(255,255,255,0.16);
+            position: relative;
+            margin-top: 0 !important;
+            padding: 0 !important;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: background .2s ease, border-color .2s ease;
+        }
+        .consent-label input::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            transition: transform .2s ease;
+        }
+        .consent-label input:checked {
+            background: var(--aff-accent);
+            border-color: var(--aff-accent);
+        }
+        .consent-label input:checked::before {
+            transform: translateX(20px);
+        }
+        .consent-label input:focus-visible {
+            outline: 2px solid rgba(255,204,0,0.7);
+            outline-offset: 2px;
+        }
 
         /* Required field highlight */
         .required-field { border-color:#ff6b6b !important; }
+
+        /* Footer */
+        .aff-footer {
+            margin-top: 26px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+        }
+        .aff-footer-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+            padding: 16px 0;
+            font-size: 12.5px;
+            color: rgba(232,234,246,0.72);
+        }
+        .aff-footer-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(232,234,246,0.9);
+            font-weight: 700;
+            letter-spacing: .02em;
+            text-decoration: none;
+        }
+        .aff-footer-brand .brand-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--aff-accent);
+            box-shadow: 0 0 0 5px rgba(255,204,0,0.16);
+        }
+        .aff-footer-note {
+            opacity: .72;
+        }
 
         /* Mobile */
         @media(max-width:768px) {
@@ -377,6 +553,13 @@
             .vip-card { flex-direction:column; align-items:flex-start; }
             .aff-banner-content { padding:22px 18px; }
             .aff-gallery { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+            .aff-location-shell { grid-template-columns: 1fr; }
+            .aff-location-map,
+            .aff-location-map iframe { min-height: 250px; }
+            .aff-footer-inner {
+                justify-content: center;
+                text-align: center;
+            }
         }
     </style>
 </head>
@@ -477,6 +660,43 @@ const clubConfigs = {
         <div class="alert alert-danger">{{ $value }}</div>
     @endsession
 
+    @php
+        $featuredClub = optional(optional(optional($clubGroups->first())->first())->package)->website;
+    @endphp
+    @if($featuredClub && $featuredClub->location)
+        <section class="aff-location-card">
+            <div class="aff-location-shell">
+                <div class="aff-location-copy">
+                    <span class="aff-location-kicker">Primary Club</span>
+                    <h3 class="aff-location-title">{{ $featuredClub->name }}</h3>
+                    <p class="aff-location-address">{{ $featuredClub->location }}</p>
+                    <div class="aff-location-contact">
+                        @if($featuredClub->phone)
+                            <a class="aff-location-chip" href="tel:{{ $featuredClub->phone }}">
+                                <i class="fas fa-phone"></i>
+                                <span>{{ $featuredClub->phone }}</span>
+                            </a>
+                        @endif
+                        @if($featuredClub->email)
+                            <a class="aff-location-chip" href="mailto:{{ $featuredClub->email }}">
+                                <i class="fas fa-envelope"></i>
+                                <span>{{ $featuredClub->email }}</span>
+                            </a>
+                        @endif
+                    </div>
+                </div>
+                <div class="aff-location-map">
+                    <iframe
+                        src="https://www.google.com/maps?q={{ urlencode($featuredClub->location) }}&output=embed"
+                        allowfullscreen
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+            </div>
+        </section>
+    @endif
+
     {{-- ===== PACKAGES ===== --}}
     <h5 class="mb-3" style="opacity:.6;font-size:.85rem;text-transform:uppercase;letter-spacing:.8px;font-weight:700;">Select a Package to Book</h5>
 
@@ -553,7 +773,7 @@ const clubConfigs = {
                         <div class="vip-card-side">
                             <div class="vip-guest-control">
                                 <div class="vip-guest-label">Guests</div>
-                                <select class="form-select package_number_of_guestss" data-id="{{ $package->id }}">
+                                <select class="form-select package_number_of_guestss" data-id="{{ $package->id }}" data-multiple="{{ $package->multiple }}">
                                     @for($i = 1; $i <= $package->number_of_guest; $i++)
                                         <option value="{{ $i }}">{{ $i }}</option>
                                     @endfor
@@ -595,7 +815,7 @@ const clubConfigs = {
         <div id="cart-coupon" style="font-size:13px;color:#4caf7d;margin-top:4px;"></div>
     </div>
 
-    <div id="shareLinkContainer" style="display:none;margin-bottom:1rem;">
+    <div id="shareLinkContainer" style="margin-bottom:1rem;">
         <button type="button" id="generateShareLink" style="background:var(--aff-accent);color:#000;font-weight:700;border:none;padding:8px 20px;border-radius:25px;cursor:pointer;font-size:14px;">&#128279; Share Cart Link</button>
         <div style="position:relative;margin-top:8px;">
             <input type="text" id="shareableLink" readonly style="width:100%;display:none;padding-right:40px;">
@@ -785,6 +1005,16 @@ const clubConfigs = {
 </div>
 </main>
 
+<footer class="aff-footer">
+    <div class="container aff-footer-inner">
+        <a href="https://cartvip.com" target="_blank" rel="noopener" class="aff-footer-brand">
+            <span class="brand-dot" aria-hidden="true"></span>
+            <span>Powered by CartVIP.com</span>
+        </a>
+        <div class="aff-footer-note">Professional booking and checkout infrastructure by CartVIP.</div>
+    </div>
+</footer>
+
 {{-- Modal for package / addon description --}}
 <div class="modal fade" tabindex="-1">
     <div class="modal-dialog"><div class="modal-content" style="background:#1a1d2e;color:#ddd;">
@@ -844,11 +1074,30 @@ function cartRequiresTransport() {
 
 function syncTransportStateFromCart() {
     window.requiresTransport = cartRequiresTransport();
+    const transportationPhoneField = $('[name="transportation_phone"]');
+    if (window.requiresTransport) {
+        transportationPhoneField.prop('required', true).attr('aria-required', 'true');
+    } else {
+        transportationPhoneField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
+    }
 }
 
-window.addToCart = function(pkgId, pkgName, pkgPrice, guests, addons, transport) {
+function parseMultipleFlag(value) {
+    return value === true || value === 1 || value === '1' || value === 'true';
+}
+
+function getPackageMultipleFromDom(pkgId) {
+    const multipleValue = $('.package_number_of_guestss[data-id="' + pkgId + '"]').first().data('multiple');
+    return parseMultipleFlag(multipleValue);
+}
+
+function getBillableGuests(item) {
+    return parseMultipleFlag(item.isMultiple) ? (parseInt(item.guests) || 1) : 1;
+}
+
+window.addToCart = function(pkgId, pkgName, pkgPrice, guests, addons, transport, isMultiple) {
     ensureCart();
-    window.cart = [{ pkgId, pkgName, pkgPrice, guests, addons, transport }];
+    window.cart = [{ pkgId, pkgName, pkgPrice, guests, addons, transport, isMultiple: parseMultipleFlag(isMultiple) }];
     syncTransportStateFromCart();
     renderCart(); calcTotal();
 };
@@ -862,14 +1111,15 @@ window.removeFromCart = function(pkgId) {
 
 function renderCart() {
     ensureCart();
-    if (!window.cart.length) { $('#cart-section').hide(); $('#shareLinkContainer').hide(); return; }
+    if (!window.cart.length) { $('#cart-section').hide(); return; }
     $('#cart-section').show();
     $('#shareLinkContainer').show();
     let html = '';
     window.cart.forEach(p => {
+        const billableGuests = getBillableGuests(p);
         let addonTotal = p.addons.reduce((s, a) => s + parseFloat(a.price), 0);
         html += `<div style="border-bottom:1px solid rgba(255,255,255,0.08);padding:8px 0;">`
-            + `<strong>${p.pkgName}</strong> &times;${p.guests} &mdash; <span style="color:var(--aff-accent)">$${formatCurrency(p.pkgPrice * p.guests)}</span>`
+            + `<strong>${p.pkgName}</strong> ${parseMultipleFlag(p.isMultiple) ? ('&times;' + p.guests) : '(flat)'} &mdash; <span style="color:var(--aff-accent)">$${formatCurrency(p.pkgPrice * billableGuests)}</span>`
             + `<button onclick="window.removeFromCart('${p.pkgId}')" style="float:right;background:#c00;color:#fff;border:none;border-radius:5px;padding:3px 9px;cursor:pointer;font-size:12px;">Remove</button>`
             + (p.addons.length ? `<div style="margin-left:18px;font-size:12px;opacity:.6;">Add-ons: ${p.addons.map(a => a.name + ' ($' + formatCurrency(a.price) + ')').join(', ')}</div>` : '')
             + '</div>';
@@ -882,7 +1132,7 @@ function calcTotal() {
     if (!window.activeClub) return;
     const c = window.activeClub;
     let sub = 0;
-    window.cart.forEach(p => { sub += (p.pkgPrice * p.guests) + p.addons.reduce((s, a) => s + parseFloat(a.price), 0); });
+    window.cart.forEach(p => { sub += (p.pkgPrice * getBillableGuests(p)) + p.addons.reduce((s, a) => s + parseFloat(a.price), 0); });
 
     let scAmt = (c.serviceChargeName !== '0' && c.serviceChargeName !== 0) ? sub * c.serviceChargeFee / 100 : 0;
     let stAmt = (c.salesTaxName !== '0' && c.salesTaxName !== 0) ? sub * c.salesTaxFee / 100 : 0;
@@ -945,7 +1195,12 @@ function setSelectionsFromParams() {
         try {
             const decoded = JSON.parse(decodeURIComponent(cartParam));
             if (Array.isArray(decoded) && decoded.length) {
-                window.cart = decoded;
+                window.cart = decoded.map(function(item) {
+                    if (typeof item.isMultiple === 'undefined') {
+                        item.isMultiple = getPackageMultipleFromDom(item.pkgId);
+                    }
+                    return item;
+                });
                 const firstPackage = decoded[0];
                 if (firstPackage) {
                     $('#package_id').val(firstPackage.pkgId || '');
@@ -1090,7 +1345,9 @@ $(document).ready(function() {
         const pkgId     = $(this).data('id');
         const pkgName   = $(this).data('name');
         const pkgPrice  = parseFloat($(this).data('price'));
-        const guests    = parseInt($('.package_number_of_guestss[data-id="' + pkgId + '"]').val()) || 1;
+        const $guestSel = $('.package_number_of_guestss[data-id="' + pkgId + '"]');
+        const guests    = parseInt($guestSel.val()) || 1;
+        const isMultiple = parseMultipleFlag($guestSel.data('multiple'));
         const transport = $(this).data('transportation');
         const clubSlug  = $(this).data('club-slug');
 
@@ -1113,6 +1370,7 @@ $(document).ready(function() {
                     pkgName: pkgName,
                     pkgPrice: pkgPrice,
                     guests: guests,
+                    isMultiple: isMultiple,
                     transport: transport,
                     addons: Array.isArray(res) ? res : []
                 };
@@ -1138,7 +1396,7 @@ $(document).ready(function() {
             });
         });
 
-        window.addToCart(selection.pkgId, selection.pkgName, selection.pkgPrice, selection.guests, addons, selection.transport);
+        window.addToCart(selection.pkgId, selection.pkgName, selection.pkgPrice, selection.guests, addons, selection.transport, selection.isMultiple);
         $('#package_id').val(selection.pkgId);
         $('.package_number_of_guest').val(selection.guests);
 
@@ -1202,7 +1460,13 @@ $(document).ready(function() {
         $('.package_number_of_guest').val($(this).val());
         const pkgId = $(this).data('id');
         let p = window.cart.find(x => x.pkgId == pkgId);
-        if (p) { p.guests = parseInt($(this).val()); syncTransportStateFromCart(); renderCart(); calcTotal(); }
+        if (p) {
+            p.guests = parseInt($(this).val());
+            p.isMultiple = parseMultipleFlag($(this).data('multiple'));
+            syncTransportStateFromCart();
+            renderCart();
+            calcTotal();
+        }
     });
 
     // Reservation date change → sync hidden field

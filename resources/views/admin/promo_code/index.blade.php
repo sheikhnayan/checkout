@@ -76,7 +76,7 @@
 
                         <div class="row">
                             <div class="col-lg">
-                                <div class="card-shadow-primary card-border text-white mb-3 card bg-primary p-2" style="background: #fff !important;">
+                                <div class="card-shadow-primary card-border text-white mb-3 card bg-primary p-2">
 
                                     <table class="table">
                                         <thead>

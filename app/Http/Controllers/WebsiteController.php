@@ -146,8 +146,8 @@ class WebsiteController extends Controller
         $add->back_text = $request->back_text;
         $add->back_link = $request->back_link;
         $add->footer_text = $request->footer_text;
-        $add->guest_list_button_text = $request->guest_list_button_text;
-        $add->package_button_text = $request->package_button_text;
+        $add->guest_list_button_text = $request->guest_list_button_text ?: 'Guest List';
+        $add->package_button_text = $request->package_button_text ?: 'Packages';
         $add->transportation_confirmation_text = $request->transportation_confirmation_text;
 
         $image = $request->file('logo');
@@ -196,22 +196,24 @@ class WebsiteController extends Controller
 
         // Handle payment logos
         if ($request->has('payment_logos')) {
-            foreach ($request->payment_logos as $logoData) {
+            // Files must be read from $request->file(), not from $request->input()
+            $uploadedLogoFiles = $request->file('payment_logos') ?? [];
+            foreach ($request->payment_logos as $key => $logoData) {
                 if (!empty($logoData['name'])) {
+                    $logoFile = $uploadedLogoFiles[$key]['logo'] ?? null;
+                    // Require an image file for new logos (logo column is NOT NULL)
+                    if (!$logoFile || !$logoFile->isValid()) {
+                        continue;
+                    }
+                    $logoName = time() . '_' . uniqid() . '.' . $logoFile->getClientOriginalExtension();
+                    $logoFile->move(public_path('uploads'), $logoName);
+
                     $paymentLogo = new PaymentLogo();
                     $paymentLogo->website_id = $add->id;
                     $paymentLogo->name = $logoData['name'];
+                    $paymentLogo->logo = $logoName;
                     $paymentLogo->order = $logoData['order'] ?? 0;
                     $paymentLogo->is_active = $logoData['is_active'] ?? 1;
-
-                    // Handle logo file upload
-                    if (isset($logoData['logo']) && $logoData['logo']) {
-                        $logoFile = $logoData['logo'];
-                        $logoName = time() . '_' . uniqid() . '.' . $logoFile->getClientOriginalExtension();
-                        $logoFile->move(public_path('uploads'), $logoName);
-                        $paymentLogo->logo = $logoName;
-                    }
-
                     $paymentLogo->save();
                 }
             }
@@ -296,8 +298,8 @@ class WebsiteController extends Controller
         $add->back_text = $request->back_text;
         $add->back_link = $request->back_link;
         $add->footer_text = $request->footer_text;
-        $add->guest_list_button_text = $request->guest_list_button_text;
-        $add->package_button_text = $request->package_button_text;
+        $add->guest_list_button_text = $request->guest_list_button_text ?: 'Guest List';
+        $add->package_button_text = $request->package_button_text ?: 'Packages';
         $add->transportation_confirmation_text = $request->transportation_confirmation_text;
         $add->text_description = $request->text_description;
         $add->secondary_description = $request->secondary_description;
@@ -366,10 +368,14 @@ class WebsiteController extends Controller
 
         // Handle payment logos
         if ($request->payment_logos) {
-            // dd('r');
-            foreach ($request->payment_logos as $logoData) {
+            // Files must be read from $request->file(), not from $request->input()
+            $uploadedLogoFiles = $request->file('payment_logos') ?? [];
+            $savedLogoIds = [];
+
+            foreach ($request->payment_logos as $key => $logoData) {
                 if (!empty($logoData['name'])) {
-                    // Check if this is an existing logo (has ID) or new one
+                    $logoFile = $uploadedLogoFiles[$key]['logo'] ?? null;
+
                     if (isset($logoData['id']) && $logoData['id']) {
                         // Update existing logo
                         $paymentLogo = PaymentLogo::find($logoData['id']);
@@ -378,52 +384,48 @@ class WebsiteController extends Controller
                             $paymentLogo->order = $logoData['order'] ?? 0;
                             $paymentLogo->is_active = $logoData['is_active'] ?? 1;
 
-                            // Handle logo file upload if new file provided
-                            if (isset($logoData['logo']) && $logoData['logo']) {
-                                $logoFile = $logoData['logo'];
+                            if ($logoFile && $logoFile->isValid()) {
                                 $logoName = time() . '_' . uniqid() . '.' . $logoFile->getClientOriginalExtension();
                                 $logoFile->move(public_path('uploads'), $logoName);
-                                
-                                // Delete old logo file if exists
                                 if ($paymentLogo->logo && file_exists(public_path('uploads/' . $paymentLogo->logo))) {
-                                    unlink(public_path('uploads/' . $paymentLogo->logo));
+                                    @unlink(public_path('uploads/' . $paymentLogo->logo));
                                 }
-                                
                                 $paymentLogo->logo = $logoName;
                             }
 
                             $paymentLogo->save();
+                            $savedLogoIds[] = $paymentLogo->id;
                         }
                     } else {
-                        // dd($add->id);
-                        // Create new logo
+                        // Create new logo — require an image file (logo column is NOT NULL)
+                        if (!$logoFile || !$logoFile->isValid()) {
+                            continue;
+                        }
+                        $logoName = time() . '_' . uniqid() . '.' . $logoFile->getClientOriginalExtension();
+                        $logoFile->move(public_path('uploads'), $logoName);
+
                         $paymentLogo = new PaymentLogo();
                         $paymentLogo->website_id = $add->id;
                         $paymentLogo->name = $logoData['name'];
+                        $paymentLogo->logo = $logoName;
                         $paymentLogo->order = $logoData['order'] ?? 0;
                         $paymentLogo->is_active = $logoData['is_active'] ?? 1;
-
-                        // Handle logo file upload
-                        if (isset($logoData['logo']) && $logoData['logo']) {
-                            $logoFile = $logoData['logo'];
-                            $logoName = time() . '_' . uniqid() . '.' . $logoFile->getClientOriginalExtension();
-                            $logoFile->move(public_path('uploads'), $logoName);
-                            $paymentLogo->logo = $logoName;
-                        }
-
                         $paymentLogo->save();
+                        $savedLogoIds[] = $paymentLogo->id;
                     }
                 }
             }
 
-            // Remove logos that are not in the submitted data (deleted by user)
-            $submittedIds = array_filter(array_column($request->payment_logos, 'id'));
-            PaymentLogo::where('website_id', $id)
-                ->whereNotIn('id', $submittedIds)
-                ->delete();
+            // Delete logos that were removed — use $savedLogoIds (includes newly created IDs)
+            // to avoid whereNotIn([]) which would delete everything
+            if (!empty($savedLogoIds)) {
+                PaymentLogo::where('website_id', $id)
+                    ->whereNotIn('id', $savedLogoIds)
+                    ->delete();
+            } else {
+                PaymentLogo::where('website_id', $id)->delete();
+            }
         }
-        // dd($request->all());
-
 
         return redirect()->route('admin.website.index')->with('success', 'Website updated successfully.');
     }

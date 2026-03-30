@@ -5,9 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $profileTitle }} Profile</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --profile-bg: #08101d;
+            --profile-bg-edge: #050914;
+            --profile-bg-center: #132645;
+            --profile-stage: rgba(8, 14, 29, 0.8);
+            --profile-stage-border: rgba(166, 202, 255, 0.18);
             --profile-panel: rgba(11, 18, 32, 0.94);
             --profile-border: rgba(255, 255, 255, 0.09);
             --profile-text: #ecf3ff;
@@ -26,9 +31,33 @@
             font-family: "Poppins", "Segoe UI", sans-serif;
             color: var(--profile-text);
             background:
-                radial-gradient(circle at top left, rgba(216,176,103,0.12), transparent 22%),
-                radial-gradient(circle at top right, rgba(91,126,255,0.10), transparent 24%),
-                linear-gradient(180deg, #09111f 0%, var(--profile-bg) 100%);
+                radial-gradient(circle at 16% -10%, rgba(216, 176, 103, 0.18), transparent 24%),
+                radial-gradient(circle at 82% 108%, rgba(130, 173, 255, 0.2), transparent 30%),
+                linear-gradient(90deg, #03070f 0%, #091122 18%, #173a66 50%, #091122 82%, #03070f 100%),
+                linear-gradient(180deg, #081221 0%, var(--profile-bg) 100%);
+            background-attachment: fixed;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background:
+                linear-gradient(90deg, rgba(3, 6, 14, 0.88) 0%, rgba(4, 10, 21, 0.58) 18%, rgba(18, 39, 72, 0.08) 34%, rgba(39, 83, 151, 0.12) 50%, rgba(18, 39, 72, 0.08) 66%, rgba(4, 10, 21, 0.58) 82%, rgba(3, 6, 14, 0.88) 100%);
+            z-index: 0;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(68% 50% at 50% 14%, rgba(126, 172, 255, 0.16), transparent 58%),
+                radial-gradient(62% 56% at 50% 62%, rgba(63, 121, 220, 0.14), transparent 66%);
+            z-index: 0;
         }
 
         button,
@@ -40,7 +69,17 @@
         .profile-shell {
             width: min(1080px, calc(100% - 24px));
             margin: 0 auto;
-            padding: 28px 0 52px;
+            padding: 22px 20px 52px;
+            position: relative;
+            z-index: 1;
+            border: 1px solid var(--profile-stage-border);
+            border-radius: 28px;
+            background:
+                linear-gradient(180deg, rgba(16, 33, 59, 0.62) 0%, rgba(8, 14, 28, 0.72) 24%, rgba(7, 13, 26, 0.84) 100%),
+                var(--profile-stage);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.46);
+            overflow: hidden;
         }
 
         .profile-topbar {
@@ -56,7 +95,7 @@
 
         .profile-hero {
             border: 1px solid var(--profile-border);
-            border-radius: 30px;
+            border-radius: 20px;
             background: linear-gradient(145deg, rgba(15, 24, 42, 0.98), rgba(8, 14, 25, 0.9));
             box-shadow: var(--profile-shadow);
             padding: 28px;
@@ -112,19 +151,67 @@
             white-space: pre-wrap;
         }
 
+        .profile-appearances {
+            margin-top: 14px;
+            max-width: 720px;
+        }
+
+        .profile-appearances-title {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .74rem;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: rgba(216, 176, 103, 0.9);
+            margin-bottom: 8px;
+        }
+
+        .profile-appearances-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .profile-appearance-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border-radius: 999px;
+            border: 1px solid rgba(216, 176, 103, 0.26);
+            background: linear-gradient(135deg, rgba(216, 176, 103, 0.14), rgba(255, 255, 255, 0.05));
+            color: #eaf1ff;
+            padding: 7px 12px;
+            font-size: .78rem;
+            line-height: 1;
+        }
+
+        .profile-appearance-chip strong {
+            color: #fff;
+            font-size: .8rem;
+        }
+
+        .profile-appearance-chip span {
+            color: #cfdcf3;
+            max-width: 160px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
         .profile-sticky-bar {
             position: sticky;
             top: 12px;
             z-index: 12;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
             gap: 16px;
             flex-wrap: wrap;
             margin-bottom: 18px;
             padding: 14px 16px;
             border: 1px solid var(--profile-border);
-            border-radius: 22px;
+            border-radius: 14px;
             background: rgba(8, 13, 24, 0.78);
             box-shadow: var(--profile-shadow);
             backdrop-filter: blur(16px);
@@ -139,7 +226,7 @@
         .profile-counter {
             min-width: 120px;
             padding: 10px 14px;
-            border-radius: 18px;
+            border-radius: 12px;
             border: 1px solid var(--profile-border);
             background: rgba(255,255,255,0.04);
         }
@@ -155,31 +242,6 @@
             font-size: .76rem;
             text-transform: uppercase;
             letter-spacing: .08em;
-        }
-
-        .profile-tabs {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .profile-tab {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 999px;
-            padding: 10px 16px;
-            font-weight: 700;
-            border: 1px solid var(--profile-border);
-            background: rgba(255,255,255,0.04);
-            color: var(--profile-text);
-        }
-
-        .profile-tab:hover,
-        .profile-tab.active {
-            background: rgba(216,176,103,0.18);
-            border-color: rgba(216,176,103,0.34);
-            color: #fff;
         }
 
         .profile-section {
@@ -198,7 +260,7 @@
             width: 100%;
             padding: 0;
             border: 1px solid var(--profile-border);
-            border-radius: 26px;
+            border-radius: 12px;
             overflow: hidden;
             background: var(--profile-panel);
             box-shadow: var(--profile-shadow);
@@ -309,10 +371,9 @@
             font-weight: 700;
         }
 
-        .profile-empty,
-        .profile-about {
+        .profile-empty {
             border: 1px solid var(--profile-border);
-            border-radius: 24px;
+            border-radius: 14px;
             background: rgba(255,255,255,0.03);
             padding: 30px 24px;
         }
@@ -320,13 +381,6 @@
         .profile-empty {
             text-align: center;
             color: var(--profile-muted);
-        }
-
-        .profile-about-copy {
-            color: var(--profile-muted);
-            line-height: 1.75;
-            white-space: pre-wrap;
-            margin: 0;
         }
 
         .profile-lightbox {
@@ -349,7 +403,7 @@
             width: min(1080px, 100%);
             max-height: calc(100vh - 40px);
             border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 28px;
+            border-radius: 16px;
             overflow: hidden;
             background: rgba(9, 15, 28, 0.96);
             box-shadow: var(--profile-shadow);
@@ -412,6 +466,22 @@
             color: var(--profile-muted);
         }
 
+        .profile-comment-list {
+            display: grid;
+            gap: 12px;
+            max-height: 260px;
+            overflow-y: auto;
+            padding-right: 6px;
+            margin-top: 14px;
+        }
+
+        .profile-comment-card {
+            border-radius: 12px;
+            padding: 12px 14px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
         .profile-close,
         .profile-nav {
             appearance: none;
@@ -463,12 +533,14 @@
 
         @media (max-width: 767.98px) {
             .profile-shell {
-                width: calc(100% - 16px);
-                padding-top: 14px;
+                width: calc(100% - 12px);
+                padding: 12px 10px 28px;
+                border-radius: 18px;
+                border-color: rgba(160, 196, 248, 0.2);
             }
 
             .profile-hero {
-                border-radius: 22px;
+                border-radius: 14px;
                 padding: 18px;
             }
 
@@ -484,22 +556,34 @@
             }
 
             .profile-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
+                grid-template-columns: repeat(3, minmax(0, 1fr));
                 gap: 10px;
             }
 
             .profile-tile {
-                border-radius: 18px;
+                border-radius: 10px;
             }
 
             .profile-sticky-bar {
                 top: 8px;
-                border-radius: 18px;
+                border-radius: 12px;
                 padding: 12px;
             }
 
-            .profile-counters,
-            .profile-tabs {
+            .profile-appearances {
+                margin-top: 12px;
+            }
+
+            .profile-appearance-chip {
+                padding: 6px 10px;
+                font-size: .74rem;
+            }
+
+            .profile-appearance-chip span {
+                max-width: 120px;
+            }
+
+            .profile-counters {
                 width: 100%;
             }
 
@@ -514,7 +598,7 @@
 
             .profile-lightbox-dialog {
                 max-height: calc(100vh - 20px);
-                border-radius: 20px;
+                border-radius: 12px;
             }
 
             .profile-nav {
@@ -569,6 +653,22 @@
                     @if($profileSubtitle)
                         <p class="profile-copy">{{ $profileSubtitle }}</p>
                     @endif
+
+                    @if($profileType === 'model' && $performanceDates->isNotEmpty())
+                        <div class="profile-appearances" aria-label="Upcoming performance dates">
+                            <div class="profile-appearances-title">
+                                <i class="fas fa-calendar-days"></i>
+                                Catch me at the club
+                            </div>
+                            <div class="profile-appearances-list">
+                                @foreach($performanceDates as $date)
+                                    <span class="profile-appearance-chip" title="{{ $date['full'] }}">
+                                        <strong>{{ $date['short'] }}</strong>
+                                    </span>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </section>
@@ -589,11 +689,6 @@
                 </div>
             </div>
 
-            <div class="profile-tabs">
-                <a href="#posts" class="profile-tab active">Posts</a>
-                <a href="#media" class="profile-tab">Media</a>
-                <a href="#about" class="profile-tab">About</a>
-            </div>
         </div>
 
         @if($posts->count())
@@ -613,6 +708,13 @@
                                 'embed' => ($item['type'] ?? 'image') === 'video' ? $embedUrl($url) : null,
                             ];
                         })->values();
+                        $lightboxComments = $post->visibleComments->map(function ($comment) {
+                            return [
+                                'name' => $comment->commenter_name,
+                                'body' => $comment->body,
+                                'time' => $comment->created_at ? $comment->created_at->diffForHumans() : '',
+                            ];
+                        })->values();
                     @endphp
                     <button
                         type="button"
@@ -621,14 +723,17 @@
                         data-lightbox-caption="{{ e($post->caption ?? '') }}"
                         data-lightbox-date="{{ optional($post->posted_at)->format('M d, Y') }}"
                         data-lightbox-comments="{{ $post->visible_comments_count }}"
+                        data-lightbox-comment-items='@json($lightboxComments)'
                         data-lightbox-author="{{ e($post->author_name) }}"
                     >
                         @if($tileItem)
                             @if(($tileItem['type'] ?? 'image') === 'video')
                                 @if($tileEmbed)
-                                    <iframe src="{{ $tileEmbed }}" class="profile-tile-embed" frameborder="0" allowfullscreen></iframe>
+                                    <div class="profile-tile-embed d-flex align-items-center justify-content-center" style="background:#000;color:#fff;">
+                                        <i class="fas fa-circle-play" style="font-size:2rem;opacity:.9;"></i>
+                                    </div>
                                 @else
-                                    <video src="{{ $tileUrl }}" muted playsinline></video>
+                                    <video src="{{ $tileUrl }}" muted playsinline webkit-playsinline preload="metadata"></video>
                                 @endif
                             @else
                                 <img src="{{ $tileUrl }}" alt="{{ $profileTitle }} post media">
@@ -637,7 +742,14 @@
 
                         <div class="profile-tile-badges">
                             <span class="profile-badge">{{ strtoupper($post->author_mode === 'club' ? 'CLUB' : 'MODEL') }}</span>
-                            <span class="profile-badge">{{ count($mediaItems) }} media</span>
+                            <span class="profile-badge">
+                                @if(count($mediaItems) > 1)
+                                    <i class="fas fa-clone"></i>
+                                @endif
+                                @if(collect($mediaItems)->contains(function ($item) { return ($item['type'] ?? 'image') === 'video'; }))
+                                    <i class="fas fa-circle-play"></i>
+                                @endif
+                            </span>
                         </div>
 
                         <div class="profile-tile-overlay">
@@ -659,10 +771,6 @@
             </div>
         @endif
 
-        <section class="profile-about profile-section mt-4" id="about">
-            <h3 class="mb-3">About</h3>
-            <p class="profile-about-copy">{{ $profileSubtitle ?: 'No additional profile information is available yet.' }}</p>
-        </section>
     </div>
 
     <div class="profile-lightbox" id="profile-lightbox" aria-hidden="true">
@@ -682,6 +790,7 @@
                 </div>
                 <div class="profile-lightbox-body">
                     <div id="profile-lightbox-caption"></div>
+                    <div class="profile-comment-list" id="profile-lightbox-comment-list"></div>
                 </div>
                 <div class="profile-lightbox-foot">
                     <span id="profile-lightbox-date"></span>
@@ -694,8 +803,6 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const tabs = document.querySelectorAll('.profile-tab');
-        const sections = Array.from(document.querySelectorAll('.profile-section'));
         const lightbox = document.getElementById('profile-lightbox');
         const stage = document.getElementById('profile-lightbox-stage');
         const closeButton = document.getElementById('profile-lightbox-close');
@@ -706,25 +813,11 @@
         const counterNode = document.getElementById('profile-lightbox-counter');
         const commentsNode = document.getElementById('profile-lightbox-comments');
         const authorNode = document.getElementById('profile-lightbox-author');
+        const commentsListNode = document.getElementById('profile-lightbox-comment-list');
         const tileButtons = document.querySelectorAll('.profile-tile');
 
         let currentItems = [];
         let currentIndex = 0;
-
-        function setActiveTab() {
-            const offset = window.scrollY + 140;
-            let activeId = sections[0] ? sections[0].id : null;
-
-            sections.forEach(function (section) {
-                if (section.offsetTop <= offset) {
-                    activeId = section.id;
-                }
-            });
-
-            tabs.forEach(function (tab) {
-                tab.classList.toggle('active', tab.getAttribute('href') === '#' + activeId);
-            });
-        }
 
         function renderMediaItem(item) {
             if (!item) {
@@ -736,7 +829,7 @@
                 if (item.embed) {
                     stage.innerHTML = '<iframe src="' + item.embed + '" allowfullscreen allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>';
                 } else {
-                    stage.innerHTML = '<video src="' + item.url + '" controls autoplay playsinline></video>';
+                    stage.innerHTML = '<video src="' + item.url + '" controls autoplay playsinline webkit-playsinline preload="metadata"></video>';
                 }
             } else {
                 stage.innerHTML = '<img src="' + item.url + '" alt="Profile media">';
@@ -754,6 +847,23 @@
             dateNode.textContent = button.getAttribute('data-lightbox-date') || '';
             commentsNode.textContent = (button.getAttribute('data-lightbox-comments') || '0') + ' comments';
             authorNode.textContent = button.getAttribute('data-lightbox-author') || '';
+            const commentItems = JSON.parse(button.getAttribute('data-lightbox-comment-items') || '[]');
+            if (commentItems.length) {
+                commentsListNode.innerHTML = commentItems.map(function (comment) {
+                    const name = (comment.name || '').replace(/[&<>"']/g, function (char) {
+                        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char];
+                    });
+                    const body = (comment.body || '').replace(/[&<>"']/g, function (char) {
+                        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char];
+                    });
+                    const time = (comment.time || '').replace(/[&<>"']/g, function (char) {
+                        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char];
+                    });
+                    return '<div class="profile-comment-card"><div class="d-flex justify-content-between gap-3 mb-2" style="color:var(--profile-muted);font-size:.84rem;"><strong style="color:var(--profile-text);">' + name + '</strong><span>' + time + '</span></div><div style="white-space:pre-wrap;line-height:1.6;">' + body + '</div></div>';
+                }).join('');
+            } else {
+                commentsListNode.innerHTML = '<div class="profile-empty py-3">No comments yet.</div>';
+            }
             renderMediaItem(currentItems[currentIndex]);
             lightbox.classList.add('is-open');
             lightbox.setAttribute('aria-hidden', 'false');
@@ -812,8 +922,6 @@
             }
         });
 
-        window.addEventListener('scroll', setActiveTab, { passive: true });
-        setActiveTab();
     });
     </script>
 </body>

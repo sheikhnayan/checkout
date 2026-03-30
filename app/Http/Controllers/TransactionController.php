@@ -24,6 +24,21 @@ class TransactionController extends Controller
     {
         // dd($request->all());
 
+        $selectedPackage = Package::find($request->input('package_id'));
+        $requiresTransportation = $selectedPackage
+            && ($selectedPackage->transportation == 1 || $selectedPackage->transportation === true || $selectedPackage->transportation === '1');
+
+        if ($requiresTransportation) {
+            $request->validate(
+                [
+                    'transportation_phone' => ['required', 'string', 'max:50'],
+                ],
+                [
+                    'transportation_phone.required' => 'Contact Phone Number or WhatsApp is required for transportation packages.',
+                ]
+            );
+        }
+
         $setting = Setting::find(1);
 
         $w = Website::find($request->website_id);
@@ -406,7 +421,7 @@ class TransactionController extends Controller
         
         if ($user->isAdmin()) {
             // Admin can see all transactions
-            $data = Transaction::with(['event', 'package', 'website'])
+            $data = Transaction::with(['event', 'package', 'website', 'affiliate.user'])
                               ->latest()
                               ->get();
         } elseif ($user->isWebsiteUser() && $user->website_id) {
@@ -423,7 +438,7 @@ class TransactionController extends Controller
                                     $subQuery->where('website_id', $user->website_id);
                                 });
                             })
-                            ->with(['event', 'package', 'website'])
+                            ->with(['event', 'package', 'website', 'affiliate.user'])
                             ->latest()
                             ->get();
         } else {

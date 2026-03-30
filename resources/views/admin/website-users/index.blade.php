@@ -86,7 +86,7 @@
                                 <div class="tab-pane fade show active" id="activeUsers" role="tabpanel" aria-labelledby="active-tab">
                                     <div class="row">
                                         <div class="col-lg">
-                                            <div class="card-shadow-primary card-border text-white mb-3 card bg-primary p-2" style="background: #fff !important;">
+                                            <div class="card-shadow-primary card-border text-white mb-3 card bg-primary p-2">
                                                 <table class="table" id="activeUsersTable">
                                                     <thead>
                                                         <tr>
@@ -136,7 +136,7 @@
                                 <div class="tab-pane fade" id="inactiveUsers" role="tabpanel" aria-labelledby="inactive-tab">
                                     <div class="row">
                                         <div class="col-lg">
-                                            <div class="card-shadow-primary card-border text-white mb-3 card bg-secondary p-2" style="background: #f8f9fa !important;">
+                                            <div class="card-shadow-primary card-border text-white mb-3 card bg-secondary p-2">
                                                 <table class="table" id="inactiveUsersTable">
                                                     <thead>
                                                         <tr>

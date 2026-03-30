@@ -72,7 +72,7 @@
                                     </div>
                                 @endif
 
-                                <div class="card-shadow-primary card-border mb-3 card p-2" style="background: #fff !important; color: #212529;">
+                                <div class="card-shadow-primary card-border mb-3 card p-2">
                                     <table class="table" id="invoicesTable">
                                         <thead>
                                             <tr>

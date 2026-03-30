@@ -1,12 +1,75 @@
 @extends('admin.main')
 
 @section('content')
+<style>
+    .dashboard-title {
+        margin-bottom: 1.25rem;
+    }
+
+    .dashboard-title .page-title-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: rgba(255, 204, 0, 0.14);
+        border: 1px solid rgba(255, 204, 0, 0.35);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .dashboard-stat-card {
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: linear-gradient(155deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02));
+        transition: transform .15s ease, border-color .15s ease;
+        height: 100%;
+    }
+
+    .dashboard-stat-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(255, 204, 0, 0.45);
+    }
+
+    .dashboard-stat-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 204, 0, 0.12);
+        color: #ffcc00;
+    }
+
+    .dashboard-main-card,
+    .dashboard-side-card {
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .dashboard-main-card .table td,
+    .dashboard-main-card .table th {
+        padding-top: .8rem;
+        padding-bottom: .8rem;
+        vertical-align: middle;
+    }
+
+    .dashboard-quick-actions .list-group-item {
+        background: transparent;
+        border-color: rgba(255,255,255,0.08);
+        color: #e8eaf6;
+    }
+
+    .dashboard-quick-actions .list-group-item:hover {
+        background: rgba(255, 204, 0, 0.08);
+    }
+</style>
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="row">
             <div class="col-xxl-12 mb-6 order-0">
                 <div class="app-main__inner">
-                    <div class="app-page-title mt-4">
+                    <div class="app-page-title mt-4 dashboard-title">
                         <div class="page-title-wrapper">
                             <div class="page-title-heading">
                                 <div class="page-title-icon">
@@ -24,14 +87,14 @@
 
                     <div class="row">
                         <div class="col-lg-3 col-md-6">
-                            <div class="card">
+                            <div class="card dashboard-stat-card">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <h4 class="card-title mb-0">{{ App\Models\Website::count() }}</h4>
                                             <p class="text-muted mb-0">Total Websites</p>
                                         </div>
-                                        <div class="text-primary">
+                                        <div class="dashboard-stat-icon">
                                             <i class="fas fa-globe fa-2x"></i>
                                         </div>
                                     </div>
@@ -40,14 +103,14 @@
                         </div>
 
                         <div class="col-lg-3 col-md-6">
-                            <div class="card">
+                            <div class="card dashboard-stat-card">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <h4 class="card-title mb-0">{{ App\Models\Event::count() }}</h4>
                                             <p class="text-muted mb-0">Total Events</p>
                                         </div>
-                                        <div class="text-success">
+                                        <div class="dashboard-stat-icon">
                                             <i class="fas fa-calendar-alt fa-2x"></i>
                                         </div>
                                     </div>
@@ -56,14 +119,14 @@
                         </div>
 
                         <div class="col-lg-3 col-md-6">
-                            <div class="card">
+                            <div class="card dashboard-stat-card">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <h4 class="card-title mb-0">{{ App\Models\User::where('user_type', 'website_user')->count() }}</h4>
                                             <p class="text-muted mb-0">Website Users</p>
                                         </div>
-                                        <div class="text-info">
+                                        <div class="dashboard-stat-icon">
                                             <i class="fas fa-users fa-2x"></i>
                                         </div>
                                     </div>
@@ -72,14 +135,14 @@
                         </div>
 
                         <div class="col-lg-3 col-md-6">
-                            <div class="card">
+                            <div class="card dashboard-stat-card">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <h4 class="card-title mb-0">{{ App\Models\Transaction::count() }}</h4>
                                             <p class="text-muted mb-0">Total Transactions</p>
                                         </div>
-                                        <div class="text-warning">
+                                        <div class="dashboard-stat-icon">
                                             <i class="fas fa-credit-card fa-2x"></i>
                                         </div>
                                     </div>
@@ -90,7 +153,7 @@
 
                     <div class="row mt-4">
                         <div class="col-lg-8">
-                            <div class="card">
+                            <div class="card dashboard-main-card">
                                 <div class="card-header">
                                     <h5 class="card-title mb-0">
                                         <i class="fas fa-chart-line me-2"></i>
@@ -159,7 +222,7 @@
                         </div>
 
                         <div class="col-lg-4">
-                            <div class="card">
+                            <div class="card dashboard-side-card dashboard-quick-actions">
                                 <div class="card-header">
                                     <h5 class="card-title mb-0">
                                         <i class="fas fa-info-circle me-2"></i>
@@ -188,7 +251,7 @@
                                 </div>
                             </div>
 
-                            <div class="card mt-3">
+                            <div class="card mt-3 dashboard-side-card">
                                 <div class="card-header">
                                     <h5 class="card-title mb-0">
                                         <i class="fas fa-user-circle me-2"></i>

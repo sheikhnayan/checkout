@@ -1,4 +1,4 @@
-﻿@extends('admin.main')
+@extends('admin.main')
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('user/extra.css') }}">
@@ -102,7 +102,7 @@
                             <div class="tab-pane fade show active" id="activePackages" role="tabpanel" aria-labelledby="active-tab">
                                 <div class="row">
                                     <div class="col-lg">
-                                        <div class="card-shadow-primary card-border text-white mb-3 card bg-primary p-2" style="background: #fff !important;">
+                                        <div class="card-shadow-primary card-border text-white mb-3 card bg-primary p-2">
                                             <table class="table" id="activePackagesTable">
                                                 <thead>
                                                     <tr>
@@ -154,7 +154,7 @@
                             <div class="tab-pane fade" id="archivedPackages" role="tabpanel" aria-labelledby="archived-tab">
                                 <div class="row">
                                     <div class="col-lg">
-                                        <div class="card-shadow-primary card-border text-white mb-3 card bg-secondary p-2" style="background: #f8f9fa !important;">
+                                        <div class="card-shadow-primary card-border text-white mb-3 card bg-secondary p-2">
                                             <table class="table" id="archivedPackagesTable">
                                                 <thead>
                                                     <tr>

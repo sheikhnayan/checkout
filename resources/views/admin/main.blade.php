@@ -40,6 +40,9 @@
 
     <link rel="stylesheet" href="{{asset('user/assets/vendor/libs/apex-charts/apex-charts.css')}}" />
 
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" />
+
     <!-- Page CSS -->
 
     <!-- Helpers -->
@@ -51,6 +54,243 @@
     <script src="{{asset('user/assets/js/config.js')}}"></script>
 
     <style>
+      :root {
+        --admin-bg: #0b0e1a;
+        --admin-surface: #121726;
+        --admin-surface-2: #171d2f;
+        --admin-border: rgba(255, 255, 255, 0.1);
+        --admin-text: #e8eaf6;
+        --admin-text-muted: #b9bfd5;
+        --admin-accent: #ffcc00;
+      }
+
+      body,
+      .bg-menu-theme,
+      .layout-page,
+      .content-wrapper,
+      .bg-footer-theme {
+        background-color: var(--admin-bg) !important;
+        color: var(--admin-text);
+      }
+
+      .layout-navbar,
+      .layout-menu,
+      .menu-inner,
+      .card,
+      .modal-content,
+      .dropdown-menu {
+        background: var(--admin-surface) !important;
+        border-color: var(--admin-border) !important;
+        color: var(--admin-text) !important;
+      }
+
+      .table,
+      .table > :not(caption) > * > * {
+        color: var(--admin-text) !important;
+        border-color: var(--admin-border) !important;
+        background: transparent !important;
+      }
+
+      .table thead th {
+        color: #fff !important;
+        font-weight: 700;
+        letter-spacing: .02em;
+      }
+
+      .form-control,
+      .form-select,
+      textarea,
+      input,
+      select {
+        background: var(--admin-surface-2) !important;
+        color: var(--admin-text) !important;
+        border-color: var(--admin-border) !important;
+      }
+
+      .form-control:focus,
+      .form-select:focus,
+      textarea:focus,
+      input:focus,
+      select:focus {
+        border-color: var(--admin-accent) !important;
+        box-shadow: 0 0 0 0.2rem rgba(255, 204, 0, 0.16) !important;
+      }
+
+      .btn-primary,
+      .btn-success,
+      .btn-warning,
+      .btn-info,
+      .btn-outline-primary {
+        background: var(--admin-accent) !important;
+        border-color: var(--admin-accent) !important;
+        color: #1f1400 !important;
+        font-weight: 700;
+      }
+
+      .btn-secondary,
+      .btn-light {
+        background: #2a3148 !important;
+        border-color: #2a3148 !important;
+        color: var(--admin-text) !important;
+      }
+
+      .menu-vertical .menu-item.active > .menu-link,
+      .menu-vertical .menu-item.open > .menu-link,
+      .menu-vertical .menu-item .menu-link:hover {
+        background: rgba(255, 204, 0, 0.15) !important;
+        color: var(--admin-accent) !important;
+      }
+
+      .menu-vertical .menu-item .menu-link,
+      .menu-header-text,
+      .text-muted,
+      .card-subtitle,
+      .form-text,
+      small {
+        color: var(--admin-text-muted) !important;
+      }
+
+      .content-footer {
+        border-top: 1px solid var(--admin-border);
+      }
+
+      .admin-feedback-stack {
+        display: grid;
+        gap: 10px;
+      }
+
+      .admin-feedback-stack .alert {
+        border: 1px solid var(--admin-border);
+        border-left-width: 4px;
+        border-radius: 12px;
+        margin-bottom: 0;
+      }
+
+      .admin-feedback-stack .alert-success {
+        border-left-color: #37d67a;
+        background: rgba(55, 214, 122, 0.14);
+        color: #d9ffe9;
+      }
+
+      .admin-feedback-stack .alert-danger {
+        border-left-color: #ff6b6b;
+        background: rgba(255, 107, 107, 0.13);
+        color: #ffe2e2;
+      }
+
+      .admin-feedback-stack .alert-warning {
+        border-left-color: var(--admin-accent);
+        background: rgba(255, 204, 0, 0.15);
+        color: #fff1bf;
+      }
+
+      .admin-feedback-stack .alert-info {
+        border-left-color: #6fa8ff;
+        background: rgba(111, 168, 255, 0.14);
+        color: #dfeeff;
+      }
+
+      .admin-feedback-stack ul {
+        margin: 8px 0 0;
+        padding-left: 18px;
+      }
+
+      .dataTables_wrapper .dataTables_filter input,
+      .dataTables_wrapper .dataTables_length select {
+        background: var(--admin-surface-2) !important;
+        color: var(--admin-text) !important;
+        border: 1px solid var(--admin-border) !important;
+        border-radius: 8px;
+      }
+
+      .dataTables_wrapper .dataTables_filter label,
+      .dataTables_wrapper .dataTables_length label,
+      .dataTables_wrapper .dataTables_info,
+      .dataTables_wrapper .dataTables_paginate {
+        color: var(--admin-text-muted) !important;
+      }
+
+      .dataTables_wrapper .dt-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: .75rem;
+      }
+
+      .dataTables_wrapper .dt-button,
+      .dataTables_wrapper button.dt-button,
+      .dataTables_wrapper div.dt-button,
+      .dataTables_wrapper a.dt-button {
+        background: var(--admin-surface-2) !important;
+        color: var(--admin-text) !important;
+        border: 1px solid var(--admin-border) !important;
+        border-radius: 8px !important;
+        padding: 6px 12px !important;
+        line-height: 1.2;
+        text-shadow: none !important;
+        box-shadow: none !important;
+      }
+
+      .dataTables_wrapper .dt-button:hover,
+      .dataTables_wrapper button.dt-button:hover,
+      .dataTables_wrapper div.dt-button:hover,
+      .dataTables_wrapper a.dt-button:hover {
+        background: rgba(255, 204, 0, 0.16) !important;
+        color: #fff !important;
+        border-color: rgba(255, 204, 0, 0.5) !important;
+      }
+
+      .dataTables_wrapper .dt-button:disabled,
+      .dataTables_wrapper .dt-button.disabled {
+        opacity: .6;
+        cursor: not-allowed;
+      }
+
+      .dataTables_wrapper .dataTables_paginate .paginate_button {
+        color: var(--admin-text-muted) !important;
+        border-radius: 6px;
+        border: 1px solid transparent !important;
+      }
+
+      .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+      .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+        background: rgba(255, 204, 0, 0.18) !important;
+        color: #fff !important;
+        border-color: rgba(255, 204, 0, 0.5) !important;
+      }
+
+      .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: rgba(255, 255, 255, 0.08) !important;
+        color: #fff !important;
+        border-color: var(--admin-border) !important;
+      }
+
+      .card-header,
+      .card-footer {
+        background: rgba(255, 255, 255, 0.02) !important;
+        border-color: var(--admin-border) !important;
+      }
+
+      .card-footer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        justify-content: flex-end;
+      }
+
+      .card-footer .btn,
+      .card .text-center .btn,
+      .card form .btn[type='submit'] {
+        border-radius: 10px;
+        min-height: 38px;
+        padding: 8px 14px;
+      }
+
+      .container-p-y > .row {
+        row-gap: 1rem;
+      }
+
       .admin-mobile-menu-toggle {
         position: fixed;
         top: 1rem;
@@ -396,11 +636,48 @@
         <!-- Layout container -->
         <div class="layout-page">
           <!-- Navbar -->
-          @if(session('warning'))
+          @if(session('success') || session('error') || session('warning') || session('info') || $errors->any())
           <div class="container-xxl mt-3">
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-              {{ session('warning') }}
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="admin-feedback-stack">
+              @if(session('success'))
+              <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Success:</strong> {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              @endif
+
+              @if(session('error'))
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Failure:</strong> {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              @endif
+
+              @if(session('warning'))
+              <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <strong>Warning:</strong> {{ session('warning') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              @endif
+
+              @if(session('info'))
+              <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <strong>Info:</strong> {{ session('info') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              @endif
+
+              @if($errors->any())
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Validation failed:</strong> Please review the exact issues below.
+                <ul>
+                  @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                  @endforeach
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              @endif
             </div>
           </div>
           @endif
@@ -443,6 +720,13 @@
 
     <!-- Vendors JS -->
     <script src="{{asset('user/assets/vendor/libs/apex-charts/apexcharts.js')}}"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
 
     <!-- Main JS -->
 
@@ -453,6 +737,99 @@
 
     <script>
       (function () {
+        function buildExportColumnSelector(table) {
+          const headers = Array.from(table.querySelectorAll('thead th'));
+          const firstHeader = headers[0];
+          const lastHeader = headers[headers.length - 1];
+          const firstIsCheckbox = firstHeader ? !!firstHeader.querySelector('input[type="checkbox"]') : false;
+          const lastText = (lastHeader ? lastHeader.textContent : '').trim().toLowerCase();
+          const lastIsAction = ['action', 'actions', 'manage'].includes(lastText);
+
+          if (firstIsCheckbox && lastIsAction) {
+            return ':visible:not(:first-child):not(:last-child)';
+          }
+
+          if (firstIsCheckbox) {
+            return ':visible:not(:first-child)';
+          }
+
+          if (lastIsAction) {
+            return ':visible:not(:last-child)';
+          }
+
+          return ':visible';
+        }
+
+        function hasLocalDataTableInitializer(table) {
+          const scriptText = Array.from(document.scripts)
+            .map(function (script) { return script.textContent || ''; })
+            .join('\n');
+
+          if (/new\s+DataTable\(\s*['"]\.table['"]/.test(scriptText) || /\$\(\s*['"]\.table['"]\s*\)\.DataTable/.test(scriptText)) {
+            return true;
+          }
+
+          if (!table.id) {
+            return false;
+          }
+
+          const escapedId = table.id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const idPatterns = [
+            new RegExp("new\\s+DataTable\\(\\s*['\"]#" + escapedId + "['\"]"),
+            new RegExp("\\$\\(\\s*['\"]#" + escapedId + "['\"]\\s*\\)\\.DataTable"),
+            new RegExp("\\$\\(\\s*['\"]#" + escapedId + "['\"]\\s*\\)\\.dataTable")
+          ];
+
+          return idPatterns.some(function (pattern) {
+            return pattern.test(scriptText);
+          });
+        }
+
+        function initAdminDataTables() {
+          if (!window.jQuery || !jQuery.fn || !jQuery.fn.DataTable) {
+            return;
+          }
+
+          if (jQuery.fn.dataTable && jQuery.fn.dataTable.ext) {
+            jQuery.fn.dataTable.ext.errMode = 'none';
+          }
+
+          jQuery('.layout-page table').each(function () {
+            const table = this;
+
+            if (table.classList.contains('no-datatable')) {
+              return;
+            }
+
+            if (!table.querySelector('thead')) {
+              return;
+            }
+
+            if (hasLocalDataTableInitializer(table)) {
+              return;
+            }
+
+            if (jQuery.fn.dataTable.isDataTable(table)) {
+              return;
+            }
+
+            const exportColumns = buildExportColumnSelector(table);
+
+            jQuery(table).DataTable({
+              dom: 'Bfrtip',
+              pageLength: 25,
+              order: [],
+              autoWidth: false,
+              buttons: [
+                { extend: 'csv', text: 'Export CSV', exportOptions: { columns: exportColumns } },
+                { extend: 'excel', text: 'Export Excel', exportOptions: { columns: exportColumns } },
+                { extend: 'pdf', text: 'Export PDF', exportOptions: { columns: exportColumns } },
+                { extend: 'print', text: 'Print', exportOptions: { columns: exportColumns } }
+              ]
+            });
+          });
+        }
+
         function wrapTablesForMobile() {
           document.querySelectorAll('.layout-page table').forEach(function (table) {
             if (table.closest('.table-responsive, .admin-table-responsive')) {
@@ -505,10 +882,12 @@
         if (document.readyState === 'loading') {
           document.addEventListener('DOMContentLoaded', function () {
             wrapTablesForMobile();
+            initAdminDataTables();
             bindMobileMenuToggle();
           });
         } else {
           wrapTablesForMobile();
+          initAdminDataTables();
           bindMobileMenuToggle();
         }
       })();
@@ -607,6 +986,133 @@
 
     <!-- Place this tag before closing body tag for github widget button. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+    <style id="admin-datatables-contrast-overrides">
+      body .content-wrapper label,
+      body .content-wrapper .form-label,
+      body .content-wrapper .col-form-label,
+      body .content-wrapper .dataTables_wrapper label {
+        color: #f4f7ff !important;
+        font-weight: 600;
+      }
+
+      body .content-wrapper .card,
+      body .content-wrapper .card-shadow-primary,
+      body .content-wrapper .card-shadow-primary.card-border,
+      body .content-wrapper .card.bg-primary,
+      body .content-wrapper .card.bg-secondary {
+        background: #121726 !important;
+        color: #e8eaf6 !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+      }
+
+      body .content-wrapper .table,
+      body .content-wrapper .table > :not(caption) > * > *,
+      body .content-wrapper table.dataTable,
+      body .content-wrapper table.dataTable > :not(caption) > * > * {
+        background: transparent !important;
+        color: #eef2ff !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+      }
+
+      body .content-wrapper .table thead th,
+      body .content-wrapper table.dataTable thead th {
+        color: #ffffff !important;
+      }
+
+      body .content-wrapper .table-striped > tbody > tr:nth-of-type(odd) > * {
+        --bs-table-accent-bg: rgba(255, 255, 255, 0.03) !important;
+      }
+
+      div.dataTables_wrapper .dataTables_length label,
+      div.dataTables_wrapper .dataTables_filter label,
+      div.dataTables_wrapper .dataTables_info,
+      div.dataTables_wrapper .dataTables_paginate {
+        color: #f7f9ff !important;
+        font-weight: 600 !important;
+      }
+
+      div.dataTables_wrapper .dataTables_filter input,
+      div.dataTables_wrapper .dataTables_length select {
+        background: #0f1524 !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 204, 0, 0.7) !important;
+      }
+
+      div.dataTables_wrapper .dataTables_filter input::placeholder {
+        color: #cfd6ee !important;
+        opacity: 1 !important;
+      }
+
+      div.dataTables_wrapper .dt-buttons .dt-button,
+      div.dataTables_wrapper .dt-buttons button.dt-button,
+      div.dataTables_wrapper .dt-buttons a.dt-button {
+        background: #ffcc00 !important;
+        color: #1a1400 !important;
+        border: 1px solid #ffcc00 !important;
+        font-weight: 800 !important;
+        text-shadow: none !important;
+      }
+
+      div.dataTables_wrapper .dt-buttons .dt-button:hover,
+      div.dataTables_wrapper .dt-buttons button.dt-button:hover,
+      div.dataTables_wrapper .dt-buttons a.dt-button:hover {
+        background: #ffe37a !important;
+        color: #140f00 !important;
+        border-color: #ffe37a !important;
+      }
+
+      div.dataTables_wrapper .dataTables_paginate .paginate_button {
+        color: #f0f4ff !important;
+      }
+
+      div.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+      div.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+        background: #ffcc00 !important;
+        border-color: #ffcc00 !important;
+        color: #1a1400 !important;
+        font-weight: 800 !important;
+      }
+
+      div.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: rgba(255, 255, 255, 0.14) !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+        color: #ffffff !important;
+      }
+
+      /* ── Card titles and all headings inside cards ── */
+      body .content-wrapper .card-title,
+      body .content-wrapper .card-header .card-title,
+      body .content-wrapper .card h1,
+      body .content-wrapper .card h2,
+      body .content-wrapper .card h3,
+      body .content-wrapper .card h4,
+      body .content-wrapper .card h5,
+      body .content-wrapper .card h6,
+      body .content-wrapper h1,
+      body .content-wrapper h2,
+      body .content-wrapper h3,
+      body .content-wrapper h4,
+      body .content-wrapper h5,
+      body .content-wrapper h6 {
+        color: #ffffff !important;
+      }
+
+      /* ── All selects / dropdowns everywhere in admin ── */
+      body .content-wrapper select,
+      body .content-wrapper .form-select,
+      body .content-wrapper select option,
+      body .content-wrapper .form-select option {
+        background-color: #171d2f !important;
+        color: #e8eaf6 !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+      }
+
+      /* ── Text-dark class override (some cards still use it) ── */
+      body .content-wrapper .text-dark {
+        color: #e8eaf6 !important;
+      }
+    </style>
 
     <link rel="stylesheet" href="{{asset('user/assets/css/demo.css')}}" />
 

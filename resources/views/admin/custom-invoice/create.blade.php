@@ -45,7 +45,7 @@
 
                         <div class="row">
                             <div class="col-lg-8">
-                                <div class="card-shadow-primary card-border mb-3 card p-4" style="background: #fff !important; color: #212529;">
+                                <div class="card-shadow-primary card-border mb-3 card p-4">
                                     <div class="card-header border-bottom p-0 pb-3">
                                         <h5 class="card-title">Create New Invoice</h5>
                                     </div>
@@ -159,7 +159,7 @@
                             </div>
 
                             <div class="col-lg-4">
-                                <div class="card-shadow-primary card-border mb-3 card p-4" style="background: #fff !important;">
+                                <div class="card-shadow-primary card-border mb-3 card p-4">
                                     <div class="card-header border-bottom p-0 pb-3">
                                         <h5 class="card-title text-dark">Invoice Summary</h5>
                                     </div>
@@ -194,7 +194,7 @@
                                     </div>
                                 </div>
 
-                                <div class="card-shadow-primary card-border mb-3 card p-4" style="background: #f8f9fa !important;">
+                                <div class="card-shadow-primary card-border mb-3 card p-4">
                                     <div class="card-header border-bottom p-0 pb-3">
                                         <h5 class="card-title text-dark"><i class="fas fa-info-circle"></i> Custom Invoice Help</h5>
                                     </div>

@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FeedComment;
 use App\Models\FeedModel;
 use App\Models\FeedPost;
 use App\Models\Website;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class FeedController extends Controller
@@ -25,6 +29,7 @@ class FeedController extends Controller
             'websites' => $websites,
             'club' => null,
             'query' => (string) $request->string('q'),
+            'dateQuery' => trim((string) $request->input('date', '')),
         ]);
     }
 
@@ -33,21 +38,32 @@ class FeedController extends Controller
         $club = $this->findActiveClub($slug);
 
         $queryTerm = trim((string) $request->string('q'));
+        $dateQuery = trim((string) $request->input('date', ''));
+        $searchDate = $this->extractSearchDate($dateQuery !== '' ? $dateQuery : $queryTerm);
 
         $posts = $this->visibleClubPostsQuery($club)
             ->with(['website', 'feedModel', 'visibleComments'])
             ->withCount('visibleComments')
-            ->when($queryTerm !== '', function ($query) use ($queryTerm) {
-                $query->where(function ($inner) use ($queryTerm) {
-                    $inner->where('caption', 'like', '%' . $queryTerm . '%')
-                        ->orWhereHas('feedModel', function ($feedModelQuery) use ($queryTerm) {
-                            $feedModelQuery->where('name', 'like', '%' . $queryTerm . '%')
-                                ->orWhere('bio', 'like', '%' . $queryTerm . '%');
-                        })
-                        ->orWhereHas('website', function ($websiteQuery) use ($queryTerm) {
-                            $websiteQuery->where('name', 'like', '%' . $queryTerm . '%')
-                                ->orWhere('description', 'like', '%' . $queryTerm . '%');
-                        });
+            ->when($queryTerm !== '' || $searchDate !== null, function ($query) use ($queryTerm, $searchDate) {
+                $query->where(function ($inner) use ($queryTerm, $searchDate) {
+                    if ($queryTerm !== '') {
+                        $inner->where('caption', 'like', '%' . $queryTerm . '%')
+                            ->orWhereHas('feedModel', function ($feedModelQuery) use ($queryTerm) {
+                                $feedModelQuery->where('name', 'like', '%' . $queryTerm . '%')
+                                    ->orWhere('bio', 'like', '%' . $queryTerm . '%');
+                            })
+                            ->orWhereHas('website', function ($websiteQuery) use ($queryTerm) {
+                                $websiteQuery->where('name', 'like', '%' . $queryTerm . '%')
+                                    ->orWhere('description', 'like', '%' . $queryTerm . '%');
+                            });
+                    }
+
+                    if ($searchDate !== null) {
+                        $inner->orWhereDate('posted_at', $searchDate)
+                            ->orWhereHas('feedModel.performanceDates', function ($dateQuery) use ($searchDate) {
+                                $dateQuery->whereDate('performance_date', $searchDate);
+                            });
+                    }
                 });
             })
             ->latest('posted_at')
@@ -60,6 +76,7 @@ class FeedController extends Controller
             'websites' => collect([$club]),
             'club' => $club,
             'query' => $queryTerm,
+            'dateQuery' => $dateQuery,
         ]);
     }
 
@@ -69,7 +86,7 @@ class FeedController extends Controller
 
         $posts = $this->visibleClubPostsQuery($club)
             ->where('author_mode', 'club')
-            ->with(['website', 'feedModel'])
+            ->with(['website', 'feedModel', 'visibleComments'])
             ->withCount('visibleComments')
             ->latest('posted_at')
             ->latest()
@@ -93,6 +110,7 @@ class FeedController extends Controller
             'posts' => $posts,
             'models' => $models,
             'activeModel' => null,
+            'performanceDates' => collect(),
         ]);
     }
 
@@ -105,10 +123,14 @@ class FeedController extends Controller
             404
         );
 
+        $feedModel->load(['performanceDates' => function ($query) {
+            $query->orderBy('performance_date');
+        }]);
+
         $posts = $this->visibleClubPostsQuery($club)
             ->where('author_mode', 'model')
             ->where('feed_model_id', $feedModel->id)
-            ->with(['website', 'feedModel'])
+            ->with(['website', 'feedModel', 'visibleComments'])
             ->withCount('visibleComments')
             ->latest('posted_at')
             ->latest()
@@ -132,6 +154,7 @@ class FeedController extends Controller
             'posts' => $posts,
             'models' => $models,
             'activeModel' => $feedModel,
+            'performanceDates' => $this->formatPerformanceDates($feedModel),
         ]);
     }
 
@@ -143,12 +166,19 @@ class FeedController extends Controller
             'commenter_name' => 'required|string|max:255',
             'commenter_email' => 'nullable|email|max:255',
             'body' => 'required|string|max:2000',
+            'comment_hp' => 'nullable|string|max:255',
+            'comment_form_ts' => 'nullable|integer',
         ]);
 
+        $commenterName = $this->normalizeCommentValue($validated['commenter_name']);
+        $commentBody = $this->normalizeCommentValue($validated['body']);
+
+        $this->guardCommentSubmission($request, $feedPost, $commenterName, $commentBody);
+
         $feedPost->comments()->create([
-            'commenter_name' => $validated['commenter_name'],
+            'commenter_name' => $commenterName,
             'commenter_email' => $validated['commenter_email'] ?? null,
-            'body' => $validated['body'],
+            'body' => $commentBody,
             'ip_address' => $request->ip(),
             'is_visible' => true,
         ]);
@@ -160,6 +190,140 @@ class FeedController extends Controller
             ])
             ->with('success', 'Comment posted successfully.')
             ->withFragment('post-' . $feedPost->id);
+    }
+
+    private function guardCommentSubmission(Request $request, FeedPost $feedPost, string $commenterName, string $commentBody): void
+    {
+        if ($request->filled('comment_hp')) {
+            throw ValidationException::withMessages([
+                'body' => 'Unable to post comment.',
+            ]);
+        }
+
+        $formTimestamp = (int) $request->input('comment_form_ts');
+        if ($formTimestamp > 0 && now()->timestamp - $formTimestamp < 2) {
+            throw ValidationException::withMessages([
+                'body' => 'Please wait a moment before posting your comment.',
+            ]);
+        }
+
+        if (mb_strlen($commentBody) < 3) {
+            throw ValidationException::withMessages([
+                'body' => 'Comment is too short.',
+            ]);
+        }
+
+        $ipAddress = (string) $request->ip();
+        $minuteRateKey = 'feed-comment:minute:' . sha1($feedPost->id . '|' . $ipAddress);
+        $hourRateKey = 'feed-comment:hour:' . sha1($feedPost->id . '|' . $ipAddress);
+
+        if (RateLimiter::tooManyAttempts($minuteRateKey, 3) || RateLimiter::tooManyAttempts($hourRateKey, 12)) {
+            throw ValidationException::withMessages([
+                'body' => 'Too many comments from your connection. Please wait before trying again.',
+            ]);
+        }
+
+        RateLimiter::hit($minuteRateKey, 60);
+        RateLimiter::hit($hourRateKey, 3600);
+
+        $combinedText = $commenterName . ' ' . $commentBody;
+
+        if ($this->containsLinkLikeContent($combinedText)) {
+            throw ValidationException::withMessages([
+                'body' => 'Links and website addresses are not allowed in comments.',
+            ]);
+        }
+
+        if ($this->containsEmailLikeContent($combinedText)) {
+            throw ValidationException::withMessages([
+                'body' => 'Email addresses are not allowed in comments.',
+            ]);
+        }
+
+        if ($this->containsPhoneLikeContent($combinedText)) {
+            throw ValidationException::withMessages([
+                'body' => 'Contact details are not allowed in comments.',
+            ]);
+        }
+
+        if ($this->containsAbusiveLanguage($combinedText)) {
+            throw ValidationException::withMessages([
+                'body' => 'Please keep comments respectful.',
+            ]);
+        }
+
+        if ($this->looksLikeSpam($commenterName, $commentBody)) {
+            throw ValidationException::withMessages([
+                'body' => 'Your comment looks like spam and could not be posted.',
+            ]);
+        }
+
+        $isDuplicate = FeedComment::query()
+            ->where('feed_post_id', $feedPost->id)
+            ->where('ip_address', $ipAddress)
+            ->where('body', $commentBody)
+            ->where('created_at', '>=', now()->subDay())
+            ->exists();
+
+        if ($isDuplicate) {
+            throw ValidationException::withMessages([
+                'body' => 'Duplicate comments are not allowed.',
+            ]);
+        }
+    }
+
+    private function normalizeCommentValue(string $value): string
+    {
+        $value = trim(preg_replace('/\s+/u', ' ', $value) ?? '');
+
+        return $value;
+    }
+
+    private function containsLinkLikeContent(string $value): bool
+    {
+        return (bool) preg_match(
+            '/(?:https?:\/\/|www\.|\b[a-z0-9][a-z0-9\-]{1,62}\.(?:com|net|org|io|co|me|ly|info|biz|app|gg|tv|us|uk|ca|au|in|de|fr|nl|xyz)\b|\b(?:dot)\s+(?:com|net|org|io|co|me|ly|info|biz|app)\b)/iu',
+            $value
+        );
+    }
+
+    private function containsEmailLikeContent(string $value): bool
+    {
+        return (bool) preg_match('/[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}/iu', $value);
+    }
+
+    private function containsPhoneLikeContent(string $value): bool
+    {
+        return (bool) preg_match('/(?:\+?\d[\d\s().\-]{7,}\d|\b(?:whatsapp|telegram|snapchat|contact me|text me|dm me|inbox me)\b)/iu', $value);
+    }
+
+    private function containsAbusiveLanguage(string $value): bool
+    {
+        return (bool) preg_match('/\b(?:fuck|f\*+k|shit|bitch|asshole|bastard|slut|whore|dick|cunt|motherfucker)\b/iu', $value);
+    }
+
+    private function looksLikeSpam(string $commenterName, string $commentBody): bool
+    {
+        $combined = $commenterName . ' ' . $commentBody;
+
+        if (preg_match('/(.)\1{6,}/u', $combined)) {
+            return true;
+        }
+
+        if (preg_match('/\b(\p{L}{3,})\b(?:\s+\1\b){3,}/iu', $combined)) {
+            return true;
+        }
+
+        if (preg_match('/\b(?:earn money|work from home|crypto|forex|investment|loan approval|seo service|marketing service|buy followers|cheap traffic)\b/iu', $combined)) {
+            return true;
+        }
+
+        $lettersOnly = preg_replace('/[^\p{L}]+/u', '', $combined) ?? '';
+        if ($lettersOnly !== '' && mb_strlen($lettersOnly) < (int) floor(mb_strlen($combined) * 0.35)) {
+            return true;
+        }
+
+        return false;
     }
 
     private function activeWebsitesQuery()
@@ -188,5 +352,69 @@ class FeedController extends Controller
                         $feedModelQuery->where('is_active', true);
                     });
             });
+    }
+
+    private function formatPerformanceDates(FeedModel $feedModel)
+    {
+        $today = now()->startOfDay();
+
+        $mapped = $feedModel->performanceDates->map(function ($performanceDate) {
+            $rawDate = trim((string) optional($performanceDate->performance_date)->format('Y-m-d'));
+
+            try {
+                $parsedDate = Carbon::parse($rawDate)->startOfDay();
+            } catch (\Throwable $e) {
+                $parsedDate = null;
+            }
+
+            return [
+                'raw_date' => $rawDate,
+                'parsed_date' => $parsedDate,
+            ];
+        });
+
+        $upcoming = $mapped
+            ->filter(fn ($item) => $item['parsed_date'] !== null && $item['parsed_date']->greaterThanOrEqualTo($today))
+            ->sortBy(fn ($item) => $item['parsed_date']->timestamp)
+            ->values();
+
+        return $upcoming->take(10)->map(function ($item) {
+            $parsedDate = $item['parsed_date'];
+
+            return [
+                'short' => $parsedDate ? $parsedDate->format('D, M j') : ($item['raw_date'] ?: 'Date TBA'),
+                'full' => $parsedDate ? $parsedDate->format('l, F j, Y') : ($item['raw_date'] ?: 'Date TBA'),
+            ];
+        })->values();
+    }
+
+    private function extractSearchDate(string $queryTerm): ?string
+    {
+        if ($queryTerm === '') {
+            return null;
+        }
+
+        $formats = ['Y-m-d', 'm/d/Y', 'd/m/Y', 'M j, Y', 'F j, Y', 'M j', 'F j'];
+
+        foreach ($formats as $format) {
+            try {
+                $parsed = Carbon::createFromFormat($format, $queryTerm);
+                if ($parsed !== false) {
+                    if (!str_contains($format, 'Y')) {
+                        $parsed->year = now()->year;
+                    }
+
+                    return $parsed->format('Y-m-d');
+                }
+            } catch (\Throwable $e) {
+                // Try next date format.
+            }
+        }
+
+        try {
+            return Carbon::parse($queryTerm)->format('Y-m-d');
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 }

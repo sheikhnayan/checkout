@@ -34,4 +34,10 @@ class Event extends Model
     {
         return $this->belongsTo(Website::class);
     }
+
+    public function feedModels()
+    {
+        return $this->belongsToMany(FeedModel::class, 'feed_model_event', 'event_id', 'feed_model_id')
+            ->withTimestamps();
+    }
 }

@@ -181,6 +181,12 @@
                                 </label>
                             </div>
 
+                            <div class="mb-3 text-end">
+                                <a href="{{ route('password.request') }}" class="muted text-decoration-none">
+                                    Forgot password?
+                                </a>
+                            </div>
+
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-login">
                                     <i class="fas fa-sign-in-alt me-2"></i>

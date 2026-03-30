@@ -25,18 +25,33 @@ class ValidateImageUploads
 
         foreach ($this->flattenFiles($files) as $file) {
             if (!$file || !$file->isValid()) {
-                return $this->rejectUpload($request, $profile['invalid_message']);
+                $invalidReason = $file ? $file->getErrorMessage() : 'Unknown upload error.';
+                return $this->rejectUpload($request, $profile['invalid_message'] . ' Details: ' . $invalidReason);
             }
 
             $mime = strtolower((string) $file->getMimeType());
             $ext = strtolower((string) $file->getClientOriginalExtension());
+            $name = (string) $file->getClientOriginalName();
+            $size = (int) $file->getSize();
+            $allowedExt = strtoupper(implode(', ', $profile['allowed_extensions']));
+            $maxMb = (int) round($profile['max_bytes'] / (1024 * 1024));
 
             if (!in_array($mime, $profile['allowed_mime_types'], true) || !in_array($ext, $profile['allowed_extensions'], true)) {
-                return $this->rejectUpload($request, $profile['type_message']);
+                return $this->rejectUpload(
+                    $request,
+                    $profile['type_message']
+                    . " File: {$name}. Detected extension: {$ext}. MIME type: {$mime}. Allowed extensions: {$allowedExt}."
+                );
             }
 
             if ($file->getSize() > $profile['max_bytes']) {
-                return $this->rejectUpload($request, $profile['size_message']);
+                return $this->rejectUpload(
+                    $request,
+                    $profile['size_message']
+                    . ' File: ' . $name
+                    . '. Detected size: ' . $this->formatBytes($size)
+                    . '. Max allowed: ' . $maxMb . 'MB.'
+                );
             }
         }
 
@@ -110,5 +125,18 @@ class ValidateImageUploads
             'type_message' => 'Only JPG, PNG, WEBP, GIF, and SVG image files are allowed.',
             'size_message' => 'Image file is too large. Maximum allowed size is 4MB per image.',
         ];
+    }
+
+    private function formatBytes(int $bytes): string
+    {
+        if ($bytes < 1024) {
+            return $bytes . ' B';
+        }
+
+        if ($bytes < 1024 * 1024) {
+            return round($bytes / 1024, 2) . ' KB';
+        }
+
+        return round($bytes / (1024 * 1024), 2) . ' MB';
     }
 }
