@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\FeedComment;
 use App\Models\FeedModel;
+use App\Models\FeedModelPerformanceDate;
 use App\Models\FeedPost;
 use App\Models\Website;
 use Illuminate\Http\RedirectResponse;
@@ -111,6 +112,57 @@ class FeedController extends Controller
             'models' => $models,
             'activeModel' => null,
             'performanceDates' => collect(),
+            'rollCallDefaultDate' => now()->format('Y-m-d'),
+        ]);
+    }
+
+    public function clubRollCall(Request $request, string $slug): View
+    {
+        $club = $this->findActiveClub($slug);
+
+        $requestedDate = trim((string) $request->input('date', ''));
+        $selectedDate = now()->format('Y-m-d');
+
+        if ($requestedDate !== '') {
+            try {
+                $selectedDate = Carbon::parse($requestedDate)->format('Y-m-d');
+            } catch (\Throwable $e) {
+                $selectedDate = now()->format('Y-m-d');
+            }
+        }
+
+        $availableDates = FeedModelPerformanceDate::query()
+            ->whereHas('feedModel', function ($query) use ($club) {
+                $query->where('website_id', $club->id)
+                    ->where('is_active', true);
+            })
+            ->orderBy('performance_date')
+            ->get()
+            ->map(function ($item) {
+                return optional($item->performance_date)->format('Y-m-d');
+            })
+            ->filter()
+            ->unique()
+            ->values();
+
+        $workingModels = FeedModel::query()
+            ->where('website_id', $club->id)
+            ->where('is_active', true)
+            ->whereHas('performanceDates', function ($query) use ($selectedDate) {
+                $query->whereDate('performance_date', $selectedDate);
+            })
+            ->with(['performanceDates' => function ($query) use ($selectedDate) {
+                $query->whereDate('performance_date', $selectedDate)
+                    ->orderBy('performance_date');
+            }])
+            ->orderBy('name')
+            ->get();
+
+        return view('feed.roll-call', [
+            'club' => $club,
+            'selectedDate' => $selectedDate,
+            'availableDates' => $availableDates,
+            'workingModels' => $workingModels,
         ]);
     }
 
@@ -155,6 +207,7 @@ class FeedController extends Controller
             'models' => $models,
             'activeModel' => $feedModel,
             'performanceDates' => $this->formatPerformanceDates($feedModel),
+            'rollCallDefaultDate' => now()->format('Y-m-d'),
         ]);
     }
 

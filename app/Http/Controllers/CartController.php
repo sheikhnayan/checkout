@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Affiliate;
+use App\Models\Entertainer;
 use App\Models\SharedCart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -83,14 +85,34 @@ class CartController extends Controller
 
         // Redirect to affiliate page if this is an affiliate cart
         if ($sharedCart->affiliate_slug) {
+            $affiliateExists = Affiliate::where('slug', $sharedCart->affiliate_slug)
+                ->where('status', 'approved')
+                ->where('is_active', true)
+                ->exists();
+
+            $entertainerExists = Entertainer::where('slug', $sharedCart->affiliate_slug)
+                ->where('status', 'approved')
+                ->where('is_active', true)
+                ->exists();
+
             $params = ['cart' => $cartParam];
             if ($sharedCart->club_slug) {
                 $params['club'] = $sharedCart->club_slug;
             }
-            return redirect()->route('affiliate.public', array_merge(
-                ['slug' => $sharedCart->affiliate_slug],
-                $params
-            ));
+
+            if ($affiliateExists) {
+                return redirect()->route('affiliate.public', array_merge(
+                    ['slug' => $sharedCart->affiliate_slug],
+                    $params
+                ));
+            }
+
+            if ($entertainerExists) {
+                return redirect()->route('entertainer.public', array_merge(
+                    ['slug' => $sharedCart->affiliate_slug],
+                    $params
+                ));
+            }
         }
 
         // Redirect to the regular checkout page with cart as URL parameter

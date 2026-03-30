@@ -51,7 +51,20 @@ class AuthController extends Controller
                     ])->onlyInput('email');
                 }
             }
-            
+
+            if ($user && $user->isEntertainer()) {
+                $entertainer = $user->entertainer;
+                if (!$entertainer || $entertainer->status !== 'approved' || !$entertainer->is_active) {
+                    Auth::logout();
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+
+                    return back()->withErrors([
+                        'email' => 'Your entertainer application is still under review. We will notify you once approved.',
+                    ])->onlyInput('email');
+                }
+            }
+
             return $this->redirectByUserType($user);
         }
 
@@ -146,6 +159,10 @@ class AuthController extends Controller
     {
         if ($user->isAffiliate()) {
             return redirect()->route('affiliate.portal.dashboard');
+        }
+
+        if ($user->isEntertainer()) {
+            return redirect()->route('entertainer.portal.dashboard');
         }
 
         return redirect()->route('admin.transaction.index');

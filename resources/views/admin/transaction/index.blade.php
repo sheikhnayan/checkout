@@ -54,6 +54,24 @@
 .admin-transactions-card .view-btn {
     min-width: 36px;
 }
+
+#viewTransactionModal .modal-header {
+    background: #0f172a;
+    border-bottom: 1px solid #1e293b;
+}
+
+#viewTransactionModal .modal-footer {
+    background: #0f172a;
+    border-top: 1px solid #1e293b;
+}
+
+#viewTransactionModal .modal-title {
+    color: #f8fafc !important;
+}
+
+#viewTransactionModal .btn-close {
+    filter: invert(1) grayscale(100%);
+}
 </style>
     <!-- Content wrapper -->
     <div class="content-wrapper">
@@ -87,7 +105,7 @@
                                     <ol class="breadcrumb" style="float: left">
 
                                         <li class="breadcrumb-item opacity-10">
-                                            <a href="/admins">
+                                            <a href="#">
                                                 <i class="fas fa-home" role="img" aria-hidden="true"></i>
                                                 <span class="visually-hidden">Home</span>
                                             </a>

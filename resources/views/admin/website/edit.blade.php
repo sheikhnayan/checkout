@@ -78,7 +78,7 @@
                                     <ol class="breadcrumb" style="float: left">
 
                                         <li class="breadcrumb-item opacity-10">
-                                            <a href="/admins">
+                                            <a href="#">
                                                 <i class="fas fa-home" role="img" aria-hidden="true"></i>
                                                 <span class="visually-hidden">Home</span>
                                             </a>
@@ -276,12 +276,6 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <div class="alert alert-info mb-3">
-                                                        Website theme colors are fixed globally and are no longer editable here.
-                                                    </div>
-                                                </div>
-
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="color" class="form-label">Authorize App Key</label>

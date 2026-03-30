@@ -244,6 +244,80 @@
             letter-spacing: .08em;
         }
 
+        .rollcall-launch {
+            margin-bottom: 18px;
+            border: 1px solid rgba(242, 199, 113, 0.36);
+            border-radius: 18px;
+            padding: 18px;
+            background:
+                radial-gradient(circle at 8% 10%, rgba(242, 199, 113, 0.2), transparent 26%),
+                radial-gradient(circle at 90% 85%, rgba(108, 157, 255, 0.22), transparent 34%),
+                linear-gradient(135deg, rgba(24, 33, 55, 0.9), rgba(11, 18, 33, 0.96));
+            box-shadow: 0 22px 50px rgba(0, 0, 0, 0.33);
+        }
+
+        .rollcall-launch-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .rollcall-launch-kicker {
+            font-size: .72rem;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+            color: rgba(242, 199, 113, 0.95);
+            margin-bottom: 6px;
+        }
+
+        .rollcall-launch h3 {
+            margin: 0;
+            font-size: 1.35rem;
+            font-weight: 700;
+        }
+
+        .rollcall-launch p {
+            margin: 6px 0 0;
+            color: var(--profile-muted);
+            line-height: 1.6;
+        }
+
+        .rollcall-launch-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .rollcall-launch-date {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 999px;
+            background: rgba(255,255,255,0.07);
+            color: #fff;
+            padding: 11px 14px;
+            min-height: 46px;
+        }
+
+        .rollcall-launch-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 0;
+            border-radius: 999px;
+            padding: 11px 16px;
+            min-height: 46px;
+            background: linear-gradient(140deg, #f2d38e 0%, #e0b45d 72%, #bb8438 100%);
+            color: #211508;
+            font-weight: 700;
+        }
+
+        .rollcall-launch-btn:hover {
+            opacity: .94;
+            transform: translateY(-1px);
+        }
+
         .profile-section {
             scroll-margin-top: 100px;
         }
@@ -592,6 +666,14 @@
                 min-width: 0;
             }
 
+            .rollcall-launch-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .rollcall-launch-actions {
+                justify-content: flex-start;
+            }
+
             .profile-lightbox.is-open {
                 padding: 10px;
             }
@@ -636,7 +718,7 @@
     <div class="profile-shell">
         <div class="profile-topbar">
             <a href="{{ route('club.feed', $club->slug) }}">Back To Feed</a>
-            <span>{{ $profileType === 'club' ? 'Club-only posts' : 'Model-only posts' }}</span>
+            <span>Posts</span>
         </div>
 
         <section class="profile-hero profile-section" id="top">
@@ -648,7 +730,7 @@
                 @endif
 
                 <div>
-                    <div class="profile-kicker">{{ $profileType === 'club' ? 'Club Profile' : 'Model Profile' }}</div>
+                    <div class="profile-kicker">{{ $profileType === 'club' ? 'Club Profile' : 'Entertainer Profile' }}</div>
                     <h1 class="profile-title">{{ $profileTitle }}</h1>
                     @if($profileSubtitle)
                         <p class="profile-copy">{{ $profileSubtitle }}</p>
@@ -672,6 +754,32 @@
                 </div>
             </div>
         </section>
+
+        @if($profileType === 'club')
+            <section class="rollcall-launch" aria-label="Open roll call">
+                <div class="rollcall-launch-grid">
+                    <div>
+                        <div class="rollcall-launch-kicker">Roster Calendar</div>
+                        <h3>Roll Call</h3>
+                        <p>Pick a date and see which entertainers are working. Tap a profile to open that entertainer's feed profile.</p>
+                    </div>
+                    <form class="rollcall-launch-actions" method="GET" action="{{ route('club.feed.roll-call', $club->slug) }}" id="rollcall-launch-form">
+                        <input
+                            type="date"
+                            name="date"
+                            class="rollcall-launch-date"
+                            id="rollcall-launch-date"
+                            value="{{ $rollCallDefaultDate ?? now()->format('Y-m-d') }}"
+                            aria-label="Choose roll call date"
+                        >
+                        <button type="submit" class="rollcall-launch-btn">
+                            <i class="fas fa-calendar-check"></i>
+                            Open Roll Call
+                        </button>
+                    </form>
+                </div>
+            </section>
+        @endif
 
         <div class="profile-sticky-bar">
             <div class="profile-counters">
@@ -741,7 +849,7 @@
                         @endif
 
                         <div class="profile-tile-badges">
-                            <span class="profile-badge">{{ strtoupper($post->author_mode === 'club' ? 'CLUB' : 'MODEL') }}</span>
+                            <span class="profile-badge">{{ strtoupper($post->author_mode === 'club' ? 'CLUB' : 'ENTERTAINER') }}</span>
                             <span class="profile-badge">
                                 @if(count($mediaItems) > 1)
                                     <i class="fas fa-clone"></i>
@@ -815,6 +923,14 @@
         const authorNode = document.getElementById('profile-lightbox-author');
         const commentsListNode = document.getElementById('profile-lightbox-comment-list');
         const tileButtons = document.querySelectorAll('.profile-tile');
+        const rollCallLaunchDate = document.getElementById('rollcall-launch-date');
+        const rollCallLaunchForm = document.getElementById('rollcall-launch-form');
+
+        if (rollCallLaunchDate && rollCallLaunchForm) {
+            rollCallLaunchDate.addEventListener('change', function () {
+                rollCallLaunchForm.requestSubmit();
+            });
+        }
 
         let currentItems = [];
         let currentIndex = 0;

@@ -143,7 +143,7 @@
         .feed-search {
             margin-top: 20px;
             display: grid;
-            grid-template-columns: minmax(0, 1fr) 170px auto;
+            grid-template-columns: minmax(0, 1fr) 170px auto auto;
             gap: 10px;
         }
 
@@ -210,6 +210,10 @@
         .feed-btn-secondary:hover {
             transform: translateY(-1px);
             opacity: .94;
+        }
+
+        .feed-reset-btn {
+            white-space: nowrap;
         }
 
         .feed-card {
@@ -539,15 +543,45 @@
         .feed-lightbox-nav[hidden] { display: none; }
 
         .feed-modal .modal-content {
-            background: #0c1527;
+            background:
+                linear-gradient(180deg, rgba(24, 38, 64, 0.96) 0%, rgba(14, 24, 44, 0.96) 100%),
+                radial-gradient(circle at top right, rgba(215, 174, 100, 0.16), transparent 36%);
             color: var(--feed-text);
-            border: 1px solid rgba(255,255,255,0.08);
+            border: 1px solid rgba(170, 205, 255, 0.2);
             border-radius: 24px;
+            box-shadow: 0 22px 50px rgba(8, 15, 28, 0.32);
         }
 
         .feed-modal .modal-header,
         .feed-modal .modal-footer {
-            border-color: rgba(255,255,255,0.08);
+            border-color: rgba(170, 205, 255, 0.16);
+        }
+
+        .feed-modal .modal-title,
+        .feed-modal .text-white,
+        .feed-modal label,
+        .feed-modal .form-label {
+            color: var(--feed-text) !important;
+        }
+
+        .feed-modal .btn-close {
+            filter: invert(1) brightness(1.05);
+        }
+
+        .feed-modal small {
+            color: var(--feed-muted) !important;
+        }
+
+        .feed-modal .feed-input,
+        .feed-modal .feed-textarea {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--feed-text);
+            border: 1px solid rgba(170, 205, 255, 0.18);
+        }
+
+        .feed-modal .feed-input::placeholder,
+        .feed-modal .feed-textarea::placeholder {
+            color: rgba(211, 223, 243, 0.72);
         }
 
         .feed-comment-list {
@@ -562,8 +596,8 @@
         .feed-comment-card {
             border-radius: 18px;
             padding: 14px 16px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(170, 205, 255, 0.14);
         }
 
         .feed-pagination .pagination {
@@ -723,10 +757,11 @@
                     </div>
                 </div>
 
-                <form method="GET" action="{{ route('club.feed', $club->slug) }}" class="feed-search">
-                    <input class="feed-input" type="text" name="q" value="{{ $query }}" placeholder="Search by caption or model name">
-                    <input class="feed-date-input" type="date" name="date" value="{{ $dateQuery ?? '' }}" aria-label="Search by date">
+                <form method="GET" action="{{ route('club.feed', $club->slug) }}" class="feed-search" id="feed-search-form">
+                    <input class="feed-input" type="text" name="q" value="{{ $query }}" placeholder="Search by caption or entertainer name">
+                    <input class="feed-date-input" type="date" name="date" value="{{ $dateQuery ?? '' }}" aria-label="Search by date" id="feed-search-date">
                     <button type="submit" class="feed-btn">Search Feed</button>
+                    <button type="button" class="feed-btn-secondary feed-reset-btn" id="feed-reset-date">Clear Date</button>
                 </form>
 
                 <div class="feed-hero-actions">
@@ -889,57 +924,6 @@
                             @endif
                         </div>
                     </article>
-
-                    <div class="modal fade feed-modal" id="{{ $commentModalId }}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-lg">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <div>
-                                        <h5 class="modal-title mb-1">Comments for {{ $post->author_name }}</h5>
-                                        <small style="color:var(--feed-muted);">Join the conversation for this post.</small>
-                                    </div>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="feed-comment-list">
-                                        @forelse($post->visibleComments as $comment)
-                                            <div class="feed-comment-card">
-                                                <div class="d-flex justify-content-between gap-3 mb-2" style="color:var(--feed-muted);font-size:.84rem;">
-                                                    <strong style="color:var(--feed-text);">{{ $comment->commenter_name }}</strong>
-                                                    <span>{{ $comment->created_at->diffForHumans() }}</span>
-                                                </div>
-                                                <div style="white-space:pre-wrap;line-height:1.6;">{{ $comment->body }}</div>
-                                            </div>
-                                        @empty
-                                            <div class="feed-empty py-4">No comments yet. Be the first to comment.</div>
-                                        @endforelse
-                                    </div>
-
-                                    <form method="POST" action="{{ route('feed.comments.store', $post) }}">
-                                        @csrf
-                                        <input type="hidden" name="q" value="{{ $query }}">
-                                        <input type="text" name="comment_hp" value="" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;pointer-events:none;">
-                                        <input type="hidden" name="comment_form_ts" value="{{ now()->timestamp }}">
-                                        <div class="row g-3 mb-3">
-                                            <div class="col-md-6">
-                                                <label class="form-label text-white">Name</label>
-                                                <input class="feed-input" type="text" name="commenter_name" placeholder="Your name" required>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label text-white">Email (optional)</label>
-                                                <input class="feed-input" type="email" name="commenter_email" placeholder="name@example.com">
-                                            </div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label text-white">Comment</label>
-                                            <textarea class="feed-textarea" name="body" placeholder="Share your thoughts on this post" required></textarea>
-                                        </div>
-                                        <button type="submit" class="feed-btn">Post Comment</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 @endforeach
                 </div>
 
@@ -955,6 +939,62 @@
             @endif
         @endif
     </div>
+
+    @if(isset($posts) && $posts->count() > 0)
+        @foreach($posts as $post)
+            @php $commentModalId = 'commentModal-' . $post->id; @endphp
+            <div class="modal fade feed-modal" id="{{ $commentModalId }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <div>
+                                <h5 class="modal-title mb-1">Comments for {{ $post->author_name }}</h5>
+                                <small style="color:var(--feed-muted);">Join the conversation for this post.</small>
+                            </div>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="feed-comment-list">
+                                @forelse($post->visibleComments as $comment)
+                                    <div class="feed-comment-card">
+                                        <div class="d-flex justify-content-between gap-3 mb-2" style="color:var(--feed-muted);font-size:.84rem;">
+                                            <strong style="color:var(--feed-text);">{{ $comment->commenter_name }}</strong>
+                                            <span>{{ $comment->created_at->diffForHumans() }}</span>
+                                        </div>
+                                        <div style="white-space:pre-wrap;line-height:1.6;">{{ $comment->body }}</div>
+                                    </div>
+                                @empty
+                                    <div class="feed-empty py-4">No comments yet. Be the first to comment.</div>
+                                @endforelse
+                            </div>
+
+                            <form method="POST" action="{{ route('feed.comments.store', $post) }}">
+                                @csrf
+                                <input type="hidden" name="q" value="{{ $query }}">
+                                <input type="text" name="comment_hp" value="" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;pointer-events:none;">
+                                <input type="hidden" name="comment_form_ts" value="{{ now()->timestamp }}">
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label text-white">Name</label>
+                                        <input class="feed-input" type="text" name="commenter_name" placeholder="Your name" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-white">Email (optional)</label>
+                                        <input class="feed-input" type="email" name="commenter_email" placeholder="name@example.com">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-white">Comment</label>
+                                    <textarea class="feed-textarea" name="body" placeholder="Share your thoughts on this post" required></textarea>
+                                </div>
+                                <button type="submit" class="feed-btn">Post Comment</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    @endif
 
     <div class="feed-lightbox" id="feed-lightbox" aria-hidden="true">
         <div class="feed-lightbox-dialog" role="dialog" aria-modal="true" aria-label="Media viewer">
@@ -987,6 +1027,30 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/js/bootstrap.bundle.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const feedSearchForm = document.getElementById('feed-search-form');
+        const feedSearchDate = document.getElementById('feed-search-date');
+        const feedSearchQuery = feedSearchForm ? feedSearchForm.querySelector('input[name="q"]') : null;
+        const feedResetDateButton = document.getElementById('feed-reset-date');
+
+        if (feedSearchForm && feedSearchDate) {
+            feedSearchDate.addEventListener('change', function () {
+                if (!feedSearchDate.value && feedSearchQuery) {
+                    feedSearchQuery.value = '';
+                }
+                feedSearchForm.requestSubmit();
+            });
+        }
+
+        if (feedSearchForm && feedSearchDate && feedResetDateButton) {
+            feedResetDateButton.addEventListener('click', function () {
+                feedSearchDate.value = '';
+                if (feedSearchQuery) {
+                    feedSearchQuery.value = '';
+                }
+                feedSearchForm.requestSubmit();
+            });
+        }
+
         const lightbox = document.getElementById('feed-lightbox');
         const stage = document.getElementById('feed-lightbox-stage');
         const closeButton = document.getElementById('feed-lightbox-close');

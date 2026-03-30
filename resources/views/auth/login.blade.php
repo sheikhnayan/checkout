@@ -195,9 +195,12 @@
                             </div>
                         </form>
 
-                        <div class="d-flex justify-content-between align-items-center mt-4">
+                        <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-2">
                             <a href="{{ route('affiliate.apply') }}" class="muted text-decoration-none">
                                 <i class="fas fa-bullhorn me-1"></i> Apply as Affiliate
+                            </a>
+                            <a href="{{ route('entertainer.apply') }}" class="muted text-decoration-none">
+                                <i class="fas fa-user-star me-1"></i> Apply as Entertainer
                             </a>
                         </div>
                     </div>

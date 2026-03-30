@@ -29,8 +29,89 @@
             border-bottom: 1px solid rgba(255,255,255,0.1);
             padding: 20px 0 18px;
         }
-        .aff-avatar { width:68px; height:68px; border-radius:50%; object-fit:cover; border:2px solid var(--aff-accent); }
-        .aff-initials { width:68px; height:68px; border-radius:50%; border:2px solid var(--aff-accent); background:rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800; }
+        .aff-profile-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+        .aff-avatar-wrap {
+            width: 74px;
+            height: 74px;
+            border-radius: 50%;
+            padding: 3px;
+            background: linear-gradient(145deg, rgba(255, 204, 0, 0.95), rgba(255, 204, 0, 0.35));
+            box-shadow: 0 12px 26px rgba(0, 0, 0, 0.35);
+            flex-shrink: 0;
+        }
+        .aff-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(11, 14, 26, 0.85);
+            display: block;
+        }
+        .aff-initials {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid rgba(11, 14, 26, 0.85);
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 800;
+        }
+        .aff-profile-content {
+            min-width: 0;
+        }
+        .aff-profile-name {
+            margin: 0;
+            font-size: clamp(1.1rem, 1.2vw, 1.35rem);
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: .01em;
+            color: #f8f9ff;
+        }
+        .aff-profile-desc {
+            margin: 6px 0 0;
+            max-width: 760px;
+            color: rgba(232, 234, 246, 0.78);
+            font-size: 13px;
+            line-height: 1.5;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        .aff-socials {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            flex-wrap: wrap;
+        }
+        .aff-socials a {
+            width: 34px;
+            height: 34px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.16);
+            background: rgba(255,255,255,0.04);
+            color: var(--aff-text);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            opacity: .92;
+            transition: all .2s ease;
+        }
+        .aff-socials a:hover {
+            color: var(--aff-accent);
+            border-color: var(--aff-accent);
+            transform: translateY(-1px);
+        }
 
         /* Club label badge */
         .club-badge { display:inline-block; font-size:10px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; padding:2px 8px; border-radius:4px; background:rgba(255,255,255,0.1); margin-bottom:6px; }
@@ -553,6 +634,12 @@
             .vip-card { flex-direction:column; align-items:flex-start; }
             .aff-banner-content { padding:22px 18px; }
             .aff-gallery { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+            .aff-profile-head {
+                width: 100%;
+            }
+            .aff-profile-desc {
+                -webkit-line-clamp: 3;
+            }
             .aff-location-shell { grid-template-columns: 1fr; }
             .aff-location-map,
             .aff-location-map iframe { min-height: 250px; }
@@ -601,24 +688,26 @@ const clubConfigs = {
 <section class="aff-hero">
     <div class="container">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-            <div class="d-flex align-items-center gap-3">
-                @if($affiliate->profile_image)
-                    <img src="{{ asset('uploads/' . $affiliate->profile_image) }}" alt="Profile" class="aff-avatar">
-                @else
-                    <div class="aff-initials">{{ strtoupper(substr($affiliate->display_name ?: $affiliate->user->name, 0, 2)) }}</div>
-                @endif
-                <div>
-                    <h2 class="mb-0" style="font-size:1.35rem;font-weight:800;">{{ $affiliate->display_name ?: $affiliate->user->name }}</h2>
+            <div class="aff-profile-head">
+                <div class="aff-avatar-wrap">
+                    @if($affiliate->profile_image)
+                        <img src="{{ asset('uploads/' . $affiliate->profile_image) }}" alt="Profile" class="aff-avatar">
+                    @else
+                        <div class="aff-initials">{{ strtoupper(substr($affiliate->display_name ?: $affiliate->user->name, 0, 2)) }}</div>
+                    @endif
+                </div>
+                <div class="aff-profile-content">
+                    <h2 class="aff-profile-name">{{ $affiliate->display_name ?: $affiliate->user->name }}</h2>
                     @if($affiliate->description)
-                        <p class="mb-0 mt-1" style="opacity:.75;font-size:13px;">{{ $affiliate->description }}</p>
+                        <p class="aff-profile-desc">{{ $affiliate->description }}</p>
                     @endif
                 </div>
             </div>
-            <div class="d-flex gap-3" style="font-size:18px;">
-                @if($affiliate->facebook_url)<a href="{{ $affiliate->facebook_url }}" target="_blank" style="color:var(--aff-text);opacity:.7;"><i class="fab fa-facebook"></i></a>@endif
-                @if($affiliate->instagram_url)<a href="{{ $affiliate->instagram_url }}" target="_blank" style="color:var(--aff-text);opacity:.7;"><i class="fab fa-instagram"></i></a>@endif
-                @if($affiliate->tiktok_url)<a href="{{ $affiliate->tiktok_url }}" target="_blank" style="color:var(--aff-text);opacity:.7;"><i class="fab fa-tiktok"></i></a>@endif
-                @if($affiliate->youtube_url)<a href="{{ $affiliate->youtube_url }}" target="_blank" style="color:var(--aff-text);opacity:.7;"><i class="fab fa-youtube"></i></a>@endif
+            <div class="aff-socials">
+                @if($affiliate->facebook_url)<a href="{{ $affiliate->facebook_url }}" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>@endif
+                @if($affiliate->instagram_url)<a href="{{ $affiliate->instagram_url }}" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>@endif
+                @if($affiliate->tiktok_url)<a href="{{ $affiliate->tiktok_url }}" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>@endif
+                @if($affiliate->youtube_url)<a href="{{ $affiliate->youtube_url }}" target="_blank" aria-label="YouTube"><i class="fab fa-youtube"></i></a>@endif
             </div>
         </div>
     </div>
@@ -663,7 +752,7 @@ const clubConfigs = {
     @php
         $featuredClub = optional(optional(optional($clubGroups->first())->first())->package)->website;
     @endphp
-    @if($featuredClub && $featuredClub->location)
+    @if(($affiliate->show_location_section ?? true) && $featuredClub && $featuredClub->location)
         <section class="aff-location-card">
             <div class="aff-location-shell">
                 <div class="aff-location-copy">

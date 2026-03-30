@@ -128,6 +128,7 @@ class AffiliatePortalController extends Controller
             'hero_subtitle' => 'nullable|string|max:500',
             'description' => 'nullable|string|max:5000',
             'secondary_description' => 'nullable|string|max:5000',
+            'show_location_section' => 'nullable|boolean',
             'facebook_url' => 'nullable|url|max:255',
             'instagram_url' => 'nullable|url|max:255',
             'youtube_url' => 'nullable|url|max:255',
@@ -153,6 +154,8 @@ class AffiliatePortalController extends Controller
             'website_url',
             'font_family',
         ]));
+
+        $affiliate->show_location_section = $request->boolean('show_location_section');
 
         if ($request->hasFile('profile_image')) {
             $name = 'affiliate_profile_' . $affiliate->id . '_' . time() . '.' . $request->file('profile_image')->getClientOriginalExtension();

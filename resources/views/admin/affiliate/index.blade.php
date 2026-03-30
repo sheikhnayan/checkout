@@ -4,15 +4,26 @@
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="card p-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                 <h4 class="mb-0">Affiliate Applications</h4>
-                <form method="GET" class="d-flex gap-2">
-                    <select name="status" class="form-select" onchange="this.form.submit()">
-                        <option value="pending" {{ $status === 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="approved" {{ $status === 'approved' ? 'selected' : '' }}>Approved</option>
-                        <option value="rejected" {{ $status === 'rejected' ? 'selected' : '' }}>Rejected</option>
-                    </select>
-                </form>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span class="badge bg-label-info d-inline-flex align-items-center gap-1">
+                        <i class="bx bx-sort-alt-2"></i>
+                        Sort by status
+                    </span>
+                    <a href="{{ route('admin.affiliate.index', ['status' => 'pending']) }}" class="btn btn-sm {{ $status === 'pending' ? 'btn-warning' : 'btn-outline-warning' }} d-inline-flex align-items-center gap-1">
+                        <i class="bx bx-time-five"></i>
+                        Pending
+                    </a>
+                    <a href="{{ route('admin.affiliate.index', ['status' => 'approved']) }}" class="btn btn-sm {{ $status === 'approved' ? 'btn-success' : 'btn-outline-success' }} d-inline-flex align-items-center gap-1">
+                        <i class="bx bx-check-circle"></i>
+                        Approved
+                    </a>
+                    <a href="{{ route('admin.affiliate.index', ['status' => 'rejected']) }}" class="btn btn-sm {{ $status === 'rejected' ? 'btn-danger' : 'btn-outline-danger' }} d-inline-flex align-items-center gap-1">
+                        <i class="bx bx-x-circle"></i>
+                        Rejected
+                    </a>
+                </div>
             </div>
 
             @if(session('success'))

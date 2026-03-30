@@ -38,8 +38,19 @@
                     </div>
 
                     <div class="col-12">
-                        <div class="alert alert-info mb-0">
-                            Theme colors are fixed globally and are no longer editable here.
+                        <input type="hidden" name="show_location_section" value="0">
+                        <div class="form-check mt-1">
+                            <input
+                                type="checkbox"
+                                class="form-check-input"
+                                id="show_location_section"
+                                name="show_location_section"
+                                value="1"
+                                @checked(old('show_location_section', $affiliate->show_location_section ?? true))
+                            >
+                            <label class="form-check-label" for="show_location_section">
+                                Show primary club info and map section on my public page
+                            </label>
                         </div>
                     </div>
 

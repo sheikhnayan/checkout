@@ -19,6 +19,10 @@ use App\Http\Controllers\AffiliateRegistrationController;
 use App\Http\Controllers\AffiliatePublicController;
 use App\Http\Controllers\AffiliateAdminController;
 use App\Http\Controllers\AffiliatePortalController;
+use App\Http\Controllers\EntertainerRegistrationController;
+use App\Http\Controllers\EntertainerPublicController;
+use App\Http\Controllers\EntertainerAdminController;
+use App\Http\Controllers\EntertainerPortalController;
 use App\Http\Controllers\PackageCategoryController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\FeedModelController;
@@ -59,10 +63,14 @@ Route::post('/custom-invoice/{token}/process-payment', [CustomInvoiceController:
 Route::get('/affiliate/apply', [AffiliateRegistrationController::class, 'showForm'])->name('affiliate.apply');
 Route::post('/affiliate/apply', [AffiliateRegistrationController::class, 'submit'])->name('affiliate.apply.submit');
 Route::get('/affiliate/{slug}', [AffiliatePublicController::class, 'show'])->name('affiliate.public');
+Route::get('/entertainer/apply', [EntertainerRegistrationController::class, 'showForm'])->name('entertainer.apply');
+Route::post('/entertainer/apply', [EntertainerRegistrationController::class, 'submit'])->name('entertainer.apply.submit');
+Route::get('/entertainer/{slug}', [EntertainerPublicController::class, 'show'])->name('entertainer.public');
 
 // Public feed routes (must stay before slug route)
 Route::get('/feed', [FeedController::class, 'index'])->name('feed.index');
 Route::post('/feed/posts/{feedPost}/comments', [FeedController::class, 'storeComment'])->name('feed.comments.store');
+Route::get('/{slug}/feed/roll-call', [FeedController::class, 'clubRollCall'])->name('club.feed.roll-call');
 Route::get('/{slug}/feed/profile', [FeedController::class, 'clubProfile'])->name('club.feed.profile');
 Route::get('/{slug}/feed/models/{feedModel}', [FeedController::class, 'modelProfile'])->name('club.feed.model.profile');
 Route::get('/{slug}/feed', [FeedController::class, 'clubFeed'])->name('club.feed');
@@ -189,6 +197,13 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::post('/{affiliate}/packages', [AffiliateAdminController::class, 'updatePackages'])->name('packages.update');
     });
 
+    Route::group(['prefix'=> 'entertainer', 'as' => 'entertainer.'], function () {
+        Route::get('/', [EntertainerAdminController::class, 'index'])->name('index');
+        Route::get('/{entertainer}', [EntertainerAdminController::class, 'show'])->name('show');
+        Route::post('/{entertainer}/approve', [EntertainerAdminController::class, 'approve'])->name('approve');
+        Route::post('/{entertainer}/reject', [EntertainerAdminController::class, 'reject'])->name('reject');
+    });
+
     Route::group(['prefix' => 'feed-model', 'as' => 'feed-model.'], function () {
         Route::get('/', [FeedModelController::class, 'index'])->name('index');
         Route::get('/create', [FeedModelController::class, 'create'])->name('create');
@@ -222,6 +237,15 @@ Route::group(['prefix'=> 'affiliate-portal', 'as' => 'affiliate.portal.', 'middl
     Route::get('/settings', [AffiliatePortalController::class, 'settings'])->name('settings');
     Route::post('/settings', [AffiliatePortalController::class, 'updateSettings'])->name('settings.update');
     Route::get('/wallet', [AffiliatePortalController::class, 'wallet'])->name('wallet');
+});
+
+Route::group(['prefix'=> 'entertainer-portal', 'as' => 'entertainer.portal.', 'middleware' => ['auth', 'image.upload.guard']], function () {
+    Route::get('/dashboard', [EntertainerPortalController::class, 'dashboard'])->name('dashboard');
+    Route::get('/packages', [EntertainerPortalController::class, 'packages'])->name('packages');
+    Route::post('/packages', [EntertainerPortalController::class, 'savePackages'])->name('packages.save');
+    Route::get('/settings', [EntertainerPortalController::class, 'settings'])->name('settings');
+    Route::post('/settings', [EntertainerPortalController::class, 'updateSettings'])->name('settings.update');
+    Route::get('/wallet', [EntertainerPortalController::class, 'wallet'])->name('wallet');
 });
 
 // Payment Logo routes (outside admin group for direct access)

@@ -5,10 +5,10 @@
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 mt-4">
             <div>
-                <h3 class="mb-1">Feed Models</h3>
-                <p class="text-muted mb-0">Create and manage the personalities that appear to post in the social feed.</p>
+                <h3 class="mb-1">Feed Entertainers</h3>
+                <p class="text-muted mb-0">Create and manage the entertainer profiles that appear to post in the social feed.</p>
             </div>
-            <a href="{{ route('admin.feed-model.create') }}" class="btn btn-primary">Add Model</a>
+            <a href="{{ route('admin.feed-model.create') }}" class="btn btn-primary">Add Entertainer</a>
         </div>
 
         @if(session('success'))
@@ -17,10 +17,23 @@
 
         <div class="card">
             <div class="card-body">
+                @if($websites->count() > 1)
+                <form method="GET" action="{{ route('admin.feed-model.index') }}" class="mb-3 d-flex align-items-center gap-2">
+                    <select name="website_id" class="form-select w-auto" onchange="this.form.submit()">
+                        <option value="">All Clients</option>
+                        @foreach($websites as $website)
+                            <option value="{{ $website->id }}" {{ request('website_id') == $website->id ? 'selected' : '' }}>{{ $website->name }}</option>
+                        @endforeach
+                    </select>
+                    @if(request('website_id'))
+                        <a href="{{ route('admin.feed-model.index') }}" class="btn btn-outline-secondary btn-sm">Clear</a>
+                    @endif
+                </form>
+                @endif
                 <table class="table align-middle">
                     <thead>
                         <tr>
-                            <th>Model</th>
+                            <th>Entertainer</th>
                             <th>Website</th>
                             <th>Bio</th>
                             <th>Status</th>
@@ -54,13 +67,13 @@
                                     <a href="{{ route('admin.feed-model.edit', $model) }}" class="btn btn-sm btn-outline-primary">Edit</a>
                                     <form action="{{ route('admin.feed-model.destroy', $model) }}" method="POST" class="d-inline">
                                         @csrf
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this model and all of its posts?')">Delete</button>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this entertainer and all of its posts?')">Delete</button>
                                     </form>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center py-5 text-muted">No feed models created yet.</td>
+                                <td colspan="5" class="text-center py-5 text-muted">No feed entertainers created yet.</td>
                             </tr>
                         @endforelse
                     </tbody>

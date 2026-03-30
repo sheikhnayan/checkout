@@ -5,6 +5,8 @@
     $existingMediaItems = $feedPost ? ($feedPost->resolved_media_items ?? []) : [];
     $oldExternalLinks = old('external_media_links', []);
     $oldExternalTypes = old('external_media_types', []);
+    $isEntertainerUser = auth()->check() && auth()->user()->isEntertainer() && auth()->user()->entertainer;
+    $entertainerProfileId = $isEntertainerUser ? auth()->user()->entertainer->feed_model_id : null;
 @endphp
 
 <style>
@@ -72,33 +74,41 @@
 </style>
 
 <div class="row g-4">
-    <div class="col-md-6">
-        <label for="website_id" class="form-label">Website / Club</label>
-        <select name="website_id" id="website_id" class="form-control" required>
-            @foreach($websites as $website)
-                <option value="{{ $website->id }}" @selected((string) $selectedWebsiteId === (string) $website->id)>{{ $website->name }}</option>
-            @endforeach
-        </select>
-    </div>
+    @if($isEntertainerUser)
+        <input type="hidden" name="website_id" id="website_id" value="{{ $selectedWebsiteId }}">
+        <input type="hidden" name="author_mode" id="author_mode" value="model">
+        <input type="hidden" name="feed_model_id" id="feed_model_id" value="{{ $entertainerProfileId }}">
+    @else
+        <div class="col-md-6">
+            <label for="website_id" class="form-label">Website / Club</label>
+            <select name="website_id" id="website_id" class="form-control" required>
+                @foreach($websites as $website)
+                    <option value="{{ $website->id }}" @selected((string) $selectedWebsiteId === (string) $website->id)>{{ $website->name }}</option>
+                @endforeach
+            </select>
+        </div>
 
-    <div class="col-md-6">
-        <label for="author_mode" class="form-label">Post As</label>
-        <select name="author_mode" id="author_mode" class="form-control" required>
-            <option value="model" @selected($selectedAuthorMode === 'model')>Model Profile</option>
-            <option value="club" @selected($selectedAuthorMode === 'club')>Club Itself</option>
-        </select>
-    </div>
+        <div class="col-md-6">
+            <label for="author_mode" class="form-label">Post As</label>
+            <select name="author_mode" id="author_mode" class="form-control" required>
+                <option value="model" @selected($selectedAuthorMode === 'model')>Entertainer Profile</option>
+                <option value="club" @selected($selectedAuthorMode === 'club')>Club Itself</option>
+            </select>
+        </div>
+    @endif
 
+    @if(!$isEntertainerUser)
     <div class="col-md-6" id="feed-model-select-wrap">
-        <label for="feed_model_id" class="form-label">Model Profile</label>
+        <label for="feed_model_id" class="form-label">Entertainer Profile</label>
         <select name="feed_model_id" id="feed_model_id" class="form-control">
-            <option value="">Select model</option>
+            <option value="">Select entertainer</option>
             @foreach($feedModels as $model)
                 <option value="{{ $model->id }}" data-website="{{ $model->website_id }}" @selected((string) $selectedModelId === (string) $model->id)>{{ $model->name }} ({{ $model->website->name ?? 'No website' }})</option>
             @endforeach
         </select>
-        <small class="text-muted">Visible only when posting as a model.</small>
+        <small class="text-muted">Visible only when posting as an entertainer.</small>
     </div>
+    @endif
 
     <div class="col-md-6">
         <label for="posted_at" class="form-label">Post Date</label>
@@ -121,9 +131,10 @@
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
             <div>
                 <label class="form-label mb-0">Upload Media</label>
-                <div><small class="text-muted">Add image or video files one by one and remove any row before saving. Actual dimensions are shown after selecting each file.</small></div>
+                <div><small class="text-muted">Accepted: JPG, PNG, WEBP, GIF, MP4, MOV, WEBM &mdash; max 20 MB each.</small></div>
+                <div><small class="text-muted">Recommended dimensions: <strong>1080 &times; 1080 px</strong> (square) or <strong>1080 &times; 1350 px</strong> (portrait). Actual file dimensions shown after selecting.</small></div>
             </div>
-            <button type="button" class="btn btn-outline-primary btn-sm" id="add-upload-row">Add Upload</button>
+            <button type="button" class="btn btn-outline-primary btn-sm" id="add-upload-row">Upload Media</button>
         </div>
         <div id="upload-rows" class="feed-dynamic-list"></div>
     </div>
@@ -188,29 +199,7 @@
     <a href="{{ route('admin.feed-post.index') }}" class="btn btn-outline-secondary">Cancel</a>
 </div>
 
-<template id="upload-row-template">
-    <div class="feed-dynamic-item upload-row">
-        <div>
-            <input type="file" name="media_uploads[]" class="form-control" accept="image/*,video/*">
-            <small class="text-muted d-block mt-2">Accepted: image and video files.</small>
-            <small class="text-muted d-block mt-1 upload-dimensions">Dimensions: -</small>
-        </div>
-        <button type="button" class="btn btn-outline-danger remove-dynamic-row">Remove</button>
-    </div>
-</template>
 
-<template id="external-row-template">
-    <div class="feed-dynamic-item external-row">
-        <div class="feed-dynamic-fields">
-            <input type="url" class="form-control" name="external_media_links[]" placeholder="https://example.com/media.mp4">
-            <select name="external_media_types[]" class="form-control">
-                <option value="image">Image</option>
-                <option value="video">Video</option>
-            </select>
-        </div>
-        <button type="button" class="btn btn-outline-danger remove-dynamic-row">Remove</button>
-    </div>
-</template>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -220,50 +209,81 @@ document.addEventListener('DOMContentLoaded', function () {
     const modelWrap = document.getElementById('feed-model-select-wrap');
     const uploadRows = document.getElementById('upload-rows');
     const externalRows = document.getElementById('external-rows');
-    const uploadTemplate = document.getElementById('upload-row-template');
-    const externalTemplate = document.getElementById('external-row-template');
     const addUploadRowBtn = document.getElementById('add-upload-row');
     const addExternalRowBtn = document.getElementById('add-external-row');
+    const selectedModelInput = @json((string) $selectedModelId);
+    const hasModelSelect = modelSelect && modelSelect.tagName === 'SELECT';
+    const allModelOptions = hasModelSelect
+        ? Array.from(modelSelect.options)
+            .filter(function (option) { return !!option.value; })
+            .map(function (option) {
+                return {
+                    value: option.value,
+                    text: option.text,
+                    website: option.dataset.website || ''
+                };
+            })
+        : [];
 
     function syncModelOptions() {
+        if (!websiteSelect || !hasModelSelect) {
+            return;
+        }
+
         const selectedWebsite = websiteSelect.value;
-        let hasVisibleSelected = false;
+        const currentValue = modelSelect.value || selectedModelInput;
 
-        Array.from(modelSelect.options).forEach(function (option) {
-            if (!option.value) {
-                option.hidden = false;
-                return;
-            }
+        while (modelSelect.options.length) {
+            modelSelect.remove(0);
+        }
 
-            const isVisible = option.dataset.website === selectedWebsite;
-            option.hidden = !isVisible;
-            if (!isVisible && option.selected) {
-                option.selected = false;
-            }
-            if (isVisible && option.selected) {
-                hasVisibleSelected = true;
-            }
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = 'Select entertainer';
+        modelSelect.appendChild(placeholder);
+
+        const filteredModels = allModelOptions.filter(function (model) {
+            return model.website === selectedWebsite;
         });
 
-        if (!hasVisibleSelected) {
-            const firstVisible = Array.from(modelSelect.options).find(function (option) {
-                return option.value && !option.hidden;
-            });
+        filteredModels.forEach(function (model) {
+            const option = document.createElement('option');
+            option.value = model.value;
+            option.textContent = model.text;
+            option.dataset.website = model.website;
 
-            if (firstVisible) {
-                firstVisible.selected = true;
+            if (String(model.value) === String(currentValue)) {
+                option.selected = true;
             }
+
+            modelSelect.appendChild(option);
+        });
+
+        if (modelSelect.selectedIndex <= 0 && filteredModels.length > 0) {
+            modelSelect.selectedIndex = 1;
         }
     }
 
     function syncAuthorMode() {
+        if (!authorModeSelect || !modelWrap || !modelSelect) {
+            return;
+        }
+
         const isClub = authorModeSelect.value === 'club';
         modelWrap.style.display = isClub ? 'none' : '';
         modelSelect.required = !isClub;
     }
 
     function addUploadRow() {
-        uploadRows.appendChild(uploadTemplate.content.firstElementChild.cloneNode(true));
+        var row = document.createElement('div');
+        row.className = 'feed-dynamic-item upload-row';
+        row.innerHTML =
+            '<div>' +
+            '<input type="file" name="media_uploads[]" class="form-control" accept="image/*,video/*">' +
+            '<small class="text-muted d-block mt-1 upload-dimensions"></small>' +
+            '</div>' +
+            '<button type="button" class="btn btn-outline-danger remove-dynamic-row">Remove</button>';
+        uploadRows.appendChild(row);
     }
 
     function setRowDimensionsText(fileInput, message) {
@@ -322,11 +342,26 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function addExternalRow() {
-        externalRows.appendChild(externalTemplate.content.firstElementChild.cloneNode(true));
+        var row = document.createElement('div');
+        row.className = 'feed-dynamic-item external-row';
+        row.innerHTML =
+            '<div class="feed-dynamic-fields">' +
+            '<input type="url" class="form-control" name="external_media_links[]" placeholder="https://example.com/media.mp4">' +
+            '<select name="external_media_types[]" class="form-control">' +
+            '<option value="image">Image</option>' +
+            '<option value="video">Video</option>' +
+            '</select>' +
+            '</div>' +
+            '<button type="button" class="btn btn-outline-danger remove-dynamic-row">Remove</button>';
+        externalRows.appendChild(row);
     }
 
-    addUploadRowBtn.addEventListener('click', addUploadRow);
-    addExternalRowBtn.addEventListener('click', addExternalRow);
+    if (addUploadRowBtn && uploadRows) {
+        addUploadRowBtn.addEventListener('click', addUploadRow);
+    }
+    if (addExternalRowBtn && externalRows) {
+        addExternalRowBtn.addEventListener('click', addExternalRow);
+    }
 
     document.addEventListener('click', function (event) {
         if (event.target.classList.contains('remove-dynamic-row')) {
@@ -344,10 +379,14 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    websiteSelect.addEventListener('change', syncModelOptions);
-    authorModeSelect.addEventListener('change', syncAuthorMode);
+    if (websiteSelect) {
+        websiteSelect.addEventListener('change', syncModelOptions);
+    }
+    if (authorModeSelect) {
+        authorModeSelect.addEventListener('change', syncAuthorMode);
+    }
 
-    if (!uploadRows.children.length) {
+    if (uploadRows && !uploadRows.children.length) {
         addUploadRow();
     }
 

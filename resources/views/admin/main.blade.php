@@ -116,6 +116,41 @@
         box-shadow: 0 0 0 0.2rem rgba(255, 204, 0, 0.16) !important;
       }
 
+      .form-check-input {
+        width: 1.15rem;
+        height: 1.15rem;
+        border: 2px solid rgba(255, 255, 255, 0.45) !important;
+        border-radius: 0.3rem;
+        background-color: #11172a !important;
+        background-size: 0.8rem 0.8rem;
+        cursor: pointer;
+      }
+
+      .form-check-input:hover {
+        border-color: rgba(255, 204, 0, 0.75) !important;
+      }
+
+      .form-check-input:focus {
+        border-color: var(--admin-accent) !important;
+        box-shadow: 0 0 0 0.2rem rgba(255, 204, 0, 0.24) !important;
+      }
+
+      .form-check-input:checked {
+        border-color: var(--admin-accent) !important;
+        background-color: var(--admin-accent) !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%230b0e1a' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M4 10l4 4 8-8'/%3e%3c/svg%3e") !important;
+      }
+
+      .form-check-input:indeterminate {
+        border-color: var(--admin-accent) !important;
+        background-color: var(--admin-accent) !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%230b0e1a' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M5 10h10'/%3e%3c/svg%3e") !important;
+      }
+
+      .form-check-label {
+        color: var(--admin-text) !important;
+      }
+
       .btn-primary,
       .btn-success,
       .btn-warning,
@@ -295,8 +330,8 @@
         position: fixed;
         top: 1rem;
         left: 1rem;
-        z-index: 1085;
-        display: none;
+        z-index: 1101;
+        display: none !important;
         align-items: center;
         justify-content: center;
         width: 44px;
@@ -306,6 +341,10 @@
         background: #696cff;
         color: #fff;
         box-shadow: 0 10px 24px rgba(105, 108, 255, 0.28);
+      }
+
+      .layout-menu .layout-menu-toggle.menu-link {
+        display: none !important;
       }
 
       .admin-mobile-menu-toggle i {
@@ -330,7 +369,9 @@
 
       @media (max-width: 1199.98px) {
         .admin-mobile-menu-toggle {
-          display: inline-flex;
+          display: inline-flex !important;
+          left: auto;
+          right: 1rem;
         }
 
         .layout-page {
@@ -395,7 +436,7 @@
   <body>
     <button
       type="button"
-      class="admin-mobile-menu-toggle layout-menu-toggle"
+      class="admin-mobile-menu-toggle"
       aria-label="Open sidebar"
       aria-controls="layout-menu"
       aria-expanded="false">
@@ -409,7 +450,7 @@
 
         <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
           <div class="app-brand demo">
-            <a href="index.html" class="app-brand-link">
+            <a href="#" class="app-brand-link">
               <span class="app-brand-logo demo">
                 <span class="text-primary">
                   <svg
@@ -528,7 +569,7 @@
   <li class="menu-item {{ request()->is('admins/feed-model*') ? 'active' : '' }}">
     <a href="{{ route('admin.feed-model.index') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-user-circle"></i>
-      <div class="text-truncate">Feed Models</div>
+      <div class="text-truncate">Feed Entertainers</div>
     </a>
   </li>
 
@@ -576,6 +617,15 @@
   </li>
   @endif
 
+  @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isWebsiteUser()))
+  <li class="menu-item {{ request()->is('admins/entertainer*') ? 'active' : '' }}">
+    <a href="{{ route('admin.entertainer.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-user-voice"></i>
+      <div class="text-truncate">Entertainers</div>
+    </a>
+  </li>
+  @endif
+
   @if(auth()->check() && auth()->user()->isAffiliate())
   <li class="menu-item {{ request()->is('affiliate-portal/dashboard') ? 'active' : '' }}">
     <a href="{{ route('affiliate.portal.dashboard') }}" class="menu-link">
@@ -610,6 +660,52 @@
     <a href="{{ route('affiliate.public', auth()->user()->affiliate->slug) }}" target="_blank" class="menu-link">
       <i class="menu-icon tf-icons bx bx-link-external"></i>
       <div class="text-truncate">My Affiliate Page</div>
+    </a>
+  </li>
+  @endif
+  @endif
+
+  @if(auth()->check() && auth()->user()->isEntertainer())
+  <li class="menu-item {{ request()->is('entertainer-portal/dashboard') ? 'active' : '' }}">
+    <a href="{{ route('entertainer.portal.dashboard') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-home-alt-2"></i>
+      <div class="text-truncate">Entertainer Dashboard</div>
+    </a>
+  </li>
+
+  <li class="menu-item {{ request()->is('entertainer-portal/packages') ? 'active' : '' }}">
+    <a href="{{ route('entertainer.portal.packages') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-list-ul"></i>
+      <div class="text-truncate">My Packages</div>
+    </a>
+  </li>
+
+  <li class="menu-item {{ request()->is('admins/feed-post*') ? 'active' : '' }}">
+    <a href="{{ route('admin.feed-post.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-images"></i>
+      <div class="text-truncate">My Feed Posts</div>
+    </a>
+  </li>
+
+  <li class="menu-item {{ request()->is('entertainer-portal/settings') ? 'active' : '' }}">
+    <a href="{{ route('entertainer.portal.settings') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-palette"></i>
+      <div class="text-truncate">Page Customization</div>
+    </a>
+  </li>
+
+  <li class="menu-item {{ request()->is('entertainer-portal/wallet') ? 'active' : '' }}">
+    <a href="{{ route('entertainer.portal.wallet') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-wallet"></i>
+      <div class="text-truncate">Wallet</div>
+    </a>
+  </li>
+
+  @if(auth()->user()->entertainer && auth()->user()->entertainer->slug)
+  <li class="menu-item">
+    <a href="{{ route('entertainer.public', auth()->user()->entertainer->slug) }}" target="_blank" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-link-external"></i>
+      <div class="text-truncate">My Entertainer Page</div>
     </a>
   </li>
   @endif
@@ -855,9 +951,16 @@
           function syncState() {
             const expanded = wrapper.classList.contains('layout-menu-expanded');
             toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+            toggle.setAttribute('aria-label', expanded ? 'Close sidebar' : 'Open sidebar');
           }
 
-          toggle.addEventListener('click', function () {
+          toggle.addEventListener('click', function (event) {
+            event.preventDefault();
+
+            if (window.innerWidth >= 1200) {
+              return;
+            }
+
             wrapper.classList.toggle('layout-menu-expanded');
             syncState();
           });
@@ -872,8 +975,9 @@
           window.addEventListener('resize', function () {
             if (window.innerWidth >= 1200) {
               wrapper.classList.remove('layout-menu-expanded');
-              syncState();
             }
+
+            syncState();
           });
 
           syncState();

@@ -7,7 +7,7 @@
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 mt-4">
             <div>
                 <h3 class="mb-1">Feed Posts</h3>
-                <p class="text-muted mb-0">Publish club or model posts with uploaded or external image/video media.</p>
+                <p class="text-muted mb-0">Publish club or entertainer posts with uploaded or external image/video media.</p>
             </div>
             <div class="d-flex gap-2 flex-wrap">
                 @if($firstWebsite)
@@ -23,6 +23,19 @@
 
         <div class="card">
             <div class="card-body">
+                @if($websites->count() > 1)
+                <form method="GET" action="{{ route('admin.feed-post.index') }}" class="mb-3 d-flex align-items-center gap-2">
+                    <select name="website_id" class="form-select w-auto" onchange="this.form.submit()">
+                        <option value="">All Clients</option>
+                        @foreach($websites as $site)
+                            <option value="{{ $site->id }}" {{ request('website_id') == $site->id ? 'selected' : '' }}>{{ $site->name }}</option>
+                        @endforeach
+                    </select>
+                    @if(request('website_id'))
+                        <a href="{{ route('admin.feed-post.index') }}" class="btn btn-outline-secondary btn-sm">Clear</a>
+                    @endif
+                </form>
+                @endif
                 <table class="table align-middle">
                     <thead>
                         <tr>

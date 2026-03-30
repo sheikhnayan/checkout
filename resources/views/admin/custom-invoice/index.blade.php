@@ -29,7 +29,7 @@
                                 <nav aria-label="breadcrumb">
                                     <ol class="breadcrumb" style="float: left">
                                         <li class="breadcrumb-item opacity-10">
-                                            <a href="/admins">
+                                            <a href="#">
                                                 <i class="fas fa-home"></i>
                                                 <span class="visually-hidden">Home</span>
                                             </a>

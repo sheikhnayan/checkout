@@ -13,13 +13,24 @@ use Illuminate\View\View;
 
 class FeedPostController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $websiteIds = $this->accessibleWebsiteIds();
+        $entertainer = $this->approvedEntertainer();
 
         $posts = FeedPost::with(['website', 'feedModel'])
             ->withCount('comments')
             ->whereIn('website_id', $websiteIds)
+            ->when($entertainer, function ($query) use ($entertainer) {
+                $query->where('author_mode', 'model')
+                    ->where('feed_model_id', $entertainer->feed_model_id);
+            })
+            ->when($request->filled('website_id'), function ($query) use ($request, $websiteIds) {
+                $id = (int) $request->input('website_id');
+                if (in_array($id, $websiteIds)) {
+                    $query->where('website_id', $id);
+                }
+            })
             ->latest('posted_at')
             ->latest()
             ->get();
@@ -53,7 +64,7 @@ class FeedPostController extends Controller
 
     public function show(FeedPost $feedPost): View
     {
-        $this->ensureWebsiteAccess($feedPost->website_id);
+        $this->ensurePostManagementAccess($feedPost);
         $feedPost->load(['website', 'feedModel', 'comments']);
 
         return view('admin.feed-post.show', [
@@ -63,7 +74,7 @@ class FeedPostController extends Controller
 
     public function edit(FeedPost $feedPost): View
     {
-        $this->ensureWebsiteAccess($feedPost->website_id);
+        $this->ensurePostManagementAccess($feedPost);
 
         return view('admin.feed-post.edit', [
             'feedPost' => $feedPost,
@@ -75,7 +86,7 @@ class FeedPostController extends Controller
     public function update(Request $request, FeedPost $feedPost): RedirectResponse
     {
         $validated = $this->validatePost($request);
-        $this->ensureWebsiteAccess($feedPost->website_id);
+        $this->ensurePostManagementAccess($feedPost);
         $this->ensureWebsiteAccess((int) $validated['website_id']);
         $this->ensureAuthorSelection($validated);
 
@@ -87,7 +98,7 @@ class FeedPostController extends Controller
 
     public function destroy(FeedPost $feedPost): RedirectResponse
     {
-        $this->ensureWebsiteAccess($feedPost->website_id);
+        $this->ensurePostManagementAccess($feedPost);
         $feedPost->delete();
 
         return redirect()->route('admin.feed-post.index')->with('success', 'Feed post deleted successfully.');
@@ -95,7 +106,7 @@ class FeedPostController extends Controller
 
     public function toggleCommentVisibility(FeedPost $feedPost, FeedComment $feedComment): RedirectResponse
     {
-        $this->ensureWebsiteAccess($feedPost->website_id);
+        $this->ensurePostManagementAccess($feedPost);
 
         if ($feedComment->feed_post_id !== $feedPost->id) {
             abort(404);
@@ -109,7 +120,7 @@ class FeedPostController extends Controller
 
     public function destroyComment(FeedPost $feedPost, FeedComment $feedComment): RedirectResponse
     {
-        $this->ensureWebsiteAccess($feedPost->website_id);
+        $this->ensurePostManagementAccess($feedPost);
 
         if ($feedComment->feed_post_id !== $feedPost->id) {
             abort(404);
@@ -140,9 +151,18 @@ class FeedPostController extends Controller
 
     private function fillPost(FeedPost $post, Request $request, array $validated): void
     {
-        $post->website_id = $validated['website_id'];
-        $post->author_mode = $validated['author_mode'];
-        $post->feed_model_id = $validated['author_mode'] === 'model' ? ($validated['feed_model_id'] ?? null) : null;
+        $entertainer = $this->approvedEntertainer();
+
+        if ($entertainer) {
+            $post->website_id = $entertainer->website_id;
+            $post->author_mode = 'model';
+            $post->feed_model_id = $entertainer->feed_model_id;
+        } else {
+            $post->website_id = $validated['website_id'];
+            $post->author_mode = $validated['author_mode'];
+            $post->feed_model_id = $validated['author_mode'] === 'model' ? ($validated['feed_model_id'] ?? null) : null;
+        }
+
         $post->caption = $validated['caption'] ?? null;
         $post->posted_at = $validated['posted_at'] ?? now();
         $post->is_active = $request->boolean('is_active', true);
@@ -176,6 +196,13 @@ class FeedPostController extends Controller
             return Website::where('id', $user->website_id)->orderBy('name')->get();
         }
 
+        if ($user->isEntertainer()) {
+            $entertainer = $this->approvedEntertainer();
+            if ($entertainer) {
+                return Website::where('id', $entertainer->website_id)->orderBy('name')->get();
+            }
+        }
+
         abort(403);
     }
 
@@ -186,6 +213,15 @@ class FeedPostController extends Controller
 
     private function accessibleFeedModels(): Collection
     {
+        $entertainer = $this->approvedEntertainer();
+        if ($entertainer) {
+            return FeedModel::with('website')
+                ->where('id', $entertainer->feed_model_id)
+                ->whereIn('website_id', $this->accessibleWebsiteIds())
+                ->orderBy('name')
+                ->get();
+        }
+
         return FeedModel::with('website')
             ->whereIn('website_id', $this->accessibleWebsiteIds())
             ->orderBy('name')
@@ -207,18 +243,49 @@ class FeedPostController extends Controller
             ->exists();
 
         if (!$exists) {
-            abort(403, 'Selected model does not belong to the chosen website.');
+            abort(403, 'Selected entertainer does not belong to the chosen website.');
+        }
+    }
+
+    private function ensurePostManagementAccess(FeedPost $feedPost): void
+    {
+        $this->ensureWebsiteAccess($feedPost->website_id);
+
+        $entertainer = $this->approvedEntertainer();
+        if (!$entertainer) {
+            return;
+        }
+
+        if ((string) $feedPost->author_mode !== 'model' || (int) $feedPost->feed_model_id !== (int) $entertainer->feed_model_id) {
+            abort(403, 'You can only manage your own feed posts.');
         }
     }
 
     private function ensureAuthorSelection(array $validated): void
     {
+        $entertainer = $this->approvedEntertainer();
+        if ($entertainer) {
+            if (($validated['author_mode'] ?? 'model') !== 'model') {
+                abort(422, 'Entertainers can only post as their own entertainer profile.');
+            }
+
+            if ((int) ($validated['website_id'] ?? 0) !== (int) $entertainer->website_id) {
+                abort(403, 'You can only post to your assigned club.');
+            }
+
+            if ((int) ($validated['feed_model_id'] ?? 0) !== (int) $entertainer->feed_model_id) {
+                abort(403, 'You can only post using your own entertainer profile.');
+            }
+
+            return;
+        }
+
         if (($validated['author_mode'] ?? 'model') === 'club') {
             return;
         }
 
         if (empty($validated['feed_model_id'])) {
-            abort(422, 'Please select a model when posting as a model.');
+            abort(422, 'Please select an entertainer profile when posting as an entertainer.');
         }
 
         $this->ensureFeedModelAccess((int) $validated['feed_model_id'], (int) $validated['website_id']);
@@ -291,5 +358,21 @@ class FeedPostController extends Controller
     private function storeImage($file, string $prefix): string
     {
         return $this->storeMediaFile($file, $prefix);
+    }
+
+    private function approvedEntertainer()
+    {
+        $user = auth()->user();
+
+        if (!$user || !$user->isEntertainer()) {
+            return null;
+        }
+
+        $entertainer = $user->entertainer;
+        if (!$entertainer || $entertainer->status !== 'approved' || !$entertainer->is_active || !$entertainer->feed_model_id) {
+            abort(403, 'Entertainer posting access denied.');
+        }
+
+        return $entertainer;
     }
 }

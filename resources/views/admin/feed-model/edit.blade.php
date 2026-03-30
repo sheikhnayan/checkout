@@ -5,8 +5,8 @@
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="card mt-4">
             <div class="card-header">
-                <h4 class="mb-1">Edit Feed Model</h4>
-                <p class="text-muted mb-0">Update this model’s public profile and visibility.</p>
+                <h4 class="mb-1">Edit Feed Entertainer</h4>
+                <p class="text-muted mb-0">Update this entertainer's public profile and visibility.</p>
             </div>
             <div class="card-body">
                 @if($errors->any())

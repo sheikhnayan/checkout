@@ -16,6 +16,7 @@ class Affiliate extends Model
         'hero_subtitle',
         'description',
         'secondary_description',
+        'show_location_section',
         'profile_image',
         'banner_image',
         'gallery_images',
@@ -43,6 +44,7 @@ class Affiliate extends Model
         'wallet_balance' => 'decimal:2',
         'default_commission_percentage' => 'decimal:2',
         'gallery_images' => 'array',
+        'show_location_section' => 'boolean',
     ];
 
     public function user()

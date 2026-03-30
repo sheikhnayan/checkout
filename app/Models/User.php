@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Affiliate;
+use App\Models\Entertainer;
 
 class User extends Authenticatable
 {
@@ -63,6 +64,11 @@ class User extends Authenticatable
         return $this->hasOne(Affiliate::class);
     }
 
+    public function entertainer()
+    {
+        return $this->hasOne(Entertainer::class);
+    }
+
     /**
      * Check if the user is an admin.
      */
@@ -82,6 +88,11 @@ class User extends Authenticatable
     public function isAffiliate()
     {
         return $this->user_type === 'affiliate';
+    }
+
+    public function isEntertainer()
+    {
+        return $this->user_type === 'entertainer';
     }
 
     /**

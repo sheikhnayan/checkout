@@ -11,13 +11,20 @@ use Illuminate\View\View;
 
 class FeedModelController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $user = auth()->user();
         $websiteIds = $this->accessibleWebsiteIds();
 
         $models = FeedModel::with('website')
             ->whereIn('website_id', $websiteIds)
+            ->when($request->filled('website_id'), function ($query) use ($request, $websiteIds) {
+                $websiteId = (int) $request->input('website_id');
+
+                if (in_array($websiteId, $websiteIds, true)) {
+                    $query->where('website_id', $websiteId);
+                }
+            })
             ->latest()
             ->get();
 
@@ -65,7 +72,7 @@ class FeedModelController extends Controller
             collect($performanceDates)->map(fn ($date) => ['performance_date' => $date])->all()
         );
 
-        return redirect()->route('admin.feed-model.index')->with('success', 'Feed model created successfully.');
+        return redirect()->route('admin.feed-model.index')->with('success', 'Feed entertainer created successfully.');
     }
 
     public function edit(FeedModel $feedModel): View
@@ -109,7 +116,7 @@ class FeedModelController extends Controller
             collect($performanceDates)->map(fn ($date) => ['performance_date' => $date])->all()
         );
 
-        return redirect()->route('admin.feed-model.index')->with('success', 'Feed model updated successfully.');
+        return redirect()->route('admin.feed-model.index')->with('success', 'Feed entertainer updated successfully.');
     }
 
     public function destroy(FeedModel $feedModel): RedirectResponse
@@ -117,7 +124,7 @@ class FeedModelController extends Controller
         $this->ensureWebsiteAccess($feedModel->website_id);
         $feedModel->delete();
 
-        return redirect()->route('admin.feed-model.index')->with('success', 'Feed model deleted successfully.');
+        return redirect()->route('admin.feed-model.index')->with('success', 'Feed entertainer deleted successfully.');
     }
 
     private function accessibleWebsites(): Collection
