@@ -1026,7 +1026,7 @@
             border: 1px solid rgba(255,255,255,0.08);
             border-radius: 18px;
             overflow: hidden;
-            min-height: 180px;
+            min-height: 160px;
             margin: 14px 0 16px;
             background:
                 var(--brand-gradient),
@@ -1037,7 +1037,8 @@
         .aff-banner-content {
             position: relative;
             z-index: 1;
-            padding: 20px 20px 18px;
+            max-width: 560px;
+            padding: 16px 16px 14px;
         }
 
         .aff-kicker {
@@ -1049,7 +1050,7 @@
         }
 
         .aff-display-title {
-            font-size: clamp(1.55rem, 3.6vw, 2.6rem);
+            font-size: clamp(1.35rem, 3vw, 2.1rem);
             line-height: 1.05;
             font-weight: 800;
             max-width: 9ch;
@@ -1058,8 +1059,8 @@
         }
 
         .aff-display-copy {
-            max-width: 620px;
-            font-size: 13px;
+            max-width: 500px;
+            font-size: 12px;
             line-height: 1.4;
             opacity: .82;
             color: #d8def0 !important;
@@ -1067,8 +1068,8 @@
 
         .hero-date-card {
             margin-top: 10px;
-            max-width: 330px;
-            padding: 12px 14px;
+            max-width: 285px;
+            padding: 10px 12px;
             border-radius: 14px;
             border: 1px solid rgba(255,255,255,0.08);
             background: rgba(255,255,255,0.04);
@@ -1522,7 +1523,7 @@
         }
 
         @media(max-width:768px) {
-            .aff-banner-content { padding: 16px 14px 14px; }
+            .aff-banner-content { max-width: 100%; padding: 14px 12px 12px; }
             .hero-date-card { max-width: 100%; }
             .vip-card-side { flex: 1 1 100%; }
             .hero-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
