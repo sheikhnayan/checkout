@@ -27,6 +27,71 @@
 label{
     color: #000 !important;
 }
+
+.toggle-field {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border: 1px solid #d7dce4;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.toggle-field .toggle-text {
+    margin: 0;
+    color: #111827;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 28px;
+}
+
+.toggle-switch-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.toggle-switch-slider {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: #d1d5db;
+    transition: background .2s ease;
+    cursor: pointer;
+}
+
+.toggle-switch-slider::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    left: 4px;
+    top: 4px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    transition: transform .2s ease;
+}
+
+.toggle-switch-input:checked + .toggle-switch-slider {
+    background: #00b074;
+}
+
+.toggle-switch-input:checked + .toggle-switch-slider::before {
+    transform: translateX(20px);
+}
+
+.toggle-switch-input:focus-visible + .toggle-switch-slider {
+    box-shadow: 0 0 0 3px rgba(0, 176, 116, 0.25);
+}
 </style>
 <style>
   #suggestions {
@@ -163,19 +228,25 @@ label{
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label>
-                                                            <input type="checkbox" name="multiple" />
-                                                            Multiple
-                                                        </label>
+                                                        <div class="toggle-field">
+                                                            <p class="toggle-text">Multiple</p>
+                                                            <label class="toggle-switch" for="multiple">
+                                                                <input id="multiple" type="checkbox" name="multiple" class="toggle-switch-input" @checked(old('multiple'))>
+                                                                <span class="toggle-switch-slider"></span>
+                                                            </label>
+                                                        </div>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label>
-                                                            <input type="checkbox" name="transportation" />
-                                                            Transportation
-                                                        </label>
+                                                        <div class="toggle-field">
+                                                            <p class="toggle-text">Transportation</p>
+                                                            <label class="toggle-switch" for="transportation">
+                                                                <input id="transportation" type="checkbox" name="transportation" class="toggle-switch-input" @checked(old('transportation'))>
+                                                                <span class="toggle-switch-slider"></span>
+                                                            </label>
+                                                        </div>
                                                     </div>
                                                 </div>
 

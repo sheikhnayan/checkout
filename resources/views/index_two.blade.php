@@ -984,7 +984,7 @@
         .aff-hero {
             background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
             border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding: 14px 0 12px;
+            padding: 10px 0 8px;
         }
 
         .aff-avatar {
@@ -1026,9 +1026,9 @@
             border: 1px solid rgba(255,255,255,0.08);
             border-radius: 18px;
             overflow: hidden;
-            width: min(100%, 640px);
-            min-height: 160px;
-            margin: 8px 0 10px;
+            width: 100%;
+            min-height: 130px;
+            margin: 6px 0 8px;
             background:
                 var(--brand-gradient),
                 radial-gradient(circle at top right, rgba(221, 183, 116, 0.22), transparent 42%),
@@ -1038,12 +1038,12 @@
         .aff-banner-content {
             position: relative;
             z-index: 1;
-            max-width: 500px;
-            padding: 14px 14px 12px;
+            max-width: none;
+            padding: 10px 12px 9px;
         }
 
         .aff-kicker {
-            font-size: 10px;
+            font-size: 9px;
             letter-spacing: 1px;
             text-transform: uppercase;
             opacity: .64;
@@ -1051,33 +1051,33 @@
         }
 
         .aff-display-title {
-            font-size: clamp(1.2rem, 2.4vw, 1.8rem);
+            font-size: clamp(1.05rem, 2vw, 1.55rem);
             line-height: 1.05;
             font-weight: 800;
             max-width: 9ch;
-            margin: 4px 0 6px;
+            margin: 2px 0 4px;
             color: #fff !important;
         }
 
         .aff-display-copy {
-            max-width: 430px;
+            max-width: none;
             font-size: 11px;
-            line-height: 1.4;
+            line-height: 1.25;
             opacity: .82;
             color: #d8def0 !important;
         }
 
         .hero-date-card {
-            margin-top: 8px;
-            max-width: 255px;
-            padding: 8px 10px;
+            margin-top: 5px;
+            max-width: 320px;
+            padding: 7px 10px;
             border-radius: 14px;
             border: 1px solid rgba(255,255,255,0.08);
             background: rgba(255,255,255,0.04);
         }
 
         .hero-date-card label {
-            margin-bottom: 4px;
+            margin-bottom: 3px;
             text-transform: uppercase;
             font-size: 9px;
             letter-spacing: .8px;
@@ -1525,14 +1525,14 @@
 
         @media(max-width:768px) {
             .aff-banner { width: 100%; }
-            .aff-banner-content { max-width: 100%; padding: 12px 10px 10px; }
+            .aff-banner-content { max-width: 100%; padding: 10px 8px 8px; }
             .hero-date-card { max-width: 100%; }
             .vip-card-side { flex: 1 1 100%; }
             .hero-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .location-shell { grid-template-columns: 1fr; }
             .location-map-wrap,
             .location-map-wrap iframe { min-height: 260px; }
-            .aff-display-title { margin: 4px 0 6px; }
+            .aff-display-title { margin: 2px 0 4px; }
             .aff-display-copy { font-size: 11px; }
         }
 
@@ -1579,7 +1579,7 @@
         </section>
 
         <header>
-            <div class="container py-2">
+            <div class="container py-1">
                 @session('success')
                     <div class="alert alert-success" role="alert">Purchase Successfull!</div>
                 @endsession
