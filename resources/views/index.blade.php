@@ -858,7 +858,7 @@ body {
 .aff-hero {
     background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
     border-bottom: 1px solid rgba(255,255,255,0.1);
-    padding: 20px 0 18px;
+    padding: 14px 0 12px;
 }
 
 .aff-avatar {
@@ -884,13 +884,15 @@ body {
 }
 
 .aff-hero-title {
-    font-size: 1.35rem;
+    font-size: 1.18rem;
+    line-height: 1.15;
     font-weight: 800;
 }
 
 .aff-hero-copy {
     opacity: .75;
-    font-size: 13px;
+    font-size: 12px;
+    line-height: 1.3;
 }
 
 .aff-banner {
@@ -898,8 +900,8 @@ body {
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 18px;
     overflow: hidden;
-    min-height: 220px;
-    margin: 20px 0 24px;
+    min-height: 180px;
+    margin: 14px 0 16px;
     background:
         var(--brand-gradient),
         radial-gradient(circle at top right, rgba(255,255,255,0.08), transparent 35%),
@@ -909,7 +911,7 @@ body {
 .aff-banner-content {
     position: relative;
     z-index: 1;
-    padding: 28px;
+    padding: 20px 20px 18px;
 }
 
 .aff-kicker {
@@ -921,36 +923,103 @@ body {
 }
 
 .aff-display-title {
-    font-size: clamp(2rem, 5vw, 3.8rem);
-    line-height: 1;
+    font-size: clamp(1.55rem, 3.6vw, 2.6rem);
+    line-height: 1.05;
     font-weight: 800;
     max-width: 9ch;
-    margin: 10px 0 12px;
+    margin: 6px 0 8px;
     color: #fff !important;
 }
 
 .aff-display-copy {
     max-width: 620px;
-    font-size: 15px;
+    font-size: 13px;
+    line-height: 1.4;
     opacity: .82;
     color: #d8def0 !important;
 }
 
 .hero-date-card {
-    margin-top: 20px;
-    max-width: 360px;
-    padding: 16px 18px;
+    margin-top: 10px;
+    max-width: 330px;
+    padding: 12px 14px;
     border-radius: 14px;
     border: 1px solid rgba(255,255,255,0.08);
     background: rgba(255,255,255,0.04);
 }
 
 .hero-date-card label {
-    margin-bottom: 8px;
+    margin-bottom: 5px;
     text-transform: uppercase;
-    font-size: 11px;
+    font-size: 10px;
     letter-spacing: .8px;
     opacity: .7;
+}
+
+#package_use_date {
+    color: #f5f8ff !important;
+    -webkit-text-fill-color: #f5f8ff !important;
+    font-weight: 600;
+}
+
+.flatpickr-calendar {
+    background: #0f172a !important;
+    border: 1px solid rgba(148, 163, 184, 0.35) !important;
+    box-shadow: 0 16px 32px rgba(2, 6, 23, 0.45) !important;
+}
+
+.flatpickr-calendar .flatpickr-months,
+.flatpickr-calendar .flatpickr-weekdays,
+.flatpickr-calendar .flatpickr-days {
+    background: #0f172a !important;
+}
+
+.flatpickr-month,
+.flatpickr-current-month .flatpickr-monthDropdown-months,
+.flatpickr-current-month input.cur-year,
+.flatpickr-weekday,
+.flatpickr-day,
+.flatpickr-calendar .flatpickr-months .flatpickr-prev-month,
+.flatpickr-calendar .flatpickr-months .flatpickr-next-month {
+    color: #e2e8f0 !important;
+    fill: #e2e8f0 !important;
+}
+
+.flatpickr-day:hover {
+    background: rgba(221, 183, 116, 0.28) !important;
+    border-color: rgba(201, 156, 77, 0.62) !important;
+}
+
+.flatpickr-day.today {
+    border-color: #ffcc00 !important;
+    color: #ffde6b !important;
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+    background: #ffcc00 !important;
+    border-color: #ffcc00 !important;
+    color: #1f1400 !important;
+}
+
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay,
+.flatpickr-day.notAllowed,
+.flatpickr-day.flatpickr-disabled {
+    color: rgba(226, 232, 240, 0.35) !important;
+}
+
+.flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months,
+.flatpickr-calendar .flatpickr-current-month input.cur-year {
+    background: #111d33 !important;
+    color: #e2e8f0 !important;
+    border: 1px solid rgba(148, 163, 184, 0.45) !important;
+}
+
+.flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months option {
+    background: #0f172a !important;
+    color: #e2e8f0 !important;
 }
 
 .hero-gallery-grid {
@@ -1279,13 +1348,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 
 @media(max-width:768px) {
-    .aff-banner-content { padding: 22px 18px; }
+    .aff-banner-content { padding: 16px 14px 14px; }
     .hero-date-card { max-width: 100%; }
     .vip-card-side { flex: 1 1 100%; }
     .hero-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .location-shell { grid-template-columns: 1fr; }
     .location-map-wrap,
     .location-map-wrap iframe { min-height: 260px; }
+    .aff-display-title { margin: 4px 0 6px; }
+    .aff-display-copy { font-size: 12px; }
 }
 
 @media(max-width:576px) {

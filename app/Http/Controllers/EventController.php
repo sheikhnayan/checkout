@@ -123,8 +123,8 @@ class EventController extends Controller
 
         $add->website_id = $request->website_id;
         $add->time = $time;
-        $add->is_booking_paid = $request->is_booking_paid;
-        $add->booking_fee = $request->booking_fee;
+        $add->is_booking_paid = 0;
+        $add->booking_fee = 0;
         $add->save();
 
         return redirect()->route('admin.event.show', $add->website_id);
@@ -221,8 +221,8 @@ class EventController extends Controller
         $add->logo_height = $request->logo_height;
 
         $add->time = $time;
-        $add->is_booking_paid = $request->is_booking_paid;
-        $add->booking_fee = $request->booking_fee;
+        $add->is_booking_paid = 0;
+        $add->booking_fee = 0;
         $add->update();
 
 

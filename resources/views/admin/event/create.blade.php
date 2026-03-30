@@ -177,23 +177,6 @@ label{
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="date" class="form-label">Is Booking Paid?</label>
-                                                        <select name="is_booking_paid" id="is_booking_paid" class="form-control">
-                                                            <option value="1">Yes</option>
-                                                            <option value="0">No</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="booking_fee" class="form-label">Booking Fee</label>
-                                                        <input type="text" name="booking_fee" class="form-control" id="booking_fee" placeholder="Booking Fee">
-                                                    </div>
-                                                </div>
-
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
                                                         <label for="description" class="form-label">Description</label>

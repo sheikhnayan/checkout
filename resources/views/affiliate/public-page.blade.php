@@ -759,20 +759,6 @@ const clubConfigs = {
                     <span class="aff-location-kicker">Primary Club</span>
                     <h3 class="aff-location-title">{{ $featuredClub->name }}</h3>
                     <p class="aff-location-address">{{ $featuredClub->location }}</p>
-                    <div class="aff-location-contact">
-                        @if($featuredClub->phone)
-                            <a class="aff-location-chip" href="tel:{{ $featuredClub->phone }}">
-                                <i class="fas fa-phone"></i>
-                                <span>{{ $featuredClub->phone }}</span>
-                            </a>
-                        @endif
-                        @if($featuredClub->email)
-                            <a class="aff-location-chip" href="mailto:{{ $featuredClub->email }}">
-                                <i class="fas fa-envelope"></i>
-                                <span>{{ $featuredClub->email }}</span>
-                            </a>
-                        @endif
-                    </div>
                 </div>
                 <div class="aff-location-map">
                     <iframe
@@ -876,6 +862,31 @@ const clubConfigs = {
         @endforeach
     @else
         <p style="opacity:.5;">No packages are available on this page yet.</p>
+    @endif
+
+    @if(($affiliate->show_location_section ?? true) && $featuredClub && ($featuredClub->phone || $featuredClub->email))
+        <section class="aff-location-card mt-3">
+            <div class="aff-location-shell">
+                <div class="aff-location-copy">
+                    <span class="aff-location-kicker">Contact Details</span>
+                    <h3 class="aff-location-title">{{ $featuredClub->name }}</h3>
+                    <div class="aff-location-contact">
+                        @if($featuredClub->phone)
+                            <a class="aff-location-chip" href="tel:{{ $featuredClub->phone }}">
+                                <i class="fas fa-phone"></i>
+                                <span>{{ $featuredClub->phone }}</span>
+                            </a>
+                        @endif
+                        @if($featuredClub->email)
+                            <a class="aff-location-chip" href="mailto:{{ $featuredClub->email }}">
+                                <i class="fas fa-envelope"></i>
+                                <span>{{ $featuredClub->email }}</span>
+                            </a>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </section>
     @endif
 
     {{-- ===== ADD-ONS ===== --}}
