@@ -1262,6 +1262,22 @@
             line-height: 1.7;
         }
 
+        .story-copy-block {
+            margin-bottom: 0;
+        }
+
+        .story-copy-toggle {
+            display: none;
+            margin-top: 8px;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .02em;
+        }
+
         .story-divider {
             height: 1px;
             background: rgba(255,255,255,0.1);
@@ -1558,11 +1574,19 @@
             }
 
             .back-home-btn {
-                display: none;
+                display: inline-flex;
+                width: auto;
+                max-width: 100%;
+                min-height: 36px;
+                padding: 7px 12px;
+                border-radius: 12px;
+                font-size: .78rem;
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                margin-left: auto;
             }
 
             .mobile-top-actions {
-                padding: 8px 12px 4px;
+                display: none !important;
             }
 
             .mobile-back-home-btn {
@@ -1596,6 +1620,16 @@
             .aff-banner { width: 100%; }
             .aff-banner-content { max-width: 100%; padding: 10px 8px 8px; }
             .hero-date-card { max-width: 100%; }
+            .story-copy-block.is-collapsed .story-copy-collapsible {
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 2;
+                overflow: hidden;
+            }
+            .story-copy-toggle {
+                display: inline-flex;
+                align-items: center;
+            }
             .package-category-tiles,
             .package-category-group,
             .vip-card,
@@ -1710,15 +1744,24 @@
 
                 <section class="aff-story">
                     <h2>{{ $data->description_label ?? 'Description' }}</h2>
-                    <div class="story-copy">{{ $data->description }}</div>
+                    <div class="story-copy-block is-collapsed" data-mobile-collapsible>
+                        <div class="story-copy story-copy-collapsible">{{ $data->description }}</div>
+                        <button type="button" class="story-copy-toggle" aria-expanded="false">See more</button>
+                    </div>
                     @if ($data->text_description)
                         <div class="story-divider"></div>
                         <h3 style="font-size:1rem;font-weight:700;margin-bottom:8px;">About</h3>
-                        <div class="story-copy">{{ $data->text_description }}</div>
+                        <div class="story-copy-block is-collapsed" data-mobile-collapsible>
+                            <div class="story-copy story-copy-collapsible">{{ $data->text_description }}</div>
+                            <button type="button" class="story-copy-toggle" aria-expanded="false">See more</button>
+                        </div>
                     @endif
                     @if ($data->secondary_description)
                         <div class="story-divider"></div>
-                        <div class="story-copy">{{ $data->secondary_description }}</div>
+                        <div class="story-copy-block is-collapsed" data-mobile-collapsible>
+                            <div class="story-copy story-copy-collapsible">{{ $data->secondary_description }}</div>
+                            <button type="button" class="story-copy-toggle" aria-expanded="false">See more</button>
+                        </div>
                     @endif
                 </section>
             </div>
@@ -3882,6 +3925,75 @@
                 });
             </script>
         @endif
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const mobileQuery = window.matchMedia('(max-width: 768px)');
+                const collapsibleBlocks = document.querySelectorAll('[data-mobile-collapsible]');
+
+                function refreshCollapsibleBlock(block) {
+                    const content = block.querySelector('.story-copy-collapsible');
+                    const toggle = block.querySelector('.story-copy-toggle');
+
+                    if (!content || !toggle) {
+                        return;
+                    }
+
+                    if (!mobileQuery.matches) {
+                        block.classList.remove('is-collapsed');
+                        block.classList.remove('is-expanded');
+                        toggle.style.display = 'none';
+                        toggle.textContent = 'See more';
+                        toggle.setAttribute('aria-expanded', 'true');
+                        return;
+                    }
+
+                    if (!block.classList.contains('is-expanded')) {
+                        block.classList.add('is-collapsed');
+                    }
+
+                    requestAnimationFrame(function() {
+                        const isOverflowing = content.scrollHeight > content.clientHeight + 1;
+
+                        if (!isOverflowing && !block.classList.contains('is-expanded')) {
+                            block.classList.remove('is-collapsed');
+                            toggle.style.display = 'none';
+                            return;
+                        }
+
+                        toggle.style.display = 'inline-flex';
+                        toggle.textContent = block.classList.contains('is-expanded') ? 'See less' : 'See more';
+                        toggle.setAttribute('aria-expanded', block.classList.contains('is-expanded') ? 'true' : 'false');
+                    });
+                }
+
+                collapsibleBlocks.forEach(function(block) {
+                    const toggle = block.querySelector('.story-copy-toggle');
+
+                    if (!toggle) {
+                        return;
+                    }
+
+                    toggle.addEventListener('click', function() {
+                        block.classList.toggle('is-expanded');
+                        block.classList.toggle('is-collapsed', !block.classList.contains('is-expanded'));
+                        refreshCollapsibleBlock(block);
+                    });
+
+                    refreshCollapsibleBlock(block);
+                });
+
+                if (typeof mobileQuery.addEventListener === 'function') {
+                    mobileQuery.addEventListener('change', function() {
+                        collapsibleBlocks.forEach(refreshCollapsibleBlock);
+                    });
+                } else if (typeof mobileQuery.addListener === 'function') {
+                    mobileQuery.addListener(function() {
+                        collapsibleBlocks.forEach(refreshCollapsibleBlock);
+                    });
+                }
+            });
+        </script>
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
