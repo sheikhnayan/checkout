@@ -1430,12 +1430,67 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 
 @media(max-width:768px) {
+    .aff-hero {
+        padding: 10px 0 8px;
+    }
+
+    .back-home-btn {
+        display: none;
+    }
+
+    .mobile-top-actions {
+        position: sticky;
+        top: 0;
+        z-index: 70;
+        padding: 8px 6px 0;
+        backdrop-filter: blur(10px);
+    }
+
+    .mobile-back-home-btn {
+        width: 100%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(247, 226, 180, 0.45);
+        background: linear-gradient(145deg, rgba(247, 226, 180, 0.24), rgba(221, 183, 116, 0.2));
+        color: #fff;
+        font-size: .86rem;
+        font-weight: 700;
+        letter-spacing: .02em;
+        text-decoration: none;
+        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.25);
+    }
+
+    .mobile-back-home-btn:active {
+        transform: translateY(1px);
+    }
+
     .event-hero-layout { grid-template-columns: 1fr; gap: 14px; }
     .event-banner-wrap { order: 2; width: 100%; min-width: 0; max-width: none; height: auto; justify-self: stretch; }
     .event-banner-wrap .aff-banner { width: 100%; height: auto; min-height: 420px; }
     .event-hero-copy { order: 1; padding: 12px 10px; min-height: 0; }
     .aff-banner { width: 100%; min-height: 420px; }
     .hero-date-card { max-width: 100%; }
+    .package-category-tiles,
+    .package-category-group,
+    .vip-card,
+    #cart-section,
+    .pricing-shell,
+    .pricing-shell > div,
+    .dynamic-price {
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        box-sizing: border-box;
+    }
+    .pricing-shell {
+        --bs-gutter-x: 0;
+        --bs-gutter-y: 12px;
+    }
     .vip-card-side { flex: 1 1 100%; }
     .hero-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .location-shell { grid-template-columns: 1fr; }
@@ -1477,6 +1532,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 </div>
             </div>
         </section>
+
+        @if ($data->back_link)
+            <div class="mobile-top-actions d-md-none">
+                <a href="{{ $data->back_link }}" class="mobile-back-home-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>{{ $data->back_text ?: 'Back To Home' }}</span>
+                </a>
+            </div>
+        @endif
 
         <header>
             <div class="container py-1">
