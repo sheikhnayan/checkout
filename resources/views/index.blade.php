@@ -1439,33 +1439,32 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
 
     .mobile-top-actions {
-        position: sticky;
-        top: 0;
-        z-index: 70;
-        padding: 8px 6px 0;
-        backdrop-filter: blur(10px);
+        padding: 8px 12px 2px;
     }
 
     .mobile-back-home-btn {
-        width: 100%;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        padding: 10px 14px;
-        border-radius: 999px;
-        border: 1px solid rgba(247, 226, 180, 0.45);
-        background: linear-gradient(145deg, rgba(247, 226, 180, 0.24), rgba(221, 183, 116, 0.2));
-        color: #fff;
-        font-size: .86rem;
-        font-weight: 700;
-        letter-spacing: .02em;
+        gap: 6px;
+        padding: 7px 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.88);
+        font-size: .8rem;
+        font-weight: 600;
+        letter-spacing: .01em;
         text-decoration: none;
-        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.25);
     }
 
     .mobile-back-home-btn:active {
         transform: translateY(1px);
+    }
+
+    .mobile-back-home-btn:hover,
+    .mobile-back-home-btn:focus-visible {
+        color: #fff;
     }
 
     .event-hero-layout { grid-template-columns: 1fr; gap: 14px; }
