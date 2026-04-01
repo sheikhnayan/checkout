@@ -132,6 +132,20 @@ class AffiliateAdminController extends Controller
         return redirect()->back()->with('success', 'Affiliate club access updated successfully.');
     }
 
+    public function updateCommission(Request $request, Affiliate $affiliate)
+    {
+        $this->ensureAdmin();
+
+        $request->validate([
+            'default_commission_percentage' => 'required|numeric|min:0|max:100',
+        ]);
+
+        $affiliate->default_commission_percentage = $request->default_commission_percentage;
+        $affiliate->save();
+
+        return redirect()->back()->with('success', 'Affiliate commission updated successfully.');
+    }
+
     private function applyGlobalSmtp(): void
     {
         $smtp = SMTP::latest()->first();

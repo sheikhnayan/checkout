@@ -10,6 +10,7 @@ use App\Models\Package;
 use App\Models\PromoCode;
 use App\Models\Affiliate;
 use App\Models\AffiliateWebsite;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\Schema;
 
 class FrontendController extends Controller
@@ -71,6 +72,11 @@ class FrontendController extends Controller
                     $query->where('status', 1);
                 })
                 ->first();
+
+            if ($event) {
+                $event = $this->decorateEventAttendanceData($event);
+            }
+
             $packageCategories = $this->buildPackageCategories($data, $event ? (int) $event->id : -1, false);
 
             $data->setRelation('events', $this->activeWebsiteEvents($data->id));
@@ -167,6 +173,37 @@ class FrontendController extends Controller
                 $query->where('status', 1);
             })
             ->orderBy('date')
-            ->get();
+            ->get()
+            ->map(function (Event $event) {
+                return $this->decorateEventAttendanceData($event);
+            });
+    }
+
+    private function decorateEventAttendanceData(Event $event): Event
+    {
+        $limit = $event->attendee_limit !== null ? (int) $event->attendee_limit : null;
+        $confirmedAttendees = $this->countConfirmedEventAttendees($event);
+        $remainingCapacity = $limit !== null ? max($limit - $confirmedAttendees, 0) : null;
+
+        $event->setAttribute('confirmed_attendee_count', $confirmedAttendees);
+        $event->setAttribute('remaining_attendee_capacity', $remainingCapacity);
+        $event->setAttribute('is_sold_out', $limit !== null && $remainingCapacity <= 0);
+
+        return $event;
+    }
+
+    private function countConfirmedEventAttendees(Event $event): int
+    {
+        return Transaction::query()
+            ->where('event_id', $event->id)
+            ->where('status', 1)
+            ->get(['type', 'package_number_of_guest', 'men', 'women'])
+            ->sum(function (Transaction $transaction) {
+                if ($transaction->type === 'reservation') {
+                    return max(0, (int) $transaction->men) + max(0, (int) $transaction->women);
+                }
+
+                return max(1, (int) $transaction->package_number_of_guest);
+            });
     }
 }

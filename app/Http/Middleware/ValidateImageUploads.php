@@ -104,10 +104,10 @@ class ValidateImageUploads
                     'application/ogg',
                 ],
                 'allowed_extensions' => ['jpg', 'jpeg', 'png', 'webp', 'gif', 'mp4', 'mov', 'webm', 'ogg'],
-                'max_bytes' => 20 * 1024 * 1024,
+                'max_bytes' => 4 * 1024 * 1024,
                 'invalid_message' => 'Media upload failed. Please select a valid image or video and try again.',
                 'type_message' => 'Only JPG, PNG, WEBP, GIF, MP4, MOV, WEBM, and OGG files are allowed for feed posts.',
-                'size_message' => 'Media file is too large. Maximum allowed size is 20MB per file.',
+                'size_message' => 'Media file is too large. Maximum allowed size is 4MB per file.',
             ];
         }
 

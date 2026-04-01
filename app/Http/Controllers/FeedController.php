@@ -158,11 +158,21 @@ class FeedController extends Controller
             ->orderBy('name')
             ->get();
 
+        $eventPosts = $this->visibleClubPostsQuery($club)
+            ->where('show_on_roll_call', true)
+            ->whereDate('roll_call_date', $selectedDate)
+            ->with(['website', 'feedModel', 'visibleComments'])
+            ->withCount('visibleComments')
+            ->latest('posted_at')
+            ->latest()
+            ->get();
+
         return view('feed.roll-call', [
             'club' => $club,
             'selectedDate' => $selectedDate,
             'availableDates' => $availableDates,
             'workingModels' => $workingModels,
+            'eventPosts' => $eventPosts,
         ]);
     }
 

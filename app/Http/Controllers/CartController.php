@@ -20,6 +20,7 @@ class CartController extends Controller
             $websiteSlug = $request->input('website_slug');
             $affiliateSlug = $request->input('affiliate_slug');
             $clubSlug = $request->input('club_slug');
+            $eventName = $request->input('event_name');
 
             if (!$cartData || (!$websiteSlug && !$affiliateSlug)) {
                 return response()->json([
@@ -53,6 +54,7 @@ class CartController extends Controller
                 'website_slug'   => $websiteSlug ?? '',
                 'affiliate_slug' => $affiliateSlug,
                 'club_slug'      => $clubSlug,
+                'event_name'     => $eventName,
             ]);
 
             // Generate the short URL
@@ -116,9 +118,15 @@ class CartController extends Controller
         }
 
         // Redirect to the regular checkout page with cart as URL parameter
-        return redirect()->route('index', [
+        $params = [
             'slug' => $sharedCart->website_slug,
-            'cart' => $cartParam
-        ]);
+            'cart' => $cartParam,
+        ];
+
+        if (!empty($sharedCart->event_name)) {
+            $params['event_name'] = $sharedCart->event_name;
+        }
+
+        return redirect()->route('index', $params);
     }
 }

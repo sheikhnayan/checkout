@@ -92,6 +92,13 @@ label{
 .toggle-switch-input:focus-visible + .toggle-switch-slider {
     box-shadow: 0 0 0 3px rgba(0, 176, 116, 0.25);
 }
+
+.guest-limit-help {
+    display: block;
+    color: #6b7280;
+    font-size: 12px;
+    margin-top: 6px;
+}
 </style>
 <style>
   #suggestions {
@@ -221,8 +228,20 @@ label{
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="name" class="form-label">Number Of Guests</label>
-                                                        <input type="number" name="number_of_guest" class="form-control" id="name" placeholder="Enter Number Of Guests" required>
+                                                        <label for="guest_limit_type" class="form-label">Guest Limit Type</label>
+                                                        <select name="guest_limit_type" class="form-control" id="guest_limit_type" required>
+                                                            <option value="per_group" selected>Per group</option>
+                                                            <option value="per_person">Per person</option>
+                                                        </select>
+                                                        <small class="guest-limit-help">Choose how this package limit should be interpreted.</small>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="number_of_guest" class="form-label" id="number_of_guest_label">Maximum amount of guests</label>
+                                                        <input type="number" name="number_of_guest" class="form-control" id="number_of_guest" placeholder="Enter maximum amount of guests" min="1" required>
+                                                        <small class="guest-limit-help" id="number_of_guest_help">Used when this package is priced per group.</small>
                                                     </div>
                                                 </div>
 
@@ -297,6 +316,33 @@ label{
             </div>
 
 <script>
+    (function () {
+        const typeSelect = document.getElementById('guest_limit_type');
+        const limitInput = document.getElementById('number_of_guest');
+        const limitLabel = document.getElementById('number_of_guest_label');
+        const limitHelp = document.getElementById('number_of_guest_help');
+
+        if (!typeSelect || !limitInput || !limitLabel || !limitHelp) {
+            return;
+        }
+
+        function syncGuestLimitCopy() {
+            if (typeSelect.value === 'per_person') {
+                limitLabel.textContent = 'Maximum amount of people per event';
+                limitInput.placeholder = 'Enter maximum amount of people per event';
+                limitHelp.textContent = 'Used when this package is priced per person for the event.';
+                return;
+            }
+
+            limitLabel.textContent = 'Maximum amount of guests';
+            limitInput.placeholder = 'Enter maximum amount of guests';
+            limitHelp.textContent = 'Used when this package is priced per group.';
+        }
+
+        syncGuestLimitCopy();
+        typeSelect.addEventListener('change', syncGuestLimitCopy);
+    })();
+
     // When the addon select changes, update the hidden input with selected IDs (comma separated)
     document.getElementById('addon-select').addEventListener('change', function() {
         const selected = Array.from(this.selectedOptions).map(opt => opt.value);

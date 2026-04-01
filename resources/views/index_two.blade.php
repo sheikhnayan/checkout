@@ -599,6 +599,15 @@
                 opacity: 1 !important;
                 -webkit-text-fill-color: #fff !important;
                 color: #fff !important;
+                text-shadow: 0 0 0 #fff;
+            }
+
+            #package_use_date[readonly],
+            #package_use_date.flatpickr-input[readonly] {
+                color: #fff !important;
+                -webkit-text-fill-color: #fff !important;
+                opacity: 1 !important;
+                text-shadow: 0 0 0 #fff;
             }
 
             #package_use_date:focus {
@@ -1084,6 +1093,24 @@
             opacity: .7;
         }
 
+        .event-capacity-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 8px;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: rgba(221, 183, 116, 0.16);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .event-capacity-chip.sold-out {
+            background: rgba(255, 96, 96, 0.16);
+            color: #ffb4b4;
+        }
+
         #package_use_date {
             color: #f5f8ff !important;
             -webkit-text-fill-color: #f5f8ff !important;
@@ -1305,9 +1332,11 @@
             margin-bottom: 4px;
         }
         .package_number_of_guestss {
-            width: 70px;
+            width: 80px !important;
+            min-width: 80px;
             padding: 5px 8px !important;
             margin-bottom: 0 !important;
+            text-align: center;
         }
         .vip-price-tag {
             min-width: 110px;
@@ -2603,7 +2632,13 @@
                                                 </div>
                                             </div>
                                             <div class="event-location">{{ $data->location }}</div>
-                                            <div class="event-location">Reserve</div>
+                                            @if (!is_null($item->remaining_attendee_capacity))
+                                                <div class="event-capacity-chip{{ !empty($item->is_sold_out) ? ' sold-out' : '' }}">
+                                                    {{ !empty($item->is_sold_out) ? 'Sold Out' : $item->remaining_attendee_capacity . ' Spots Left' }}
+                                                </div>
+                                            @else
+                                                <div class="event-location">Reserve</div>
+                                            @endif
                                         </div>
                                     </a>
                                 </div>

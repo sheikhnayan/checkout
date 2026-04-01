@@ -194,6 +194,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::get('/{affiliate}', [AffiliateAdminController::class, 'show'])->name('show');
         Route::post('/{affiliate}/approve', [AffiliateAdminController::class, 'approve'])->name('approve');
         Route::post('/{affiliate}/reject', [AffiliateAdminController::class, 'reject'])->name('reject');
+        Route::post('/{affiliate}/commission', [AffiliateAdminController::class, 'updateCommission'])->name('commission.update');
         Route::post('/{affiliate}/packages', [AffiliateAdminController::class, 'updatePackages'])->name('packages.update');
     });
 
@@ -202,6 +203,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::get('/{entertainer}', [EntertainerAdminController::class, 'show'])->name('show');
         Route::post('/{entertainer}/approve', [EntertainerAdminController::class, 'approve'])->name('approve');
         Route::post('/{entertainer}/reject', [EntertainerAdminController::class, 'reject'])->name('reject');
+        Route::post('/{entertainer}/commission', [EntertainerAdminController::class, 'updateCommission'])->name('commission.update');
     });
 
     Route::group(['prefix' => 'feed-model', 'as' => 'feed-model.'], function () {

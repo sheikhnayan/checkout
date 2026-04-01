@@ -15,6 +15,7 @@ class SharedCart extends Model
         'website_slug',
         'affiliate_slug',
         'club_slug',
+        'event_name',
     ];
 
     protected $casts = [

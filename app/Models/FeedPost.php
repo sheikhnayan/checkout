@@ -14,6 +14,8 @@ class FeedPost extends Model
         'images',
         'media_items',
         'is_active',
+        'show_on_roll_call',
+        'roll_call_date',
         'posted_at',
     ];
 
@@ -21,6 +23,8 @@ class FeedPost extends Model
         'images' => 'array',
         'media_items' => 'array',
         'is_active' => 'boolean',
+        'show_on_roll_call' => 'boolean',
+        'roll_call_date' => 'date',
         'posted_at' => 'datetime',
     ];
 

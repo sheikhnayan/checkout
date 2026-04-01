@@ -123,6 +123,7 @@ class PackageController extends Controller
         $add->multiple = isset($request->multiple) ? 1 :0;
         $add->transportation = isset($request->transportation) ? 1 :0;
         $add->number_of_guest = $request->number_of_guest;
+        $add->guest_limit_type = $request->input('guest_limit_type', 'per_group');
         $add->website_id = $request->website_id;
         $add->package_category_id = $this->resolveCategoryId($request, $request->website_id);
         $add->event_id = $this->resolveEventId($request, (int) $request->website_id);
@@ -217,6 +218,7 @@ class PackageController extends Controller
         $data->multiple = isset($request->multiple) ? 1 :0;
         $data->transportation = isset($request->transportation) ? 1 :0;
         $data->number_of_guest = $request->number_of_guest;
+        $data->guest_limit_type = $request->input('guest_limit_type', 'per_group');
         $data->package_category_id = $this->resolveCategoryId($request, $data->website_id);
         // $data->website_id = $request->website_id;
         $data->event_id = $this->resolveEventId($request, (int) $data->website_id);

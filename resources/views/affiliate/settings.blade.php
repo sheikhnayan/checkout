@@ -17,10 +17,6 @@
                         <input type="text" class="form-control" name="display_name" value="{{ old('display_name', $affiliate->display_name) }}" required>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Font Family</label>
-                        <input type="text" class="form-control" name="font_family" value="{{ old('font_family', $affiliate->font_family) }}" placeholder="Poppins, sans-serif">
-                    </div>
-                    <div class="col-md-6">
                         <label class="form-label">Hero Title</label>
                         <input type="text" class="form-control" name="hero_title" value="{{ old('hero_title', $affiliate->hero_title) }}" placeholder="Main headline on your affiliate page">
                     </div>

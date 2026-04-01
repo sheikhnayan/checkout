@@ -7,6 +7,8 @@
     $oldExternalTypes = old('external_media_types', []);
     $isEntertainerUser = auth()->check() && auth()->user()->isEntertainer() && auth()->user()->entertainer;
     $entertainerProfileId = $isEntertainerUser ? auth()->user()->entertainer->feed_model_id : null;
+    $showOnRollCall = old('show_on_roll_call', isset($feedPost) ? $feedPost->show_on_roll_call : false);
+    $rollCallDateValue = old('roll_call_date', optional($feedPost->roll_call_date ?? $feedPost->posted_at ?? now())->format('Y-m-d'));
 @endphp
 
 <style>
@@ -122,6 +124,19 @@
         </div>
     </div>
 
+    <div class="col-md-6 d-flex align-items-center">
+        <div class="form-check mt-4">
+            <input class="form-check-input" type="checkbox" value="1" id="show_on_roll_call" name="show_on_roll_call" @checked($showOnRollCall)>
+            <label class="form-check-label" for="show_on_roll_call">Do you want to post to Roll Call in feed post?</label>
+        </div>
+    </div>
+
+    <div class="col-md-6" id="roll-call-date-wrap" style="display: {{ $showOnRollCall ? 'block' : 'none' }};">
+        <label for="roll_call_date" class="form-label">Show in Roll Call on date</label>
+        <input type="date" name="roll_call_date" id="roll_call_date" class="form-control" value="{{ $rollCallDateValue }}">
+        <small class="text-muted">This post appears in Roll Call Events for the selected date.</small>
+    </div>
+
     <div class="col-12">
         <label for="caption" class="form-label">Caption</label>
         <textarea name="caption" id="caption" class="form-control" rows="5" placeholder="Write the post caption here">{{ old('caption', $feedPost->caption ?? '') }}</textarea>
@@ -131,7 +146,7 @@
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
             <div>
                 <label class="form-label mb-0">Upload Media</label>
-                <div><small class="text-muted">Accepted: JPG, PNG, WEBP, GIF, MP4, MOV, WEBM &mdash; max 20 MB each.</small></div>
+                <div><small class="text-muted">Accepted: JPG, PNG, WEBP, GIF, MP4, MOV, WEBM &mdash; max 4 MB each.</small></div>
                 <div><small class="text-muted">Recommended dimensions: <strong>1080 &times; 1080 px</strong> (square) or <strong>1080 &times; 1350 px</strong> (portrait). Actual file dimensions shown after selecting.</small></div>
             </div>
             <button type="button" class="btn btn-outline-primary btn-sm" id="add-upload-row">Upload Media</button>
@@ -211,6 +226,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const externalRows = document.getElementById('external-rows');
     const addUploadRowBtn = document.getElementById('add-upload-row');
     const addExternalRowBtn = document.getElementById('add-external-row');
+    const showOnRollCallCheckbox = document.getElementById('show_on_roll_call');
+    const rollCallDateWrap = document.getElementById('roll-call-date-wrap');
+    const rollCallDateInput = document.getElementById('roll_call_date');
     const selectedModelInput = @json((string) $selectedModelId);
     const hasModelSelect = modelSelect && modelSelect.tagName === 'SELECT';
     const allModelOptions = hasModelSelect
@@ -272,6 +290,20 @@ document.addEventListener('DOMContentLoaded', function () {
         const isClub = authorModeSelect.value === 'club';
         modelWrap.style.display = isClub ? 'none' : '';
         modelSelect.required = !isClub;
+    }
+
+    function syncRollCallDateField() {
+        if (!showOnRollCallCheckbox || !rollCallDateWrap || !rollCallDateInput) {
+            return;
+        }
+
+        const enabled = showOnRollCallCheckbox.checked;
+        rollCallDateWrap.style.display = enabled ? 'block' : 'none';
+        rollCallDateInput.required = enabled;
+
+        if (enabled && !rollCallDateInput.value) {
+            rollCallDateInput.value = new Date().toISOString().slice(0, 10);
+        }
     }
 
     function addUploadRow() {
@@ -385,6 +417,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (authorModeSelect) {
         authorModeSelect.addEventListener('change', syncAuthorMode);
     }
+    if (showOnRollCallCheckbox) {
+        showOnRollCallCheckbox.addEventListener('change', syncRollCallDateField);
+    }
 
     if (uploadRows && !uploadRows.children.length) {
         addUploadRow();
@@ -392,5 +427,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     syncModelOptions();
     syncAuthorMode();
+    syncRollCallDateField();
 });
 </script>

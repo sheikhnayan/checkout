@@ -162,6 +162,14 @@ label{
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
+                                                        <label for="attendee_limit" class="form-label">Attendee Limit</label>
+                                                        <input type="number" name="attendee_limit" class="form-control" id="attendee_limit" placeholder="Leave blank for unlimited" min="1">
+                                                        <small class="text-muted">Maximum number of people allowed to attend this event.</small>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
                                                         <label for="time" class="form-label">Time Range</label>
                                                         <div style="display: flex; gap: 10px;">
                                                             <input type="text" name="time_start" class="form-control flatpickr-time" id="time_start"

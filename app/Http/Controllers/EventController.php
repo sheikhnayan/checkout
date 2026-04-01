@@ -120,6 +120,7 @@ class EventController extends Controller
         // Set logo dimensions if provided
         $add->logo_width = $request->logo_width;
         $add->logo_height = $request->logo_height;
+        $add->attendee_limit = $request->filled('attendee_limit') ? (int) $request->attendee_limit : null;
 
         $add->website_id = $request->website_id;
         $add->time = $time;
@@ -219,6 +220,7 @@ class EventController extends Controller
         // Set logo dimensions if provided
         $add->logo_width = $request->logo_width;
         $add->logo_height = $request->logo_height;
+        $add->attendee_limit = $request->filled('attendee_limit') ? (int) $request->attendee_limit : null;
 
         $add->time = $time;
         $add->is_booking_paid = 0;

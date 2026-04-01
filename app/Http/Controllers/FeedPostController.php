@@ -139,13 +139,15 @@ class FeedPostController extends Controller
             'feed_model_id' => 'nullable|exists:feed_models,id',
             'caption' => 'nullable|string|max:10000',
             'media_uploads' => 'nullable|array|max:12',
-            'media_uploads.*' => 'nullable|file|mimes:jpg,jpeg,png,webp,gif,mp4,mov,webm,ogg|max:20480',
+            'media_uploads.*' => 'nullable|file|mimes:jpg,jpeg,png,webp,gif,mp4,mov,webm,ogg|max:4096',
             'external_media_links' => 'nullable|array|max:20',
             'external_media_links.*' => 'nullable|url|max:2000',
             'external_media_types' => 'nullable|array|max:20',
             'external_media_types.*' => 'nullable|in:image,video',
             'posted_at' => 'nullable|date',
             'is_active' => 'nullable|boolean',
+            'show_on_roll_call' => 'nullable|boolean',
+            'roll_call_date' => 'nullable|date|required_if:show_on_roll_call,1',
         ]);
     }
 
@@ -166,6 +168,10 @@ class FeedPostController extends Controller
         $post->caption = $validated['caption'] ?? null;
         $post->posted_at = $validated['posted_at'] ?? now();
         $post->is_active = $request->boolean('is_active', true);
+        $post->show_on_roll_call = $request->boolean('show_on_roll_call', false);
+        $post->roll_call_date = $post->show_on_roll_call
+            ? ($validated['roll_call_date'] ?? optional($post->posted_at)->format('Y-m-d') ?? now()->format('Y-m-d'))
+            : null;
 
         $existingMediaItems = $this->extractExistingMediaItems($post, $request->input('existing_media_keys', []));
         $uploadedMediaItems = $this->extractUploadedMediaItems((array) $request->file('media_uploads', []));

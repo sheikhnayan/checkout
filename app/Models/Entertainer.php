@@ -27,6 +27,7 @@ class Entertainer extends Model
         'tiktok_url',
         'website_url',
         'font_family',
+        'default_commission_percentage',
         'wallet_balance',
         'approved_at',
         'approved_by',
@@ -37,6 +38,7 @@ class Entertainer extends Model
     protected $casts = [
         'approved_at' => 'datetime',
         'is_active' => 'boolean',
+        'default_commission_percentage' => 'decimal:2',
         'wallet_balance' => 'decimal:2',
         'gallery_images' => 'array',
     ];

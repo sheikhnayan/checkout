@@ -27,10 +27,6 @@
                         <input type="text" class="form-control" name="display_name" value="{{ old('display_name', $entertainer->display_name) }}" required>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Font Family</label>
-                        <input type="text" class="form-control" name="font_family" value="{{ old('font_family', $entertainer->font_family) }}" placeholder="Poppins, sans-serif">
-                    </div>
-                    <div class="col-md-6">
                         <label class="form-label">Hero Title</label>
                         <input type="text" class="form-control" name="hero_title" value="{{ old('hero_title', $entertainer->hero_title) }}" placeholder="Main headline on your page">
                     </div>
@@ -43,7 +39,7 @@
                         <textarea class="form-control" rows="4" name="description">{{ old('description', $entertainer->description) }}</textarea>
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Secondary Description</label>
+                        <label class="form-label">Secondary Description (optional)</label>
                         <textarea class="form-control" rows="4" name="secondary_description">{{ old('secondary_description', $entertainer->secondary_description) }}</textarea>
                     </div>
 

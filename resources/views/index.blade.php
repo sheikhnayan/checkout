@@ -18,65 +18,9 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css"
             integrity="sha512-fw7f+TcMjTb7bpbLJZlP8g2Y4XcCyFZW8uy8HsRZsH/SwbMw0plKHFHr99DN3l04VsYNwvzicUX/6qurvIxbxw=="
             crossorigin="anonymous" referrerpolicy="no-referrer" />
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <link rel="stylesheet" href="{{ asset('styles/main.css') }}">
         <style>
-            #Pick-up-time::placeholder {
-                color: #fff !important;
-            }
-            #Pick-up-time::-webkit-input-placeholder {
-    color: #fff !important;
-}
-
-#Pick-up-time:-ms-input-placeholder {
-    color: #fff !important;
-}
-
-#Pick-up-time::-moz-placeholder {
-    color: #fff !important;
-}
-
-#Pick-up-time:-moz-placeholder {
-    color: #fff !important;
-}
-
-/* Step-by-step checkout styles */
-.checkout-steps {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 2rem 0;
-    padding: 0;
-    list-style: none;
-}
-
-.step {
-    flex: 1;
-    text-align: center;
-    position: relative;
-    padding: 0 1rem;
-}
-
-.step-number {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #444;
-    color: #fff;
-    line-height: 1;
-    font-weight: bold;
-    margin: 0 auto 0.5rem;
-    border: 2px solid #444;
-}
-
-.step.active .step-number {
-    background: {{ $brandPrimary }};
-    border-color: {{ $brandPrimary }};
-    color: #000;
-}
 
 .step.completed .step-number {
     background: #28a745;
@@ -901,19 +845,46 @@ body {
     border-radius: 18px;
     overflow: hidden;
     width: 100%;
-    min-height: 130px;
-    margin: 6px 0 8px;
+    min-height: 520px;
+    margin: 0;
     background:
         var(--brand-gradient),
         radial-gradient(circle at top right, rgba(255,255,255,0.08), transparent 35%),
         var(--accent);
 }
 
-.aff-banner-content {
-    position: relative;
-    z-index: 1;
-    max-width: none;
-    padding: 10px 12px 9px;
+.event-hero-layout {
+    display: grid;
+    grid-template-columns: minmax(420px, 1.45fr) minmax(320px, 420px);
+    gap: 20px;
+    align-items: stretch;
+    margin: 8px 0 14px;
+}
+
+.event-hero-copy {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 18px;
+    min-height: 520px;
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.event-banner-wrap {
+    width: 100%;
+    max-width: 420px;
+    justify-self: end;
+    height: 100%;
+}
+
+.event-banner-wrap .aff-banner {
+    height: 100%;
 }
 
 .aff-kicker {
@@ -926,9 +897,9 @@ body {
 
 .aff-display-title {
     font-size: clamp(1.05rem, 2vw, 1.55rem);
-    line-height: 1.05;
+    line-height: 1.12;
     font-weight: 800;
-    max-width: 9ch;
+    max-width: none;
     margin: 2px 0 4px;
     color: #fff !important;
 }
@@ -943,7 +914,8 @@ body {
 
 .hero-date-card {
     margin-top: 5px;
-    max-width: 320px;
+    width: 100%;
+    max-width: 420px;
     padding: 7px 10px;
     border-radius: 14px;
     border: 1px solid rgba(255,255,255,0.08);
@@ -958,10 +930,76 @@ body {
     opacity: .7;
 }
 
+.hero-capacity-note {
+    margin-top: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #d8def0;
+}
+
+.hero-capacity-note.sold-out {
+    color: #ffb4b4;
+}
+
+.event-cart-capacity-banner {
+    margin: 0 0 14px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04);
+    color: #d8def0;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.event-cart-capacity-banner.sold-out {
+    border-color: rgba(255, 120, 120, 0.45);
+    color: #ffb4b4;
+}
+
+.vip-btn[disabled] {
+    opacity: .58;
+    cursor: not-allowed;
+}
+
+.vip-availability-note {
+    margin-top: 6px;
+    font-size: 11px;
+    opacity: .72;
+}
+
+.event-capacity-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: rgba(221, 183, 116, 0.16);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.event-capacity-chip.sold-out {
+    background: rgba(255, 96, 96, 0.16);
+    color: #ffb4b4;
+}
+
 #package_use_date {
     color: #f5f8ff !important;
     -webkit-text-fill-color: #f5f8ff !important;
     font-weight: 600;
+    opacity: 1 !important;
+    text-shadow: 0 0 0 #f5f8ff;
+}
+
+#package_use_date[readonly],
+#package_use_date.flatpickr-input[readonly] {
+    color: #f5f8ff !important;
+    -webkit-text-fill-color: #f5f8ff !important;
+    opacity: 1 !important;
+    text-shadow: 0 0 0 #f5f8ff;
 }
 
 .flatpickr-calendar {
@@ -1129,9 +1167,11 @@ nav .tab:hover {
     margin-bottom: 4px;
 }
 .package_number_of_guestss {
-    width: 70px;
+    width: 80px !important;
+    min-width: 80px;
     padding: 5px 8px !important;
     margin-bottom: 0 !important;
+    text-align: center;
 }
 .vip-price-tag {
     min-width: 110px;
@@ -1350,8 +1390,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 
 @media(max-width:768px) {
-    .aff-banner { width: 100%; }
-    .aff-banner-content { max-width: 100%; padding: 10px 8px 8px; }
+    .event-hero-layout { grid-template-columns: 1fr; gap: 14px; }
+    .event-banner-wrap { order: 2; max-width: none; justify-self: stretch; }
+    .event-hero-copy { order: 1; padding: 12px 10px; min-height: 0; }
+    .aff-banner { width: 100%; min-height: 420px; }
     .hero-date-card { max-width: 100%; }
     .vip-card-side { flex: 1 1 100%; }
     .hero-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -1405,10 +1447,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     <div class="alert alert-danger" role="alert">{{ $value }}</div>
                 @endsession
 
-                <section class="aff-banner" style="background:
-                    url('{{ asset('uploads/' . $event->image) }}') center/cover no-repeat,
-                    #ffcc00;">
-                    <div class="aff-banner-content">
+                <section class="event-hero-layout">
+                    <div class="event-hero-copy">
                         <div class="aff-kicker">Event Checkout</div>
                         <div class="aff-display-title">{{ $event->hero_title ?: $event->name }}</div>
                         <div class="aff-display-copy">
@@ -1418,11 +1458,26 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         <div class="hero-date-card">
                             <label>Reservation Date</label>
                             <div class="date-input-wrapper">
-                                <input id="package_use_date" type="text" value="{{ \Carbon\Carbon::parse($event->date)->format('Y-m-d') }}"
+                                <input id="package_use_date" type="text" value="{{ \Carbon\Carbon::parse($event->date)->format('l, F d, Y') }}"
                                     readonly style="-webkit-text-fill-color: #fff !important; color: #fff !important; opacity: 1 !important; width: 100%;">
                                 <span class="custom-calendar-icon" style="display:none;"></span>
                             </div>
+                            @if (!is_null($event->remaining_attendee_capacity))
+                                <div id="event-capacity-note" class="hero-capacity-note{{ !empty($event->is_sold_out) ? ' sold-out' : '' }}">
+                                    @if (!empty($event->is_sold_out))
+                                        Sold out
+                                    @else
+                                        {{ $event->remaining_attendee_capacity }} spots remaining of {{ $event->attendee_limit }}
+                                    @endif
+                                </div>
+                            @endif
                         </div>
+                    </div>
+                    <div class="event-banner-wrap">
+                        <section class="aff-banner" style="background:
+                            url('{{ asset('uploads/' . $event->image) }}') center/cover no-repeat,
+                            #ffcc00;">
+                        </section>
                     </div>
                 </section>
 
@@ -1656,6 +1711,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                 })
                                                 ->values();
                                         @endphp
+                                        @if (!is_null($event->remaining_attendee_capacity))
+                                            <div id="event-cart-capacity-banner" class="event-cart-capacity-banner{{ !empty($event->is_sold_out) ? ' sold-out' : '' }}">
+                                                @if (!empty($event->is_sold_out))
+                                                    This event is sold out.
+                                                @else
+                                                    {{ $event->remaining_attendee_capacity }} spots currently available for checkout.
+                                                @endif
+                                            </div>
+                                        @endif
                                         <div class="mb-3 package-category-tiles" style="width:100%;">
                                             @foreach ($sortedPackageCategories as $category)
                                                 <button
@@ -1692,7 +1756,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 data-refundable="{{ $data->refundable_fee }}"
                                                                 data-sales_tax="{{ $data->sales_tax_fee ?? 10}}"
                                                                 data-transportation="{{ $item->transportation }}"
-                                                                data-service_charge="{{ $data->service_charge_fee ?? 10}}">Add to Cart</button>
+                                                                data-service_charge="{{ $data->service_charge_fee ?? 10}}"
+                                                                data-default-label="Add to Cart"
+                                                                @disabled(!empty($event->is_sold_out))>{{ !empty($event->is_sold_out) ? 'Sold Out' : 'Add to Cart' }}</button>
                                                         </div>
 
                                                         <div class="vip-card-side">
@@ -1704,6 +1770,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                     @endfor
                                                                 </select>
                                                             </div>
+                                                            @if (!is_null($event->remaining_attendee_capacity))
+                                                                <div class="vip-availability-note" data-package-availability="{{ $item->id }}">
+                                                                    @if (!empty($event->is_sold_out))
+                                                                        No spots remaining for this event.
+                                                                    @else
+                                                                        {{ $event->remaining_attendee_capacity }} spots remain for this event.
+                                                                    @endif
+                                                                </div>
+                                                            @endif
                                                             <div class="vip-price-tag price-{{ $item->id }}" data-price="{{ $item->price }}">${{ number_format((float) $item->price, 2) }}</div>
                                                         </div>
                                                     </div>
@@ -2305,7 +2380,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                             {{ \Carbon\Carbon::parse($item->date)->format('d') }}</span></div>
                                                 </div>
                                                 <div class="event-location">{{ $data->location }}</div>
-                                                <div class="event-location">Reserve</div>
+                                                @if (!is_null($item->remaining_attendee_capacity))
+                                                    <div class="event-capacity-chip{{ !empty($item->is_sold_out) ? ' sold-out' : '' }}">
+                                                        {{ !empty($item->is_sold_out) ? 'Sold Out' : $item->remaining_attendee_capacity . ' Spots Left' }}
+                                                    </div>
+                                                @else
+                                                    <div class="event-location">Reserve</div>
+                                                @endif
                                             </div>
                                         </a>
                                     </div>
@@ -2423,8 +2504,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         $('.default-price').hide();
                         $('.default-total').show();
                     }, 700);
-                    // Keep event checkout locked to the event date.
-                    $('#package_use_date').val("{{ \Carbon\Carbon::parse($event->date)->format('Y-m-d') }}").trigger('change');
+                        // Keep event checkout locked to the event date.
+                        $('#package_use_date').val("{{ \Carbon\Carbon::parse($event->date)->format('l, F d, Y') }}");
+                        $('.package_use_date').val("{{ \Carbon\Carbon::parse($event->date)->format('Y-m-d') }}");
             }
 
             function getUrlWithSelections() {
@@ -2490,6 +2572,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             // ======= CART SYSTEM ======= Define immediately in global scope
             window.cart = [];
             window.cartCoupon = window.cartCoupon || null;
+            window.eventCapacityState = {
+                limit: @json($event->attendee_limit ?? null),
+                remaining: @json(isset($event->remaining_attendee_capacity) ? (int) $event->remaining_attendee_capacity : null)
+            };
 
             // Ensure cart is always an array
             function ensureCartArray() {
@@ -2540,29 +2626,116 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 return parseMultipleFlag(pkg.isMultiple) ? (parseInt(pkg.guests) || 1) : 1;
             }
 
-            window.addPackageToCart = function(packageId, packageName, packagePrice, guests, isMultiple) {
+            function hasEventCapacityLimit() {
+                return window.eventCapacityState && window.eventCapacityState.remaining !== null;
+            }
+
+            function getCartAttendeeCount(excludedPackageId) {
+                ensureCartArray();
+                return window.cart.reduce(function(sum, pkg) {
+                    if (excludedPackageId !== undefined && excludedPackageId !== null && String(pkg.packageId) === String(excludedPackageId)) {
+                        return sum;
+                    }
+
+                    return sum + (parseInt(pkg.guests, 10) || 1);
+                }, 0);
+            }
+
+            function getAvailableEventSeats(packageId) {
+                if (!hasEventCapacityLimit()) {
+                    return null;
+                }
+
+                return Math.max((parseInt(window.eventCapacityState.remaining, 10) || 0) - getCartAttendeeCount(packageId), 0);
+            }
+
+            function setPackageButtonState($button, disabled, label) {
+                if (!$button.length) {
+                    return;
+                }
+
+                if (!$button.data('default-label')) {
+                    $button.data('default-label', ($button.attr('data-default-label') || $button.text() || 'Add to Cart').trim());
+                }
+
+                $button.prop('disabled', disabled);
+                $button.text(label || $button.data('default-label'));
+            }
+
+            function syncEventCapacityUi() {
+                if (!hasEventCapacityLimit()) {
+                    return;
+                }
+
+                $('.vip-btn').each(function() {
+                    var $button = $(this);
+                    var packageId = $button.data('id');
+                    var guests = parseInt($('.package_number_of_guestss[data-id="' + packageId + '"]').val(), 10) || 1;
+                    var availableSeats = getAvailableEventSeats(packageId);
+                    var $note = $('[data-package-availability="' + packageId + '"]');
+
+                    if (availableSeats <= 0) {
+                        setPackageButtonState($button, true, 'Sold Out');
+                        $note.text('No spots remaining for this event.');
+                        return;
+                    }
+
+                    if (guests > availableSeats) {
+                        setPackageButtonState($button, true, 'Only ' + availableSeats + ' Left');
+                        $note.text('Only ' + availableSeats + ' spots remain for this event.');
+                        return;
+                    }
+
+                    setPackageButtonState($button, false, $button.data('default-label') || 'Add to Cart');
+                    $note.text(availableSeats + ' spots remain for this event.');
+                });
+
+                var availableForCart = getAvailableEventSeats(null);
+                var $banner = $('#event-cart-capacity-banner');
+                if ($banner.length) {
+                    $banner.text(availableForCart <= 0 ? 'This event is sold out.' : availableForCart + ' spots currently available for checkout.');
+                    $banner.toggleClass('sold-out', availableForCart <= 0);
+                }
+            }
+
+            window.addPackageToCart = function(packageId, packageName, packagePrice, guests, addons, transportation, isMultiple) {
                 console.log('addPackageToCart called', packageId, packageName);
                 ensureCartArray();
+                var normalizedGuests = parseInt(guests, 10) || 1;
+                var availableSeats = getAvailableEventSeats(packageId);
+
+                if (availableSeats !== null && normalizedGuests > availableSeats) {
+                    alert(availableSeats > 0 ? ('Only ' + availableSeats + ' spots remain for this event.') : 'This event is sold out.');
+                    syncEventCapacityUi();
+                    return false;
+                }
+
                 var existing = window.cart.find(p => p.packageId == packageId);
                 if (!existing) {
                     window.cart.push({
                         packageId: packageId,
                         packageName: packageName,
                         packagePrice: parseFloat(packagePrice),
-                        guests: parseInt(guests),
+                        guests: normalizedGuests,
                         isMultiple: parseMultipleFlag(isMultiple),
-                        addons: [],
-                        transportation: $('.vip-btn[data-id="'+packageId+'"]').data('transportation') == 1
+                        addons: addons || [],
+                        transportation: transportation
                     });
                 } else {
-                    existing.guests = parseInt(guests) || 1;
+                    existing.packageName = packageName;
+                    existing.packagePrice = parseFloat(packagePrice);
+                    existing.guests = normalizedGuests;
                     existing.isMultiple = parseMultipleFlag(isMultiple);
+                    existing.addons = addons || [];
+                    existing.transportation = transportation;
                 }
                 $('#cart-section').show();
                 $('#shareLinkContainer').show();
                 window.renderCart();
                 window.calculateCartTotal();
                 syncTransportationStateFromCart();
+                syncEventCapacityUi();
+                return true;
             };
 
             window.removePackageFromCart = function(packageId) {
@@ -2574,10 +2747,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 window.renderCart();
                 window.calculateCartTotal();
                 syncTransportationStateFromCart();
+                syncEventCapacityUi();
             };
 
             window.renderCart = function() {
                 ensureCartArray();
+                if (!window.cart.length) {
+                    $('#cart-list').html('');
+                    return;
+                }
                 var html = '';
                 window.cart.forEach(function(pkg) {
                     var billableGuests = getBillableGuests(pkg);
@@ -2622,6 +2800,22 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 }
 
                 var grandTotal = totalBeforeCoupon - couponDiscount;
+                var refundableRate = parseFloat($('#refundable').val()) || 0;
+                var refundableAmount = (grandTotal / 100) * refundableRate;
+
+                $('.default-package-price span').text(formatCurrency(subtotal));
+                $('.default-service-charge span').text(formatCurrency(service_charge_price));
+                $('.default-sales-tax span').text(formatCurrency(sales_tax_price));
+                $('.default-gratuity span').text(formatCurrency(gratuited_price));
+
+                if (window.cartCoupon && couponDiscount > 0) {
+                    if ($('.default-promo-discount').length === 0) {
+                        $('.default-gratuity').after('<div style="font-size: 12px;" class="default-promo-discount">Promo Code Discount: <span>$0.00</span></div>');
+                    }
+                    $('.default-promo-discount span').text('-' + formatCurrency(couponDiscount));
+                } else {
+                    $('.default-promo-discount').remove();
+                }
 
                 $('#cart-total').html('Subtotal: ' + formatCurrency(subtotal) + '<br>Service Charge: ' + formatCurrency(service_charge_price) + '<br>Sales Tax: ' + formatCurrency(sales_tax_price) + '<br>Gratuity: ' + formatCurrency(gratuited_price) + '<br><strong>Grand Total: ' + formatCurrency(grandTotal) + '</strong>');
                 
@@ -2632,7 +2826,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 }
 
                 $('.payment_total').val(grandTotal.toFixed(2));
-                $('#subtotal').val(grandTotal.toFixed(2));
+                $('#subtotal').val(refundableRate > 0 ? refundableAmount.toFixed(2) : grandTotal.toFixed(2));
+                $('.default-refundable span').text(formatCurrency(refundableAmount));
+                $('.default-due span').text(formatCurrency(grandTotal - refundableAmount));
                 $('.default-deposit span').text(formatCurrency(grandTotal));
                 $('.default-total span').text(formatCurrency(grandTotal));
                 $('.discounted_amount').val(couponDiscount.toFixed(2));
@@ -2665,11 +2861,18 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         if (window.cart.length > 0) {
                             $('#package_id').val(window.cart[0].packageId);
                             $('.package_number_of_guest').val(window.cart[0].guests);
+                            window.cart.forEach(function(pkg) {
+                                $('.package_number_of_guestss[data-id="' + pkg.packageId + '"]').val(pkg.guests || 1);
+                                $('#pkg-card-' + pkg.packageId).addClass('selected');
+                            });
                             $('#cart-section').show();
                             $('#shareLinkContainer').show();
                             window.renderCart();
                             window.calculateCartTotal();
                             syncTransportationStateFromCart();
+                            syncEventCapacityUi();
+                            $('.dynamic-price').show();
+                            $('.default-price').hide();
                             $('#checkout-steps').show();
                             showStep(1);
                         }
@@ -2711,8 +2914,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         url: '/cart/share',
                         type: 'POST',
                         data: {
-                            cart: selections.cart,
+                            cart: JSON.stringify(selections.cart),
                             website_slug: '{{ $data->slug }}',
+                            event_name: @json($event->name),
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },
                         success: function(res) {
@@ -2728,6 +2932,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         }
                     });
                 });
+
+                syncEventCapacityUi();
 
                 // Copy to clipboard when clicking the shareable link field
                 $('#shareableLink').on('click', function() {
@@ -2992,15 +3198,23 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         });
                     });
 
-                    window.addPackageToCart(selection.packageId, selection.packageName, selection.packagePrice, selection.guests, selection.isMultiple);
-                    var pkg = window.cart.find(function(p) { return p.packageId == selection.packageId; });
-                    if (pkg) {
-                        pkg.addons = selectedAddons;
+                    var added = window.addPackageToCart(
+                        selection.packageId,
+                        selection.packageName,
+                        selection.packagePrice,
+                        selection.guests,
+                        selectedAddons,
+                        selection.transportation,
+                        selection.isMultiple
+                    );
+
+                    if (!added) {
+                        return;
                     }
-                    window.renderCart();
-                    window.calculateCartTotal();
 
                     $('#package_id').val(selection.packageId);
+                    $('#addons').val(selectedAddons.map(function(addon) { return addon.id; }).join(','));
+                    $('.package_number_of_guest').val(selection.guests);
                     $('.dynamic-price').show();
                     $('.default-price').hide();
                     $('#checkout-steps').show();
@@ -3200,6 +3414,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     window.renderCart();
                     window.calculateCartTotal();
                 }
+
+                syncEventCapacityUi();
             });
         </script>
 
@@ -3280,27 +3496,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 time_24hr: false
             });
 
-            flatpickr("#package_use_date", {
-                dateFormat: "Y-m-d",
-                defaultDate: "{{ \Carbon\Carbon::parse($event->date)->format('Y-m-d') }}",
-                minDate: "{{ \Carbon\Carbon::parse($event->date)->format('Y-m-d') }}",
-                allowInput: false,
-                clickOpens: false
-            });
-
-            $('.custom-calendar-icon').on('click', function() {
-                const picker = document.getElementById('package_use_date')._flatpickr;
-                if (picker) {
-                    picker.open();
-                }
-            });
+            // Event checkout date is fixed to the event date.
+            $('#package_use_date').val("{{ \Carbon\Carbon::parse($event->date)->format('l, F d, Y') }}");
+            $('.package_use_date').val("{{ \Carbon\Carbon::parse($event->date)->format('Y-m-d') }}");
         </script>
 
         <script>
-            $('#package_use_date').on('change', function(){
-                const val = $('#package_use_date').val();
-                $('.package_use_date').val(val);
-            });
+            // Keep hidden submit value stable even if scripts rerun.
+            $('.package_use_date').val("{{ \Carbon\Carbon::parse($event->date)->format('Y-m-d') }}");
         </script>
 
         @if ($data->payment_method == 'stripe')

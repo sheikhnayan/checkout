@@ -91,7 +91,47 @@
             margin-bottom: 18px;
         }
 
-        .profile-topbar a:hover { color: #fff; }
+        .profile-topbar-nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-topbar-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(216, 176, 103, 0.35);
+            background: linear-gradient(145deg, rgba(216, 176, 103, 0.2), rgba(216, 176, 103, 0.1));
+            color: #f8dfb5;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, color .2s ease;
+        }
+
+        .profile-topbar-link:hover {
+            color: #fff;
+            border-color: rgba(216, 176, 103, 0.7);
+            box-shadow: 0 10px 24px rgba(216, 176, 103, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .profile-topbar-context {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(145, 162, 193, 0.28);
+            background: rgba(145, 162, 193, 0.08);
+            color: var(--profile-muted);
+            font-size: .75rem;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
 
         .profile-hero {
             border: 1px solid var(--profile-border);
@@ -457,6 +497,42 @@
             color: var(--profile-muted);
         }
 
+        .profile-footer {
+            margin-top: 24px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+        }
+
+        .profile-footer-inner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 16px 0;
+            font-size: 12.5px;
+            color: rgba(232,234,246,0.78);
+            text-align: center;
+        }
+
+        .profile-footer-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(232,234,246,0.94);
+            font-weight: 700;
+            letter-spacing: .02em;
+            text-decoration: none;
+        }
+
+        .profile-footer-brand .brand-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--profile-accent);
+            box-shadow: 0 0 0 5px rgba(216,176,103,0.16);
+        }
+
         .profile-lightbox {
             position: fixed;
             inset: 0;
@@ -717,8 +793,10 @@
 
     <div class="profile-shell">
         <div class="profile-topbar">
-            <a href="{{ route('club.feed', $club->slug) }}">Back To Feed</a>
-            <span>Posts</span>
+            <div class="profile-topbar-nav">
+                <a href="{{ route('club.feed', $club->slug) }}" class="profile-topbar-link"><i class="fas fa-chevron-left"></i> Back To Feed</a>
+            </div>
+            <span class="profile-topbar-context">Posts</span>
         </div>
 
         <section class="profile-hero profile-section" id="top">
@@ -759,7 +837,7 @@
             <section class="rollcall-launch" aria-label="Open roll call">
                 <div class="rollcall-launch-grid">
                     <div>
-                        <div class="rollcall-launch-kicker">Roster Calendar</div>
+                        <div class="rollcall-launch-kicker">Event Calendar</div>
                         <h3>Roll Call</h3>
                         <p>Pick a date and see which entertainers are working. Tap a profile to open that entertainer's feed profile.</p>
                     </div>
@@ -880,6 +958,15 @@
         @endif
 
     </div>
+
+    <footer class="profile-footer">
+        <div class="profile-footer-inner">
+            <a href="https://cartvip.com" target="_blank" rel="noopener" class="profile-footer-brand">
+                <span class="brand-dot"></span>
+                <span>mrrallcall.com powered by CartVIP</span>
+            </a>
+        </div>
+    </footer>
 
     <div class="profile-lightbox" id="profile-lightbox" aria-hidden="true">
         <div class="profile-lightbox-dialog" role="dialog" aria-modal="true" aria-label="Media viewer">

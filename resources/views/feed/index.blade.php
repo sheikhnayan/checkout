@@ -89,6 +89,15 @@
 
         .feed-topbar a:hover { color: var(--feed-accent-soft); }
 
+        .feed-search-shell {
+            margin: 0 0 18px;
+            padding: 12px;
+            border: 1px solid var(--feed-border);
+            border-radius: 20px;
+            background: rgba(8, 14, 28, 0.68);
+            box-shadow: var(--feed-shadow);
+        }
+
         .club-hero {
             border: 1px solid var(--feed-border);
             border-radius: 20px;
@@ -141,25 +150,10 @@
         }
 
         .feed-search {
-            margin-top: 20px;
             display: grid;
-            grid-template-columns: minmax(0, 1fr) 170px auto auto;
+            grid-template-columns: minmax(0, 1fr) auto;
             gap: 10px;
-        }
-
-        .feed-date-input {
-            width: 100%;
-            border: 1px solid rgba(255,255,255,0.12);
-            background: rgba(255,255,255,0.05);
-            color: var(--feed-text);
-            border-radius: 18px;
-            padding: 14px 14px;
-            min-height: 50px;
-        }
-
-        .feed-date-input::-webkit-calendar-picker-indicator {
-            filter: invert(1) opacity(.8);
-            cursor: pointer;
+            align-items: center;
         }
 
         .feed-hero-actions {
@@ -189,7 +183,7 @@
         .feed-btn-secondary {
             border: 0;
             border-radius: 999px;
-            padding: 12px 18px;
+            padding: 10px 16px;
             font-weight: 700;
             transition: transform .18s ease, opacity .18s ease;
         }
@@ -214,6 +208,12 @@
 
         .feed-reset-btn {
             white-space: nowrap;
+        }
+
+        .feed-search-btn {
+            min-width: 112px;
+            justify-self: end;
+            box-shadow: 0 10px 22px rgba(215,174,100,0.18);
         }
 
         .feed-card {
@@ -613,6 +613,42 @@
             border-radius: 14px;
         }
 
+        .feed-footer {
+            margin-top: 24px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+        }
+
+        .feed-footer-inner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 16px 0;
+            font-size: 12.5px;
+            color: rgba(232,234,246,0.78);
+            text-align: center;
+        }
+
+        .feed-footer-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(232,234,246,0.94);
+            font-weight: 700;
+            letter-spacing: .02em;
+            text-decoration: none;
+        }
+
+        .feed-footer-brand .brand-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--feed-accent);
+            box-shadow: 0 0 0 5px rgba(215,174,100,0.16);
+        }
+
         @media (max-width: 767.98px) {
             .feed-shell {
                 width: calc(100% - 12px);
@@ -637,6 +673,11 @@
 
             .feed-search {
                 grid-template-columns: 1fr;
+            }
+
+            .feed-search-btn {
+                width: 100%;
+                justify-self: stretch;
             }
 
             .feed-card {
@@ -713,8 +754,17 @@
                     <span style="letter-spacing:.14em;text-transform:uppercase;font-size:.75rem;">CartVIP Feed Directory</span>
                 @endif
             </div>
-            <a href="/">Back to Checkout</a>
+            <a href="{{ $club ? url($club->slug) : url('/') }}">Back to Checkout</a>
         </div>
+
+        @if($club)
+            <section class="feed-search-shell" aria-label="Feed search">
+                <form method="GET" action="{{ route('club.feed', $club->slug) }}" class="feed-search" id="feed-search-form">
+                    <input class="feed-input" type="text" name="q" value="{{ $query }}" placeholder="Search posts or entertainer names">
+                    <button type="submit" class="feed-btn feed-search-btn">Search</button>
+                </form>
+            </section>
+        @endif
 
         @if(session('success'))
             <div class="alert alert-success border-0" style="width:calc(100% - 16px);margin:0 auto 16px;background:rgba(34,197,94,0.15);color:#d9ffe7;border-radius:18px;">{{ session('success') }}</div>
@@ -756,13 +806,6 @@
                         <p class="club-copy">{{ $club->hero_subtitle ?: $club->description ?: 'A focused stream of club media updates, spotlight posts, and community conversation.' }}</p>
                     </div>
                 </div>
-
-                <form method="GET" action="{{ route('club.feed', $club->slug) }}" class="feed-search" id="feed-search-form">
-                    <input class="feed-input" type="text" name="q" value="{{ $query }}" placeholder="Search by caption or entertainer name">
-                    <input class="feed-date-input" type="date" name="date" value="{{ $dateQuery ?? '' }}" aria-label="Search by date" id="feed-search-date">
-                    <button type="submit" class="feed-btn">Search Feed</button>
-                    <button type="button" class="feed-btn-secondary feed-reset-btn" id="feed-reset-date">Clear Date</button>
-                </form>
 
                 <div class="feed-hero-actions">
                     <a href="{{ route('club.feed.profile', $club->slug) }}" class="feed-btn-secondary">Open Club Profile</a>
@@ -940,6 +983,15 @@
         @endif
     </div>
 
+    <footer class="feed-footer">
+        <div class="feed-footer-inner">
+            <a href="https://cartvip.com" target="_blank" rel="noopener" class="feed-footer-brand">
+                <span class="brand-dot"></span>
+                <span>mrrallcall.com powered by CartVIP</span>
+            </a>
+        </div>
+    </footer>
+
     @if(isset($posts) && $posts->count() > 0)
         @foreach($posts as $post)
             @php $commentModalId = 'commentModal-' . $post->id; @endphp
@@ -1027,30 +1079,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/js/bootstrap.bundle.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const feedSearchForm = document.getElementById('feed-search-form');
-        const feedSearchDate = document.getElementById('feed-search-date');
-        const feedSearchQuery = feedSearchForm ? feedSearchForm.querySelector('input[name="q"]') : null;
-        const feedResetDateButton = document.getElementById('feed-reset-date');
-
-        if (feedSearchForm && feedSearchDate) {
-            feedSearchDate.addEventListener('change', function () {
-                if (!feedSearchDate.value && feedSearchQuery) {
-                    feedSearchQuery.value = '';
-                }
-                feedSearchForm.requestSubmit();
-            });
-        }
-
-        if (feedSearchForm && feedSearchDate && feedResetDateButton) {
-            feedResetDateButton.addEventListener('click', function () {
-                feedSearchDate.value = '';
-                if (feedSearchQuery) {
-                    feedSearchQuery.value = '';
-                }
-                feedSearchForm.requestSubmit();
-            });
-        }
-
         const lightbox = document.getElementById('feed-lightbox');
         const stage = document.getElementById('feed-lightbox-stage');
         const closeButton = document.getElementById('feed-lightbox-close');

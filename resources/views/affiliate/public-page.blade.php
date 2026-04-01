@@ -160,8 +160,8 @@
             min-height: 16px;
         }
         .package_number_of_guestss {
-            width: 76px !important;
-            min-width: 76px;
+            width: 80px !important;
+            min-width: 80px;
             padding: 5px 8px !important;
             margin-bottom: 0 !important;
             text-align: center;
@@ -409,6 +409,17 @@
             border-radius: 10px;
             background: #1c1f29;
             color: #fff;
+            -webkit-text-fill-color: #fff !important;
+            opacity: 1 !important;
+            text-shadow: 0 0 0 #fff;
+        }
+
+        #package_use_date[readonly],
+        #package_use_date.flatpickr-input[readonly] {
+            color: #fff !important;
+            -webkit-text-fill-color: #fff !important;
+            opacity: 1 !important;
+            text-shadow: 0 0 0 #fff;
         }
 
         @media (max-width: 767.98px) {

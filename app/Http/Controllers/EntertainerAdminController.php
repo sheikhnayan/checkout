@@ -79,10 +79,15 @@ class EntertainerAdminController extends Controller
     {
         $this->ensureCanManageEntertainer($entertainer);
 
+        request()->validate([
+            'default_commission_percentage' => 'required|numeric|min:0|max:100',
+        ]);
+
         $entertainer->status = 'approved';
         $entertainer->is_active = true;
         $entertainer->approved_at = now();
         $entertainer->approved_by = auth()->id();
+        $entertainer->default_commission_percentage = request('default_commission_percentage');
 
         if (empty($entertainer->slug)) {
             $entertainer->slug = Entertainer::generateUniqueSlug($entertainer->display_name ?: $entertainer->user->name);
@@ -121,6 +126,20 @@ class EntertainerAdminController extends Controller
         }
 
         return redirect()->back()->with('success', 'Entertainer approved successfully.');
+    }
+
+    public function updateCommission(Request $request, Entertainer $entertainer)
+    {
+        $this->ensureCanManageEntertainer($entertainer);
+
+        $request->validate([
+            'default_commission_percentage' => 'required|numeric|min:0|max:100',
+        ]);
+
+        $entertainer->default_commission_percentage = $request->default_commission_percentage;
+        $entertainer->save();
+
+        return redirect()->back()->with('success', 'Entertainer commission updated successfully.');
     }
 
     public function reject(Request $request, Entertainer $entertainer)

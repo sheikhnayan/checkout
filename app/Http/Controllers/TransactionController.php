@@ -14,6 +14,7 @@ use App\Models\AffiliateWebsite;
 use App\Models\AffiliateWalletTransaction;
 use App\Mail\TransactionMail;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
 use net\authorize\api\contract\v1 as AnetAPI;
 use net\authorize\api\controller as AnetController;
 use Stripe;
@@ -27,6 +28,13 @@ class TransactionController extends Controller
         $selectedPackage = Package::find($request->input('package_id'));
         $requiresTransportation = $selectedPackage
             && ($selectedPackage->transportation == 1 || $selectedPackage->transportation === true || $selectedPackage->transportation === '1');
+
+        if ($selectedPackage && $selectedPackage->event_id) {
+            $this->ensureEventCapacityAvailable(
+                Event::find($selectedPackage->event_id),
+                max(1, (int) $request->input('package_number_of_guest', 1))
+            );
+        }
 
         if ($requiresTransportation) {
             $request->validate(
@@ -451,6 +459,14 @@ class TransactionController extends Controller
 
     public function reservation_store($slug, Request $request)
     {
+        if ($request->filled('event_id')) {
+            $requestedGuests = max(0, (int) $request->input('men_count')) + max(0, (int) $request->input('women_count'));
+            $this->ensureEventCapacityAvailable(
+                Event::find($request->input('event_id')),
+                $requestedGuests
+            );
+        }
+
         if (isset($request->event_id)) {
             # code...
             $event = Event::findOrFail($request->input('event_id'));
@@ -626,6 +642,47 @@ class TransactionController extends Controller
         $paymentType = session('paymentType');
 
         return view('thank-you', compact('transaction', 'invoice', 'website', 'paymentType'));
+    }
+
+    private function ensureEventCapacityAvailable(?Event $event, int $requestedGuests): void
+    {
+        if (!$event || $event->attendee_limit === null) {
+            return;
+        }
+
+        $limit = (int) $event->attendee_limit;
+        if ($limit <= 0) {
+            return;
+        }
+
+        $requestedGuests = max(1, $requestedGuests);
+        $confirmedAttendees = $this->countConfirmedEventAttendees($event);
+        $remainingCapacity = max($limit - $confirmedAttendees, 0);
+
+        if ($requestedGuests > $remainingCapacity) {
+            $message = $remainingCapacity > 0
+                ? 'Only ' . $remainingCapacity . ' spots remain for this event.'
+                : 'This event is sold out.';
+
+            throw ValidationException::withMessages([
+                'package_id' => $message,
+            ]);
+        }
+    }
+
+    private function countConfirmedEventAttendees(Event $event): int
+    {
+        return Transaction::query()
+            ->where('event_id', $event->id)
+            ->where('status', 1)
+            ->get(['type', 'package_number_of_guest', 'men', 'women'])
+            ->sum(function (Transaction $transaction) {
+                if ($transaction->type === 'reservation') {
+                    return max(0, (int) $transaction->men) + max(0, (int) $transaction->women);
+                }
+
+                return max(1, (int) $transaction->package_number_of_guest);
+            });
     }
 
     private function applyAffiliateCommission(Request $request, Transaction $transaction): void
