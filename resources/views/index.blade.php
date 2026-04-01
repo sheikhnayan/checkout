@@ -22,6 +22,43 @@
         <link rel="stylesheet" href="{{ asset('styles/main.css') }}">
         <style>
 
+.checkout-steps {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 2rem 0;
+    padding: 0;
+    list-style: none;
+}
+
+.step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    padding: 0 1rem;
+}
+
+.step-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #444;
+    color: #fff;
+    line-height: 1;
+    font-weight: bold;
+    margin: 0 auto 0.5rem;
+    border: 2px solid #444;
+}
+
+.step.active .step-number {
+    background: {{ $brandPrimary }};
+    border-color: {{ $brandPrimary }};
+    color: #000;
+}
+
 .step.completed .step-number {
     background: #28a745;
     border-color: #28a745;
@@ -2850,6 +2887,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 var couponParam = params.get('coupon');
 
                 if (cartParam) {
+                    openPackageTab();
                     try {
                         var decoded = JSON.parse(decodeURIComponent(cartParam));
                         window.cart = decoded.map(function(pkg) {

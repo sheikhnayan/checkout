@@ -143,6 +143,7 @@ function getCurrentSelections() {
 
 function setSelectionsFromParams(params) {
     if (params.cart) {
+        openPackageTab();
         try {
             cart = JSON.parse(decodeURIComponent(params.cart));
             renderCart();

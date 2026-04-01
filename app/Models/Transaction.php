@@ -4,12 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Affiliate;
+use App\Models\Entertainer;
 
 class Transaction extends Model
 {
     public function affiliate()
     {
         return $this->belongsTo(Affiliate::class);
+    }
+
+    public function entertainer()
+    {
+        return $this->belongsTo(Entertainer::class);
     }
 
     public function package()

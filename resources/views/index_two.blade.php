@@ -2899,6 +2899,7 @@
 
             function setSelectionsFromParams(params) {
                 if (params.cart) {
+                    openPackageTab();
                     try {
                         window.cart = JSON.parse(decodeURIComponent(params.cart)).map(function(pkg) {
                             if (typeof pkg.isMultiple === 'undefined') {

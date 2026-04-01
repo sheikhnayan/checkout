@@ -12,6 +12,9 @@ use App\Models\Affiliate;
 use App\Models\AffiliatePackage;
 use App\Models\AffiliateWebsite;
 use App\Models\AffiliateWalletTransaction;
+use App\Models\Entertainer;
+use App\Models\EntertainerPackage;
+use App\Models\EntertainerWalletTransaction;
 use App\Mail\TransactionMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
@@ -133,7 +136,7 @@ class TransactionController extends Controller
                     $add->addons = $request->input('addons');
                     $add->type = 'package';
                     $add->save();
-                    $this->applyAffiliateCommission($request, $add);
+                    $this->applyReferralCommission($request, $add);
     
                     try {
                         //code...
@@ -323,7 +326,7 @@ class TransactionController extends Controller
                     $add->addons = $request->input('addons');
                     $add->type = 'package';
                     $add->save();
-                    $this->applyAffiliateCommission($request, $add);
+                    $this->applyReferralCommission($request, $add);
     
                     try {
                         //code...
@@ -429,7 +432,7 @@ class TransactionController extends Controller
         
         if ($user->isAdmin()) {
             // Admin can see all transactions
-            $data = Transaction::with(['event', 'package', 'website', 'affiliate.user'])
+            $data = Transaction::with(['event', 'package', 'website', 'affiliate.user', 'entertainer.user'])
                               ->latest()
                               ->get();
         } elseif ($user->isWebsiteUser() && $user->website_id) {
@@ -447,6 +450,7 @@ class TransactionController extends Controller
                                 });
                             })
                             ->with(['event', 'package', 'website', 'affiliate.user'])
+                            ->with(['entertainer.user'])
                             ->latest()
                             ->get();
         } else {
@@ -499,7 +503,7 @@ class TransactionController extends Controller
             $new->men = $request->men_count;
             $new->women = $request->women_count;
             $new->save();
-            $this->applyAffiliateCommission($request, $new);
+            $this->applyReferralCommission($request, $new);
 
             try {
                         //code...
@@ -685,11 +689,19 @@ class TransactionController extends Controller
             });
     }
 
-    private function applyAffiliateCommission(Request $request, Transaction $transaction): void
+    private function applyReferralCommission(Request $request, Transaction $transaction): void
+    {
+        $affiliateResolved = $this->applyAffiliateCommission($request, $transaction);
+        if (!$affiliateResolved) {
+            $this->applyEntertainerCommission($request, $transaction);
+        }
+    }
+
+    private function applyAffiliateCommission(Request $request, Transaction $transaction): bool
     {
         $affiliate = $this->resolveAffiliateFromRequest($request);
         if (!$affiliate) {
-            return;
+            return false;
         }
 
         $packageId = (int) $request->input('package_id');
@@ -698,7 +710,7 @@ class TransactionController extends Controller
             $transaction->affiliate_source = $affiliate->slug;
             $transaction->save();
             session()->forget(['affiliate_referral_id', 'affiliate_referral_slug']);
-            return;
+            return true;
         }
 
         $mapping = AffiliatePackage::where('affiliate_id', $affiliate->id)
@@ -707,7 +719,7 @@ class TransactionController extends Controller
             ->first();
 
         if (!$mapping) {
-            return;
+            return true;
         }
 
         $commissionPercentage = (float) ($mapping->commission_percentage ?? $affiliate->default_commission_percentage);
@@ -742,6 +754,66 @@ class TransactionController extends Controller
         }
 
         session()->forget(['affiliate_referral_id', 'affiliate_referral_slug']);
+        return true;
+    }
+
+    private function applyEntertainerCommission(Request $request, Transaction $transaction): void
+    {
+        $entertainer = $this->resolveEntertainerFromRequest($request);
+        if (!$entertainer) {
+            return;
+        }
+
+        $packageId = (int) $request->input('package_id');
+        if ($packageId <= 0) {
+            $transaction->entertainer_id = $entertainer->id;
+            $transaction->entertainer_source = $entertainer->slug;
+            $transaction->save();
+            return;
+        }
+
+        $websiteId = (int) $request->input('website_id');
+
+        $mapping = EntertainerPackage::where('entertainer_id', $entertainer->id)
+            ->where('package_id', $packageId)
+            ->where('website_id', $websiteId)
+            ->where('is_active', true)
+            ->first();
+
+        if (!$mapping) {
+            return;
+        }
+
+        $commissionPercentage = (float) ($entertainer->default_commission_percentage ?? 0);
+        $baseAmount = (float) ($transaction->total ?? 0);
+        $commissionAmount = round(max($baseAmount, 0) * ($commissionPercentage / 100), 2);
+
+        $transaction->entertainer_id = $entertainer->id;
+        $transaction->entertainer_commission_percentage = $commissionPercentage;
+        $transaction->entertainer_commission_amount = $commissionAmount;
+        $transaction->entertainer_source = $entertainer->slug;
+        $transaction->save();
+
+        if ($commissionAmount > 0) {
+            $newBalance = round((float) $entertainer->wallet_balance + $commissionAmount, 2);
+            $entertainer->wallet_balance = $newBalance;
+            $entertainer->save();
+
+            EntertainerWalletTransaction::create([
+                'entertainer_id' => $entertainer->id,
+                'transaction_id' => $transaction->id,
+                'type' => 'commission',
+                'status' => 'completed',
+                'amount' => $commissionAmount,
+                'balance_after' => $newBalance,
+                'description' => 'Commission earned from package purchase #' . $transaction->id,
+                'meta' => [
+                    'package_id' => $packageId,
+                    'website_id' => $transaction->website_id,
+                    'commission_percentage' => $commissionPercentage,
+                ],
+            ]);
+        }
     }
 
     private function resolveAffiliateFromRequest(Request $request): ?Affiliate
@@ -787,6 +859,31 @@ class TransactionController extends Controller
             ->where('website_id', $websiteId)
             ->where('is_active', true)
             ->exists();
+    }
+
+    private function resolveEntertainerFromRequest(Request $request): ?Entertainer
+    {
+        $websiteId = (int) $request->input('website_id');
+        if ($websiteId <= 0) {
+            return null;
+        }
+
+        $slug = null;
+        if ($request->filled('affiliate_slug')) {
+            $slug = (string) $request->input('affiliate_slug');
+        } elseif ($request->filled('entertainer_slug')) {
+            $slug = (string) $request->input('entertainer_slug');
+        }
+
+        if (!$slug) {
+            return null;
+        }
+
+        return Entertainer::where('slug', $slug)
+            ->where('website_id', $websiteId)
+            ->where('status', 'approved')
+            ->where('is_active', true)
+            ->first();
     }
 
 }

@@ -129,9 +129,17 @@
                             <div class="col-lg">
                                 <div class="card-shadow-primary card-border text-white mb-3 card bg-primary p-4 admin-transactions-card">
                                     @php
-                                        $affiliateRows = $data->filter(function ($row) {
-                                            return !empty($row->affiliate_id) && !empty($row->affiliate);
-                                        })->unique('affiliate_id');
+                                        $referralRows = $data->map(function ($row) {
+                                            if (!empty($row->affiliate_id) && !empty($row->affiliate)) {
+                                                return $row->affiliate->display_name ?: optional($row->affiliate->user)->name ?: ('Affiliate #' . $row->affiliate_id);
+                                            }
+
+                                            if (!empty($row->entertainer_id) && !empty($row->entertainer)) {
+                                                return $row->entertainer->display_name ?: optional($row->entertainer->user)->name ?: ('Entertainer #' . $row->entertainer_id);
+                                            }
+
+                                            return null;
+                                        })->filter()->unique()->values();
                                     @endphp
                                     <div class="row mb-3 admin-transactions-filters g-3 align-items-end">
                                         @if(auth()->user()->isAdmin())
@@ -157,12 +165,9 @@
                                             <label>Filter by Affiliate:</label>
                                             <select id="affiliateFilter" class="form-select">
                                                 <option value="">All Affiliates</option>
-                                                @foreach($affiliateRows as $affiliateRow)
-                                                    @php
-                                                        $affiliateName = $affiliateRow->affiliate->display_name ?: optional($affiliateRow->affiliate->user)->name;
-                                                    @endphp
-                                                    <option value="{{ $affiliateName ?: 'Affiliate #' . $affiliateRow->affiliate_id }}">
-                                                        {{ $affiliateName ?: 'Affiliate #' . $affiliateRow->affiliate_id }}
+                                                @foreach($referralRows as $referralName)
+                                                    <option value="{{ $referralName }}">
+                                                        {{ $referralName }}
                                                     </option>
                                                 @endforeach
                                                 <option value="Direct">Direct (No Affiliate)</option>
@@ -224,11 +229,13 @@
                                                         <td>
                                                             @if(!empty($item->affiliate_id) && !empty($item->affiliate))
                                                                 {{ $item->affiliate->display_name ?: optional($item->affiliate->user)->name ?: ('Affiliate #' . $item->affiliate_id) }}
+                                                            @elseif(!empty($item->entertainer_id) && !empty($item->entertainer))
+                                                                {{ $item->entertainer->display_name ?: optional($item->entertainer->user)->name ?: ('Entertainer #' . $item->entertainer_id) }}
                                                             @else
                                                                 <span class="badge bg-secondary">Direct</span>
                                                             @endif
                                                         </td>
-                                                        <td>${{ number_format((float)($item->affiliate_commission_amount ?? 0), 2) }}</td>
+                                                        <td>${{ number_format((float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0), 2) }}</td>
                                                         <td>${{ $item->total }}</td>
                                                         <td>
                                                             @if($item->status == 1)
@@ -344,11 +351,13 @@
                                                         <td>
                                                             @if(!empty($item->affiliate_id) && !empty($item->affiliate))
                                                                 {{ $item->affiliate->display_name ?: optional($item->affiliate->user)->name ?: ('Affiliate #' . $item->affiliate_id) }}
+                                                            @elseif(!empty($item->entertainer_id) && !empty($item->entertainer))
+                                                                {{ $item->entertainer->display_name ?: optional($item->entertainer->user)->name ?: ('Entertainer #' . $item->entertainer_id) }}
                                                             @else
                                                                 <span class="badge bg-secondary">Direct</span>
                                                             @endif
                                                         </td>
-                                                        <td>${{ number_format((float)($item->affiliate_commission_amount ?? 0), 2) }}</td>
+                                                        <td>${{ number_format((float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0), 2) }}</td>
                                                         <td>${{ $item->total }}</td>
                                                         <td>
                                                             @if($item->status == 1)
