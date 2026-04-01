@@ -1562,23 +1562,25 @@
             }
 
             .mobile-top-actions {
-                padding: 8px 12px 2px;
+                padding: 8px 12px 4px;
             }
 
             .mobile-back-home-btn {
+                width: 100%;
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                gap: 6px;
-                padding: 7px 0;
-                border: 0;
-                border-radius: 0;
-                background: transparent;
-                color: rgba(255, 255, 255, 0.88);
-                font-size: .8rem;
+                gap: 7px;
+                padding: 9px 12px;
+                border: 1px solid rgba(247, 226, 180, 0.28);
+                border-radius: 12px;
+                background: linear-gradient(145deg, rgba(247, 226, 180, 0.12), rgba(221, 183, 116, 0.1));
+                color: rgba(255, 255, 255, 0.94);
+                font-size: .82rem;
                 font-weight: 600;
                 letter-spacing: .01em;
                 text-decoration: none;
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
             }
 
             .mobile-back-home-btn:active {
@@ -1588,6 +1590,7 @@
             .mobile-back-home-btn:hover,
             .mobile-back-home-btn:focus-visible {
                 color: #fff;
+                border-color: rgba(247, 226, 180, 0.4);
             }
 
             .aff-banner { width: 100%; }
