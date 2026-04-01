@@ -244,12 +244,11 @@
             top: 12px;
             z-index: 12;
             display: flex;
-            justify-content: flex-start;
+            justify-content: center;
             align-items: center;
-            gap: 16px;
-            flex-wrap: wrap;
+            gap: 10px;
             margin-bottom: 18px;
-            padding: 14px 16px;
+            padding: 10px 12px;
             border: 1px solid var(--profile-border);
             border-radius: 14px;
             background: rgba(8, 13, 24, 0.78);
@@ -257,31 +256,30 @@
             backdrop-filter: blur(16px);
         }
 
-        .profile-counters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .profile-counter {
-            min-width: 120px;
-            padding: 10px 14px;
+        .profile-posts-stat {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 8px;
+            min-width: 0;
+            padding: 8px 14px;
             border-radius: 12px;
             border: 1px solid var(--profile-border);
             background: rgba(255,255,255,0.04);
         }
 
-        .profile-counter strong {
-            display: block;
-            font-size: 1.1rem;
+        .profile-posts-stat strong {
+            display: inline-block;
+            font-size: 1.08rem;
+            line-height: 1;
             color: #fff;
         }
 
-        .profile-counter span {
+        .profile-posts-stat span {
             color: var(--profile-muted);
-            font-size: .76rem;
+            font-size: .78rem;
             text-transform: uppercase;
             letter-spacing: .08em;
+            line-height: 1;
         }
 
         .rollcall-launch {
@@ -468,7 +466,7 @@
             left: 14px;
             right: 14px;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             gap: 10px;
             pointer-events: none;
         }
@@ -717,7 +715,7 @@
             .profile-sticky-bar {
                 top: 8px;
                 border-radius: 12px;
-                padding: 12px;
+                padding: 10px;
             }
 
             .profile-appearances {
@@ -733,13 +731,9 @@
                 max-width: 120px;
             }
 
-            .profile-counters {
+            .profile-posts-stat {
                 width: 100%;
-            }
-
-            .profile-counter {
-                flex: 1 1 calc(50% - 10px);
-                min-width: 0;
+                justify-content: center;
             }
 
             .rollcall-launch-grid {
@@ -772,6 +766,13 @@
             return ($item['source'] ?? 'upload') === 'upload' ? asset('uploads/' . $item['url']) : ($item['url'] ?? '');
         };
 
+        $fromRollCall = request()->query('from') === 'roll-call' && $profileType === 'model';
+        $rollCallDate = trim((string) request()->query('date', ''));
+        $backLink = $fromRollCall
+            ? route('club.feed.roll-call', ['slug' => $club->slug, 'date' => $rollCallDate !== '' ? $rollCallDate : ($rollCallDefaultDate ?? now()->format('Y-m-d'))])
+            : route('club.feed', $club->slug);
+        $backLabel = $fromRollCall ? 'Back To Calendar' : 'Back To Feed';
+
         $embedUrl = function ($url) {
             if (preg_match('~(?:youtube\.com/watch\?v=|youtu\.be/)([A-Za-z0-9_-]{6,})~', $url, $matches)) {
                 return 'https://www.youtube.com/embed/' . $matches[1];
@@ -784,17 +785,12 @@
             return null;
         };
 
-        $mediaCount = $posts->reduce(function ($carry, $post) {
-            return $carry + count((array) $post->resolved_media_items);
-        }, 0);
-
-        $commentCount = $posts->sum('visible_comments_count');
     @endphp
 
     <div class="profile-shell">
         <div class="profile-topbar">
             <div class="profile-topbar-nav">
-                <a href="{{ route('club.feed', $club->slug) }}" class="profile-topbar-link"><i class="fas fa-chevron-left"></i> Back To Feed</a>
+                <a href="{{ $backLink }}" class="profile-topbar-link"><i class="fas fa-chevron-left"></i> {{ $backLabel }}</a>
             </div>
             <span class="profile-topbar-context">Posts</span>
         </div>
@@ -860,21 +856,10 @@
         @endif
 
         <div class="profile-sticky-bar">
-            <div class="profile-counters">
-                <div class="profile-counter">
-                    <strong>{{ $posts->count() }}</strong>
-                    <span>Posts</span>
-                </div>
-                <div class="profile-counter">
-                    <strong>{{ $mediaCount }}</strong>
-                    <span>Media</span>
-                </div>
-                <div class="profile-counter">
-                    <strong>{{ $commentCount }}</strong>
-                    <span>Comments</span>
-                </div>
+            <div class="profile-posts-stat">
+                <strong>{{ $posts->count() }}</strong>
+                <span>Posts</span>
             </div>
-
         </div>
 
         @if($posts->count())
@@ -885,6 +870,10 @@
                         $tileItem = $mediaItems[0] ?? null;
                         $tileUrl = $tileItem ? $mediaUrl($tileItem) : null;
                         $tileEmbed = $tileItem && ($tileItem['type'] ?? 'image') === 'video' ? $embedUrl($tileUrl) : null;
+                        $hasVideoMedia = collect($mediaItems)->contains(function ($item) {
+                            return ($item['type'] ?? 'image') === 'video';
+                        });
+                        $showMediaBadge = count($mediaItems) > 1 || $hasVideoMedia;
                         $lightboxItems = collect($mediaItems)->map(function ($item) use ($mediaUrl, $embedUrl) {
                             $url = $mediaUrl($item);
 
@@ -919,24 +908,25 @@
                                         <i class="fas fa-circle-play" style="font-size:2rem;opacity:.9;"></i>
                                     </div>
                                 @else
-                                    <video src="{{ $tileUrl }}" muted playsinline webkit-playsinline preload="metadata"></video>
+                                    <video src="{{ $tileUrl }}" muted autoplay loop playsinline webkit-playsinline preload="auto"></video>
                                 @endif
                             @else
                                 <img src="{{ $tileUrl }}" alt="{{ $profileTitle }} post media">
                             @endif
                         @endif
 
-                        <div class="profile-tile-badges">
-                            <span class="profile-badge">{{ strtoupper($post->author_mode === 'club' ? 'CLUB' : 'ENTERTAINER') }}</span>
-                            <span class="profile-badge">
-                                @if(count($mediaItems) > 1)
-                                    <i class="fas fa-clone"></i>
-                                @endif
-                                @if(collect($mediaItems)->contains(function ($item) { return ($item['type'] ?? 'image') === 'video'; }))
-                                    <i class="fas fa-circle-play"></i>
-                                @endif
-                            </span>
-                        </div>
+                        @if($showMediaBadge)
+                            <div class="profile-tile-badges">
+                                <span class="profile-badge">
+                                    @if(count($mediaItems) > 1)
+                                        <i class="fas fa-clone"></i>
+                                    @endif
+                                    @if($hasVideoMedia)
+                                        <i class="fas fa-circle-play"></i>
+                                    @endif
+                                </span>
+                            </div>
+                        @endif
 
                         <div class="profile-tile-overlay">
                             <div class="profile-tile-meta">
@@ -963,7 +953,7 @@
         <div class="profile-footer-inner">
             <a href="https://cartvip.com" target="_blank" rel="noopener" class="profile-footer-brand">
                 <span class="brand-dot"></span>
-                <span>mrrallcall.com powered by CartVIP</span>
+                <span>Mr.RollCall.com powered by CartVIP</span>
             </a>
         </div>
     </footer>
@@ -998,6 +988,47 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent)
+            || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+        function restartLoopingVideos(scope) {
+            if (!isIOSDevice) {
+                return;
+            }
+
+            const root = scope || document;
+            const videos = root.querySelectorAll('video');
+
+            videos.forEach(function (video) {
+                if (video.closest('.profile-lightbox')) {
+                    return;
+                }
+
+                video.muted = true;
+                video.defaultMuted = true;
+                video.autoplay = true;
+                video.loop = true;
+                video.playsInline = true;
+                video.preload = 'auto';
+                video.setAttribute('muted', 'muted');
+                video.setAttribute('autoplay', 'autoplay');
+                video.setAttribute('loop', 'loop');
+                video.setAttribute('playsinline', 'playsinline');
+                video.setAttribute('webkit-playsinline', 'webkit-playsinline');
+
+                try {
+                    video.load();
+                } catch (error) {
+                    // Ignore reload errors and attempt playback anyway.
+                }
+
+                const playPromise = video.play();
+                if (playPromise && typeof playPromise.catch === 'function') {
+                    playPromise.catch(function () {});
+                }
+            });
+        }
+
         const lightbox = document.getElementById('profile-lightbox');
         const stage = document.getElementById('profile-lightbox-stage');
         const closeButton = document.getElementById('profile-lightbox-close');
@@ -1122,6 +1153,18 @@
 
             if (event.key === 'ArrowRight') {
                 moveLightbox(1);
+            }
+        });
+
+        restartLoopingVideos(document);
+
+        window.addEventListener('pageshow', function () {
+            restartLoopingVideos(document);
+        });
+
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'visible') {
+                restartLoopingVideos(document);
             }
         });
 

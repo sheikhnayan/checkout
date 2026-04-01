@@ -66,6 +66,7 @@
         }
         .aff-profile-content {
             min-width: 0;
+            max-width: min(760px, 100%);
         }
         .aff-profile-name {
             margin: 0;
@@ -81,6 +82,10 @@
             color: rgba(232, 234, 246, 0.78);
             font-size: 13px;
             line-height: 1.5;
+            max-width: 100%;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            white-space: normal;
             overflow: hidden;
             display: -webkit-box;
             -webkit-line-clamp: 2;
@@ -763,25 +768,6 @@ const clubConfigs = {
     @php
         $featuredClub = optional(optional(optional($clubGroups->first())->first())->package)->website;
     @endphp
-    @if(($affiliate->show_location_section ?? true) && $featuredClub && $featuredClub->location)
-        <section class="aff-location-card">
-            <div class="aff-location-shell">
-                <div class="aff-location-copy">
-                    <span class="aff-location-kicker">Primary Club</span>
-                    <h3 class="aff-location-title">{{ $featuredClub->name }}</h3>
-                    <p class="aff-location-address">{{ $featuredClub->location }}</p>
-                </div>
-                <div class="aff-location-map">
-                    <iframe
-                        src="https://www.google.com/maps?q={{ urlencode($featuredClub->location) }}&output=embed"
-                        allowfullscreen
-                        loading="lazy"
-                        referrerpolicy="no-referrer-when-downgrade">
-                    </iframe>
-                </div>
-            </div>
-        </section>
-    @endif
 
     {{-- ===== PACKAGES ===== --}}
     <h5 class="mb-3" style="opacity:.6;font-size:.85rem;text-transform:uppercase;letter-spacing:.8px;font-weight:700;">Select a Package to Book</h5>
@@ -875,12 +861,15 @@ const clubConfigs = {
         <p style="opacity:.5;">No packages are available on this page yet.</p>
     @endif
 
-    @if(($affiliate->show_location_section ?? true) && $featuredClub && ($featuredClub->phone || $featuredClub->email))
+    @if(($affiliate->show_location_section ?? true) && $featuredClub && ($featuredClub->location || $featuredClub->phone || $featuredClub->email))
         <section class="aff-location-card mt-3">
             <div class="aff-location-shell">
                 <div class="aff-location-copy">
-                    <span class="aff-location-kicker">Contact Details</span>
+                    <span class="aff-location-kicker">Club Contact & Location</span>
                     <h3 class="aff-location-title">{{ $featuredClub->name }}</h3>
+                    @if($featuredClub->location)
+                        <p class="aff-location-address">{{ $featuredClub->location }}</p>
+                    @endif
                     <div class="aff-location-contact">
                         @if($featuredClub->phone)
                             <a class="aff-location-chip" href="tel:{{ $featuredClub->phone }}">
@@ -896,6 +885,16 @@ const clubConfigs = {
                         @endif
                     </div>
                 </div>
+                @if($featuredClub->location)
+                    <div class="aff-location-map">
+                        <iframe
+                            src="https://www.google.com/maps?q={{ urlencode($featuredClub->location) }}&output=embed"
+                            allowfullscreen
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                @endif
             </div>
         </section>
     @endif
@@ -1208,7 +1207,28 @@ function getBillableGuests(item) {
 
 window.addToCart = function(pkgId, pkgName, pkgPrice, guests, addons, transport, isMultiple) {
     ensureCart();
-    window.cart = [{ pkgId, pkgName, pkgPrice, guests, addons, transport, isMultiple: parseMultipleFlag(isMultiple) }];
+    const normalizedGuests = parseInt(guests) || 1;
+    const existing = window.cart.find(function(item) { return item.pkgId == pkgId; });
+
+    if (existing) {
+        existing.pkgName = pkgName;
+        existing.pkgPrice = pkgPrice;
+        existing.guests = normalizedGuests;
+        existing.addons = addons || [];
+        existing.transport = transport;
+        existing.isMultiple = parseMultipleFlag(isMultiple);
+    } else {
+        window.cart.push({
+            pkgId: pkgId,
+            pkgName: pkgName,
+            pkgPrice: pkgPrice,
+            guests: normalizedGuests,
+            addons: addons || [],
+            transport: transport,
+            isMultiple: parseMultipleFlag(isMultiple)
+        });
+    }
+
     syncTransportStateFromCart();
     renderCart(); calcTotal();
 };
@@ -1312,13 +1332,18 @@ function setSelectionsFromParams() {
                     }
                     return item;
                 });
-                const firstPackage = decoded[0];
+                const firstPackage = window.cart[0];
                 if (firstPackage) {
                     $('#package_id').val(firstPackage.pkgId || '');
                     $('.package_number_of_guest').val(firstPackage.guests || 1);
-                    $('.package_number_of_guestss[data-id="' + firstPackage.pkgId + '"]').val(firstPackage.guests || 1);
-                    $('#pkg-card-' + firstPackage.pkgId).addClass('selected');
                 }
+
+                $('.vip-card').removeClass('selected');
+                window.cart.forEach(function(item) {
+                    $('.package_number_of_guestss[data-id="' + item.pkgId + '"]').val(item.guests || 1);
+                    $('#pkg-card-' + item.pkgId).addClass('selected');
+                });
+
                 syncTransportStateFromCart();
                 renderCart();
                 calcTotal();

@@ -893,7 +893,7 @@
                                                     @if($currentEmbed)
                                                         <iframe class="feed-embed" src="{{ $currentEmbed }}" frameborder="0" allowfullscreen allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
                                                     @else
-                                                        <video class="feed-open-media-trigger" src="{{ $currentUrl }}" controls playsinline webkit-playsinline preload="metadata"></video>
+                                                        <video class="feed-open-media-trigger" src="{{ $currentUrl }}" muted autoplay loop playsinline webkit-playsinline preload="auto" controls></video>
                                                     @endif
                                                 @else
                                                     <img class="feed-open-media-trigger" src="{{ $currentUrl }}" alt="{{ $post->author_name }} media">
@@ -931,7 +931,7 @@
                                         @if($currentEmbed)
                                             <iframe class="feed-embed" src="{{ $currentEmbed }}" frameborder="0" allowfullscreen allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
                                         @else
-                                            <video class="feed-open-media-trigger" src="{{ $currentUrl }}" controls playsinline webkit-playsinline preload="metadata"></video>
+                                            <video class="feed-open-media-trigger" src="{{ $currentUrl }}" muted autoplay loop playsinline webkit-playsinline preload="auto" controls></video>
                                         @endif
                                     @else
                                         <img class="feed-open-media-trigger" src="{{ $currentUrl }}" alt="{{ $post->author_name }} media">
@@ -987,7 +987,7 @@
         <div class="feed-footer-inner">
             <a href="https://cartvip.com" target="_blank" rel="noopener" class="feed-footer-brand">
                 <span class="brand-dot"></span>
-                <span>mrrallcall.com powered by CartVIP</span>
+                <span>Mr.RollCall.com powered by CartVIP</span>
             </a>
         </div>
     </footer>
@@ -1079,6 +1079,47 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/js/bootstrap.bundle.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent)
+            || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+        function restartLoopingVideos(scope) {
+            if (!isIOSDevice) {
+                return;
+            }
+
+            const root = scope || document;
+            const videos = root.querySelectorAll('video');
+
+            videos.forEach(function (video) {
+                if (video.closest('.feed-lightbox')) {
+                    return;
+                }
+
+                video.muted = true;
+                video.defaultMuted = true;
+                video.autoplay = true;
+                video.loop = true;
+                video.playsInline = true;
+                video.preload = 'auto';
+                video.setAttribute('muted', 'muted');
+                video.setAttribute('autoplay', 'autoplay');
+                video.setAttribute('loop', 'loop');
+                video.setAttribute('playsinline', 'playsinline');
+                video.setAttribute('webkit-playsinline', 'webkit-playsinline');
+
+                try {
+                    video.load();
+                } catch (error) {
+                    // Ignore reload errors and attempt playback anyway.
+                }
+
+                const playPromise = video.play();
+                if (playPromise && typeof playPromise.catch === 'function') {
+                    playPromise.catch(function () {});
+                }
+            });
+        }
+
         const lightbox = document.getElementById('feed-lightbox');
         const stage = document.getElementById('feed-lightbox-stage');
         const closeButton = document.getElementById('feed-lightbox-close');
@@ -1219,6 +1260,7 @@
                     Array.from(incomingList.children).forEach(function (child) {
                         postList.appendChild(child);
                     });
+                    restartLoopingVideos(postList);
                 }
 
                 if (incomingPagination) {
@@ -1279,6 +1321,18 @@
             });
             observer.observe(sentinel);
         }
+
+        restartLoopingVideos(document);
+
+        window.addEventListener('pageshow', function () {
+            restartLoopingVideos(document);
+        });
+
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'visible') {
+                restartLoopingVideos(document);
+            }
+        });
     });
     </script>
 </body>

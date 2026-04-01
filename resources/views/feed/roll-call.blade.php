@@ -202,7 +202,13 @@
         }
 
         .flatpickr-months {
-            margin-bottom: 8px;
+            margin-bottom: 14px;
+            padding-bottom: 4px;
+        }
+
+        .flatpickr-current-month {
+            padding-top: 4px;
+            line-height: 1.35;
         }
 
         .flatpickr-months .flatpickr-prev-month,
@@ -908,7 +914,7 @@
                 @if($workingModels->isNotEmpty())
                     <div class="roll-model-grid">
                         @foreach($workingModels as $model)
-                            <a class="roll-model-card" href="{{ route('club.feed.model.profile', [$club->slug, $model]) }}">
+                            <a class="roll-model-card" href="{{ route('club.feed.model.profile', ['slug' => $club->slug, 'feedModel' => $model->id, 'from' => 'roll-call', 'date' => $selectedDate]) }}">
                                 <div class="roll-model-media">
                                     @if($model->profile_image)
                                         <img src="{{ asset('uploads/' . $model->profile_image) }}" alt="{{ $model->name }}">
@@ -940,7 +946,7 @@
         <div class="roll-footer-inner">
             <a href="https://cartvip.com" target="_blank" rel="noopener" class="roll-footer-brand">
                 <span class="brand-dot"></span>
-                <span>mrrallcall.com powered by CartVIP</span>
+                <span>Mr.RollCall.com powered by CartVIP</span>
             </a>
         </div>
     </footer>

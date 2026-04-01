@@ -892,8 +892,8 @@ body {
 
 .event-hero-layout {
     display: grid;
-    grid-template-columns: minmax(420px, 1.45fr) minmax(320px, 420px);
-    gap: 20px;
+    grid-template-columns: minmax(420px, 1fr) 476px;
+    gap: 22px;
     align-items: stretch;
     margin: 8px 0 14px;
 }
@@ -903,7 +903,7 @@ body {
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 14px;
     padding: 18px;
-    min-height: 520px;
+    min-height: 700px;
     height: 100%;
     box-sizing: border-box;
     display: flex;
@@ -914,14 +914,17 @@ body {
 }
 
 .event-banner-wrap {
-    width: 100%;
-    max-width: 420px;
+    width: 476px;
+    min-width: 476px;
+    max-width: 476px;
     justify-self: end;
-    height: 100%;
+    height: 700px;
 }
 
 .event-banner-wrap .aff-banner {
-    height: 100%;
+    width: 476px;
+    height: 700px;
+    min-height: 700px;
 }
 
 .aff-kicker {
@@ -952,7 +955,7 @@ body {
 .hero-date-card {
     margin-top: 5px;
     width: 100%;
-    max-width: 420px;
+    max-width: 440px;
     padding: 7px 10px;
     border-radius: 14px;
     border: 1px solid rgba(255,255,255,0.08);
@@ -1428,7 +1431,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
 @media(max-width:768px) {
     .event-hero-layout { grid-template-columns: 1fr; gap: 14px; }
-    .event-banner-wrap { order: 2; max-width: none; justify-self: stretch; }
+    .event-banner-wrap { order: 2; width: 100%; min-width: 0; max-width: none; height: auto; justify-self: stretch; }
+    .event-banner-wrap .aff-banner { width: 100%; height: auto; min-height: 420px; }
     .event-hero-copy { order: 1; padding: 12px 10px; min-height: 0; }
     .aff-banner { width: 100%; min-height: 420px; }
     .hero-date-card { max-width: 100%; }
