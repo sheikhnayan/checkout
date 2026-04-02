@@ -1324,6 +1324,27 @@ nav .tab:hover {
     word-break: break-word;
 }
 
+.default-refundable {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 6px;
+    row-gap: 2px;
+}
+
+.default-due {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 6px;
+    row-gap: 2px;
+}
+
+.default-refundable span,
+.default-due span {
+    white-space: nowrap;
+}
+
 .dynamic-price {
     background: rgba(255,255,255,0.04);
     border-radius: 10px;
@@ -1471,8 +1492,24 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 
 @media(max-width:768px) {
+    .container {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
     .aff-hero {
         padding: 10px 0 8px;
+    }
+
+    .aff-story,
+    .guest > form > section,
+    .guest-count,
+    .vip-pack,
+    .package > section,
+    .checkout-section,
+    .upcoming-events-card,
+    .location-card {
+        padding: 14px 12px;
     }
 
     .back-home-btn {
@@ -1553,6 +1590,20 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         --bs-gutter-x: 0;
         --bs-gutter-y: 12px;
     }
+
+    .pricing-shell > div {
+        padding: 14px 12px;
+    }
+
+    .default-refundable,
+    .default-due {
+        font-size: 14px !important;
+        line-height: 1.45;
+    }
+
+    .default-due {
+        margin-top: 8px;
+    }
     .vip-card-side { flex: 1 1 100%; }
     .hero-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .location-shell { grid-template-columns: 1fr; }
@@ -1563,6 +1614,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 
 @media(max-width:576px) {
+    .container {
+        padding-left: 6px;
+        padding-right: 6px;
+    }
+
     .hero-gallery-grid { grid-template-columns: 1fr; }
 }
 
