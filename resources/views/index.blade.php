@@ -1566,52 +1566,21 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         padding: 14px 12px;
     }
 
-    .guest-count {
-        padding: 10px;
-    }
-
-    .guest-count h2 {
-        font-size: .96rem;
-        margin-bottom: 8px;
-    }
-
-    .guest-count .guest-section {
+    .guest-count .guest-list {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        padding: 7px 8px;
-        margin-bottom: 6px;
-        border-radius: 10px;
+        flex-direction: column;
     }
 
-    .guest-count .label {
-        font-size: 13px;
-        margin-bottom: 0;
+    .guest-count .guest-section--men {
+        order: 1;
     }
 
-    .guest-count .counter {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
+    .guest-count .guest-section--women {
+        order: 2;
     }
 
-    .guest-count .count {
-        min-width: 28px;
-        text-align: center;
-        font-size: 14px;
-        font-weight: 700;
-    }
-
-    .guest-count .btn-gray,
-    .guest-count .btn-yellow {
-        width: 26px;
-        height: 26px;
-        min-width: 26px;
-        padding: 0;
-        line-height: 1;
-        border-radius: 8px;
-        font-size: 16px;
+    .guest-count .guest-section--total {
+        order: 3;
     }
 
     .back-home-btn {
@@ -1726,6 +1695,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .aff-display-copy { font-size: 11px; }
     .aff-footer-inner {
         justify-content: center;
+        text-align: center;
+        flex-direction: column-reverse;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .aff-footer-note {
+        width: 100%;
         text-align: center;
     }
 }
@@ -1936,9 +1913,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             <section class="guest-count">
                                 <div class="container">
                                     <div class="row">
-                                        <div class="col-md-12">
+                                        <div class="col-md-12 guest-list">
                                             <h2>Total Guests</h2>
-                                            <div class="guest-section" style="border-color: {{ $brandPrimary }} !important;">
+                                            <div class="guest-section guest-section--women" style="border-color: {{ $brandPrimary }} !important;">
                                                 <span class="label">Women</span>
                                                 <div class="counter">
                                                     <span class="count" id="womenCount">0</span>
@@ -1949,7 +1926,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                         onclick="increments('women')">+</button>
                                                 </div>
                                             </div>
-                                            <div class="guest-section" style="border-color: {{ $brandPrimary }} !important;">
+                                            <div class="guest-section guest-section--men" style="border-color: {{ $brandPrimary }} !important;">
                                                 <span class="label">Men</span>
                                                 <div class="counter">
                                                     <span class="count" id="menCount">0</span>
@@ -1960,7 +1937,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                         onclick="increments('men')">+</button>
                                                 </div>
                                             </div>
-                                            <div class="guest-section" style="border-color: {{ $brandPrimary }} !important;">
+                                            <div class="guest-section guest-section--total" style="border-color: {{ $brandPrimary }} !important;">
                                                 <span class="label">Total Guests</span>
                                                 <div class="counter">
                                                     <span class="count" id="totalCount">0</span>
