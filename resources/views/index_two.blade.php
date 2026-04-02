@@ -2312,7 +2312,7 @@
                                         </div>
                                         <div class="col-md-6 dynamic-price" style="display: none;">
                                             <label
-                                                style="color: #808080; font-size: 14px; margin-top: 2rem;">{{ $data->promo_code_name }}</label>
+                                                style="color: #808080; font-size: 14px;">{{ $data->promo_code_name }}</label>
                                             <div class="row">
                                                 <div class="col-md-8 col-8" style="padding-right: 0%;">
                                                     <input type="text" id="promo_code"
