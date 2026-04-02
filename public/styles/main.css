@@ -348,8 +348,8 @@ main {
 
       font-size: 36px;
         font-weight: 700;
-        margin-bottom: 47px;
-        margin-top: 3rem;
+        margin-top: 0.2rem;
+        margin-bottom: 1rem !important;
     }
 
     .guest-section {
