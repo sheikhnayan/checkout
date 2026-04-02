@@ -1345,6 +1345,15 @@ nav .tab:hover {
     white-space: nowrap;
 }
 
+.pay-now-tag {
+    display: inline-block;
+    margin-left: 6px;
+    white-space: nowrap;
+    font-size: .86em;
+    line-height: 1;
+    vertical-align: baseline;
+}
+
 .dynamic-price {
     background: rgba(255,255,255,0.04);
     border-radius: 10px;
@@ -1599,6 +1608,17 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .default-due {
         font-size: 14px !important;
         line-height: 1.45;
+    }
+
+    .default-refundable {
+        font-size: clamp(11px, 3.2vw, 14px) !important;
+        flex-wrap: nowrap;
+    }
+
+    .default-refundable .pay-now-tag {
+        font-size: clamp(9px, 2.6vw, 11px);
+        margin-left: 4px;
+        flex-shrink: 0;
     }
 
     .default-due {
@@ -2066,7 +2086,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                 <div style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;"
                                                     class="vip-price default-refundable">
                                                     {{ $data->refundable_name ?? 'Non Refundable Processing Fees' }}:
-                                                    <span>$0.00</span> (Pay Now)</div>
+                                                    <span>$0.00</span><span class="pay-now-tag">(Pay Now)</span></div>
                                                 <div style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;"
                                                     class="vip-price default-due">DUE ON ARRIVAL: <span>$0.00</span></div>
                                             @endif
