@@ -1370,6 +1370,55 @@ nav .tab:hover {
     margin-bottom: 12px;
 }
 
+.guest-count {
+    padding: 12px 14px;
+}
+
+.guest-count h2 {
+    font-size: 1.02rem;
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+
+.guest-count .guest-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+}
+
+.guest-count .label {
+    font-size: 13px;
+    margin-bottom: 0;
+}
+
+.guest-count .counter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.guest-count .count {
+    min-width: 28px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.guest-count .btn-gray,
+.guest-count .btn-yellow {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    padding: 0;
+    line-height: 1;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
 .section-kicker-lg {
     opacity: .6;
     font-size: .85rem;
@@ -1521,6 +1570,20 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .upcoming-events-card,
     .location-card {
         padding: 14px 12px;
+    }
+
+    .guest-count {
+        padding: 10px;
+    }
+
+    .guest-count h2 {
+        font-size: .96rem;
+        margin-bottom: 8px;
+    }
+
+    .guest-count .guest-section {
+        padding: 7px 8px;
+        margin-bottom: 6px;
     }
 
     .back-home-btn {
@@ -1844,17 +1907,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         <div class="col-md-12">
                                             <h2>Total Guests</h2>
                                             <div class="guest-section" style="border-color: {{ $brandPrimary }} !important;">
-                                                <span class="label">Women</span>
-                                                <div class="counter">
-                                                    <span class="count" id="womenCount">0</span>
-                                                    <button class="btn-gray" type="button"
-                                                        onclick="decrements('women')">-</button>
-                                                    <button class="btn-yellow"
-                                                        style="background-color: {{ $brandPrimary }} !important;" type="button"
-                                                        onclick="increments('women')">+</button>
-                                                </div>
-                                            </div>
-                                            <div class="guest-section" style="border-color: {{ $brandPrimary }} !important;">
                                                 <span class="label">Men</span>
                                                 <div class="counter">
                                                     <span class="count" id="menCount">0</span>
@@ -1863,6 +1915,17 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                     <button class="btn-yellow"
                                                         style="background-color: {{ $brandPrimary }} !important;" type="button"
                                                         onclick="increments('men')">+</button>
+                                                </div>
+                                            </div>
+                                            <div class="guest-section" style="border-color: {{ $brandPrimary }} !important;">
+                                                <span class="label">Women</span>
+                                                <div class="counter">
+                                                    <span class="count" id="womenCount">0</span>
+                                                    <button class="btn-gray" type="button"
+                                                        onclick="decrements('women')">-</button>
+                                                    <button class="btn-yellow"
+                                                        style="background-color: {{ $brandPrimary }} !important;" type="button"
+                                                        onclick="increments('women')">+</button>
                                                 </div>
                                             </div>
                                             <div class="guest-section" style="border-color: {{ $brandPrimary }} !important;">
@@ -1877,8 +1940,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                             </div>
                                             <input type="hidden" name="men_count" id="men_count" value="0">
                                             <input type="hidden" name="women_count" id="women_count" value="0">
-                                        </div>
-                                        <div class="col-md-12 mt-4">
                                         </div>
                                         <div class="col-md-12">
                                             <div class="checkbox-container">
