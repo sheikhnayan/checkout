@@ -1347,11 +1347,13 @@ nav .tab:hover {
 
 .pay-now-tag {
     display: inline-block;
-    margin-left: 6px;
+    margin-left: 0;
+    padding-left: 0;
     white-space: nowrap;
     font-size: .86em;
     line-height: 1;
     vertical-align: baseline;
+    color: inherit !important;
 }
 
 .dynamic-price {
@@ -1617,7 +1619,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
     .default-refundable .pay-now-tag {
         font-size: clamp(9px, 2.6vw, 11px);
-        margin-left: 4px;
+        margin-left: 0;
         flex-shrink: 0;
     }
 
