@@ -842,11 +842,11 @@
                         class="feed-card feed-post-media"
                         id="post-{{ $post->id }}"
                         data-lightbox-items='@json($lightboxItems)'
-                        data-lightbox-caption="{{ e($post->caption ?? '') }}"
+                        data-lightbox-caption="{{ $post->caption ?? '' }}"
                         data-lightbox-date="{{ optional($post->posted_at)->format('M d, Y') }}"
                         data-lightbox-comments="{{ $post->visible_comments_count }}"
                         data-lightbox-comment-items='@json($lightboxComments)'
-                        data-lightbox-author="{{ e($post->author_name) }}"
+                        data-lightbox-author="{{ $post->author_name }}"
                     >
                         <div class="feed-card-head">
                             @if($post->author_avatar)
