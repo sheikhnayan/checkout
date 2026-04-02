@@ -1989,10 +1989,9 @@
                                                     </div>
                                                     <div class="form-group" style="width: 50%;">
                                                         <label for="email">Email <span
-                                                                style="font-size: 11px; font-weight: bold;">( You will
-                                                                receive your confirmation here* )</span></label>
+                                                                style="font-size: 11px; font-weight: bold;">(Required)</span></label>
                                                         <input type="email" name="reservation_email" id="email"
-                                                            placeholder="sample@sample.com" required />
+                                                            placeholder="For Confirmation" required />
                                                     </div>
                                                 </div>
 
