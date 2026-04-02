@@ -1465,8 +1465,8 @@
             row-gap: 2px;
         }
 
-        .default-refundable span,
-        .default-due span {
+        .default-refundable .refundable-amount,
+        .default-due .due-amount {
             white-space: nowrap;
         }
 
@@ -2223,10 +2223,10 @@
                                                 <div style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;"
                                                     class="vip-price default-refundable">
                                                     {{ $data->refundable_name ?? 'Non Refundable Processing Fees' }}:
-                                                    <span>$0.00</span><span class="pay-now-tag">(Pay Now)</span>
+                                                    <span class="refundable-amount">$0.00</span><span class="pay-now-tag">(Pay Now)</span>
                                                 </div>
                                                 <div style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;"
-                                                    class="vip-price default-due">DUE ON ARRIVAL: <span>$0.00</span>
+                                                    class="vip-price default-due">DUE ON ARRIVAL: <span class="due-amount">$0.00</span>
                                                 </div>
                                             @endif
                                             @if ($data->sales_tax_name == 0)
@@ -3050,10 +3050,10 @@
                     $('.default-promo-discount').remove();
                 }
                 
-                $('.default-refundable span').text(formatCurrency(refundable_price));
+                $('.default-refundable .refundable-amount').text(formatCurrency(refundable_price));
                 $('.default-total span').text(formatCurrency(grandTotal));
                 $('.default-deposit span').text(formatCurrency(grandTotal));
-                $('.default-due span').text(formatCurrency(grandTotal - refundable_price));
+                $('.default-due .due-amount').text(formatCurrency(grandTotal - refundable_price));
                 $('.payment_total').val(grandTotal.toFixed(2));
                 $('#subtotal').val(refundable_price > 0 ? refundable_price.toFixed(2) : grandTotal.toFixed(2));
                 

@@ -1340,8 +1340,8 @@ nav .tab:hover {
     row-gap: 2px;
 }
 
-.default-refundable span,
-.default-due span {
+.default-refundable .refundable-amount,
+.default-due .due-amount {
     white-space: nowrap;
 }
 
@@ -2086,9 +2086,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                 <div style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;"
                                                     class="vip-price default-refundable">
                                                     {{ $data->refundable_name ?? 'Non Refundable Processing Fees' }}:
-                                                    <span>$0.00</span><span class="pay-now-tag">(Pay Now)</span></div>
+                                                    <span class="refundable-amount">$0.00</span><span class="pay-now-tag">(Pay Now)</span></div>
                                                 <div style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;"
-                                                    class="vip-price default-due">DUE ON ARRIVAL: <span>$0.00</span></div>
+                                                    class="vip-price default-due">DUE ON ARRIVAL: <span class="due-amount">$0.00</span></div>
                                             @endif
 
                                             @if ($data->sales_tax_name == 0)
@@ -3076,8 +3076,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                 $('.payment_total').val(grandTotal.toFixed(2));
                 $('#subtotal').val(refundableRate > 0 ? refundableAmount.toFixed(2) : grandTotal.toFixed(2));
-                $('.default-refundable span').text(formatCurrency(refundableAmount));
-                $('.default-due span').text(formatCurrency(grandTotal - refundableAmount));
+                $('.default-refundable .refundable-amount').text(formatCurrency(refundableAmount));
+                $('.default-due .due-amount').text(formatCurrency(grandTotal - refundableAmount));
                 $('.default-deposit span').text(formatCurrency(grandTotal));
                 $('.default-total span').text(formatCurrency(grandTotal));
                 $('.discounted_amount').val(couponDiscount.toFixed(2));
