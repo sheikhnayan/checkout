@@ -1330,8 +1330,8 @@ function calcTotal() {
     window.cart.forEach(p => { sub += (p.pkgPrice * getBillableGuests(p)) + p.addons.reduce((s, a) => s + parseFloat(a.price), 0); });
 
     let scAmt = (c.serviceChargeName !== '0' && c.serviceChargeName !== 0) ? sub * c.serviceChargeFee / 100 : 0;
-    let stAmt = (c.salesTaxName !== '0' && c.salesTaxName !== 0) ? sub * c.salesTaxFee / 100 : 0;
     let grAmt = (c.gratuityName !== '0' && c.gratuityName !== 0) ? sub * c.gratuityFee / 100 : 0;
+    let stAmt = (c.salesTaxName !== '0' && c.salesTaxName !== 0) ? (sub + scAmt + grAmt) * c.salesTaxFee / 100 : 0;
     let grand = sub + scAmt + stAmt + grAmt;
 
     let promoDisc = 0;

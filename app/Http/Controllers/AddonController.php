@@ -164,6 +164,12 @@ class AddonController extends Controller
         $add->status = $request->status ?? $add->status ?? 1;
         $add->update();
 
+        // Propagate name, price, and description to all package-level snapshot rows
+        Addon::where('addon_id', $id)->update([
+            'name'        => $add->name,
+            'price'       => $add->price,
+            'description' => $add->description,
+        ]);
 
         return redirect()->route('admin.addon.show', $add->website_id);
 
