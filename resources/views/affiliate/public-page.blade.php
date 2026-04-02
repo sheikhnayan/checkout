@@ -91,6 +91,27 @@
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
         }
+        .aff-feed-cta {
+            margin-top: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 11px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.06);
+            color: var(--aff-text);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .01em;
+            text-decoration: none;
+            transition: all .2s ease;
+        }
+        .aff-feed-cta:hover {
+            color: var(--aff-accent);
+            border-color: var(--aff-accent);
+            transform: translateY(-1px);
+        }
         .aff-socials {
             display: flex;
             align-items: center;
@@ -701,6 +722,16 @@ const clubConfigs = {
 </script>
 
 {{-- Affiliate Hero --}}
+@php
+    $isEntertainerProfile = $affiliate instanceof \App\Models\Entertainer;
+    $entertainerFeedUrl = null;
+
+    if ($isEntertainerProfile && optional($affiliate->website)->slug) {
+        $entertainerFeedUrl = $affiliate->feed_model_id
+            ? route('club.feed.model.profile', ['slug' => $affiliate->website->slug, 'feedModel' => $affiliate->feed_model_id])
+            : route('club.feed', ['slug' => $affiliate->website->slug]);
+    }
+@endphp
 <section class="aff-hero">
     <div class="container">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
@@ -716,6 +747,12 @@ const clubConfigs = {
                     <h2 class="aff-profile-name">{{ $affiliate->display_name ?: $affiliate->user->name }}</h2>
                     @if($affiliate->description)
                         <p class="aff-profile-desc">{{ $affiliate->description }}</p>
+                    @endif
+                    @if($entertainerFeedUrl)
+                        <a href="{{ $entertainerFeedUrl }}" class="aff-feed-cta">
+                            <i class="fas fa-bolt"></i>
+                            <span>Click here to see my social feed</span>
+                        </a>
                     @endif
                 </div>
             </div>
