@@ -1315,6 +1315,15 @@ nav .tab:hover {
     color: var(--accent) !important;
 }
 
+.default-refundable,
+.default-due {
+    display: block;
+    line-height: 1.4;
+    margin-top: 6px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
 .dynamic-price {
     background: rgba(255,255,255,0.04);
     border-radius: 10px;
@@ -1371,11 +1380,16 @@ nav .tab:hover {
     align-items: stretch;
 }
 
+.location-shell > * {
+    min-width: 0;
+}
+
 .location-copy {
     background: rgba(255,255,255,0.03);
     border: 1px solid rgba(255,255,255,0.09);
     border-radius: 14px;
     padding: 18px;
+    min-width: 0;
 }
 
 .location-kicker {
@@ -1414,6 +1428,17 @@ nav .tab:hover {
     background: rgba(255,255,255,0.04);
     color: var(--text-main);
     text-decoration: none;
+    max-width: 100%;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.location-contact-chip span {
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .location-contact-chip:hover {
