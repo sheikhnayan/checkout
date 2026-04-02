@@ -575,6 +575,49 @@ nav .tab p {
     line-height: 1.2;
 }
 
+nav .tab.active p {
+    color: #000 !important;
+}
+
+.aff-footer {
+    margin-top: 26px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+}
+
+.aff-footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 16px 0;
+    font-size: 12.5px;
+    color: rgba(232,234,246,0.72);
+}
+
+.aff-footer-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(232,234,246,0.9);
+    font-weight: 700;
+    letter-spacing: .02em;
+    text-decoration: none;
+}
+
+.aff-footer-brand .brand-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 5px rgba(255,204,0,0.16);
+}
+
+.aff-footer-note {
+    opacity: .72;
+}
+
 /* Mobile responsive navigation */
 @media (max-width: 768px) {
     nav .tab {
@@ -1681,6 +1724,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .location-map-wrap iframe { min-height: 260px; }
     .aff-display-title { margin: 2px 0 4px; }
     .aff-display-copy { font-size: 11px; }
+    .aff-footer-inner {
+        justify-content: center;
+        text-align: center;
+    }
 }
 
 @media(max-width:576px) {
@@ -2733,8 +2780,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
 
         </main>
-        <footer>
-            <p>{{ $data->footer_text }}</p>
+        <footer class="aff-footer">
+            <div class="container aff-footer-inner">
+                <a href="https://cartvip.com" target="_blank" rel="noopener" class="aff-footer-brand">
+                    <span class="brand-dot" aria-hidden="true"></span>
+                    <span>Powered by CartVIP.com</span>
+                </a>
+                <div class="aff-footer-note">{{ $data->footer_text }}</div>
+            </div>
         </footer>
         <script src="scripts/main.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
