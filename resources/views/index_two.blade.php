@@ -1583,6 +1583,7 @@
                 font-size: .78rem;
                 box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.1);
                 margin-left: auto;
+                margin-right: auto;
             }
 
             .mobile-top-actions {
