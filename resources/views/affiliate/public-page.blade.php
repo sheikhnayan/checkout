@@ -1003,6 +1003,7 @@ const clubConfigs = {
         <input type="hidden" name="package_id"              id="package_id">
         <input type="hidden" name="website_id"              id="website_id">
         <input type="hidden" name="addons"                  id="addons">
+        <input type="hidden" name="cart_items"              id="cart_items">
         <input type="hidden" name="total"                   id="subtotal">
         <input type="hidden" name="payment_total"           class="payment_total">
         <input type="hidden" name="affiliate_slug"          value="{{ $affiliate->slug }}">
@@ -1757,6 +1758,17 @@ $('#payment-form').on('submit', async function(e) {
     if (!c) { alert('Please select a package first.'); return; }
     if (!window.cart.length) { alert('Your cart is empty.'); return; }
     if (!this.reportValidity()) { return; }
+
+    const firstCartItem = window.cart[0] || null;
+    const totalGuests = window.cart.reduce((sum, item) => sum + (parseInt(item.guests, 10) || 1), 0);
+    const addonSummary = window.cart.flatMap(item => Array.isArray(item.addons) ? item.addons : []).map(addon => addon.name + ' ($' + addon.price + ')').join(', ');
+
+    $('#cart_items').val(JSON.stringify(window.cart));
+    if (firstCartItem) {
+        $('#package_id').val(firstCartItem.pkgId || firstCartItem.packageId || '');
+    }
+    $('.package_number_of_guest').val(totalGuests || 1);
+    $('#addons').val(addonSummary);
 
     // Populate addons field from cart
     const pkgId = $('#package_id').val();

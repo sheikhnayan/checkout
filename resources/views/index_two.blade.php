@@ -2552,6 +2552,8 @@
 
                                         <input type="hidden" name="addons" id="addons">
 
+                                        <input type="hidden" name="cart_items" id="cart_items">
+
                                         <input type="hidden" name="package_id" id="package_id">
 
                                         <input type="hidden" name="total" id="subtotal">
@@ -4027,6 +4029,43 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
         <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
         <script>
+            function prepareCheckoutCartPayload(form) {
+                if (!form || !Array.isArray(window.cart) || !window.cart.length) {
+                    return;
+                }
+
+                const cartField = form.querySelector('#cart_items');
+                const packageField = form.querySelector('#package_id');
+                const guestField = form.querySelector('.package_number_of_guest');
+                const addonsField = form.querySelector('#addons');
+                const firstItem = window.cart[0];
+                const totalGuests = window.cart.reduce(function(sum, item) {
+                    return sum + (parseInt(item.guests, 10) || 1);
+                }, 0);
+                const addonNames = window.cart.flatMap(function(item) {
+                    return Array.isArray(item.addons) ? item.addons : [];
+                }).map(function(addon) {
+                    return addon.name + ' ($' + addon.price + ')';
+                });
+
+                if (cartField) {
+                    cartField.value = JSON.stringify(window.cart);
+                }
+                if (packageField && firstItem) {
+                    packageField.value = firstItem.packageId || packageField.value;
+                }
+                if (guestField) {
+                    guestField.value = totalGuests || 1;
+                }
+                if (addonsField) {
+                    addonsField.value = addonNames.join(', ');
+                }
+            }
+
+            document.getElementById('payment-form')?.addEventListener('submit', function() {
+                prepareCheckoutCartPayload(this);
+            });
+
             flatpickr(".flatpickr-time", {
                 enableTime: true,
                 noCalendar: true,
@@ -4108,6 +4147,7 @@
                 const form = document.getElementById('payment-form');
                 form.addEventListener('submit', async function(e) {
                     e.preventDefault();
+                    prepareCheckoutCartPayload(form);
 
                     const {
                         token,

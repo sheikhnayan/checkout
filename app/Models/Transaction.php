@@ -8,6 +8,10 @@ use App\Models\Entertainer;
 
 class Transaction extends Model
 {
+    protected $casts = [
+        'cart_items' => 'array',
+    ];
+
     public function affiliate()
     {
         return $this->belongsTo(Affiliate::class);

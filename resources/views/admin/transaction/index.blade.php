@@ -251,19 +251,45 @@
                                                         <td>{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('Y-m-d h:i A T') }}</td>
                                                         <td>
                                                             @php
-                                                                $addons = '';
-                                                                $ads = explode(',', $item->addons);
-                                                                foreach ($ads as $key => $value) {
-                                                                    $addon = \App\Models\Addon::find($value);
-                                                                    if ($addon) {
-                                                                        $addons .= $addon->name . ', ';
+                                                                $cartItems = is_array($item->cart_items ?? null) ? $item->cart_items : json_decode($item->cart_items ?? '[]', true);
+                                                                $packageSummary = collect($cartItems)->map(function ($cartItem) {
+                                                                    $packageName = $cartItem['package_name'] ?? optional(\App\Models\Package::find($cartItem['package_id'] ?? null))->name ?? ('Package #' . ($cartItem['package_id'] ?? ''));
+                                                                    $guests = (int) ($cartItem['guests'] ?? 1);
+                                                                    $isMultiple = in_array($cartItem['is_multiple'] ?? false, [true, 1, '1', 'true'], true);
+                                                                    $unitPrice = (float) ($cartItem['unit_price'] ?? 0);
+                                                                    $lineTotal = (float) ($cartItem['line_total'] ?? 0);
+
+                                                                    return $isMultiple
+                                                                        ? ($packageName . ' - $' . number_format($unitPrice, 2) . ' x ' . $guests . ' = $' . number_format($lineTotal, 2))
+                                                                        : ($packageName . ' - $' . number_format($lineTotal, 2));
+                                                                })->filter()->implode(' | ');
+
+                                                                $addons = collect($cartItems)
+                                                                    ->flatMap(function ($cartItem) {
+                                                                        return $cartItem['addons'] ?? [];
+                                                                    })
+                                                                    ->pluck('name')
+                                                                    ->filter()
+                                                                    ->implode(', ');
+
+                                                                if ($addons === '') {
+                                                                    $ads = explode(',', (string) $item->addons);
+                                                                    foreach ($ads as $value) {
+                                                                        $addon = \App\Models\Addon::find($value);
+                                                                        if ($addon) {
+                                                                            $addons .= ($addons !== '' ? ', ' : '') . $addon->name;
+                                                                        }
                                                                     }
+                                                                }
+
+                                                                if ($packageSummary === '') {
+                                                                    $packageSummary = optional($item->package)->name ?? '';
                                                                 }
                                                             @endphp
                                                             @if ($item->type == 'package')
                                                             <button type="button" class="btn btn-info btn-sm view-btn" data-bs-toggle="modal" data-bs-target="#viewTransactionModal"
                                                                 data-transaction_id="{{ $item->transaction_id }}"
-                                                                data-package_id="{{ $item->package->name }}"
+                                                                data-package_id="{{ $packageSummary }}"
                                                                 data-package_first_name="{{ $item->package_first_name }}"
                                                                 data-package_last_name="{{ $item->package_last_name }}"
                                                                 data-package_phone="{{ $item->package_phone }}"
@@ -451,7 +477,7 @@
                                     <ul class="list-group">
                                         <li class="list-group-item"><strong>Transaction ID:</strong> <span id="modal-transaction_id"></span></li>
                                         <li class="list-group-item"><strong>IP Address:</strong> <span id="modal-ip_address"></span></li>
-                                        <li class="list-group-item"><strong>Package Name:</strong> <span id="modal-package_id"></span></li>
+                                        <li class="list-group-item"><strong>Order Items:</strong> <span id="modal-package_id"></span></li>
                                         <li class="list-group-item"><strong>Package Date Of Use:</strong> <span id="modal-package_date_of_use"></span></li>
                                         <li class="list-group-item"><strong>First Name:</strong> <span id="modal-package_first_name"></span></li>
                                         <li class="list-group-item"><strong>Last Name:</strong> <span id="modal-package_last_name"></span></li>

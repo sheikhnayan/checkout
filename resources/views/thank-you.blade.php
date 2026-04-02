@@ -120,6 +120,20 @@
             font-size: 14px;
             line-height: 1.6;
         }
+        .item-list {
+            margin: 0;
+            padding-left: 18px;
+        }
+        .item-list li {
+            margin-bottom: 8px;
+            color: #212529;
+            font-size: 14px;
+        }
+        .item-list small {
+            display: block;
+            color: #6c757d;
+            margin-top: 3px;
+        }
         .action-buttons {
             display: flex;
             gap: 15px;
@@ -193,6 +207,9 @@
 
         <div class="content-section">
             @if(isset($transaction))
+            @php
+                $cartItems = is_array($transaction->cart_items ?? null) ? $transaction->cart_items : json_decode($transaction->cart_items ?? '[]', true);
+            @endphp
             <div class="detail-box">
                 <div class="detail-row">
                     <label>Transaction ID</label>
@@ -219,6 +236,27 @@
                 </div>
                 @endif
             </div>
+
+            @if(!empty($cartItems))
+            <div class="detail-box">
+                <div style="font-weight:600;margin-bottom:12px;">Purchased Items</div>
+                <ul class="item-list">
+                    @foreach($cartItems as $cartItem)
+                        <li>
+                            <strong>{{ $cartItem['package_name'] ?? ('Package #' . ($cartItem['package_id'] ?? '')) }}</strong>
+                            @if(!empty($cartItem['is_multiple']))
+                                - ${{ number_format((float) ($cartItem['unit_price'] ?? 0), 2) }} x {{ $cartItem['guests'] ?? 1 }} = ${{ number_format((float) ($cartItem['line_total'] ?? 0), 2) }}
+                            @else
+                                - ${{ number_format((float) ($cartItem['line_total'] ?? 0), 2) }}
+                            @endif
+                            @if(!empty($cartItem['addons']))
+                                <small>Add-ons: {{ collect($cartItem['addons'])->pluck('name')->filter()->implode(', ') }}</small>
+                            @endif
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
             @endif
 
             <div class="info-box">
@@ -239,7 +277,7 @@
 
             <div class="action-buttons">
                 @if(isset($website))
-                    <a href="{{ $website->url ?? '/' }}" class="btn-primary-custom">
+                    <a href="{{ !empty($website->slug) ? route('index', $website->slug) : ($website->url ?? '/') }}" class="btn-primary-custom">
                         <i class="fas fa-home"></i> Return to Website
                     </a>
                 @else

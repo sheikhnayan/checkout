@@ -28,14 +28,16 @@ class TransactionController extends Controller
     {
         // dd($request->all());
 
-        $selectedPackage = Package::find($request->input('package_id'));
-        $requiresTransportation = $selectedPackage
-            && ($selectedPackage->transportation == 1 || $selectedPackage->transportation === true || $selectedPackage->transportation === '1');
+        $cartItems = $this->extractCartItemsFromRequest($request);
+        $cartSummary = $this->summarizeCartItems($cartItems);
+
+        $selectedPackage = Package::find($cartSummary['primary_package_id'] ?: $request->input('package_id'));
+        $requiresTransportation = $this->cartRequiresTransportation($cartItems, $selectedPackage);
 
         if ($selectedPackage && $selectedPackage->event_id) {
             $this->ensureEventCapacityAvailable(
                 Event::find($selectedPackage->event_id),
-                max(1, (int) $request->input('package_number_of_guest', 1))
+                $cartSummary['total_guests']
             );
         }
 
@@ -88,7 +90,7 @@ class TransactionController extends Controller
                     $add->package_last_name = $request->input('package_last_name');
                     $add->package_phone = $request->input('package_phone');
                     $add->package_email = $request->input('package_email');
-                    $add->package_number_of_guest = $request->input('package_number_of_guest');
+                    $add->package_number_of_guest = $cartSummary['total_guests'];
                     $add->package_use_date = $request->input('package_use_date');
                     $add->business_company = $request->business_company;
                     $add->business_vat = $request->business_vat;
@@ -108,8 +110,9 @@ class TransactionController extends Controller
                     $add->transportation_phone = $request->input('transportation_phone');
                     $add->transportation_guest = $request->input('transportation_guest');
                     $add->transportation_note = $request->input('transportation_note');
-                    $add->addons = $request->input('addons');
-                    $add->package_id = $request->input('package_id');
+                    $add->addons = $cartSummary['addons_summary'];
+                    $add->package_id = $cartSummary['primary_package_id'] ?: $request->input('package_id');
+                    $add->cart_items = !empty($cartItems) ? json_encode($cartItems) : null;
                     $add->payment_first_name = $request->input('payment_first_name');
                     $add->payment_last_name = $request->input('payment_last_name');
                     $add->payment_phone = $request->input('payment_phone');
@@ -126,14 +129,14 @@ class TransactionController extends Controller
                     $add->payment_zip_code = $request->input('payment_zip_code');
     
     
-                    $event_id = Package::find($request->input('package_id'))->event_id;
+                    $event_id = optional($selectedPackage)->event_id;
                     $website_id = $request->website_id;
     
     
                     $add->event_id = $event_id;
                     $add->website_id = $website_id;
                     $add->total = $request->input('total');
-                    $add->addons = $request->input('addons');
+                    $add->addons = $cartSummary['addons_summary'];
                     $add->type = 'package';
                     $add->save();
                     $this->applyReferralCommission($request, $add);
@@ -154,8 +157,9 @@ class TransactionController extends Controller
                             'transportation_phone' => $request->input('transportation_phone'),
                             'transportation_guest' => $request->input('transportation_guest'),
                             'transportation_note' => $request->input('transportation_note'),
-                            'addons' => $request->input('addons'),
-                            'package_id' => $request->input('package_id'),
+                            'addons' => $cartSummary['addons_summary'],
+                            'package_id' => $cartSummary['primary_package_id'] ?: $request->input('package_id'),
+                            'cart_items' => $cartItems,
                             'payment_first_name' => $request->input('payment_first_name'),
                             'payment_last_name' => $request->input('payment_last_name'),
                             'payment_phone' => $request->input('payment_phone'),
@@ -278,7 +282,7 @@ class TransactionController extends Controller
                     $add->package_last_name = $request->input('package_last_name');
                     $add->package_phone = $request->input('package_phone');
                     $add->package_email = $request->input('package_email');
-                    $add->package_number_of_guest = $request->input('package_number_of_guest');
+                    $add->package_number_of_guest = $cartSummary['total_guests'];
                     $add->package_use_date = $request->input('package_use_date');
                     $add->business_company = $request->business_company;
                     $add->business_vat = $request->business_vat;
@@ -298,8 +302,9 @@ class TransactionController extends Controller
                     $add->transportation_phone = $request->input('transportation_phone');
                     $add->transportation_guest = $request->input('transportation_guest');
                     $add->transportation_note = $request->input('transportation_note');
-                    $add->addons = $request->input('addons');
-                    $add->package_id = $request->input('package_id');
+                    $add->addons = $cartSummary['addons_summary'];
+                    $add->package_id = $cartSummary['primary_package_id'] ?: $request->input('package_id');
+                    $add->cart_items = !empty($cartItems) ? json_encode($cartItems) : null;
                     $add->payment_first_name = $request->input('payment_first_name');
                     $add->payment_last_name = $request->input('payment_last_name');
                     $add->payment_phone = $request->input('payment_phone');
@@ -316,14 +321,14 @@ class TransactionController extends Controller
                     $add->payment_zip_code = $request->input('payment_zip_code');
     
     
-                    $event_id = Package::find($request->input('package_id'))->event_id;
+                    $event_id = optional($selectedPackage)->event_id;
                     $website_id = $request->website_id;
     
     
                     $add->event_id = $event_id;
                     $add->website_id = $website_id;
                     $add->total = $request->input('total');
-                    $add->addons = $request->input('addons');
+                    $add->addons = $cartSummary['addons_summary'];
                     $add->type = 'package';
                     $add->save();
                     $this->applyReferralCommission($request, $add);
@@ -344,8 +349,9 @@ class TransactionController extends Controller
                             'transportation_phone' => $request->input('transportation_phone'),
                             'transportation_guest' => $request->input('transportation_guest'),
                             'transportation_note' => $request->input('transportation_note'),
-                            'addons' => $request->input('addons'),
-                            'package_id' => $request->input('package_id'),
+                            'addons' => $cartSummary['addons_summary'],
+                            'package_id' => $cartSummary['primary_package_id'] ?: $request->input('package_id'),
+                            'cart_items' => $cartItems,
                             'payment_first_name' => $request->input('payment_first_name'),
                             'payment_last_name' => $request->input('payment_last_name'),
                             'payment_phone' => $request->input('payment_phone'),
@@ -646,6 +652,116 @@ class TransactionController extends Controller
         $paymentType = session('paymentType');
 
         return view('thank-you', compact('transaction', 'invoice', 'website', 'paymentType'));
+    }
+
+    private function extractCartItemsFromRequest(Request $request): array
+    {
+        $rawCartItems = $request->input('cart_items');
+        $decodedItems = [];
+
+        if (is_string($rawCartItems) && trim($rawCartItems) !== '') {
+            $decoded = json_decode($rawCartItems, true);
+            if (is_array($decoded)) {
+                $decodedItems = $decoded;
+            }
+        } elseif (is_array($rawCartItems)) {
+            $decodedItems = $rawCartItems;
+        }
+
+        if (empty($decodedItems)) {
+            $packageId = (int) $request->input('package_id');
+            if ($packageId <= 0) {
+                return [];
+            }
+
+            $package = Package::find($packageId);
+            $addons = collect(explode(',', (string) $request->input('addons')))
+                ->map(fn ($name) => trim($name))
+                ->filter()
+                ->map(fn ($name) => ['name' => $name])
+                ->values()
+                ->all();
+
+            return [[
+                'package_id' => $packageId,
+                'package_name' => optional($package)->name,
+                'guests' => max(1, (int) $request->input('package_number_of_guest', 1)),
+                'is_multiple' => optional($package)->multiple,
+                'unit_price' => (float) optional($package)->price,
+                'line_total' => (float) optional($package)->price,
+                'addons' => $addons,
+                'transportation' => optional($package)->transportation,
+            ]];
+        }
+
+        return collect($decodedItems)->map(function ($item) {
+            $packageId = (int) ($item['package_id'] ?? $item['packageId'] ?? $item['pkgId'] ?? 0);
+            $package = $packageId > 0 ? Package::find($packageId) : null;
+            $guests = max(1, (int) ($item['guests'] ?? 1));
+            $isMultiple = $this->isTruthy($item['is_multiple'] ?? $item['isMultiple'] ?? optional($package)->multiple);
+            $unitPrice = (float) ($item['unit_price'] ?? $item['packagePrice'] ?? $item['pkgPrice'] ?? optional($package)->price ?? 0);
+            $lineTotal = (float) ($item['line_total'] ?? ($unitPrice * ($isMultiple ? $guests : 1)));
+            $addons = collect($item['addons'] ?? [])->map(function ($addon) {
+                if (!is_array($addon)) {
+                    return null;
+                }
+
+                return [
+                    'id' => $addon['id'] ?? null,
+                    'name' => $addon['name'] ?? '',
+                    'price' => isset($addon['price']) ? (float) $addon['price'] : 0,
+                ];
+            })->filter()->values()->all();
+
+            return [
+                'package_id' => $packageId,
+                'package_name' => $item['package_name'] ?? $item['packageName'] ?? $item['pkgName'] ?? optional($package)->name,
+                'guests' => $guests,
+                'is_multiple' => $isMultiple,
+                'unit_price' => $unitPrice,
+                'line_total' => $lineTotal,
+                'addons' => $addons,
+                'transportation' => $item['transportation'] ?? $item['transport'] ?? optional($package)->transportation,
+            ];
+        })->values()->all();
+    }
+
+    private function summarizeCartItems(array $cartItems): array
+    {
+        $primaryPackageId = (int) ($cartItems[0]['package_id'] ?? 0);
+        $totalGuests = collect($cartItems)->sum(function (array $item) {
+            return max(1, (int) ($item['guests'] ?? 1));
+        });
+        $addonsSummary = collect($cartItems)
+            ->flatMap(fn (array $item) => $item['addons'] ?? [])
+            ->map(fn (array $addon) => trim((string) ($addon['name'] ?? '')))
+            ->filter()
+            ->implode(', ');
+
+        return [
+            'primary_package_id' => $primaryPackageId,
+            'total_guests' => max(1, (int) $totalGuests),
+            'addons_summary' => $addonsSummary,
+        ];
+    }
+
+    private function cartRequiresTransportation(array $cartItems, ?Package $selectedPackage): bool
+    {
+        if (!empty($cartItems)) {
+            foreach ($cartItems as $item) {
+                if ($this->isTruthy($item['transportation'] ?? false)) {
+                    return true;
+                }
+            }
+        }
+
+        return $selectedPackage
+            && ($selectedPackage->transportation == 1 || $selectedPackage->transportation === true || $selectedPackage->transportation === '1');
+    }
+
+    private function isTruthy($value): bool
+    {
+        return $value === true || $value === 1 || $value === '1' || $value === 'true';
     }
 
     private function ensureEventCapacityAvailable(?Event $event, int $requestedGuests): void
