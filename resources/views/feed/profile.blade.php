@@ -28,6 +28,8 @@
         body {
             margin: 0;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
             font-family: "Poppins", "Segoe UI", sans-serif;
             color: var(--profile-text);
             background:
@@ -70,6 +72,7 @@
             width: min(1080px, calc(100% - 24px));
             margin: 0 auto;
             padding: 22px 20px 52px;
+            flex: 1 0 auto;
             position: relative;
             z-index: 1;
             border: 1px solid var(--profile-stage-border);
@@ -117,6 +120,40 @@
             border-color: rgba(216, 176, 103, 0.7);
             box-shadow: 0 10px 24px rgba(216, 176, 103, 0.2);
             transform: translateY(-1px);
+        }
+
+        .profile-share-menu {
+            position: fixed;
+            z-index: 1300;
+            min-width: 190px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            background: rgba(8, 14, 26, 0.98);
+            box-shadow: 0 22px 40px rgba(0,0,0,0.35);
+            padding: 8px;
+            display: none;
+            gap: 6px;
+        }
+
+        .profile-share-menu.is-open {
+            display: grid;
+        }
+
+        .profile-share-option {
+            appearance: none;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.04);
+            color: var(--profile-text);
+            border-radius: 9px;
+            padding: 9px 10px;
+            font-size: .84rem;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .profile-share-option:hover {
+            border-color: rgba(216,176,103,0.36);
+            background: rgba(216,176,103,0.14);
         }
 
         .profile-topbar-context {
@@ -496,7 +533,7 @@
         }
 
         .profile-footer {
-            margin-top: 24px;
+            margin-top: auto;
             border-top: 1px solid rgba(255,255,255,0.18);
             background: rgba(7, 12, 24, 0.94);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 -16px 30px rgba(0,0,0,0.25);
@@ -613,6 +650,19 @@
             align-items: center;
             gap: 12px;
             color: var(--profile-muted);
+        }
+
+        .profile-lightbox-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .profile-lightbox-share-btn {
+            padding: 8px 12px;
+            font-size: .8rem;
+            white-space: nowrap;
         }
 
         .profile-comment-list {
@@ -758,6 +808,10 @@
                 width: 42px;
                 height: 42px;
             }
+
+            .profile-lightbox-share-btn {
+                margin-left: auto;
+            }
         }
     </style>
 </head>
@@ -773,6 +827,7 @@
             ? route('club.feed.roll-call', ['slug' => $club->slug, 'date' => $rollCallDate !== '' ? $rollCallDate : ($rollCallDefaultDate ?? now()->format('Y-m-d'))])
             : route('club.feed', $club->slug);
         $backLabel = $fromRollCall ? 'Back To Calendar' : 'Back To Feed';
+        $profileShareUrl = request()->url();
 
         $embedUrl = function ($url) {
             if (preg_match('~(?:youtube\.com/watch\?v=|youtu\.be/)([A-Za-z0-9_-]{6,})~', $url, $matches)) {
@@ -792,6 +847,17 @@
         <div class="profile-topbar">
             <div class="profile-topbar-nav">
                 <a href="{{ $backLink }}" class="profile-topbar-link"><i class="fas fa-chevron-left"></i> {{ $backLabel }}</a>
+                <button
+                    type="button"
+                    class="profile-topbar-link"
+                    id="profile-share-page-btn"
+                    data-share-url="{{ $profileShareUrl }}"
+                    data-share-title="{{ $profileTitle }}"
+                    data-share-text="Check out this profile"
+                >
+                    <i class="fas fa-share-nodes"></i>
+                    Share Profile
+                </button>
             </div>
             <span class="profile-topbar-context">Posts</span>
         </div>
@@ -836,7 +902,7 @@
                     <div>
                         <div class="rollcall-launch-kicker">Event Calendar</div>
                         <h3>Roll Call</h3>
-                        <p>Pick a date and see which entertainers are working. Tap a profile to open that entertainer's feed profile.</p>
+                        <p>Pick a date to see who's working and what's happening at one of the best nights in the city.</p>
                     </div>
                     <form class="rollcall-launch-actions" method="GET" action="{{ route('club.feed.roll-call', $club->slug) }}" id="rollcall-launch-form">
                         <input
@@ -895,12 +961,14 @@
                     <button
                         type="button"
                         class="profile-tile"
+                        id="profile-post-{{ $post->id }}"
                         data-lightbox-items='@json($lightboxItems)'
                         data-lightbox-caption="{{ $post->caption ?? '' }}"
                         data-lightbox-date="{{ optional($post->posted_at)->format('M d, Y') }}"
                         data-lightbox-comments="{{ $post->visible_comments_count }}"
                         data-lightbox-comment-items='@json($lightboxComments)'
                         data-lightbox-author="{{ $post->author_name }}"
+                        data-lightbox-share-url="{{ $profileShareUrl }}#profile-post-{{ $post->id }}"
                     >
                         @if($tileItem)
                             @if(($tileItem['type'] ?? 'image') === 'video')
@@ -979,12 +1047,24 @@
                     <div class="profile-comment-list" id="profile-lightbox-comment-list"></div>
                 </div>
                 <div class="profile-lightbox-foot">
-                    <span id="profile-lightbox-date"></span>
-                    <span id="profile-lightbox-counter"></span>
-                    <span id="profile-lightbox-comments"></span>
+                    <div class="profile-lightbox-meta">
+                        <span id="profile-lightbox-date"></span>
+                        <span id="profile-lightbox-counter"></span>
+                        <span id="profile-lightbox-comments"></span>
+                    </div>
+                    <button type="button" class="profile-topbar-link profile-lightbox-share-btn" id="profile-lightbox-share-btn">
+                        <i class="fas fa-share-nodes me-1"></i>Share Post
+                    </button>
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="profile-share-menu" id="profile-share-menu" aria-hidden="true">
+        <button type="button" class="profile-share-option" data-share-option="whatsapp">WhatsApp</button>
+        <button type="button" class="profile-share-option" data-share-option="facebook">Facebook</button>
+        <button type="button" class="profile-share-option" data-share-option="email">Email</button>
+        <button type="button" class="profile-share-option" data-share-option="copy">Copy Link</button>
     </div>
 
     <script>
@@ -1044,6 +1124,9 @@
         const tileButtons = document.querySelectorAll('.profile-tile');
         const rollCallLaunchDate = document.getElementById('rollcall-launch-date');
         const rollCallLaunchForm = document.getElementById('rollcall-launch-form');
+        const pageShareButton = document.getElementById('profile-share-page-btn');
+        const lightboxShareButton = document.getElementById('profile-lightbox-share-btn');
+        const shareMenu = document.getElementById('profile-share-menu');
 
         if (rollCallLaunchDate && rollCallLaunchForm) {
             rollCallLaunchDate.addEventListener('change', function () {
@@ -1053,6 +1136,95 @@
 
         let currentItems = [];
         let currentIndex = 0;
+        let currentSharePayload = null;
+
+        function buildSharePayload(data) {
+            const payload = data || {};
+            return {
+                url: payload.url || window.location.href.split('#')[0],
+                title: payload.title || document.title,
+                text: payload.text || ''
+            };
+        }
+
+        function closeShareMenu() {
+            if (!shareMenu) {
+                return;
+            }
+
+            shareMenu.classList.remove('is-open');
+            shareMenu.setAttribute('aria-hidden', 'true');
+        }
+
+        function openShareMenu(triggerButton) {
+            if (!shareMenu || !triggerButton) {
+                return;
+            }
+
+            const rect = triggerButton.getBoundingClientRect();
+            const top = rect.bottom + window.scrollY + 8;
+            const left = Math.max(12, Math.min(rect.left + window.scrollX, window.scrollX + window.innerWidth - 214));
+
+            shareMenu.style.top = top + 'px';
+            shareMenu.style.left = left + 'px';
+            shareMenu.classList.add('is-open');
+            shareMenu.setAttribute('aria-hidden', 'false');
+        }
+
+        function openFallbackShare(option, payload) {
+            const cleanPayload = buildSharePayload(payload);
+            const encodedUrl = encodeURIComponent(cleanPayload.url);
+            const shareLine = cleanPayload.text ? cleanPayload.text + ' ' + cleanPayload.url : cleanPayload.url;
+
+            if (option === 'whatsapp') {
+                window.open('https://wa.me/?text=' + encodeURIComponent(shareLine), '_blank', 'noopener');
+                return;
+            }
+
+            if (option === 'facebook') {
+                window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodedUrl, '_blank', 'noopener');
+                return;
+            }
+
+            if (option === 'email') {
+                const subject = encodeURIComponent(cleanPayload.title || 'Check this out');
+                const body = encodeURIComponent((cleanPayload.text ? cleanPayload.text + '\n\n' : '') + cleanPayload.url);
+                window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+                return;
+            }
+
+            if (option === 'copy' && navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(cleanPayload.url).catch(function () {
+                    window.prompt('Copy this link', cleanPayload.url);
+                });
+                return;
+            }
+
+            window.prompt('Copy this link', cleanPayload.url);
+        }
+
+        async function shareFromButton(button, fallbackTrigger) {
+            const payload = buildSharePayload({
+                url: button.getAttribute('data-share-url') || window.location.href.split('#')[0],
+                title: button.getAttribute('data-share-title') || document.title,
+                text: button.getAttribute('data-share-text') || ''
+            });
+
+            currentSharePayload = payload;
+
+            if (navigator.share) {
+                try {
+                    await navigator.share(payload);
+                    return;
+                } catch (error) {
+                    if (error && error.name === 'AbortError') {
+                        return;
+                    }
+                }
+            }
+
+            openShareMenu(fallbackTrigger || button);
+        }
 
         function renderMediaItem(item) {
             if (!item) {
@@ -1082,6 +1254,11 @@
             dateNode.textContent = button.getAttribute('data-lightbox-date') || '';
             commentsNode.textContent = (button.getAttribute('data-lightbox-comments') || '0') + ' comments';
             authorNode.textContent = button.getAttribute('data-lightbox-author') || '';
+            if (lightboxShareButton) {
+                lightboxShareButton.setAttribute('data-share-url', button.getAttribute('data-lightbox-share-url') || window.location.href.split('#')[0]);
+                lightboxShareButton.setAttribute('data-share-title', (button.getAttribute('data-lightbox-author') || 'Profile post') + ' post');
+                lightboxShareButton.setAttribute('data-share-text', button.getAttribute('data-lightbox-caption') || 'Check out this post');
+            }
             const commentItems = JSON.parse(button.getAttribute('data-lightbox-comment-items') || '[]');
             if (commentItems.length) {
                 commentsListNode.innerHTML = commentItems.map(function (comment) {
@@ -1112,6 +1289,7 @@
             stage.innerHTML = '';
             currentItems = [];
             currentIndex = 0;
+            closeShareMenu();
         }
 
         function moveLightbox(direction) {
@@ -1129,9 +1307,40 @@
             });
         });
 
+        document.addEventListener('click', function (event) {
+            if (shareMenu && shareMenu.classList.contains('is-open') && !event.target.closest('#profile-share-menu') && !event.target.closest('#profile-share-page-btn') && !event.target.closest('#profile-lightbox-share-btn')) {
+                closeShareMenu();
+            }
+
+            const shareOptionButton = event.target.closest('[data-share-option]');
+            if (!shareOptionButton) {
+                return;
+            }
+
+            event.preventDefault();
+            openFallbackShare(shareOptionButton.getAttribute('data-share-option'), currentSharePayload || {
+                url: window.location.href.split('#')[0],
+                title: document.title,
+                text: ''
+            });
+            closeShareMenu();
+        });
+
         prevButton.addEventListener('click', function () { moveLightbox(-1); });
         nextButton.addEventListener('click', function () { moveLightbox(1); });
         closeButton.addEventListener('click', closeLightbox);
+
+        if (pageShareButton) {
+            pageShareButton.addEventListener('click', function () {
+                shareFromButton(pageShareButton, pageShareButton);
+            });
+        }
+
+        if (lightboxShareButton) {
+            lightboxShareButton.addEventListener('click', function () {
+                shareFromButton(lightboxShareButton, lightboxShareButton);
+            });
+        }
 
         lightbox.addEventListener('click', function (event) {
             if (event.target === lightbox) {

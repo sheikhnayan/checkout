@@ -54,7 +54,7 @@
     <div class="apply-wrap">
         <div class="hero">
             <h2 class="mb-2">Become a CartVIP Affiliate</h2>
-            <p class="mb-0 muted">Apply once, get approved by our team, and start promoting premium club packages across multiple websites from your own branded affiliate page.</p>
+            <p class="mb-0 muted">Apply once, get approved, and launch your own branded affiliate page. Share your link and start generating commissions.</p>
         </div>
 
         <div class="card-panel">

@@ -57,8 +57,8 @@
 <body>
     <div class="apply-wrap">
         <div class="hero">
-            <h2 class="mb-2">Apply as a CartVIP Entertainer</h2>
-            <p class="mb-0 muted">Create your entertainer account, get approved by the club or super admin, then manage your own page and promote your club's packages.</p>
+            <h2 class="mb-2">Sign up as an Entertainer</h2>
+            <p class="mb-0 muted">Once approved, manage your own page&mdash;share updates, promote packages, and connect directly with guests.</p>
         </div>
 
         <div class="card-panel">

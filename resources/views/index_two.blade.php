@@ -1431,6 +1431,14 @@
             font-size: 14px;
         }
 
+        #addonSelectionModal .addon-modal-desc {
+            display: block;
+            margin-top: 3px;
+            color: rgba(232, 234, 246, 0.7);
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
         #addonSelectionModal .addon-switch {
             position: relative;
             display: inline-block;
@@ -3073,9 +3081,13 @@
                 let html = '';
                 window.cart.forEach(pkg => {
                     let billableGuests = getBillableGuests(pkg);
-                    let addonTotal = pkg.addons.reduce((sum, a) => sum + parseFloat(a.price), 0);
+                    let unitPrice = parseFloat(pkg.packagePrice) || 0;
+                    let lineTotal = unitPrice * billableGuests;
+                    let priceLine = parseMultipleFlag(pkg.isMultiple)
+                        ? (formatCurrency(unitPrice) + ' &times; ' + (parseInt(pkg.guests, 10) || 1) + ' = ' + formatCurrency(lineTotal))
+                        : formatCurrency(lineTotal);
                     html += `<div style="border-bottom:1px solid rgba(255,255,255,0.08);padding:8px 0;">`
-                        + `<strong>${pkg.packageName}</strong> ${parseMultipleFlag(pkg.isMultiple) ? ('&times;' + pkg.guests) : '(flat)'} &mdash; <span style="color:var(--accent)">${formatCurrency(pkg.packagePrice * billableGuests)}</span>`
+                        + `<strong>${pkg.packageName}</strong> &mdash; <span style="color:var(--accent)">${priceLine}</span>`
                         + `<button onclick='window.removePackageFromCart("${pkg.packageId}")' style="float:right;background:#c00;color:#fff;border:none;border-radius:5px;padding:3px 9px;cursor:pointer;font-size:12px;">Remove</button>`
                         + (pkg.addons.length ? `<div style="margin-left:18px;font-size:12px;opacity:.6;">Add-ons: ${pkg.addons.map(a => a.name + ' (' + formatCurrency(a.price) + ')').join(', ')}</div>` : '')
                         + `</div>`;
@@ -3097,7 +3109,7 @@
                 
                 let service_charge_price = ("{{ $data->service_charge_name }}" != "0") ? (subtotal / 100) * service_charge : 0;
                 let sales_tax_price = ("{{ $data->sales_tax_name }}" != "0") ? (subtotal / 100) * sales_tax : 0;
-                let gratuited_price = ("{{ $data->gratuity_name }}" != "0") ? ((subtotal + sales_tax_price + service_charge_price) / 100) * gratuity : 0;
+                let gratuited_price = ("{{ $data->gratuity_name }}" != "0") ? (subtotal / 100) * gratuity : 0;
                 
                 let grandTotal = subtotal + service_charge_price + sales_tax_price + gratuited_price;
                 
@@ -3119,6 +3131,14 @@
                 $('.default-service-charge span').text(formatCurrency(service_charge_price));
                 $('.default-sales-tax span').text(formatCurrency(sales_tax_price));
                 $('.default-gratuity span').text(formatCurrency(gratuited_price));
+
+                if ($('.default-gratuity').length) {
+                    if ($('.default-service-charge').length) {
+                        $('.default-gratuity').insertBefore('.default-service-charge');
+                    } else if ($('.default-sales-tax').length) {
+                        $('.default-gratuity').insertBefore('.default-sales-tax');
+                    }
+                }
                 
                 if (window.cartCoupon && promoDiscount > 0) {
                     if ($('.default-promo-discount').length === 0) {
@@ -3136,7 +3156,7 @@
                 $('.payment_total').val(grandTotal.toFixed(2));
                 $('#subtotal').val(refundable_price > 0 ? refundable_price.toFixed(2) : grandTotal.toFixed(2));
                 
-                $('#cart-total').text('Subtotal: ' + formatCurrency(grandTotal));
+                $('#cart-total').text('Packages Subtotal: ' + formatCurrency(subtotal));
                 if (window.cartCoupon) {
                     $('#cart-coupon').text('Coupon: ' + window.cartCoupon.code + ' (-' + formatCurrency(promoDiscount) + ')');
                 } else {
@@ -3633,8 +3653,10 @@
                     html = '<p style="margin:0;opacity:.8;">No add-ons available for this package. Click confirm to continue.</p>';
                 } else {
                     addons.forEach(function(addon) {
+                        let description = String(addon.description || '').trim();
+                        let descriptionHtml = description ? ('<small class="addon-modal-desc">' + escapeAddonHtml(description) + '</small>') : '';
                         html += '<label class="addon-modal-row">'
-                            + '<span class="addon-modal-label">' + escapeAddonHtml(addon.name) + ' <span style="opacity:.6;">(' + formatCurrency(addon.price || 0) + ')</span></span>'
+                            + '<span class="addon-modal-label">' + escapeAddonHtml(addon.name) + ' <span style="opacity:.6;">(' + formatCurrency(addon.price || 0) + ')</span>' + descriptionHtml + '</span>'
                             + '<span class="addon-switch">'
                             + '<input type="checkbox" class="addon-modal-switch-input" data-id="' + addon.id + '" data-name="' + escapeAddonHtml(addon.name) + '" data-price="' + parseFloat(addon.price || 0) + '">'
                             + '<span class="addon-switch-slider"></span>'

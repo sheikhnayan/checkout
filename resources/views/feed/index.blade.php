@@ -200,10 +200,64 @@
             border: 1px solid rgba(255,255,255,0.08);
         }
 
+        .feed-open-club-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 0;
+            border-radius: 999px;
+            padding: 11px 16px;
+            min-height: 46px;
+            background: linear-gradient(140deg, #f2d38e 0%, #e0b45d 72%, #bb8438 100%);
+            color: #211508;
+            font-weight: 700;
+            box-shadow: 0 14px 28px rgba(224,180,93,0.24);
+        }
+
+        .feed-open-club-btn:hover {
+            color: #211508;
+            opacity: .94;
+            transform: translateY(-1px);
+        }
+
         .feed-btn:hover,
         .feed-btn-secondary:hover {
             transform: translateY(-1px);
             opacity: .94;
+        }
+
+        .feed-share-menu {
+            position: fixed;
+            z-index: 1300;
+            min-width: 190px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            background: rgba(8, 14, 26, 0.98);
+            box-shadow: 0 22px 40px rgba(0,0,0,0.35);
+            padding: 8px;
+            display: none;
+            gap: 6px;
+        }
+
+        .feed-share-menu.is-open {
+            display: grid;
+        }
+
+        .feed-share-option {
+            appearance: none;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.04);
+            color: var(--feed-text);
+            border-radius: 9px;
+            padding: 9px 10px;
+            font-size: .84rem;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .feed-share-option:hover {
+            border-color: rgba(215,174,100,0.36);
+            background: rgba(215,174,100,0.14);
         }
 
         .feed-reset-btn {
@@ -509,6 +563,19 @@
             color: var(--feed-muted);
         }
 
+        .feed-lightbox-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .feed-lightbox-share-btn {
+            padding: 8px 12px;
+            font-size: .8rem;
+            white-space: nowrap;
+        }
+
         .feed-lightbox-close,
         .feed-lightbox-nav {
             appearance: none;
@@ -724,6 +791,10 @@
                 padding-left: 14px;
                 padding-right: 14px;
             }
+
+            .feed-lightbox-share-btn {
+                margin-left: auto;
+            }
         }
     </style>
 </head>
@@ -809,7 +880,17 @@
                 </div>
 
                 <div class="feed-hero-actions">
-                    <a href="{{ route('club.feed.profile', $club->slug) }}" class="feed-btn-secondary">Open Club Profile</a>
+                    <a href="{{ route('club.feed.profile', $club->slug) }}" class="feed-open-club-btn">Open Club Profile</a>
+                    <button
+                        type="button"
+                        class="feed-btn-secondary"
+                        id="feed-share-page-btn"
+                        data-share-url="{{ route('club.feed', $club->slug) }}"
+                        data-share-title="{{ $club->name }} Feed"
+                        data-share-text="Check out this club feed"
+                    >
+                        <i class="fas fa-share-nodes me-2"></i>Share Feed
+                    </button>
                 </div>
             </section>
 
@@ -848,6 +929,7 @@
                         data-lightbox-comments="{{ $post->visible_comments_count }}"
                         data-lightbox-comment-items='@json($lightboxComments)'
                         data-lightbox-author="{{ $post->author_name }}"
+                        data-lightbox-share-url="{{ route('club.feed', $club->slug) }}#post-{{ $post->id }}"
                     >
                         <div class="feed-card-head">
                             @if($post->author_avatar)
@@ -1069,12 +1151,24 @@
                     <div class="feed-comment-list mt-3" id="feed-lightbox-comment-list"></div>
                 </div>
                 <div class="feed-lightbox-foot">
-                    <span id="feed-lightbox-date"></span>
-                    <span id="feed-lightbox-counter"></span>
-                    <span id="feed-lightbox-comments"></span>
+                    <div class="feed-lightbox-meta">
+                        <span id="feed-lightbox-date"></span>
+                        <span id="feed-lightbox-counter"></span>
+                        <span id="feed-lightbox-comments"></span>
+                    </div>
+                    <button type="button" class="feed-btn-secondary feed-lightbox-share-btn" id="feed-lightbox-share-btn">
+                        <i class="fas fa-share-nodes me-1"></i>Share Post
+                    </button>
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="feed-share-menu" id="feed-share-menu" aria-hidden="true">
+        <button type="button" class="feed-share-option" data-share-option="whatsapp">WhatsApp</button>
+        <button type="button" class="feed-share-option" data-share-option="facebook">Facebook</button>
+        <button type="button" class="feed-share-option" data-share-option="email">Email</button>
+        <button type="button" class="feed-share-option" data-share-option="copy">Copy Link</button>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/js/bootstrap.bundle.min.js"></script>
@@ -1135,6 +1229,9 @@
         const postList = document.getElementById('feed-post-list');
         const pagination = document.getElementById('feed-pagination');
         const sentinel = document.getElementById('feed-infinite-sentinel');
+        const pageShareButton = document.getElementById('feed-share-page-btn');
+        const lightboxShareButton = document.getElementById('feed-lightbox-share-btn');
+        const shareMenu = document.getElementById('feed-share-menu');
 
         if (!lightbox) {
             return;
@@ -1142,6 +1239,95 @@
 
         let currentItems = [];
         let currentIndex = 0;
+        let currentSharePayload = null;
+
+        function buildSharePayload(data) {
+            const payload = data || {};
+            return {
+                url: payload.url || window.location.href.split('#')[0],
+                title: payload.title || document.title,
+                text: payload.text || ''
+            };
+        }
+
+        function closeShareMenu() {
+            if (!shareMenu) {
+                return;
+            }
+
+            shareMenu.classList.remove('is-open');
+            shareMenu.setAttribute('aria-hidden', 'true');
+        }
+
+        function openShareMenu(triggerButton) {
+            if (!shareMenu || !triggerButton) {
+                return;
+            }
+
+            const rect = triggerButton.getBoundingClientRect();
+            const top = rect.bottom + window.scrollY + 8;
+            const left = Math.max(12, Math.min(rect.left + window.scrollX, window.scrollX + window.innerWidth - 214));
+
+            shareMenu.style.top = top + 'px';
+            shareMenu.style.left = left + 'px';
+            shareMenu.classList.add('is-open');
+            shareMenu.setAttribute('aria-hidden', 'false');
+        }
+
+        function openFallbackShare(option, payload) {
+            const cleanPayload = buildSharePayload(payload);
+            const encodedUrl = encodeURIComponent(cleanPayload.url);
+            const shareLine = cleanPayload.text ? cleanPayload.text + ' ' + cleanPayload.url : cleanPayload.url;
+
+            if (option === 'whatsapp') {
+                window.open('https://wa.me/?text=' + encodeURIComponent(shareLine), '_blank', 'noopener');
+                return;
+            }
+
+            if (option === 'facebook') {
+                window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodedUrl, '_blank', 'noopener');
+                return;
+            }
+
+            if (option === 'email') {
+                const subject = encodeURIComponent(cleanPayload.title || 'Check this out');
+                const body = encodeURIComponent((cleanPayload.text ? cleanPayload.text + '\n\n' : '') + cleanPayload.url);
+                window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+                return;
+            }
+
+            if (option === 'copy' && navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(cleanPayload.url).catch(function () {
+                    window.prompt('Copy this link', cleanPayload.url);
+                });
+                return;
+            }
+
+            window.prompt('Copy this link', cleanPayload.url);
+        }
+
+        async function shareFromButton(button, fallbackTrigger) {
+            const payload = buildSharePayload({
+                url: button.getAttribute('data-share-url') || window.location.href.split('#')[0],
+                title: button.getAttribute('data-share-title') || document.title,
+                text: button.getAttribute('data-share-text') || ''
+            });
+
+            currentSharePayload = payload;
+
+            if (navigator.share) {
+                try {
+                    await navigator.share(payload);
+                    return;
+                } catch (error) {
+                    if (error && error.name === 'AbortError') {
+                        return;
+                    }
+                }
+            }
+
+            openShareMenu(fallbackTrigger || button);
+        }
 
         function renderMediaItem(item) {
             if (!item) {
@@ -1171,6 +1357,11 @@
             dateNode.textContent = postElement.getAttribute('data-lightbox-date') || '';
             commentsNode.textContent = (postElement.getAttribute('data-lightbox-comments') || '0') + ' comments';
             authorNode.textContent = postElement.getAttribute('data-lightbox-author') || '';
+            if (lightboxShareButton) {
+                lightboxShareButton.setAttribute('data-share-url', postElement.getAttribute('data-lightbox-share-url') || window.location.href.split('#')[0]);
+                lightboxShareButton.setAttribute('data-share-title', (postElement.getAttribute('data-lightbox-author') || 'Feed post') + ' post');
+                lightboxShareButton.setAttribute('data-share-text', postElement.getAttribute('data-lightbox-caption') || 'Check out this post');
+            }
             const commentItems = JSON.parse(postElement.getAttribute('data-lightbox-comment-items') || '[]');
             if (commentItems.length) {
                 commentsListNode.innerHTML = commentItems.map(function (comment) {
@@ -1201,6 +1392,7 @@
             stage.innerHTML = '';
             currentItems = [];
             currentIndex = 0;
+            closeShareMenu();
         }
 
         function moveLightbox(direction) {
@@ -1213,6 +1405,22 @@
         }
 
         document.addEventListener('click', function (event) {
+            if (shareMenu && shareMenu.classList.contains('is-open') && !event.target.closest('#feed-share-menu') && !event.target.closest('#feed-share-page-btn') && !event.target.closest('#feed-lightbox-share-btn')) {
+                closeShareMenu();
+            }
+
+            const shareOptionButton = event.target.closest('[data-share-option]');
+            if (shareOptionButton) {
+                event.preventDefault();
+                openFallbackShare(shareOptionButton.getAttribute('data-share-option'), currentSharePayload || {
+                    url: window.location.href.split('#')[0],
+                    title: document.title,
+                    text: ''
+                });
+                closeShareMenu();
+                return;
+            }
+
             const wrap = event.target.closest('[data-feed-open-media]');
             if (!wrap) {
                 return;
@@ -1284,6 +1492,18 @@
         prevButton.addEventListener('click', function () { moveLightbox(-1); });
         nextButton.addEventListener('click', function () { moveLightbox(1); });
         closeButton.addEventListener('click', closeLightbox);
+
+        if (pageShareButton) {
+            pageShareButton.addEventListener('click', function () {
+                shareFromButton(pageShareButton, pageShareButton);
+            });
+        }
+
+        if (lightboxShareButton) {
+            lightboxShareButton.addEventListener('click', function () {
+                shareFromButton(lightboxShareButton, lightboxShareButton);
+            });
+        }
 
         lightbox.addEventListener('click', function (event) {
             if (event.target === lightbox) {

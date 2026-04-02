@@ -532,6 +532,13 @@
             color: #e8eaf6 !important;
             font-size: 14px;
         }
+        #addonSelectionModal .addon-modal-desc {
+            display: block;
+            margin-top: 3px;
+            color: rgba(232, 234, 246, 0.7);
+            font-size: 12px;
+            line-height: 1.45;
+        }
         #addonSelectionModal .addon-switch {
             position: relative;
             display: inline-block;
@@ -1285,9 +1292,13 @@ function renderCart() {
     let html = '';
     window.cart.forEach(p => {
         const billableGuests = getBillableGuests(p);
-        let addonTotal = p.addons.reduce((s, a) => s + parseFloat(a.price), 0);
+        const unitPrice = parseFloat(p.pkgPrice) || 0;
+        const lineTotal = unitPrice * billableGuests;
+        const priceLine = parseMultipleFlag(p.isMultiple)
+            ? ('$' + formatCurrency(unitPrice) + ' &times; ' + (parseInt(p.guests, 10) || 1) + ' = $' + formatCurrency(lineTotal))
+            : ('$' + formatCurrency(lineTotal));
         html += `<div style="border-bottom:1px solid rgba(255,255,255,0.08);padding:8px 0;">`
-            + `<strong>${p.pkgName}</strong> ${parseMultipleFlag(p.isMultiple) ? ('&times;' + p.guests) : '(flat)'} &mdash; <span style="color:var(--aff-accent)">$${formatCurrency(p.pkgPrice * billableGuests)}</span>`
+            + `<strong>${p.pkgName}</strong> &mdash; <span style="color:var(--aff-accent)">${priceLine}</span>`
             + `<button onclick="window.removeFromCart('${p.pkgId}')" style="float:right;background:#c00;color:#fff;border:none;border-radius:5px;padding:3px 9px;cursor:pointer;font-size:12px;">Remove</button>`
             + (p.addons.length ? `<div style="margin-left:18px;font-size:12px;opacity:.6;">Add-ons: ${p.addons.map(a => a.name + ' ($' + formatCurrency(a.price) + ')').join(', ')}</div>` : '')
             + '</div>';
@@ -1304,7 +1315,7 @@ function calcTotal() {
 
     let scAmt = (c.serviceChargeName !== '0' && c.serviceChargeName !== 0) ? sub * c.serviceChargeFee / 100 : 0;
     let stAmt = (c.salesTaxName !== '0' && c.salesTaxName !== 0) ? sub * c.salesTaxFee / 100 : 0;
-    let grAmt = (c.gratuityName !== '0' && c.gratuityName !== 0) ? (sub + scAmt + stAmt) * c.gratuityFee / 100 : 0;
+    let grAmt = (c.gratuityName !== '0' && c.gratuityName !== 0) ? sub * c.gratuityFee / 100 : 0;
     let grand = sub + scAmt + stAmt + grAmt;
 
     let promoDisc = 0;
@@ -1319,6 +1330,14 @@ function calcTotal() {
     stAmt > 0 ? ($('#st-row').show(), $('#st-row .summary-value').text('$' + formatCurrency(stAmt))) : $('#st-row').hide();
     grAmt > 0 ? ($('#gr-row').show(), $('#gr-row .summary-value').text('$' + formatCurrency(grAmt))) : $('#gr-row').hide();
 
+    if ($('#gr-row').length) {
+        if ($('#sc-row').length) {
+            $('#gr-row').insertBefore('#sc-row');
+        } else if ($('#st-row').length) {
+            $('#gr-row').insertBefore('#st-row');
+        }
+    }
+
     if (promoDisc > 0) {
         if (!$('.promo-disc-row').length) $('.default-gratuity').after('<div class="promo-disc-row" style="font-size:13px;">Promo Discount: <span>$0.00</span></div>');
         $('.promo-disc-row span').text('-$' + formatCurrency(promoDisc));
@@ -1328,7 +1347,7 @@ function calcTotal() {
     $('.default-deposit .summary-value').text('$' + formatCurrency(grand));
     $('.payment_total').val(grand.toFixed(2));
     $('#subtotal').val(c.refundableFee > 0 ? rfAmt.toFixed(2) : grand.toFixed(2));
-    $('#cart-total').text('Total: $' + formatCurrency(grand));
+    $('#cart-total').text('Packages Subtotal: $' + formatCurrency(sub));
     window.cartCoupon && promoDisc > 0 ? $('#cart-coupon').text('Coupon: ' + window.cartCoupon.code + ' (-$' + formatCurrency(promoDisc) + ')') : $('#cart-coupon').text('');
 }
 
@@ -1473,8 +1492,10 @@ function openAddonSelectionModal(selection) {
         html = '<p style="margin:0;opacity:.8;">No add-ons available for this package. Click confirm to continue.</p>';
     } else {
         addons.forEach(function(a) {
+            const description = String(a.description || '').trim();
+            const descriptionHtml = description ? ('<small class="addon-modal-desc">' + escapeAddonHtml(description) + '</small>') : '';
             html += '<label class="addon-modal-row">'
-                + '<span class="addon-modal-label">' + escapeAddonHtml(a.name) + ' <span style="opacity:.6;">($' + formatCurrency(a.price || 0) + ')</span></span>'
+                + '<span class="addon-modal-label">' + escapeAddonHtml(a.name) + ' <span style="opacity:.6;">($' + formatCurrency(a.price || 0) + ')</span>' + descriptionHtml + '</span>'
                 + '<span class="addon-switch">'
                 + '<input type="checkbox" class="addon-modal-switch-input" data-id="' + a.id + '" data-name="' + escapeAddonHtml(a.name) + '" data-price="' + parseFloat(a.price || 0) + '">'
                 + '<span class="addon-switch-slider"></span>'

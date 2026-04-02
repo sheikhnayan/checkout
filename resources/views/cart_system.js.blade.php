@@ -55,7 +55,7 @@ function calculateCartTotal() {
     
     let service_charge_price = ("{{ $data->service_charge_name }}" != "0") ? (subtotal / 100) * service_charge : 0;
     let sales_tax_price = ("{{ $data->sales_tax_name }}" != "0") ? (subtotal / 100) * sales_tax : 0;
-    let gratuited_price = ("{{ $data->gratuity_name }}" != "0") ? ((subtotal + sales_tax_price + service_charge_price) / 100) * gratuity : 0;
+    let gratuited_price = ("{{ $data->gratuity_name }}" != "0") ? (subtotal / 100) * gratuity : 0;
     
     let grandTotal = subtotal + service_charge_price + sales_tax_price + gratuited_price;
     
@@ -77,6 +77,14 @@ function calculateCartTotal() {
     $('.default-service-charge span').text('$' + service_charge_price.toFixed(2));
     $('.default-sales-tax span').text('$' + sales_tax_price.toFixed(2));
     $('.default-gratuity span').text('$' + gratuited_price.toFixed(2));
+
+    if ($('.default-gratuity').length) {
+        if ($('.default-service-charge').length) {
+            $('.default-gratuity').insertBefore('.default-service-charge');
+        } else if ($('.default-sales-tax').length) {
+            $('.default-gratuity').insertBefore('.default-sales-tax');
+        }
+    }
     
     if (cartCoupon && promoDiscount > 0) {
         if ($('.default-promo-discount').length === 0) {

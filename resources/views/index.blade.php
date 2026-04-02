@@ -1306,6 +1306,14 @@ nav .tab:hover {
     font-size: 14px;
 }
 
+#addonSelectionModal .addon-modal-desc {
+    display: block;
+    margin-top: 3px;
+    color: rgba(232, 234, 246, 0.7);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
 #addonSelectionModal .addon-switch {
     position: relative;
     display: inline-block;
@@ -3088,8 +3096,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 var html = '';
                 window.cart.forEach(function(pkg) {
                     var billableGuests = getBillableGuests(pkg);
+                    var unitPrice = parseFloat(pkg.packagePrice) || 0;
+                    var lineTotal = unitPrice * billableGuests;
+                    var priceLine = parseMultipleFlag(pkg.isMultiple)
+                        ? (formatCurrency(unitPrice) + ' &times; ' + (parseInt(pkg.guests, 10) || 1) + ' = ' + formatCurrency(lineTotal))
+                        : formatCurrency(lineTotal);
                     html += '<div style="border-bottom:1px solid rgba(255,255,255,0.08);padding:8px 0;">';
-                    html += '<strong>' + pkg.packageName + '</strong> ' + (parseMultipleFlag(pkg.isMultiple) ? ('&times;' + pkg.guests) : '(flat)') + ' &mdash; <span style="color:var(--accent)">' + formatCurrency(pkg.packagePrice * billableGuests) + '</span>';
+                    html += '<strong>' + pkg.packageName + '</strong> &mdash; <span style="color:var(--accent)">' + priceLine + '</span>';
                     html += '<button onclick="window.removePackageFromCart(' + pkg.packageId + ')" style="float:right;background:#c00;color:#fff;border:none;border-radius:5px;padding:3px 9px;cursor:pointer;font-size:12px;">Remove</button>';
                     if (pkg.addons.length > 0) {
                         html += '<div style="margin-left:18px;font-size:12px;opacity:.6;">Add-ons: ' + pkg.addons.map(function(a) { return a.name + ' (' + formatCurrency(a.price) + ')'; }).join(', ') + '</div>';
@@ -3115,7 +3128,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                 var service_charge_price = ("{{ $data->service_charge_name }}" != "0") ? (subtotal / 100) * service_charge : 0;
                 var sales_tax_price = ("{{ $data->sales_tax_name }}" != "0") ? (subtotal / 100) * sales_tax : 0;
-                var gratuited_price = ("{{ $data->gratuity_name }}" != "0") ? ((subtotal + sales_tax_price + service_charge_price) / 100) * gratuity : 0;
+                var gratuited_price = ("{{ $data->gratuity_name }}" != "0") ? (subtotal / 100) * gratuity : 0;
 
                 var totalBeforeCoupon = subtotal + service_charge_price + sales_tax_price + gratuited_price;
                 var couponDiscount = 0;
@@ -3137,6 +3150,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 $('.default-sales-tax span').text(formatCurrency(sales_tax_price));
                 $('.default-gratuity span').text(formatCurrency(gratuited_price));
 
+                if ($('.default-gratuity').length) {
+                    if ($('.default-service-charge').length) {
+                        $('.default-gratuity').insertBefore('.default-service-charge');
+                    } else if ($('.default-sales-tax').length) {
+                        $('.default-gratuity').insertBefore('.default-sales-tax');
+                    }
+                }
+
                 if (window.cartCoupon && couponDiscount > 0) {
                     if ($('.default-promo-discount').length === 0) {
                         $('.default-gratuity').after('<div style="font-size: 12px;" class="default-promo-discount">Promo Code Discount: <span>$0.00</span></div>');
@@ -3146,7 +3167,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     $('.default-promo-discount').remove();
                 }
 
-                $('#cart-total').html('Subtotal: ' + formatCurrency(subtotal) + '<br>Service Charge: ' + formatCurrency(service_charge_price) + '<br>Sales Tax: ' + formatCurrency(sales_tax_price) + '<br>Gratuity: ' + formatCurrency(gratuited_price) + '<br><strong>Grand Total: ' + formatCurrency(grandTotal) + '</strong>');
+                $('#cart-total').text('Packages Subtotal: ' + formatCurrency(subtotal));
                 
                 if (window.cartCoupon) {
                     $('#cart-coupon').html('Coupon "' + window.cartCoupon.code + '" applied: -' + formatCurrency(couponDiscount));
@@ -3441,8 +3462,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     html = '<p style="margin:0;opacity:.8;">No add-ons available for this package. Click confirm to continue.</p>';
                 } else {
                     addons.forEach(function(addon) {
+                        var description = String(addon.description || '').trim();
+                        var descriptionHtml = description ? ('<small class="addon-modal-desc">' + escapeAddonHtml(description) + '</small>') : '';
                         html += '<label class="addon-modal-row">'
-                            + '<span class="addon-modal-label">' + escapeAddonHtml(addon.name) + ' <span style="opacity:.6;">(' + formatCurrency(addon.price || 0) + ')</span></span>'
+                            + '<span class="addon-modal-label">' + escapeAddonHtml(addon.name) + ' <span style="opacity:.6;">(' + formatCurrency(addon.price || 0) + ')</span>' + descriptionHtml + '</span>'
                             + '<span class="addon-switch">'
                             + '<input type="checkbox" class="addon-modal-switch-input" data-id="' + addon.id + '" data-name="' + escapeAddonHtml(addon.name) + '" data-price="' + parseFloat(addon.price || 0) + '">'
                             + '<span class="addon-switch-slider"></span>'
