@@ -112,7 +112,7 @@ class TransactionController extends Controller
                     $add->transportation_note = $request->input('transportation_note');
                     $add->addons = $cartSummary['addons_summary'];
                     $add->package_id = $cartSummary['primary_package_id'] ?: $request->input('package_id');
-                    $add->cart_items = !empty($cartItems) ? json_encode($cartItems) : null;
+                    $add->cart_items = !empty($cartItems) ? $cartItems : null;
                     $add->payment_first_name = $request->input('payment_first_name');
                     $add->payment_last_name = $request->input('payment_last_name');
                     $add->payment_phone = $request->input('payment_phone');
@@ -208,7 +208,7 @@ class TransactionController extends Controller
     
                     // Redirect to thank you page with transaction details
                     return redirect()->route('thank-you')
-                        ->with('transaction', $add)
+                        ->with('transaction', $add->fresh())
                         ->with('website', $website)
                         ->with('paymentType', 'full');
               
@@ -304,7 +304,7 @@ class TransactionController extends Controller
                     $add->transportation_note = $request->input('transportation_note');
                     $add->addons = $cartSummary['addons_summary'];
                     $add->package_id = $cartSummary['primary_package_id'] ?: $request->input('package_id');
-                    $add->cart_items = !empty($cartItems) ? json_encode($cartItems) : null;
+                    $add->cart_items = !empty($cartItems) ? $cartItems : null;
                     $add->payment_first_name = $request->input('payment_first_name');
                     $add->payment_last_name = $request->input('payment_last_name');
                     $add->payment_phone = $request->input('payment_phone');
@@ -400,7 +400,7 @@ class TransactionController extends Controller
     
                     // Redirect to thank you page with transaction details
                     return redirect()->route('thank-you')
-                        ->with('transaction', $add)
+                        ->with('transaction', $add->fresh())
                         ->with('website', $website)
                         ->with('paymentType', 'full');
                 }else{

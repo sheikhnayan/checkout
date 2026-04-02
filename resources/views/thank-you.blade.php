@@ -208,7 +208,18 @@
         <div class="content-section">
             @if(isset($transaction))
             @php
-                $cartItems = is_array($transaction->cart_items ?? null) ? $transaction->cart_items : json_decode($transaction->cart_items ?? '[]', true);
+                $rawCartItems = $transaction->cart_items ?? [];
+                if (is_array($rawCartItems)) {
+                    $cartItems = $rawCartItems;
+                } elseif (is_string($rawCartItems)) {
+                    $decodedCartItems = json_decode($rawCartItems, true);
+                    if (is_string($decodedCartItems)) {
+                        $decodedCartItems = json_decode($decodedCartItems, true);
+                    }
+                    $cartItems = is_array($decodedCartItems) ? $decodedCartItems : [];
+                } else {
+                    $cartItems = [];
+                }
             @endphp
             <div class="detail-box">
                 <div class="detail-row">

@@ -1305,6 +1305,21 @@ function renderCart() {
             + '</div>';
     });
     $('#cart-list').html(html);
+    syncCheckoutCartFields();
+}
+
+function syncCheckoutCartFields() {
+    const firstCartItem = window.cart[0] || null;
+    const totalGuests = window.cart.reduce((sum, item) => sum + (parseInt(item.guests, 10) || 1), 0);
+    const addonSummary = window.cart.flatMap(item => Array.isArray(item.addons) ? item.addons : []).map(addon => addon.name + ' ($' + addon.price + ')').join(', ');
+
+    $('#cart_items').val(window.cart.length ? JSON.stringify(window.cart) : '');
+    $('#addons').val(addonSummary);
+    $('.package_number_of_guest').val(totalGuests || 1);
+
+    if (firstCartItem) {
+        $('#package_id').val(firstCartItem.pkgId || firstCartItem.packageId || '');
+    }
 }
 
 function calcTotal() {
@@ -1759,16 +1774,7 @@ $('#payment-form').on('submit', async function(e) {
     if (!window.cart.length) { alert('Your cart is empty.'); return; }
     if (!this.reportValidity()) { return; }
 
-    const firstCartItem = window.cart[0] || null;
-    const totalGuests = window.cart.reduce((sum, item) => sum + (parseInt(item.guests, 10) || 1), 0);
-    const addonSummary = window.cart.flatMap(item => Array.isArray(item.addons) ? item.addons : []).map(addon => addon.name + ' ($' + addon.price + ')').join(', ');
-
-    $('#cart_items').val(JSON.stringify(window.cart));
-    if (firstCartItem) {
-        $('#package_id').val(firstCartItem.pkgId || firstCartItem.packageId || '');
-    }
-    $('.package_number_of_guest').val(totalGuests || 1);
-    $('#addons').val(addonSummary);
+    syncCheckoutCartFields();
 
     // Populate addons field from cart
     const pkgId = $('#package_id').val();

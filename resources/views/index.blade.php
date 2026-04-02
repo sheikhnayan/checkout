@@ -2931,6 +2931,40 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 }).format(Number(value) || 0);
             }
 
+            function syncCheckoutCartFields() {
+                var form = document.getElementById('payment-form');
+                if (!form || !Array.isArray(window.cart) || !window.cart.length) {
+                    return;
+                }
+
+                var cartField = form.querySelector('#cart_items');
+                var packageField = form.querySelector('#package_id');
+                var guestField = form.querySelector('.package_number_of_guest');
+                var addonsField = form.querySelector('#addons');
+                var firstItem = window.cart[0];
+                var totalGuests = window.cart.reduce(function(sum, item) {
+                    return sum + (parseInt(item.guests, 10) || 1);
+                }, 0);
+                var addonNames = window.cart.reduce(function(all, item) {
+                    return all.concat(Array.isArray(item.addons) ? item.addons : []);
+                }, []).map(function(addon) {
+                    return addon.name + ' ($' + addon.price + ')';
+                });
+
+                if (cartField) {
+                    cartField.value = JSON.stringify(window.cart);
+                }
+                if (packageField && firstItem) {
+                    packageField.value = firstItem.packageId || packageField.value;
+                }
+                if (guestField) {
+                    guestField.value = totalGuests || 1;
+                }
+                if (addonsField) {
+                    addonsField.value = addonNames.join(', ');
+                }
+            }
+
             function cartRequiresTransportation() {
                 ensureCartArray();
                 return window.cart.some(function(pkg) {
@@ -3071,6 +3105,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 $('#cart-section').show();
                 $('#shareLinkContainer').show();
                 window.renderCart();
+                syncCheckoutCartFields();
                 window.calculateCartTotal();
                 syncTransportationStateFromCart();
                 syncEventCapacityUi();
@@ -3084,6 +3119,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     $('#cart-section').hide();
                 }
                 window.renderCart();
+                syncCheckoutCartFields();
                 window.calculateCartTotal();
                 syncTransportationStateFromCart();
                 syncEventCapacityUi();
@@ -3112,6 +3148,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     html += '</div>';
                 });
                 $('#cart-list').html(html);
+                syncCheckoutCartFields();
             };
 
             window.calculateCartTotal = function() {
@@ -3845,36 +3882,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
         <script>
             function prepareCheckoutCartPayload(form) {
-                if (!form || !Array.isArray(window.cart) || !window.cart.length) {
-                    return;
-                }
-
-                const cartField = form.querySelector('#cart_items');
-                const packageField = form.querySelector('#package_id');
-                const guestField = form.querySelector('.package_number_of_guest');
-                const addonsField = form.querySelector('#addons');
-                const firstItem = window.cart[0];
-                const totalGuests = window.cart.reduce(function(sum, item) {
-                    return sum + (parseInt(item.guests, 10) || 1);
-                }, 0);
-                const addonNames = window.cart.flatMap(function(item) {
-                    return Array.isArray(item.addons) ? item.addons : [];
-                }).map(function(addon) {
-                    return addon.name + ' ($' + addon.price + ')';
-                });
-
-                if (cartField) {
-                    cartField.value = JSON.stringify(window.cart);
-                }
-                if (packageField && firstItem) {
-                    packageField.value = firstItem.packageId || packageField.value;
-                }
-                if (guestField) {
-                    guestField.value = totalGuests || 1;
-                }
-                if (addonsField) {
-                    addonsField.value = addonNames.join(', ');
-                }
+                syncCheckoutCartFields();
             }
 
             document.getElementById('payment-form')?.addEventListener('submit', function() {
