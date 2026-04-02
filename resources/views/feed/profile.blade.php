@@ -497,8 +497,9 @@
 
         .profile-footer {
             margin-top: 24px;
-            border-top: 1px solid rgba(255,255,255,0.08);
-            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            border-top: 1px solid rgba(255,255,255,0.18);
+            background: rgba(7, 12, 24, 0.94);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 -16px 30px rgba(0,0,0,0.25);
         }
 
         .profile-footer-inner {
@@ -507,9 +508,9 @@
             justify-content: center;
             gap: 10px;
             flex-wrap: wrap;
-            padding: 16px 0;
+            padding: 17px 0;
             font-size: 12.5px;
-            color: rgba(232,234,246,0.78);
+            color: rgba(240,244,255,0.95);
             text-align: center;
         }
 
@@ -517,7 +518,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            color: rgba(232,234,246,0.94);
+            color: #f6f8ff;
             font-weight: 700;
             letter-spacing: .02em;
             text-decoration: none;
@@ -528,7 +529,7 @@
             height: 7px;
             border-radius: 50%;
             background: var(--profile-accent);
-            box-shadow: 0 0 0 5px rgba(216,176,103,0.16);
+            box-shadow: 0 0 0 5px rgba(216,176,103,0.24);
         }
 
         .profile-lightbox {

@@ -256,7 +256,7 @@
         }
         .aff-banner-content { position:relative; z-index:1; padding:28px; }
         .aff-kicker { font-size:11px; letter-spacing:1px; text-transform:uppercase; opacity:.64; font-weight:700; }
-        .aff-display-title { font-size:clamp(2rem, 5vw, 3.8rem); line-height:1; font-weight:800; max-width:9ch; margin:10px 0 12px; }
+        .aff-display-title { font-size:clamp(2rem, 5vw, 3.8rem); line-height:1; font-weight:800; max-width:unset; margin:10px 0 12px; }
         .aff-display-copy {
             max-width: 620px;
             font-size: 15px;
