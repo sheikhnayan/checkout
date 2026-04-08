@@ -25,15 +25,6 @@
         <input type="text" name="name" id="name" class="form-control" value="{{ old('name', $feedModel->name ?? '') }}" placeholder="Example: Aria Vale" required>
     </div>
 
-    <div class="col-md-6">
-        <label for="is_real_profile" class="form-label">Profile Identity</label>
-        <select name="is_real_profile" id="is_real_profile" class="form-control">
-            <option value="0" @selected(!old('is_real_profile', isset($feedModel) ? (int) $feedModel->is_real_profile : 0))>Fake Profile</option>
-            <option value="1" @selected((string) old('is_real_profile', isset($feedModel) ? (int) $feedModel->is_real_profile : 0) === '1')>Real Profile</option>
-        </select>
-        <small class="text-muted">Use this to label whether this entertainer identity is real or fake.</small>
-    </div>
-
     <div class="col-12">
         <label for="bio" class="form-label">Bio</label>
         <textarea name="bio" id="bio" class="form-control" rows="5" placeholder="Short profile bio for this entertainer">{{ old('bio', $feedModel->bio ?? '') }}</textarea>

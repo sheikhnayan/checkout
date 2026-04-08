@@ -99,6 +99,7 @@ class EntertainerAdminController extends Controller
                 'name' => $entertainer->display_name ?: $entertainer->user->name,
                 'profile_image' => $entertainer->profile_image,
                 'bio' => $entertainer->description,
+                'is_real_profile' => true,
                 'is_active' => true,
             ]);
             $entertainer->feed_model_id = $feedModel->id;
@@ -111,6 +112,7 @@ class EntertainerAdminController extends Controller
                     $feedModel->profile_image = $entertainer->profile_image;
                 }
                 $feedModel->bio = $entertainer->description;
+                $feedModel->is_real_profile = true;
                 $feedModel->is_active = true;
                 $feedModel->save();
             }

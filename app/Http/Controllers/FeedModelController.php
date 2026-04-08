@@ -49,7 +49,6 @@ class FeedModelController extends Controller
             'name' => 'required|string|max:255',
             'bio' => 'nullable|string|max:5000',
             'profile_image' => 'nullable|image|max:4096',
-            'is_real_profile' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
             'performance_dates' => 'nullable|array',
             'performance_dates.*' => 'nullable|date',
@@ -62,7 +61,7 @@ class FeedModelController extends Controller
         $model->website_id = $validated['website_id'];
         $model->name = $validated['name'];
         $model->bio = $validated['bio'] ?? null;
-        $model->is_real_profile = $request->boolean('is_real_profile');
+        $model->is_real_profile = false;
         $model->is_active = $request->boolean('is_active');
 
         if ($request->hasFile('profile_image')) {
@@ -94,7 +93,6 @@ class FeedModelController extends Controller
             'name' => 'required|string|max:255',
             'bio' => 'nullable|string|max:5000',
             'profile_image' => 'nullable|image|max:4096',
-            'is_real_profile' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
             'performance_dates' => 'nullable|array',
             'performance_dates.*' => 'nullable|date',
@@ -107,7 +105,6 @@ class FeedModelController extends Controller
         $feedModel->website_id = $validated['website_id'];
         $feedModel->name = $validated['name'];
         $feedModel->bio = $validated['bio'] ?? null;
-        $feedModel->is_real_profile = $request->boolean('is_real_profile');
         $feedModel->is_active = $request->boolean('is_active');
 
         if ($request->hasFile('profile_image')) {
