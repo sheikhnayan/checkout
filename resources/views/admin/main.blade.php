@@ -514,6 +514,23 @@
 
           <div class="menu-inner-shadow"></div>
 
+            @php
+            $authUser = auth()->user();
+            $canAccessRoute = function (string $routeName) use ($authUser) {
+              if (!$authUser) {
+                return false;
+              }
+
+              if ($authUser->isAdmin()) {
+                return true;
+              }
+
+              return method_exists($authUser, 'hasRoutePermission')
+                ? $authUser->hasRoutePermission($routeName)
+                : false;
+            };
+            @endphp
+
           <ul class="menu-inner py-1">
   <li class="menu-header small text-uppercase">
     <span class="menu-header-text">Site Settings</span>
@@ -528,7 +545,7 @@
   </li>
   @endif
 
-  @if(auth()->check() && auth()->user()->isAdmin())
+  @if($authUser && $canAccessRoute('admin.website-users.index'))
   <li class="menu-item {{ request()->is('admins/website-users*') ? 'active' : '' }}">
     <a href="{{ route('admin.website-users.index') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-user"></i>
@@ -537,42 +554,61 @@
   </li>
   @endif
 
-  @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isWebsiteUser()))
+  @if($authUser && $canAccessRoute('admin.website-roles.index'))
+  <li class="menu-item {{ request()->is('admins/website-roles*') ? 'active' : '' }}">
+    <a href="{{ route('admin.website-roles.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-shield-quarter"></i>
+      <div class="text-truncate">Website Roles</div>
+    </a>
+  </li>
+  @endif
+
+  @if($authUser && $canAccessRoute('admin.event.index'))
   <li class="menu-item {{ request()->is('admins/event') ? 'active' : '' }}">
     <a href="/admins/event" class="menu-link">
       <i class="menu-icon tf-icons bx bx-package"></i>
       <div class="text-truncate">Events</div>
     </a>
   </li>
+  @endif
 
+  @if($authUser && $canAccessRoute('admin.package.index'))
   <li class="menu-item {{ request()->is('admins/package') ? 'active' : '' }}">
     <a href="/admins/package" class="menu-link">
       <i class="menu-icon tf-icons bx bx-package"></i>
       <div class="text-truncate">Packages</div>
     </a>
   </li>
+  @endif
 
+  @if($authUser && $canAccessRoute('admin.addon.index'))
   <li class="menu-item {{ request()->is('admins/addon') ? 'active' : '' }}">
     <a href="/admins/addon" class="menu-link">
       <i class="menu-icon tf-icons bx bx-package"></i>
       <div class="text-truncate">Add-ons</div>
     </a>
   </li>
+  @endif
 
+  @if($authUser && $canAccessRoute('admin.promo_code.index'))
   <li class="menu-item {{ request()->is('admins/promo_code') ? 'active' : '' }}">
     <a href="/admins/promo_code" class="menu-link">
       <i class="menu-icon tf-icons bx bx-package"></i>
       <div class="text-truncate">Promo Codes</div>
     </a>
   </li>
+  @endif
 
+  @if($authUser && $canAccessRoute('admin.feed-model.index'))
   <li class="menu-item {{ request()->is('admins/feed-model*') ? 'active' : '' }}">
     <a href="{{ route('admin.feed-model.index') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-user-circle"></i>
       <div class="text-truncate">Feed Entertainers</div>
     </a>
   </li>
+  @endif
 
+  @if($authUser && $canAccessRoute('admin.feed-post.index'))
   <li class="menu-item {{ request()->is('admins/feed-post*') ? 'active' : '' }}">
     <a href="{{ route('admin.feed-post.index') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-images"></i>
@@ -590,22 +626,42 @@
   </li>
   @endif
 
-  @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isWebsiteUser()))
+  @if($authUser && $canAccessRoute('admin.transaction.index'))
   <li class="menu-item {{ request()->is('admins/transaction') ? 'active' : '' }}">
     <a href="/admins/transaction" class="menu-link">
       <i class="menu-icon tf-icons bx bx-package"></i>
       <div class="text-truncate">Transactions</div>
     </a>
   </li>
+
+  @if($canAccessRoute('admin.transaction.scan'))
+  <li class="menu-item {{ request()->is('admins/transaction/scan*') ? 'active' : '' }}">
+    <a href="{{ route('admin.transaction.scan') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-qr-scan"></i>
+      <div class="text-truncate">Ticket Scanner</div>
+    </a>
+  </li>
+  @endif
   @endif
 
-  @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isWebsiteUser()))
+  @if($authUser && ($canAccessRoute('admin.custom-invoice.index') || $canAccessRoute('admin.jobs.index')))
+  @if($canAccessRoute('admin.custom-invoice.index'))
   <li class="menu-item {{ request()->is('admins/custom-invoice') ? 'active' : '' }}">
     <a href="{{ route('admin.custom-invoice.index') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-file"></i>
       <div class="text-truncate">Custom Invoices</div>
     </a>
   </li>
+  @endif
+
+  @if($canAccessRoute('admin.jobs.index'))
+  <li class="menu-item {{ request()->is('admins/jobs*') ? 'active' : '' }}">
+    <a href="{{ route('admin.jobs.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-briefcase"></i>
+      <div class="text-truncate">Job Marketplace</div>
+    </a>
+  </li>
+  @endif
   @endif
 
   @if(auth()->check() && auth()->user()->isAdmin())
@@ -617,7 +673,7 @@
   </li>
   @endif
 
-  @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isWebsiteUser()))
+  @if($authUser && $canAccessRoute('admin.entertainer.index'))
   <li class="menu-item {{ request()->is('admins/entertainer*') ? 'active' : '' }}">
     <a href="{{ route('admin.entertainer.index') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-user-voice"></i>

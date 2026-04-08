@@ -94,6 +94,7 @@
                                                             <th>Name</th>
                                                             <th>Email</th>
                                                             <th>Website</th>
+                                                            <th>Role</th>
                                                             <th>Created At</th>
                                                             <th>Action</th>
                                                         </tr>
@@ -114,6 +115,7 @@
                                                                         <span class="text-muted">No website assigned</span>
                                                                     @endif
                                                                 </td>
+                                                                <td>{{ $user->websiteRole->name ?? 'Unassigned' }}</td>
                                                                 <td>{{ $user->created_at->format('M d, Y H:i') }}</td>
                                                                 <td>
                                                                     <a href="{{ route('admin.website-users.edit', $user->id) }}" class="btn btn-primary">Edit</a>
@@ -144,6 +146,7 @@
                                                             <th>Name</th>
                                                             <th>Email</th>
                                                             <th>Website</th>
+                                                            <th>Role</th>
                                                             <th>Created At</th>
                                                             <th>Action</th>
                                                         </tr>
@@ -164,6 +167,7 @@
                                                                         <span class="text-muted">No website assigned</span>
                                                                     @endif
                                                                 </td>
+                                                                <td>{{ $user->websiteRole->name ?? 'Unassigned' }}</td>
                                                                 <td>{{ $user->created_at->format('M d, Y H:i') }}</td>
                                                                 <td>
                                                                     <form action="{{ route('admin.website-users.archive', $user->id) }}" method="POST" style="display:inline;">

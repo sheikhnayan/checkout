@@ -128,11 +128,18 @@
                                                                 </form>
                                                             </td>
                                                             <td>
-                                                                <a href="/admins/website/edit/{{ $item->id }}" class="btn btn-primary">Edit</a>
+                                                                <div class="btn-group" role="group">
+                                                                    <a href="/admins/website/edit/{{ $item->id }}" class="btn btn-primary btn-sm" title="Edit Website">
+                                                                        <i class="fas fa-edit"></i>
+                                                                    </a>
+                                                                    <a href="{{ route('admin.website.payment-settings', $item->id) }}" class="btn btn-info btn-sm" title="Payment Settings">
+                                                                        <i class="fas fa-credit-card"></i>
+                                                                    </a>
+                                                                </div>
                                                                 <form action="/admins/website/archive/{{ $item->id }}" method="POST" style="display:inline;">
                                                                     @csrf
-                                                                    <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to archive this website?');">
-                                                                        Archive
+                                                                    <button type="submit" class="btn btn-warning btn-sm" onclick="return confirm('Are you sure you want to archive this website?');" title="Archive Website">
+                                                                        <i class="fas fa-archive"></i>
                                                                     </button>
                                                                 </form>
                                                             </td>

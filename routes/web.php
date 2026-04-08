@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebsiteController;
+use App\Http\Controllers\PaymentSettingsController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\FrontendController;
@@ -27,6 +28,9 @@ use App\Http\Controllers\PackageCategoryController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\FeedModelController;
 use App\Http\Controllers\FeedPostController;
+use App\Http\Controllers\JobMarketplaceController;
+use App\Http\Controllers\Admin\JobMarketplaceController as AdminJobMarketplaceController;
+use App\Http\Controllers\Admin\WebsiteRoleController;
 
 
 // Authentication Routes
@@ -75,6 +79,14 @@ Route::get('/{slug}/feed/profile', [FeedController::class, 'clubProfile'])->name
 Route::get('/{slug}/feed/models/{feedModel}', [FeedController::class, 'modelProfile'])->name('club.feed.model.profile');
 Route::get('/{slug}/feed', [FeedController::class, 'clubFeed'])->name('club.feed');
 
+// Public job marketplace routes (must stay before slug route)
+Route::get('/jobs', [JobMarketplaceController::class, 'index'])->name('jobs.marketplace');
+Route::get('/jobs/listings', [JobMarketplaceController::class, 'listings'])->name('jobs.listings');
+Route::get('/jobs/pre-apply', [JobMarketplaceController::class, 'preApplyForm'])->name('jobs.pre-apply');
+Route::post('/jobs/pre-apply', [JobMarketplaceController::class, 'submitPreApply'])->name('jobs.pre-apply.submit');
+Route::get('/jobs/{job}/apply', [JobMarketplaceController::class, 'applyForm'])->name('jobs.apply');
+Route::post('/jobs/{job}/apply', [JobMarketplaceController::class, 'submitApplication'])->name('jobs.apply.submit');
+
 // Frontend routes with slug parameter
 Route::get('/{slug}', [FrontendController::class, 'index'])->name('index');
 
@@ -90,7 +102,7 @@ Route::post('/{slug}/reservation/store', [TransactionController::class, 'reserva
 Route::post('/cart/share', [CartController::class, 'generateSharedLink'])->name('cart.generate-share');
 Route::get('/cart/{code}', [CartController::class, 'viewSharedCart'])->name('shared-cart.view');
 
-Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'image.upload.guard']], function () {
+Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'image.upload.guard', 'route.permission']], function () {
     Route::get('/', [AdminController::class,'index'])->name('index');
 
     Route::group(['prefix'=> 'website', 'as' => 'website.'], function () {
@@ -102,6 +114,8 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::post('/store', [WebsiteController::class,'store'])->name('store');
         Route::get('/edit/{id}', [WebsiteController::class,'edit'])->name('edit');
         Route::post('/update/{id}', [WebsiteController::class,'update'])->name('update');
+        Route::get('/{website}/payment-settings', [PaymentSettingsController::class,'edit'])->name('payment-settings');
+        Route::post('/{website}/payment-settings', [PaymentSettingsController::class,'update'])->name('payment-settings.update');
     });
 
     Route::group(['prefix'=> 'package-category', 'as' => 'package-category.'], function () {
@@ -161,6 +175,24 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::get('/', [TransactionController::class,'index'])->name('index');
         Route::get('/show/{id}', [TransactionController::class,'show'])->name('show');
         Route::get('/change/{id}/{status}', [TransactionController::class,'update'])->name('update');
+        Route::get('/scan', [TransactionController::class, 'scanPage'])->name('scan');
+        Route::get('/scan/lookup', [TransactionController::class, 'scanLookup'])->name('scan.lookup');
+        Route::post('/scan/check-in', [TransactionController::class, 'scanCheckIn'])->name('scan.check-in');
+    });
+
+    Route::group(['prefix' => 'jobs', 'as' => 'jobs.'], function () {
+        Route::get('/', [AdminJobMarketplaceController::class, 'index'])->name('index');
+        Route::get('/create', [AdminJobMarketplaceController::class, 'create'])->name('create');
+        Route::post('/store', [AdminJobMarketplaceController::class, 'store'])->name('store');
+        Route::get('/{job}/edit', [AdminJobMarketplaceController::class, 'edit'])->name('edit');
+        Route::post('/{job}/update', [AdminJobMarketplaceController::class, 'update'])->name('update');
+
+        Route::get('/applications', [AdminJobMarketplaceController::class, 'applications'])->name('applications');
+        Route::get('/applications/{application}', [AdminJobMarketplaceController::class, 'showApplication'])->name('applications.show');
+        Route::post('/applications/{application}/status', [AdminJobMarketplaceController::class, 'updateApplicationStatus'])->name('applications.status');
+
+        Route::get('/preference-requests', [AdminJobMarketplaceController::class, 'preferenceRequests'])->name('preference-requests');
+        Route::post('/preference-requests/{preferenceRequest}/status', [AdminJobMarketplaceController::class, 'updatePreferenceStatus'])->name('preference-requests.status');
     });
 
     Route::group(['prefix'=> 'setting', 'as' => 'setting.'], function () {
@@ -230,6 +262,10 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
     // Website Users Management
     Route::resource('website-users', App\Http\Controllers\Admin\WebsiteUserController::class);
     Route::post('website-users/archive/{id}', [App\Http\Controllers\Admin\WebsiteUserController::class, 'archive'])->name('website-users.archive');
+
+    // Website Role Management
+    Route::resource('website-roles', WebsiteRoleController::class)->except(['show']);
+    Route::post('website-roles/{website_role}/archive', [WebsiteRoleController::class, 'archive'])->name('website-roles.archive');
 });
 
 Route::group(['prefix'=> 'affiliate-portal', 'as' => 'affiliate.portal.', 'middleware' => ['auth', 'image.upload.guard']], function () {

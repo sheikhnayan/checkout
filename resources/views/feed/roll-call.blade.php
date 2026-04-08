@@ -915,7 +915,7 @@
                 @if($workingModels->isNotEmpty())
                     <div class="roll-model-grid">
                         @foreach($workingModels as $model)
-                            <a class="roll-model-card" href="{{ route('club.feed.model.profile', ['slug' => $club->slug, 'feedModel' => $model->id, 'from' => 'roll-call', 'date' => $selectedDate]) }}">
+                            <a class="roll-model-card" href="{{ route('club.feed.model.profile', ['slug' => $club->slug, 'feedModel' => $model, 'from' => 'roll-call', 'date' => $selectedDate]) }}">
                                 <div class="roll-model-media">
                                     @if($model->profile_image)
                                         <img src="{{ asset('uploads/' . $model->profile_image) }}" alt="{{ $model->name }}">

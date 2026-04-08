@@ -129,6 +129,21 @@
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="mb-3">
+                                                    <label for="user_type" class="form-label">Portal Role</label>
+                                                    <select name="user_type" id="user_type" class="form-control @error('user_type') is-invalid @enderror" required>
+                                                        <option value="website_user" {{ old('user_type', 'website_user') === 'website_user' ? 'selected' : '' }}>Website Staff</option>
+                                                        <option value="bouncer" {{ old('user_type') === 'bouncer' ? 'selected' : '' }}>Bouncer</option>
+                                                    </select>
+                                                    @error('user_type')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="mb-3">
                                                     <label for="website_id" class="form-label">Assign Website</label>
                                                     <select name="website_id" id="website_id" class="form-control @error('website_id') is-invalid @enderror" required>
                                                         <option value="">Select a website</option>
@@ -139,6 +154,25 @@
                                                         @endforeach
                                                     </select>
                                                     @error('website_id')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="mb-3">
+                                                    <label for="website_role_id" class="form-label">Assign Role</label>
+                                                    <select name="website_role_id" id="website_role_id" class="form-control @error('website_role_id') is-invalid @enderror" required>
+                                                        <option value="">Select a role</option>
+                                                        @foreach($roles as $role)
+                                                            <option value="{{ $role->id }}" data-website="{{ $role->website_id }}" {{ old('website_role_id') == $role->id ? 'selected' : '' }}>
+                                                                {{ $role->name }} - {{ $role->website->name ?? 'Website' }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                    @error('website_role_id')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </div>
@@ -165,4 +199,32 @@
             </div>
         </div>
     </div>
+    <script>
+        (function () {
+            const websiteSelect = document.getElementById('website_id');
+            const roleSelect = document.getElementById('website_role_id');
+
+            function filterRoles() {
+                const websiteId = websiteSelect.value;
+                const options = Array.from(roleSelect.options);
+
+                options.forEach((option, index) => {
+                    if (index === 0) {
+                        option.hidden = false;
+                        return;
+                    }
+
+                    const roleWebsiteId = option.getAttribute('data-website');
+                    option.hidden = websiteId !== '' && roleWebsiteId !== websiteId;
+                });
+
+                if (roleSelect.selectedOptions[0] && roleSelect.selectedOptions[0].hidden) {
+                    roleSelect.value = '';
+                }
+            }
+
+            websiteSelect.addEventListener('change', filterRoles);
+            filterRoles();
+        })();
+    </script>
 @endsection

@@ -10,6 +10,8 @@ class Transaction extends Model
 {
     protected $casts = [
         'cart_items' => 'array',
+        'checked_in_status' => 'boolean',
+        'checked_in_at_pacific' => 'datetime',
     ];
 
     public function affiliate()

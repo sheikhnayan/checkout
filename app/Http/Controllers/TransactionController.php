@@ -18,6 +18,8 @@ use App\Models\EntertainerWalletTransaction;
 use App\Mail\TransactionMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Str;
+use Carbon\Carbon;
 use net\authorize\api\contract\v1 as AnetAPI;
 use net\authorize\api\controller as AnetController;
 use Stripe;
@@ -85,6 +87,7 @@ class TransactionController extends Controller
     
                     $add = new Transaction();
                     $add->transaction_id = $transaction_id;
+                    $add->ticket_qr_code = $this->generateTicketQrCode();
                     $add->package_first_name = $request->input('package_first_name');
                     $add->ip_address = $ipAddress;
                     $add->package_last_name = $request->input('package_last_name');
@@ -139,7 +142,7 @@ class TransactionController extends Controller
                     $add->addons = $cartSummary['addons_summary'];
                     $add->type = 'package';
                     $add->save();
-                    $this->applyReferralCommission($request, $add);
+                    $this->applyReferralCommission($request, $add, (float) ($cartSummary['commission_base_amount'] ?? 0));
     
                     try {
                         //code...
@@ -174,6 +177,8 @@ class TransactionController extends Controller
                             'website_id' => $website_id,
                             'total' => $request->input('total'),
                             'type' => 'package',
+                            'ticket_qr_code' => $add->ticket_qr_code,
+                            'ticket_qr_image_url' => $this->buildTicketQrImageUrl($add->ticket_qr_code),
                         ];
     
                         $website = Website::findOrFail($website_id);
@@ -194,9 +199,16 @@ class TransactionController extends Controller
     
                         $send_mail = new \App\Mail\TransactionMail($mailData);
                         $send_mail->subject('New Package Purched - ' . $transaction_id);
-                        // Send the email
-                        foreach ($website->emails as $key => $value) {
-                            \Illuminate\Support\Facades\Mail::to($value->email)->send($send_mail);
+                        // Send to internal recipients + purchaser email.
+                        $recipientEmails = collect($website->emails ?? [])
+                            ->pluck('email')
+                            ->push($request->input('package_email'))
+                            ->filter(fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
+                            ->unique()
+                            ->values();
+
+                        foreach ($recipientEmails as $recipientEmail) {
+                            \Illuminate\Support\Facades\Mail::to($recipientEmail)->send(clone $send_mail);
                         }
                     } catch (\Throwable $th) {
                         //throw $th;
@@ -277,6 +289,7 @@ class TransactionController extends Controller
     
                     $add = new Transaction();
                     $add->transaction_id = $transaction_id;
+                    $add->ticket_qr_code = $this->generateTicketQrCode();
                     $add->package_first_name = $request->input('package_first_name');
                     $add->ip_address = $ipAddress;
                     $add->package_last_name = $request->input('package_last_name');
@@ -331,7 +344,7 @@ class TransactionController extends Controller
                     $add->addons = $cartSummary['addons_summary'];
                     $add->type = 'package';
                     $add->save();
-                    $this->applyReferralCommission($request, $add);
+                    $this->applyReferralCommission($request, $add, (float) ($cartSummary['commission_base_amount'] ?? 0));
     
                     try {
                         //code...
@@ -366,6 +379,8 @@ class TransactionController extends Controller
                             'website_id' => $website_id,
                             'total' => $request->input('total'),
                             'type' => 'package',
+                            'ticket_qr_code' => $add->ticket_qr_code,
+                            'ticket_qr_image_url' => $this->buildTicketQrImageUrl($add->ticket_qr_code),
                         ];
     
                         $website = Website::findOrFail($website_id);
@@ -386,9 +401,16 @@ class TransactionController extends Controller
     
                         $send_mail = new \App\Mail\TransactionMail($mailData);
                         $send_mail->subject('New Package Purched - ' . $transaction_id);
-                        // Send the email
-                        foreach ($website->emails as $key => $value) {
-                            \Illuminate\Support\Facades\Mail::to($value->email)->send($send_mail);
+                        // Send to internal recipients + purchaser email.
+                        $recipientEmails = collect($website->emails ?? [])
+                            ->pluck('email')
+                            ->push($request->input('package_email'))
+                            ->filter(fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
+                            ->unique()
+                            ->values();
+
+                        foreach ($recipientEmails as $recipientEmail) {
+                            \Illuminate\Support\Facades\Mail::to($recipientEmail)->send(clone $send_mail);
                         }
                     } catch (\Throwable $th) {
                         //throw $th;
@@ -654,6 +676,98 @@ class TransactionController extends Controller
         return view('thank-you', compact('transaction', 'invoice', 'website', 'paymentType'));
     }
 
+    public function scanPage()
+    {
+        $this->ensureScannerAccess();
+
+        return view('admin.transaction.scanner');
+    }
+
+    public function scanLookup(Request $request)
+    {
+        $this->ensureScannerAccess();
+
+        $rawCode = (string) $request->query('ticket_qr_code', '');
+        $ticketCode = $this->normalizeTicketCode($rawCode);
+
+        if (!$ticketCode) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ticket code is missing or invalid.',
+            ], 422);
+        }
+
+        $transaction = $this->scannerTransactionQuery()
+            ->where('ticket_qr_code', $ticketCode)
+            ->first();
+
+        if (!$transaction) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ticket not found for this portal.',
+            ], 404);
+        }
+
+        if ((string) $transaction->type !== 'package' || (string) $transaction->status !== '1') {
+            return response()->json([
+                'success' => false,
+                'message' => 'This transaction is not an active paid package ticket.',
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'transaction' => [
+                'id' => $transaction->id,
+                'transaction_id' => $transaction->transaction_id,
+                'ticket_qr_code' => $transaction->ticket_qr_code,
+                'guest_name' => trim(($transaction->package_first_name ?? '') . ' ' . ($transaction->package_last_name ?? '')),
+                'package_email' => $transaction->package_email,
+                'package_phone' => $transaction->package_phone,
+                'website_name' => optional($transaction->website)->name,
+                'total' => number_format((float) $transaction->total, 2, '.', ''),
+                'package_use_date' => $transaction->package_use_date,
+                'checked_in_status' => (bool) $transaction->checked_in_status,
+                'checked_in_at_pacific' => optional($transaction->checked_in_at_pacific)->format('Y-m-d h:i A') . (optional($transaction->checked_in_at_pacific)->format('Y-m-d h:i A') ? ' PT' : ''),
+            ],
+        ]);
+    }
+
+    public function scanCheckIn(Request $request)
+    {
+        $this->ensureScannerAccess();
+
+        $request->validate([
+            'ticket_qr_code' => ['required', 'string'],
+        ]);
+
+        $ticketCode = $this->normalizeTicketCode((string) $request->input('ticket_qr_code'));
+
+        if (!$ticketCode) {
+            return redirect()->route('admin.transaction.scan')->with('error', 'Ticket code is invalid.');
+        }
+
+        $transaction = $this->scannerTransactionQuery()
+            ->where('ticket_qr_code', $ticketCode)
+            ->first();
+
+        if (!$transaction) {
+            return redirect()->route('admin.transaction.scan')->with('error', 'Ticket not found.');
+        }
+
+        if ((bool) $transaction->checked_in_status) {
+            return redirect()->route('admin.transaction.scan')->with('success', 'Ticket was already checked in.');
+        }
+
+        $transaction->checked_in_status = true;
+        $transaction->checked_in_at_pacific = Carbon::now('America/Los_Angeles');
+        $transaction->checked_in_by_user_id = auth()->id();
+        $transaction->save();
+
+        return redirect()->route('admin.transaction.scan')
+            ->with('success', 'Check-in completed for ticket #' . $transaction->ticket_qr_code . '.');
+    }
+
     private function extractCartItemsFromRequest(Request $request): array
     {
         $rawCartItems = $request->input('cart_items');
@@ -738,10 +852,29 @@ class TransactionController extends Controller
             ->filter()
             ->implode(', ');
 
+        $commissionBaseAmount = collect($cartItems)->sum(function (array $item) {
+            $packageId = (int) ($item['package_id'] ?? 0);
+            $package = $packageId > 0 ? Package::find($packageId) : null;
+
+            $guests = max(1, (int) ($item['guests'] ?? 1));
+            $isMultiple = $this->isTruthy($item['is_multiple'] ?? optional($package)->multiple);
+            $billableGuests = $isMultiple ? $guests : 1;
+
+            $unitPrice = $package ? (float) ($package->price ?? 0) : (float) ($item['unit_price'] ?? 0);
+            $lineAmount = $unitPrice * $billableGuests;
+
+            $addonsAmount = collect($item['addons'] ?? [])->sum(function (array $addon) {
+                return (float) ($addon['price'] ?? 0);
+            });
+
+            return max(0, $lineAmount + $addonsAmount);
+        });
+
         return [
             'primary_package_id' => $primaryPackageId,
             'total_guests' => max(1, (int) $totalGuests),
             'addons_summary' => $addonsSummary,
+            'commission_base_amount' => round((float) $commissionBaseAmount, 2),
         ];
     }
 
@@ -805,15 +938,15 @@ class TransactionController extends Controller
             });
     }
 
-    private function applyReferralCommission(Request $request, Transaction $transaction): void
+    private function applyReferralCommission(Request $request, Transaction $transaction, ?float $commissionBaseAmount = null): void
     {
-        $affiliateResolved = $this->applyAffiliateCommission($request, $transaction);
+        $affiliateResolved = $this->applyAffiliateCommission($request, $transaction, $commissionBaseAmount);
         if (!$affiliateResolved) {
-            $this->applyEntertainerCommission($request, $transaction);
+            $this->applyEntertainerCommission($request, $transaction, $commissionBaseAmount);
         }
     }
 
-    private function applyAffiliateCommission(Request $request, Transaction $transaction): bool
+    private function applyAffiliateCommission(Request $request, Transaction $transaction, ?float $commissionBaseAmount = null): bool
     {
         $affiliate = $this->resolveAffiliateFromRequest($request);
         if (!$affiliate) {
@@ -839,7 +972,9 @@ class TransactionController extends Controller
         }
 
         $commissionPercentage = (float) ($mapping->commission_percentage ?? $affiliate->default_commission_percentage);
-        $baseAmount = (float) ($transaction->total ?? 0);
+        $baseAmount = $commissionBaseAmount !== null
+            ? (float) $commissionBaseAmount
+            : (float) ($transaction->actual_total ?? $transaction->total ?? 0);
         $commissionAmount = round(max($baseAmount, 0) * ($commissionPercentage / 100), 2);
 
         $transaction->affiliate_id = $affiliate->id;
@@ -865,6 +1000,7 @@ class TransactionController extends Controller
                     'package_id' => $packageId,
                     'website_id' => $transaction->website_id,
                     'commission_percentage' => $commissionPercentage,
+                    'commission_base_amount' => round(max($baseAmount, 0), 2),
                 ],
             ]);
         }
@@ -873,7 +1009,7 @@ class TransactionController extends Controller
         return true;
     }
 
-    private function applyEntertainerCommission(Request $request, Transaction $transaction): void
+    private function applyEntertainerCommission(Request $request, Transaction $transaction, ?float $commissionBaseAmount = null): void
     {
         $entertainer = $this->resolveEntertainerFromRequest($request);
         if (!$entertainer) {
@@ -901,7 +1037,9 @@ class TransactionController extends Controller
         }
 
         $commissionPercentage = (float) ($entertainer->default_commission_percentage ?? 0);
-        $baseAmount = (float) ($transaction->total ?? 0);
+        $baseAmount = $commissionBaseAmount !== null
+            ? (float) $commissionBaseAmount
+            : (float) ($transaction->actual_total ?? $transaction->total ?? 0);
         $commissionAmount = round(max($baseAmount, 0) * ($commissionPercentage / 100), 2);
 
         $transaction->entertainer_id = $entertainer->id;
@@ -927,9 +1065,77 @@ class TransactionController extends Controller
                     'package_id' => $packageId,
                     'website_id' => $transaction->website_id,
                     'commission_percentage' => $commissionPercentage,
+                    'commission_base_amount' => round(max($baseAmount, 0), 2),
                 ],
             ]);
         }
+    }
+
+    private function ensureScannerAccess(): void
+    {
+        $user = auth()->user();
+        if (!$user || (!$user->isAdmin() && !$user->isWebsiteUser() && !$user->isBouncer())) {
+            abort(403, 'Access denied.');
+        }
+    }
+
+    private function scannerTransactionQuery()
+    {
+        $user = auth()->user();
+
+        $query = Transaction::query()->with(['website', 'event', 'package']);
+
+        if ($user && ($user->isWebsiteUser() || $user->isBouncer()) && $user->website_id) {
+            $query->where(function ($scopedQuery) use ($user) {
+                $scopedQuery->where('website_id', $user->website_id)
+                    ->orWhereHas('event', function ($eventQuery) use ($user) {
+                        $eventQuery->where('website_id', $user->website_id);
+                    })
+                    ->orWhereHas('package', function ($packageQuery) use ($user) {
+                        $packageQuery->where('website_id', $user->website_id);
+                    });
+            });
+        }
+
+        return $query;
+    }
+
+    private function normalizeTicketCode(?string $rawCode): ?string
+    {
+        $rawCode = trim((string) $rawCode);
+        if ($rawCode === '') {
+            return null;
+        }
+
+        if (filter_var($rawCode, FILTER_VALIDATE_URL)) {
+            $query = parse_url($rawCode, PHP_URL_QUERY);
+            if (is_string($query)) {
+                parse_str($query, $params);
+                if (!empty($params['ticket'])) {
+                    $rawCode = (string) $params['ticket'];
+                }
+            }
+        }
+
+        if (preg_match('/(CVT-[A-Z0-9]+)/i', $rawCode, $matches)) {
+            return strtoupper($matches[1]);
+        }
+
+        return strtoupper($rawCode);
+    }
+
+    private function generateTicketQrCode(): string
+    {
+        do {
+            $ticketCode = 'CVT-' . strtoupper(Str::random(12));
+        } while (Transaction::where('ticket_qr_code', $ticketCode)->exists());
+
+        return $ticketCode;
+    }
+
+    private function buildTicketQrImageUrl(string $ticketCode): string
+    {
+        return 'https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=' . urlencode($ticketCode);
     }
 
     private function resolveAffiliateFromRequest(Request $request): ?Affiliate

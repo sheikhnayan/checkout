@@ -2408,6 +2408,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                                         <input type="hidden" name="payment_total" class="payment_total">
 
+                                        <input type="hidden" name="commission_base_amount" id="commission_base_amount">
+
                                         <input type="hidden" name="website_id" value="{{ $data->id }}">
 
                                         <input type="hidden" name="affiliate_slug" value="{{ $affiliateReferral->slug ?? '' }}">
@@ -3180,7 +3182,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     }
                 }
 
-                var grandTotal = totalBeforeCoupon - couponDiscount;
+                var amountAfterCoupon = totalBeforeCoupon - couponDiscount;
+                var processingFee = parseFloat($('#processing_fee').val()) || 0;
+                var processingFeeType = ($('#processing_fee_type').val() || 'percentage').toLowerCase();
+                var processingFeeAmount = processingFeeType === 'flat'
+                    ? processingFee
+                    : (amountAfterCoupon / 100) * processingFee;
+                var grandTotal = amountAfterCoupon + processingFeeAmount;
                 var refundableRate = parseFloat($('#refundable').val()) || 0;
                 var refundableAmount = (grandTotal / 100) * refundableRate;
 
@@ -3206,6 +3214,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     $('.default-promo-discount').remove();
                 }
 
+                if (processingFeeAmount > 0) {
+                    if ($('.default-processing-fee').length === 0) {
+                        $('.default-gratuity').after('<div style="font-size: 12px;" class="default-processing-fee">Processing Fee: <span>$0.00</span></div>');
+                    }
+                    $('.default-processing-fee span').text(formatCurrency(processingFeeAmount));
+                } else {
+                    $('.default-processing-fee').remove();
+                }
+
                 $('#cart-total').text('Packages Subtotal: ' + formatCurrency(subtotal));
                 
                 if (window.cartCoupon) {
@@ -3216,6 +3233,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                 $('.payment_total').val(grandTotal.toFixed(2));
                 $('#subtotal').val(refundableRate > 0 ? refundableAmount.toFixed(2) : grandTotal.toFixed(2));
+                $('#commission_base_amount').val(Math.max(subtotal - couponDiscount, 0).toFixed(2));
                 $('.default-refundable .refundable-amount').text(formatCurrency(refundableAmount));
                 $('.default-due .due-amount').text(formatCurrency(grandTotal - refundableAmount));
                 $('.default-deposit span').text(formatCurrency(grandTotal));
@@ -3754,6 +3772,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         <input type="hidden" id="sales_tax" value="{{ $data->sales_tax_fee ?? 10}}">
 
         <input type="hidden" id="service_charge" value="{{ $data->service_charge_fee ?? 10}}">
+
+        <input type="hidden" id="processing_fee" value="{{ (float) ($data->processing_fee ?? 0) }}">
+
+        <input type="hidden" id="processing_fee_type" value="{{ $data->processing_fee_type ?? 'percentage' }}">
 
         <script>
             function openModal() {

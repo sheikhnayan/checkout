@@ -2560,6 +2560,8 @@
 
                                         <input type="hidden" name="payment_total" class="payment_total">
 
+                                        <input type="hidden" name="commission_base_amount" id="commission_base_amount">
+
                                         <input type="hidden" name="website_id" value="{{ $data->id }}">
 
                                         <input type="hidden" name="affiliate_slug" value="{{ $affiliateReferral->slug ?? '' }}">
@@ -3150,18 +3152,25 @@
                 let gratuited_price = ("{{ $data->gratuity_name }}" != "0") ? (subtotal / 100) * gratuity : 0;
                 let sales_tax_price = ("{{ $data->sales_tax_name }}" != "0") ? ((subtotal + service_charge_price + gratuited_price) / 100) * sales_tax : 0;
                 
-                let grandTotal = subtotal + service_charge_price + sales_tax_price + gratuited_price;
+                let totalBeforeCoupon = subtotal + service_charge_price + sales_tax_price + gratuited_price;
                 
                 // Apply coupon discount
                 let promoDiscount = 0;
                 if (window.cartCoupon) {
                     if (window.cartCoupon.type == 'percentage') {
-                        promoDiscount = (grandTotal / 100) * window.cartCoupon.discount;
+                        promoDiscount = (totalBeforeCoupon / 100) * window.cartCoupon.discount;
                     } else {
                         promoDiscount = window.cartCoupon.discount;
                     }
-                    grandTotal -= promoDiscount;
                 }
+
+                let amountAfterCoupon = totalBeforeCoupon - promoDiscount;
+                let processingFee = parseFloat($('#processing_fee').val()) || 0;
+                let processingFeeType = ($('#processing_fee_type').val() || 'percentage').toLowerCase();
+                let processingFeeAmount = processingFeeType === 'flat'
+                    ? processingFee
+                    : (amountAfterCoupon / 100) * processingFee;
+                let grandTotal = amountAfterCoupon + processingFeeAmount;
                 
                 let refundable_price = (grandTotal / 100) * refundable;
                 
@@ -3187,6 +3196,15 @@
                 } else {
                     $('.default-promo-discount').remove();
                 }
+
+                if (processingFeeAmount > 0) {
+                    if ($('.default-processing-fee').length === 0) {
+                        $('.default-gratuity').after('<div style="font-size: 12px;" class="default-processing-fee">Processing Fee: <span>$0.00</span></div>');
+                    }
+                    $('.default-processing-fee span').text(formatCurrency(processingFeeAmount));
+                } else {
+                    $('.default-processing-fee').remove();
+                }
                 
                 $('.default-refundable .refundable-amount').text(formatCurrency(refundable_price));
                 $('.default-total span').text(formatCurrency(grandTotal));
@@ -3194,6 +3212,7 @@
                 $('.default-due .due-amount').text(formatCurrency(grandTotal - refundable_price));
                 $('.payment_total').val(grandTotal.toFixed(2));
                 $('#subtotal').val(refundable_price > 0 ? refundable_price.toFixed(2) : grandTotal.toFixed(2));
+                $('#commission_base_amount').val(Math.max(subtotal - promoDiscount, 0).toFixed(2));
                 
                 $('#cart-total').text('Packages Subtotal: ' + formatCurrency(subtotal));
                 if (window.cartCoupon) {
@@ -3931,6 +3950,10 @@
         <input type="hidden" id="sales_tax" value="{{ $data->sales_tax_fee ?? 10 }}">
 
         <input type="hidden" id="service_charge" value="{{ $data->service_charge_fee ?? 10 }}">
+
+        <input type="hidden" id="processing_fee" value="{{ (float) ($data->processing_fee ?? 0) }}">
+
+        <input type="hidden" id="processing_fee_type" value="{{ $data->processing_fee_type ?? 'percentage' }}">
 
         <script>
             function openModal() {

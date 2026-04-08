@@ -197,6 +197,8 @@
                                                 <th>Affiliate Amount</th>
                                                 <th>Amount</th>
                                                 <th>Status</th>
+                                                <th>Checked In</th>
+                                                <th>Checked In At (PT)</th>
                                                 <th>Date</th>
                                                 <th>Action</th>
                                             </tr>
@@ -204,7 +206,7 @@
                                         <tbody>
                                             @if ($data->isEmpty())
                                                 <tr>
-                                                    <td colspan="{{ auth()->user()->isAdmin() ? '16' : '15' }}" class="text-center">No donations found.</td>
+                                                    <td colspan="{{ auth()->user()->isAdmin() ? '18' : '17' }}" class="text-center">No donations found.</td>
                                                 </tr>
                                             @else
                                                 @foreach ($data as $item)
@@ -246,6 +248,20 @@
                                                                 <span class="badge bg-warning text-dark">Refunded</span>
                                                             @else
                                                                 <span class="badge bg-secondary">Unknown</span>
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @if($item->checked_in_status)
+                                                                <span class="badge bg-success">Yes</span>
+                                                            @else
+                                                                <span class="badge bg-secondary">No</span>
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @if($item->checked_in_at_pacific)
+                                                                {{ optional($item->checked_in_at_pacific)->timezone('America/Los_Angeles')->format('Y-m-d h:i A T') }}
+                                                            @else
+                                                                -
                                                             @endif
                                                         </td>
                                                         <td>{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('Y-m-d h:i A T') }}</td>
@@ -396,6 +412,20 @@
                                                                 <span class="badge bg-secondary">Unknown</span>
                                                             @endif
                                                         </td>
+                                                        <td>
+                                                            @if($item->checked_in_status)
+                                                                <span class="badge bg-success">Yes</span>
+                                                            @else
+                                                                <span class="badge bg-secondary">No</span>
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @if($item->checked_in_at_pacific)
+                                                                {{ optional($item->checked_in_at_pacific)->timezone('America/Los_Angeles')->format('Y-m-d h:i A T') }}
+                                                            @else
+                                                                -
+                                                            @endif
+                                                        </td>
                                                         <td>{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('Y-m-d h:i A T') }}</td>
                                                         <td>
                                                             <button type="button" class="btn btn-info btn-sm view-btn" data-bs-toggle="modal" data-bs-target="#viewTransactionModal"
@@ -451,7 +481,7 @@
                                             <tr>
                                                 <th colspan="{{ auth()->user()->isAdmin() ? '12' : '11' }}" class="text-end">Total:</th>
                                                 <th id="amount-total"></th>
-                                                <th colspan="3"></th>
+                                                <th colspan="5"></th>
                                             </tr>
                                         </tfoot>
                                     </table>

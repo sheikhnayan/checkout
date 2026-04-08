@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Permission;
 use App\Models\User;
 use App\Models\Website;
+use App\Models\WebsiteRole;
 use Illuminate\Support\Facades\Hash;
 
 class WebsiteUserController extends Controller
@@ -15,9 +17,12 @@ class WebsiteUserController extends Controller
      */
     public function index()
     {
-        $users = User::where('user_type', 'website_user')
+        $this->authorizeUserManagement();
+
+        $users = User::whereIn('user_type', ['website_user', 'bouncer'])
                     ->withTrashed()
-                    ->with('website')
+                    ->with(['website', 'websiteRole'])
+                    ->whereIn('website_id', $this->accessibleWebsiteIds())
                     ->orderBy('created_at', 'desc')
                     ->get();
         
@@ -29,8 +34,17 @@ class WebsiteUserController extends Controller
      */
     public function create()
     {
-        $websites = Website::all();
-        return view('admin.website-users.create', compact('websites'));
+        $this->authorizeUserManagement();
+        Permission::syncFromAdminRoutes();
+
+        $websites = Website::whereIn('id', $this->accessibleWebsiteIds())->orderBy('name')->get();
+        $roles = WebsiteRole::with('website')
+            ->whereIn('website_id', $this->accessibleWebsiteIds())
+            ->orderBy('website_id')
+            ->orderBy('name')
+            ->get();
+
+        return view('admin.website-users.create', compact('websites', 'roles'));
     }
 
     /**
@@ -38,19 +52,33 @@ class WebsiteUserController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorizeUserManagement();
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'website_id' => 'required|exists:websites,id',
+            'user_type' => 'required|in:website_user,bouncer',
+            'website_role_id' => 'required|exists:website_roles,id',
         ]);
+
+        $this->ensureWebsiteAccess((int) $request->website_id);
+
+        $role = WebsiteRole::findOrFail((int) $request->website_role_id);
+        if ((int) $role->website_id !== (int) $request->website_id) {
+            return redirect()->back()->withInput()->withErrors([
+                'website_role_id' => 'Selected role does not belong to the selected website.',
+            ]);
+        }
 
         User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'website_id' => $request->website_id,
-            'user_type' => 'website_user',
+            'website_role_id' => $request->website_role_id,
+            'user_type' => $request->user_type,
         ]);
 
         return redirect()->route('admin.website-users.index')
@@ -62,7 +90,9 @@ class WebsiteUserController extends Controller
      */
     public function show(string $id)
     {
-        $user = User::where('user_type', 'website_user')->findOrFail($id);
+        $this->authorizeUserManagement();
+        $user = User::whereIn('user_type', ['website_user', 'bouncer'])->findOrFail($id);
+        $this->ensureWebsiteAccess((int) $user->website_id);
         return view('admin.website-users.show', compact('user'));
     }
 
@@ -71,9 +101,20 @@ class WebsiteUserController extends Controller
      */
     public function edit(string $id)
     {
-        $user = User::where('user_type', 'website_user')->findOrFail($id);
-        $websites = Website::all();
-        return view('admin.website-users.edit', compact('user', 'websites'));
+        $this->authorizeUserManagement();
+        Permission::syncFromAdminRoutes();
+
+        $user = User::whereIn('user_type', ['website_user', 'bouncer'])->findOrFail($id);
+        $this->ensureWebsiteAccess((int) $user->website_id);
+
+        $websites = Website::whereIn('id', $this->accessibleWebsiteIds())->orderBy('name')->get();
+        $roles = WebsiteRole::with('website')
+            ->whereIn('website_id', $this->accessibleWebsiteIds())
+            ->orderBy('website_id')
+            ->orderBy('name')
+            ->get();
+
+        return view('admin.website-users.edit', compact('user', 'websites', 'roles'));
     }
 
     /**
@@ -81,19 +122,35 @@ class WebsiteUserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $user = User::where('user_type', 'website_user')->findOrFail($id);
+        $this->authorizeUserManagement();
+
+        $user = User::whereIn('user_type', ['website_user', 'bouncer'])->findOrFail($id);
+        $this->ensureWebsiteAccess((int) $user->website_id);
         
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
             'website_id' => 'required|exists:websites,id',
+            'user_type' => 'required|in:website_user,bouncer',
+            'website_role_id' => 'required|exists:website_roles,id',
         ]);
+
+        $this->ensureWebsiteAccess((int) $request->website_id);
+
+        $role = WebsiteRole::findOrFail((int) $request->website_role_id);
+        if ((int) $role->website_id !== (int) $request->website_id) {
+            return redirect()->back()->withInput()->withErrors([
+                'website_role_id' => 'Selected role does not belong to the selected website.',
+            ]);
+        }
 
         $updateData = [
             'name' => $request->name,
             'email' => $request->email,
             'website_id' => $request->website_id,
+            'website_role_id' => $request->website_role_id,
+            'user_type' => $request->user_type,
         ];
 
         if ($request->filled('password')) {
@@ -111,7 +168,10 @@ class WebsiteUserController extends Controller
      */
     public function archive(string $id)
     {
-        $user = User::where('user_type', 'website_user')->withTrashed()->findOrFail($id);
+        $this->authorizeUserManagement();
+
+        $user = User::whereIn('user_type', ['website_user', 'bouncer'])->withTrashed()->findOrFail($id);
+        $this->ensureWebsiteAccess((int) $user->website_id);
         
         if ($user->trashed()) {
             $user->restore();
@@ -131,5 +191,42 @@ class WebsiteUserController extends Controller
     public function destroy(string $id)
     {
         return $this->archive($id);
+    }
+
+    private function authorizeUserManagement(): void
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            abort(403, 'Unauthorized');
+        }
+
+        if ($user->isAdmin()) {
+            return;
+        }
+
+        if (($user->isWebsiteUser() || $user->isBouncer()) && $user->isWebsiteAdmin()) {
+            return;
+        }
+
+        abort(403, 'You do not have permission to manage website users.');
+    }
+
+    private function accessibleWebsiteIds(): array
+    {
+        $user = auth()->user();
+
+        if ($user->isAdmin()) {
+            return Website::pluck('id')->map(fn ($id) => (int) $id)->all();
+        }
+
+        return $user->website_id ? [(int) $user->website_id] : [];
+    }
+
+    private function ensureWebsiteAccess(int $websiteId): void
+    {
+        if (!in_array($websiteId, $this->accessibleWebsiteIds(), true)) {
+            abort(403, 'You do not have access to this website.');
+        }
     }
 }

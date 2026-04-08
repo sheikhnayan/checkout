@@ -42,6 +42,7 @@
                             <th>Post</th>
                             <th>Website</th>
                             <th>Posted By</th>
+                            <th>Identity</th>
                             <th>Media</th>
                             <th>Comments</th>
                             <th>Status</th>
@@ -57,6 +58,17 @@
                                 </td>
                                 <td>{{ $post->website->name ?? 'N/A' }}</td>
                                 <td>{{ $post->author_name }}</td>
+                                <td>
+                                    @if($post->author_mode === 'club')
+                                        <span class="badge bg-label-success">Real (Club)</span>
+                                    @elseif($post->feedModel)
+                                        <span class="badge {{ $post->feedModel->is_real_profile ? 'bg-label-success' : 'bg-label-warning' }}">
+                                            {{ $post->feedModel->is_real_profile ? 'Real (Model)' : 'Fake (Model)' }}
+                                        </span>
+                                    @else
+                                        <span class="badge bg-label-secondary">Unknown</span>
+                                    @endif
+                                </td>
                                 <td>{{ count((array) $post->resolved_media_items) }} media item(s)</td>
                                 <td>{{ $post->comments_count }}</td>
                                 <td>
@@ -74,7 +86,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center py-5 text-muted">No feed posts created yet.</td>
+                                <td colspan="8" class="text-center py-5 text-muted">No feed posts created yet.</td>
                             </tr>
                         @endforelse
                     </tbody>

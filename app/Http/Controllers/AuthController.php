@@ -165,6 +165,15 @@ class AuthController extends Controller
             return redirect()->route('entertainer.portal.dashboard');
         }
 
+        if ($user->isWebsiteUser() || $user->isBouncer()) {
+            $routeName = $user->firstAccessibleAdminRoute();
+            if ($routeName && \Illuminate\Support\Facades\Route::has($routeName)) {
+                return redirect()->route($routeName);
+            }
+
+            return redirect()->route('admin.profile.edit');
+        }
+
         return redirect()->route('admin.transaction.index');
     }
 }

@@ -23,6 +23,14 @@
 .forms-wizard li.done em {
   font-family: Linearicons-Free;
 }
+
+.website-section-title {
+    background: var(--admin-surface-2);
+    color: var(--admin-text) !important;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+}
 </style>
 
 <style>
@@ -105,6 +113,11 @@
                                         @csrf
 
                                         <div class="card-body">
+                                            <div class="alert alert-info d-flex justify-content-between align-items-center mb-4">
+                                                <span>Payment keys and fees were moved to a dedicated page.</span>
+                                                <a href="{{ route('admin.website.payment-settings', $data->id) }}" class="btn btn-sm btn-primary">Open Payment Settings</a>
+                                            </div>
+                                            <h4 class="mb-3 website-section-title">Basic Information</h4>
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
@@ -114,6 +127,7 @@
                                                 </div>
                                             </div>
 
+                                            <h4 class="mt-4 mb-3 website-section-title">Website Content</h4>
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
@@ -123,6 +137,7 @@
                                                 </div>
                                             </div>
 
+                                            <h4 class="mt-4 mb-3 website-section-title">SMTP Configuration</h4>
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
@@ -133,6 +148,7 @@
                                                 </div>
                                             </div>
 
+                                            <h4 class="mt-4 mb-3 website-section-title">Redirect & Policy Pages</h4>
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
@@ -215,60 +231,6 @@
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="gratuity_name" class="form-label">Gratuity Field Name</label>
-                                                        <input type="text" name="gratuity_name" class="form-control" id="gratuity_name" placeholder="Gratuity Field name" value="{{ $data->gratuity_name }}" required>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="gratuity_fee" class="form-label">Gratuity Fee (%)</label>
-                                                        <input type="number" name="gratuity_fee" step="0.000001" class="form-control" id="gratuity_fee" placeholder="Gratuity Fee" value="{{ $data->gratuity_fee }}" required>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="refundable_name" class="form-label">Non-refundable Field Name</label>
-                                                        <input type="text" name="refundable_name" class="form-control" id="refundable_name" placeholder="Non-refundable Field name" value="{{ $data->refundable_name }}" required>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="password" class="form-label">Non-refundable Fee (%)</label>
-                                                        <input type="number" name="refundable_fee" step="0.000001" class="form-control" id="refundable_fee" value="{{ $data->refundable_fee }}" placeholder="Refundable Fee" required>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="sales_tax_name" class="form-label">Sales Tax Field Name</label>
-                                                        <input type="text" name="sales_tax_name" class="form-control" id="sales_tax_name" placeholder="Sales Tax Field name" value="{{ $data->sales_tax_name }}" required>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="password" class="form-label">Sales Tax Fee (%)</label>
-                                                        <input type="number" name="sales_tax_fee" step="0.000001" class="form-control" id="sales_tax_fee" value="{{ $data->sales_tax_fee }}" placeholder="Sales Tax Fee" required>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="service_charge_name" class="form-label">Service Charge Field Name</label>
-                                                        <input type="text" name="service_charge_name" class="form-control" id="service_charge_name" placeholder="Service Charge Field name" value="{{ $data->service_charge_name }}" required>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="password" class="form-label">Service Charge Fee (%)</label>
-                                                        <input type="number" name="service_charge_fee" step="0.000001" class="form-control" id="service_charge_fee" value="{{ $data->service_charge_fee }}" placeholder="Service Charge Fee" required>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="promo_code_name" class="form-label">Promo Code Field Name</label>
-                                                        <input type="text" name="promo_code_name" class="form-control" id="promo_code_name" placeholder="Promo Code Field name" value="{{ $data->promo_code_name }}" required>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
                                                         <label for="reservation" class="form-label">Guest-list visible?</label>
                                                         <select name="reservation" id="reservation" class="form-control">
                                                             <option value="1" {{ $data->reservation == 1 ? 'selected' : '' }}>Yes</option>
@@ -276,43 +238,7 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="color" class="form-label">Authorize App Key</label>
-                                                        <input type="text" name="authorize_app_key" class="form-control" id="authorize_app_key" value="{{ $data->authorize_app_key }}" placeholder="Authorize App Key">
-                                                    </div>
-                                                </div>
 
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="color" class="form-label">Authorize Secret Key</label>
-                                                        <input type="text" name="authorize_secret_key" class="form-control" id="authorize_secret_key" value="{{ $data->authorize_secret_key }}" placeholder="Authorize Secret Key">
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="color" class="form-label">Stripe App Key</label>
-                                                        <input type="text" name="stripe_app_key" class="form-control" id="stripe_app_key" value="{{ $data->stripe_app_key }}" placeholder="Stripe App Key">
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="color" class="form-label">Stripe Secret Key</label>
-                                                        <input type="text" name="stripe_secret_key" class="form-control" id="stripe_secret_key" value="{{ $data->stripe_secret_key }}" placeholder="Stripe Secret Key">
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="payment_method" class="form-label">Payment Method</label>
-                                                        <select name="payment_method" id="payment_method" class="form-control">
-                                                            <option {{ $data->payment_method == 'authorize' ? 'selected' : ''}} value="authorize">Authorize.net</option>
-                                                            <option {{ $data->payment_method == 'stripe' ? 'selected' : ''}} value="stripe">Stripe</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
                                                         <label for="password" class="form-label">Description</label>
@@ -380,7 +306,7 @@
                                             
                                             <div class="row">
                                                 <div class="col-md-12">
-                                                    <h3>SMTP Configuration</h3>
+                                                    <h3 class="website-section-title">SMTP Configuration</h3>
                                                     <div class="row">
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
@@ -498,58 +424,6 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            
-                                            <!-- Payment Logo Management -->
-                                            <div class="row mb-4">
-                                                <div class="col-md-12">
-                                                    <div class="d-flex align-items-center justify-content-between mb-3">
-                                                        <h5 class="mb-0">Payment Method Logos</h5>
-                                                        <button type="button" class="btn btn-success btn-sm add-payment-logo">
-                                                            <i class="fa fa-plus me-1"></i> Add Payment Logo
-                                                        </button>
-                                                    </div>
-                                                    <div id="payment-logos-wrapper">
-                                                        @forelse($data->paymentLogos as $index => $logo)
-                                                            <div class="row mb-3 align-items-center payment-logo-group border rounded p-2">
-                                                                <div class="col-md-3">
-                                                                    <label class="form-label mb-1">Name</label>
-                                                                    <input type="text" name="payment_logos[{{ $index }}][name]" class="form-control" placeholder="e.g. Visa" value="{{ $logo->name }}" required>
-                                                                </div>
-                                                                <div class="col-md-3">
-                                                                    <label class="form-label mb-1">Logo Image</label>
-                                                                    @if($logo->logo)
-                                                                        <div class="mb-1">
-                                                                            <img src="{{ asset('uploads/' . $logo->logo) }}" alt="{{ $logo->name }}" style="height:36px;max-width:100px;object-fit:contain;border-radius:4px;background:#fff;padding:2px 4px;">
-                                                                        </div>
-                                                                    @endif
-                                                                    <input type="file" name="payment_logos[{{ $index }}][logo]" class="form-control" accept="image/*">
-                                                                    <small class="text-muted">{{ $logo->logo ? 'Replace above image' : 'No logo yet' }}</small>
-                                                                </div>
-                                                                <div class="col-md-2">
-                                                                    <label class="form-label mb-1">Order</label>
-                                                                    <input type="number" name="payment_logos[{{ $index }}][order]" class="form-control" placeholder="0" value="{{ $logo->order }}" min="0">
-                                                                </div>
-                                                                <div class="col-md-2">
-                                                                    <label class="form-label mb-1">Status</label>
-                                                                    <select name="payment_logos[{{ $index }}][is_active]" class="form-control">
-                                                                        <option value="1" {{ $logo->is_active ? 'selected' : '' }}>Active</option>
-                                                                        <option value="0" {{ !$logo->is_active ? 'selected' : '' }}>Inactive</option>
-                                                                    </select>
-                                                                </div>
-                                                                <div class="col-md-2 pt-3">
-                                                                    <button type="button" class="btn btn-danger remove-payment-logo w-100" title="Remove">
-                                                                        <i class="fa fa-trash me-1"></i> Remove
-                                                                    </button>
-                                                                </div>
-                                                                <input type="hidden" name="payment_logos[{{ $index }}][id]" value="{{ $logo->id }}">
-                                                            </div>
-                                                        @empty
-                                                            <p class="text-muted" id="no-logos-msg">No payment logos added yet. Click "Add Payment Logo" to add one.</p>
-                                                        @endforelse
-                                                    </div>
-                                                </div>
-                                            </div>
 
                                             <button type="submit" class="btn btn-primary">Submit</button>
                                             <a href="{{ route('admin.website.index') }}" class="btn btn-danger">Cancel</a>
@@ -630,48 +504,6 @@
                     }
                 });
                 $('#emails-json').val(JSON.stringify(emails));
-            });
-            
-            // Dynamic payment logo functionality
-            let paymentLogoIndex = {{ $data->paymentLogos->count() + 100 }};
-
-            $(document).on('click', '.add-payment-logo', function() {
-                paymentLogoIndex++;
-                $('#no-logos-msg').remove();
-                const paymentLogoGroup = `<div class="row mb-3 align-items-center payment-logo-group border rounded p-2">
-                    <div class="col-md-3">
-                        <label class="form-label mb-1">Name</label>
-                        <input type="text" name="payment_logos[${paymentLogoIndex}][name]" class="form-control" placeholder="e.g. Visa" required>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label mb-1">Logo Image</label>
-                        <input type="file" name="payment_logos[${paymentLogoIndex}][logo]" class="form-control" accept="image/*">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label mb-1">Order</label>
-                        <input type="number" name="payment_logos[${paymentLogoIndex}][order]" class="form-control" placeholder="0" value="0" min="0">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label mb-1">Status</label>
-                        <select name="payment_logos[${paymentLogoIndex}][is_active]" class="form-control">
-                            <option value="1">Active</option>
-                            <option value="0">Inactive</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2 pt-3">
-                        <button type="button" class="btn btn-danger remove-payment-logo w-100" title="Remove">
-                            <i class="fa fa-trash me-1"></i> Remove
-                        </button>
-                    </div>
-                </div>`;
-                $('#payment-logos-wrapper').append(paymentLogoGroup);
-            });
-
-            $(document).on('click', '.remove-payment-logo', function() {
-                $(this).closest('.payment-logo-group').remove();
-                if ($('.payment-logo-group').length === 0) {
-                    $('#payment-logos-wrapper').append('<p class="text-muted" id="no-logos-msg">No payment logos added yet. Click "Add Payment Logo" to add one.</p>');
-                }
             });
             </script>
 @endsection

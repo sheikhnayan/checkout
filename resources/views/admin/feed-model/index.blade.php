@@ -35,6 +35,7 @@
                         <tr>
                             <th>Entertainer</th>
                             <th>Website</th>
+                            <th>Identity</th>
                             <th>Bio</th>
                             <th>Status</th>
                             <th class="text-end">Actions</th>
@@ -59,6 +60,11 @@
                                     </div>
                                 </td>
                                 <td>{{ $model->website->name ?? 'N/A' }}</td>
+                                <td>
+                                    <span class="badge {{ $model->is_real_profile ? 'bg-label-success' : 'bg-label-warning' }}">
+                                        {{ $model->is_real_profile ? 'Real' : 'Fake' }}
+                                    </span>
+                                </td>
                                 <td><div style="max-width:380px;white-space:normal;">{{ \Illuminate\Support\Str::limit($model->bio, 120) }}</div></td>
                                 <td>
                                     <span class="badge {{ $model->is_active ? 'bg-success' : 'bg-secondary' }}">{{ $model->is_active ? 'Active' : 'Hidden' }}</span>
@@ -73,7 +79,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center py-5 text-muted">No feed entertainers created yet.</td>
+                                <td colspan="6" class="text-center py-5 text-muted">No feed entertainers created yet.</td>
                             </tr>
                         @endforelse
                     </tbody>

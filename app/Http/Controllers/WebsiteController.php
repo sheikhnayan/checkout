@@ -4,10 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Website;
+use App\Models\Permission;
+use App\Models\WebsiteRole;
+use App\Models\User;
 use App\Models\Email;
 use App\Models\SMTP;
 use App\Models\PaymentLogo;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Hash;
 
 class WebsiteController extends Controller
 {
@@ -100,6 +104,17 @@ class WebsiteController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'domain' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'website_admin_name' => 'required|string|max:255',
+            'website_admin_email' => 'required|email|max:255|unique:users,email',
+            'website_admin_password' => 'required|string|min:8|confirmed',
+        ]);
+
+        Permission::syncFromAdminRoutes();
+
         $emails = json_decode($request->emails);
 
         $add = new Website;
@@ -114,7 +129,7 @@ class WebsiteController extends Controller
             $add->slug = Website::generateSlug($request->name);
         }
         
-        $add->payment_method = $request->payment_method;
+        $add->payment_method = $request->input('payment_method', 'authorize');
         $add->lat = $request->lat;
         $add->long = $request->long;
         $add->location = $request->location;
@@ -174,7 +189,61 @@ class WebsiteController extends Controller
 
         $add->save();
 
-        foreach ($emails as $key => $value) {
+        $assignablePermissionIds = Permission::query()
+            ->where('is_super_admin_only', false)
+            ->pluck('id')
+            ->all();
+
+        $websiteAdminRole = WebsiteRole::firstOrCreate(
+            [
+                'website_id' => $add->id,
+                'slug' => 'website-admin',
+            ],
+            [
+                'name' => 'Website Admin',
+                'description' => 'Full website access except super-admin-only platform settings.',
+                'is_website_admin' => true,
+                'is_system' => true,
+            ]
+        );
+        $websiteAdminRole->permissions()->sync($assignablePermissionIds);
+
+        $transactionRole = WebsiteRole::firstOrCreate(
+            [
+                'website_id' => $add->id,
+                'slug' => 'transaction-staff',
+            ],
+            [
+                'name' => 'Transaction Staff',
+                'description' => 'Access to transactions and scanner only.',
+                'is_website_admin' => false,
+                'is_system' => true,
+            ]
+        );
+
+        $transactionPermissionIds = Permission::query()
+            ->whereIn('key', [
+                'admin.transaction.index',
+                'admin.transaction.show',
+                'admin.transaction.update',
+                'admin.transaction.scan',
+                'admin.transaction.scan.lookup',
+                'admin.transaction.scan.check-in',
+            ])
+            ->pluck('id')
+            ->all();
+        $transactionRole->permissions()->sync($transactionPermissionIds);
+
+        User::create([
+            'name' => $request->website_admin_name,
+            'email' => $request->website_admin_email,
+            'password' => Hash::make($request->website_admin_password),
+            'website_id' => $add->id,
+            'website_role_id' => $websiteAdminRole->id,
+            'user_type' => 'website_user',
+        ]);
+
+        foreach (($emails ?: []) as $key => $value) {
             # code...
             $email = new Email;
             $email->name = $value->name;
@@ -271,7 +340,9 @@ class WebsiteController extends Controller
             $add->slug = Website::generateSlug($request->name, $id);
         }
         
-        $add->payment_method = $request->payment_method;
+        if ($request->has('payment_method')) {
+            $add->payment_method = $request->payment_method;
+        }
         $add->lat = $request->lat;
         $add->long = $request->long;
         $add->reservation = $request->reservation;
@@ -281,20 +352,46 @@ class WebsiteController extends Controller
         $add->policy = $request->policy;
         $add->success_page = $request->success_page;
         $add->terms = $request->terms;
-        $add->gratuity_fee = $request->gratuity_fee;
-        $add->gratuity_name = $request->gratuity_name;
-        $add->refundable_fee = $request->refundable_fee;
-        $add->refundable_name = $request->refundable_name;
-        $add->sales_tax_fee = $request->sales_tax_fee;
-        $add->sales_tax_name = $request->sales_tax_name;
-        $add->service_charge_fee = $request->service_charge_fee;
-        $add->service_charge_name = $request->service_charge_name;
-        $add->promo_code_name = $request->promo_code_name;
+        if ($request->has('gratuity_fee')) {
+            $add->gratuity_fee = $request->gratuity_fee;
+        }
+        if ($request->has('gratuity_name')) {
+            $add->gratuity_name = $request->gratuity_name;
+        }
+        if ($request->has('refundable_fee')) {
+            $add->refundable_fee = $request->refundable_fee;
+        }
+        if ($request->has('refundable_name')) {
+            $add->refundable_name = $request->refundable_name;
+        }
+        if ($request->has('sales_tax_fee')) {
+            $add->sales_tax_fee = $request->sales_tax_fee;
+        }
+        if ($request->has('sales_tax_name')) {
+            $add->sales_tax_name = $request->sales_tax_name;
+        }
+        if ($request->has('service_charge_fee')) {
+            $add->service_charge_fee = $request->service_charge_fee;
+        }
+        if ($request->has('service_charge_name')) {
+            $add->service_charge_name = $request->service_charge_name;
+        }
+        if ($request->has('promo_code_name')) {
+            $add->promo_code_name = $request->promo_code_name;
+        }
         $add->description = $request->description;
-        $add->stripe_app_key = $request->stripe_app_key;
-        $add->stripe_secret_key = $request->stripe_secret_key;
-        $add->authorize_app_key = $request->authorize_app_key;
-        $add->authorize_secret_key = $request->authorize_secret_key;
+        if ($request->has('stripe_app_key')) {
+            $add->stripe_app_key = $request->stripe_app_key;
+        }
+        if ($request->has('stripe_secret_key')) {
+            $add->stripe_secret_key = $request->stripe_secret_key;
+        }
+        if ($request->has('authorize_app_key')) {
+            $add->authorize_app_key = $request->authorize_app_key;
+        }
+        if ($request->has('authorize_secret_key')) {
+            $add->authorize_secret_key = $request->authorize_secret_key;
+        }
         $add->back_text = $request->back_text;
         $add->back_link = $request->back_link;
         $add->footer_text = $request->footer_text;

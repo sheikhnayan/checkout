@@ -12,6 +12,8 @@
         th { background: #f0f4f8; color: #333; }
         .section-title { margin-top: 32px; color: #2a7ae2; font-size: 1.1em; border-bottom: 1px solid #e0e0e0; padding-bottom: 4px; }
         .total { font-weight: bold; color: #2a7ae2; font-size: 1.2em; }
+        .ticket-box { margin-top: 24px; padding: 18px; border: 1px solid #dbeafe; border-radius: 10px; background: #f8fbff; text-align: center; }
+        .ticket-code { display: inline-block; margin-top: 10px; padding: 8px 12px; border-radius: 8px; background: #0f172a; color: #fff; font-weight: bold; letter-spacing: 0.06em; }
     </style>
 </head>
 <body>
@@ -61,6 +63,17 @@
         <tr><th class="total">Total</th><td class="total">${{ $mailData['total'] ?? '0.00' }}</td></tr>
         <tr><th>Type</th><td>{{ $mailData['type'] ?? '' }}</td></tr>
     </table>
+
+    @if(!empty($mailData['ticket_qr_code']))
+    <div class="ticket-box">
+        <h3 style="margin:0 0 8px;color:#1d4ed8;">Your Entry Ticket</h3>
+        <p style="margin:0 0 14px;color:#334155;">Show this QR code at the club entrance for check-in.</p>
+        @if(!empty($mailData['ticket_qr_image_url']))
+            <img src="{{ $mailData['ticket_qr_image_url'] }}" alt="Ticket QR Code" width="220" height="220" style="max-width:100%;height:auto;border-radius:10px;border:1px solid #cbd5e1;">
+        @endif
+        <div class="ticket-code">{{ $mailData['ticket_qr_code'] }}</div>
+    </div>
+    @endif
 
     <p style="margin-top: 32px; color: #888; font-size: 13px;">This is an automated email. Please do not reply.</p>
 </div>

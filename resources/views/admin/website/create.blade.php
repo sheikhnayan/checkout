@@ -25,7 +25,15 @@
 }
 
 label{
-    color: #000 !important;
+    color: var(--admin-text) !important;
+}
+
+.website-section-title {
+    background: var(--admin-surface-2);
+    color: var(--admin-text) !important;
+    border: 1px solid var(--admin-border);
+    border-radius: 8px;
+    padding: 10px 12px;
 }
 </style>
 <style>
@@ -108,6 +116,10 @@ label{
                                         @csrf
 
                                         <div class="card-body">
+                                            <div class="alert alert-info mb-4">
+                                                Create the website first, then configure gateway keys and fee rules from the new <strong>Payment Settings</strong> page.
+                                            </div>
+                                            <h4 class="mb-3 website-section-title">Basic Information</h4>
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
@@ -117,6 +129,7 @@ label{
                                                 </div>
                                             </div>
 
+                                            <h4 class="mt-4 mb-3 website-section-title">Website Content</h4>
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
@@ -126,6 +139,7 @@ label{
                                                 </div>
                                             </div>
 
+                                            <h4 class="mt-4 mb-3 website-section-title">SMTP Configuration</h4>
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
@@ -136,6 +150,7 @@ label{
                                                 </div>
                                             </div>
 
+                                            <h4 class="mt-4 mb-3 website-section-title">Redirect & Policy Pages</h4>
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
@@ -181,6 +196,34 @@ label{
                                                         <input type="text" name="email" class="form-control" id="email" placeholder="Email" required>
                                                     </div>
                                                 </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <h5 class="website-section-title">Website Admin Access</h5>
+                                                    <p class="text-muted">This user will have full access for this website (except super-admin-only platform features).</p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="website_admin_name" class="form-label">Website Admin Name</label>
+                                                        <input type="text" name="website_admin_name" class="form-control" id="website_admin_name" placeholder="Admin Name" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="website_admin_email" class="form-label">Website Admin Email</label>
+                                                        <input type="email" name="website_admin_email" class="form-control" id="website_admin_email" placeholder="admin@website.com" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="website_admin_password" class="form-label">Website Admin Password</label>
+                                                        <input type="password" name="website_admin_password" class="form-control" id="website_admin_password" placeholder="Minimum 8 characters" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="website_admin_password_confirmation" class="form-label">Confirm Password</label>
+                                                        <input type="password" name="website_admin_password_confirmation" class="form-control" id="website_admin_password_confirmation" placeholder="Confirm password" required>
+                                                    </div>
+                                                </div>
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
                                                         <label class="form-label">Contact Emails</label>
@@ -200,58 +243,9 @@ label{
                                                         <input type="hidden" name="emails" id="emails-json">
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="gratuity_name" class="form-label">Gratuity Field Name</label>
-                                                        <input type="text" name="gratuity_name" class="form-control" id="gratuity_name" placeholder="Gratuity Field name" value="Gratuity Fee" required>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="gratuity_fee" class="form-label">Gratuity Fee (%)</label>
-                                                        <input type="number" name="gratuity_fee" step="0.000001" class="form-control" id="gratuity_fee" placeholder="Gratuity Fee" required>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="refundable_name" class="form-label">Non-refundable Field Name</label>
-                                                        <input type="text" name="refundable_name" class="form-control" id="refundable_name" placeholder="Non-refundable Field name" value="Non-refundable Fee" required>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="password" class="form-label">Refundable Fee (%)</label>
-                                                        <input type="number" name="refundable_fee" step="0.000001" class="form-control" id="refundable_fee" placeholder="Refundable Fee" required>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="sales_tax_name" class="form-label">Sales Tax Field Name</label>
-                                                        <input type="text" name="sales_tax_name" class="form-control" id="sales_tax_name" placeholder="Sales Tax Field name" value="Sales Tax" required>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="password" class="form-label">Sales Tax Fee (%)</label>
-                                                        <input type="number" name="sales_tax_fee" step="0.000001" class="form-control" id="sales_tax_fee" placeholder="Sales Tax Fee" required>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="service_charge_name" class="form-label">Service Charge Field Name</label>
-                                                        <input type="text" name="service_charge_name" class="form-control" id="service_charge_name" placeholder="Service Charge Field name" value="Service Charge" required>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="password" class="form-label">Service Charge Fee (%)</label>
-                                                        <input type="number" name="service_charge_fee" step="0.000001" class="form-control" id="service_charge_fee" placeholder="Service Charge Fee" required>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="promo_code_name" class="form-label">Promo Code Field Name</label>
-                                                        <input type="text" name="promo_code_name" class="form-control" id="promo_code_name" placeholder="Promo Code Field name" value="Promo Code" required>
+                                                <div class="col-md-12">
+                                                    <div class="alert alert-info">
+                                                        Payment keys and fee rules are managed in <strong>Payment Settings</strong> after website creation.
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
@@ -260,43 +254,6 @@ label{
                                                         <select name="reservation" id="reservation" class="form-control">
                                                             <option value="1">Yes</option>
                                                             <option value="0">No</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="color" class="form-label">Authorize App Key</label>
-                                                        <input type="text" name="authorize_app_key" class="form-control" id="authorize_app_key" placeholder="Authorize App Key">
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="color" class="form-label">Authorize Secret Key</label>
-                                                        <input type="text" name="authorize_secret_key" class="form-control" id="authorize_secret_key" placeholder="Authorize Secret Key">
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="color" class="form-label">Stripe App Key</label>
-                                                        <input type="text" name="stripe_app_key" class="form-control" id="stripe_app_key" placeholder="Stripe App Key">
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="color" class="form-label">Stripe Secret Key</label>
-                                                        <input type="text" name="stripe_secret_key" class="form-control" id="stripe_secret_key" placeholder="Stripe Secret Key">
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="payment_method" class="form-label">Payment Method</label>
-                                                        <select name="payment_method" id="payment_method" class="form-control">
-                                                            <option value="authorize">Authorize.net</option>
-                                                            <option value="stripe">Stripe</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -362,38 +319,9 @@ label{
                                                 </div>
                                             </div>
                                             
-                                            <!-- Payment Logo Management -->
                                             <div class="row">
                                                 <div class="col-md-12">
-                                                    <h3>Payment Method Logos</h3>
-                                                    <div id="payment-logos-wrapper">
-                                                        <div class="row mb-2 payment-logo-group">
-                                                            <div class="col-md-3">
-                                                                <input type="text" name="payment_logos[0][name]" class="form-control" placeholder="Payment Method Name">
-                                                            </div>
-                                                            <div class="col-md-3">
-                                                                <input type="file" name="payment_logos[0][logo]" class="form-control" accept="image/*">
-                                                            </div>
-                                                            <div class="col-md-2">
-                                                                <input type="number" name="payment_logos[0][order]" class="form-control" placeholder="Order" value="0" min="0">
-                                                            </div>
-                                                            <div class="col-md-2">
-                                                                <select name="payment_logos[0][is_active]" class="form-control">
-                                                                    <option value="1">Active</option>
-                                                                    <option value="0">Inactive</option>
-                                                                </select>
-                                                            </div>
-                                                            <div class="col-md-2">
-                                                                <button type="button" class="btn btn-success add-payment-logo w-100" title="Add Logo"><i class="fa fa-plus"></i></button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="row">
-                                                <div class="col-md-12">
-                                                    <h3>SMTP Configuration</h3>
+                                                    <h3 class="website-section-title">SMTP Configuration</h3>
                                                     <div class="row">
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
@@ -621,39 +549,6 @@ label{
                 });
                 $('#emails-json').val(JSON.stringify(emails));
             });
-            
-            // Dynamic payment logo functionality
-            let paymentLogoIndex = 0;
-            
-            $(document).on('click', '.add-payment-logo', function() {
-                paymentLogoIndex++;
-                const paymentLogoGroup = `<div class="row mb-2 payment-logo-group">
-                    <div class="col-md-3">
-                        <input type="text" name="payment_logos[${paymentLogoIndex}][name]" class="form-control" placeholder="Payment Method Name">
-                    </div>
-                    <div class="col-md-3">
-                        <input type="file" name="payment_logos[${paymentLogoIndex}][logo]" class="form-control" accept="image/*">
-                    </div>
-                    <div class="col-md-2">
-                        <input type="number" name="payment_logos[${paymentLogoIndex}][order]" class="form-control" placeholder="Order" value="0" min="0">
-                    </div>
-                    <div class="col-md-2">
-                        <select name="payment_logos[${paymentLogoIndex}][is_active]" class="form-control">
-                            <option value="1">Active</option>
-                            <option value="0">Inactive</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="button" class="btn btn-danger remove-payment-logo w-100" title="Remove"><i class="fa fa-minus"></i></button>
-                    </div>
-                </div>`;
-                $('#payment-logos-wrapper').append(paymentLogoGroup);
-            });
-            
-            $(document).on('click', '.remove-payment-logo', function() {
-                $(this).closest('.payment-logo-group').remove();
-            });
-
             function initGalleryUploader(pickerId, inputId, previewId, hiddenExistingId) {
                 const picker = document.getElementById(pickerId);
                 const galleryInput = document.getElementById(inputId);

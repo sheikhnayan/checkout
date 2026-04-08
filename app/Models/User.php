@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Affiliate;
 use App\Models\Entertainer;
+use App\Models\WebsiteRole;
 
 class User extends Authenticatable
 {
@@ -25,6 +26,7 @@ class User extends Authenticatable
         'email',
         'password',
         'website_id',
+        'website_role_id',
         'user_type',
     ];
 
@@ -57,6 +59,11 @@ class User extends Authenticatable
     public function website()
     {
         return $this->belongsTo(Website::class);
+    }
+
+    public function websiteRole()
+    {
+        return $this->belongsTo(WebsiteRole::class, 'website_role_id');
     }
 
     public function affiliate()
@@ -93,6 +100,75 @@ class User extends Authenticatable
     public function isEntertainer()
     {
         return $this->user_type === 'entertainer';
+    }
+
+    public function isBouncer()
+    {
+        return $this->user_type === 'bouncer';
+    }
+
+    public function isWebsiteAdmin(): bool
+    {
+        return (bool) optional($this->websiteRole)->is_website_admin;
+    }
+
+    public function hasRoutePermission(?string $routeName): bool
+    {
+        if (!$routeName) {
+            return false;
+        }
+
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        if (!$this->isWebsiteUser() && !$this->isBouncer()) {
+            return false;
+        }
+
+        if (in_array($routeName, ['admin.index', 'admin.profile.edit', 'admin.profile.update-password'], true)) {
+            return true;
+        }
+
+        $role = $this->websiteRole;
+        if (!$role) {
+            return false;
+        }
+
+        return $role->permissions()->where('key', $routeName)->exists();
+    }
+
+    public function firstAccessibleAdminRoute(): string
+    {
+        if ($this->isAdmin()) {
+            return 'admin.transaction.index';
+        }
+
+        $priorityRoutes = [
+            'admin.index',
+            'admin.transaction.index',
+            'admin.transaction.scan',
+            'admin.event.index',
+            'admin.package.index',
+            'admin.addon.index',
+            'admin.custom-invoice.index',
+            'admin.jobs.index',
+            'admin.feed-post.index',
+            'admin.feed-model.index',
+            'admin.profile.edit',
+        ];
+
+        foreach ($priorityRoutes as $routeName) {
+            if ($this->hasRoutePermission($routeName)) {
+                return $routeName;
+            }
+        }
+
+        $firstPermission = $this->websiteRole
+            ? $this->websiteRole->permissions()->orderBy('module')->orderBy('key')->first()
+            : null;
+
+        return $firstPermission?->key ?? 'admin.profile.edit';
     }
 
     /**

@@ -3,6 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @php
+        $metaTitle = trim(($profileTitle ?? 'Profile') . ' Profile');
+        $metaDescription = trim((string) ($profileSubtitle ?? ''));
+        if ($metaDescription === '') {
+            $metaDescription = 'View updates and posts from ' . ($profileTitle ?? 'this profile') . '.';
+        }
+        $metaDescription = \Illuminate\Support\Str::limit($metaDescription, 160);
+
+        $rawMetaImage = $profileImage
+            ? asset('uploads/' . $profileImage)
+            : ($club->logo
+                ? asset('uploads/' . $club->logo)
+                : 'https://ui-avatars.com/api/?name=' . urlencode($profileTitle ?? 'Profile') . '&background=132645&color=ffffff&size=1200');
+        $metaImage = str_contains($rawMetaImage, '?')
+            ? $rawMetaImage . '&w=1200&h=630&fit=crop'
+            : $rawMetaImage . '?w=1200&h=630&fit=crop';
+        $metaUrl = request()->url();
+    @endphp
+    <meta name="description" content="{{ $metaDescription }}">
+    <link rel="canonical" href="{{ $metaUrl }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ $club->name ?? 'CartVIP' }}">
+    <meta property="og:title" content="{{ $metaTitle }}">
+    <meta property="og:description" content="{{ $metaDescription }}">
+    <meta property="og:url" content="{{ $metaUrl }}">
+    <meta property="og:image" content="{{ $metaImage }}">
+    <meta property="og:image:secure_url" content="{{ $metaImage }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="{{ $profileTitle }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $metaTitle }}">
+    <meta name="twitter:description" content="{{ $metaDescription }}">
+    <meta name="twitter:image" content="{{ $metaImage }}">
     <title>{{ $profileTitle }} Profile</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -1063,6 +1097,9 @@
     <div class="profile-share-menu" id="profile-share-menu" aria-hidden="true">
         <button type="button" class="profile-share-option" data-share-option="whatsapp">WhatsApp</button>
         <button type="button" class="profile-share-option" data-share-option="facebook">Facebook</button>
+        <button type="button" class="profile-share-option" data-share-option="instagram">Instagram</button>
+        <button type="button" class="profile-share-option" data-share-option="x">X</button>
+        <button type="button" class="profile-share-option" data-share-option="linkedin">LinkedIn</button>
         <button type="button" class="profile-share-option" data-share-option="email">Email</button>
         <button type="button" class="profile-share-option" data-share-option="copy">Copy Link</button>
     </div>
@@ -1175,6 +1212,8 @@
             const cleanPayload = buildSharePayload(payload);
             const encodedUrl = encodeURIComponent(cleanPayload.url);
             const shareLine = cleanPayload.text ? cleanPayload.text + ' ' + cleanPayload.url : cleanPayload.url;
+            const encodedLine = encodeURIComponent(shareLine);
+            const encodedTitle = encodeURIComponent(cleanPayload.title || 'Check this out');
 
             if (option === 'whatsapp') {
                 window.open('https://wa.me/?text=' + encodeURIComponent(shareLine), '_blank', 'noopener');
@@ -1186,8 +1225,36 @@
                 return;
             }
 
+            if (option === 'x') {
+                window.open('https://twitter.com/intent/tweet?url=' + encodedUrl + '&text=' + encodeURIComponent(cleanPayload.text || cleanPayload.title || ''), '_blank', 'noopener');
+                return;
+            }
+
+            if (option === 'linkedin') {
+                window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + encodedUrl, '_blank', 'noopener');
+                return;
+            }
+
+            if (option === 'instagram') {
+                if (navigator.share) {
+                    navigator.share({
+                        title: cleanPayload.title,
+                        text: cleanPayload.text,
+                        url: cleanPayload.url
+                    }).catch(function () {});
+                    return;
+                }
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(shareLine).catch(function () {});
+                }
+
+                window.open('https://www.instagram.com/', '_blank', 'noopener');
+                return;
+            }
+
             if (option === 'email') {
-                const subject = encodeURIComponent(cleanPayload.title || 'Check this out');
+                const subject = encodedTitle;
                 const body = encodeURIComponent((cleanPayload.text ? cleanPayload.text + '\n\n' : '') + cleanPayload.url);
                 window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
                 return;

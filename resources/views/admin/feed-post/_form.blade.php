@@ -105,7 +105,7 @@
         <select name="feed_model_id" id="feed_model_id" class="form-control">
             <option value="">Select entertainer</option>
             @foreach($feedModels as $model)
-                <option value="{{ $model->id }}" data-website="{{ $model->website_id }}" @selected((string) $selectedModelId === (string) $model->id)>{{ $model->name }} ({{ $model->website->name ?? 'No website' }})</option>
+                <option value="{{ $model->id }}" data-website="{{ $model->website_id }}" @selected((string) $selectedModelId === (string) $model->id)>{{ $model->name }} - {{ $model->is_real_profile ? 'Real' : 'Fake' }} ({{ $model->website->name ?? 'No website' }})</option>
             @endforeach
         </select>
         <small class="text-muted">Visible only when posting as an entertainer.</small>

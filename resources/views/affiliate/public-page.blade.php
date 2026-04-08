@@ -4,6 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @php
+        $affiliateTitle = $affiliate->display_name ?: $affiliate->user->name;
+        $affiliateDescription = trim((string) ($affiliate->description ?: $affiliate->hero_subtitle ?: 'Book premium experiences from multiple clubs in one curated flow.'));
+        $affiliateDescription = \Illuminate\Support\Str::limit($affiliateDescription, 160);
+        $rawAffiliateMetaImage = $affiliate->profile_image
+            ? asset('uploads/' . $affiliate->profile_image)
+            : (optional($affiliate->website)->logo
+                ? asset('uploads/' . optional($affiliate->website)->logo)
+                : 'https://ui-avatars.com/api/?name=' . urlencode($affiliateTitle) . '&background=1a75ff&color=ffffff&size=1200');
+        $affiliateMetaImage = str_contains($rawAffiliateMetaImage, '?')
+            ? $rawAffiliateMetaImage . '&w=1200&h=630&fit=crop'
+            : $rawAffiliateMetaImage . '?w=1200&h=630&fit=crop';
+        $affiliateMetaUrl = request()->url();
+    @endphp
+    <meta name="description" content="{{ $affiliateDescription }}">
+    <link rel="canonical" href="{{ $affiliateMetaUrl }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ optional($affiliate->website)->name ?: 'CartVIP' }}">
+    <meta property="og:title" content="{{ $affiliateTitle }}">
+    <meta property="og:description" content="{{ $affiliateDescription }}">
+    <meta property="og:url" content="{{ $affiliateMetaUrl }}">
+    <meta property="og:image" content="{{ $affiliateMetaImage }}">
+    <meta property="og:image:secure_url" content="{{ $affiliateMetaImage }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="{{ $affiliateTitle }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $affiliateTitle }}">
+    <meta name="twitter:description" content="{{ $affiliateDescription }}">
+    <meta name="twitter:image" content="{{ $affiliateMetaImage }}">
     <title>{{ $affiliate->display_name ?: $affiliate->user->name }} — Book Now</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -137,6 +167,64 @@
             color: var(--aff-accent);
             border-color: var(--aff-accent);
             transform: translateY(-1px);
+        }
+
+        .aff-share-btn {
+            width: auto;
+            height: 34px;
+            padding: 0 12px;
+            gap: 7px;
+            font-weight: 700;
+            font-size: 12px;
+            border: 1px solid rgba(255,255,255,0.16);
+            border-radius: 999px;
+            background: rgba(255,255,255,0.04);
+            color: var(--aff-text);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all .2s ease;
+        }
+
+        .aff-share-btn:hover {
+            color: var(--aff-accent);
+            border-color: var(--aff-accent);
+            transform: translateY(-1px);
+        }
+
+        .aff-share-menu {
+            position: fixed;
+            z-index: 1600;
+            min-width: 190px;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 12px;
+            background: rgba(8, 14, 26, 0.98);
+            box-shadow: 0 22px 40px rgba(0,0,0,0.35);
+            padding: 8px;
+            display: none;
+            gap: 6px;
+        }
+
+        .aff-share-menu.is-open {
+            display: grid;
+        }
+
+        .aff-share-option {
+            appearance: none;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.04);
+            color: var(--aff-text);
+            border-radius: 9px;
+            padding: 9px 10px;
+            font-size: .84rem;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .aff-share-option:hover {
+            border-color: rgba(255, 204, 0, 0.5);
+            background: rgba(255, 204, 0, 0.16);
         }
 
         /* Club label badge */
@@ -716,6 +804,8 @@ const clubConfigs = {
         salesTaxName: "{{ addslashes($club->sales_tax_name ?? '0') }}",
         serviceChargeFee: {{ (float)($club->service_charge_fee ?? 0) }},
         serviceChargeName: "{{ addslashes($club->service_charge_name ?? '0') }}",
+        processingFee: {{ (float)($club->processing_fee ?? 0) }},
+        processingFeeType: "{{ addslashes($club->processing_fee_type ?? 'percentage') }}",
         transportConfirmText: "{{ addslashes($club->transportation_confirmation_text ?? 'I confirm I am not arriving via Uber, Lyft, limo, taxi, ride-sharing or any other paid service. I am arriving in a personal vehicle.') }}",
         terms: "{{ addslashes($club->terms ?? '#') }}",
         privacy: "{{ addslashes($club->privacy ?? $club->policy ?? '#') }}",
@@ -735,7 +825,7 @@ const clubConfigs = {
 
     if ($isEntertainerProfile && optional($affiliate->website)->slug) {
         $entertainerFeedUrl = $affiliate->feed_model_id
-            ? route('club.feed.model.profile', ['slug' => $affiliate->website->slug, 'feedModel' => $affiliate->feed_model_id])
+            ? route('club.feed.model.profile', ['slug' => $affiliate->website->slug, 'feedModel' => $affiliate->feedModel])
             : route('club.feed', ['slug' => $affiliate->website->slug]);
     }
 @endphp
@@ -768,10 +858,31 @@ const clubConfigs = {
                 @if($affiliate->instagram_url)<a href="{{ $affiliate->instagram_url }}" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>@endif
                 @if($affiliate->tiktok_url)<a href="{{ $affiliate->tiktok_url }}" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>@endif
                 @if($affiliate->youtube_url)<a href="{{ $affiliate->youtube_url }}" target="_blank" aria-label="YouTube"><i class="fab fa-youtube"></i></a>@endif
+                <button
+                    type="button"
+                    class="aff-share-btn"
+                    id="aff-share-page-btn"
+                    data-share-url="{{ request()->url() }}"
+                    data-share-title="{{ $affiliate->display_name ?: $affiliate->user->name }}"
+                    data-share-text="{{ \Illuminate\Support\Str::limit($affiliate->description ?: 'Check out this affiliate page', 100) }}"
+                    aria-label="Share this page"
+                >
+                    <i class="fas fa-share-nodes"></i>
+                    Share
+                </button>
             </div>
         </div>
     </div>
 </section>
+
+<div class="aff-share-menu" id="aff-share-menu" aria-hidden="true">
+    <button type="button" class="aff-share-option" data-share-option="whatsapp">WhatsApp</button>
+    <button type="button" class="aff-share-option" data-share-option="facebook">Facebook</button>
+    <button type="button" class="aff-share-option" data-share-option="instagram">Instagram</button>
+    <button type="button" class="aff-share-option" data-share-option="x">X</button>
+    <button type="button" class="aff-share-option" data-share-option="linkedin">LinkedIn</button>
+    <button type="button" class="aff-share-option" data-share-option="copy">Copy Link</button>
+</div>
 
 <main>
 <div class="container py-4">
@@ -1006,6 +1117,7 @@ const clubConfigs = {
         <input type="hidden" name="cart_items"              id="cart_items">
         <input type="hidden" name="total"                   id="subtotal">
         <input type="hidden" name="payment_total"           class="payment_total">
+        <input type="hidden" name="commission_base_amount"  id="commission_base_amount">
         <input type="hidden" name="affiliate_slug"          value="{{ $affiliate->slug }}">
         <input type="hidden" name="package_number_of_guest" class="package_number_of_guest" value="1">
         <input type="hidden" name="package_use_date"        class="package_use_date" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
@@ -1332,13 +1444,19 @@ function calcTotal() {
     let scAmt = (c.serviceChargeName !== '0' && c.serviceChargeName !== 0) ? sub * c.serviceChargeFee / 100 : 0;
     let grAmt = (c.gratuityName !== '0' && c.gratuityName !== 0) ? sub * c.gratuityFee / 100 : 0;
     let stAmt = (c.salesTaxName !== '0' && c.salesTaxName !== 0) ? (sub + scAmt + grAmt) * c.salesTaxFee / 100 : 0;
-    let grand = sub + scAmt + stAmt + grAmt;
+    let totalBeforeCoupon = sub + scAmt + stAmt + grAmt;
 
     let promoDisc = 0;
     if (window.cartCoupon) {
-        promoDisc = window.cartCoupon.type === 'percentage' ? grand * window.cartCoupon.discount / 100 : window.cartCoupon.discount;
-        grand -= promoDisc;
+        promoDisc = window.cartCoupon.type === 'percentage' ? totalBeforeCoupon * window.cartCoupon.discount / 100 : window.cartCoupon.discount;
     }
+    let amountAfterCoupon = totalBeforeCoupon - promoDisc;
+    let processingFeeRate = parseFloat(c.processingFee || 0) || 0;
+    let processingFeeType = String(c.processingFeeType || 'percentage').toLowerCase();
+    let processingFeeAmt = processingFeeType === 'flat'
+        ? processingFeeRate
+        : amountAfterCoupon * processingFeeRate / 100;
+    let grand = amountAfterCoupon + processingFeeAmt;
     let rfAmt = grand * c.refundableFee / 100;
 
     $('.default-package-price .summary-value').text('$' + formatCurrency(sub));
@@ -1359,9 +1477,15 @@ function calcTotal() {
         $('.promo-disc-row span').text('-$' + formatCurrency(promoDisc));
     } else { $('.promo-disc-row').remove(); }
 
+    if (processingFeeAmt > 0) {
+        if (!$('.processing-fee-row').length) $('.default-gratuity').after('<div class="processing-fee-row" style="font-size:13px;">Processing Fee: <span>$0.00</span></div>');
+        $('.processing-fee-row span').text('$' + formatCurrency(processingFeeAmt));
+    } else { $('.processing-fee-row').remove(); }
+
     c.refundableFee > 0 ? ($('#rf-row').show(), $('#due-row').show(), $('#rf-row .summary-value').text('$' + formatCurrency(rfAmt)), $('#due-row .summary-value').text('$' + formatCurrency(grand - rfAmt))) : ($('#rf-row').hide(), $('#due-row').hide());
     $('.default-deposit .summary-value').text('$' + formatCurrency(grand));
     $('.payment_total').val(grand.toFixed(2));
+    $('#commission_base_amount').val(Math.max(sub - promoDisc, 0).toFixed(2));
     $('#subtotal').val(c.refundableFee > 0 ? rfAmt.toFixed(2) : grand.toFixed(2));
     $('#cart-total').text('Packages Subtotal: $' + formatCurrency(sub));
     window.cartCoupon && promoDisc > 0 ? $('#cart-coupon').text('Coupon: ' + window.cartCoupon.code + ' (-$' + formatCurrency(promoDisc) + ')') : $('#cart-coupon').text('');
@@ -1663,6 +1787,144 @@ $(document).ready(function() {
         }).catch(function() {
             $('#shareableLink').select();
         });
+    });
+
+    function buildAffiliateSharePayload(data) {
+        const payload = data || {};
+        return {
+            url: payload.url || window.location.href.split('#')[0],
+            title: payload.title || document.title,
+            text: payload.text || ''
+        };
+    }
+
+    const affShareButton = document.getElementById('aff-share-page-btn');
+    const affShareMenu = document.getElementById('aff-share-menu');
+    let affCurrentSharePayload = null;
+
+    function closeAffiliateShareMenu() {
+        if (!affShareMenu) {
+            return;
+        }
+
+        affShareMenu.classList.remove('is-open');
+        affShareMenu.setAttribute('aria-hidden', 'true');
+    }
+
+    function openAffiliateShareMenu(triggerButton) {
+        if (!affShareMenu || !triggerButton) {
+            return;
+        }
+
+        const rect = triggerButton.getBoundingClientRect();
+        const top = rect.bottom + window.scrollY + 8;
+        const left = Math.max(12, Math.min(rect.left + window.scrollX, window.scrollX + window.innerWidth - 214));
+
+        affShareMenu.style.top = top + 'px';
+        affShareMenu.style.left = left + 'px';
+        affShareMenu.classList.add('is-open');
+        affShareMenu.setAttribute('aria-hidden', 'false');
+    }
+
+    function openAffiliateFallbackShare(option, payload) {
+        const cleanPayload = buildAffiliateSharePayload(payload);
+        const encodedUrl = encodeURIComponent(cleanPayload.url);
+        const shareLine = cleanPayload.text ? cleanPayload.text + ' ' + cleanPayload.url : cleanPayload.url;
+
+        if (option === 'whatsapp') {
+            window.open('https://wa.me/?text=' + encodeURIComponent(shareLine), '_blank', 'noopener');
+            return;
+        }
+
+        if (option === 'facebook') {
+            window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodedUrl, '_blank', 'noopener');
+            return;
+        }
+
+        if (option === 'x') {
+            window.open('https://twitter.com/intent/tweet?url=' + encodedUrl + '&text=' + encodeURIComponent(cleanPayload.text || cleanPayload.title || ''), '_blank', 'noopener');
+            return;
+        }
+
+        if (option === 'linkedin') {
+            window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + encodedUrl, '_blank', 'noopener');
+            return;
+        }
+
+        if (option === 'instagram') {
+            if (navigator.share) {
+                navigator.share({
+                    title: cleanPayload.title,
+                    text: cleanPayload.text,
+                    url: cleanPayload.url
+                }).catch(function () {});
+                return;
+            }
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(shareLine).catch(function () {});
+            }
+
+            window.open('https://www.instagram.com/', '_blank', 'noopener');
+            return;
+        }
+
+        if (option === 'copy' && navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(cleanPayload.url).catch(function () {
+                window.prompt('Copy this link', cleanPayload.url);
+            });
+            return;
+        }
+
+        window.prompt('Copy this link', cleanPayload.url);
+    }
+
+    async function shareAffiliatePage(button) {
+        const payload = buildAffiliateSharePayload({
+            url: button.getAttribute('data-share-url') || window.location.href.split('#')[0],
+            title: button.getAttribute('data-share-title') || document.title,
+            text: button.getAttribute('data-share-text') || ''
+        });
+
+        affCurrentSharePayload = payload;
+
+        if (navigator.share) {
+            try {
+                await navigator.share(payload);
+                return;
+            } catch (error) {
+                if (error && error.name === 'AbortError') {
+                    return;
+                }
+            }
+        }
+
+        openAffiliateShareMenu(button);
+    }
+
+    if (affShareButton) {
+        affShareButton.addEventListener('click', function () {
+            shareAffiliatePage(affShareButton);
+        });
+    }
+
+    document.addEventListener('click', function (event) {
+        if (affShareMenu && affShareMenu.classList.contains('is-open') && !event.target.closest('#aff-share-menu') && !event.target.closest('#aff-share-page-btn')) {
+            closeAffiliateShareMenu();
+        }
+
+        const affShareOptionButton = event.target.closest('#aff-share-menu [data-share-option]');
+        if (!affShareOptionButton) {
+            return;
+        }
+
+        event.preventDefault();
+        openAffiliateFallbackShare(affShareOptionButton.getAttribute('data-share-option'), affCurrentSharePayload || {
+            url: window.location.href.split('#')[0],
+            title: document.title,
+            text: ''
+        });
+        closeAffiliateShareMenu();
     });
 
     // Guest select change → update cart

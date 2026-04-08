@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'website.user' => \App\Http\Middleware\WebsiteUserAccess::class,
             'image.upload.guard' => \App\Http\Middleware\ValidateImageUploads::class,
+            'route.permission' => \App\Http\Middleware\CheckRoutePermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
