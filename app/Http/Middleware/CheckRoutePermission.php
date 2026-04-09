@@ -21,6 +21,22 @@ class CheckRoutePermission
             return redirect()->route('login');
         }
 
+        $routeName = $request->route()?->getName();
+        if (!$routeName) {
+            return $next($request);
+        }
+
+        // Profile is available for any authenticated backoffice user.
+        if (in_array($routeName, ['admin.profile.edit', 'admin.profile.update-password'], true)) {
+            return $next($request);
+        }
+
+        // Entertainers can manage their own feed posts from the sidebar.
+        // FeedPostController still enforces ownership via approvedEntertainer checks.
+        if ($user->isEntertainer() && str_starts_with($routeName, 'admin.feed-post.')) {
+            return $next($request);
+        }
+
         if ($user->isAdmin()) {
             return $next($request);
         }
@@ -29,12 +45,7 @@ class CheckRoutePermission
             abort(403, 'Access denied.');
         }
 
-        $routeName = $request->route()?->getName();
-        if (!$routeName) {
-            return $next($request);
-        }
-
-        if (in_array($routeName, ['admin.index', 'admin.profile.edit', 'admin.profile.update-password'], true)) {
+        if (in_array($routeName, ['admin.index'], true)) {
             return $next($request);
         }
 
