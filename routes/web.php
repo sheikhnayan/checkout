@@ -87,9 +87,6 @@ Route::post('/jobs/pre-apply', [JobMarketplaceController::class, 'submitPreApply
 Route::get('/jobs/{job}/apply', [JobMarketplaceController::class, 'applyForm'])->name('jobs.apply');
 Route::post('/jobs/{job}/apply', [JobMarketplaceController::class, 'submitApplication'])->name('jobs.apply.submit');
 
-// Frontend routes with slug parameter
-Route::get('/{slug}', [FrontendController::class, 'index'])->name('index');
-
 Route::get('/{slug}/addons/{id}', [FrontendController::class, 'addons'])->name('addons');
 
 Route::get('/{slug}/check/{code}', [FrontendController::class, 'checkCode'])->name('check.code');
@@ -289,3 +286,7 @@ Route::group(['prefix'=> 'entertainer-portal', 'as' => 'entertainer.portal.', 'm
 // Payment Logo routes (outside admin group for direct access)
 Route::post('/payment-logos', [PaymentLogoController::class, 'store'])->middleware('image.upload.guard')->name('payment-logos.store');
 Route::delete('/payment-logos/{id}', [PaymentLogoController::class, 'destroy'])->name('payment-logos.destroy');
+
+// Frontend catch-all route with slug parameter
+// Keep this at the very end so it does not shadow admin/auth/portal routes.
+Route::get('/{slug}', [FrontendController::class, 'index'])->name('index');
