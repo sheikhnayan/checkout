@@ -134,6 +134,62 @@
             color: #6c757d;
             margin-top: 3px;
         }
+        .breakdown-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 0;
+            font-size: 14px;
+        }
+        .breakdown-table th {
+            text-align: left;
+            padding: 8px 10px;
+            background: #f0f4f8;
+            color: #495057;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .breakdown-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+        }
+        .breakdown-table tr:last-child td {
+            border-bottom: none;
+        }
+        .breakdown-item-header {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #212529;
+        }
+        .breakdown-addon-row td {
+            color: #6c757d;
+            font-size: 13px;
+            padding-top: 4px;
+            padding-bottom: 4px;
+        }
+        .breakdown-addon-row td:first-child {
+            padding-left: 24px;
+        }
+        .breakdown-subtotal-row td {
+            border-top: 1px solid #dee2e6;
+            font-weight: 600;
+            background: #eef2ff;
+            color: #3730a3;
+        }
+        .breakdown-grand-total {
+            font-weight: 700;
+            font-size: 15px;
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+        .price-right {
+            text-align: right;
+            white-space: nowrap;
+        }
+        .text-muted-sm {
+            color: #6c757d;
+            font-size: 12px;
+        }
         .action-buttons {
             display: flex;
             gap: 15px;
@@ -249,23 +305,83 @@
             </div>
 
             @if(!empty($cartItems))
-            <div class="detail-box">
-                <div style="font-weight:600;margin-bottom:12px;">Purchased Items</div>
-                <ul class="item-list">
-                    @foreach($cartItems as $cartItem)
-                        <li>
-                            <strong>{{ $cartItem['package_name'] ?? ('Package #' . ($cartItem['package_id'] ?? '')) }}</strong>
-                            @if(!empty($cartItem['is_multiple']))
-                                - ${{ number_format((float) ($cartItem['unit_price'] ?? 0), 2) }} x {{ $cartItem['guests'] ?? 1 }} = ${{ number_format((float) ($cartItem['line_total'] ?? 0), 2) }}
-                            @else
-                                - ${{ number_format((float) ($cartItem['line_total'] ?? 0), 2) }}
+            @php
+                $grandTotal = 0;
+            @endphp
+            <div class="detail-box" style="padding:0;overflow:hidden;">
+                <div style="font-weight:600;padding:14px 20px 10px;border-bottom:1px solid #e9ecef;">Purchase Breakdown</div>
+                <table class="breakdown-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th class="price-right">Qty</th>
+                            <th class="price-right">Unit Price</th>
+                            <th class="price-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($cartItems as $cartItem)
+                            @php
+                                $isMultiple = !empty($cartItem['is_multiple']);
+                                $guests = max(1, (int) ($cartItem['guests'] ?? 1));
+                                $unitPrice = (float) ($cartItem['unit_price'] ?? 0);
+                                $pkgSubtotal = $isMultiple ? $unitPrice * $guests : $unitPrice;
+                                $addonsTotal = collect($cartItem['addons'] ?? [])->sum(fn($a) => (float)($a['price'] ?? 0));
+                                $itemTotal = (float) ($cartItem['line_total'] ?? ($pkgSubtotal + $addonsTotal));
+                                $grandTotal += $itemTotal;
+                            @endphp
+                            {{-- Package row --}}
+                            <tr class="breakdown-item-header">
+                                <td>{{ $cartItem['package_name'] ?? ('Package #' . ($cartItem['package_id'] ?? '')) }}</td>
+                                <td class="price-right">{{ $guests }}</td>
+                                <td class="price-right">${{ number_format($unitPrice, 2) }}</td>
+                                <td class="price-right">${{ number_format($pkgSubtotal, 2) }}</td>
+                            </tr>
+                            @if($isMultiple && $guests > 1)
+                            <tr class="breakdown-addon-row">
+                                <td colspan="4" style="padding-left:24px;">
+                                    <span class="text-muted-sm">${{ number_format($unitPrice, 2) }} x {{ $guests }} guests</span>
+                                </td>
+                            </tr>
                             @endif
-                            @if(!empty($cartItem['addons']))
-                                <small>Add-ons: {{ collect($cartItem['addons'])->pluck('name')->filter()->implode(', ') }}</small>
+                            {{-- Addons rows --}}
+                            @foreach($cartItem['addons'] ?? [] as $addon)
+                                @if(!empty($addon['name']))
+                                <tr class="breakdown-addon-row">
+                                    <td>+ {{ $addon['name'] }}</td>
+                                    <td class="price-right">1</td>
+                                    <td class="price-right">
+                                        @if(($addon['price'] ?? 0) > 0)
+                                            ${{ number_format((float) $addon['price'], 2) }}
+                                        @else
+                                            <span class="text-muted-sm">Included</span>
+                                        @endif
+                                    </td>
+                                    <td class="price-right">
+                                        @if(($addon['price'] ?? 0) > 0)
+                                            ${{ number_format((float) $addon['price'], 2) }}
+                                        @else
+                                            <span class="text-muted-sm">—</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endif
+                            @endforeach
+                            {{-- Item subtotal if addons exist --}}
+                            @if(!empty($cartItem['addons']) && $addonsTotal > 0)
+                            <tr class="breakdown-subtotal-row">
+                                <td colspan="3">Item Subtotal</td>
+                                <td class="price-right">${{ number_format($itemTotal, 2) }}</td>
+                            </tr>
                             @endif
-                        </li>
-                    @endforeach
-                </ul>
+                        @endforeach
+                        {{-- Grand total row --}}
+                        <tr class="breakdown-grand-total">
+                            <td colspan="3" style="padding:12px 10px;"><strong>Grand Total</strong></td>
+                            <td class="price-right" style="padding:12px 10px;"><strong>${{ number_format($transaction->total, 2) }}</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
             @endif
             @endif

@@ -53,15 +53,42 @@
                     <div class="col-md-6">
                         <label class="form-label">Profile Image</label>
                         <input type="file" class="form-control" name="profile_image" accept="image/*">
+                        @if(!empty($affiliate->profile_image))
+                            <div class="mt-2 d-flex align-items-center gap-2">
+                                <img src="{{ asset('uploads/' . $affiliate->profile_image) }}" alt="Profile image" style="width:72px;height:72px;border-radius:50%;object-fit:cover;">
+                                <small class="text-muted">Current profile image</small>
+                            </div>
+                        @endif
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Banner Image</label>
                         <input type="file" class="form-control" name="banner_image" accept="image/*">
+                        @if(!empty($affiliate->banner_image))
+                            <div class="mt-2">
+                                <img src="{{ asset('uploads/' . $affiliate->banner_image) }}" alt="Banner image" style="width:100%;max-width:320px;height:90px;border-radius:10px;object-fit:cover;">
+                            </div>
+                        @endif
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Gallery Images</label>
-                        <input type="file" class="form-control" name="gallery_images[]" accept="image/*" multiple>
-                        <small class="text-muted">Upload up to 6 gallery images. Uploading new ones replaces the current gallery.</small>
+                        <label class="form-label">Gallery Image</label>
+                        <input type="file" class="form-control" name="gallery_image" accept="image/*">
+                        <small class="text-muted">Upload one image at a time (maximum 6 total).</small>
+
+                        @if(!empty($affiliate->gallery_images) && count((array) $affiliate->gallery_images))
+                            <div class="row g-2 mt-2">
+                                @foreach((array) $affiliate->gallery_images as $index => $galleryImage)
+                                    <div class="col-md-4 col-sm-6">
+                                        <label class="border rounded p-2 d-block" style="background:rgba(255,255,255,0.02);cursor:pointer;">
+                                            <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image {{ $index + 1 }}" style="width:100%;height:120px;object-fit:cover;border-radius:8px;">
+                                            <div class="form-check mt-2 mb-0">
+                                                <input class="form-check-input" type="checkbox" name="remove_gallery_images[]" value="{{ $index }}" id="remove_gallery_{{ $index }}">
+                                                <label class="form-check-label" for="remove_gallery_{{ $index }}">Remove this image</label>
+                                            </div>
+                                        </label>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
 
                     <div class="col-md-6">

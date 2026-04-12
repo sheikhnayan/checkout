@@ -55,14 +55,81 @@
     </table>
 
     <div class="section-title">Order Details</div>
+    @php
+        $rawMailCartItems = $mailData['cart_items'] ?? [];
+        if (is_string($rawMailCartItems)) {
+            $decoded = json_decode($rawMailCartItems, true);
+            if (is_string($decoded)) { $decoded = json_decode($decoded, true); }
+            $rawMailCartItems = is_array($decoded) ? $decoded : [];
+        }
+        $mailCartItems = is_array($rawMailCartItems) ? $rawMailCartItems : [];
+    @endphp
+    @if(!empty($mailCartItems))
     <table>
-        <tr><th>Package ID</th><td>{{ $mailData['package_id'] ?? '' }}</td></tr>
-        <tr><th>Add-ons</th><td>{{ $mailData['addons'] ?? '' }}</td></tr>
-        <tr><th>Event ID</th><td>{{ $mailData['event_id'] ?? '' }}</td></tr>
-        <tr><th>Website ID</th><td>{{ $mailData['website_id'] ?? '' }}</td></tr>
-        <tr><th class="total">Total</th><td class="total">${{ $mailData['total'] ?? '0.00' }}</td></tr>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th style="text-align:right;">Guests</th>
+                <th style="text-align:right;">Unit Price</th>
+                <th style="text-align:right;">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach($mailCartItems as $ci)
+            @php
+                $ciIsMultiple = !empty($ci['is_multiple']);
+                $ciGuests = max(1, (int)($ci['guests'] ?? 1));
+                $ciUnit = (float)($ci['unit_price'] ?? 0);
+                $ciPkgSub = $ciIsMultiple ? $ciUnit * $ciGuests : $ciUnit;
+                $ciAddonsTotal = collect($ci['addons'] ?? [])->sum(fn($a) => (float)($a['price'] ?? 0));
+                $ciLineTotal = (float)($ci['line_total'] ?? ($ciPkgSub + $ciAddonsTotal));
+            @endphp
+            <tr>
+                <td><strong>{{ $ci['package_name'] ?? ('Package #' . ($ci['package_id'] ?? '')) }}</strong>
+                    @if($ciIsMultiple && $ciGuests > 1)
+                        <br><small style="color:#888;">${{ number_format($ciUnit,2) }} × {{ $ciGuests }} guests</small>
+                    @endif
+                </td>
+                <td style="text-align:right;">{{ $ciGuests }}</td>
+                <td style="text-align:right;">${{ number_format($ciUnit,2) }}</td>
+                <td style="text-align:right;">${{ number_format($ciPkgSub,2) }}</td>
+            </tr>
+            @foreach($ci['addons'] ?? [] as $addon)
+                @if(!empty($addon['name']))
+                <tr style="color:#555;">
+                    <td style="padding-left:18px;">+ {{ $addon['name'] }}</td>
+                    <td style="text-align:right;">1</td>
+                    <td style="text-align:right;">
+                        @if(($addon['price'] ?? 0) > 0) ${{ number_format((float)$addon['price'],2) }} @else Included @endif
+                    </td>
+                    <td style="text-align:right;">
+                        @if(($addon['price'] ?? 0) > 0) ${{ number_format((float)$addon['price'],2) }} @else — @endif
+                    </td>
+                </tr>
+                @endif
+            @endforeach
+            @if($ciAddonsTotal > 0)
+            <tr style="background:#f0f4f8;font-weight:bold;">
+                <td colspan="3">Item Subtotal</td>
+                <td style="text-align:right;">${{ number_format($ciLineTotal,2) }}</td>
+            </tr>
+            @endif
+        @endforeach
+        <tr style="background:#dbeafe;">
+            <td colspan="3" style="font-weight:bold;color:#1d4ed8;">Grand Total</td>
+            <td style="text-align:right;font-weight:bold;color:#1d4ed8;font-size:1.1em;">${{ number_format((float)($mailData['total'] ?? 0), 2) }}</td>
+        </tr>
+        </tbody>
+    </table>
+    @else
+    <table>
+        <tr><th>Package ID</th><td>{{ $mailData['package_id'] ?? 'N/A' }}</td></tr>
+        <tr><th>Add-ons</th><td>{{ $mailData['addons'] ?? 'N/A' }}</td></tr>
+        <tr><th>Event ID</th><td>{{ $mailData['event_id'] ?? 'N/A' }}</td></tr>
+        <tr><th class="total">Total</th><td class="total">${{ number_format((float)($mailData['total'] ?? 0), 2) }}</td></tr>
         <tr><th>Type</th><td>{{ $mailData['type'] ?? '' }}</td></tr>
     </table>
+    @endif
 
     @if(!empty($mailData['ticket_qr_code']))
     <div class="ticket-box">

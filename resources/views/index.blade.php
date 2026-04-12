@@ -1005,6 +1005,30 @@ body {
     background: rgba(255,255,255,0.04);
 }
 
+.back-to-packages-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 10px;
+    padding: 8px 11px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    transition: all .2s ease;
+}
+
+.back-to-packages-btn:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.12);
+    transform: translateY(-1px);
+}
+
 .hero-date-card label {
     margin-bottom: 3px;
     text-transform: uppercase;
@@ -1773,17 +1797,38 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 @endsession
 
                 <section class="event-hero-layout">
+                    @php
+                        $eventStartRaw = $event->start_date ?? $event->date;
+                        $eventEndRaw = $event->end_date ?? $eventStartRaw;
+                        $eventStart = $eventStartRaw ? \Carbon\Carbon::parse($eventStartRaw) : null;
+                        $eventEnd = $eventEndRaw ? \Carbon\Carbon::parse($eventEndRaw) : null;
+                        $eventDateShort = $eventStart
+                            ? ($eventEnd && !$eventEnd->isSameDay($eventStart)
+                                ? $eventStart->format('l, F d') . ' - ' . $eventEnd->format('l, F d')
+                                : $eventStart->format('l, F d'))
+                            : '';
+                        $eventDateLong = $eventStart
+                            ? ($eventEnd && !$eventEnd->isSameDay($eventStart)
+                                ? $eventStart->format('l, F d, Y') . ' - ' . $eventEnd->format('l, F d, Y')
+                                : $eventStart->format('l, F d, Y'))
+                            : '';
+                        $eventCheckoutDateValue = $eventStart ? $eventStart->format('Y-m-d') : now()->format('Y-m-d');
+                        $packagesPageUrl = route('index', $data->slug);
+                        if (request()->filled('aff')) {
+                            $packagesPageUrl .= '?aff=' . urlencode((string) request()->input('aff'));
+                        }
+                    @endphp
                     <div class="event-hero-copy">
                         <div class="aff-kicker">Event Checkout</div>
                         <div class="aff-display-title">{{ $event->hero_title ?: $event->name }}</div>
                         <div class="aff-display-copy">
-                            {{ $event->hero_subtitle ?: (\Carbon\Carbon::parse($event->date)->format('l, F d') . ($event->time ? ' � ' . $event->time : '')) }}
+                            {{ $event->hero_subtitle ?: ($eventDateShort . ($event->time ? ' - ' . $event->time : '')) }}
                         </div>
 
                         <div class="hero-date-card">
                             <label>Reservation Date</label>
                             <div class="date-input-wrapper">
-                                <input id="package_use_date" type="text" value="{{ \Carbon\Carbon::parse($event->date)->format('l, F d, Y') }}"
+                                <input id="package_use_date" type="text" value="{{ $eventDateLong }}"
                                     readonly style="-webkit-text-fill-color: #fff !important; color: #fff !important; opacity: 1 !important; width: 100%;">
                                 <span class="custom-calendar-icon" style="display:none;"></span>
                             </div>
@@ -1797,6 +1842,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 </div>
                             @endif
                         </div>
+
+                        <a href="{{ $packagesPageUrl }}" class="back-to-packages-btn">
+                            <i class="fas fa-arrow-left"></i>
+                            Back To General Packages
+                        </a>
                     </div>
                     <div class="event-banner-wrap">
                         <section class="aff-banner" style="background:
@@ -2610,7 +2660,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 </label>
                                                             </div>
 
-                                                            <input type="hidden" class="package_use_date" name="package_use_date" value="{{ \Carbon\Carbon::parse($event->date)->format('Y-m-d') }}">
+                                                            <input type="hidden" class="package_use_date" name="package_use_date" value="{{ $eventCheckoutDateValue }}">
                                                             <input type="hidden" class="promo_code" name="promo_code">
                                                             <input type="hidden" class="discounted_amount" name="discounted_amount">
                                                             
@@ -2698,9 +2748,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         </div>
                         <div class="row g-4" id="events-list">
                             @foreach ($data->events as $item)
-                                  @if (!$item->is_archieved && \Carbon\Carbon::parse($item->date)->gt(\Carbon\CArbon::now()))
+                                @php
+                                    $eventStartDate = $item->start_date ?? $item->date;
+                                    $eventEndDate = $item->end_date ?? $eventStartDate;
+                                @endphp
+                                  @if (!$item->is_archieved && $eventEndDate && \Carbon\Carbon::parse($eventEndDate)->endOfDay()->gte(\Carbon\Carbon::now()))
                                     <div class="col-md-4 event-card-item"
-                                        data-date="{{ \Carbon\Carbon::parse($item->date)->format('Y-m-d') }}">
+                                        data-date="{{ \Carbon\Carbon::parse($eventStartDate)->format('Y-m-d') }}">
                                         <a href="/{{ $data->slug }}?event_name={{ $item->name }}" class="event-card"
                                             style="width: 100%; background: transparent; text-decoration: none;">
                                             <div class="card p-3 text-center">
@@ -2708,12 +2762,17 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                     style="width: 100%; height: 298px;">
                                                 <div class="d-flex">
                                                     <div class="event-day" style="width: 50%;">
-                                                        {{ \Carbon\Carbon::parse($item->date)->format('l') }}</div>
+                                                        {{ \Carbon\Carbon::parse($eventStartDate)->format('l') }}</div>
                                                     <div class="event-dates"
                                                         style="width: 50%; color: {{ $brandPrimary }} !important;">
-                                                        {{ \Carbon\Carbon::parse($item->date)->format('M') }}<span> <br>
-                                                            {{ \Carbon\Carbon::parse($item->date)->format('d') }}</span></div>
+                                                        {{ \Carbon\Carbon::parse($eventStartDate)->format('M') }}<span> <br>
+                                                            {{ \Carbon\Carbon::parse($eventStartDate)->format('d') }}</span></div>
                                                 </div>
+                                                @if($eventEndDate && $eventStartDate !== $eventEndDate)
+                                                    <div class="event-location">
+                                                        {{ \Carbon\Carbon::parse($eventStartDate)->format('M d') }} - {{ \Carbon\Carbon::parse($eventEndDate)->format('M d') }}
+                                                    </div>
+                                                @endif
                                                 <div class="event-location">{{ $data->location }}</div>
                                                 @if (!is_null($item->remaining_attendee_capacity))
                                                     <div class="event-capacity-chip{{ !empty($item->is_sold_out) ? ' sold-out' : '' }}">
@@ -2845,9 +2904,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         $('.default-price').hide();
                         $('.default-total').show();
                     }, 700);
-                        // Keep event checkout locked to the event date.
-                        $('#package_use_date').val("{{ \Carbon\Carbon::parse($event->date)->format('l, F d, Y') }}");
-                        $('.package_use_date').val("{{ \Carbon\Carbon::parse($event->date)->format('Y-m-d') }}");
+                        // Keep event checkout locked to the event start date while showing the full range to guests.
+                        $('#package_use_date').val("{{ $eventDateLong }}");
+                        $('.package_use_date').val("{{ $eventCheckoutDateValue }}");
             }
 
             function getUrlWithSelections() {
@@ -2977,14 +3036,23 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             function syncTransportationStateFromCart() {
                 window.requiresTransportation = cartRequiresTransportation();
                 const transportationPhoneField = $('input[name="transportation_phone"]');
+                const transportationAddressField = $('input[name="transportation_address"]');
+                const transportationPickupTimeField = $('input[name="transportation_pickup_time"]');
+                const pickupDateField = $('input[name="package_use_date"]');
                 if (window.requiresTransportation) {
                     $('#step-2 .step-title').text('Transportation');
                     $('#next-to-transport').text('Next: Transportation Details');
                     transportationPhoneField.prop('required', true).attr('aria-required', 'true');
+                    transportationAddressField.prop('required', true).attr('aria-required', 'true');
+                    transportationPickupTimeField.prop('required', true).attr('aria-required', 'true');
+                    pickupDateField.prop('required', true).attr('aria-required', 'true');
                 } else {
                     $('#step-2 .step-title').text('Confirmation');
                     $('#next-to-transport').text('Next: Transportation Confirmation');
                     transportationPhoneField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
+                    transportationAddressField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
+                    transportationPickupTimeField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
+                    pickupDateField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
                 }
             }
 
@@ -3686,6 +3754,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 } else if (stepNumber === 2 && window.requiresTransportation) {
                     // Validate transportation form
                     requiredFields.push(
+                        '[name="package_use_date"]',
                         '[name="transportation_pickup_time"]',
                         '[name="transportation_address"]',
                         '[name="transportation_phone"]'
@@ -3918,14 +3987,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 time_24hr: false
             });
 
-            // Event checkout date is fixed to the event date.
-            $('#package_use_date').val("{{ \Carbon\Carbon::parse($event->date)->format('l, F d, Y') }}");
-            $('.package_use_date').val("{{ \Carbon\Carbon::parse($event->date)->format('Y-m-d') }}");
+            // Event checkout date is fixed to the event start date.
+            $('#package_use_date').val("{{ $eventDateLong }}");
+            $('.package_use_date').val("{{ $eventCheckoutDateValue }}");
         </script>
 
         <script>
             // Keep hidden submit value stable even if scripts rerun.
-            $('.package_use_date').val("{{ \Carbon\Carbon::parse($event->date)->format('Y-m-d') }}");
+            $('.package_use_date').val("{{ $eventCheckoutDateValue }}");
         </script>
 
         @if ($data->payment_method == 'stripe')

@@ -46,9 +46,16 @@ class TransactionController extends Controller
         if ($requiresTransportation) {
             $request->validate(
                 [
+                    'package_use_date' => ['required', 'date'],
+                    'transportation_pickup_time' => ['required', 'string', 'max:100'],
+                    'transportation_address' => ['required', 'string', 'max:255'],
                     'transportation_phone' => ['required', 'string', 'max:50'],
                 ],
                 [
+                    'package_use_date.required' => 'Pickup date is required for transportation packages.',
+                    'package_use_date.date' => 'Pickup date must be a valid date.',
+                    'transportation_pickup_time.required' => 'Pickup time is required for transportation packages.',
+                    'transportation_address.required' => 'Pickup location is required for transportation packages.',
                     'transportation_phone.required' => 'Contact Phone Number or WhatsApp is required for transportation packages.',
                 ]
             );
@@ -197,18 +204,28 @@ class TransactionController extends Controller
                             // dd(config('mail'));
                         }
     
-                        $send_mail = new \App\Mail\TransactionMail($mailData);
-                        $send_mail->subject('New Package Purched - ' . $transaction_id);
-                        // Send to internal recipients + purchaser email.
-                        $recipientEmails = collect($website->emails ?? [])
+                        // Club/manager email — no QR code
+                        $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
+                        $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr);
+                        $send_mail_club->subject('New Package Purched - ' . $transaction_id);
+
+                        // Purchaser email — full mail with QR
+                        $send_mail_purchaser = new \App\Mail\TransactionMail($mailData);
+                        $send_mail_purchaser->subject('New Package Purched - ' . $transaction_id);
+
+                        $clubEmails = collect($website->emails ?? [])
                             ->pluck('email')
-                            ->push($request->input('package_email'))
                             ->filter(fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
                             ->unique()
                             ->values();
 
-                        foreach ($recipientEmails as $recipientEmail) {
-                            \Illuminate\Support\Facades\Mail::to($recipientEmail)->send(clone $send_mail);
+                        foreach ($clubEmails as $clubEmail) {
+                            \Illuminate\Support\Facades\Mail::to($clubEmail)->send(clone $send_mail_club);
+                        }
+
+                        $purchaserEmail = $request->input('package_email');
+                        if ($purchaserEmail && filter_var($purchaserEmail, FILTER_VALIDATE_EMAIL)) {
+                            \Illuminate\Support\Facades\Mail::to($purchaserEmail)->send($send_mail_purchaser);
                         }
                     } catch (\Throwable $th) {
                         //throw $th;
@@ -399,18 +416,28 @@ class TransactionController extends Controller
                             // dd(config('mail'));
                         }
     
-                        $send_mail = new \App\Mail\TransactionMail($mailData);
-                        $send_mail->subject('New Package Purched - ' . $transaction_id);
-                        // Send to internal recipients + purchaser email.
-                        $recipientEmails = collect($website->emails ?? [])
+                        // Club/manager email — no QR code
+                        $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
+                        $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr);
+                        $send_mail_club->subject('New Package Purched - ' . $transaction_id);
+
+                        // Purchaser email — full mail with QR
+                        $send_mail_purchaser = new \App\Mail\TransactionMail($mailData);
+                        $send_mail_purchaser->subject('New Package Purched - ' . $transaction_id);
+
+                        $clubEmails = collect($website->emails ?? [])
                             ->pluck('email')
-                            ->push($request->input('package_email'))
                             ->filter(fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
                             ->unique()
                             ->values();
 
-                        foreach ($recipientEmails as $recipientEmail) {
-                            \Illuminate\Support\Facades\Mail::to($recipientEmail)->send(clone $send_mail);
+                        foreach ($clubEmails as $clubEmail) {
+                            \Illuminate\Support\Facades\Mail::to($clubEmail)->send(clone $send_mail_club);
+                        }
+
+                        $purchaserEmail = $request->input('package_email');
+                        if ($purchaserEmail && filter_var($purchaserEmail, FILTER_VALIDATE_EMAIL)) {
+                            \Illuminate\Support\Facades\Mail::to($purchaserEmail)->send($send_mail_purchaser);
                         }
                     } catch (\Throwable $th) {
                         //throw $th;

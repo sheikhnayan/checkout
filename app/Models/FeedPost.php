@@ -16,6 +16,8 @@ class FeedPost extends Model
         'is_active',
         'show_on_roll_call',
         'roll_call_date',
+        'roll_call_start_date',
+        'roll_call_end_date',
         'posted_at',
     ];
 
@@ -25,6 +27,8 @@ class FeedPost extends Model
         'is_active' => 'boolean',
         'show_on_roll_call' => 'boolean',
         'roll_call_date' => 'date',
+        'roll_call_start_date' => 'date',
+        'roll_call_end_date' => 'date',
         'posted_at' => 'datetime',
     ];
 

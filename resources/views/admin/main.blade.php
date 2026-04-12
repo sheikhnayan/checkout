@@ -736,13 +736,6 @@
     </a>
   </li>
 
-  <li class="menu-item {{ request()->is('admins/feed-post*') ? 'active' : '' }}">
-    <a href="{{ route('admin.feed-post.index') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-images"></i>
-      <div class="text-truncate">My Feed Posts</div>
-    </a>
-  </li>
-
   <li class="menu-item {{ request()->is('entertainer-portal/settings') ? 'active' : '' }}">
     <a href="{{ route('entertainer.portal.settings') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-palette"></i>

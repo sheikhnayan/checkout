@@ -2908,9 +2908,13 @@
                     </div>
                     <div class="row g-4" id="events-list">
                         @foreach ($data->events as $item)
-                               @if (!$item->is_archieved && \Carbon\Carbon::parse($item->date)->gt(\Carbon\CArbon::now()))
+                            @php
+                                $eventStartDate = $item->start_date ?? $item->date;
+                                $eventEndDate = $item->end_date ?? $eventStartDate;
+                            @endphp
+                               @if (!$item->is_archieved && $eventEndDate && \Carbon\Carbon::parse($eventEndDate)->endOfDay()->gte(\Carbon\Carbon::now()))
                                 <div class="col-md-4 event-card-item"
-                                    data-date="{{ \Carbon\Carbon::parse($item->date)->format('Y-m-d') }}">
+                                    data-date="{{ \Carbon\Carbon::parse($eventStartDate)->format('Y-m-d') }}">
                                     <a href="/{{ $data->slug }}?event_name={{ $item->name }}"
                                         class="event-card"
                                         style="width: 100%; background: transparent; text-decoration: none;">
@@ -2919,13 +2923,18 @@
                                                 height="298px" style="width: 100%; height: 298px;">
                                             <div class="d-flex">
                                                 <div class="event-day" style="width: 50%;">
-                                                    {{ \Carbon\Carbon::parse($item->date)->format('l') }}</div>
+                                                    {{ \Carbon\Carbon::parse($eventStartDate)->format('l') }}</div>
                                                 <div class="event-dates"
                                                     style="width: 50%; color: {{ $brandPrimary }} !important;">
-                                                    {{ \Carbon\Carbon::parse($item->date)->format('M') }}<span> <br>
-                                                        {{ \Carbon\Carbon::parse($item->date)->format('d') }}</span>
+                                                    {{ \Carbon\Carbon::parse($eventStartDate)->format('M') }}<span> <br>
+                                                        {{ \Carbon\Carbon::parse($eventStartDate)->format('d') }}</span>
                                                 </div>
                                             </div>
+                                            @if($eventEndDate && $eventStartDate !== $eventEndDate)
+                                                <div class="event-location">
+                                                    {{ \Carbon\Carbon::parse($eventStartDate)->format('M d') }} - {{ \Carbon\Carbon::parse($eventEndDate)->format('M d') }}
+                                                </div>
+                                            @endif
                                             <div class="event-location">{{ $data->location }}</div>
                                             @if (!is_null($item->remaining_attendee_capacity))
                                                 <div class="event-capacity-chip{{ !empty($item->is_sold_out) ? ' sold-out' : '' }}">
@@ -3059,14 +3068,23 @@
             function syncTransportationStateFromCart() {
                 window.requiresTransportation = cartRequiresTransportation();
                 const transportationPhoneField = $('input[name="transportation_phone"]');
+                const transportationAddressField = $('input[name="transportation_address"]');
+                const transportationPickupTimeField = $('input[name="transportation_pickup_time"]');
+                const pickupDateField = $('input[name="package_use_date"]');
                 if (window.requiresTransportation) {
                     $('#step-2 .step-title').text('Transportation');
                     $('#next-to-transport').text('Next: Transportation Details');
                     transportationPhoneField.prop('required', true).attr('aria-required', 'true');
+                    transportationAddressField.prop('required', true).attr('aria-required', 'true');
+                    transportationPickupTimeField.prop('required', true).attr('aria-required', 'true');
+                    pickupDateField.prop('required', true).attr('aria-required', 'true');
                 } else {
                     $('#step-2 .step-title').text('Confirmation');
                     $('#next-to-transport').text('Next: Transportation Confirmation');
                     transportationPhoneField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
+                    transportationAddressField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
+                    transportationPickupTimeField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
+                    pickupDateField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
                 }
             }
 
@@ -3865,6 +3883,7 @@
                 } else if (stepNumber === 2 && window.requiresTransportation) {
                     // Validate transportation form
                     requiredFields.push(
+                        '[name="package_use_date"]',
                         '[name="transportation_pickup_time"]',
                         '[name="transportation_address"]',
                         '[name="transportation_phone"]'

@@ -106,8 +106,6 @@ class EntertainerPortalController extends Controller
             'hero_subtitle' => 'nullable|string|max:500',
             'description' => 'nullable|string|max:5000',
             'secondary_description' => 'nullable|string|max:5000',
-            'performance_dates' => 'nullable|array',
-            'performance_dates.*' => 'nullable|date',
             'facebook_url' => 'nullable|url|max:255',
             'instagram_url' => 'nullable|url|max:255',
             'youtube_url' => 'nullable|url|max:255',
@@ -178,27 +176,12 @@ class EntertainerPortalController extends Controller
         if ($entertainer->feed_model_id) {
             $feedModel = $entertainer->feedModel;
             if ($feedModel) {
-                $performanceDates = collect((array) $request->input('performance_dates', []))
-                    ->map(fn ($date) => trim((string) $date))
-                    ->filter(fn ($date) => $date !== '')
-                    ->map(fn ($date) => date('Y-m-d', strtotime($date)))
-                    ->unique()
-                    ->sort()
-                    ->values();
-
                 $feedModel->name = $entertainer->display_name ?: $entertainer->user->name;
                 if (!empty($entertainer->profile_image)) {
                     $feedModel->profile_image = $entertainer->profile_image;
                 }
                 $feedModel->bio = $entertainer->description;
                 $feedModel->save();
-
-                $feedModel->performanceDates()->delete();
-                if ($performanceDates->isNotEmpty()) {
-                    $feedModel->performanceDates()->createMany(
-                        $performanceDates->map(fn ($date) => ['performance_date' => $date])->all()
-                    );
-                }
             }
         }
 

@@ -137,8 +137,9 @@ class AffiliatePortalController extends Controller
             'font_family' => 'nullable|string|max:120',
             'profile_image' => 'nullable|image|max:4096',
             'banner_image' => 'nullable|image|max:4096',
-            'gallery_images' => 'nullable|array|max:6',
-            'gallery_images.*' => 'image|max:4096',
+            'gallery_image' => 'nullable|image|max:4096',
+            'remove_gallery_images' => 'nullable|array',
+            'remove_gallery_images.*' => 'nullable|integer|min:0',
         ]);
 
         $affiliate->fill($request->only([
@@ -169,17 +170,31 @@ class AffiliatePortalController extends Controller
             $affiliate->banner_image = $name;
         }
 
-        if ($request->hasFile('gallery_images')) {
-            $galleryImages = [];
+        $galleryImages = collect((array) $affiliate->gallery_images)->values();
+        $removeGalleryKeys = collect((array) $request->input('remove_gallery_images', []))
+            ->map(fn ($value) => (int) $value)
+            ->unique();
 
-            foreach ($request->file('gallery_images') as $index => $image) {
-                $name = 'affiliate_gallery_' . $affiliate->id . '_' . time() . '_' . $index . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('uploads'), $name);
-                $galleryImages[] = $name;
+        if ($removeGalleryKeys->isNotEmpty()) {
+            $galleryImages = $galleryImages->reject(function ($image, $index) use ($removeGalleryKeys) {
+                return $removeGalleryKeys->contains((int) $index);
+            })->values();
+        }
+
+        if ($request->hasFile('gallery_image')) {
+            if ($galleryImages->count() >= 6) {
+                return redirect()->back()
+                    ->withErrors(['gallery_image' => 'Gallery is full. Remove one image before uploading another.'])
+                    ->withInput();
             }
 
-            $affiliate->gallery_images = $galleryImages;
+            $image = $request->file('gallery_image');
+            $name = 'affiliate_gallery_' . $affiliate->id . '_' . time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('uploads'), $name);
+            $galleryImages->push($name);
         }
+
+        $affiliate->gallery_images = $galleryImages->values()->all();
 
         $affiliate->save();
 

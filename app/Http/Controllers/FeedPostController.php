@@ -147,7 +147,9 @@ class FeedPostController extends Controller
             'posted_at' => 'nullable|date',
             'is_active' => 'nullable|boolean',
             'show_on_roll_call' => 'nullable|boolean',
-            'roll_call_date' => 'nullable|date|required_if:show_on_roll_call,1',
+            'roll_call_date' => 'nullable|date',
+            'roll_call_start_date' => 'nullable|date|required_if:show_on_roll_call,1',
+            'roll_call_end_date' => 'nullable|date|after_or_equal:roll_call_start_date',
         ]);
     }
 
@@ -169,9 +171,17 @@ class FeedPostController extends Controller
         $post->posted_at = $validated['posted_at'] ?? now();
         $post->is_active = $request->boolean('is_active', true);
         $post->show_on_roll_call = $request->boolean('show_on_roll_call', false);
-        $post->roll_call_date = $post->show_on_roll_call
-            ? ($validated['roll_call_date'] ?? optional($post->posted_at)->format('Y-m-d') ?? now()->format('Y-m-d'))
-            : null;
+
+        $resolvedRollCallStart = $validated['roll_call_start_date']
+            ?? $validated['roll_call_date']
+            ?? optional($post->posted_at)->format('Y-m-d')
+            ?? now()->format('Y-m-d');
+        $resolvedRollCallEnd = $validated['roll_call_end_date'] ?? $resolvedRollCallStart;
+
+        $post->roll_call_start_date = $post->show_on_roll_call ? $resolvedRollCallStart : null;
+        $post->roll_call_end_date = $post->show_on_roll_call ? $resolvedRollCallEnd : null;
+        // Keep legacy single-date column populated as the start date for older queries/views.
+        $post->roll_call_date = $post->show_on_roll_call ? $resolvedRollCallStart : null;
 
         $existingMediaItems = $this->extractExistingMediaItems($post, $request->input('existing_media_keys', []));
         $uploadedMediaItems = $this->extractUploadedMediaItems((array) $request->file('media_uploads', []));

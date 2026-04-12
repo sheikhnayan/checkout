@@ -156,8 +156,16 @@ label{
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="date" class="form-label">Date</label>
-                                                        <input type="date" name="date" class="form-control" id="date" placeholder="Event Date" value="{{ $data->date }}" required>
+                                                        <label for="start_date" class="form-label">Start Date</label>
+                                                        <input type="date" name="start_date" class="form-control" id="start_date" placeholder="Event Start Date" value="{{ old('start_date', $data->start_date ? $data->start_date->format('Y-m-d') : $data->date) }}" required>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="end_date" class="form-label">End Date</label>
+                                                        <input type="date" name="end_date" class="form-control" id="end_date" placeholder="Event End Date (optional)" value="{{ old('end_date', $data->end_date ? $data->end_date->format('Y-m-d') : '') }}">
+                                                        <small class="text-muted">Leave blank for a single-day event.</small>
                                                     </div>
                                                 </div>
 

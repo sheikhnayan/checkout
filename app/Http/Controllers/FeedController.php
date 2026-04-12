@@ -160,7 +160,15 @@ class FeedController extends Controller
 
         $eventPosts = $this->visibleClubPostsQuery($club)
             ->where('show_on_roll_call', true)
-            ->whereDate('roll_call_date', $selectedDate)
+            ->where(function ($query) use ($selectedDate) {
+                $query->whereDate('roll_call_date', $selectedDate)
+                    ->orWhere(function ($rangeQuery) use ($selectedDate) {
+                        $rangeQuery->whereNotNull('roll_call_start_date')
+                            ->whereNotNull('roll_call_end_date')
+                            ->whereDate('roll_call_start_date', '<=', $selectedDate)
+                            ->whereDate('roll_call_end_date', '>=', $selectedDate);
+                    });
+            })
             ->with(['website', 'feedModel', 'visibleComments'])
             ->withCount('visibleComments')
             ->latest('posted_at')

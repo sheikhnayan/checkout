@@ -8,7 +8,8 @@
     $isEntertainerUser = auth()->check() && auth()->user()->isEntertainer() && auth()->user()->entertainer;
     $entertainerProfileId = $isEntertainerUser ? auth()->user()->entertainer->feed_model_id : null;
     $showOnRollCall = old('show_on_roll_call', isset($feedPost) ? $feedPost->show_on_roll_call : false);
-    $rollCallDateValue = old('roll_call_date', optional($feedPost->roll_call_date ?? $feedPost->posted_at ?? now())->format('Y-m-d'));
+    $rollCallStartDateValue = old('roll_call_start_date', optional($feedPost->roll_call_start_date ?? $feedPost->roll_call_date ?? $feedPost->posted_at ?? now())->format('Y-m-d'));
+    $rollCallEndDateValue = old('roll_call_end_date', optional($feedPost->roll_call_end_date ?? $feedPost->roll_call_start_date ?? $feedPost->roll_call_date)->format('Y-m-d'));
 @endphp
 
 <style>
@@ -132,9 +133,14 @@
     </div>
 
     <div class="col-md-6" id="roll-call-date-wrap" style="display: {{ $showOnRollCall ? 'block' : 'none' }};">
-        <label for="roll_call_date" class="form-label">Show in Roll Call on date</label>
-        <input type="date" name="roll_call_date" id="roll_call_date" class="form-control" value="{{ $rollCallDateValue }}">
-        <small class="text-muted">This post appears in Roll Call Events for the selected date.</small>
+        <label for="roll_call_start_date" class="form-label">Show in Roll Call from</label>
+        <input type="date" name="roll_call_start_date" id="roll_call_start_date" class="form-control" value="{{ $rollCallStartDateValue }}">
+    </div>
+
+    <div class="col-md-6" id="roll-call-end-date-wrap" style="display: {{ $showOnRollCall ? 'block' : 'none' }};">
+        <label for="roll_call_end_date" class="form-label">Until</label>
+        <input type="date" name="roll_call_end_date" id="roll_call_end_date" class="form-control" value="{{ $rollCallEndDateValue }}">
+        <small class="text-muted">This post appears in Roll Call for every date in the range. Leave end date empty for one day.</small>
     </div>
 
     <div class="col-12">
@@ -228,7 +234,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const addExternalRowBtn = document.getElementById('add-external-row');
     const showOnRollCallCheckbox = document.getElementById('show_on_roll_call');
     const rollCallDateWrap = document.getElementById('roll-call-date-wrap');
-    const rollCallDateInput = document.getElementById('roll_call_date');
+    const rollCallEndDateWrap = document.getElementById('roll-call-end-date-wrap');
+    const rollCallStartDateInput = document.getElementById('roll_call_start_date');
+    const rollCallEndDateInput = document.getElementById('roll_call_end_date');
     const selectedModelInput = @json((string) $selectedModelId);
     const hasModelSelect = modelSelect && modelSelect.tagName === 'SELECT';
     const allModelOptions = hasModelSelect
@@ -293,16 +301,22 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function syncRollCallDateField() {
-        if (!showOnRollCallCheckbox || !rollCallDateWrap || !rollCallDateInput) {
+        if (!showOnRollCallCheckbox || !rollCallDateWrap || !rollCallStartDateInput || !rollCallEndDateWrap || !rollCallEndDateInput) {
             return;
         }
 
         const enabled = showOnRollCallCheckbox.checked;
         rollCallDateWrap.style.display = enabled ? 'block' : 'none';
-        rollCallDateInput.required = enabled;
+        rollCallEndDateWrap.style.display = enabled ? 'block' : 'none';
+        rollCallStartDateInput.required = enabled;
+        rollCallEndDateInput.required = false;
 
-        if (enabled && !rollCallDateInput.value) {
-            rollCallDateInput.value = new Date().toISOString().slice(0, 10);
+        if (enabled && !rollCallStartDateInput.value) {
+            rollCallStartDateInput.value = new Date().toISOString().slice(0, 10);
+        }
+
+        if (enabled && rollCallStartDateInput.value && !rollCallEndDateInput.value) {
+            rollCallEndDateInput.value = rollCallStartDateInput.value;
         }
     }
 
@@ -421,6 +435,19 @@ document.addEventListener('DOMContentLoaded', function () {
         showOnRollCallCheckbox.addEventListener('change', syncRollCallDateField);
     }
 
+    if (rollCallStartDateInput && rollCallEndDateInput) {
+        rollCallStartDateInput.addEventListener('change', function () {
+            if (rollCallStartDateInput.value) {
+                rollCallEndDateInput.min = rollCallStartDateInput.value;
+                if (!rollCallEndDateInput.value || rollCallEndDateInput.value < rollCallStartDateInput.value) {
+                    rollCallEndDateInput.value = rollCallStartDateInput.value;
+                }
+            } else {
+                rollCallEndDateInput.removeAttribute('min');
+            }
+        });
+    }
+
     if (uploadRows && !uploadRows.children.length) {
         addUploadRow();
     }
@@ -428,5 +455,9 @@ document.addEventListener('DOMContentLoaded', function () {
     syncModelOptions();
     syncAuthorMode();
     syncRollCallDateField();
+
+    if (rollCallStartDateInput && rollCallEndDateInput && rollCallStartDateInput.value) {
+        rollCallEndDateInput.min = rollCallStartDateInput.value;
+    }
 });
 </script>

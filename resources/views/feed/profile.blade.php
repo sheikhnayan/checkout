@@ -1109,7 +1109,7 @@
         const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent)
             || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-        function restartLoopingVideos(scope) {
+        function restartLoopingVideos(scope, hardReset) {
             if (!isIOSDevice) {
                 return;
             }
@@ -1133,6 +1133,16 @@
                 video.setAttribute('loop', 'loop');
                 video.setAttribute('playsinline', 'playsinline');
                 video.setAttribute('webkit-playsinline', 'webkit-playsinline');
+
+                if (hardReset) {
+                    // Breaking the frozen bfcache media session on iOS Safari requires
+                    // blanking then restoring the src — video.load() alone is not enough.
+                    var frozenSrc = video.currentSrc || video.getAttribute('src') || '';
+                    if (frozenSrc) {
+                        video.src = '';
+                        video.src = frozenSrc;
+                    }
+                }
 
                 try {
                     video.load();
@@ -1433,17 +1443,43 @@
             }
         });
 
-        restartLoopingVideos(document);
+        restartLoopingVideos(document, false);
 
-        window.addEventListener('pageshow', function () {
-            restartLoopingVideos(document);
+        window.addEventListener('pageshow', function (event) {
+            // event.persisted === true means page was restored from iOS bfcache;
+            // pass true so the hard src-reset runs.
+            restartLoopingVideos(document, event.persisted);
         });
 
         document.addEventListener('visibilitychange', function () {
             if (document.visibilityState === 'visible') {
-                restartLoopingVideos(document);
+                restartLoopingVideos(document, false);
             }
         });
+
+        // iOS-only: re-trigger play() for any video that enters the viewport after
+        // a bfcache restore where the video was off-screen at the moment of restore.
+        if (isIOSDevice && 'IntersectionObserver' in window) {
+            var iosVideoObserver = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (!entry.isIntersecting) { return; }
+                    var v = entry.target;
+                    if (v.closest('.profile-lightbox')) { return; }
+                    if (v.paused) {
+                        v.muted = true;
+                        v.defaultMuted = true;
+                        var p = v.play();
+                        if (p && typeof p.catch === 'function') { p.catch(function () {}); }
+                    }
+                });
+            }, { rootMargin: '0px 0px 300px 0px', threshold: 0.1 });
+
+            document.querySelectorAll('video').forEach(function (v) {
+                if (!v.closest('.profile-lightbox')) {
+                    iosVideoObserver.observe(v);
+                }
+            });
+        }
 
     });
     </script>

@@ -113,7 +113,17 @@
                                                         <tr>
                                                             <td>{{ $activeIndex++ }}</td>
                                                             <td>{{ $item->name }}</td>
-                                                            <td>{{ $item->date }}</td>
+                                                            <td>
+                                                                @php
+                                                                    $start = $item->start_date ?? $item->date;
+                                                                    $end = $item->end_date;
+                                                                @endphp
+                                                                @if($start && $end && $start !== $end)
+                                                                    {{ $start }} to {{ $end }}
+                                                                @else
+                                                                    {{ $start }}
+                                                                @endif
+                                                            </td>
                                                             <td>
                                                                 <a href="/admins/event/edit/{{ $item->id }}" class="btn btn-primary">Edit</a>
                                                                 <form action="/admins/event/archive/{{ $item->id }}" method="POST" style="display:inline;">
@@ -152,7 +162,17 @@
                                                         <tr>
                                                             <td>{{ $archivedIndex++ }}</td>
                                                             <td>{{ $item->name }}</td>
-                                                            <td>{{ $item->date }}</td>
+                                                            <td>
+                                                                @php
+                                                                    $start = $item->start_date ?? $item->date;
+                                                                    $end = $item->end_date;
+                                                                @endphp
+                                                                @if($start && $end && $start !== $end)
+                                                                    {{ $start }} to {{ $end }}
+                                                                @else
+                                                                    {{ $start }}
+                                                                @endif
+                                                            </td>
                                                             <td>
                                                                 <form action="/admins/event/unarchive/{{ $item->id }}" method="POST" style="display:inline;">
                                                                     @csrf

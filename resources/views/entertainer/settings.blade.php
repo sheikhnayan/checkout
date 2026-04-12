@@ -1,16 +1,6 @@
 @extends('admin.main')
 
 @section('content')
-@php
-    $performanceDates = collect(old('performance_dates', $entertainer->feedModel?->performanceDates?->pluck('performance_date')->map(fn ($date) => optional($date)->format('Y-m-d'))->all() ?? []))
-        ->filter(fn ($date) => !empty($date))
-        ->values()
-        ->all();
-
-    if (empty($performanceDates)) {
-        $performanceDates = [''];
-    }
-@endphp
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
         @if(session('success'))
@@ -44,18 +34,8 @@
                     </div>
 
                     <div class="col-12">
-                        <label class="form-label mb-2">Feed Performance Dates</label>
-                        <p class="text-muted mb-2">These dates are shown on your feed profile roll call section.</p>
-                        <div class="border rounded p-3" id="performanceDateRoster">
-                            <div id="performanceDateRows" class="d-grid" style="gap:10px;">
-                                @foreach($performanceDates as $date)
-                                    <div class="performance-date-row d-flex align-items-center gap-2">
-                                        <input type="date" name="performance_dates[]" class="form-control" value="{{ $date }}">
-                                        <button type="button" class="btn btn-outline-danger remove-performance-date" title="Remove date">Remove</button>
-                                    </div>
-                                @endforeach
-                            </div>
-                            <button type="button" id="addPerformanceDate" class="btn btn-outline-primary btn-sm mt-3">Add Another Date</button>
+                        <div class="alert alert-info mb-0">
+                            Roll call performance dates are managed by club managers from the manager portal.
                         </div>
                     </div>
 
@@ -128,36 +108,4 @@
     </div>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const addDateButton = document.getElementById('addPerformanceDate');
-        const dateRows = document.getElementById('performanceDateRows');
-        if (!addDateButton || !dateRows) {
-            return;
-        }
-
-        const bindRemoveActions = () => {
-            dateRows.querySelectorAll('.remove-performance-date').forEach((button) => {
-                button.onclick = function () {
-                    const rows = dateRows.querySelectorAll('.performance-date-row');
-                    if (rows.length === 1) {
-                        rows[0].querySelector('input').value = '';
-                        return;
-                    }
-                    this.closest('.performance-date-row').remove();
-                };
-            });
-        };
-
-        addDateButton.addEventListener('click', function () {
-            const row = document.createElement('div');
-            row.className = 'performance-date-row d-flex align-items-center gap-2';
-            row.innerHTML = '<input type="date" name="performance_dates[]" class="form-control"><button type="button" class="btn btn-outline-danger remove-performance-date" title="Remove date">Remove</button>';
-            dateRows.appendChild(row);
-            bindRemoveActions();
-        });
-
-        bindRemoveActions();
-    });
-</script>
 @endsection

@@ -324,6 +324,17 @@
         .club-popover-logo { width:100%; max-height:120px; object-fit:contain; margin-bottom:10px; border-radius:8px; background:rgba(255,255,255,0.03); }
         .club-tooltip-row { margin-bottom:6px; font-size:13px; line-height:1.45; }
         .club-tooltip-row i { width:16px; color:var(--aff-accent); }
+        .club-tooltip-section-title {
+            margin-top: 10px;
+            margin-bottom: 6px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.12);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            color: var(--aff-accent);
+        }
 
         .aff-banner {
             position:relative;
@@ -981,6 +992,12 @@ const clubConfigs = {
                                         @if($club->text_description)
                                             &lt;div class='club-tooltip-row' style='margin-top:10px; opacity:.82;'&gt;{{ e(\Illuminate\Support\Str::limit(strip_tags($club->text_description), 220)) }}&lt;/div&gt;
                                         @endif
+                                        &lt;div class='club-tooltip-section-title'&gt;Package Details&lt;/div&gt;
+                                        @if($package->description)
+                                            &lt;div class='club-tooltip-row'&gt;{{ e(\Illuminate\Support\Str::limit(strip_tags($package->description), 320)) }}&lt;/div&gt;
+                                        @else
+                                            &lt;div class='club-tooltip-row' style='opacity:.72;'&gt;No package description added yet.&lt;/div&gt;
+                                        @endif
                                     "
                                 >
                                     <i class="fas fa-info"></i>
@@ -1342,10 +1359,19 @@ function cartRequiresTransport() {
 function syncTransportStateFromCart() {
     window.requiresTransport = cartRequiresTransport();
     const transportationPhoneField = $('[name="transportation_phone"]');
+    const transportationAddressField = $('[name="transportation_address"]');
+    const transportationPickupTimeField = $('[name="transportation_pickup_time"]');
+    const pickupDateField = $('[name="package_use_date"]');
     if (window.requiresTransport) {
         transportationPhoneField.prop('required', true).attr('aria-required', 'true');
+        transportationAddressField.prop('required', true).attr('aria-required', 'true');
+        transportationPickupTimeField.prop('required', true).attr('aria-required', 'true');
+        pickupDateField.prop('required', true).attr('aria-required', 'true');
     } else {
         transportationPhoneField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
+        transportationAddressField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
+        transportationPickupTimeField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
+        pickupDateField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
     }
 }
 
@@ -1986,7 +2012,7 @@ function validateStep(n) {
     }
     if (n === 2) {
         if (window.requiresTransport) {
-            const req = ['[name="transportation_pickup_time"]','[name="transportation_address"]','[name="transportation_phone"]'];
+            const req = ['[name="package_use_date"]','[name="transportation_pickup_time"]','[name="transportation_address"]','[name="transportation_phone"]'];
             let ok = true;
             req.forEach(s => { const f=$(s); if (!f.val()?.trim()) { f.addClass('required-field'); ok=false; } else f.removeClass('required-field'); });
             if (!ok) { alert('Please fill in transportation details.'); return false; }

@@ -7,6 +7,7 @@ use App\Models\Website;
 use App\Models\Event;
 use App\Models\Package;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Carbon;
 
 class EventController extends Controller
 {
@@ -88,6 +89,32 @@ class EventController extends Controller
             abort(403, 'Access denied. You can only create events for your own website.');
         }
         
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'hero_title' => 'nullable|string|max:255',
+            'hero_subtitle' => 'nullable|string|max:255',
+            'date' => 'nullable|date',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'description' => 'required|string',
+            'secondary_description' => 'nullable|string',
+            'image' => 'required|image|max:4096',
+            'gallery_images' => 'nullable|array',
+            'gallery_images.*' => 'nullable|image|max:4096',
+            'logo_width' => 'nullable|integer|min:1',
+            'logo_height' => 'nullable|integer|min:1',
+            'attendee_limit' => 'nullable|integer|min:1',
+            'website_id' => 'required|exists:websites,id',
+            'time_start' => 'required|string|max:30',
+            'time_end' => 'required|string|max:30',
+        ]);
+
+        $startDateInput = $validated['start_date'] ?? $validated['date'] ?? null;
+        $startDate = $startDateInput ? Carbon::parse($startDateInput)->format('Y-m-d') : null;
+        $endDate = !empty($validated['end_date'])
+            ? Carbon::parse($validated['end_date'])->format('Y-m-d')
+            : $startDate;
+
         // dd($request->all());
         $time = $request->time_start.' - '.$request->time_end;
 
@@ -95,7 +122,9 @@ class EventController extends Controller
         $add->name = $request->name;
         $add->hero_title = $request->hero_title;
         $add->hero_subtitle = $request->hero_subtitle;
-        $add->date = $request->date;
+        $add->date = $startDate;
+        $add->start_date = $startDate;
+        $add->end_date = $endDate;
         $add->description = $request->description;
         $add->secondary_description = $request->secondary_description;
         
@@ -179,13 +208,41 @@ class EventController extends Controller
             abort(403, 'Access denied. You can only update events for your own website.');
         }
 
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'hero_title' => 'nullable|string|max:255',
+            'hero_subtitle' => 'nullable|string|max:255',
+            'date' => 'nullable|date',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'description' => 'required|string',
+            'secondary_description' => 'nullable|string',
+            'image' => 'nullable|image|max:4096',
+            'gallery_images' => 'nullable|array',
+            'gallery_images.*' => 'nullable|image|max:4096',
+            'logo_width' => 'nullable|integer|min:1',
+            'logo_height' => 'nullable|integer|min:1',
+            'attendee_limit' => 'nullable|integer|min:1',
+            'website_id' => 'required|exists:websites,id',
+            'time_start' => 'required|string|max:30',
+            'time_end' => 'required|string|max:30',
+        ]);
+
+        $startDateInput = $validated['start_date'] ?? $validated['date'] ?? $add->date;
+        $startDate = $startDateInput ? Carbon::parse($startDateInput)->format('Y-m-d') : null;
+        $endDate = !empty($validated['end_date'])
+            ? Carbon::parse($validated['end_date'])->format('Y-m-d')
+            : $startDate;
+
         $time = $request->time_start.' - '.$request->time_end;
 
         $add = Event::findOrFail($id);
         $add->name = $request->name;
         $add->hero_title = $request->hero_title;
         $add->hero_subtitle = $request->hero_subtitle;
-        $add->date = $request->date;
+        $add->date = $startDate;
+        $add->start_date = $startDate;
+        $add->end_date = $endDate;
         $add->description = $request->description;
         $add->secondary_description = $request->secondary_description;
         

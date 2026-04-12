@@ -31,12 +31,6 @@ class CheckRoutePermission
             return $next($request);
         }
 
-        // Entertainers can manage their own feed posts from the sidebar.
-        // FeedPostController still enforces ownership via approvedEntertainer checks.
-        if ($user->isEntertainer() && str_starts_with($routeName, 'admin.feed-post.')) {
-            return $next($request);
-        }
-
         if ($user->isAdmin()) {
             return $next($request);
         }

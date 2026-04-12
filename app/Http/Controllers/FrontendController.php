@@ -172,8 +172,21 @@ class FrontendController extends Controller
             ->when(Schema::hasColumn('events', 'status'), function ($query) {
                 $query->where('status', 1);
             })
-            ->orderBy('date')
+            ->orderByRaw('COALESCE(start_date, date) ASC')
             ->get()
+            ->filter(function (Event $event) {
+                $end = $event->end_date ?: $event->start_date ?: $event->date;
+                if (!$end) {
+                    return false;
+                }
+
+                try {
+                    return \Carbon\Carbon::parse($end)->endOfDay()->gte(now());
+                } catch (\Throwable $e) {
+                    return false;
+                }
+            })
+            ->values()
             ->map(function (Event $event) {
                 return $this->decorateEventAttendanceData($event);
             });
