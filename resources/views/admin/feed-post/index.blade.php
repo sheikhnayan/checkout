@@ -2,6 +2,10 @@
 
 @section('content')
 @php $firstWebsite = $websites->first(); @endphp
+@php
+    $isApprover = auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isWebsiteUser());
+    $pendingCount = $posts->where('approval_status', 'pending')->count();
+@endphp
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 mt-4">
@@ -19,6 +23,12 @@
 
         @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
+
+        @if($isApprover && $pendingCount > 0)
+            <div class="alert alert-warning">
+                <strong>{{ $pendingCount }}</strong> entertainer post(s) are waiting for approval.
+            </div>
         @endif
 
         <div class="card">
@@ -72,12 +82,28 @@
                                 <td>{{ count((array) $post->resolved_media_items) }} media item(s)</td>
                                 <td>{{ $post->comments_count }}</td>
                                 <td>
-                                    <span class="badge {{ $post->is_active ? 'bg-success' : 'bg-secondary' }}">{{ $post->is_active ? 'Live' : 'Hidden' }}</span>
+                                    @if(($post->approval_status ?? 'approved') === 'pending')
+                                        <span class="badge bg-warning text-dark">Pending Approval</span>
+                                    @elseif(($post->approval_status ?? 'approved') === 'rejected')
+                                        <span class="badge bg-danger">Rejected</span>
+                                    @else
+                                        <span class="badge {{ $post->is_active ? 'bg-success' : 'bg-secondary' }}">{{ $post->is_active ? 'Live' : 'Hidden' }}</span>
+                                    @endif
                                 </td>
                                 <td class="text-end">
                                     <a href="{{ route('club.feed', $post->website->slug) }}#post-{{ $post->id }}" target="_blank" class="btn btn-sm btn-outline-secondary">View Live</a>
                                     <a href="{{ route('admin.feed-post.show', $post) }}" class="btn btn-sm btn-outline-info">Comments</a>
                                     <a href="{{ route('admin.feed-post.edit', $post) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                                    @if($isApprover && ($post->approval_status ?? 'approved') === 'pending')
+                                        <form action="{{ route('admin.feed-post.approve', $post) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Approve this entertainer post?')">Approve</button>
+                                        </form>
+                                        <form action="{{ route('admin.feed-post.reject', $post) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Reject this entertainer post?')">Reject</button>
+                                        </form>
+                                    @endif
                                     <form action="{{ route('admin.feed-post.destroy', $post) }}" method="POST" class="d-inline">
                                         @csrf
                                         <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this post?')">Delete</button>

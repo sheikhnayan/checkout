@@ -105,6 +105,11 @@ class Website extends Model
         return $this->hasMany(PaymentLogo::class)->where('is_active', true)->orderBy('order');
     }
 
+    public function checkoutPopups()
+    {
+        return $this->hasMany(CheckoutPopup::class)->latest();
+    }
+
     public function feedModels()
     {
         return $this->hasMany(FeedModel::class)->latest();

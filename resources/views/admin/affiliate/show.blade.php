@@ -34,6 +34,13 @@
                 <button type="submit" class="btn btn-outline-primary">Update Commission</button>
             </form>
 
+            @if($affiliate->status === 'approved')
+                <form method="POST" action="{{ route('admin.affiliate.unapprove', $affiliate->id) }}" class="mb-3" onsubmit="return confirm('Unapprove this affiliate? They will lose access until approved again.');">
+                    @csrf
+                    <button type="submit" class="btn btn-warning">Unapprove</button>
+                </form>
+            @endif
+
             @if($affiliate->status !== 'rejected')
                 <form method="POST" action="{{ route('admin.affiliate.reject', $affiliate->id) }}" class="mb-2">
                     @csrf

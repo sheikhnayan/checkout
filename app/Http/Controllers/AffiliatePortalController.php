@@ -15,7 +15,7 @@ class AffiliatePortalController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user || !$user->isAffiliate() || !$user->affiliate || $user->affiliate->status !== 'approved') {
+        if (!$user || !$user->isAffiliate() || !$user->affiliate || $user->affiliate->status !== 'approved' || !$user->affiliate->is_active) {
             abort(403, 'Affiliate access denied.');
         }
 
@@ -133,7 +133,6 @@ class AffiliatePortalController extends Controller
             'instagram_url' => 'nullable|url|max:255',
             'youtube_url' => 'nullable|url|max:255',
             'tiktok_url' => 'nullable|url|max:255',
-            'website_url' => 'nullable|url|max:255',
             'font_family' => 'nullable|string|max:120',
             'profile_image' => 'nullable|image|max:4096',
             'banner_image' => 'nullable|image|max:4096',
@@ -152,7 +151,6 @@ class AffiliatePortalController extends Controller
             'instagram_url',
             'youtube_url',
             'tiktok_url',
-            'website_url',
             'font_family',
         ]));
 

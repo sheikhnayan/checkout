@@ -37,6 +37,13 @@
                 <button type="submit" class="btn btn-outline-primary">Update Commission</button>
             </form>
 
+            @if($entertainer->status === 'approved')
+                <form method="POST" action="{{ route('admin.entertainer.unapprove', $entertainer->id) }}" class="mb-3" onsubmit="return confirm('Unapprove this entertainer? Their public page and feed visibility will be removed until approved again.');">
+                    @csrf
+                    <button type="submit" class="btn btn-warning">Unapprove</button>
+                </form>
+            @endif
+
             @if($entertainer->status !== 'rejected')
                 <form method="POST" action="{{ route('admin.entertainer.reject', $entertainer->id) }}" class="mb-2">
                     @csrf

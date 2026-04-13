@@ -97,7 +97,7 @@
                                                 <div class="mb-3">
                                                     <label for="email" class="form-label">Email Address</label>
                                                     <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" 
-                                                           id="email" value="{{ old('email') }}" placeholder="Enter Email Address" required>
+                                                           id="email" value="{{ $errors->has('email') ? '' : old('email') }}" placeholder="Enter Email Address" required>
                                                     @error('email')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -225,6 +225,14 @@
 
             websiteSelect.addEventListener('change', filterRoles);
             filterRoles();
+
+            @if($errors->has('email'))
+            const emailField = document.getElementById('email');
+            if (emailField) {
+                emailField.focus();
+                emailField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            @endif
         })();
     </script>
 @endsection

@@ -98,6 +98,20 @@ class AffiliateAdminController extends Controller
         return redirect()->back()->with('success', 'Affiliate application rejected.');
     }
 
+    public function unapprove(Affiliate $affiliate)
+    {
+        $this->ensureAdmin();
+
+        $affiliate->status = 'pending';
+        $affiliate->is_active = false;
+        $affiliate->approved_at = null;
+        $affiliate->approved_by = null;
+        $affiliate->rejection_reason = null;
+        $affiliate->save();
+
+        return redirect()->back()->with('success', 'Affiliate has been unapproved and moved back to pending review.');
+    }
+
     public function updatePackages(Request $request, Affiliate $affiliate)
     {
         $this->ensureAdmin();

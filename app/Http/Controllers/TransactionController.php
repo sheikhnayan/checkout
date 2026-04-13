@@ -15,6 +15,7 @@ use App\Models\AffiliateWalletTransaction;
 use App\Models\Entertainer;
 use App\Models\EntertainerPackage;
 use App\Models\EntertainerWalletTransaction;
+use App\Models\PromoCode;
 use App\Mail\TransactionMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
@@ -64,6 +65,7 @@ class TransactionController extends Controller
         $setting = Setting::find(1);
 
         $w = Website::find($request->website_id);
+        [$validatedPromoCodeId, $validatedDiscountAmount] = $this->resolveValidatedPromoForCheckout($request, $w);
 
         if ($w->payment_method == 'stripe') {
             # code...
@@ -112,9 +114,9 @@ class TransactionController extends Controller
                     $package_year = $request->input('package_year');
                     $add->package_dob = ($package_year && $package_month && $package_day) ? (sprintf('%04d-%02d-%02d', $package_year, $package_month, $package_day)) : null;
                     $add->package_note = $request->input('package_note');
-                    $add->promo_code = $request->input('promo_code');
+                    $add->promo_code = $validatedPromoCodeId;
                     $add->actual_total = $request->input('payment_total');
-                    $add->discounted_amount = $request->input('discounted_amount');
+                    $add->discounted_amount = $validatedDiscountAmount;
                     $add->transportation_pickup_time = $request->input('transportation_pickup_time');
                     $add->transportation_address = $request->input('transportation_address');
                     $add->transportation_phone = $request->input('transportation_phone');
@@ -324,9 +326,9 @@ class TransactionController extends Controller
                     $package_year = $request->input('package_year');
                     $add->package_dob = ($package_year && $package_month && $package_day) ? (sprintf('%04d-%02d-%02d', $package_year, $package_month, $package_day)) : null;
                     $add->package_note = $request->input('package_note');
-                    $add->promo_code = $request->input('promo_code');
+                    $add->promo_code = $validatedPromoCodeId;
                     $add->actual_total = $request->input('payment_total');
-                    $add->discounted_amount = $request->input('discounted_amount');
+                    $add->discounted_amount = $validatedDiscountAmount;
                     $add->transportation_pickup_time = $request->input('transportation_pickup_time');
                     $add->transportation_address = $request->input('transportation_address');
                     $add->transportation_phone = $request->input('transportation_phone');
@@ -1233,6 +1235,79 @@ class TransactionController extends Controller
             ->where('status', 'approved')
             ->where('is_active', true)
             ->first();
+    }
+
+    private function resolveValidatedPromoForCheckout(Request $request, ?Website $website = null): array
+    {
+        $promoCodeId = (int) $request->input('promo_code');
+        if ($promoCodeId <= 0) {
+            return [null, 0];
+        }
+
+        $websiteId = (int) ($website->id ?? $request->input('website_id'));
+        if ($websiteId <= 0) {
+            return [null, 0];
+        }
+
+        $source = $this->resolvePromoAudienceFromCheckoutRequest($request);
+
+        $promo = PromoCode::query()
+            ->where('id', $promoCodeId)
+            ->where('website_id', $websiteId)
+            ->where('is_archieved', 0)
+            ->where('audience', $source)
+            ->when($source === PromoCode::AUDIENCE_AFFILIATE, function ($query) use ($request) {
+                $affiliate = $this->resolveAffiliateFromRequest($request);
+                if (!$affiliate) {
+                    $query->whereRaw('1 = 0');
+                    return;
+                }
+
+                $query->where('affiliate_id', $affiliate->id)
+                    ->whereNull('entertainer_id');
+            })
+            ->when($source === PromoCode::AUDIENCE_ENTERTAINER, function ($query) use ($request) {
+                $entertainer = $this->resolveEntertainerFromRequest($request);
+                if (!$entertainer) {
+                    $query->whereRaw('1 = 0');
+                    return;
+                }
+
+                $query->where('entertainer_id', $entertainer->id)
+                    ->whereNull('affiliate_id');
+            })
+            ->when($source === PromoCode::AUDIENCE_CLUB, function ($query) {
+                $query->whereNull('affiliate_id')
+                    ->whereNull('entertainer_id');
+            })
+            ->first();
+
+        if (!$promo) {
+            return [null, 0];
+        }
+
+        $baseAmount = max((float) $request->input('payment_total', $request->input('total', 0)), 0);
+        $rawAmount = (float) ($promo->percentage ?? 0);
+        $discount = $promo->type === 'fixed'
+            ? $rawAmount
+            : ($baseAmount * $rawAmount / 100);
+
+        $discount = round(min(max($discount, 0), $baseAmount), 2);
+
+        return [$promo->id, $discount];
+    }
+
+    private function resolvePromoAudienceFromCheckoutRequest(Request $request): string
+    {
+        if ($this->resolveAffiliateFromRequest($request)) {
+            return PromoCode::AUDIENCE_AFFILIATE;
+        }
+
+        if ($this->resolveEntertainerFromRequest($request)) {
+            return PromoCode::AUDIENCE_ENTERTAINER;
+        }
+
+        return PromoCode::AUDIENCE_CLUB;
     }
 
 }

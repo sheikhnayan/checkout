@@ -437,6 +437,10 @@
             gap: 14px;
         }
 
+        .profile-tile-wrap {
+            position: relative;
+        }
+
         .profile-tile {
             position: relative;
             display: block;
@@ -540,6 +544,39 @@
             justify-content: flex-end;
             gap: 10px;
             pointer-events: none;
+        }
+
+        .profile-post-share-btn {
+            position: absolute;
+            right: 14px;
+            bottom: 14px;
+            border: 0;
+            border-radius: 999px;
+            padding: 8px 12px;
+            background: rgba(14, 22, 40, 0.84);
+            color: #fff;
+            font-size: 0.78rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 3;
+            opacity: 0;
+            transition: opacity .2s ease, transform .2s ease;
+            transform: translateY(4px);
+        }
+
+        .profile-tile-wrap:hover .profile-post-share-btn,
+        .profile-post-share-btn:focus-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (hover: none) {
+            .profile-post-share-btn {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .profile-badge {
@@ -992,6 +1029,7 @@
                             ];
                         })->values();
                     @endphp
+                    <div class="profile-tile-wrap">
                     <button
                         type="button"
                         class="profile-tile"
@@ -1041,6 +1079,18 @@
                             @endif
                         </div>
                     </button>
+                    <button
+                        type="button"
+                        class="profile-post-share-btn"
+                        data-share-url="{{ $profileShareUrl }}#profile-post-{{ $post->id }}"
+                        data-share-title="{{ $post->author_name }} post"
+                        data-share-text="{{ $post->caption ? \Illuminate\Support\Str::limit($post->caption, 110) : 'Check out this post' }}"
+                        onclick="window.__profileSharePostFallback && window.__profileSharePostFallback(this);"
+                    >
+                        <i class="fas fa-share-nodes"></i>
+                        Share
+                    </button>
+                    </div>
                 @endforeach
             </section>
         @else
@@ -1109,6 +1159,14 @@
         const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent)
             || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
+        window.__profileSharePostFallback = function (button) {
+            if (!button) {
+                return;
+            }
+
+            shareFromButton(button, button);
+        };
+
         function restartLoopingVideos(scope, hardReset) {
             if (!isIOSDevice) {
                 return;
@@ -1174,6 +1232,7 @@
         const pageShareButton = document.getElementById('profile-share-page-btn');
         const lightboxShareButton = document.getElementById('profile-lightbox-share-btn');
         const shareMenu = document.getElementById('profile-share-menu');
+        const prefersDesktopShareMenu = window.matchMedia && window.matchMedia('(pointer: fine)').matches;
 
         if (rollCallLaunchDate && rollCallLaunchForm) {
             rollCallLaunchDate.addEventListener('change', function () {
@@ -1209,8 +1268,8 @@
             }
 
             const rect = triggerButton.getBoundingClientRect();
-            const top = rect.bottom + window.scrollY + 8;
-            const left = Math.max(12, Math.min(rect.left + window.scrollX, window.scrollX + window.innerWidth - 214));
+            const top = rect.bottom + 8;
+            const left = Math.max(12, Math.min(rect.left, window.innerWidth - 214));
 
             shareMenu.style.top = top + 'px';
             shareMenu.style.left = left + 'px';
@@ -1289,7 +1348,7 @@
 
             currentSharePayload = payload;
 
-            if (navigator.share) {
+            if (navigator.share && !prefersDesktopShareMenu) {
                 try {
                     await navigator.share(payload);
                     return;
@@ -1301,9 +1360,17 @@
             }
 
             openShareMenu(fallbackTrigger || button);
+
+            if (!shareMenu || !shareMenu.classList.contains('is-open')) {
+                openFallbackShare('copy', payload);
+            }
         }
 
         function renderMediaItem(item) {
+            if (!stage || !counterNode || !prevButton || !nextButton) {
+                return;
+            }
+
             if (!item) {
                 stage.innerHTML = '';
                 return;
@@ -1325,6 +1392,10 @@
         }
 
         function openLightbox(button) {
+            if (!lightbox || !captionNode || !dateNode || !commentsNode || !authorNode || !commentsListNode) {
+                return;
+            }
+
             currentItems = JSON.parse(button.getAttribute('data-lightbox-items') || '[]');
             currentIndex = 0;
             captionNode.textContent = button.getAttribute('data-lightbox-caption') || '';
@@ -1360,6 +1431,11 @@
         }
 
         function closeLightbox() {
+            if (!lightbox || !stage) {
+                closeShareMenu();
+                return;
+            }
+
             lightbox.classList.remove('is-open');
             lightbox.setAttribute('aria-hidden', 'true');
             document.body.style.overflow = '';
@@ -1385,8 +1461,16 @@
         });
 
         document.addEventListener('click', function (event) {
-            if (shareMenu && shareMenu.classList.contains('is-open') && !event.target.closest('#profile-share-menu') && !event.target.closest('#profile-share-page-btn') && !event.target.closest('#profile-lightbox-share-btn')) {
+            if (shareMenu && shareMenu.classList.contains('is-open') && !event.target.closest('#profile-share-menu') && !event.target.closest('#profile-share-page-btn') && !event.target.closest('#profile-lightbox-share-btn') && !event.target.closest('.profile-post-share-btn')) {
                 closeShareMenu();
+            }
+
+            const postShareButton = event.target.closest('.profile-post-share-btn');
+            if (postShareButton) {
+                event.preventDefault();
+                event.stopPropagation();
+                shareFromButton(postShareButton, postShareButton);
+                return;
             }
 
             const shareOptionButton = event.target.closest('[data-share-option]');
@@ -1403,9 +1487,17 @@
             closeShareMenu();
         });
 
-        prevButton.addEventListener('click', function () { moveLightbox(-1); });
-        nextButton.addEventListener('click', function () { moveLightbox(1); });
-        closeButton.addEventListener('click', closeLightbox);
+        if (prevButton) {
+            prevButton.addEventListener('click', function () { moveLightbox(-1); });
+        }
+
+        if (nextButton) {
+            nextButton.addEventListener('click', function () { moveLightbox(1); });
+        }
+
+        if (closeButton) {
+            closeButton.addEventListener('click', closeLightbox);
+        }
 
         if (pageShareButton) {
             pageShareButton.addEventListener('click', function () {
@@ -1419,14 +1511,24 @@
             });
         }
 
-        lightbox.addEventListener('click', function (event) {
-            if (event.target === lightbox) {
-                closeLightbox();
-            }
+        document.querySelectorAll('.profile-post-share-btn').forEach(function (button) {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                shareFromButton(button, button);
+            });
         });
 
+        if (lightbox) {
+            lightbox.addEventListener('click', function (event) {
+                if (event.target === lightbox) {
+                    closeLightbox();
+                }
+            });
+        }
+
         document.addEventListener('keydown', function (event) {
-            if (!lightbox.classList.contains('is-open')) {
+            if (!lightbox || !lightbox.classList.contains('is-open')) {
                 return;
             }
 

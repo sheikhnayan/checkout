@@ -10,6 +10,8 @@ use App\Models\Package;
 use App\Models\PromoCode;
 use App\Models\Affiliate;
 use App\Models\AffiliateWebsite;
+use App\Models\Entertainer;
+use App\Models\CheckoutPopup;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Schema;
 
@@ -63,6 +65,9 @@ class FrontendController extends Controller
         }
 
         $requestedPackageId = $request->filled('package') ? (int) $request->input('package') : null;
+        $checkoutPopup = CheckoutPopup::activeForCheckout((int) $data->id)
+            ->latest('id')
+            ->first();
 
         if (isset($request->event_name)) {
             $event = Event::where('website_id', $data->id)
@@ -81,14 +86,14 @@ class FrontendController extends Controller
 
             $data->setRelation('events', $this->activeWebsiteEvents($data->id));
 
-            return view('index', compact('data', 'event', 'affiliateReferral', 'requestedPackageId', 'packageCategories'));
+            return view('index', compact('data', 'event', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup'));
         }
 
         $packageCategories = $this->buildPackageCategories($data, null, true);
 
         $data->setRelation('events', $this->activeWebsiteEvents($data->id));
 
-        return view('index_two', compact('data', 'affiliateReferral', 'requestedPackageId', 'packageCategories'));
+        return view('index_two', compact('data', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup'));
 
     }
 
@@ -115,11 +120,53 @@ class FrontendController extends Controller
         }
 
         $normalizedCode = trim((string) $code);
+        $source = strtolower((string) request()->query('source', PromoCode::AUDIENCE_CLUB));
+        $ownerSlug = trim((string) request()->query('owner_slug', ''));
+
+        if (!in_array($source, PromoCode::ALLOWED_AUDIENCES, true)) {
+            return response()->json(['valid' => false]);
+        }
 
         $check = PromoCode::where('website_id', $website->id)
             ->where('is_archieved', 0)
-            ->whereRaw('LOWER(promo_code) = ?', [strtolower($normalizedCode)])
-            ->first();
+            ->where('audience', $source)
+            ->whereRaw('LOWER(promo_code) = ?', [strtolower($normalizedCode)]);
+
+        if ($source === PromoCode::AUDIENCE_AFFILIATE) {
+            $affiliate = Affiliate::where('slug', $ownerSlug)
+                ->where('status', 'approved')
+                ->where('is_active', true)
+                ->whereHas('affiliateWebsites', function ($query) use ($website) {
+                    $query->where('website_id', $website->id)
+                        ->where('is_active', true);
+                })
+                ->first();
+
+            if (!$affiliate) {
+                return response()->json(['valid' => false]);
+            }
+
+            $check->where('affiliate_id', $affiliate->id)
+                ->whereNull('entertainer_id');
+        } elseif ($source === PromoCode::AUDIENCE_ENTERTAINER) {
+            $entertainer = Entertainer::where('slug', $ownerSlug)
+                ->where('website_id', $website->id)
+                ->where('status', 'approved')
+                ->where('is_active', true)
+                ->first();
+
+            if (!$entertainer) {
+                return response()->json(['valid' => false]);
+            }
+
+            $check->where('entertainer_id', $entertainer->id)
+                ->whereNull('affiliate_id');
+        } else {
+            $check->whereNull('affiliate_id')
+                ->whereNull('entertainer_id');
+        }
+
+        $check = $check->first();
 
         if ($check) {
             return response()->json(['valid' => true, 'discount' => $check->percentage, 'type' => $check->type, 'id' => $check->id]);

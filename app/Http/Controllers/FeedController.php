@@ -20,7 +20,8 @@ class FeedController extends Controller
     {
         $websites = $this->activeWebsitesQuery()
             ->whereHas('feedPosts', function ($query) {
-                $query->where('is_active', true);
+                $query->where('is_active', true)
+                    ->where('approval_status', 'approved');
             })
             ->orderBy('name')
             ->get();
@@ -96,7 +97,8 @@ class FeedController extends Controller
         $models = FeedModel::where('website_id', $club->id)
             ->where('is_active', true)
             ->withCount(['posts' => function ($query) {
-                $query->where('is_active', true);
+                $query->where('is_active', true)
+                    ->where('approval_status', 'approved');
             }])
             ->orderBy('name')
             ->get();
@@ -209,7 +211,8 @@ class FeedController extends Controller
         $models = FeedModel::where('website_id', $club->id)
             ->where('is_active', true)
             ->withCount(['posts' => function ($query) {
-                $query->where('is_active', true);
+                $query->where('is_active', true)
+                    ->where('approval_status', 'approved');
             }])
             ->orderBy('name')
             ->get();
@@ -231,7 +234,7 @@ class FeedController extends Controller
 
     public function storeComment(Request $request, FeedPost $feedPost): RedirectResponse
     {
-        abort_if(!$feedPost->is_active, 404);
+        abort_if(!$feedPost->is_active || (string) $feedPost->approval_status !== 'approved', 404);
 
         $validated = $request->validate([
             'commenter_name' => 'required|string|max:255',
@@ -417,6 +420,7 @@ class FeedController extends Controller
         return FeedPost::query()
             ->where('website_id', $club->id)
             ->where('is_active', true)
+            ->where('approval_status', 'approved')
             ->where(function ($query) {
                 $query->where('author_mode', 'club')
                     ->orWhereHas('feedModel', function ($feedModelQuery) {

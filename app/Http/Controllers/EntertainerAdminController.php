@@ -157,7 +157,33 @@ class EntertainerAdminController extends Controller
         $entertainer->is_active = false;
         $entertainer->save();
 
+        if ($entertainer->feed_model_id) {
+            FeedModel::where('id', $entertainer->feed_model_id)->update([
+                'is_active' => false,
+            ]);
+        }
+
         return redirect()->back()->with('success', 'Entertainer application rejected.');
+    }
+
+    public function unapprove(Entertainer $entertainer)
+    {
+        $this->ensureCanManageEntertainer($entertainer);
+
+        $entertainer->status = 'pending';
+        $entertainer->is_active = false;
+        $entertainer->approved_at = null;
+        $entertainer->approved_by = null;
+        $entertainer->rejection_reason = null;
+        $entertainer->save();
+
+        if ($entertainer->feed_model_id) {
+            FeedModel::where('id', $entertainer->feed_model_id)->update([
+                'is_active' => false,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Entertainer has been unapproved and moved back to pending review.');
     }
 
     private function applyGlobalSmtp(): void

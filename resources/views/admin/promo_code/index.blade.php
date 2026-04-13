@@ -77,6 +77,12 @@
                         <div class="row">
                             <div class="col-lg">
                                 <div class="card-shadow-primary card-border text-white mb-3 card bg-primary p-2">
+                                    @if(auth()->user() && auth()->user()->isAdmin())
+                                        <div class="d-flex gap-2 justify-content-end mb-3">
+                                            <a href="{{ route('admin.promo_code.create-targeted', 'affiliate') }}" class="btn btn-warning">Create Affiliate Promo</a>
+                                            <a href="{{ route('admin.promo_code.create-targeted', 'entertainer') }}" class="btn btn-info">Create Entertainer Promo</a>
+                                        </div>
+                                    @endif
 
                                     <table class="table">
                                         <thead>
@@ -122,6 +128,57 @@
                                 </div>
                             </div>
                         </div>
+
+                        @if(auth()->user() && auth()->user()->isAdmin() && isset($targetedPromos) && $targetedPromos->isNotEmpty())
+                        <div class="row mt-4">
+                            <div class="col-lg">
+                                <div class="card-shadow-primary card-border text-white mb-3 card bg-dark p-2">
+                                    <h5 class="p-2 mb-2">Affiliate & Entertainer Promo Codes</h5>
+                                    <table class="table" id="targetedPromosTable">
+                                        <thead>
+                                            <tr>
+                                                <th>SI</th>
+                                                <th>Name</th>
+                                                <th>Code</th>
+                                                <th>Type</th>
+                                                <th>Destination</th>
+                                                <th>Target</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($targetedPromos as $key => $promo)
+                                                <tr>
+                                                    <td>{{ $key + 1 }}</td>
+                                                    <td>{{ $promo->name }}</td>
+                                                    <td>{{ $promo->promo_code }}</td>
+                                                    <td>{{ $promo->type }}</td>
+                                                    <td>{{ ucfirst($promo->audience) }}</td>
+                                                    <td>{{ $promo->target_name }}</td>
+                                                    <td>{{ empty($promo->is_archieved) ? 'Active' : 'Archived' }}</td>
+                                                    <td>
+                                                        <a href="{{ route('admin.promo_code.edit', $promo->id) }}" class="btn btn-primary">Edit</a>
+                                                        @if(empty($promo->is_archieved))
+                                                            <form action="{{ route('admin.promo_code.archive', $promo->id) }}" method="POST" style="display:inline;">
+                                                                @csrf
+                                                                <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to archive this promo code?');">Archive</button>
+                                                            </form>
+                                                        @else
+                                                            <form action="{{ route('admin.promo_code.unarchive', $promo->id) }}" method="POST" style="display:inline;">
+                                                                @csrf
+                                                                <button type="submit" class="btn btn-success" onclick="return confirm('Unarchive this promo code?');">Unarchive</button>
+                                                            </form>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>

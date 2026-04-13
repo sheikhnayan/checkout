@@ -35,6 +35,11 @@ class CheckRoutePermission
             return $next($request);
         }
 
+        // Entertainers are allowed to manage only feed post routes.
+        if ($user->isEntertainer() && str_starts_with($routeName, 'admin.feed-post.')) {
+            return $next($request);
+        }
+
         if (!$user->isWebsiteUser() && !$user->isBouncer()) {
             abort(403, 'Access denied.');
         }

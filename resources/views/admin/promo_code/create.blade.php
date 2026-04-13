@@ -108,6 +108,7 @@ label{
                                         @csrf
 
                                         <div class="card-body">
+                                            <h5 class="mb-3 text-dark">{{ $title ?? 'Promo Code' }}</h5>
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
@@ -133,6 +134,38 @@ label{
                                                     </div>
                                                 </div>
 
+                                                @if(($promoAudience ?? 'club') === 'affiliate')
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="affiliate_id" class="form-label">Specific Affiliate</label>
+                                                        <select name="affiliate_id" class="form-control" id="affiliate_id">
+                                                            <option value="">Select affiliate</option>
+                                                            @foreach(($targetOptions['affiliates'] ?? collect()) as $affiliate)
+                                                                <option value="{{ $affiliate->id }}" {{ old('affiliate_id') == $affiliate->id ? 'selected' : '' }}>
+                                                                    {{ $affiliate->display_name ?: optional($affiliate->user)->name }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                @endif
+
+                                                @if(($promoAudience ?? 'club') === 'entertainer')
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="entertainer_id" class="form-label">Specific Entertainer</label>
+                                                        <select name="entertainer_id" class="form-control" id="entertainer_id">
+                                                            <option value="">Select entertainer</option>
+                                                            @foreach(($targetOptions['entertainers'] ?? collect()) as $entertainer)
+                                                                <option value="{{ $entertainer->id }}" {{ old('entertainer_id') == $entertainer->id ? 'selected' : '' }}>
+                                                                    {{ $entertainer->display_name ?: optional($entertainer->user)->name }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                @endif
+
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="code" class="form-label">Promo Code</label>
@@ -149,6 +182,7 @@ label{
 
 
                                             </div>
+                                            <input type="hidden" name="audience" value="{{ $promoAudience ?? 'club' }}">
                                             <input type="hidden" name="website_id" value="{{ $id }}">
                                             <div id="addons-list"></div>
 

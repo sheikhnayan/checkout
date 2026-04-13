@@ -1036,6 +1036,16 @@
                                         <span class="feed-indicator-icon" title="Contains video"><i class="fas fa-circle-play"></i></span>
                                     @endif
                                 </span>
+                                <button
+                                    type="button"
+                                    class="feed-btn-secondary feed-post-share-btn"
+                                    data-share-url="{{ route('club.feed', $club->slug) }}#post-{{ $post->id }}"
+                                    data-share-title="{{ $post->author_name }} post"
+                                    data-share-text="{{ $post->caption ? \Illuminate\Support\Str::limit($post->caption, 110) : 'Check out this post' }}"
+                                    onclick="window.__feedSharePostFallback && window.__feedSharePostFallback(this);"
+                                >
+                                    <i class="fas fa-share-nodes me-2"></i>Share Post
+                                </button>
                                 <button type="button" class="feed-btn-secondary" data-bs-toggle="modal" data-bs-target="#{{ $commentModalId }}">
                                     <i class="fas fa-comment-dots me-2"></i>{{ $post->visible_comments_count }} Comments
                                 </button>
@@ -1177,6 +1187,14 @@
         const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent)
             || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
+        window.__feedSharePostFallback = function (button) {
+            if (!button) {
+                return;
+            }
+
+            shareFromButton(button, button);
+        };
+
         function restartLoopingVideos(scope, hardReset) {
             if (!isIOSDevice) {
                 return;
@@ -1242,10 +1260,7 @@
         const pageShareButton = document.getElementById('feed-share-page-btn');
         const lightboxShareButton = document.getElementById('feed-lightbox-share-btn');
         const shareMenu = document.getElementById('feed-share-menu');
-
-        if (!lightbox) {
-            return;
-        }
+        const prefersDesktopShareMenu = window.matchMedia && window.matchMedia('(pointer: fine)').matches;
 
         let currentItems = [];
         let currentIndex = 0;
@@ -1275,8 +1290,8 @@
             }
 
             const rect = triggerButton.getBoundingClientRect();
-            const top = rect.bottom + window.scrollY + 8;
-            const left = Math.max(12, Math.min(rect.left + window.scrollX, window.scrollX + window.innerWidth - 214));
+            const top = rect.bottom + 8;
+            const left = Math.max(12, Math.min(rect.left, window.innerWidth - 214));
 
             shareMenu.style.top = top + 'px';
             shareMenu.style.left = left + 'px';
@@ -1325,7 +1340,7 @@
 
             currentSharePayload = payload;
 
-            if (navigator.share) {
+            if (navigator.share && !prefersDesktopShareMenu) {
                 try {
                     await navigator.share(payload);
                     return;
@@ -1337,9 +1352,17 @@
             }
 
             openShareMenu(fallbackTrigger || button);
+
+            if (!shareMenu || !shareMenu.classList.contains('is-open')) {
+                openFallbackShare('copy', payload);
+            }
         }
 
         function renderMediaItem(item) {
+            if (!stage || !counterNode || !prevButton || !nextButton) {
+                return;
+            }
+
             if (!item) {
                 stage.innerHTML = '';
                 return;
@@ -1361,6 +1384,10 @@
         }
 
         function openLightbox(postElement) {
+            if (!lightbox || !captionNode || !dateNode || !commentsNode || !authorNode || !commentsListNode) {
+                return;
+            }
+
             currentItems = JSON.parse(postElement.getAttribute('data-lightbox-items') || '[]');
             currentIndex = 0;
             captionNode.textContent = postElement.getAttribute('data-lightbox-caption') || '';
@@ -1396,6 +1423,11 @@
         }
 
         function closeLightbox() {
+            if (!lightbox || !stage) {
+                closeShareMenu();
+                return;
+            }
+
             lightbox.classList.remove('is-open');
             lightbox.setAttribute('aria-hidden', 'true');
             document.body.style.overflow = '';
@@ -1415,8 +1447,16 @@
         }
 
         document.addEventListener('click', function (event) {
-            if (shareMenu && shareMenu.classList.contains('is-open') && !event.target.closest('#feed-share-menu') && !event.target.closest('#feed-share-page-btn') && !event.target.closest('#feed-lightbox-share-btn')) {
+            if (shareMenu && shareMenu.classList.contains('is-open') && !event.target.closest('#feed-share-menu') && !event.target.closest('#feed-share-page-btn') && !event.target.closest('#feed-lightbox-share-btn') && !event.target.closest('.feed-post-share-btn')) {
                 closeShareMenu();
+            }
+
+            const postShareButton = event.target.closest('.feed-post-share-btn');
+            if (postShareButton) {
+                event.preventDefault();
+                event.stopPropagation();
+                shareFromButton(postShareButton, postShareButton);
+                return;
             }
 
             const shareOptionButton = event.target.closest('[data-share-option]');
@@ -1499,9 +1539,17 @@
             }
         }
 
-        prevButton.addEventListener('click', function () { moveLightbox(-1); });
-        nextButton.addEventListener('click', function () { moveLightbox(1); });
-        closeButton.addEventListener('click', closeLightbox);
+        if (prevButton) {
+            prevButton.addEventListener('click', function () { moveLightbox(-1); });
+        }
+
+        if (nextButton) {
+            nextButton.addEventListener('click', function () { moveLightbox(1); });
+        }
+
+        if (closeButton) {
+            closeButton.addEventListener('click', closeLightbox);
+        }
 
         if (pageShareButton) {
             pageShareButton.addEventListener('click', function () {
@@ -1515,14 +1563,24 @@
             });
         }
 
-        lightbox.addEventListener('click', function (event) {
-            if (event.target === lightbox) {
-                closeLightbox();
-            }
+        document.querySelectorAll('.feed-post-share-btn').forEach(function (button) {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                shareFromButton(button, button);
+            });
         });
 
+        if (lightbox) {
+            lightbox.addEventListener('click', function (event) {
+                if (event.target === lightbox) {
+                    closeLightbox();
+                }
+            });
+        }
+
         document.addEventListener('keydown', function (event) {
-            if (!lightbox.classList.contains('is-open')) {
+            if (!lightbox || !lightbox.classList.contains('is-open')) {
                 return;
             }
 

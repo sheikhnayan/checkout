@@ -189,6 +189,36 @@
         border-top: 1px solid var(--admin-border);
       }
 
+      #layout-menu {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+
+      #layout-menu .menu-inner {
+        flex: 1 1 auto;
+        overflow-y: auto;
+        padding-bottom: 0.75rem;
+      }
+
+      .admin-sidebar-logout {
+        flex: 0 0 auto;
+        padding: 0.6rem 0.75rem calc(0.7rem + env(safe-area-inset-bottom));
+        border-top: 1px solid var(--admin-border);
+        background: rgba(11, 14, 26, 0.9);
+      }
+
+      .admin-sidebar-logout .menu-link {
+        background: #b61f1f !important;
+        color: #fff !important;
+        border-radius: 10px;
+      }
+
+      .admin-sidebar-logout .menu-link:hover {
+        background: #d42a2a !important;
+        color: #fff !important;
+      }
+
       .admin-feedback-stack {
         display: grid;
         gap: 10px;
@@ -382,13 +412,8 @@
           padding-right: 3rem;
         }
 
-        .menu-inner {
-          padding-bottom: 5rem !important;
-        }
-
-        .menu-item[style*='position: absolute'] {
-          position: static !important;
-          margin-top: 1rem;
+        #layout-menu .menu-inner {
+          padding-bottom: 0.5rem !important;
         }
 
         .content-wrapper,
@@ -525,10 +550,26 @@
                 return true;
               }
 
+              if ($authUser->isEntertainer() && str_starts_with($routeName, 'admin.feed-post.')) {
+                return true;
+              }
+
               return method_exists($authUser, 'hasRoutePermission')
                 ? $authUser->hasRoutePermission($routeName)
                 : false;
             };
+
+            $pendingFeedPostCount = 0;
+            if ($authUser && ($authUser->isAdmin() || $authUser->isWebsiteUser())) {
+              $pendingFeedPostCountQuery = \App\Models\FeedPost::query()
+                ->where('approval_status', 'pending');
+
+              if ($authUser->isWebsiteUser() && $authUser->website_id) {
+                $pendingFeedPostCountQuery->where('website_id', $authUser->website_id);
+              }
+
+              $pendingFeedPostCount = (int) $pendingFeedPostCountQuery->count();
+            }
             @endphp
 
           <ul class="menu-inner py-1">
@@ -599,6 +640,24 @@
   </li>
   @endif
 
+  @if($authUser && $canAccessRoute('admin.popup.index'))
+  <li class="menu-item {{ request()->is('admins/popup*') ? 'active' : '' }}">
+    <a href="{{ route('admin.popup.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-window-open"></i>
+      <div class="text-truncate">Checkout Popups</div>
+    </a>
+  </li>
+  @endif
+
+  @if($authUser && $canAccessRoute('admin.incident.index'))
+  <li class="menu-item {{ request()->is('admins/incident*') ? 'active' : '' }}">
+    <a href="{{ route('admin.incident.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-file"></i>
+      <div class="text-truncate">Incident Reports</div>
+    </a>
+  </li>
+  @endif
+
   @if($authUser && $canAccessRoute('admin.feed-model.index'))
   <li class="menu-item {{ request()->is('admins/feed-model*') ? 'active' : '' }}">
     <a href="{{ route('admin.feed-model.index') }}" class="menu-link">
@@ -612,7 +671,7 @@
   <li class="menu-item {{ request()->is('admins/feed-post*') ? 'active' : '' }}">
     <a href="{{ route('admin.feed-post.index') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-images"></i>
-      <div class="text-truncate">Feed Posts</div>
+      <div class="text-truncate">Feed Posts @if($pendingFeedPostCount > 0)<span class="badge bg-warning text-dark ms-1">{{ $pendingFeedPostCount }}</span>@endif</div>
     </a>
   </li>
   @endif
@@ -767,13 +826,14 @@
     </a>
   </li>
 
-  <li class="menu-item" style="position: absolute; bottom: 0px;">
-    <a href="/logout" class="menu-link" style="background: red; color: #fff;">
-      <i class="menu-icon tf-icons bx bx-power-off"></i>
-      <div class="text-truncate">Logout</div>
-    </a>
-  </li>
 </ul>
+
+          <div class="admin-sidebar-logout">
+            <a href="/logout" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-power-off"></i>
+              <div class="text-truncate">Logout</div>
+            </a>
+          </div>
 
         </aside>
         <!-- / Menu -->

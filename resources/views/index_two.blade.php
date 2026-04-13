@@ -21,24 +21,21 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <link rel="stylesheet" href="{{ asset('styles/main.css') }}">
         <style>
-            #Pick-up-time::placeholder {
-                color: #fff !important;
+            #Pick-up-time,
+            input[name="transportation_pickup_time"].flatpickr-time {
+                background: #ffffff !important;
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+                border-color: #d2d7e3 !important;
             }
 
-            #Pick-up-time::-webkit-input-placeholder {
-                color: #fff !important;
-            }
-
-            #Pick-up-time:-ms-input-placeholder {
-                color: #fff !important;
-            }
-
-            #Pick-up-time::-moz-placeholder {
-                color: #fff !important;
-            }
-
-            #Pick-up-time:-moz-placeholder {
-                color: #fff !important;
+            #Pick-up-time::placeholder,
+            #Pick-up-time::-webkit-input-placeholder,
+            #Pick-up-time:-ms-input-placeholder,
+            #Pick-up-time::-moz-placeholder,
+            #Pick-up-time:-moz-placeholder,
+            input[name="transportation_pickup_time"].flatpickr-time::placeholder {
+                color: #555555 !important;
             }
 
             /* Step-by-step checkout styles */
@@ -2294,6 +2291,13 @@
                                                         URL Copied!
                                                     </div>
                                                 </div>
+                                                <div id="shareActions" style="display:none; margin-top:8px; gap:8px; flex-wrap:wrap;">
+                                                    <button type="button" class="vip-btn-submit share-action-btn" data-share-option="native" style="width:auto; height:auto; padding:8px 12px;">More</button>
+                                                    <button type="button" class="vip-btn-submit share-action-btn" data-share-option="whatsapp" style="width:auto; height:auto; padding:8px 12px;">WhatsApp</button>
+                                                    <button type="button" class="vip-btn-submit share-action-btn" data-share-option="facebook" style="width:auto; height:auto; padding:8px 12px;">Facebook</button>
+                                                    <button type="button" class="vip-btn-submit share-action-btn" data-share-option="email" style="width:auto; height:auto; padding:8px 12px;">Email</button>
+                                                    <button type="button" class="vip-btn-submit share-action-btn" data-share-option="copy" style="width:auto; height:auto; padding:8px 12px;">Copy</button>
+                                                </div>
                                             </div>
 
                                             <hr>
@@ -2987,6 +2991,33 @@
                     </div>
                 </div>
             </div>
+
+            @if(isset($checkoutPopup) && $checkoutPopup)
+                <div class="modal fade" id="checkoutPopupModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content" style="background:#111a2e;color:#f4f6ff;border:1px solid rgba(255,255,255,.12);">
+                            <div class="modal-header" style="border-bottom:1px solid rgba(255,255,255,.1);">
+                                <h5 class="modal-title" style="color:#fff;">{{ $checkoutPopup->title }}</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                @if($checkoutPopup->image_path)
+                                    <img src="{{ asset('uploads/' . $checkoutPopup->image_path) }}" alt="Popup" style="width:100%;max-height:280px;object-fit:cover;border-radius:10px;margin-bottom:14px;">
+                                @endif
+                                @if(!empty($checkoutPopup->message))
+                                    <div style="line-height:1.6;white-space:normal;">{!! nl2br(e($checkoutPopup->message)) !!}</div>
+                                @endif
+                            </div>
+                            <div class="modal-footer" style="border-top:1px solid rgba(255,255,255,.1);">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                @if(!empty($checkoutPopup->button_text) && !empty($checkoutPopup->button_url))
+                                    <a href="{{ $checkoutPopup->button_url }}" target="_blank" rel="noopener" class="btn btn-primary">{{ $checkoutPopup->button_text }}</a>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
             </div>
 
 
@@ -3324,6 +3355,61 @@
             }
 
             $(document).ready(function() {
+                function copyShareText(text) {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        return navigator.clipboard.writeText(text).catch(function() {
+                            window.prompt('Copy this link', text);
+                        });
+                    }
+
+                    window.prompt('Copy this link', text);
+                    return Promise.resolve();
+                }
+
+                async function shareShortUrl(url, option) {
+                    var payload = {
+                        title: document.title,
+                        text: 'Check out this package selection',
+                        url: url
+                    };
+                    var shareLine = payload.text + ' ' + payload.url;
+
+                    if (option === 'native') {
+                        if (navigator.share) {
+                            try {
+                                await navigator.share(payload);
+                                return;
+                            } catch (error) {
+                                if (error && error.name === 'AbortError') {
+                                    return;
+                                }
+                            }
+                        }
+
+                        await copyShareText(url);
+                        return;
+                    }
+
+                    if (option === 'whatsapp') {
+                        window.open('https://wa.me/?text=' + encodeURIComponent(shareLine), '_blank', 'noopener');
+                        return;
+                    }
+
+                    if (option === 'facebook') {
+                        window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url), '_blank', 'noopener');
+                        return;
+                    }
+
+                    if (option === 'email') {
+                        var subject = encodeURIComponent(payload.title || 'Check this out');
+                        var body = encodeURIComponent(payload.text + '\n\n' + payload.url);
+                        window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+                        return;
+                    }
+
+                    await copyShareText(url);
+                }
+
                 // Generate link button
                 $('#generateShareLink').on('click', function() {
                     if (window.cart.length === 0) {
@@ -3344,6 +3430,7 @@
                         success: function(res) {
                             if (res.success) {
                                 $('#shareableLink').val(res.short_url).show();
+                                $('#shareActions').css('display', 'flex');
                             } else {
                                 alert('Error: ' + res.message);
                             }
@@ -3371,6 +3458,16 @@
                         // Fallback: select the text
                         $(this).select();
                     });
+                });
+
+                $('#shareActions').on('click', '.share-action-btn', function() {
+                    const url = $('#shareableLink').val();
+                    if (!url) {
+                        alert('Generate a shareable link first.');
+                        return;
+                    }
+
+                    shareShortUrl(url, $(this).data('share-option'));
                 });
 
                 // On page load, check for params
@@ -4037,7 +4134,7 @@
             $('#applyPromoBtn').on('click', function() {
                 let code = $('#promo_code').val().trim();
                 if (!code) return;
-                $.get('/{{ $data->slug }}/check/' + encodeURIComponent(code), function(res) {
+                $.get('/{{ $data->slug }}/check/' + encodeURIComponent(code), { source: 'club' }, function(res) {
                     if (res.valid === false || res.valid === "false") {
                         window.cartCoupon = null;
                         alert('Invalid promo code');
@@ -4304,6 +4401,32 @@
                         }
                     }
                 }, 350);
+            });
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const popup = @json(isset($checkoutPopup) && $checkoutPopup ? ['id' => $checkoutPopup->id, 'show_once_per_session' => (bool) $checkoutPopup->show_once_per_session] : null);
+                if (!popup) {
+                    return;
+                }
+
+                const modalElement = document.getElementById('checkoutPopupModal');
+                if (!modalElement) {
+                    return;
+                }
+
+                const seenKey = 'checkout_popup_seen_' + popup.id;
+                if (popup.show_once_per_session && sessionStorage.getItem(seenKey) === '1') {
+                    return;
+                }
+
+                setTimeout(function() {
+                    bootstrap.Modal.getOrCreateInstance(modalElement).show();
+                    if (popup.show_once_per_session) {
+                        sessionStorage.setItem(seenKey, '1');
+                    }
+                }, 450);
             });
         </script>
 

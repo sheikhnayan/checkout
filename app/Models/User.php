@@ -28,6 +28,9 @@ class User extends Authenticatable
         'website_id',
         'website_role_id',
         'user_type',
+        'oauth_provider',
+        'oauth_provider_id',
+        'avatar_url',
     ];
 
     /**

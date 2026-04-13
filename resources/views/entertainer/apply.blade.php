@@ -52,6 +52,36 @@
             border-radius: 12px;
         }
         .muted { color: #b8c0d9; }
+        .social-signup-wrap {
+            margin-bottom: 16px;
+            padding: 14px;
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.03);
+        }
+        .social-signup-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .btn-social {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.06);
+        }
+        .btn-social:hover { opacity: .9; }
+        .btn-social.disabled {
+            opacity: 0.45;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -72,6 +102,30 @@
 
             <form method="POST" action="{{ route('entertainer.apply.submit') }}">
                 @csrf
+
+                @php
+                    $googleBase = route('social.signup.redirect', ['role' => 'entertainer', 'provider' => 'google']);
+                    $facebookBase = route('social.signup.redirect', ['role' => 'entertainer', 'provider' => 'facebook']);
+                    $selectedClubQuery = $selectedClub ? ('?club=' . urlencode($selectedClub->slug)) : '';
+                @endphp
+
+                <div class="social-signup-wrap">
+                    <div class="fw-semibold">Quick Sign Up</div>
+                    <small class="muted">Use social account signup for entertainer application.</small>
+                    <div class="social-signup-buttons">
+                        <a class="btn-social {{ $selectedClub ? '' : 'disabled' }}" id="entertainer-social-google" href="{{ $googleBase . $selectedClubQuery }}">
+                            <i class="fab fa-google"></i>
+                            Sign up with Google
+                        </a>
+                        <a class="btn-social {{ $selectedClub ? '' : 'disabled' }}" id="entertainer-social-facebook" href="{{ $facebookBase . $selectedClubQuery }}">
+                            <i class="fab fa-facebook-f"></i>
+                            Sign up with Facebook
+                        </a>
+                    </div>
+                    @if(!$selectedClub)
+                        <small class="muted d-block mt-2">Select a club first to enable social signup.</small>
+                    @endif
+                </div>
 
                 @if($selectedClub)
                     <input type="hidden" name="club_slug" value="{{ $selectedClub->slug }}">
@@ -126,5 +180,44 @@
             </form>
         </div>
     </div>
+
+    <script>
+        (function () {
+            const clubSelect = document.querySelector('select[name="website_id"]');
+            const googleBtn = document.getElementById('entertainer-social-google');
+            const facebookBtn = document.getElementById('entertainer-social-facebook');
+            const googleBase = @json($googleBase ?? null);
+            const facebookBase = @json($facebookBase ?? null);
+            const clubs = @json($clubs ?? []);
+
+            if (!clubSelect || !googleBtn || !facebookBtn || !googleBase || !facebookBase) {
+                return;
+            }
+
+            function updateSocialLinks() {
+                const websiteId = clubSelect.value;
+                if (!websiteId) {
+                    googleBtn.classList.add('disabled');
+                    facebookBtn.classList.add('disabled');
+                    googleBtn.setAttribute('href', '#');
+                    facebookBtn.setAttribute('href', '#');
+                    return;
+                }
+
+                const club = clubs.find(function (item) { return String(item.id) === String(websiteId); });
+                if (!club || !club.slug) {
+                    return;
+                }
+
+                googleBtn.classList.remove('disabled');
+                facebookBtn.classList.remove('disabled');
+                googleBtn.setAttribute('href', googleBase + '?club=' + encodeURIComponent(club.slug));
+                facebookBtn.setAttribute('href', facebookBase + '?club=' + encodeURIComponent(club.slug));
+            }
+
+            clubSelect.addEventListener('change', updateSocialLinks);
+            updateSocialLinks();
+        })();
+    </script>
 </body>
 </html>

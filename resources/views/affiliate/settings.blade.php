@@ -107,10 +107,6 @@
                         <label class="form-label">TikTok URL</label>
                         <input type="url" class="form-control" name="tiktok_url" value="{{ old('tiktok_url', $affiliate->tiktok_url) }}">
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Website URL</label>
-                        <input type="url" class="form-control" name="website_url" value="{{ old('website_url', $affiliate->website_url) }}">
-                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary mt-4">Save Customization</button>

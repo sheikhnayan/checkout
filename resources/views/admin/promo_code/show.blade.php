@@ -104,6 +104,8 @@
                                                         <th>Name</th>
                                                         <th>Price</th>
                                                         <th>Type</th>
+                                                        <th>Applies To</th>
+                                                        <th>Target</th>
                                                         <th>Action</th>
                                                     </tr>
                                                 </thead>
@@ -116,6 +118,8 @@
                                                             <td>{{ $item->name }}</td>
                                                             <td>{{ $item->percentage }}</td>
                                                             <td>{{ $item->type }}</td>
+                                                            <td>{{ ucfirst($item->audience ?? 'club') }}</td>
+                                                            <td>{{ $item->target_name ?? 'All visitors on this club checkout' }}</td>
                                                             <td>
                                                                 <a href="/admins/promo_code/edit/{{ $item->id }}" class="btn btn-primary">Edit</a>
                                                                 <form action="/admins/promo_code/archive/{{ $item->id }}" method="POST" style="display:inline;">
@@ -145,6 +149,8 @@
                                                         <th>Name</th>
                                                         <th>Price</th>
                                                         <th>Type</th>
+                                                        <th>Applies To</th>
+                                                        <th>Target</th>
                                                         <th>Action</th>
                                                     </tr>
                                                 </thead>
@@ -157,6 +163,8 @@
                                                             <td>{{ $item->name }}</td>
                                                             <td>{{ $item->percentage }}</td>
                                                             <td>{{ $item->type }}</td>
+                                                            <td>{{ ucfirst($item->audience ?? 'club') }}</td>
+                                                            <td>{{ $item->target_name ?? 'All visitors on this club checkout' }}</td>
                                                             <td>
                                                                 <form action="/admins/promo_code/unarchive/{{ $item->id }}" method="POST" style="display:inline;">
                                                                     @csrf

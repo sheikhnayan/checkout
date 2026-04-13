@@ -24,10 +24,13 @@ use App\Http\Controllers\EntertainerRegistrationController;
 use App\Http\Controllers\EntertainerPublicController;
 use App\Http\Controllers\EntertainerAdminController;
 use App\Http\Controllers\EntertainerPortalController;
+use App\Http\Controllers\SocialSignupController;
 use App\Http\Controllers\PackageCategoryController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\FeedModelController;
 use App\Http\Controllers\FeedPostController;
+use App\Http\Controllers\CheckoutPopupController;
+use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\JobMarketplaceController;
 use App\Http\Controllers\Admin\JobMarketplaceController as AdminJobMarketplaceController;
 use App\Http\Controllers\Admin\WebsiteRoleController;
@@ -66,10 +69,14 @@ Route::post('/custom-invoice/{token}/process-payment', [CustomInvoiceController:
 // Affiliate public routes (must stay before slug route)
 Route::get('/affiliate/apply', [AffiliateRegistrationController::class, 'showForm'])->name('affiliate.apply');
 Route::post('/affiliate/apply', [AffiliateRegistrationController::class, 'submit'])->name('affiliate.apply.submit');
+Route::get('/signup/{role}/{provider}/redirect', [SocialSignupController::class, 'redirect'])->name('social.signup.redirect');
+Route::get('/signup/{role}/{provider}/callback', [SocialSignupController::class, 'callback'])->name('social.signup.callback');
 Route::get('/affiliate/{slug}', [AffiliatePublicController::class, 'show'])->name('affiliate.public');
 Route::get('/entertainer/apply', [EntertainerRegistrationController::class, 'showForm'])->name('entertainer.apply');
 Route::post('/entertainer/apply', [EntertainerRegistrationController::class, 'submit'])->name('entertainer.apply.submit');
 Route::get('/entertainer/{slug}', [EntertainerPublicController::class, 'show'])->name('entertainer.public');
+Route::get('/incident-witness/{token}', [IncidentController::class, 'publicWitnessForm'])->name('incident.witness.form');
+Route::post('/incident-witness/{token}', [IncidentController::class, 'publicWitnessStore'])->name('incident.witness.submit');
 
 // Public feed routes (must stay before slug route)
 Route::get('/feed', [FeedController::class, 'index'])->name('feed.index');
@@ -162,10 +169,36 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::get('/show/{id}', [PromoCodeController::class,'show'])->name('show');
         Route::post('/archive/{id}', [PromoCodeController::class,'archive'])->name('archive');
         Route::post('/unarchive/{id}', [PromoCodeController::class,'unarchive'])->name('unarchive');
+        Route::get('/create-targeted/{audience}', [PromoCodeController::class,'createTargeted'])->name('create-targeted');
         Route::get('/create/{id}', [PromoCodeController::class,'create'])->name('create');
         Route::post('/store', [PromoCodeController::class,'store'])->name('store');
         Route::get('/edit/{id}', [PromoCodeController::class,'edit'])->name('edit');
         Route::post('/update/{id}', [PromoCodeController::class,'update'])->name('update');
+    });
+
+    Route::group(['prefix'=> 'popup', 'as' => 'popup.'], function () {
+        Route::get('/', [CheckoutPopupController::class,'index'])->name('index');
+        Route::get('/show/{id}', [CheckoutPopupController::class,'show'])->name('show');
+        Route::post('/archive/{id}', [CheckoutPopupController::class,'archive'])->name('archive');
+        Route::post('/unarchive/{id}', [CheckoutPopupController::class,'unarchive'])->name('unarchive');
+        Route::get('/create/{id}', [CheckoutPopupController::class,'create'])->name('create');
+        Route::post('/store', [CheckoutPopupController::class,'store'])->name('store');
+        Route::get('/edit/{id}', [CheckoutPopupController::class,'edit'])->name('edit');
+        Route::post('/update/{id}', [CheckoutPopupController::class,'update'])->name('update');
+    });
+
+    Route::group(['prefix'=> 'incident', 'as' => 'incident.'], function () {
+        Route::get('/', [IncidentController::class, 'index'])->name('index');
+        Route::get('/show/{websiteId}', [IncidentController::class, 'show'])->name('show');
+        Route::get('/create/{websiteId}', [IncidentController::class, 'create'])->name('create');
+        Route::post('/store', [IncidentController::class, 'store'])->name('store');
+        Route::get('/details/{incidentId}', [IncidentController::class, 'details'])->name('details');
+        Route::post('/details/{incidentId}/status', [IncidentController::class, 'updateStatus'])->name('status.update');
+        Route::get('/{incidentId}/witness/create', [IncidentController::class, 'createWitness'])->name('witness.create');
+        Route::post('/{incidentId}/witness/store', [IncidentController::class, 'storeWitness'])->name('witness.store');
+        Route::get('/witness/{witnessId}/print', [IncidentController::class, 'printWitness'])->name('witness.print');
+        Route::get('/witness/{witnessId}/download', [IncidentController::class, 'downloadWitness'])->name('witness.download');
+        Route::get('/{incidentId}/export', [IncidentController::class, 'export'])->name('export');
     });
 
     Route::group(['prefix'=> 'transaction', 'as' => 'transaction.'], function () {
@@ -222,6 +255,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::get('/', [AffiliateAdminController::class, 'index'])->name('index');
         Route::get('/{affiliate}', [AffiliateAdminController::class, 'show'])->name('show');
         Route::post('/{affiliate}/approve', [AffiliateAdminController::class, 'approve'])->name('approve');
+        Route::post('/{affiliate}/unapprove', [AffiliateAdminController::class, 'unapprove'])->name('unapprove');
         Route::post('/{affiliate}/reject', [AffiliateAdminController::class, 'reject'])->name('reject');
         Route::post('/{affiliate}/commission', [AffiliateAdminController::class, 'updateCommission'])->name('commission.update');
         Route::post('/{affiliate}/packages', [AffiliateAdminController::class, 'updatePackages'])->name('packages.update');
@@ -231,6 +265,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::get('/', [EntertainerAdminController::class, 'index'])->name('index');
         Route::get('/{entertainer}', [EntertainerAdminController::class, 'show'])->name('show');
         Route::post('/{entertainer}/approve', [EntertainerAdminController::class, 'approve'])->name('approve');
+        Route::post('/{entertainer}/unapprove', [EntertainerAdminController::class, 'unapprove'])->name('unapprove');
         Route::post('/{entertainer}/reject', [EntertainerAdminController::class, 'reject'])->name('reject');
         Route::post('/{entertainer}/commission', [EntertainerAdminController::class, 'updateCommission'])->name('commission.update');
     });
@@ -251,6 +286,8 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::get('/show/{feedPost}', [FeedPostController::class, 'show'])->name('show');
         Route::get('/edit/{feedPost}', [FeedPostController::class, 'edit'])->name('edit');
         Route::post('/update/{feedPost}', [FeedPostController::class, 'update'])->name('update');
+        Route::post('/approve/{feedPost}', [FeedPostController::class, 'approve'])->name('approve');
+        Route::post('/reject/{feedPost}', [FeedPostController::class, 'reject'])->name('reject');
         Route::post('/destroy/{feedPost}', [FeedPostController::class, 'destroy'])->name('destroy');
         Route::post('/{feedPost}/comments/{feedComment}/toggle', [FeedPostController::class, 'toggleCommentVisibility'])->name('comments.toggle');
         Route::post('/{feedPost}/comments/{feedComment}/destroy', [FeedPostController::class, 'destroyComment'])->name('comments.destroy');

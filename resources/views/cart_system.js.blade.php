@@ -198,7 +198,7 @@ $('.package_number_of_guestss').on('change', function() {
 $('#applyPromoBtn').on('click', function() {
     let code = $('#promo_code').val().trim();
     if (!code) return;
-    $.get('/{{ $data->slug }}/check/' + encodeURIComponent(code), function(res) {
+    $.get('/{{ $data->slug }}/check/' + encodeURIComponent(code), { source: 'club' }, function(res) {
         if (res.valid === false || res.valid === "false") {
             cartCoupon = null;
             alert('Invalid promo code');

@@ -8,8 +8,17 @@
     $isEntertainerUser = auth()->check() && auth()->user()->isEntertainer() && auth()->user()->entertainer;
     $entertainerProfileId = $isEntertainerUser ? auth()->user()->entertainer->feed_model_id : null;
     $showOnRollCall = old('show_on_roll_call', isset($feedPost) ? $feedPost->show_on_roll_call : false);
-    $rollCallStartDateValue = old('roll_call_start_date', optional($feedPost->roll_call_start_date ?? $feedPost->roll_call_date ?? $feedPost->posted_at ?? now())->format('Y-m-d'));
-    $rollCallEndDateValue = old('roll_call_end_date', optional($feedPost->roll_call_end_date ?? $feedPost->roll_call_start_date ?? $feedPost->roll_call_date)->format('Y-m-d'));
+    $canUseRollCallInitial = !$isEntertainerUser && $selectedAuthorMode === 'model';
+    $showOnRollCall = $canUseRollCallInitial ? (bool) $showOnRollCall : false;
+    $rollCallStartDateSource = optional($feedPost)->roll_call_start_date
+        ?? optional($feedPost)->roll_call_date
+        ?? optional($feedPost)->posted_at
+        ?? now();
+    $rollCallEndDateSource = optional($feedPost)->roll_call_end_date
+        ?? optional($feedPost)->roll_call_start_date
+        ?? optional($feedPost)->roll_call_date;
+    $rollCallStartDateValue = old('roll_call_start_date', optional($rollCallStartDateSource)->format('Y-m-d'));
+    $rollCallEndDateValue = old('roll_call_end_date', optional($rollCallEndDateSource)->format('Y-m-d'));
 @endphp
 
 <style>
@@ -78,6 +87,12 @@
 
 <div class="row g-4">
     @if($isEntertainerUser)
+        <div class="col-12">
+            <div class="alert alert-info mb-0">
+                Your post will be submitted for approval. A club admin or super admin must approve it before it appears on the public feed.
+            </div>
+        </div>
+
         <input type="hidden" name="website_id" id="website_id" value="{{ $selectedWebsiteId }}">
         <input type="hidden" name="author_mode" id="author_mode" value="model">
         <input type="hidden" name="feed_model_id" id="feed_model_id" value="{{ $entertainerProfileId }}">
@@ -106,7 +121,7 @@
         <select name="feed_model_id" id="feed_model_id" class="form-control">
             <option value="">Select entertainer</option>
             @foreach($feedModels as $model)
-                <option value="{{ $model->id }}" data-website="{{ $model->website_id }}" @selected((string) $selectedModelId === (string) $model->id)>{{ $model->name }} - {{ $model->is_real_profile ? 'Real' : 'Fake' }} ({{ $model->website->name ?? 'No website' }})</option>
+                    <option value="{{ $model->id }}" data-website="{{ $model->website_id }}" @selected((string) $selectedModelId === (string) $model->id)>{{ $model->name }} - {{ $model->is_real_profile ? 'Real' : 'Fake' }} ({{ $model->website->name ?? 'No website' }})</option>
             @endforeach
         </select>
         <small class="text-muted">Visible only when posting as an entertainer.</small>
@@ -125,19 +140,19 @@
         </div>
     </div>
 
-    <div class="col-md-6 d-flex align-items-center">
+    <div class="col-md-6 align-items-center" id="roll-call-toggle-wrap" style="display: {{ $canUseRollCallInitial ? 'flex' : 'none' }};">
         <div class="form-check mt-4">
             <input class="form-check-input" type="checkbox" value="1" id="show_on_roll_call" name="show_on_roll_call" @checked($showOnRollCall)>
             <label class="form-check-label" for="show_on_roll_call">Do you want to post to Roll Call in feed post?</label>
         </div>
     </div>
 
-    <div class="col-md-6" id="roll-call-date-wrap" style="display: {{ $showOnRollCall ? 'block' : 'none' }};">
+    <div class="col-md-6" id="roll-call-date-wrap" style="display: {{ $canUseRollCallInitial && $showOnRollCall ? 'block' : 'none' }};">
         <label for="roll_call_start_date" class="form-label">Show in Roll Call from</label>
         <input type="date" name="roll_call_start_date" id="roll_call_start_date" class="form-control" value="{{ $rollCallStartDateValue }}">
     </div>
 
-    <div class="col-md-6" id="roll-call-end-date-wrap" style="display: {{ $showOnRollCall ? 'block' : 'none' }};">
+    <div class="col-md-6" id="roll-call-end-date-wrap" style="display: {{ $canUseRollCallInitial && $showOnRollCall ? 'block' : 'none' }};">
         <label for="roll_call_end_date" class="form-label">Until</label>
         <input type="date" name="roll_call_end_date" id="roll_call_end_date" class="form-control" value="{{ $rollCallEndDateValue }}">
         <small class="text-muted">This post appears in Roll Call for every date in the range. Leave end date empty for one day.</small>
@@ -232,12 +247,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const externalRows = document.getElementById('external-rows');
     const addUploadRowBtn = document.getElementById('add-upload-row');
     const addExternalRowBtn = document.getElementById('add-external-row');
+    const rollCallToggleWrap = document.getElementById('roll-call-toggle-wrap');
     const showOnRollCallCheckbox = document.getElementById('show_on_roll_call');
     const rollCallDateWrap = document.getElementById('roll-call-date-wrap');
     const rollCallEndDateWrap = document.getElementById('roll-call-end-date-wrap');
     const rollCallStartDateInput = document.getElementById('roll_call_start_date');
     const rollCallEndDateInput = document.getElementById('roll_call_end_date');
     const selectedModelInput = @json((string) $selectedModelId);
+    const isEntertainerUser = @json((bool) $isEntertainerUser);
     const hasModelSelect = modelSelect && modelSelect.tagName === 'SELECT';
     const allModelOptions = hasModelSelect
         ? Array.from(modelSelect.options)
@@ -250,6 +267,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 };
             })
         : [];
+
+    function canUseRollCall() {
+        if (!authorModeSelect || !showOnRollCallCheckbox) {
+            return false;
+        }
+
+        if (isEntertainerUser) {
+            return false;
+        }
+
+        return authorModeSelect && authorModeSelect.value === 'model';
+    }
 
     function syncModelOptions() {
         if (!websiteSelect || !hasModelSelect) {
@@ -301,7 +330,19 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function syncRollCallDateField() {
-        if (!showOnRollCallCheckbox || !rollCallDateWrap || !rollCallStartDateInput || !rollCallEndDateWrap || !rollCallEndDateInput) {
+        if (!showOnRollCallCheckbox || !rollCallDateWrap || !rollCallStartDateInput || !rollCallEndDateWrap || !rollCallEndDateInput || !rollCallToggleWrap) {
+            return;
+        }
+
+        const allowed = canUseRollCall();
+        rollCallToggleWrap.style.display = allowed ? 'flex' : 'none';
+
+        if (!allowed) {
+            showOnRollCallCheckbox.checked = false;
+            rollCallDateWrap.style.display = 'none';
+            rollCallEndDateWrap.style.display = 'none';
+            rollCallStartDateInput.required = false;
+            rollCallEndDateInput.required = false;
             return;
         }
 

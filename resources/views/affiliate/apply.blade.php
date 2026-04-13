@@ -48,6 +48,32 @@
             border-radius: 12px;
         }
         .muted { color: #b8c0d9; }
+        .social-signup-wrap {
+            margin-top: 18px;
+            padding: 14px;
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.03);
+        }
+        .social-signup-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .btn-social {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.06);
+        }
+        .btn-social:hover { opacity: .9; }
     </style>
 </head>
 <body>
@@ -68,6 +94,22 @@
 
             <form method="POST" action="{{ route('affiliate.apply.submit') }}">
                 @csrf
+
+                <div class="social-signup-wrap">
+                    <div class="fw-semibold">Quick Sign Up</div>
+                    <small class="muted">Use your social account and submit the same affiliate application.</small>
+                    <div class="social-signup-buttons">
+                        <a class="btn-social" href="{{ route('social.signup.redirect', ['role' => 'affiliate', 'provider' => 'google']) }}">
+                            <i class="fab fa-google"></i>
+                            Sign up with Google
+                        </a>
+                        <a class="btn-social" href="{{ route('social.signup.redirect', ['role' => 'affiliate', 'provider' => 'facebook']) }}">
+                            <i class="fab fa-facebook-f"></i>
+                            Sign up with Facebook
+                        </a>
+                    </div>
+                </div>
+
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label">Full Name</label>

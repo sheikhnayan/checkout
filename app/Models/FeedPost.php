@@ -14,6 +14,9 @@ class FeedPost extends Model
         'images',
         'media_items',
         'is_active',
+        'approval_status',
+        'approved_at',
+        'approved_by',
         'show_on_roll_call',
         'roll_call_date',
         'roll_call_start_date',
@@ -25,6 +28,7 @@ class FeedPost extends Model
         'images' => 'array',
         'media_items' => 'array',
         'is_active' => 'boolean',
+        'approved_at' => 'datetime',
         'show_on_roll_call' => 'boolean',
         'roll_call_date' => 'date',
         'roll_call_start_date' => 'date',
@@ -40,6 +44,11 @@ class FeedPost extends Model
     public function feedModel()
     {
         return $this->belongsTo(FeedModel::class);
+    }
+
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
     }
 
     public function comments()

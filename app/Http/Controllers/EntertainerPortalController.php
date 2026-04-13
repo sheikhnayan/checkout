@@ -110,7 +110,6 @@ class EntertainerPortalController extends Controller
             'instagram_url' => 'nullable|url|max:255',
             'youtube_url' => 'nullable|url|max:255',
             'tiktok_url' => 'nullable|url|max:255',
-            'website_url' => 'nullable|url|max:255',
             'font_family' => 'nullable|string|max:120',
             'profile_image' => 'nullable|image|max:4096',
             'banner_image' => 'nullable|image|max:4096',
@@ -129,7 +128,6 @@ class EntertainerPortalController extends Controller
             'instagram_url',
             'youtube_url',
             'tiktok_url',
-            'website_url',
             'font_family',
         ]));
 

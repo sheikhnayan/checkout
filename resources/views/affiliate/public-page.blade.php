@@ -501,6 +501,19 @@
         select.form-select { -webkit-appearance:none !important; appearance:none !important; }
         select option { background:#1a1d2e !important; color:#fff; }
 
+        #Pick-up-time,
+        input[name="transportation_pickup_time"].flatpickr-time {
+            background: #ffffff !important;
+            color: #111111 !important;
+            -webkit-text-fill-color: #111111 !important;
+            border-color: #d2d7e3 !important;
+        }
+
+        #Pick-up-time::placeholder,
+        input[name="transportation_pickup_time"].flatpickr-time::placeholder {
+            color: #555555 !important;
+        }
+
         .date-input-wrapper {
             position: relative;
             width: 100%;
@@ -2093,7 +2106,7 @@ $('#applyPromoBtn').on('click', function() {
     if (!c) return;
     const code = $('#promo_code').val().trim();
     if (!code) return;
-    $.get('/' + c.slug + '/check/' + encodeURIComponent(code), function(res) {
+    $.get('/' + c.slug + '/check/' + encodeURIComponent(code), { source: '{{ $isEntertainerProfile ? 'entertainer' : 'affiliate' }}', owner_slug: '{{ $affiliate->slug }}' }, function(res) {
         if (!res.valid || res.valid === 'false') {
             window.cartCoupon = null; alert('Invalid promo code.'); calcTotal();
         } else {

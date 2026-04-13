@@ -12,7 +12,10 @@
                                 <h5 class="mb-1">Ticket QR Scanner</h5>
                                 <p class="text-muted mb-0">Scan customer QR tickets and confirm check-in at the door.</p>
                             </div>
-                            <button id="startScannerBtn" class="btn btn-primary">Start Camera</button>
+                            <div class="d-flex gap-2">
+                                <button id="startScannerBtn" class="btn btn-primary">Start Camera</button>
+                                <button id="stopScannerBtn" class="btn btn-outline-danger" disabled>Stop Camera</button>
+                            </div>
                         </div>
 
                         @if(session('success'))
@@ -67,6 +70,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const startScannerBtn = document.getElementById('startScannerBtn');
+    const stopScannerBtn = document.getElementById('stopScannerBtn');
     const manualLookupBtn = document.getElementById('manualLookupBtn');
     const manualCodeInput = document.getElementById('manualCode');
     const scanStatus = document.getElementById('scanStatus');
@@ -108,6 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
             setStatus('Camera active. Scan a QR ticket.', false);
             startScannerBtn.textContent = 'Camera Running';
             startScannerBtn.disabled = true;
+            stopScannerBtn.disabled = false;
         } catch (error) {
             setStatus('Unable to access camera. Use manual code verification.', true);
         }
@@ -127,6 +132,8 @@ document.addEventListener('DOMContentLoaded', function () {
         scannerStarted = false;
         startScannerBtn.textContent = 'Start Camera';
         startScannerBtn.disabled = false;
+        stopScannerBtn.disabled = true;
+        setStatus('Camera stopped. You can restart anytime.', false);
     }
 
     function renderDetails(data) {
@@ -204,6 +211,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     startScannerBtn.addEventListener('click', startScanner);
+    stopScannerBtn.addEventListener('click', stopScanner);
 
     manualLookupBtn.addEventListener('click', function () {
         verifyCode(manualCodeInput.value);

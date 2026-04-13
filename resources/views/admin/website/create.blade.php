@@ -209,7 +209,10 @@ label{
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="website_admin_email" class="form-label">Website Admin Email</label>
-                                                        <input type="email" name="website_admin_email" class="form-control" id="website_admin_email" placeholder="admin@website.com" required>
+                                                        <input type="email" name="website_admin_email" class="form-control @error('website_admin_email') is-invalid @enderror" id="website_admin_email" value="{{ $errors->has('website_admin_email') ? '' : old('website_admin_email') }}" placeholder="admin@website.com" required>
+                                                        @error('website_admin_email')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
@@ -549,6 +552,93 @@ label{
                 });
                 $('#emails-json').val(JSON.stringify(emails));
             });
+
+            (function restoreOldFormValues() {
+                const oldInput = @json(old());
+                if (!oldInput || typeof oldInput !== 'object') {
+                    return;
+                }
+
+                Object.keys(oldInput).forEach(function (name) {
+                    if (['emails', '_token'].includes(name)) {
+                        return;
+                    }
+
+                    const value = oldInput[name];
+                    const field = document.querySelector('[name="' + name + '"]');
+                    if (!field) {
+                        return;
+                    }
+
+                    const tag = field.tagName.toLowerCase();
+                    const type = (field.getAttribute('type') || '').toLowerCase();
+
+                    if (type === 'file' || type === 'password') {
+                        return;
+                    }
+
+                    if (tag === 'select') {
+                        if (value !== null && value !== undefined && String(value) !== '') {
+                            field.value = String(value);
+                        }
+                        return;
+                    }
+
+                    if (tag === 'textarea' || tag === 'input') {
+                        if (value !== null && value !== undefined) {
+                            field.value = String(value);
+                        }
+                    }
+                });
+
+                const rawEmails = oldInput.emails;
+                if (!rawEmails) {
+                    return;
+                }
+
+                let parsedEmails = [];
+                try {
+                    parsedEmails = typeof rawEmails === 'string' ? JSON.parse(rawEmails) : rawEmails;
+                } catch (e) {
+                    parsedEmails = [];
+                }
+
+                if (!Array.isArray(parsedEmails) || parsedEmails.length === 0) {
+                    return;
+                }
+
+                const wrapper = $('#emails-wrapper');
+                wrapper.empty();
+
+                parsedEmails.forEach(function (item, index) {
+                    const name = item && item.name ? item.name : '';
+                    const email = item && item.email ? item.email : '';
+                    const actionBtn = index === 0
+                        ? '<button type="button" class="btn btn-success add-email w-100" title="Add Email"><i class="fa fa-plus"></i></button>'
+                        : '<button type="button" class="btn btn-danger remove-email w-100" title="Remove"><i class="fa fa-minus"></i></button>';
+
+                    const row = '<div class="row mb-2 email-group">'
+                        + '<div class="col-5"><input type="text" class="form-control email-name" placeholder="Name" value="' + $('<div>').text(name).html() + '"></div>'
+                        + '<div class="col-5"><input type="email" class="form-control email-address" placeholder="Email Address" value="' + $('<div>').text(email).html() + '"></div>'
+                        + '<div class="col-2">' + actionBtn + '</div>'
+                        + '</div>';
+
+                    wrapper.append(row);
+                });
+
+                $('#emails-json').val(JSON.stringify(parsedEmails));
+            })();
+
+            @if($errors->has('website_admin_email'))
+            (function focusWebsiteAdminEmail() {
+                const field = document.getElementById('website_admin_email');
+                if (field) {
+                    field.focus();
+                    field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            })();
+            @endif
+
             function initGalleryUploader(pickerId, inputId, previewId, hiddenExistingId) {
                 const picker = document.getElementById(pickerId);
                 const galleryInput = document.getElementById(inputId);

@@ -8,6 +8,11 @@
                 <div>
                     <h4 class="mb-1">Edit Feed Post</h4>
                     <p class="text-muted mb-0">Update caption, gallery, and visibility for this post.</p>
+                    <p class="mb-0 mt-1">
+                        <span class="badge {{ ($feedPost->approval_status ?? 'approved') === 'pending' ? 'bg-warning text-dark' : (($feedPost->approval_status ?? 'approved') === 'rejected' ? 'bg-danger' : 'bg-success') }}">
+                            Moderation: {{ ucfirst($feedPost->approval_status ?? 'approved') }}
+                        </span>
+                    </p>
                 </div>
                 <a href="{{ route('admin.feed-post.show', $feedPost) }}" class="btn btn-outline-info">Manage Comments</a>
             </div>

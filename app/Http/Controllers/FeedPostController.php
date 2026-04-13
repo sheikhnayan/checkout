@@ -131,6 +131,31 @@ class FeedPostController extends Controller
         return redirect()->route('admin.feed-post.show', $feedPost)->with('success', 'Comment deleted successfully.');
     }
 
+    public function approve(FeedPost $feedPost): RedirectResponse
+    {
+        $this->ensureApprovePermission($feedPost);
+
+        $feedPost->approval_status = 'approved';
+        $feedPost->approved_at = now();
+        $feedPost->approved_by = auth()->id();
+        $feedPost->save();
+
+        return redirect()->route('admin.feed-post.index')->with('success', 'Feed post approved and now visible on public feed.');
+    }
+
+    public function reject(FeedPost $feedPost): RedirectResponse
+    {
+        $this->ensureApprovePermission($feedPost);
+
+        $feedPost->approval_status = 'rejected';
+        $feedPost->approved_at = null;
+        $feedPost->approved_by = null;
+        $feedPost->is_active = false;
+        $feedPost->save();
+
+        return redirect()->route('admin.feed-post.index')->with('success', 'Feed post rejected.');
+    }
+
     private function validatePost(Request $request): array
     {
         return $request->validate([
@@ -170,7 +195,20 @@ class FeedPostController extends Controller
         $post->caption = $validated['caption'] ?? null;
         $post->posted_at = $validated['posted_at'] ?? now();
         $post->is_active = $request->boolean('is_active', true);
-        $post->show_on_roll_call = $request->boolean('show_on_roll_call', false);
+        if ($entertainer) {
+            // Real entertainers must be approved by club admin or super admin.
+            $post->approval_status = 'pending';
+            $post->approved_at = null;
+            $post->approved_by = null;
+        } else {
+            // Admin-created feed posts (club/fake entertainer flow) are auto-approved.
+            $post->approval_status = 'approved';
+            $post->approved_at = now();
+            $post->approved_by = auth()->id();
+        }
+        $post->show_on_roll_call = $this->canUseRollCall($post, $entertainer)
+            ? $request->boolean('show_on_roll_call', false)
+            : false;
 
         $resolvedRollCallStart = $validated['roll_call_start_date']
             ?? $validated['roll_call_date']
@@ -240,6 +278,7 @@ class FeedPostController extends Controller
 
         return FeedModel::with('website')
             ->whereIn('website_id', $this->accessibleWebsiteIds())
+            ->where('is_real_profile', false)
             ->orderBy('name')
             ->get();
     }
@@ -255,6 +294,7 @@ class FeedPostController extends Controller
     {
         $exists = FeedModel::where('id', $feedModelId)
             ->where('website_id', $websiteId)
+            ->where('is_real_profile', false)
             ->whereIn('website_id', $this->accessibleWebsiteIds())
             ->exists();
 
@@ -274,6 +314,16 @@ class FeedPostController extends Controller
 
         if ((string) $feedPost->author_mode !== 'model' || (int) $feedPost->feed_model_id !== (int) $entertainer->feed_model_id) {
             abort(403, 'You can only manage your own feed posts.');
+        }
+    }
+
+    private function ensureApprovePermission(FeedPost $feedPost): void
+    {
+        $this->ensureWebsiteAccess($feedPost->website_id);
+
+        $user = auth()->user();
+        if (!$user || (!$user->isAdmin() && !$user->isWebsiteUser())) {
+            abort(403, 'Only super admin or club admin can approve entertainer posts.');
         }
     }
 
@@ -390,5 +440,20 @@ class FeedPostController extends Controller
         }
 
         return $entertainer;
+    }
+
+    private function canUseRollCall(FeedPost $post, $entertainer): bool
+    {
+        if ($entertainer) {
+            return false;
+        }
+
+        if ((string) $post->author_mode !== 'model' || empty($post->feed_model_id)) {
+            return false;
+        }
+
+        $feedModel = FeedModel::find($post->feed_model_id);
+
+        return $feedModel ? !$feedModel->is_real_profile : false;
     }
 }
