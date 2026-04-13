@@ -537,8 +537,6 @@
 
           <div class="menu-divider mt-0"></div>
 
-          <div class="menu-inner-shadow"></div>
-
             @php
             $authUser = auth()->user();
             $canAccessRoute = function (string $routeName) use ($authUser) {
