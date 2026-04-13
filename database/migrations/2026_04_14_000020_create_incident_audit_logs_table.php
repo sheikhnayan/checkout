@@ -10,14 +10,34 @@ return new class extends Migration
     {
         Schema::create('incident_audit_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('incident_id')->constrained('incidents')->cascadeOnDelete();
-            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->unsignedBigInteger('incident_id')->index();
+            $table->unsignedBigInteger('user_id')->nullable()->index();
             $table->string('action', 120);
             $table->json('change_summary')->nullable();
             $table->string('ip_address', 64)->nullable();
             $table->text('user_agent')->nullable();
             $table->timestamp('created_at')->useCurrent();
         });
+
+        if (Schema::hasTable('incidents') && Schema::hasColumn('incidents', 'id')) {
+            try {
+                Schema::table('incident_audit_logs', function (Blueprint $table) {
+                    $table->foreign('incident_id')->references('id')->on('incidents')->cascadeOnDelete();
+                });
+            } catch (\Throwable $e) {
+                // Keep migration non-blocking on legacy/incompatible VPS schemas.
+            }
+        }
+
+        if (Schema::hasTable('users') && Schema::hasColumn('users', 'id')) {
+            try {
+                Schema::table('incident_audit_logs', function (Blueprint $table) {
+                    $table->foreign('user_id')->references('id')->on('users')->nullOnDelete();
+                });
+            } catch (\Throwable $e) {
+                // Keep migration non-blocking on legacy/incompatible VPS schemas.
+            }
+        }
     }
 
     public function down(): void

@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('witness_reports', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('incident_id')->constrained('incidents')->cascadeOnDelete();
-            $table->foreignId('submitted_by_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->unsignedBigInteger('incident_id')->index();
+            $table->unsignedBigInteger('submitted_by_user_id')->nullable()->index();
             $table->string('submitted_via')->default('shared_link');
             $table->string('location_legal_name');
             $table->string('location_dba_name');
@@ -30,6 +30,26 @@ return new class extends Migration
             $table->string('digital_signature_name')->nullable();
             $table->timestamps();
         });
+
+        if (Schema::hasTable('incidents') && Schema::hasColumn('incidents', 'id')) {
+            try {
+                Schema::table('witness_reports', function (Blueprint $table) {
+                    $table->foreign('incident_id')->references('id')->on('incidents')->cascadeOnDelete();
+                });
+            } catch (\Throwable $e) {
+                // Keep migration non-blocking on legacy/incompatible VPS schemas.
+            }
+        }
+
+        if (Schema::hasTable('users') && Schema::hasColumn('users', 'id')) {
+            try {
+                Schema::table('witness_reports', function (Blueprint $table) {
+                    $table->foreign('submitted_by_user_id')->references('id')->on('users')->nullOnDelete();
+                });
+            } catch (\Throwable $e) {
+                // Keep migration non-blocking on legacy/incompatible VPS schemas.
+            }
+        }
     }
 
     public function down(): void

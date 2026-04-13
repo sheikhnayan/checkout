@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('witness_report_attachments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('witness_report_id')->constrained('witness_reports')->cascadeOnDelete();
+            $table->unsignedBigInteger('witness_report_id')->index();
             $table->string('attachment_type')->default('evidence');
             $table->string('file_path');
             $table->string('original_name');
@@ -18,6 +18,16 @@ return new class extends Migration
             $table->unsignedBigInteger('file_size')->default(0);
             $table->timestamps();
         });
+
+        if (Schema::hasTable('witness_reports') && Schema::hasColumn('witness_reports', 'id')) {
+            try {
+                Schema::table('witness_report_attachments', function (Blueprint $table) {
+                    $table->foreign('witness_report_id')->references('id')->on('witness_reports')->cascadeOnDelete();
+                });
+            } catch (\Throwable $e) {
+                // Keep migration non-blocking on legacy/incompatible VPS schemas.
+            }
+        }
     }
 
     public function down(): void
