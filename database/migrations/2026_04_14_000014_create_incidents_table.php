@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('incidents', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('website_id')->constrained('websites')->cascadeOnDelete();
+            $table->unsignedBigInteger('website_id')->index();
             $table->string('public_witness_token')->unique();
             $table->string('location_legal_name');
             $table->string('location_dba_name');
@@ -34,9 +34,30 @@ return new class extends Migration
             $table->boolean('accepted_esignature')->default(false);
             $table->boolean('opted_out_esignature')->default(false);
             $table->string('digital_signature_name')->nullable();
-            $table->foreignId('created_by_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->unsignedBigInteger('created_by_user_id')->nullable()->index();
             $table->timestamps();
         });
+
+        // Add FK constraints only when referenced tables exist and are compatible.
+        if (Schema::hasTable('websites') && Schema::hasColumn('websites', 'id')) {
+            try {
+                Schema::table('incidents', function (Blueprint $table) {
+                    $table->foreign('website_id')->references('id')->on('websites')->cascadeOnDelete();
+                });
+            } catch (\Throwable $e) {
+                // Keep migration non-blocking on legacy/incompatible VPS schemas.
+            }
+        }
+
+        if (Schema::hasTable('users') && Schema::hasColumn('users', 'id')) {
+            try {
+                Schema::table('incidents', function (Blueprint $table) {
+                    $table->foreign('created_by_user_id')->references('id')->on('users')->nullOnDelete();
+                });
+            } catch (\Throwable $e) {
+                // Keep migration non-blocking on legacy/incompatible VPS schemas.
+            }
+        }
     }
 
     public function down(): void
