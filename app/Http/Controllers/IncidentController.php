@@ -353,6 +353,9 @@ class IncidentController extends Controller
 
         $file = $request->file('evidence_file');
         $this->ensureUploadDirectory(public_path('uploads/incidents/witness'));
+        $originalName = $file->getClientOriginalName();
+        $mimeType = $file->getClientMimeType();
+        $fileSize = (int) $file->getSize();
         $fileName = 'witness_' . $witness->id . '_' . time() . '_' . Str::random(8) . '.' . $file->getClientOriginalExtension();
         $file->move(public_path('uploads/incidents/witness'), $fileName);
 
@@ -360,15 +363,18 @@ class IncidentController extends Controller
             'witness_report_id' => $witness->id,
             'attachment_type' => 'evidence',
             'file_path' => 'incidents/witness/' . $fileName,
-            'original_name' => $file->getClientOriginalName(),
-            'mime_type' => $file->getMimeType(),
-            'file_size' => (int) $file->getSize(),
+            'original_name' => $originalName,
+            'mime_type' => $mimeType,
+            'file_size' => $fileSize,
         ]);
     }
 
     private function persistIncidentAttachment(Incident $incident, $file, string $type): void
     {
         $this->ensureUploadDirectory(public_path('uploads/incidents/main'));
+        $originalName = $file->getClientOriginalName();
+        $mimeType = $file->getClientMimeType();
+        $fileSize = (int) $file->getSize();
         $fileName = 'incident_' . $incident->id . '_' . $type . '_' . time() . '_' . Str::random(8) . '.' . $file->getClientOriginalExtension();
         $file->move(public_path('uploads/incidents/main'), $fileName);
 
@@ -376,9 +382,9 @@ class IncidentController extends Controller
             'incident_id' => $incident->id,
             'attachment_type' => $type,
             'file_path' => 'incidents/main/' . $fileName,
-            'original_name' => $file->getClientOriginalName(),
-            'mime_type' => $file->getMimeType(),
-            'file_size' => (int) $file->getSize(),
+            'original_name' => $originalName,
+            'mime_type' => $mimeType,
+            'file_size' => $fileSize,
         ]);
     }
 
