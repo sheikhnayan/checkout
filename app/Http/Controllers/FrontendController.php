@@ -266,4 +266,36 @@ class FrontendController extends Controller
                 return max(1, (int) $transaction->package_number_of_guest);
             });
     }
+
+    /**
+     * Check if a package can be purchased and get available capacity
+     */
+    public function checkPackageCapacity($packageId, Request $request)
+    {
+        $package = Package::find($packageId);
+
+        if (!$package) {
+            return response()->json(['available' => false, 'message' => 'Package not found']);
+        }
+
+        $capacity = \App\Helpers\PackageLimitHelper::getAvailableCapacity($package);
+        
+        if ($capacity <= 0) {
+            return response()->json([
+                'available' => false,
+                'message' => $package->package_type === 'table' 
+                    ? 'No tables available for today' 
+                    : 'No tickets available for today'
+            ]);
+        }
+
+        return response()->json([
+            'available' => true,
+            'capacity' => $capacity,
+            'package_type' => $package->package_type,
+            'daily_limit' => $package->package_type === 'table' 
+                ? $package->daily_table_limit 
+                : $package->daily_ticket_limit
+        ]);
+    }
 }

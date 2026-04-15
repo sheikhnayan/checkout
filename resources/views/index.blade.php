@@ -729,6 +729,9 @@ input::placeholder, textarea::placeholder {
     font-size: 13px;
     line-height: 1.4;
 }
+.checkbox-container label span {
+    flex: 1;
+}
 .checkbox-container input[type="checkbox"] {
     -webkit-appearance: none;
     appearance: none;
@@ -769,10 +772,14 @@ input::placeholder, textarea::placeholder {
 
 /* Cart section card */
 #cart-section {
-    background: rgba(255,255,255,0.04) !important;
-    border: 1px solid rgba(255,255,255,0.1) !important;
+    background:
+        linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)),
+        linear-gradient(135deg, color-mix(in srgb, var(--accent) 16%, transparent), rgba(11, 16, 29, 0.94) 58%) !important;
+    border: 1px solid color-mix(in srgb, var(--accent) 34%, rgba(255,255,255,0.12)) !important;
     border-radius: 12px !important;
     padding: 16px 18px;
+    box-shadow: 0 16px 34px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
 }
 
 /* Step navigation � centered flex row */
@@ -885,8 +892,10 @@ input::placeholder, textarea::placeholder {
 
 /* Exact affiliate-page layout surfaces */
 body {
-    background: var(--accent) !important;
-    background: var(--bg) !important;
+    background:
+        radial-gradient(circle at top left, color-mix(in srgb, var(--accent) 14%, transparent), transparent 28%),
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.06), transparent 34%),
+        linear-gradient(180deg, var(--bg) 0%, #0f1526 48%, var(--bg) 100%) !important;
     color: var(--text-main) !important;
     font-family: 'Inter', sans-serif;
     min-height: 100vh;
@@ -1192,9 +1201,69 @@ body {
 .hero-gallery-item {
     width: 100%;
     aspect-ratio: 4 / 3;
-    object-fit: cover;
+    padding: 0;
     border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.15);
+    border: 1px solid rgba(239, 190, 111, 0.28);
+    overflow: hidden;
+    background: rgba(255,255,255,0.04);
+    cursor: pointer;
+    position: relative;
+    transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease, filter .24s ease;
+}
+
+.hero-gallery-item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14), inset 0 0 28px rgba(255,255,255,0.08);
+    pointer-events: none;
+}
+
+.hero-gallery-item:hover,
+.hero-gallery-item:focus-visible {
+    transform: translateY(-3px);
+    border-color: rgba(239, 190, 111, 0.46);
+    box-shadow: 0 18px 34px rgba(0,0,0,0.28);
+    filter: brightness(1.02);
+    outline: none;
+}
+
+.hero-gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.checkout-gallery-modal .modal-content {
+    background: rgba(9, 13, 24, 0.96);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.checkout-gallery-modal .modal-header {
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 12px 16px;
+}
+
+.checkout-gallery-modal .btn-close {
+    filter: invert(1) grayscale(1);
+    opacity: .9;
+}
+
+.checkout-gallery-modal .modal-body {
+    padding: 0;
+    background: #030712;
+}
+
+.checkout-gallery-modal-image {
+    width: 100%;
+    max-height: min(82vh, 980px);
+    object-fit: contain;
+    display: block;
+    background: #030712;
 }
 
 .aff-story,
@@ -1270,8 +1339,20 @@ nav .tab:hover {
 }
 
 .package-category-tile.active {
+    background: #101725 !important;
+    color: var(--accent) !important;
+    border-color: var(--accent) !important;
+}
+
+.package-category-tile {
     background: var(--accent) !important;
     color: #000 !important;
+    border-color: var(--accent) !important;
+    box-shadow: 0 12px 24px rgba(255, 204, 0, 0.12);
+}
+
+.package-category-tile:hover {
+    filter: brightness(1.03);
 }
 
 .vip-card.selected {
@@ -1837,6 +1918,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         <div class="aff-display-copy">
                             {{ $event->hero_subtitle ?: ($eventDateShort . ($event->time ? ' - ' . $event->time : '')) }}
                         </div>
+                        @if(!empty($event->time))
+                            <div class="aff-display-copy">
+                                <i class="fas fa-clock me-1"></i>{{ $event->time }}
+                            </div>
+                        @endif
 
                         <div class="hero-date-card">
                             <label>Reservation Date</label>
@@ -1872,7 +1958,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 @if(!empty($event->gallery_images))
                     <div class="hero-gallery-grid">
                         @foreach((array) $event->gallery_images as $galleryImage)
-                            <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image" class="hero-gallery-item">
+                            <button type="button" class="hero-gallery-item js-checkout-gallery-trigger" data-gallery-src="{{ asset('uploads/' . $galleryImage) }}" data-gallery-alt="Gallery image {{ $loop->iteration }}">
+                                <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image {{ $loop->iteration }}">
+                            </button>
                         @endforeach
                     </div>
                 @endif
@@ -2027,15 +2115,19 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                             <div class="checkbox-container">
                                                 <label>
                                                     <input type="checkbox" id="smsConsent_two" required />
-                                                    I agree to receive SMS communications from {{ $data->name }} regarding my
+                                                    <span>I agree to receive SMS communications from {{ $data->name }} regarding my
                                                     upcoming reservation. Message and data rates may apply. Messaging frequency
-                                                    may vary. Reply STOP to opt out at any time. I also agree to receive notifications from the driver.
+                                                    may vary. Reply STOP to opt out at any time.</span>
+                                                </label>
+                                                <label class="driver-notification-consent-wrap" style="display:none;">
+                                                    <input type="checkbox" id="driverNotificationConsent_two" class="driver-notification-consent-input" />
+                                                    <span>I agree to receive notifications from the driver regarding my transportation pickup.</span>
                                                 </label>
                                                 <label>
                                                     <input type="checkbox" id="termsConsent_two" required />
-                                                    I have read and agreed to the {{ $data->name }} <a target="_blank"
+                                                    <span>I agree to the {{ $data->name }} <a target="_blank"
                                                         href="{{ $data->terms }}">Terms of Service</a> and <a
-                                                        href="{{ $data->policy }}" target="_blank">Privacy Policy</a>.
+                                                        href="{{ $data->policy }}" target="_blank">Privacy Policy</a>.</span>
                                                 </label>
                                             </div>
                                             <button class="submit-btn" type="submit" id="submitBtn_two">Create
@@ -2120,10 +2212,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                     type="button"
                                                     class="btn btn-outline-light package-category-tile mb-2 w-100"
                                                     data-target="#category-group-{{ $category['id'] }}"
-                                                    style="border-color: {{ $brandPrimary }}; color: {{ $brandPrimary }}; display:flex; justify-content:space-between; align-items:center; text-align:left; padding:14px 16px; border-radius:12px; font-size:15px; font-weight:600;"
+                                                    style="background: {{ $brandPrimary }}; border-color: {{ $brandPrimary }}; color: #000; display:flex; justify-content:space-between; align-items:center; text-align:left; padding:14px 16px; border-radius:12px; font-size:15px; font-weight:600;"
                                                 >
                                                     {{ $category['name'] }}
-                                                    <span style="opacity:.7; font-size:12px;">+</span>
+                                                    <span class="package-category-indicator" style="opacity:.7; font-size:12px;">+</span>
                                                 </button>
                                             @endforeach
                                         </div>
@@ -2410,7 +2502,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                         id="Pick-up-time"
                                                                         class="form-control flatpickr-time"
                                                                         placeholder="Select Time"
-                                                                        value="{{ \Carbon\Carbon::now()->format('h:i A') }}"
+                                                                        value=""
                                                                         style="width: 100px; height: 30px; color: #fff !important; font-size: 12px;"
                                                                          />
                                                                     <br>
@@ -2443,7 +2535,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     
                                                                     <input type="number" class="form-control"
                                                                         name="transportation_guest" value="0"
-                                                                        style="width: 50%; color: #fff;"  />
+                                                                        style="width: 120px; max-width: 120px; color: #fff;"  />
     
     
     
@@ -2662,21 +2754,25 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                             <div class="checkbox-container">
                                                                 <label>
                                                                     <input type="checkbox" id="smsConsent" required />
-                                                                    I agree to receive SMS communications from
+                                                                    <span>I agree to receive SMS communications from
                                                                     {{ $data->name }}
                                                                     regarding my upcoming
                                                                     reservation. Message and data rates may apply. Messaging
                                                                     frequency may vary. Reply
-                                                                    STOP to opt out at any time. I also agree to receive notifications from the driver.
+                                                                    STOP to opt out at any time.</span>
+                                                                </label>
+                                                                <label class="driver-notification-consent-wrap" style="display:none;">
+                                                                    <input type="checkbox" id="driverNotificationConsent" class="driver-notification-consent-input" />
+                                                                    <span>I agree to receive notifications from the driver regarding my transportation pickup.</span>
                                                                 </label>
     
                                                                 <label>
                                                                     <input type="checkbox" id="termsConsent" required />
-                                                                    I have read and agreed to the {{ $data->name }} <a
+                                                                    <span>I agree to the {{ $data->name }} <a
                                                                         target="_blank" href="{{ $data->terms }}">Terms of
                                                                         Service</a> and <a target="_blank"
                                                                         href="{{ $data->privacy }}">Privacy
-                                                                        Policy</a>.
+                                                                        Policy</a>.</span>
                                                                 </label>
                                                             </div>
 
@@ -2793,6 +2889,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                         {{ \Carbon\Carbon::parse($eventStartDate)->format('M d') }} - {{ \Carbon\Carbon::parse($eventEndDate)->format('M d') }}
                                                     </div>
                                                 @endif
+                                                @if(!empty($item->time))
+                                                    <div class="event-location">
+                                                        <i class="fas fa-clock me-1"></i>{{ $item->time }}
+                                                    </div>
+                                                @endif
                                                 <div class="event-location">{{ $data->location }}</div>
                                                 @if (!is_null($item->remaining_attendee_capacity))
                                                     <div class="event-capacity-chip{{ !empty($item->is_sold_out) ? ' sold-out' : '' }}">
@@ -2849,13 +2950,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     <div class="modal fade" id="checkoutPopupModal" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content" style="background:#111a2e;color:#f4f6ff;border:1px solid rgba(255,255,255,.12);">
-                                <div class="modal-header" style="border-bottom:1px solid rgba(255,255,255,.1);">
-                                    <h5 class="modal-title" style="color:#fff;">{{ $checkoutPopup->title }}</h5>
+                                <div class="modal-header {{ empty($checkoutPopup->title) ? 'justify-content-end' : '' }}" style="border-bottom:1px solid rgba(255,255,255,.1);">
+                                    @if(!empty($checkoutPopup->title))
+                                        <h5 class="modal-title" style="color:#fff;">{{ $checkoutPopup->title }}</h5>
+                                    @endif
                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     @if($checkoutPopup->image_path)
-                                        <img src="{{ asset('uploads/' . $checkoutPopup->image_path) }}" alt="Popup" style="width:100%;max-height:280px;object-fit:cover;border-radius:10px;margin-bottom:14px;">
+                                        <img src="{{ asset('uploads/' . $checkoutPopup->image_path) }}" alt="Popup" style="display:block;max-width:100%;width:auto;max-height:70vh;height:auto;object-fit:contain;border-radius:10px;margin:0 auto 14px;background:#0b1222;">
                                     @endif
                                     @if(!empty($checkoutPopup->message))
                                         <div style="line-height:1.6;white-space:normal;">{!! nl2br(e($checkoutPopup->message)) !!}</div>
@@ -3086,6 +3189,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 const transportationAddressField = $('input[name="transportation_address"]');
                 const transportationPickupTimeField = $('input[name="transportation_pickup_time"]');
                 const pickupDateField = $('input[name="package_use_date"]');
+                const driverNotificationConsentWrap = $('.driver-notification-consent-wrap');
+                const driverNotificationConsentInputs = $('.driver-notification-consent-input');
                 if (window.requiresTransportation) {
                     $('#step-2 .step-title').text('Transportation');
                     $('#next-to-transport').text('Next: Transportation Details');
@@ -3093,6 +3198,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     transportationAddressField.prop('required', true).attr('aria-required', 'true');
                     transportationPickupTimeField.prop('required', true).attr('aria-required', 'true');
                     pickupDateField.prop('required', true).attr('aria-required', 'true');
+                    driverNotificationConsentWrap.css('display', 'flex');
+                    driverNotificationConsentInputs.prop('required', true).attr('aria-required', 'true');
                 } else {
                     $('#step-2 .step-title').text('Confirmation');
                     $('#next-to-transport').text('Next: Transportation Confirmation');
@@ -3100,6 +3207,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     transportationAddressField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
                     transportationPickupTimeField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
                     pickupDateField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
+                    driverNotificationConsentWrap.hide();
+                    driverNotificationConsentInputs.prop('checked', false).prop('required', false).removeAttr('aria-required');
                 }
             }
 
@@ -3200,33 +3309,44 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     return false;
                 }
 
-                var existing = window.cart.find(p => p.packageId == packageId);
-                if (!existing) {
-                    window.cart.push({
-                        packageId: packageId,
-                        packageName: packageName,
-                        packagePrice: parseFloat(packagePrice),
-                        guests: normalizedGuests,
-                        isMultiple: parseMultipleFlag(isMultiple),
-                        addons: addons || [],
-                        transportation: transportation
-                    });
-                } else {
-                    existing.packageName = packageName;
-                    existing.packagePrice = parseFloat(packagePrice);
-                    existing.guests = normalizedGuests;
-                    existing.isMultiple = parseMultipleFlag(isMultiple);
-                    existing.addons = addons || [];
-                    existing.transportation = transportation;
-                }
-                $('#cart-section').show();
-                $('#shareLinkContainer').show();
-                window.renderCart();
-                syncCheckoutCartFields();
-                window.calculateCartTotal();
-                syncTransportationStateFromCart();
-                syncEventCapacityUi();
-                return true;
+                // Check daily limits for this package
+                $.get('/{{ $data->slug }}/package/' + packageId + '/capacity', function(response) {
+                    if (!response.available) {
+                        alert('This package is no longer available: ' + response.message);
+                        return false;
+                    }
+
+                    var existing = window.cart.find(p => p.packageId == packageId);
+                    if (!existing) {
+                        window.cart.push({
+                            packageId: packageId,
+                            packageName: packageName,
+                            packagePrice: parseFloat(packagePrice),
+                            guests: normalizedGuests,
+                            isMultiple: parseMultipleFlag(isMultiple),
+                            addons: addons || [],
+                            transportation: transportation
+                        });
+                    } else {
+                        existing.packageName = packageName;
+                        existing.packagePrice = parseFloat(packagePrice);
+                        existing.guests = normalizedGuests;
+                        existing.isMultiple = parseMultipleFlag(isMultiple);
+                        existing.addons = addons || [];
+                        existing.transportation = transportation;
+                    }
+                    $('#cart-section').show();
+                    $('#shareLinkContainer').show();
+                    window.renderCart();
+                    syncCheckoutCartFields();
+                    window.calculateCartTotal();
+                    syncTransportationStateFromCart();
+                    syncEventCapacityUi();
+                    return true;
+                }).fail(function() {
+                    alert('Error checking package availability. Please try again.');
+                    return false;
+                });
             };
 
             window.removePackageFromCart = function(packageId) {
@@ -3729,15 +3849,23 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 });
 
                 $(document).on('click', '.package-category-tile', function() {
-                    var target = $(this).data('target');
+                    var targetSelector = String($(this).data('target') || '');
+                    var targetId = targetSelector.replace(/^#/, '');
+                    var $target = targetId ? $('#' + targetId) : $();
                     var isOpen = $(this).hasClass('active');
 
-                    $('.package-category-tile').removeClass('active').css({ backgroundColor: 'transparent', color: '{{ $brandPrimary }}' });
-                    $('.package-category-group').hide();
+                    $('.package-category-tile')
+                        .removeClass('active')
+                        .css({ backgroundColor: '{{ $brandPrimary }}', color: '#000' })
+                        .find('.package-category-indicator').text('+');
+                    $('.package-category-group').stop(true, true).slideUp(180);
 
-                    if (!isOpen) {
-                        $(this).addClass('active').css({ backgroundColor: '{{ $brandPrimary }}', color: '#000' });
-                        $(target).show();
+                    if (!isOpen && $target.length) {
+                        $(this)
+                            .addClass('active')
+                            .css({ backgroundColor: '#101725', color: '{{ $brandPrimary }}' })
+                            .find('.package-category-indicator').text('−');
+                        $target.stop(true, true).slideDown(180);
                     }
                 });
 
@@ -3852,6 +3980,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             function validateStep(stepNumber) {
                 let isValid = true;
                 const requiredFields = [];
+                let firstInvalidField = null;
+                let alertMessage = 'Please fill in all required fields.';
                 
                 if (stepNumber === 1) {
                     // Validate package holder info
@@ -3886,13 +4016,33 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     if (!field.val() || field.val().trim() === '') {
                         field.addClass('required-field');
                         isValid = false;
+                        if (!firstInvalidField) {
+                            firstInvalidField = field;
+                        }
                     } else {
                         field.removeClass('required-field');
                     }
                 });
+
+                if (isValid && stepNumber === 2 && window.requiresTransportation && typeof validateTransportationScheduleClient === 'function') {
+                    const scheduleValidation = validateTransportationScheduleClient();
+                    if (!scheduleValidation.valid) {
+                        isValid = false;
+                        firstInvalidField = scheduleValidation.field || firstInvalidField;
+                        alertMessage = scheduleValidation.message;
+                    }
+                }
                 
-                if (!isValid && stepNumber !== 2) {
-                    alert('Please fill in all required fields.');
+                if (!isValid && stepNumber === 2 && window.requiresTransportation && alertMessage === 'Please fill in all required fields.') {
+                    alertMessage = 'Please complete the required transportation details before proceeding.';
+                }
+
+                if (!isValid) {
+                    alert(alertMessage);
+                    if (firstInvalidField && firstInvalidField.length) {
+                        firstInvalidField.trigger('focus');
+                        firstInvalidField[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
                 }
                 
                 return isValid;
@@ -4093,11 +4243,90 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 prepareCheckoutCartPayload(this);
             });
 
+            const transportationSchedule = {
+                startTime: @json($data->operating_start_time),
+                endTime: @json($data->operating_end_time),
+            };
+
+            function parseTimeToMinutes(timeValue) {
+                if (!timeValue) {
+                    return null;
+                }
+
+                const trimmedValue = String(timeValue).trim();
+                const twelveHourMatch = trimmedValue.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+                if (twelveHourMatch) {
+                    let hours = parseInt(twelveHourMatch[1], 10) % 12;
+                    const minutes = parseInt(twelveHourMatch[2], 10);
+                    if (twelveHourMatch[3].toUpperCase() === 'PM') {
+                        hours += 12;
+                    }
+
+                    return (hours * 60) + minutes;
+                }
+
+                const twentyFourHourMatch = trimmedValue.match(/^(\d{1,2}):(\d{2})$/);
+                if (twentyFourHourMatch) {
+                    return (parseInt(twentyFourHourMatch[1], 10) * 60) + parseInt(twentyFourHourMatch[2], 10);
+                }
+
+                return null;
+            }
+
+            function isTimeWithinOperatingHours(timeValue) {
+                const pickupMinutes = parseTimeToMinutes(timeValue);
+                if (pickupMinutes === null) {
+                    return false;
+                }
+
+                const startMinutes = parseTimeToMinutes(transportationSchedule.startTime);
+                const endMinutes = parseTimeToMinutes(transportationSchedule.endTime);
+
+                if (startMinutes === null || endMinutes === null) {
+                    return true;
+                }
+
+                if (endMinutes < startMinutes) {
+                    return pickupMinutes >= startMinutes || pickupMinutes <= endMinutes;
+                }
+
+                return pickupMinutes >= startMinutes && pickupMinutes <= endMinutes;
+            }
+
+            function validateTransportationScheduleClient() {
+                const pickupTimeField = $('[name="transportation_pickup_time"]');
+                const pickupTime = pickupTimeField.val().trim();
+
+                if (!pickupTime) {
+                    pickupTimeField.addClass('required-field');
+                    return {
+                        valid: false,
+                        field: pickupTimeField,
+                        message: 'Please complete the required transportation details before proceeding.'
+                    };
+                }
+
+                if (!isTimeWithinOperatingHours(pickupTime)) {
+                    pickupTimeField.addClass('required-field');
+                    return {
+                        valid: false,
+                        field: pickupTimeField,
+                        message: 'Pickup time must be within the club operating hours.'
+                    };
+                }
+
+                return { valid: true, field: null, message: '' };
+            }
+
             flatpickr(".flatpickr-time", {
                 enableTime: true,
                 noCalendar: true,
                 dateFormat: "h:i K",
-                time_24hr: false
+                time_24hr: false,
+                minTime: transportationSchedule.startTime || null,
+                maxTime: transportationSchedule.endTime || null,
+                defaultDate: null,
+                allowInput: false
             });
 
             // Event checkout date is fixed to the event start date.
@@ -4276,6 +4505,47 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         sessionStorage.setItem(seenKey, '1');
                     }
                 }, 450);
+            });
+        </script>
+
+        <div class="modal fade checkout-gallery-modal" id="checkoutGalleryModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Gallery Image</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <img src="" alt="" id="checkoutGalleryModalImage" class="checkout-gallery-modal-image">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('click', function(event) {
+                const trigger = event.target.closest('.js-checkout-gallery-trigger');
+                if (!trigger) {
+                    return;
+                }
+
+                const modalElement = document.getElementById('checkoutGalleryModal');
+                const modalImage = document.getElementById('checkoutGalleryModalImage');
+                if (!modalElement || !modalImage) {
+                    return;
+                }
+
+                modalImage.src = trigger.getAttribute('data-gallery-src') || '';
+                modalImage.alt = trigger.getAttribute('data-gallery-alt') || 'Gallery image';
+                bootstrap.Modal.getOrCreateInstance(modalElement).show();
+            });
+
+            document.getElementById('checkoutGalleryModal')?.addEventListener('hidden.bs.modal', function() {
+                const modalImage = document.getElementById('checkoutGalleryModalImage');
+                if (modalImage) {
+                    modalImage.src = '';
+                    modalImage.alt = '';
+                }
             });
         </script>
 

@@ -98,6 +98,8 @@ Route::get('/{slug}/addons/{id}', [FrontendController::class, 'addons'])->name('
 
 Route::get('/{slug}/check/{code}', [FrontendController::class, 'checkCode'])->name('check.code');
 
+Route::get('/{slug}/package/{packageId}/capacity', [FrontendController::class, 'checkPackageCapacity'])->name('package.capacity');
+
 Route::post('/{slug}/checkout/store', [TransactionController::class, 'store'])->name('checkout.store');
 
 Route::post('/{slug}/reservation/store', [TransactionController::class, 'reservation_store'])->name('reservations.store');
@@ -286,6 +288,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::get('/show/{feedPost}', [FeedPostController::class, 'show'])->name('show');
         Route::get('/edit/{feedPost}', [FeedPostController::class, 'edit'])->name('edit');
         Route::post('/update/{feedPost}', [FeedPostController::class, 'update'])->name('update');
+        Route::post('/bulk-approve', [FeedPostController::class, 'bulkApprove'])->name('bulk-approve');
         Route::post('/approve/{feedPost}', [FeedPostController::class, 'approve'])->name('approve');
         Route::post('/reject/{feedPost}', [FeedPostController::class, 'reject'])->name('reject');
         Route::post('/destroy/{feedPost}', [FeedPostController::class, 'destroy'])->name('destroy');

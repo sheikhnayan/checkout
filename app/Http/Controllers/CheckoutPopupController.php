@@ -64,7 +64,7 @@ class CheckoutPopupController extends Controller
 
         $validated = $request->validate([
             'website_id' => 'required|integer|exists:websites,id',
-            'title' => 'required|string|max:255',
+            'title' => 'nullable|string|max:255',
             'message' => 'nullable|string|max:5000',
             'image' => 'nullable|image|max:4096',
             'button_text' => 'nullable|string|max:80',
@@ -77,8 +77,8 @@ class CheckoutPopupController extends Controller
 
         $popup = new CheckoutPopup();
         $popup->website_id = (int) $validated['website_id'];
-        $popup->title = $validated['title'];
-        $popup->message = $validated['message'] ?? null;
+    $popup->title = trim((string) ($validated['title'] ?? ''));
+    $popup->message = blank($validated['message'] ?? null) ? null : trim((string) $validated['message']);
         $popup->button_text = $validated['button_text'] ?? null;
         $popup->button_url = $validated['button_url'] ?? null;
         $popup->starts_at = $validated['starts_at'] ?? null;
@@ -122,7 +122,7 @@ class CheckoutPopupController extends Controller
         }
 
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'nullable|string|max:255',
             'message' => 'nullable|string|max:5000',
             'image' => 'nullable|image|max:4096',
             'button_text' => 'nullable|string|max:80',
@@ -133,8 +133,8 @@ class CheckoutPopupController extends Controller
             'is_active' => 'nullable|boolean',
         ]);
 
-        $popup->title = $validated['title'];
-        $popup->message = $validated['message'] ?? null;
+        $popup->title = trim((string) ($validated['title'] ?? ''));
+        $popup->message = blank($validated['message'] ?? null) ? null : trim((string) $validated['message']);
         $popup->button_text = $validated['button_text'] ?? null;
         $popup->button_url = $validated['button_url'] ?? null;
         $popup->starts_at = $validated['starts_at'] ?? null;

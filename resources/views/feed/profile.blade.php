@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @php
-        $metaTitle = trim(($profileTitle ?? 'Profile') . ' Profile');
+        $metaTitle = trim(($profileTitle ?? 'Profile'));
         $metaDescription = trim((string) ($profileSubtitle ?? ''));
         if ($metaDescription === '') {
             $metaDescription = 'View updates and posts from ' . ($profileTitle ?? 'this profile') . '.';

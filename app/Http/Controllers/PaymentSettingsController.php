@@ -58,6 +58,37 @@ class PaymentSettingsController extends Controller
             'promo_code_name' => 'nullable|string|max:255',
         ]);
 
+        // Keep existing API keys when fields are intentionally left blank during updates.
+        $secretLikeFields = [
+            'stripe_public_key',
+            'stripe_app_key',
+            'stripe_secret_key',
+            'authorize_login_id',
+            'authorize_transaction_key',
+            'authorize_app_key',
+            'authorize_secret_key',
+        ];
+
+        foreach ($secretLikeFields as $field) {
+            if ($request->has($field) && trim((string) $request->input($field)) === '') {
+                unset($validated[$field]);
+            }
+        }
+
+        // In checkout logic, charge lines are disabled when field name is "0".
+        foreach (['gratuity_name', 'sales_tax_name', 'service_charge_name'] as $chargeFieldName) {
+            if (array_key_exists($chargeFieldName, $validated) && trim((string) $validated[$chargeFieldName]) === '') {
+                $validated[$chargeFieldName] = '0';
+            }
+        }
+
+        // Keep optional display labels clean when left empty.
+        foreach (['refundable_name', 'promo_code_name'] as $optionalNameField) {
+            if (array_key_exists($optionalNameField, $validated) && trim((string) $validated[$optionalNameField]) === '') {
+                $validated[$optionalNameField] = null;
+            }
+        }
+
         // Update website with payment settings
         $website->update($validated);
 

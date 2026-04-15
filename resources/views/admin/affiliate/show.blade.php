@@ -11,7 +11,7 @@
             <h4>{{ $affiliate->display_name ?: $affiliate->user->name }}</h4>
             <p class="mb-1"><strong>Email:</strong> {{ $affiliate->user->email }}</p>
             <p class="mb-1"><strong>Status:</strong> {{ ucfirst($affiliate->status) }}</p>
-            <p class="mb-1"><strong>Default Commission %:</strong> {{ number_format((float) ($affiliate->default_commission_percentage ?? 0), 2) }}%</p>
+            <p class="mb-1"><strong>Default Commission:</strong> {{ number_format((float) ($affiliate->default_commission_percentage ?? 0), 2) }}%</p>
             <p class="mb-3"><strong>Public Page:</strong> <a href="{{ route('affiliate.public', $affiliate->slug) }}" target="_blank">{{ route('affiliate.public', $affiliate->slug) }}</a></p>
 
             @if($affiliate->status !== 'approved')
@@ -28,7 +28,7 @@
             <form method="POST" action="{{ route('admin.affiliate.commission.update', $affiliate->id) }}" class="d-flex gap-2 align-items-end mb-3">
                 @csrf
                 <div>
-                    <label class="form-label">Change Commission Later (%)</label>
+                    <label class="form-label">Change Commission (%)</label>
                     <input type="number" min="0" max="100" step="0.01" name="default_commission_percentage" class="form-control" value="{{ old('default_commission_percentage', $affiliate->default_commission_percentage) }}" required>
                 </div>
                 <button type="submit" class="btn btn-outline-primary">Update Commission</button>

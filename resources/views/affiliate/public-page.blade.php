@@ -46,12 +46,31 @@
         }
         * { box-sizing: border-box; }
         body {
-            background: var(--aff-bg);
+            background:
+                radial-gradient(circle at top left, rgba(255, 204, 0, 0.08), transparent 28%),
+                radial-gradient(circle at top right, rgba(26, 117, 255, 0.12), transparent 34%),
+                linear-gradient(180deg, #0b0e1a 0%, #0f1526 52%, #0b0e1a 100%);
             color: var(--aff-text);
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
         }
         a { color: var(--aff-accent); }
+
+        .package-category-tile {
+            background: var(--aff-accent) !important;
+            color: #000 !important;
+            border: 1px solid var(--aff-accent) !important;
+            box-shadow: 0 12px 24px rgba(255, 204, 0, 0.12);
+        }
+        .package-category-tile:hover {
+            filter: brightness(1.03);
+        }
+        .package-category-tile.active {
+            background: #101725 !important;
+            color: var(--aff-accent) !important;
+            border-color: var(--aff-accent) !important;
+            box-shadow: none;
+        }
 
         /* Hero */
         .aff-hero {
@@ -227,8 +246,72 @@
             background: rgba(255, 204, 0, 0.16);
         }
 
-        /* Club label badge */
+        /* Package location badge */
         .club-badge { display:inline-block; font-size:10px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; padding:2px 8px; border-radius:4px; background:rgba(255,255,255,0.1); margin-bottom:6px; }
+
+        .package-search-wrap {
+            display: grid;
+            grid-template-columns: 1.4fr minmax(220px, 0.9fr) auto;
+            gap: 10px;
+            align-items: end;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        .package-search-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .package-search-field label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            opacity: .68;
+            font-weight: 700;
+            margin: 0;
+        }
+        .package-search-wrap input,
+        .package-search-wrap select {
+            width: 100%;
+            margin: 0 !important;
+            background: rgba(255,255,255,0.08) !important;
+            border: 1px solid rgba(255,255,255,0.2) !important;
+            border-radius: 10px !important;
+            color: var(--aff-text) !important;
+            padding: 9px 11px !important;
+            min-height: 40px;
+        }
+        .package-search-wrap input::placeholder {
+            color: rgba(255,255,255,0.5) !important;
+        }
+        .package-search-clear {
+            appearance: none;
+            border: 1px solid rgba(255,255,255,0.22);
+            background: rgba(255,255,255,0.08);
+            color: var(--aff-text);
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .4px;
+            min-height: 40px;
+            padding: 0 14px;
+            cursor: pointer;
+            transition: border-color .2s ease, background .2s ease;
+        }
+        .package-search-clear:hover {
+            border-color: var(--aff-accent);
+            background: rgba(255, 204, 0, 0.14);
+            color: #fff;
+        }
+        .package-search-empty {
+            display: none;
+            margin: 6px 2px 12px;
+            font-size: 13px;
+            opacity: .75;
+        }
 
         /* Package cards */
         .vip-card {
@@ -351,7 +434,8 @@
         .aff-banner.has-image {
             background:
                 linear-gradient(125deg, rgba(8,11,22,0.84), rgba(8,11,22,0.48)),
-                url('{{ $affiliate->banner_image ? asset('uploads/' . $affiliate->banner_image) : '' }}') center/cover no-repeat;
+                url('{{ $affiliate->banner_image ? asset('uploads/' . $affiliate->banner_image) : '' }}') center/contain no-repeat,
+                #101522;
         }
         .aff-banner-content { position:relative; z-index:1; padding:28px; }
         .aff-kicker { font-size:11px; letter-spacing:1px; text-transform:uppercase; opacity:.64; font-weight:700; }
@@ -365,8 +449,60 @@
             word-break: break-word;
         }
         .aff-gallery { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; margin-top:18px; }
-        .aff-gallery-item { border-radius:14px; overflow:hidden; border:1px solid rgba(255,255,255,0.08); min-height:125px; background:rgba(255,255,255,0.04); }
+        .aff-gallery-item {
+            position: relative;
+            width: 100%;
+            min-height: 125px;
+            padding: 0;
+            border: 1px solid rgba(239, 190, 111, 0.28);
+            border-radius: 14px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.04);
+            cursor: pointer;
+            transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease, filter .24s ease;
+        }
+        .aff-gallery-item::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14), inset 0 0 28px rgba(255,255,255,0.08);
+            pointer-events: none;
+        }
+        .aff-gallery-item:hover,
+        .aff-gallery-item:focus-visible {
+            transform: translateY(-3px);
+            border-color: rgba(239, 190, 111, 0.46);
+            box-shadow: 0 18px 34px rgba(0,0,0,0.28);
+            filter: brightness(1.02);
+            outline: none;
+        }
         .aff-gallery-item img { width:100%; height:100%; object-fit:cover; display:block; }
+        .checkout-gallery-modal .modal-content {
+            background: rgba(9, 13, 24, 0.96);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .checkout-gallery-modal .modal-header {
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding: 12px 16px;
+        }
+        .checkout-gallery-modal .btn-close {
+            filter: invert(1) grayscale(1);
+            opacity: .9;
+        }
+        .checkout-gallery-modal .modal-body {
+            padding: 0;
+            background: #030712;
+        }
+        .checkout-gallery-modal-image {
+            width: 100%;
+            max-height: min(82vh, 980px);
+            object-fit: contain;
+            display: block;
+            background: #030712;
+        }
         .aff-story {
             margin: 0 0 24px;
             padding: 18px 20px;
@@ -592,7 +728,18 @@
         .same-as-info, .same-as-info-transport { background:var(--aff-accent) !important; color:#000 !important; border:none; padding:9px 20px; border-radius:25px; font-weight:700; margin-bottom:16px; cursor:pointer; font-size:13px; display:inline-block; }
 
         /* Cart */
-        #cart-section { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:16px 18px; margin-bottom:1.2rem; display:none; }
+        #cart-section {
+            background:
+                linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)),
+                linear-gradient(135deg, color-mix(in srgb, var(--aff-accent) 16%, transparent), rgba(11, 16, 29, 0.94) 58%);
+            border:1px solid color-mix(in srgb, var(--aff-accent) 34%, rgba(255,255,255,0.12));
+            border-radius:12px;
+            padding:16px 18px;
+            margin-bottom:1.2rem;
+            display:none;
+            box-shadow:0 16px 34px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08);
+            backdrop-filter:blur(10px);
+        }
 
         /* Addons */
         .addons-wrap { display:none; margin:12px 0 4px; }
@@ -706,6 +853,7 @@
 
         /* Consent checkboxes */
         .consent-label { display:flex; gap:10px; align-items:flex-start; cursor:pointer; margin-bottom:10px; font-size:13px; }
+        .consent-label span { flex:1; line-height:1.4; }
         .consent-label input {
             -webkit-appearance: none;
             appearance: none;
@@ -788,6 +936,7 @@
             .step-title { font-size:.55rem !important; }
             input, select, textarea { font-size:16px !important; }
             .vip-card { flex-direction:column; align-items:flex-start; }
+            .package-search-wrap { grid-template-columns: 1fr; }
             .aff-banner-content { padding:22px 18px; }
             .aff-gallery { grid-template-columns:repeat(2, minmax(0, 1fr)); }
             .aff-profile-head {
@@ -812,31 +961,35 @@
 <script>
 const clubConfigs = {
     @foreach($clubGroups as $clubId => $mappings)
-    @php $club = $mappings->first()->package->website; $sk = $club->stripe_app_key ?? ($setting ? $setting->stripe_key : ''); @endphp
-    "{{ $club->slug }}": {
-        id: {{ $club->id }},
-        slug: "{{ addslashes($club->slug) }}",
-        name: "{{ addslashes($club->name) }}",
-        color: "{{ $club->color ?? '#ffcc00' }}",
-        paymentMethod: "{{ $club->payment_method ?? 'authorize' }}",
-        stripeKey: "{{ addslashes($sk ?? '') }}",
+    @php
+        $club = $mappings->first()->package->website;
+        $sk = $club->stripe_app_key ?? ($setting ? $setting->stripe_key : '');
+        $transportConfirmTextJson = json_encode((string) ($club->transportation_confirmation_text ?? 'I confirm I am not arriving via Uber, Lyft, limo, taxi, ride-sharing or any other paid service. I am arriving in a personal vehicle.'));
+    @endphp
+    @json((string) $club->slug): {
+        id: {{ (int) $club->id }},
+        slug: @json((string) $club->slug),
+        name: @json((string) $club->name),
+        color: @json((string) ($club->color ?? '#ffcc00')),
+        paymentMethod: @json((string) ($club->payment_method ?? 'authorize')),
+        stripeKey: @json((string) ($sk ?? '')),
         gratuityFee: {{ (float)($club->gratuity_fee ?? 0) }},
-        gratuityName: "{{ addslashes($club->gratuity_name ?? 'Gratuity') }}",
+        gratuityName: @json((string) ($club->gratuity_name ?? 'Gratuity')),
         refundableFee: {{ (float)($club->refundable_fee ?? 0) }},
-        refundableName: "{{ addslashes($club->refundable_name ?? 'Non Refundable Processing Fees') }}",
+        refundableName: @json((string) ($club->refundable_name ?? 'Non Refundable Processing Fees')),
         salesTaxFee: {{ (float)($club->sales_tax_fee ?? 0) }},
-        salesTaxName: "{{ addslashes($club->sales_tax_name ?? '0') }}",
+        salesTaxName: @json((string) ($club->sales_tax_name ?? '0')),
         serviceChargeFee: {{ (float)($club->service_charge_fee ?? 0) }},
-        serviceChargeName: "{{ addslashes($club->service_charge_name ?? '0') }}",
+        serviceChargeName: @json((string) ($club->service_charge_name ?? '0')),
         processingFee: {{ (float)($club->processing_fee ?? 0) }},
-        processingFeeType: "{{ addslashes($club->processing_fee_type ?? 'percentage') }}",
-        transportConfirmText: "{{ addslashes($club->transportation_confirmation_text ?? 'I confirm I am not arriving via Uber, Lyft, limo, taxi, ride-sharing or any other paid service. I am arriving in a personal vehicle.') }}",
-        terms: "{{ addslashes($club->terms ?? '#') }}",
-        privacy: "{{ addslashes($club->privacy ?? $club->policy ?? '#') }}",
-        promoCodeName: "{{ addslashes($club->promo_code_name ?? 'Promo Code') }}",
-        location: "{{ addslashes($club->location ?? '') }}",
-        phone: "{{ addslashes($club->phone ?? '') }}",
-        email: "{{ addslashes($club->email ?? '') }}",
+        processingFeeType: @json((string) ($club->processing_fee_type ?? 'percentage')),
+        transportConfirmText: {!! $transportConfirmTextJson !!},
+        terms: @json((string) ($club->terms ?? '#')),
+        privacy: @json((string) ($club->privacy ?? $club->policy ?? '#')),
+        promoCodeName: @json((string) ($club->promo_code_name ?? 'Promo Code')),
+        location: @json((string) ($club->location ?? '')),
+        phone: @json((string) ($club->phone ?? '')),
+        email: @json((string) ($club->email ?? '')),
     },
     @endforeach
 };
@@ -922,9 +1075,9 @@ const clubConfigs = {
             @if(!empty($affiliate->gallery_images))
                 <div class="aff-gallery">
                     @foreach($affiliate->gallery_images as $galleryImage)
-                        <div class="aff-gallery-item">
-                            <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image">
-                        </div>
+                        <button type="button" class="aff-gallery-item js-checkout-gallery-trigger" data-gallery-src="{{ asset('uploads/' . $galleryImage) }}" data-gallery-alt="Gallery image {{ $loop->iteration }}">
+                            <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image {{ $loop->iteration }}">
+                        </button>
                     @endforeach
                 </div>
             @endif
@@ -960,24 +1113,55 @@ const clubConfigs = {
                     return $clubName . ' - ' . $categoryName;
                 })
                 ->values();
+            $uniqueClubsForFilter = $sortedPackageCategoryGroups
+                ->pluck('club')
+                ->filter()
+                ->unique('id')
+                ->values();
         @endphp
+
+        <div class="package-search-wrap" id="package-search-wrap">
+            <div class="package-search-field">
+                <label for="package-search-text">Search</label>
+                <input type="text" id="package-search-text" placeholder="Search package, club, or city/location">
+            </div>
+            <div class="package-search-field">
+                <label for="package-location-filter">Filter by Location</label>
+                <select id="package-location-filter">
+                    <option value="">All Locations</option>
+                    @foreach($uniqueClubsForFilter as $clubOption)
+                        <option value="{{ $clubOption->id }}">{{ $clubOption->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <button type="button" id="package-search-clear" class="package-search-clear">Clear</button>
+        </div>
+        <div id="package-search-empty" class="package-search-empty">No packages matched your filters.</div>
+
         @foreach($sortedPackageCategoryGroups as $categoryGroup)
             <button
                 type="button"
                 class="btn btn-outline-light package-category-tile mb-2 w-100"
                 data-target="#{{ $categoryGroup['id'] }}"
-                style="border-color:var(--aff-accent); color:var(--aff-accent); display:flex; justify-content:space-between; align-items:center; text-align:left; padding:14px 16px; border-radius:12px; font-size:15px; font-weight:600;"
+                style="background:var(--aff-accent); border-color:var(--aff-accent); color:#000; display:flex; justify-content:space-between; align-items:center; text-align:left; padding:14px 16px; border-radius:12px; font-size:15px; font-weight:600;"
             >
                 {{ $categoryGroup['club']->name }} - {{ $categoryGroup['name'] }}
-                <span style="opacity:.7; font-size:12px;">+</span>
+                <span class="package-category-indicator" style="opacity:.7; font-size:12px;">+</span>
             </button>
             <div id="{{ $categoryGroup['id'] }}" class="package-category-group" style="display: none;">
                 @foreach($categoryGroup['mappings'] as $mapping)
                     @php $package = $mapping->package; $club = $package->website; @endphp
-                    <div class="vip-card" id="pkg-card-{{ $package->id }}">
+                    <div
+                        class="vip-card"
+                        id="pkg-card-{{ $package->id }}"
+                        data-package-name="{{ strtolower(trim((string) $package->name)) }}"
+                        data-club-name="{{ strtolower(trim((string) $club->name)) }}"
+                        data-location="{{ strtolower(trim((string) ($club->location ?? ''))) }}"
+                        data-club-id="{{ $club->id }}"
+                    >
                         <div class="vip-card-main">
                             <div class="vip-meta">
-                                <span class="club-badge">{{ $club->name }}</span>
+                                <span class="club-badge">Location: {{ $club->location ?: $club->name }}</span>
                             </div>
                             <div class="vip-title-row">
                                 <div class="vip-title">{{ $package->name }}</div>
@@ -1020,7 +1204,7 @@ const clubConfigs = {
                                 type="button"
                                 class="vip-btn mt-2"
                                 data-id="{{ $package->id }}"
-                                data-name="{{ addslashes($package->name) }}"
+                                data-name="{{ e($package->name) }}"
                                 data-price="{{ $package->price }}"
                                 data-transportation="{{ $package->transportation }}"
                                 data-club-id="{{ $club->id }}"
@@ -1045,6 +1229,32 @@ const clubConfigs = {
     @else
         <p style="opacity:.5;">No packages are available on this page yet.</p>
     @endif
+
+    {{-- ===== ADD-ONS ===== --}}
+    <div class="addons-wrap" id="addons-section">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0" style="font-weight:700;">Add-ons <span style="opacity:.5;font-size:12px;">(optional)</span></h6>
+            <span style="font-size:12px;opacity:.5;">Toggle to include</span>
+        </div>
+        <div class="addons-list"></div>
+    </div>
+
+    {{-- ===== PROMO CODE ===== --}}
+    <div id="promo-section">
+        <label id="promo-lbl" style="font-size:12px;opacity:.6;margin-bottom:4px;display:block;">Promo Code</label>
+        <div class="promo-row">
+            <input type="text" id="promo_code" placeholder="Enter promo or referral code">
+            <button type="button" id="applyPromoBtn">Apply</button>
+        </div>
+    </div>
+
+    {{-- ===== CART ===== --}}
+    <div id="cart-section">
+        <div style="font-weight:700;font-size:15px;margin-bottom:10px;">Your Cart</div>
+        <div id="cart-list"></div>
+        <div id="cart-total" style="font-size:15px;margin-top:8px;font-weight:600;"></div>
+        <div id="cart-coupon" style="font-size:13px;color:#4caf7d;margin-top:4px;"></div>
+    </div>
 
     @if(($affiliate->show_location_section ?? true) && $featuredClub && ($featuredClub->location || $featuredClub->phone || $featuredClub->email))
         <section class="aff-location-card mt-3">
@@ -1083,32 +1293,6 @@ const clubConfigs = {
             </div>
         </section>
     @endif
-
-    {{-- ===== ADD-ONS ===== --}}
-    <div class="addons-wrap" id="addons-section">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <h6 class="mb-0" style="font-weight:700;">Add-ons <span style="opacity:.5;font-size:12px;">(optional)</span></h6>
-            <span style="font-size:12px;opacity:.5;">Toggle to include</span>
-        </div>
-        <div class="addons-list"></div>
-    </div>
-
-    {{-- ===== PROMO CODE ===== --}}
-    <div id="promo-section">
-        <label id="promo-lbl" style="font-size:12px;opacity:.6;margin-bottom:4px;display:block;">Promo Code</label>
-        <div class="promo-row">
-            <input type="text" id="promo_code" placeholder="Enter promo or referral code">
-            <button type="button" id="applyPromoBtn">Apply</button>
-        </div>
-    </div>
-
-    {{-- ===== CART ===== --}}
-    <div id="cart-section">
-        <div style="font-weight:700;font-size:15px;margin-bottom:10px;">Your Cart</div>
-        <div id="cart-list"></div>
-        <div id="cart-total" style="font-size:15px;margin-top:8px;font-weight:600;"></div>
-        <div id="cart-coupon" style="font-size:13px;color:#4caf7d;margin-top:4px;"></div>
-    </div>
 
     <div id="shareLinkContainer" style="margin-bottom:1rem;">
         <button type="button" id="generateShareLink" style="background:var(--aff-accent);color:#000;font-weight:700;border:none;padding:8px 20px;border-radius:25px;cursor:pointer;font-size:14px;">&#128279; Share Cart Link</button>
@@ -1211,7 +1395,7 @@ const clubConfigs = {
                 </div>
                 <div class="form-group mb-2"><label>Pick-up Address</label><input type="text" name="transportation_address" placeholder=""></div>
                 <div class="form-row">
-                    <div class="form-group"><label>Number of Guests</label><input type="number" name="transportation_guest" value="0" style="max-width:100px;"></div>
+                    <div class="form-group"><label>Number of Guests</label><input type="number" name="transportation_guest" value="0" style="width:120px;max-width:120px;"></div>
                 </div>
                 <div class="form-group mb-2"><label>Pickup Note</label><textarea name="transportation_note" placeholder="Any special instructions?"></textarea></div>
                 <div class="step-navigation">
@@ -1287,9 +1471,13 @@ const clubConfigs = {
                 <input type="checkbox" id="smsConsent" required>
                 <span id="sms-consent-text">I agree to receive SMS communications regarding my upcoming reservation. Message and data rates may apply. Reply STOP to opt out at any time.</span>
             </label>
+            <label class="consent-label" id="driverNotificationConsentWrap" style="display:none;">
+                <input type="checkbox" id="driverNotificationConsent">
+                <span>I agree to receive notifications from the driver regarding my transportation pickup.</span>
+            </label>
             <label class="consent-label">
                 <input type="checkbox" id="termsConsent" required>
-                <span>I have read and agree to the <a id="terms-link" href="#" target="_blank">Terms of Service</a> and <a id="privacy-link" href="#" target="_blank">Privacy Policy</a>.</span>
+                <span>I agree to the <a id="terms-link" href="#" target="_blank">Terms of Service</a> and <a id="privacy-link" href="#" target="_blank">Privacy Policy</a>.</span>
             </label>
 
             <div class="step-navigation">
@@ -1375,16 +1563,22 @@ function syncTransportStateFromCart() {
     const transportationAddressField = $('[name="transportation_address"]');
     const transportationPickupTimeField = $('[name="transportation_pickup_time"]');
     const pickupDateField = $('[name="package_use_date"]');
+    const driverNotificationConsentWrap = $('#driverNotificationConsentWrap');
+    const driverNotificationConsent = $('#driverNotificationConsent');
     if (window.requiresTransport) {
         transportationPhoneField.prop('required', true).attr('aria-required', 'true');
         transportationAddressField.prop('required', true).attr('aria-required', 'true');
         transportationPickupTimeField.prop('required', true).attr('aria-required', 'true');
         pickupDateField.prop('required', true).attr('aria-required', 'true');
+        driverNotificationConsentWrap.css('display', 'flex');
+        driverNotificationConsent.prop('required', true).attr('aria-required', 'true');
     } else {
         transportationPhoneField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
         transportationAddressField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
         transportationPickupTimeField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
         pickupDateField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
+        driverNotificationConsentWrap.hide();
+        driverNotificationConsent.prop('checked', false).prop('required', false).removeAttr('aria-required');
     }
 }
 
@@ -1404,29 +1598,48 @@ function getBillableGuests(item) {
 window.addToCart = function(pkgId, pkgName, pkgPrice, guests, addons, transport, isMultiple) {
     ensureCart();
     const normalizedGuests = parseInt(guests) || 1;
-    const existing = window.cart.find(function(item) { return item.pkgId == pkgId; });
-
-    if (existing) {
-        existing.pkgName = pkgName;
-        existing.pkgPrice = pkgPrice;
-        existing.guests = normalizedGuests;
-        existing.addons = addons || [];
-        existing.transport = transport;
-        existing.isMultiple = parseMultipleFlag(isMultiple);
-    } else {
-        window.cart.push({
-            pkgId: pkgId,
-            pkgName: pkgName,
-            pkgPrice: pkgPrice,
-            guests: normalizedGuests,
-            addons: addons || [],
-            transport: transport,
-            isMultiple: parseMultipleFlag(isMultiple)
-        });
+    
+    // Check daily limits for this package
+    const activeClub = window.activeClub;
+    if (!activeClub || !activeClub.slug) {
+        alert('Unable to verify package availability. Please refresh and try again.');
+        return false;
     }
+    
+    $.get('/' + activeClub.slug + '/package/' + pkgId + '/capacity', function(response) {
+        if (!response.available) {
+            alert('This package is no longer available: ' + response.message);
+            return false;
+        }
 
-    syncTransportStateFromCart();
-    renderCart(); calcTotal();
+        const existing = window.cart.find(function(item) { return item.pkgId == pkgId; });
+
+        if (existing) {
+            existing.pkgName = pkgName;
+            existing.pkgPrice = pkgPrice;
+            existing.guests = normalizedGuests;
+            existing.addons = addons || [];
+            existing.transport = transport;
+            existing.isMultiple = parseMultipleFlag(isMultiple);
+        } else {
+            window.cart.push({
+                pkgId: pkgId,
+                pkgName: pkgName,
+                pkgPrice: pkgPrice,
+                guests: normalizedGuests,
+                addons: addons || [],
+                transport: transport,
+                isMultiple: parseMultipleFlag(isMultiple)
+            });
+        }
+
+        syncTransportStateFromCart();
+        renderCart(); calcTotal();
+        return true;
+    }).fail(function() {
+        alert('Error checking package availability. Please try again.');
+        return false;
+    });
 };
 
 window.removeFromCart = function(pkgId) {
@@ -1598,6 +1811,19 @@ function setSelectionsFromParams() {
     }
 }
 </script>
+<div class="modal fade checkout-gallery-modal" id="checkoutGalleryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Gallery Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <img src="" alt="" id="checkoutGalleryModalImage" class="checkout-gallery-modal-image">
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
 // ============================================================
@@ -1697,16 +1923,84 @@ $(document).ready(function() {
         });
     });
 
+    function setCategoryTileDefaultState($tile) {
+        $tile.removeClass('active').css({ background: 'var(--aff-accent)', color: '#000' });
+        $tile.find('.package-category-indicator').text('+');
+    }
+
+    function applyPackageFilters() {
+        const searchQuery = String($('#package-search-text').val() || '').trim().toLowerCase();
+        const selectedClubId = String($('#package-location-filter').val() || '').trim();
+
+        let visibleCategories = 0;
+
+        $('.package-category-group').each(function() {
+            const $group = $(this);
+            const groupId = $group.attr('id');
+            const $tile = $('.package-category-tile[data-target="#' + groupId + '"]');
+            let visibleCardsInGroup = 0;
+
+            $group.find('.vip-card').each(function() {
+                const $card = $(this);
+                const packageName = String($card.data('package-name') || '').toLowerCase();
+                const clubName = String($card.data('club-name') || '').toLowerCase();
+                const location = String($card.data('location') || '').toLowerCase();
+                const clubId = String($card.data('club-id') || '');
+
+                const matchesSearch = !searchQuery
+                    || packageName.includes(searchQuery)
+                    || clubName.includes(searchQuery)
+                    || location.includes(searchQuery);
+                const matchesClub = !selectedClubId || clubId === selectedClubId;
+                const isVisible = matchesSearch && matchesClub;
+
+                $card.toggle(isVisible);
+                if (isVisible) {
+                    visibleCardsInGroup += 1;
+                }
+            });
+
+            const showCategory = visibleCardsInGroup > 0;
+            $tile.toggle(showCategory);
+
+            if (!showCategory) {
+                setCategoryTileDefaultState($tile);
+                $group.stop(true, true).hide();
+            } else {
+                visibleCategories += 1;
+            }
+        });
+
+        $('#package-search-empty').toggle(visibleCategories === 0);
+    }
+
+    $('#package-search-text').on('input', applyPackageFilters);
+    $('#package-location-filter').on('change', applyPackageFilters);
+    $('#package-search-clear').on('click', function() {
+        $('#package-search-text').val('');
+        $('#package-location-filter').val('');
+        applyPackageFilters();
+    });
+
+    applyPackageFilters();
+
     $(document).on('click', '.package-category-tile', function() {
-        const target = $(this).data('target');
+        const targetSelector = String($(this).data('target') || '');
+        const targetId = targetSelector.replace(/^#/, '');
+        const $target = targetId ? $('#' + targetId) : $();
         const isOpen = $(this).hasClass('active');
 
-        $('.package-category-tile').removeClass('active').css({ background: 'transparent', color: 'var(--aff-accent)' });
-        $('.package-category-group').hide();
+        $('.package-category-tile').each(function() {
+            setCategoryTileDefaultState($(this));
+        });
+        $('.package-category-group').stop(true, true).slideUp(180);
 
-        if (!isOpen) {
-            $(this).addClass('active').css({ background: 'var(--aff-accent)', color: '#000' });
-            $(target).show();
+        if (!isOpen && $target.length) {
+            $(this)
+                .addClass('active')
+                .css({ background: '#101725', color: 'var(--aff-accent)' })
+                .find('.package-category-indicator').text('−');
+            $target.stop(true, true).slideDown(180);
         }
     });
 
@@ -1918,7 +2212,7 @@ $(document).ready(function() {
         window.prompt('Copy this link', cleanPayload.url);
     }
 
-    async function shareAffiliatePage(button) {
+    function shareAffiliatePage(button) {
         const payload = buildAffiliateSharePayload({
             url: button.getAttribute('data-share-url') || window.location.href.split('#')[0],
             title: button.getAttribute('data-share-title') || document.title,
@@ -1926,17 +2220,6 @@ $(document).ready(function() {
         });
 
         affCurrentSharePayload = payload;
-
-        if (navigator.share) {
-            try {
-                await navigator.share(payload);
-                return;
-            } catch (error) {
-                if (error && error.name === 'AbortError') {
-                    return;
-                }
-            }
-        }
 
         openAffiliateShareMenu(button);
     }
@@ -2176,6 +2459,31 @@ $('.custom-calendar-icon').on('click', function() {
     const picker = document.getElementById('package_use_date')._flatpickr;
     if (picker) {
         picker.open();
+    }
+});
+
+document.addEventListener('click', function(event) {
+    const trigger = event.target.closest('.js-checkout-gallery-trigger');
+    if (!trigger) {
+        return;
+    }
+
+    const modalElement = document.getElementById('checkoutGalleryModal');
+    const modalImage = document.getElementById('checkoutGalleryModalImage');
+    if (!modalElement || !modalImage) {
+        return;
+    }
+
+    modalImage.src = trigger.getAttribute('data-gallery-src') || '';
+    modalImage.alt = trigger.getAttribute('data-gallery-alt') || 'Gallery image';
+    bootstrap.Modal.getOrCreateInstance(modalElement).show();
+});
+
+document.getElementById('checkoutGalleryModal')?.addEventListener('hidden.bs.modal', function() {
+    const modalImage = document.getElementById('checkoutGalleryModalImage');
+    if (modalImage) {
+        modalImage.src = '';
+        modalImage.alt = '';
     }
 });
 </script>

@@ -120,6 +120,35 @@ label{
   #suggestions li:hover {
     background: #eee;
   }
+
+    .admin-multi-select {
+        min-height: 220px;
+        background: #131a2a !important;
+        color: #f3f4f6 !important;
+        border: 1px solid #2c3650 !important;
+    }
+
+    .admin-multi-select option {
+        color: #f3f4f6;
+        background: #131a2a;
+        padding: 6px 8px;
+    }
+
+    .admin-multi-select option:checked {
+        background: #ffcc00 !important;
+        color: #16120a !important;
+    }
+
+    .addon-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .addon-row .addon-select {
+        flex: 1;
+    }
 </style>
     <!-- Content wrapper -->
     <div class="content-wrapper">
@@ -228,20 +257,35 @@ label{
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="guest_limit_type" class="form-label">Guest Limit Type</label>
-                                                        <select name="guest_limit_type" class="form-control" id="guest_limit_type" required>
-                                                            <option value="per_group" selected>Per group</option>
-                                                            <option value="per_person">Per person</option>
+                                                        <label for="package_type" class="form-label">Package Type *</label>
+                                                        <select name="package_type" class="form-control" id="package_type" required onchange="togglePackageTypeFields()">
+                                                            <option value="ticket" selected>Ticket</option>
+                                                            <option value="table">Table</option>
                                                         </select>
-                                                        <small class="guest-limit-help">Choose how this package limit should be interpreted.</small>
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-6">
+                                                <div class="col-md-6" id="daily_ticket_limit_field">
                                                     <div class="mb-3">
-                                                        <label for="number_of_guest" class="form-label" id="number_of_guest_label">Maximum amount of guests</label>
-                                                        <input type="number" name="number_of_guest" class="form-control" id="number_of_guest" placeholder="Enter maximum amount of guests" min="1" required>
-                                                        <small class="guest-limit-help" id="number_of_guest_help">Used when this package is priced per group.</small>
+                                                        <label for="daily_ticket_limit" class="form-label">Daily Ticket Limit *</label>
+                                                        <input type="number" name="daily_ticket_limit" class="form-control" id="daily_ticket_limit" placeholder="Maximum tickets per day" min="1">
+                                                        <small>Maximum number of tickets that can be sold in a single day.</small>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6" id="daily_table_limit_field" style="display:none;">
+                                                    <div class="mb-3">
+                                                        <label for="daily_table_limit" class="form-label">Daily Table Limit *</label>
+                                                        <input type="number" name="daily_table_limit" class="form-control" id="daily_table_limit" placeholder="Maximum tables per day" min="1">
+                                                        <small>Maximum number of tables that can be booked in a single day.</small>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6" id="guests_per_table_field" style="display:none;">
+                                                    <div class="mb-3">
+                                                        <label for="guests_per_table" class="form-label">Guests Per Table *</label>
+                                                        <input type="number" name="guests_per_table" class="form-control" id="guests_per_table" placeholder="Number of guests per table" min="1">
+                                                        <small>Maximum guests allowed per table reservation.</small>
                                                     </div>
                                                 </div>
 
@@ -290,12 +334,25 @@ label{
                                             <div class="row" id="addons-row">
                                                 <div class="col-12 mb-2">
                                                     <label class="form-label">Add-ons</label>
-                                                    <select id="addon-select" class="form-control" multiple>
-                                                        @foreach($addons as $addon)
-                                                            <option value="{{ $addon->id }}">{{ $addon->name }}</option>
+                                                    @php($addonRows = collect(explode(',', (string) old('addons', '')))->map(fn($id) => trim((string) $id))->filter(fn($id) => $id !== '')->values()->all())
+                                                    @if(empty($addonRows))
+                                                        @php($addonRows = [''])
+                                                    @endif
+                                                    <div id="addon-rows">
+                                                        @foreach($addonRows as $selectedAddonId)
+                                                            <div class="addon-row">
+                                                                <select class="form-control admin-multi-select addon-select">
+                                                                    <option value="">Select Add-on</option>
+                                                                    @foreach($addons as $addon)
+                                                                        <option value="{{ $addon->id }}" {{ (string) $addon->id === (string) $selectedAddonId ? 'selected' : '' }}>{{ $addon->name }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                                <button type="button" class="btn btn-danger remove-addon-row">Remove</button>
+                                                            </div>
                                                         @endforeach
-                                                    </select>
-                                                    <small class="text-muted">Hold Ctrl (Windows) or Command (Mac) to select multiple.</small>
+                                                    </div>
+                                                    <button type="button" id="add-addon-row" class="btn btn-primary mt-1">Add Add-on</button>
+                                                    <small class="text-muted d-block mt-2">You can select the same add-on multiple times using separate rows.</small>
                                                 </div>
                                             </div>
                                             <input type="hidden" name="addons" id="addons-hidden">
@@ -316,37 +373,110 @@ label{
             </div>
 
 <script>
-    (function () {
-        const typeSelect = document.getElementById('guest_limit_type');
-        const limitInput = document.getElementById('number_of_guest');
-        const limitLabel = document.getElementById('number_of_guest_label');
-        const limitHelp = document.getElementById('number_of_guest_help');
+    function togglePackageTypeFields() {
+        const packageType = document.getElementById('package_type' ).value;
+        const ticketField = document.getElementById('daily_ticket_limit_field');
+        const tableField = document.getElementById('daily_table_limit_field');
+        const guestTableField = document.getElementById('guests_per_table_field');
+        const ticketInput = document.getElementById('daily_ticket_limit');
+        const tableInput = document.getElementById('daily_table_limit');
+        const guestTableInput = document.getElementById('guests_per_table');
+        
+        if (packageType === 'ticket') {
+            ticketField.style.display = 'block';
+            tableField.style.display = 'none';
+            guestTableField.style.display = 'none';
+            ticketInput.required = true;
+            tableInput.required = false;
+            guestTableInput.required = false;
+        } else {
+            ticketField.style.display = 'none';
+            tableField.style.display = 'block';
+            guestTableField.style.display = 'block';
+            ticketInput.required = false;
+            tableInput.required = true;
+            guestTableInput.required = true;
+        }
+    }
 
-        if (!typeSelect || !limitInput || !limitLabel || !limitHelp) {
+    (function () {
+        const rowsContainer = document.getElementById('addon-rows');
+        const addButton = document.getElementById('add-addon-row');
+        const addonsHidden = document.getElementById('addons-hidden');
+        const form = rowsContainer ? rowsContainer.closest('form') : null;
+
+        if (!rowsContainer || !addButton || !addonsHidden) {
             return;
         }
 
-        function syncGuestLimitCopy() {
-            if (typeSelect.value === 'per_person') {
-                limitLabel.textContent = 'Maximum amount of people per event';
-                limitInput.placeholder = 'Enter maximum amount of people per event';
-                limitHelp.textContent = 'Used when this package is priced per person for the event.';
-                return;
-            }
+        const firstSelect = rowsContainer.querySelector('select.addon-select');
+        const optionsMarkup = firstSelect ? firstSelect.innerHTML : '<option value="">Select Add-on</option>';
 
-            limitLabel.textContent = 'Maximum amount of guests';
-            limitInput.placeholder = 'Enter maximum amount of guests';
-            limitHelp.textContent = 'Used when this package is priced per group.';
+        function syncAddonsHidden() {
+            const values = Array.from(rowsContainer.querySelectorAll('select.addon-select'))
+                .map(function (select) {
+                    return (select.value || '').trim();
+                })
+                .filter(function (value) {
+                    return value !== '';
+                });
+            addonsHidden.value = values.join(',');
         }
 
-        syncGuestLimitCopy();
-        typeSelect.addEventListener('change', syncGuestLimitCopy);
+        function bindRowEvents(row) {
+            const select = row.querySelector('select.addon-select');
+            const removeBtn = row.querySelector('.remove-addon-row');
+
+            if (select) {
+                select.addEventListener('change', syncAddonsHidden);
+            }
+
+            if (removeBtn) {
+                removeBtn.addEventListener('click', function () {
+                    row.remove();
+                    if (!rowsContainer.querySelector('.addon-row')) {
+                        addRow('');
+                    }
+                    syncAddonsHidden();
+                });
+            }
+        }
+
+        function addRow(selectedValue) {
+            const row = document.createElement('div');
+            row.className = 'addon-row';
+
+            const select = document.createElement('select');
+            select.className = 'form-control admin-multi-select addon-select';
+            select.innerHTML = optionsMarkup;
+            if (selectedValue) {
+                select.value = selectedValue;
+            }
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn btn-danger remove-addon-row';
+            removeBtn.textContent = 'Remove';
+
+            row.appendChild(select);
+            row.appendChild(removeBtn);
+            rowsContainer.appendChild(row);
+            bindRowEvents(row);
+            syncAddonsHidden();
+        }
+
+        rowsContainer.querySelectorAll('.addon-row').forEach(bindRowEvents);
+        addButton.addEventListener('click', function () { addRow(''); });
+
+        if (form) {
+            form.addEventListener('submit', syncAddonsHidden);
+        }
+        syncAddonsHidden();
     })();
 
-    // When the addon select changes, update the hidden input with selected IDs (comma separated)
-    document.getElementById('addon-select').addEventListener('change', function() {
-        const selected = Array.from(this.selectedOptions).map(opt => opt.value);
-        document.getElementById('addons-hidden').value = selected.join(',');
+    // Initialize package type fields on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        togglePackageTypeFields();
     });
 </script>
 

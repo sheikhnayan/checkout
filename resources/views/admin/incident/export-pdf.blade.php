@@ -27,13 +27,16 @@
     </style>
 </head>
 <body>
+    @php
+        $incidentTz = 'America/Los_Angeles';
+    @endphp
     <div class="letterhead">
         <h1>CONFIDENTIAL INCIDENT REPORT PACKET</h1>
         <div class="meta">
             Prepared For Legal Review<br>
             Club: {{ $incident->website->name }} ({{ $incident->website->domain ?? 'N/A' }})<br>
             Incident ID: {{ $incident->id }}<br>
-            Exported At: {{ now()->format('Y-m-d H:i:s') }}
+            Exported At: {{ now($incidentTz)->format('Y-m-d H:i:s') }} PT
         </div>
     </div>
 
@@ -54,7 +57,7 @@
                     <td><span class="label">Current Status:</span> {{ ucwords(str_replace('_', ' ', $incident->status)) }}</td>
                 </tr>
                 <tr>
-                    <td><span class="label">Status Changed At:</span> {{ $incident->status_changed_at ? $incident->status_changed_at->format('Y-m-d H:i:s') : 'N/A' }}</td>
+                    <td><span class="label">Status Changed At:</span> {{ $incident->status_changed_at ? $incident->status_changed_at->timezone($incidentTz)->format('Y-m-d H:i:s') . ' PT' : 'N/A' }}</td>
                     <td><span class="label">Status Changed By:</span> {{ optional($incident->statusChangedBy)->name ?: 'N/A' }}</td>
                 </tr>
                 <tr>
@@ -185,7 +188,7 @@
                 <tbody>
                     @forelse($incident->auditLogs as $log)
                         <tr>
-                            <td>{{ optional($log->created_at)->format('Y-m-d H:i:s') }}</td>
+                            <td>{{ optional($log->created_at)->timezone($incidentTz)->format('Y-m-d H:i:s') }} PT</td>
                             <td>{{ optional($log->user)->name ?: 'Public/Guest' }}</td>
                             <td>{{ ucwords(str_replace('_', ' ', $log->action)) }}</td>
                             <td>{{ $log->ip_address ?: 'N/A' }}</td>

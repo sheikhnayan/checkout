@@ -59,25 +59,12 @@
                         @endif
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Gallery Image</label>
-                        <input type="file" class="form-control" name="gallery_image" accept="image/*">
-                        <small class="text-muted">Upload one image at a time (maximum 6 total).</small>
-
-                        @if(!empty($entertainer->gallery_images) && count((array) $entertainer->gallery_images))
-                            <div class="row g-2 mt-2">
-                                @foreach((array) $entertainer->gallery_images as $index => $galleryImage)
-                                    <div class="col-md-4 col-sm-6">
-                                        <label class="border rounded p-2 d-block" style="background:rgba(255,255,255,0.02);cursor:pointer;">
-                                            <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image {{ $index + 1 }}" style="width:100%;height:120px;object-fit:cover;border-radius:8px;">
-                                            <div class="form-check mt-2 mb-0">
-                                                <input class="form-check-input" type="checkbox" name="remove_gallery_images[]" value="{{ $index }}" id="remove_gallery_{{ $index }}">
-                                                <label class="form-check-label" for="remove_gallery_{{ $index }}">Remove this image</label>
-                                            </div>
-                                        </label>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @endif
+                        <label for="page_gallery_picker" class="form-label">Gallery Images</label>
+                        <input type="file" class="form-control" id="page_gallery_picker" accept="image/*">
+                        <input type="file" name="gallery_images[]" class="d-none" id="gallery_images" accept="image/*" multiple>
+                        <input type="hidden" name="existing_gallery_images" id="existing_gallery_images" value='@json((array) ($entertainer->gallery_images ?? []))'>
+                        <small class="form-text text-muted">Upload one image at a time. Added images appear below and can be removed before saving. Maximum 6 total.</small>
+                        <div id="page-gallery-preview" class="d-flex flex-wrap gap-2 mt-2"></div>
                     </div>
 
                     <div class="col-md-6">
@@ -103,5 +90,108 @@
         </div>
     </div>
 </div>
+
+<script>
+    (function () {
+        const picker = document.getElementById('page_gallery_picker');
+        const galleryInput = document.getElementById('gallery_images');
+        const preview = document.getElementById('page-gallery-preview');
+        const existingInput = document.getElementById('existing_gallery_images');
+
+        if (!picker || !galleryInput || !preview || !existingInput) {
+            return;
+        }
+
+        let existingImages = [];
+        try {
+            existingImages = JSON.parse(existingInput.value || '[]');
+            if (!Array.isArray(existingImages)) {
+                existingImages = [];
+            }
+        } catch (e) {
+            existingImages = [];
+        }
+
+        let dt = new DataTransfer();
+
+        function syncExisting() {
+            existingInput.value = JSON.stringify(existingImages);
+        }
+
+        function syncFiles() {
+            galleryInput.files = dt.files;
+        }
+
+        function render() {
+            preview.innerHTML = '';
+
+            existingImages.forEach(function (name, index) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'position-relative';
+                wrapper.style.width = '96px';
+                wrapper.innerHTML = '<img src="/uploads/' + name + '" style="width:96px;height:64px;object-fit:cover;border-radius:6px;border:1px solid #ddd;">'
+                    + '<button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" style="line-height:1;padding:2px 6px;" data-existing-index="' + index + '">&times;</button>';
+                preview.appendChild(wrapper);
+            });
+
+            Array.from(dt.files).forEach(function (file, index) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'position-relative';
+                wrapper.style.width = '96px';
+                const url = URL.createObjectURL(file);
+                wrapper.innerHTML = '<img src="' + url + '" style="width:96px;height:64px;object-fit:cover;border-radius:6px;border:1px solid #ddd;">'
+                    + '<button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" style="line-height:1;padding:2px 6px;" data-new-index="' + index + '">&times;</button>';
+                preview.appendChild(wrapper);
+            });
+        }
+
+        picker.addEventListener('change', function () {
+            const file = picker.files && picker.files[0] ? picker.files[0] : null;
+            if (!file) {
+                return;
+            }
+
+            if ((existingImages.length + dt.files.length) >= 6) {
+                alert('Gallery is full. Remove one image before adding another.');
+                picker.value = '';
+                return;
+            }
+
+            dt.items.add(file);
+            syncFiles();
+            render();
+            picker.value = '';
+        });
+
+        preview.addEventListener('click', function (event) {
+            const existingIndex = event.target.getAttribute('data-existing-index');
+            const newIndex = event.target.getAttribute('data-new-index');
+
+            if (existingIndex !== null) {
+                existingImages.splice(parseInt(existingIndex, 10), 1);
+                syncExisting();
+                render();
+                return;
+            }
+
+            if (newIndex !== null) {
+                const idx = parseInt(newIndex, 10);
+                const nextDt = new DataTransfer();
+                Array.from(dt.files).forEach(function (file, fileIndex) {
+                    if (fileIndex !== idx) {
+                        nextDt.items.add(file);
+                    }
+                });
+                dt = nextDt;
+                syncFiles();
+                render();
+            }
+        });
+
+        syncExisting();
+        syncFiles();
+        render();
+    })();
+</script>
 
 @endsection

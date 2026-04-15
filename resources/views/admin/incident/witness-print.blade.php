@@ -27,6 +27,9 @@
     </style>
 </head>
 <body>
+    @php
+        $incidentTz = 'America/Los_Angeles';
+    @endphp
     <div class="container">
         <div class="header">
             <h1>Witness Statement Report</h1>
@@ -129,7 +132,7 @@
                 </div>
                 <div class="field">
                     <div class="field-label">Submitted At</div>
-                    <div class="field-value">{{ optional($witness->created_at)->format('Y-m-d H:i:s') }}</div>
+                    <div class="field-value">{{ optional($witness->created_at)->timezone($incidentTz)->format('Y-m-d H:i:s') }} PT</div>
                 </div>
             </div>
         </div>
@@ -148,7 +151,7 @@
         @endif
 
         <div class="footer">
-            <p>Generated: {{ now()->format('Y-m-d H:i:s') }}</p>
+            <p>Generated: {{ now($incidentTz)->format('Y-m-d H:i:s') }} PT</p>
         </div>
     </div>
 </body>

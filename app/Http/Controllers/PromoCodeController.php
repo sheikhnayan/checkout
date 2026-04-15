@@ -90,7 +90,7 @@ class PromoCodeController extends Controller
         return view('admin.promo_code.create', compact('id', 'promoAudience', 'title'));
     }
 
-    public function createTargeted(string $audience)
+    public function createTargeted(Request $request, string $audience)
     {
         $this->ensureTargetedPromoPermission(null, $audience);
 
@@ -103,9 +103,41 @@ class PromoCodeController extends Controller
         $title = $audience === PromoCode::AUDIENCE_AFFILIATE
             ? 'Affiliate Promo Code'
             : 'Entertainer Promo Code';
-        $targetOptions = $this->promoTargetOptions();
+        $user = auth()->user();
+        $websiteOptions = collect();
+        $selectedWebsiteId = null;
+        $canSelectWebsite = false;
 
-        return view('admin.promo_code.create', compact('id', 'promoAudience', 'title', 'targetOptions'));
+        if ($audience === PromoCode::AUDIENCE_ENTERTAINER) {
+            if ($user->isAdmin()) {
+                $canSelectWebsite = true;
+                $websiteOptions = Website::where('is_archieved', 0)
+                    ->orderBy('name')
+                    ->get(['id', 'name']);
+
+                $selectedWebsiteId = (int) $request->query('website_id', 0);
+                if ($selectedWebsiteId <= 0 || !$websiteOptions->contains('id', $selectedWebsiteId)) {
+                    $selectedWebsiteId = null;
+                }
+            } elseif ($user->isWebsiteUser() && $user->website_id) {
+                $selectedWebsiteId = (int) $user->website_id;
+                $id = $selectedWebsiteId;
+            } else {
+                abort(403, 'Access denied.');
+            }
+        }
+
+        $targetOptions = $this->promoTargetOptions($selectedWebsiteId);
+
+        return view('admin.promo_code.create', compact(
+            'id',
+            'promoAudience',
+            'title',
+            'targetOptions',
+            'websiteOptions',
+            'selectedWebsiteId',
+            'canSelectWebsite'
+        ));
     }
 
     /**
@@ -124,7 +156,7 @@ class PromoCodeController extends Controller
         $this->ensureTargetedPromoPermission(null, $audience);
 
         $request->validate([
-            'website_id' => [Rule::requiredIf($audience === PromoCode::AUDIENCE_CLUB), 'nullable', 'integer', 'exists:websites,id'],
+            'website_id' => [Rule::requiredIf(in_array($audience, [PromoCode::AUDIENCE_CLUB, PromoCode::AUDIENCE_ENTERTAINER], true)), 'nullable', 'integer', 'exists:websites,id'],
             'name' => 'nullable|string|max:255',
             'percentage' => 'nullable|numeric|min:0',
             'audience' => ['required', Rule::in(PromoCode::ALLOWED_AUDIENCES)],
@@ -141,7 +173,7 @@ class PromoCodeController extends Controller
 
         [$affiliateId, $entertainerId] = $this->normalizeTargetIds($request);
         $websiteId = $this->resolvePromoWebsiteId($audience, $request, $affiliateId, $entertainerId);
-        $this->validateTargetSelection($audience, $affiliateId, $entertainerId);
+    $this->validateTargetSelection($audience, $affiliateId, $entertainerId, $websiteId);
         $this->ensurePromoCodeIsUnique($websiteId, strtoupper(trim((string) $request->promo_code)), $audience, $affiliateId, $entertainerId);
         
         $add = new PromoCode;
@@ -240,7 +272,7 @@ class PromoCodeController extends Controller
 
         [$affiliateId, $entertainerId] = $this->normalizeTargetIds($request);
         $websiteId = $this->resolvePromoWebsiteId($audience, $request, $affiliateId, $entertainerId, $add);
-        $this->validateTargetSelection($audience, $affiliateId, $entertainerId);
+        $this->validateTargetSelection($audience, $affiliateId, $entertainerId, $websiteId);
         $this->ensurePromoCodeIsUnique($websiteId, strtoupper(trim((string) $request->promo_code)), $audience, $affiliateId, $entertainerId, $add->id);
         
         $add->name = $request->name;
@@ -272,8 +304,28 @@ class PromoCodeController extends Controller
         $user = auth()->user();
         $resolvedAudience = $audience ?: ($promo->audience ?? PromoCode::AUDIENCE_CLUB);
 
-        if ($resolvedAudience !== PromoCode::AUDIENCE_CLUB && (!$user || !$user->isAdmin())) {
-            abort(403, 'Only super admin can create or manage affiliate-specific and entertainer-specific promo codes.');
+        if ($resolvedAudience === PromoCode::AUDIENCE_CLUB) {
+            return;
+        }
+
+        if ($resolvedAudience === PromoCode::AUDIENCE_AFFILIATE && (!$user || !$user->isAdmin())) {
+            abort(403, 'Only super admin can create or manage affiliate-specific promo codes.');
+        }
+
+        if ($resolvedAudience === PromoCode::AUDIENCE_ENTERTAINER) {
+            if ($user && $user->isAdmin()) {
+                return;
+            }
+
+            if ($user && $user->isWebsiteUser()) {
+                if ($promo && (int) $promo->website_id !== (int) $user->website_id) {
+                    abort(403, 'Access denied. You can only manage entertainer promo codes for your own club.');
+                }
+
+                return;
+            }
+
+            abort(403, 'Only super admin and website admins can create or manage entertainer-specific promo codes.');
         }
     }
 
@@ -318,7 +370,7 @@ class PromoCodeController extends Controller
         ];
     }
 
-    private function validateTargetSelection(string $audience, ?int $affiliateId, ?int $entertainerId): void
+    private function validateTargetSelection(string $audience, ?int $affiliateId, ?int $entertainerId, ?int $websiteId = null): void
     {
         if ($audience === PromoCode::AUDIENCE_CLUB) {
             return;
@@ -352,6 +404,9 @@ class PromoCodeController extends Controller
         }
 
         $validEntertainer = Entertainer::where('id', $entertainerId)
+            ->when($websiteId, function ($query) use ($websiteId) {
+                $query->where('website_id', $websiteId);
+            })
             ->where('status', 'approved')
             ->where('is_active', true)
             ->exists();
@@ -398,8 +453,23 @@ class PromoCodeController extends Controller
             return (int) $request->input('website_id', $existingPromo?->website_id);
         }
 
-        if ($audience === PromoCode::AUDIENCE_ENTERTAINER && $entertainerId) {
-            return (int) optional(Entertainer::find($entertainerId))->website_id ?: null;
+        if ($audience === PromoCode::AUDIENCE_ENTERTAINER) {
+            $user = auth()->user();
+
+            if ($user && $user->isWebsiteUser() && $user->website_id) {
+                return (int) $user->website_id;
+            }
+
+            $requestedWebsiteId = (int) $request->input('website_id', $existingPromo?->website_id);
+            if ($requestedWebsiteId > 0) {
+                return $requestedWebsiteId;
+            }
+
+            if ($entertainerId) {
+                return (int) optional(Entertainer::find($entertainerId))->website_id ?: null;
+            }
+
+            return null;
         }
 
         return null;

@@ -24,7 +24,7 @@ class FeedModel extends Model
 
     public function getProfileTypeLabelAttribute(): string
     {
-        return $this->is_real_profile ? 'Real' : 'Fake';
+        return $this->is_real_profile ? 'Verified' : 'Managed';
     }
 
     public function website()

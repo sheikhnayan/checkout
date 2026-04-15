@@ -21,6 +21,9 @@ class Website extends Model
         'guest_list_button_text',
         'package_button_text',
         'transportation_confirmation_text',
+        'operating_days',
+        'operating_start_time',
+        'operating_end_time',
         'visa_logo',
         'mastercard_logo',
         'amex_logo',
@@ -70,6 +73,7 @@ class Website extends Model
 
     protected $casts = [
         'gallery_images' => 'array',
+        'operating_days' => 'array',
     ];
    
     /**

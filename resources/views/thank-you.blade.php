@@ -292,6 +292,12 @@
                     <label>Amount Paid</label>
                     <span>${{ number_format($transaction->total, 2) }}</span>
                 </div>
+                @if(!empty($priceBreakdown) && !empty($priceBreakdown['grand_total']))
+                <div class="detail-row">
+                    <label>Order Total</label>
+                    <span>${{ number_format((float) $priceBreakdown['grand_total'], 2) }}</span>
+                </div>
+                @endif
                 <div class="detail-row">
                     <label>Payment Date</label>
                     <span>{{ $transaction->created_at->format('M d, Y h:i A') }}</span>
@@ -375,11 +381,71 @@
                             </tr>
                             @endif
                         @endforeach
-                        {{-- Grand total row --}}
-                        <tr class="breakdown-grand-total">
-                            <td colspan="3" style="padding:12px 10px;"><strong>Grand Total</strong></td>
-                            <td class="price-right" style="padding:12px 10px;"><strong>${{ number_format($transaction->total, 2) }}</strong></td>
+                        @if(!empty($priceBreakdown))
+                        <tr>
+                            <td colspan="3"><strong>Packages Subtotal</strong></td>
+                            <td class="price-right"><strong>${{ number_format((float) ($priceBreakdown['packages_subtotal'] ?? 0), 2) }}</strong></td>
                         </tr>
+                        <tr>
+                            <td colspan="3">Add-ons Subtotal</td>
+                            <td class="price-right">${{ number_format((float) ($priceBreakdown['addons_subtotal'] ?? 0), 2) }}</td>
+                        </tr>
+                        <tr class="breakdown-subtotal-row">
+                            <td colspan="3">Items Subtotal (Packages + Add-ons)</td>
+                            <td class="price-right">${{ number_format((float) ($priceBreakdown['items_subtotal'] ?? 0), 2) }}</td>
+                        </tr>
+                        @if(!empty($priceBreakdown['gratuity']['enabled']))
+                        <tr>
+                            <td colspan="3">{{ $priceBreakdown['gratuity']['name'] }} ({{ number_format((float) $priceBreakdown['gratuity']['rate'], 2) }}%)</td>
+                            <td class="price-right">${{ number_format((float) $priceBreakdown['gratuity']['amount'], 2) }}</td>
+                        </tr>
+                        @endif
+                        @if(!empty($priceBreakdown['service_charge']['enabled']))
+                        <tr>
+                            <td colspan="3">{{ $priceBreakdown['service_charge']['name'] }} ({{ number_format((float) $priceBreakdown['service_charge']['rate'], 2) }}%)</td>
+                            <td class="price-right">${{ number_format((float) $priceBreakdown['service_charge']['amount'], 2) }}</td>
+                        </tr>
+                        @endif
+                        @if(!empty($priceBreakdown['sales_tax']['enabled']))
+                        <tr>
+                            <td colspan="3">{{ $priceBreakdown['sales_tax']['name'] }} ({{ number_format((float) $priceBreakdown['sales_tax']['rate'], 2) }}%)</td>
+                            <td class="price-right">${{ number_format((float) $priceBreakdown['sales_tax']['amount'], 2) }}</td>
+                        </tr>
+                        @endif
+                        @if((float) ($priceBreakdown['promo_discount'] ?? 0) > 0)
+                        <tr>
+                            <td colspan="3">Promo Code Discount</td>
+                            <td class="price-right">-${{ number_format((float) $priceBreakdown['promo_discount'], 2) }}</td>
+                        </tr>
+                        @endif
+                        @if(!empty($priceBreakdown['processing_fee']['enabled']))
+                        <tr>
+                            <td colspan="3">Processing Fee @if(($priceBreakdown['processing_fee']['type'] ?? 'percentage') === 'percentage')({{ number_format((float) $priceBreakdown['processing_fee']['rate'], 2) }}%)@endif</td>
+                            <td class="price-right">${{ number_format((float) $priceBreakdown['processing_fee']['amount'], 2) }}</td>
+                        </tr>
+                        @endif
+                        @endif
+
+                        <tr class="breakdown-grand-total">
+                            <td colspan="3" style="padding:12px 10px;"><strong>Order Total</strong></td>
+                            <td class="price-right" style="padding:12px 10px;"><strong>${{ number_format((float) ($priceBreakdown['grand_total'] ?? $transaction->total), 2) }}</strong></td>
+                        </tr>
+                        @if(!empty($priceBreakdown['refundable']['enabled']))
+                        <tr>
+                            <td colspan="3">{{ $priceBreakdown['refundable']['name'] }} ({{ number_format((float) $priceBreakdown['refundable']['rate'], 2) }}%)</td>
+                            <td class="price-right">${{ number_format((float) $priceBreakdown['refundable']['amount'], 2) }}</td>
+                        </tr>
+                        @endif
+                        <tr>
+                            <td colspan="3"><strong>Amount Paid Now</strong></td>
+                            <td class="price-right"><strong>${{ number_format((float) ($priceBreakdown['amount_paid_now'] ?? $transaction->total), 2) }}</strong></td>
+                        </tr>
+                        @if((float) ($priceBreakdown['remaining_due'] ?? 0) > 0)
+                        <tr>
+                            <td colspan="3">Remaining Due</td>
+                            <td class="price-right">${{ number_format((float) $priceBreakdown['remaining_due'], 2) }}</td>
+                        </tr>
+                        @endif
                     </tbody>
                 </table>
             </div>

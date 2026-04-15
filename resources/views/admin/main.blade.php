@@ -560,7 +560,7 @@
             $pendingFeedPostCount = 0;
             if ($authUser && ($authUser->isAdmin() || $authUser->isWebsiteUser())) {
               $pendingFeedPostCountQuery = \App\Models\FeedPost::query()
-                ->where('approval_status', 'pending');
+                ->where('review_required', true);
 
               if ($authUser->isWebsiteUser() && $authUser->website_id) {
                 $pendingFeedPostCountQuery->where('website_id', $authUser->website_id);
@@ -568,6 +568,10 @@
 
               $pendingFeedPostCount = (int) $pendingFeedPostCountQuery->count();
             }
+
+            $canAccessIncidentPortal = $authUser && $canAccessRoute('admin.incident.index');
+            $canAccessJobMarketplace = $authUser && $canAccessRoute('admin.jobs.index');
+            $isManagerPortalActive = request()->is('admins/incident*') || request()->is('admins/jobs*');
             @endphp
 
           <ul class="menu-inner py-1">
@@ -647,12 +651,39 @@
   </li>
   @endif
 
-  @if($authUser && $canAccessRoute('admin.incident.index'))
-  <li class="menu-item {{ request()->is('admins/incident*') ? 'active' : '' }}">
-    <a href="{{ route('admin.incident.index') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-file"></i>
-      <div class="text-truncate">Incident Reports</div>
+  @if($canAccessIncidentPortal || $canAccessJobMarketplace)
+  <li class="menu-item {{ $isManagerPortalActive ? 'active' : '' }}">
+    <a
+      href="#manager-portal-menu"
+      class="menu-link"
+      data-bs-toggle="collapse"
+      role="button"
+      aria-expanded="{{ $isManagerPortalActive ? 'true' : 'false' }}"
+      aria-controls="manager-portal-menu">
+      <i class="menu-icon tf-icons bx bx-briefcase-alt-2"></i>
+      <div class="text-truncate">Manager Portal</div>
+      <i class="bx bx-chevron-down ms-auto"></i>
     </a>
+
+    <ul class="collapse list-unstyled ps-4 {{ $isManagerPortalActive ? 'show' : '' }}" id="manager-portal-menu">
+      @if($canAccessIncidentPortal)
+      <li class="menu-item {{ request()->is('admins/incident*') ? 'active' : '' }}">
+        <a href="{{ route('admin.incident.index') }}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-file"></i>
+          <div class="text-truncate">Incident Reports</div>
+        </a>
+      </li>
+      @endif
+
+      @if($canAccessJobMarketplace)
+      <li class="menu-item {{ request()->is('admins/jobs*') ? 'active' : '' }}">
+        <a href="{{ route('admin.jobs.index') }}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-briefcase"></i>
+          <div class="text-truncate">Job Marketplace</div>
+        </a>
+      </li>
+      @endif
+    </ul>
   </li>
   @endif
 
@@ -701,21 +732,12 @@
   @endif
   @endif
 
-  @if($authUser && ($canAccessRoute('admin.custom-invoice.index') || $canAccessRoute('admin.jobs.index')))
+  @if($authUser && $canAccessRoute('admin.custom-invoice.index'))
   @if($canAccessRoute('admin.custom-invoice.index'))
   <li class="menu-item {{ request()->is('admins/custom-invoice') ? 'active' : '' }}">
     <a href="{{ route('admin.custom-invoice.index') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-file"></i>
       <div class="text-truncate">Custom Invoices</div>
-    </a>
-  </li>
-  @endif
-
-  @if($canAccessRoute('admin.jobs.index'))
-  <li class="menu-item {{ request()->is('admins/jobs*') ? 'active' : '' }}">
-    <a href="{{ route('admin.jobs.index') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-briefcase"></i>
-      <div class="text-truncate">Job Marketplace</div>
     </a>
   </li>
   @endif

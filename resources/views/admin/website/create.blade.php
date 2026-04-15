@@ -35,6 +35,71 @@ label{
     border-radius: 8px;
     padding: 10px 12px;
 }
+
+.toggle-field {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border: 1px solid var(--admin-border);
+    border-radius: 10px;
+    background: var(--admin-surface-2);
+}
+
+.toggle-field .toggle-text {
+    margin: 0;
+    color: var(--admin-text);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 28px;
+}
+
+.toggle-switch-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.toggle-switch-slider {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: #d1d5db;
+    transition: background .2s ease;
+    cursor: pointer;
+}
+
+.toggle-switch-slider::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    left: 4px;
+    top: 4px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    transition: transform .2s ease;
+}
+
+.toggle-switch-input:checked + .toggle-switch-slider {
+    background: #ffcc00;
+}
+
+.toggle-switch-input:checked + .toggle-switch-slider::before {
+    transform: translateX(20px);
+}
+
+.toggle-switch-input:focus-visible + .toggle-switch-slider {
+    box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.25);
+}
 </style>
 <style>
   #suggestions {
@@ -318,6 +383,52 @@ label{
                                                     <div class="mb-3">
                                                         <label for="transportation_confirmation_text" class="form-label">Transportation Confirmation Text</label>
                                                         <textarea name="transportation_confirmation_text" class="form-control" id="transportation_confirmation_text" rows="3" placeholder="Transportation confirmation checkbox text">I confirm I am not arriving via Uber, Lyft, limo, taxi, ride-sharing or any other paid service. I am arriving in a personal vehicle.</textarea>
+                                                    </div>
+                                                </div>
+
+                                                @php
+                                                    $operatingDayLabels = [
+                                                        'monday' => 'Monday',
+                                                        'tuesday' => 'Tuesday',
+                                                        'wednesday' => 'Wednesday',
+                                                        'thursday' => 'Thursday',
+                                                        'friday' => 'Friday',
+                                                        'saturday' => 'Saturday',
+                                                        'sunday' => 'Sunday',
+                                                    ];
+                                                @endphp
+
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Operating Days</label>
+                                                        <div class="row g-2">
+                                                            @foreach($operatingDayLabels as $dayValue => $dayLabel)
+                                                                <div class="col-md-6">
+                                                                    <div class="toggle-field">
+                                                                        <p class="toggle-text">{{ $dayLabel }}</p>
+                                                                        <label class="toggle-switch" for="operating_day_{{ $dayValue }}">
+                                                                            <input id="operating_day_{{ $dayValue }}" type="checkbox" name="operating_days[]" value="{{ $dayValue }}" class="toggle-switch-input" {{ in_array($dayValue, old('operating_days', []), true) ? 'checked' : '' }}>
+                                                                            <span class="toggle-switch-slider"></span>
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                        <small class="form-text text-muted">Leave all days unchecked to allow bookings every day.</small>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="operating_start_time" class="form-label">Operating Start Time</label>
+                                                        <input type="time" name="operating_start_time" class="form-control" id="operating_start_time" value="{{ old('operating_start_time') }}">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="operating_end_time" class="form-label">Operating End Time</label>
+                                                        <input type="time" name="operating_end_time" class="form-control" id="operating_end_time" value="{{ old('operating_end_time') }}">
                                                     </div>
                                                 </div>
                                             </div>

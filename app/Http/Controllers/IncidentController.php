@@ -14,6 +14,8 @@ use Illuminate\Support\Str;
 
 class IncidentController extends Controller
 {
+    private const INCIDENT_TIMEZONE = 'America/Los_Angeles';
+
     public function index()
     {
         $user = auth()->user();
@@ -236,7 +238,7 @@ class IncidentController extends Controller
             'format' => 'pdf',
         ]);
 
-        $fileName = 'incident-report-' . $incident->id . '-' . now()->format('Ymd_His') . '.pdf';
+        $fileName = 'incident-report-' . $incident->id . '-' . now(self::INCIDENT_TIMEZONE)->format('Ymd_His') . '.pdf';
         $pdf = Pdf::loadView('admin.incident.export-pdf', compact('incident'))->setPaper('a4');
 
         return $pdf->download($fileName);
@@ -273,7 +275,7 @@ class IncidentController extends Controller
         $html = view('admin.incident.witness-print', compact('witness', 'incident'))->render();
         $pdf->loadHTML($html);
 
-        return $pdf->download('witness_statement_' . $witness->id . '_' . now()->format('Y-m-d_His') . '.pdf');
+        return $pdf->download('witness_statement_' . $witness->id . '_' . now(self::INCIDENT_TIMEZONE)->format('Y-m-d_His') . '.pdf');
     }
 
     private function incidentValidationRules(): array

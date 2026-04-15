@@ -25,6 +25,45 @@
     .card-body label {
         color: var(--admin-text) !important;
     }
+
+    .card.card-border .card-body {
+        padding-top: 1.35rem;
+    }
+
+    .card.card-border .card-body .row:first-child {
+        margin-top: 0.25rem;
+    }
+
+    .sandbox-toggle-wrap {
+        min-height: 100%;
+        display: flex;
+        align-items: flex-end;
+    }
+
+    .sandbox-toggle {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 0.65rem;
+        font-weight: 600;
+        color: var(--admin-text);
+    }
+
+    .sandbox-toggle input[type="checkbox"] {
+        margin: 0;
+        width: 18px;
+        height: 18px;
+    }
+
+    .charge-help {
+        background: rgba(255, 204, 0, 0.12);
+        border: 1px solid rgba(255, 204, 0, 0.4);
+        color: var(--admin-text);
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 13px;
+        margin-bottom: 14px;
+    }
 </style>
 
 <!-- Content wrapper -->
@@ -117,10 +156,10 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="sandbox_mode" class="form-label d-block">
+                                        <div class="sandbox-toggle-wrap">
+                                            <label for="sandbox_mode" class="sandbox-toggle">
                                                 <input type="checkbox" name="sandbox_mode" id="sandbox_mode" value="1" @checked(old('sandbox_mode', $website->sandbox_mode))>
-                                                Enable Sandbox Mode (Testing)
+                                                <span>Enable Sandbox Mode (Testing)</span>
                                             </label>
                                         </div>
                                     </div>
@@ -234,6 +273,12 @@
                                 <small>Configure transaction fees applied to all charges</small>
                             </div>
                             <div class="card-body">
+                                <div class="charge-help">
+                                    To remove a charge from checkout totals and summary:
+                                    set the related <strong>Field Name</strong> to <strong>0</strong> or leave it blank.
+                                    For percentage/amount based charges, set the <strong>Fee</strong> to <strong>0</strong>.
+                                </div>
+
                                 {{-- Processing Fee --}}
                                 <div class="row">
                                     <div class="col-md-12">

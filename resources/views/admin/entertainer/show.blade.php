@@ -12,7 +12,7 @@
             <p class="mb-1"><strong>Email:</strong> {{ $entertainer->user->email }}</p>
             <p class="mb-1"><strong>Club:</strong> {{ $entertainer->website->name ?? 'N/A' }}</p>
             <p class="mb-1"><strong>Status:</strong> {{ ucfirst($entertainer->status) }}</p>
-            <p class="mb-3"><strong>Default Commission %:</strong> {{ number_format((float) ($entertainer->default_commission_percentage ?? 0), 2) }}%</p>
+            <p class="mb-3"><strong>Default Commission:</strong> {{ number_format((float) ($entertainer->default_commission_percentage ?? 0), 2) }}%</p>
             @if($entertainer->slug)
                 <p class="mb-3"><strong>Public Page:</strong> <a href="{{ route('entertainer.public', $entertainer->slug) }}" target="_blank">{{ route('entertainer.public', $entertainer->slug) }}</a></p>
             @endif
@@ -31,7 +31,7 @@
             <form method="POST" action="{{ route('admin.entertainer.commission.update', $entertainer->id) }}" class="d-flex gap-2 align-items-end mb-3">
                 @csrf
                 <div>
-                    <label class="form-label">Change Commission Later (%)</label>
+                    <label class="form-label">Change Commission (%)</label>
                     <input type="number" min="0" max="100" step="0.01" name="default_commission_percentage" class="form-control" value="{{ old('default_commission_percentage', $entertainer->default_commission_percentage ?? 10) }}" required>
                 </div>
                 <button type="submit" class="btn btn-outline-primary">Update Commission</button>

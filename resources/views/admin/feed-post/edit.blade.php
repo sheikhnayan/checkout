@@ -12,6 +12,9 @@
                         <span class="badge {{ ($feedPost->approval_status ?? 'approved') === 'pending' ? 'bg-warning text-dark' : (($feedPost->approval_status ?? 'approved') === 'rejected' ? 'bg-danger' : 'bg-success') }}">
                             Moderation: {{ ucfirst($feedPost->approval_status ?? 'approved') }}
                         </span>
+                        @if($feedPost->review_required)
+                            <span class="badge bg-warning text-dark ms-1">Review Needed</span>
+                        @endif
                     </p>
                 </div>
                 <a href="{{ route('admin.feed-post.show', $feedPost) }}" class="btn btn-outline-info">Manage Comments</a>

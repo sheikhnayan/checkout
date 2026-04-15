@@ -35,7 +35,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Date Submitted *</label>
-                            <input type="date" name="date_submitted" class="form-control" value="{{ old('date_submitted', now()->format('Y-m-d')) }}" required>
+                            <input type="date" name="date_submitted" class="form-control" value="{{ old('date_submitted', now('America/Los_Angeles')->format('Y-m-d')) }}" required>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Time of incident *</label>

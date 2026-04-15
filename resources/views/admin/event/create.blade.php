@@ -48,6 +48,34 @@ label{
   #suggestions li:hover {
     background: #eee;
   }
+
+    .package-select {
+        background: #131a2a !important;
+        color: #f3f4f6 !important;
+        border: 1px solid #2c3650 !important;
+    }
+
+    .package-select option {
+        color: #f3f4f6;
+        background: #131a2a;
+        padding: 6px 8px;
+    }
+
+    .package-select option:checked {
+        background: #ffcc00 !important;
+        color: #16120a !important;
+    }
+
+    .package-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .package-row .package-select {
+        flex: 1;
+    }
 </style>
     <!-- Content wrapper -->
     <div class="content-wrapper">
@@ -183,47 +211,128 @@ label{
                                                             <input type="text" name="time_start" class="form-control flatpickr-time" id="time_start"
                                                             style="height: 35.1166px"
                                                                 placeholder="Start Time"
-                                                                required>
+                                                                value="{{ old('time_start') }}">
                                                             <span style="align-self: center;">to</span>
                                                             <input type="text" name="time_end" class="form-control flatpickr-time" id="time_end"
                                                                 style="height: 35.1166px"
                                                                 placeholder="End Time"
-                                                                required>
+                                                                value="{{ old('time_end') }}">
                                                         </div>
+                                                        <small class="text-muted">Leave both fields blank if no event time is needed.</small>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="description" class="form-label">Description</label>
-                                                        <textarea name="description" class="form-control" id="description" rows="4" placeholder="Event Description" required></textarea>
+                                                        <label for="package_ids" class="form-label">Select Packages</label>
+                                                        @php($packageRows = collect(old('package_ids', ['']))->map(fn($id) => (string) $id)->values()->all())
+                                                        @if(empty($packageRows))
+                                                            @php($packageRows = [''])
+                                                        @endif
+                                                        <div id="package-rows">
+                                                            @foreach($packageRows as $selectedPackageId)
+                                                                <div class="package-row">
+                                                                    <select name="package_ids[]" class="form-control package-select">
+                                                                        <option value="">Select Package</option>
+                                                                        @foreach($packages as $package)
+                                                                            <option value="{{ $package->id }}" {{ (string) $package->id === $selectedPackageId ? 'selected' : '' }}>{{ $package->name }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                    <button type="button" class="btn btn-danger remove-package-row">Remove</button>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                        <button type="button" id="add-package-row" class="btn btn-primary mt-1">Add Package</button>
+                                                        <small class="text-muted d-block mt-2">Click Add Package to insert another row.</small>
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-12">
-                                                    <div class="mb-3">
-                                                        <label for="secondary_description" class="form-label">Secondary Description</label>
-                                                        <textarea name="secondary_description" class="form-control" id="secondary_description" rows="3" placeholder="Optional secondary description shown on the event page"></textarea>
-                                                    </div>
-                                                </div>
 
-                                                
-                                            </div>
-                                            <input type="hidden" name="website_id" value="{{ $id }}">
-                                            <div id="addons-list"></div>
+            markAllSelected();
+        }
 
-                                            <button type="submit" class="btn btn-primary">Submit</button>
-                                            <a href="{{ route('admin.event.index') }}" class="btn btn-danger">Cancel</a>
+        function markAllSelected() {
+            Array.from(selected.options).forEach(function (option) {
+                option.selected = true;
+            });
+        }
 
+        addBtn.addEventListener('click', function () {
+            moveSelected(available, selected);
+        });
 
+        removeBtn.addEventListener('click', function () {
+            moveSelected(selected, available);
+        });
 
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        addAllBtn.addEventListener('click', function () {
+            moveAll(available, selected);
+        });
+
+        removeAllBtn.addEventListener('click', function () {
+            moveAll(selected, available);
+        });
+
+        if (form) {
+            form.addEventListener('submit', markAllSelected);
+        }
+
+        markAllSelected();
+    })();
+</script>
+
+<script>
+    (function () {
+        const rowsContainer = document.getElementById('package-rows');
+        const addButton = document.getElementById('add-package-row');
+
+        if (!rowsContainer || !addButton) {
+            return;
+        }
+
+        const firstSelect = rowsContainer.querySelector('select.package-select');
+        const optionsMarkup = firstSelect ? firstSelect.innerHTML : '<option value="">Select Package</option>';
+
+        function bindRemove(button) {
+            button.addEventListener('click', function () {
+                const row = button.closest('.package-row');
+                if (!row) {
+                    return;
+                }
+                row.remove();
+                if (!rowsContainer.querySelector('.package-row')) {
+                    addRow('');
+                }
+            });
+        }
+
+        function addRow(selectedValue) {
+            const row = document.createElement('div');
+            row.className = 'package-row';
+
+            const select = document.createElement('select');
+            select.name = 'package_ids[]';
+            select.className = 'form-control package-select';
+            select.innerHTML = optionsMarkup;
+            if (selectedValue) {
+                select.value = selectedValue;
+            }
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn btn-danger remove-package-row';
+            removeBtn.textContent = 'Remove';
+
+            row.appendChild(select);
+            row.appendChild(removeBtn);
+            rowsContainer.appendChild(row);
+            bindRemove(removeBtn);
+        }
+
+        rowsContainer.querySelectorAll('.remove-package-row').forEach(bindRemove);
+        addButton.addEventListener('click', function () { addRow(''); });
+    })();
+</script>
 
 @endsection
 

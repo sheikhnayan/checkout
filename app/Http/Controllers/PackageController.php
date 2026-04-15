@@ -114,6 +114,25 @@ class PackageController extends Controller
             abort(403, 'Access denied. You can only create packages for your own website.');
         }
         
+        // Validate request based on package type
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'description' => 'required|string',
+            'status' => 'required|in:0,1',
+            'website_id' => 'required|integer',
+            'package_type' => 'required|in:ticket,table',
+            'daily_ticket_limit' => 'required_if:package_type,ticket|nullable|integer|min:1',
+            'daily_table_limit' => 'required_if:package_type,table|nullable|integer|min:1',
+            'guests_per_table' => 'required_if:package_type,table|nullable|integer|min:1',
+            'addons' => 'nullable|string',
+            'multiple' => 'nullable',
+            'transportation' => 'nullable',
+            'event_id' => 'nullable|integer',
+            'package_category_id' => 'nullable|integer',
+            'new_category_name' => 'nullable|string|max:255',
+        ]);
+        
         // dd($request->all());
         $add = new Package;
         $add->name = $request->name;
@@ -122,8 +141,18 @@ class PackageController extends Controller
         $add->status = $request->status;
         $add->multiple = isset($request->multiple) ? 1 :0;
         $add->transportation = isset($request->transportation) ? 1 :0;
-        $add->number_of_guest = $request->number_of_guest;
-        $add->guest_limit_type = $request->input('guest_limit_type', 'per_group');
+        $add->package_type = $request->input('package_type', 'ticket');
+        
+        if ($add->package_type === 'table') {
+            $add->daily_table_limit = $request->input('daily_table_limit');
+            $add->guests_per_table = $request->input('guests_per_table');
+            $add->daily_ticket_limit = null;
+        } else {
+            $add->daily_ticket_limit = $request->input('daily_ticket_limit');
+            $add->daily_table_limit = null;
+            $add->guests_per_table = null;
+        }
+        
         $add->website_id = $request->website_id;
         $add->package_category_id = $this->resolveCategoryId($request, $request->website_id);
         $add->event_id = $this->resolveEventId($request, (int) $request->website_id);
@@ -210,6 +239,24 @@ class PackageController extends Controller
             abort(403, 'Access denied. You can only update packages for your own website.');
         }
         
+        // Validate request based on package type
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'description' => 'required|string',
+            'status' => 'required|in:0,1',
+            'package_type' => 'required|in:ticket,table',
+            'daily_ticket_limit' => 'required_if:package_type,ticket|nullable|integer|min:1',
+            'daily_table_limit' => 'required_if:package_type,table|nullable|integer|min:1',
+            'guests_per_table' => 'required_if:package_type,table|nullable|integer|min:1',
+            'addons' => 'nullable|string',
+            'multiple' => 'nullable',
+            'transportation' => 'nullable',
+            'event_id' => 'nullable|integer',
+            'package_category_id' => 'nullable|integer',
+            'new_category_name' => 'nullable|string|max:255',
+        ]);
+        
         // dd($request->all());
         $data->name = $request->name;
         $data->price = $request->price;
@@ -217,8 +264,18 @@ class PackageController extends Controller
         $data->status = $request->status;
         $data->multiple = isset($request->multiple) ? 1 :0;
         $data->transportation = isset($request->transportation) ? 1 :0;
-        $data->number_of_guest = $request->number_of_guest;
-        $data->guest_limit_type = $request->input('guest_limit_type', 'per_group');
+        $data->package_type = $request->input('package_type', 'ticket');
+        
+        if ($data->package_type === 'table') {
+            $data->daily_table_limit = $request->input('daily_table_limit');
+            $data->guests_per_table = $request->input('guests_per_table');
+            $data->daily_ticket_limit = null;
+        } else {
+            $data->daily_ticket_limit = $request->input('daily_ticket_limit');
+            $data->daily_table_limit = null;
+            $data->guests_per_table = null;
+        }
+        
         $data->package_category_id = $this->resolveCategoryId($request, $data->website_id);
         // $data->website_id = $request->website_id;
         $data->event_id = $this->resolveEventId($request, (int) $data->website_id);

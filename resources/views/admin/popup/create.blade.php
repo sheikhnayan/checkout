@@ -21,12 +21,12 @@
                 <input type="hidden" name="website_id" value="{{ $id }}">
 
                 <div class="mb-3">
-                    <label class="form-label">Title</label>
-                    <input type="text" name="title" class="form-control" value="{{ old('title') }}" required>
+                    <label class="form-label">Title (optional)</label>
+                    <input type="text" name="title" class="form-control" value="{{ old('title') }}">
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Message</label>
+                    <label class="form-label">Message (optional)</label>
                     <textarea name="message" class="form-control" rows="5">{{ old('message') }}</textarea>
                 </div>
 

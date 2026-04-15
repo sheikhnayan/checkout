@@ -17,6 +17,7 @@ use App\Models\EntertainerPackage;
 use App\Models\EntertainerWalletTransaction;
 use App\Models\PromoCode;
 use App\Mail\TransactionMail;
+use App\Helpers\PackageLimitHelper;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
@@ -44,6 +45,17 @@ class TransactionController extends Controller
             );
         }
 
+        // Validate daily package limits
+        foreach ($cartItems as $item) {
+            $package = Package::find($item['package_id']);
+            if ($package) {
+                $result = PackageLimitHelper::canPurchase($package, $item['quantity']);
+                if (!$result['allowed']) {
+                    throw ValidationException::withMessages(['package_limit' => $result['message']]);
+                }
+            }
+        }
+
         if ($requiresTransportation) {
             $request->validate(
                 [
@@ -60,6 +72,11 @@ class TransactionController extends Controller
                     'transportation_phone.required' => 'Contact Phone Number or WhatsApp is required for transportation packages.',
                 ]
             );
+
+            $scheduleWebsite = Website::find($request->website_id);
+            if ($scheduleWebsite) {
+                $this->validateTransportationAvailability($scheduleWebsite, $request, $selectedPackage);
+            }
         }
 
         $setting = Setting::find(1);
@@ -191,6 +208,7 @@ class TransactionController extends Controller
                         ];
     
                         $website = Website::findOrFail($website_id);
+                        $mailData['price_breakdown'] = $this->buildPackagePriceBreakdown($add->fresh(), $website);
     
                         // Dynamically set SMTP config from $website
                         if ($website->smtp->host && $website->smtp->port && $website->smtp->username && $website->smtp->password && $website->smtp->encryption) {
@@ -403,6 +421,7 @@ class TransactionController extends Controller
                         ];
     
                         $website = Website::findOrFail($website_id);
+                        $mailData['price_breakdown'] = $this->buildPackagePriceBreakdown($add->fresh(), $website);
     
                         // Dynamically set SMTP config from $website
                         if ($website->smtp->host && $website->smtp->port && $website->smtp->username && $website->smtp->password && $website->smtp->encryption) {
@@ -702,7 +721,13 @@ class TransactionController extends Controller
         $website = session('website');
         $paymentType = session('paymentType');
 
-        return view('thank-you', compact('transaction', 'invoice', 'website', 'paymentType'));
+        $priceBreakdown = null;
+        if ($transaction instanceof Transaction && (string) $transaction->type === 'package') {
+            $breakdownWebsite = $website instanceof Website ? $website : Website::find($transaction->website_id);
+            $priceBreakdown = $this->buildPackagePriceBreakdown($transaction, $breakdownWebsite);
+        }
+
+        return view('thank-you', compact('transaction', 'invoice', 'website', 'paymentType', 'priceBreakdown'));
     }
 
     public function scanPage()
@@ -967,6 +992,92 @@ class TransactionController extends Controller
             });
     }
 
+    private function validateTransportationAvailability(Website $website, Request $request, ?Package $selectedPackage = null): void
+    {
+        $pickupDate = (string) $request->input('package_use_date');
+        $pickupTime = (string) $request->input('transportation_pickup_time');
+
+        if ($pickupDate !== '' && !($selectedPackage && $selectedPackage->event_id) && !$this->isWebsiteOpenOnDate($website, $pickupDate)) {
+            throw ValidationException::withMessages([
+                'package_use_date' => 'Selected club is closed on that date.',
+            ]);
+        }
+
+        if ($pickupTime !== '' && !$this->isWithinWebsiteOperatingHours($website, $pickupTime)) {
+            throw ValidationException::withMessages([
+                'transportation_pickup_time' => 'Pickup time must be within the club operating hours.',
+            ]);
+        }
+    }
+
+    private function isWebsiteOpenOnDate(Website $website, string $pickupDate): bool
+    {
+        $operatingDays = $this->normalizedOperatingDays($website);
+
+        if ($operatingDays === []) {
+            return true;
+        }
+
+        try {
+            $dayName = strtolower(Carbon::parse($pickupDate)->format('l'));
+        } catch (\Throwable $exception) {
+            return false;
+        }
+
+        return in_array($dayName, $operatingDays, true);
+    }
+
+    private function isWithinWebsiteOperatingHours(Website $website, string $pickupTime): bool
+    {
+        $startMinutes = $this->convertTimeStringToMinutes($website->operating_start_time);
+        $endMinutes = $this->convertTimeStringToMinutes($website->operating_end_time);
+        $pickupMinutes = $this->convertTimeStringToMinutes($pickupTime);
+
+        if ($pickupMinutes === null) {
+            return false;
+        }
+
+        if ($startMinutes === null || $endMinutes === null) {
+            return true;
+        }
+
+        if ($endMinutes < $startMinutes) {
+            return $pickupMinutes >= $startMinutes || $pickupMinutes <= $endMinutes;
+        }
+
+        return $pickupMinutes >= $startMinutes && $pickupMinutes <= $endMinutes;
+    }
+
+    private function normalizedOperatingDays(Website $website): array
+    {
+        $validDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
+        return collect((array) $website->operating_days)
+            ->map(fn ($day) => strtolower(trim((string) $day)))
+            ->filter(fn ($day) => in_array($day, $validDays, true))
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    private function convertTimeStringToMinutes(?string $time): ?int
+    {
+        if (!$time) {
+            return null;
+        }
+
+        foreach (['H:i', 'H:i:s', 'h:i A', 'g:i A'] as $format) {
+            try {
+                $parsedTime = Carbon::createFromFormat($format, trim($time));
+
+                return ((int) $parsedTime->format('H') * 60) + (int) $parsedTime->format('i');
+            } catch (\Throwable $exception) {
+            }
+        }
+
+        return null;
+    }
+
     private function applyReferralCommission(Request $request, Transaction $transaction, ?float $commissionBaseAmount = null): void
     {
         $affiliateResolved = $this->applyAffiliateCommission($request, $transaction, $commissionBaseAmount);
@@ -1151,6 +1262,166 @@ class TransactionController extends Controller
         }
 
         return strtoupper($rawCode);
+    }
+
+    private function buildPackagePriceBreakdown(Transaction $transaction, ?Website $website): array
+    {
+        $cartItems = $this->normalizeStoredCartItems($transaction->cart_items);
+
+        $items = [];
+        $packagesSubtotal = 0.0;
+        $addonsSubtotal = 0.0;
+
+        foreach ($cartItems as $item) {
+            $guests = max(1, (int) ($item['guests'] ?? 1));
+            $isMultiple = $this->isTruthy($item['is_multiple'] ?? false);
+            $unitPrice = (float) ($item['unit_price'] ?? 0);
+            $packageSubtotal = $isMultiple ? ($unitPrice * $guests) : $unitPrice;
+
+            $addons = collect((array) ($item['addons'] ?? []))
+                ->map(function ($addon) {
+                    if (!is_array($addon)) {
+                        return null;
+                    }
+
+                    return [
+                        'name' => trim((string) ($addon['name'] ?? '')),
+                        'price' => (float) ($addon['price'] ?? 0),
+                    ];
+                })
+                ->filter(fn ($addon) => $addon !== null && $addon['name'] !== '')
+                ->values()
+                ->all();
+
+            $addonsTotal = collect($addons)->sum(fn ($addon) => (float) ($addon['price'] ?? 0));
+            $lineTotal = $packageSubtotal + $addonsTotal;
+
+            $packagesSubtotal += $packageSubtotal;
+            $addonsSubtotal += $addonsTotal;
+
+            $items[] = [
+                'package_name' => (string) ($item['package_name'] ?? ('Package #' . ($item['package_id'] ?? ''))),
+                'guests' => $guests,
+                'is_multiple' => $isMultiple,
+                'unit_price' => round($unitPrice, 2),
+                'package_subtotal' => round($packageSubtotal, 2),
+                'addons' => $addons,
+                'addons_total' => round($addonsTotal, 2),
+                'line_total' => round($lineTotal, 2),
+            ];
+        }
+
+        $itemsSubtotal = $packagesSubtotal + $addonsSubtotal;
+
+        $serviceChargeRate = (float) ($website->service_charge_fee ?? 0);
+        $serviceChargeName = (string) ($website->service_charge_name ?? 'Service Charge');
+        $serviceChargeEnabled = $serviceChargeRate > 0 && trim($serviceChargeName) !== '' && trim($serviceChargeName) !== '0';
+        $serviceChargeAmount = $serviceChargeEnabled ? ($itemsSubtotal * $serviceChargeRate / 100) : 0;
+
+        $gratuityRate = (float) ($website->gratuity_fee ?? 0);
+        $gratuityName = (string) ($website->gratuity_name ?? 'Gratuity Fee');
+        $gratuityEnabled = $gratuityRate > 0 && trim($gratuityName) !== '' && trim($gratuityName) !== '0';
+        $gratuityAmount = $gratuityEnabled ? ($itemsSubtotal * $gratuityRate / 100) : 0;
+
+        $salesTaxRate = (float) ($website->sales_tax_fee ?? 0);
+        $salesTaxName = (string) ($website->sales_tax_name ?? 'Sales Tax');
+        $salesTaxEnabled = $salesTaxRate > 0 && trim($salesTaxName) !== '' && trim($salesTaxName) !== '0';
+        $salesTaxBase = $itemsSubtotal + $serviceChargeAmount + $gratuityAmount;
+        $salesTaxAmount = $salesTaxEnabled ? ($salesTaxBase * $salesTaxRate / 100) : 0;
+
+        $preDiscountTotal = $itemsSubtotal + $serviceChargeAmount + $gratuityAmount + $salesTaxAmount;
+
+        $promoDiscount = max(0, (float) ($transaction->discounted_amount ?? 0));
+        if ($promoDiscount > $preDiscountTotal) {
+            $promoDiscount = $preDiscountTotal;
+        }
+
+        $afterDiscountTotal = max($preDiscountTotal - $promoDiscount, 0);
+
+        $processingFeeRate = (float) ($website->processing_fee ?? 0);
+        $processingFeeType = strtolower((string) ($website->processing_fee_type ?? 'percentage'));
+        if ($processingFeeType !== 'flat') {
+            $processingFeeType = 'percentage';
+        }
+
+        $processingFeeAmount = 0;
+        if ($processingFeeRate > 0) {
+            $processingFeeAmount = $processingFeeType === 'flat'
+                ? $processingFeeRate
+                : ($afterDiscountTotal * $processingFeeRate / 100);
+        }
+
+        $calculatedGrandTotal = $afterDiscountTotal + $processingFeeAmount;
+        $storedGrandTotal = (float) ($transaction->actual_total ?? 0);
+        $grandTotal = $storedGrandTotal > 0 ? $storedGrandTotal : $calculatedGrandTotal;
+
+        $refundableRate = (float) ($website->refundable_fee ?? 0);
+        $refundableName = (string) ($website->refundable_name ?? 'Non Refundable Processing Fees');
+        $refundableAmount = $refundableRate > 0 ? ($grandTotal * $refundableRate / 100) : 0;
+
+        $amountPaidNow = (float) ($transaction->total ?? 0);
+        $remainingDue = max($grandTotal - $amountPaidNow, 0);
+
+        return [
+            'items' => $items,
+            'packages_subtotal' => round($packagesSubtotal, 2),
+            'addons_subtotal' => round($addonsSubtotal, 2),
+            'items_subtotal' => round($itemsSubtotal, 2),
+            'service_charge' => [
+                'enabled' => $serviceChargeEnabled,
+                'name' => $serviceChargeName,
+                'rate' => round($serviceChargeRate, 4),
+                'amount' => round($serviceChargeAmount, 2),
+            ],
+            'gratuity' => [
+                'enabled' => $gratuityEnabled,
+                'name' => $gratuityName,
+                'rate' => round($gratuityRate, 4),
+                'amount' => round($gratuityAmount, 2),
+            ],
+            'sales_tax' => [
+                'enabled' => $salesTaxEnabled,
+                'name' => $salesTaxName,
+                'rate' => round($salesTaxRate, 4),
+                'amount' => round($salesTaxAmount, 2),
+            ],
+            'promo_discount' => round($promoDiscount, 2),
+            'processing_fee' => [
+                'enabled' => $processingFeeAmount > 0,
+                'type' => $processingFeeType,
+                'rate' => round($processingFeeRate, 4),
+                'amount' => round($processingFeeAmount, 2),
+            ],
+            'pre_discount_total' => round($preDiscountTotal, 2),
+            'after_discount_total' => round($afterDiscountTotal, 2),
+            'grand_total' => round($grandTotal, 2),
+            'refundable' => [
+                'enabled' => $refundableRate > 0,
+                'name' => $refundableName,
+                'rate' => round($refundableRate, 4),
+                'amount' => round($refundableAmount, 2),
+            ],
+            'amount_paid_now' => round($amountPaidNow, 2),
+            'remaining_due' => round($remainingDue, 2),
+        ];
+    }
+
+    private function normalizeStoredCartItems($rawCartItems): array
+    {
+        if (is_array($rawCartItems)) {
+            return $rawCartItems;
+        }
+
+        if (!is_string($rawCartItems) || trim($rawCartItems) === '') {
+            return [];
+        }
+
+        $decoded = json_decode($rawCartItems, true);
+        if (is_string($decoded)) {
+            $decoded = json_decode($decoded, true);
+        }
+
+        return is_array($decoded) ? $decoded : [];
     }
 
     private function generateTicketQrCode(): string

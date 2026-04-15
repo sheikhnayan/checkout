@@ -31,6 +31,8 @@ class FeedPostController extends Controller
                     $query->where('website_id', $id);
                 }
             })
+            ->orderByDesc('review_required')
+            ->orderByRaw("CASE WHEN approval_status = 'pending' THEN 1 ELSE 0 END DESC")
             ->latest('posted_at')
             ->latest()
             ->get();
@@ -136,11 +138,14 @@ class FeedPostController extends Controller
         $this->ensureApprovePermission($feedPost);
 
         $feedPost->approval_status = 'approved';
+        $feedPost->review_required = false;
+        $feedPost->reviewed_at = now();
         $feedPost->approved_at = now();
         $feedPost->approved_by = auth()->id();
+        $feedPost->is_active = true;
         $feedPost->save();
 
-        return redirect()->route('admin.feed-post.index')->with('success', 'Feed post approved and now visible on public feed.');
+        return redirect()->route('admin.feed-post.index')->with('success', 'Feed post reviewed and approved.');
     }
 
     public function reject(FeedPost $feedPost): RedirectResponse
@@ -148,12 +153,47 @@ class FeedPostController extends Controller
         $this->ensureApprovePermission($feedPost);
 
         $feedPost->approval_status = 'rejected';
+        $feedPost->review_required = false;
+        $feedPost->reviewed_at = now();
         $feedPost->approved_at = null;
         $feedPost->approved_by = null;
         $feedPost->is_active = false;
         $feedPost->save();
 
-        return redirect()->route('admin.feed-post.index')->with('success', 'Feed post rejected.');
+        return redirect()->route('admin.feed-post.index')->with('success', 'Feed post unapproved and removed from the live feed.');
+    }
+
+    public function bulkApprove(Request $request): RedirectResponse
+    {
+        $postIds = collect((array) $request->input('feed_post_ids', []))
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values();
+
+        if ($postIds->isEmpty()) {
+            return redirect()->route('admin.feed-post.index')->with('error', 'Select at least one post to mark as reviewed.');
+        }
+
+        $posts = FeedPost::whereIn('id', $postIds)->get();
+
+        if ($posts->isEmpty()) {
+            return redirect()->route('admin.feed-post.index')->with('error', 'No matching feed posts were found.');
+        }
+
+        foreach ($posts as $post) {
+            $this->ensureApprovePermission($post);
+
+            $post->approval_status = 'approved';
+            $post->review_required = false;
+            $post->reviewed_at = now();
+            $post->approved_at = $post->approved_at ?: now();
+            $post->approved_by = $post->approved_by ?: auth()->id();
+            $post->is_active = true;
+            $post->save();
+        }
+
+        return redirect()->route('admin.feed-post.index')->with('success', $posts->count() . ' feed post(s) marked as reviewed.');
     }
 
     private function validatePost(Request $request): array
@@ -196,15 +236,19 @@ class FeedPostController extends Controller
         $post->posted_at = $validated['posted_at'] ?? now();
         $post->is_active = $request->boolean('is_active', true);
         if ($entertainer) {
-            // Real entertainers must be approved by club admin or super admin.
-            $post->approval_status = 'pending';
-            $post->approved_at = null;
+            // Verified entertainer posts go live immediately, but still require admin review.
+            $post->approval_status = 'approved';
+            $post->approved_at = now();
             $post->approved_by = null;
+            $post->review_required = true;
+            $post->reviewed_at = null;
         } else {
-            // Admin-created feed posts (club/fake entertainer flow) are auto-approved.
+            // Admin-created feed posts (club/managed profile flow) are auto-approved.
             $post->approval_status = 'approved';
             $post->approved_at = now();
             $post->approved_by = auth()->id();
+            $post->review_required = false;
+            $post->reviewed_at = now();
         }
         $post->show_on_roll_call = $this->canUseRollCall($post, $entertainer)
             ? $request->boolean('show_on_roll_call', false)

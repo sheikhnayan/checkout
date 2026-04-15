@@ -43,7 +43,7 @@
                                             <td>{{ $item->domain }}</td>
                                             <td>{{ (int) $item->status === 1 ? 'Active' : 'Inactive' }}</td>
                                             <td>
-                                                <a href="{{ route('admin.popup.show', $item->id) }}" class="btn btn-secondary">Show</a>
+                                                <a href="{{ route('admin.popup.show', $item->id) }}" class="btn btn-secondary">Open</a>
                                             </td>
                                         </tr>
                                     @endforeach

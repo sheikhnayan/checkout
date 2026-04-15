@@ -373,12 +373,19 @@
 
         .feed-meta-row {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
             gap: 12px;
             padding: 16px 18px 0;
             color: var(--feed-muted);
             font-size: .86rem;
+        }
+
+        .feed-post-actions {
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .feed-carousel .carousel-control-prev,
@@ -1036,19 +1043,21 @@
                                         <span class="feed-indicator-icon" title="Contains video"><i class="fas fa-circle-play"></i></span>
                                     @endif
                                 </span>
-                                <button
-                                    type="button"
-                                    class="feed-btn-secondary feed-post-share-btn"
-                                    data-share-url="{{ route('club.feed', $club->slug) }}#post-{{ $post->id }}"
-                                    data-share-title="{{ $post->author_name }} post"
-                                    data-share-text="{{ $post->caption ? \Illuminate\Support\Str::limit($post->caption, 110) : 'Check out this post' }}"
-                                    onclick="window.__feedSharePostFallback && window.__feedSharePostFallback(this);"
-                                >
-                                    <i class="fas fa-share-nodes me-2"></i>Share Post
-                                </button>
-                                <button type="button" class="feed-btn-secondary" data-bs-toggle="modal" data-bs-target="#{{ $commentModalId }}">
-                                    <i class="fas fa-comment-dots me-2"></i>{{ $post->visible_comments_count }} Comments
-                                </button>
+                                <div class="feed-post-actions">
+                                    <button type="button" class="feed-btn-secondary" data-bs-toggle="modal" data-bs-target="#{{ $commentModalId }}">
+                                        <i class="fas fa-comment-dots me-2"></i>{{ $post->visible_comments_count }} Comments
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="feed-btn-secondary feed-post-share-btn"
+                                        data-share-url="{{ route('club.feed', $club->slug) }}#post-{{ $post->id }}"
+                                        data-share-title="{{ $post->author_name }} post"
+                                        data-share-text="{{ $post->caption ? \Illuminate\Support\Str::limit($post->caption, 110) : 'Check out this post' }}"
+                                        onclick="window.__feedSharePostFallback && window.__feedSharePostFallback(this);"
+                                    >
+                                        <i class="fas fa-share-nodes me-2"></i>Share Post
+                                    </button>
+                                </div>
                             </div>
 
                             @if($post->visibleComments->count())
@@ -1177,6 +1186,9 @@
     <div class="feed-share-menu" id="feed-share-menu" aria-hidden="true">
         <button type="button" class="feed-share-option" data-share-option="whatsapp">WhatsApp</button>
         <button type="button" class="feed-share-option" data-share-option="facebook">Facebook</button>
+        <button type="button" class="feed-share-option" data-share-option="instagram">Instagram</button>
+        <button type="button" class="feed-share-option" data-share-option="x">X</button>
+        <button type="button" class="feed-share-option" data-share-option="linkedin">LinkedIn</button>
         <button type="button" class="feed-share-option" data-share-option="email">Email</button>
         <button type="button" class="feed-share-option" data-share-option="copy">Copy Link</button>
     </div>
@@ -1303,6 +1315,7 @@
             const cleanPayload = buildSharePayload(payload);
             const encodedUrl = encodeURIComponent(cleanPayload.url);
             const shareLine = cleanPayload.text ? cleanPayload.text + ' ' + cleanPayload.url : cleanPayload.url;
+            const encodedTitle = encodeURIComponent(cleanPayload.title || 'Check this out');
 
             if (option === 'whatsapp') {
                 window.open('https://wa.me/?text=' + encodeURIComponent(shareLine), '_blank', 'noopener');
@@ -1314,8 +1327,36 @@
                 return;
             }
 
+            if (option === 'x') {
+                window.open('https://twitter.com/intent/tweet?url=' + encodedUrl + '&text=' + encodeURIComponent(cleanPayload.text || cleanPayload.title || ''), '_blank', 'noopener');
+                return;
+            }
+
+            if (option === 'linkedin') {
+                window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + encodedUrl, '_blank', 'noopener');
+                return;
+            }
+
+            if (option === 'instagram') {
+                if (navigator.share) {
+                    navigator.share({
+                        title: cleanPayload.title,
+                        text: cleanPayload.text,
+                        url: cleanPayload.url
+                    }).catch(function () {});
+                    return;
+                }
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(shareLine).catch(function () {});
+                }
+
+                window.open('https://www.instagram.com/', '_blank', 'noopener');
+                return;
+            }
+
             if (option === 'email') {
-                const subject = encodeURIComponent(cleanPayload.title || 'Check this out');
+                const subject = encodedTitle;
                 const body = encodeURIComponent((cleanPayload.text ? cleanPayload.text + '\n\n' : '') + cleanPayload.url);
                 window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
                 return;

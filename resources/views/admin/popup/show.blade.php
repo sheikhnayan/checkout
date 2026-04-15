@@ -29,7 +29,7 @@
                         @forelse($data as $key => $popup)
                             <tr>
                                 <td>{{ $key + 1 }}</td>
-                                <td>{{ $popup->title }}</td>
+                                <td>{{ $popup->title ?: 'Untitled popup' }}</td>
                                 <td>
                                     {{ $popup->starts_at ? $popup->starts_at->format('Y-m-d H:i') : 'Immediate' }}
                                     -

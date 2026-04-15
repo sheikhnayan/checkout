@@ -6,6 +6,9 @@
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="app-main__inner">
+            @php
+                $incidentTz = 'America/Los_Angeles';
+            @endphp
             <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
                 <h4 class="mb-0">Incident Reports - {{ $website->name }}</h4>
                 <a href="{{ route('admin.incident.create', $websiteId) }}" class="btn btn-primary">Create Incident</a>
@@ -43,7 +46,7 @@
                                 </td>
                                 <td>{{ $incident->reporter_name }}</td>
                                 <td>{{ $incident->witnessReports->count() }}</td>
-                                <td>{{ $incident->created_at?->format('Y-m-d H:i') }}</td>
+                                <td>{{ $incident->created_at?->timezone($incidentTz)->format('Y-m-d H:i') }} PT</td>
                                 <td>
                                     <a href="{{ route('admin.incident.details', $incident->id) }}" class="btn btn-sm btn-secondary">Details</a>
                                     <a href="{{ route('admin.incident.export', $incident->id) }}" class="btn btn-sm btn-info">Export PDF</a>

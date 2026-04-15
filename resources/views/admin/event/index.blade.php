@@ -120,7 +120,7 @@
                                                                 @endif
                                                             </td>
                                                             <td>
-                                                                <a href="/admins/event/show/{{ $item->id }}" class="btn btn-secondary">show</a>
+                                                                <a href="/admins/event/show/{{ $item->id }}" class="btn btn-secondary">Open</a>
                                                                 <form action="/admins/event/archive/{{ $item->id }}" method="POST" style="display:inline;">
                                                                     @csrf
                                                                     <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to archive this event?');">

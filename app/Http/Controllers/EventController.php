@@ -68,13 +68,20 @@ class EventController extends Controller
     public function create($id)
     {
         $user = auth()->user();
+        $websiteId = (int) $id;
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $id != $user->website_id) {
+        if ($user->isWebsiteUser() && $websiteId != (int) $user->website_id) {
             abort(403, 'Access denied. You can only create events for your own website.');
         }
+
+        $packages = Package::where('website_id', $websiteId)
+            ->where('is_archieved', 0)
+            ->where('status', 1)
+            ->orderBy('name')
+            ->get();
         
-        return view('admin.event.create', compact('id'));
+        return view('admin.event.create', compact('id', 'packages'));
     }
 
     /**
@@ -83,9 +90,16 @@ class EventController extends Controller
     public function store(Request $request)
     {
         $user = auth()->user();
+        $websiteId = $this->resolveWebsiteId($request, $user);
+
+        if (!$websiteId || !Website::where('id', $websiteId)->exists()) {
+            return back()
+                ->withErrors(['website_id' => 'The selected website id is invalid.'])
+                ->withInput();
+        }
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $request->website_id != $user->website_id) {
+        if ($user->isWebsiteUser() && $websiteId != (int) $user->website_id) {
             abort(403, 'Access denied. You can only create events for your own website.');
         }
         
@@ -104,9 +118,10 @@ class EventController extends Controller
             'logo_width' => 'nullable|integer|min:1',
             'logo_height' => 'nullable|integer|min:1',
             'attendee_limit' => 'nullable|integer|min:1',
-            'website_id' => 'required|exists:websites,id',
-            'time_start' => 'required|string|max:30',
-            'time_end' => 'required|string|max:30',
+            'time_start' => 'nullable|string|max:30',
+            'time_end' => 'nullable|string|max:30',
+            'package_ids' => 'nullable|array',
+            'package_ids.*' => 'nullable|integer',
         ]);
 
         $startDateInput = $validated['start_date'] ?? $validated['date'] ?? null;
@@ -115,8 +130,7 @@ class EventController extends Controller
             ? Carbon::parse($validated['end_date'])->format('Y-m-d')
             : $startDate;
 
-        // dd($request->all());
-        $time = $request->time_start.' - '.$request->time_end;
+        $time = $this->buildTimeRange($request->input('time_start'), $request->input('time_end'));
 
         $add = new Event;
         $add->name = $request->name;
@@ -151,11 +165,14 @@ class EventController extends Controller
         $add->logo_height = $request->logo_height;
         $add->attendee_limit = $request->filled('attendee_limit') ? (int) $request->attendee_limit : null;
 
-        $add->website_id = $request->website_id;
+        $add->website_id = $websiteId;
         $add->time = $time;
         $add->is_booking_paid = 0;
         $add->booking_fee = 0;
         $add->save();
+
+        $selectedPackageIds = $this->sanitizePackageIdsForWebsite($request->input('package_ids', []), $websiteId);
+        $this->syncEventPackages($add->id, $websiteId, $selectedPackageIds);
 
         return redirect()->route('admin.event.show', $add->website_id);
     }
@@ -192,7 +209,20 @@ class EventController extends Controller
             abort(403, 'Access denied. You can only edit events for your own website.');
         }
 
-        return view('admin.event.edit', compact('data', 'id'));
+        $packages = Package::where('website_id', $data->website_id)
+            ->where('is_archieved', 0)
+            ->where('status', 1)
+            ->orderBy('name')
+            ->get();
+
+        $selectedPackageIds = Package::where('website_id', $data->website_id)
+            ->where('is_archieved', 0)
+            ->where('status', 1)
+            ->where('event_id', $data->id)
+            ->pluck('id')
+            ->all();
+
+        return view('admin.event.edit', compact('data', 'id', 'packages', 'selectedPackageIds'));
     }
 
     /**
@@ -223,9 +253,10 @@ class EventController extends Controller
             'logo_width' => 'nullable|integer|min:1',
             'logo_height' => 'nullable|integer|min:1',
             'attendee_limit' => 'nullable|integer|min:1',
-            'website_id' => 'required|exists:websites,id',
-            'time_start' => 'required|string|max:30',
-            'time_end' => 'required|string|max:30',
+            'time_start' => 'nullable|string|max:30',
+            'time_end' => 'nullable|string|max:30',
+            'package_ids' => 'nullable|array',
+            'package_ids.*' => 'nullable|integer',
         ]);
 
         $startDateInput = $validated['start_date'] ?? $validated['date'] ?? $add->date;
@@ -234,7 +265,7 @@ class EventController extends Controller
             ? Carbon::parse($validated['end_date'])->format('Y-m-d')
             : $startDate;
 
-        $time = $request->time_start.' - '.$request->time_end;
+        $time = $this->buildTimeRange($request->input('time_start'), $request->input('time_end'));
 
         $add = Event::findOrFail($id);
         $add->name = $request->name;
@@ -284,6 +315,9 @@ class EventController extends Controller
         $add->booking_fee = 0;
         $add->update();
 
+        $selectedPackageIds = $this->sanitizePackageIdsForWebsite($request->input('package_ids', []), (int) $add->website_id);
+        $this->syncEventPackages($add->id, (int) $add->website_id, $selectedPackageIds);
+
 
         return redirect()->route('admin.event.show', $add->website_id);
 
@@ -331,5 +365,79 @@ class EventController extends Controller
         }
 
         return array_values(array_filter($decoded, fn ($item) => is_string($item) && $item !== ''));
+    }
+
+    private function resolveWebsiteId(Request $request, $user): ?int
+    {
+        if ($user->isWebsiteUser() && $user->website_id) {
+            return (int) $user->website_id;
+        }
+
+        $rawWebsiteId = $request->input('website_id');
+
+        if ($rawWebsiteId === null || $rawWebsiteId === '') {
+            return null;
+        }
+
+        $websiteId = (int) $rawWebsiteId;
+
+        return $websiteId > 0 ? $websiteId : null;
+    }
+
+    private function buildTimeRange(?string $timeStart, ?string $timeEnd): ?string
+    {
+        $start = trim((string) $timeStart);
+        $end = trim((string) $timeEnd);
+
+        if ($start === '' && $end === '') {
+            return null;
+        }
+
+        if ($start !== '' && $end !== '') {
+            return $start . ' - ' . $end;
+        }
+
+        return $start !== '' ? $start : $end;
+    }
+
+    private function sanitizePackageIdsForWebsite($packageIds, int $websiteId): array
+    {
+        $ids = collect($packageIds)
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn ($id) => $id > 0)
+            ->values()
+            ->all();
+
+        if (empty($ids)) {
+            return [];
+        }
+
+        $allowedIds = Package::where('website_id', $websiteId)
+            ->where('is_archieved', 0)
+            ->where('status', 1)
+            ->whereIn('id', array_values(array_unique($ids)))
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->flip()
+            ->all();
+
+        return collect($ids)
+            ->filter(fn ($id) => isset($allowedIds[$id]))
+            ->values()
+            ->all();
+    }
+
+    private function syncEventPackages(int $eventId, int $websiteId, array $selectedPackageIds): void
+    {
+        Package::where('website_id', $websiteId)
+            ->where('event_id', $eventId)
+            ->whereNotIn('id', $selectedPackageIds)
+            ->update(['event_id' => null]);
+
+        if (!empty($selectedPackageIds)) {
+            Package::where('website_id', $websiteId)
+                ->whereIn('id', $selectedPackageIds)
+                ->update(['event_id' => $eventId]);
+        }
     }
 }

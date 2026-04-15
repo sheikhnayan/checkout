@@ -151,10 +151,27 @@ label{
                                                 @endif
 
                                                 @if(($promoAudience ?? 'club') === 'entertainer')
+                                                @if(($canSelectWebsite ?? false) === true)
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="website_id" class="form-label">Club</label>
+                                                        <select name="website_id" class="form-control" id="website_id" required>
+                                                            <option value="">Select club first</option>
+                                                            @foreach(($websiteOptions ?? collect()) as $website)
+                                                                <option value="{{ $website->id }}" {{ (string) old('website_id', $selectedWebsiteId ?? '') === (string) $website->id ? 'selected' : '' }}>
+                                                                    {{ $website->name }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                        <small class="text-muted">Select a club to load only its entertainers.</small>
+                                                    </div>
+                                                </div>
+                                                @endif
+
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="entertainer_id" class="form-label">Specific Entertainer</label>
-                                                        <select name="entertainer_id" class="form-control" id="entertainer_id">
+                                                        <select name="entertainer_id" class="form-control" id="entertainer_id" {{ (($canSelectWebsite ?? false) && empty(old('website_id', $selectedWebsiteId ?? null))) ? 'disabled' : '' }}>
                                                             <option value="">Select entertainer</option>
                                                             @foreach(($targetOptions['entertainers'] ?? collect()) as $entertainer)
                                                                 <option value="{{ $entertainer->id }}" {{ old('entertainer_id') == $entertainer->id ? 'selected' : '' }}>
@@ -162,6 +179,9 @@ label{
                                                                 </option>
                                                             @endforeach
                                                         </select>
+                                                        @if(($canSelectWebsite ?? false) && empty(old('website_id', $selectedWebsiteId ?? null)))
+                                                            <small class="text-muted">Choose a club first to enable entertainer selection.</small>
+                                                        @endif
                                                     </div>
                                                 </div>
                                                 @endif
@@ -183,7 +203,9 @@ label{
 
                                             </div>
                                             <input type="hidden" name="audience" value="{{ $promoAudience ?? 'club' }}">
-                                            <input type="hidden" name="website_id" value="{{ $id }}">
+                                            @if(($promoAudience ?? 'club') !== 'entertainer' || !($canSelectWebsite ?? false))
+                                                <input type="hidden" name="website_id" value="{{ old('website_id', $id) }}">
+                                            @endif
                                             <div id="addons-list"></div>
 
                                             <button type="submit" class="btn btn-primary">Submit</button>
@@ -192,6 +214,24 @@ label{
 
 
                                     </form>
+
+                                    @if(($promoAudience ?? 'club') === 'entertainer' && ($canSelectWebsite ?? false))
+                                    <script>
+                                        document.addEventListener('DOMContentLoaded', function () {
+                                            var websiteSelect = document.getElementById('website_id');
+
+                                            if (websiteSelect) {
+                                                websiteSelect.addEventListener('change', function () {
+                                                    var selectedId = websiteSelect.value || '';
+                                                    var baseUrl = '{{ route('admin.promo_code.create-targeted', 'entertainer') }}';
+                                                    window.location.href = selectedId
+                                                        ? baseUrl + '?website_id=' + encodeURIComponent(selectedId)
+                                                        : baseUrl;
+                                                });
+                                            }
+                                        });
+                                    </script>
+                                    @endif
                                 </div>
                             </div>
                         </div>

@@ -111,6 +111,10 @@ class WebsiteController extends Controller
             'website_admin_name' => 'required|string|max:255',
             'website_admin_email' => 'required|email|max:255|unique:users,email',
             'website_admin_password' => 'required|string|min:8|confirmed',
+            'operating_days' => 'nullable|array',
+            'operating_days.*' => 'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
+            'operating_start_time' => 'nullable|date_format:H:i',
+            'operating_end_time' => 'nullable|date_format:H:i',
         ]);
 
         Permission::syncFromAdminRoutes();
@@ -164,6 +168,9 @@ class WebsiteController extends Controller
         $add->guest_list_button_text = $request->guest_list_button_text ?: 'Guest List';
         $add->package_button_text = $request->package_button_text ?: 'Packages';
         $add->transportation_confirmation_text = $request->transportation_confirmation_text;
+        $add->operating_days = $this->normalizeOperatingDays($request->input('operating_days', []));
+        $add->operating_start_time = $request->filled('operating_start_time') ? $request->operating_start_time : null;
+        $add->operating_end_time = $request->filled('operating_end_time') ? $request->operating_end_time : null;
 
         $image = $request->file('logo');
         if ($image) {
@@ -322,6 +329,13 @@ class WebsiteController extends Controller
     {
         $user = auth()->user();
         $add = Website::find($id);
+
+        $request->validate([
+            'operating_days' => 'nullable|array',
+            'operating_days.*' => 'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
+            'operating_start_time' => 'nullable|date_format:H:i',
+            'operating_end_time' => 'nullable|date_format:H:i',
+        ]);
         
         // Check authorization for website users
         if ($user->isWebsiteUser() && $add->id != $user->website_id) {
@@ -398,6 +412,9 @@ class WebsiteController extends Controller
         $add->guest_list_button_text = $request->guest_list_button_text ?: 'Guest List';
         $add->package_button_text = $request->package_button_text ?: 'Packages';
         $add->transportation_confirmation_text = $request->transportation_confirmation_text;
+        $add->operating_days = $this->normalizeOperatingDays($request->input('operating_days', []));
+        $add->operating_start_time = $request->filled('operating_start_time') ? $request->operating_start_time : null;
+        $add->operating_end_time = $request->filled('operating_end_time') ? $request->operating_end_time : null;
         $add->text_description = $request->text_description;
         $add->secondary_description = $request->secondary_description;
         $add->description_label = $request->description_label;
@@ -569,5 +586,17 @@ class WebsiteController extends Controller
         }
 
         return array_values(array_filter($decoded, fn ($item) => is_string($item) && $item !== ''));
+    }
+
+    private function normalizeOperatingDays($operatingDays): array
+    {
+        $validDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
+        return collect((array) $operatingDays)
+            ->map(fn ($day) => strtolower(trim((string) $day)))
+            ->filter(fn ($day) => in_array($day, $validDays, true))
+            ->unique()
+            ->values()
+            ->all();
     }
 }

@@ -48,6 +48,34 @@ label{
   #suggestions li:hover {
     background: #eee;
   }
+
+    .package-select {
+        background: #131a2a !important;
+        color: #f3f4f6 !important;
+        border: 1px solid #2c3650 !important;
+    }
+
+    .package-select option {
+        color: #f3f4f6;
+        background: #131a2a;
+        padding: 6px 8px;
+    }
+
+    .package-select option:checked {
+        background: #ffcc00 !important;
+        color: #16120a !important;
+    }
+
+    .package-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .package-row .package-select {
+        flex: 1;
+    }
 </style>
     <!-- Content wrapper -->
     <div class="content-wrapper">
@@ -185,14 +213,40 @@ label{
                                                             style="height: 35.1166px"
                                                                 placeholder="Start Time"
                                                                 value="{{ old('time_start', isset($data->time) && strpos($data->time, '-') !== false ? trim(explode('-', $data->time)[0]) : $data->time) }}"
-                                                                required>
+                                                                >
                                                             <span style="align-self: center;">to</span>
                                                             <input type="text" name="time_end" class="form-control flatpickr-time" id="time_end"
                                                                 style="height: 35.1166px"
                                                                 placeholder="End Time"
                                                                 value="{{ old('time_end', isset($data->time) && strpos($data->time, '-') !== false ? trim(explode('-', $data->time)[1]) : '') }}"
-                                                                required>
+                                                                >
                                                         </div>
+                                                        <small class="text-muted">Leave both fields blank if no event time is needed.</small>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label for="package_ids" class="form-label">Select Packages</label>
+                                                        @php($packageRows = collect(old('package_ids', $selectedPackageIds ?? ['']))->map(fn($id) => (string) $id)->values()->all())
+                                                        @if(empty($packageRows))
+                                                            @php($packageRows = [''])
+                                                        @endif
+                                                        <div id="package-rows">
+                                                            @foreach($packageRows as $selectedPackageId)
+                                                                <div class="package-row">
+                                                                    <select name="package_ids[]" class="form-control package-select">
+                                                                        <option value="">Select Package</option>
+                                                                        @foreach($packages as $package)
+                                                                            <option value="{{ $package->id }}" {{ (string) $package->id === $selectedPackageId ? 'selected' : '' }}>{{ $package->name }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                    <button type="button" class="btn btn-danger remove-package-row">Remove</button>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                        <button type="button" id="add-package-row" class="btn btn-primary mt-1">Add Package</button>
+                                                        <small class="text-muted d-block mt-2">Click Add Package to insert another row.</small>
                                                     </div>
                                                 </div>
 
@@ -231,7 +285,7 @@ label{
                                                     </div>
                                                 </div>
                                             </div>
-                                            <input type="hidden" name="website_id" value="{{ $id }}">
+                                            <input type="hidden" name="website_id" value="{{ $data->website_id }}">
                                             </div>
 
                                             <button type="submit" class="btn btn-primary">Submit</button>
@@ -257,6 +311,57 @@ label{
         dateFormat: "H:i",
         time_24hr: false
     });
+
+    (function () {
+        const rowsContainer = document.getElementById('package-rows');
+        const addButton = document.getElementById('add-package-row');
+
+        if (!rowsContainer || !addButton) {
+            return;
+        }
+
+        const firstSelect = rowsContainer.querySelector('select.package-select');
+        const optionsMarkup = firstSelect ? firstSelect.innerHTML : '<option value="">Select Package</option>';
+
+        function bindRemove(button) {
+            button.addEventListener('click', function () {
+                const row = button.closest('.package-row');
+                if (!row) {
+                    return;
+                }
+                row.remove();
+                if (!rowsContainer.querySelector('.package-row')) {
+                    addRow('');
+                }
+            });
+        }
+
+        function addRow(selectedValue) {
+            const row = document.createElement('div');
+            row.className = 'package-row';
+
+            const select = document.createElement('select');
+            select.name = 'package_ids[]';
+            select.className = 'form-control package-select';
+            select.innerHTML = optionsMarkup;
+            if (selectedValue) {
+                select.value = selectedValue;
+            }
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn btn-danger remove-package-row';
+            removeBtn.textContent = 'Remove';
+
+            row.appendChild(select);
+            row.appendChild(removeBtn);
+            rowsContainer.appendChild(row);
+            bindRemove(removeBtn);
+        }
+
+        rowsContainer.querySelectorAll('.remove-package-row').forEach(bindRemove);
+        addButton.addEventListener('click', function () { addRow(''); });
+    })();
 
     (function () {
         const picker = document.getElementById('event_gallery_picker');

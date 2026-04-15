@@ -16,6 +16,7 @@
             </div>
 
             @php
+                $incidentTz = 'America/Los_Angeles';
                 $statusClasses = [
                     'open' => 'bg-danger',
                     'under_review' => 'bg-warning text-dark',
@@ -31,7 +32,7 @@
                             <span class="badge {{ $statusClasses[$incident->status] ?? 'bg-secondary' }} fs-6">{{ ucwords(str_replace('_', ' ', $incident->status)) }}</span>
                         </div>
                         <small class="d-block mt-2 text-white-50">
-                            Last changed: {{ $incident->status_changed_at ? $incident->status_changed_at->format('Y-m-d H:i') : 'N/A' }}
+                            Last changed: {{ $incident->status_changed_at ? $incident->status_changed_at->timezone($incidentTz)->format('Y-m-d H:i') . ' PT' : 'N/A' }}
                             by {{ optional($incident->statusChangedBy)->name ?: 'System' }}
                         </small>
                     </div>
@@ -147,7 +148,7 @@
                                 <td>{{ $witness->full_name }}</td>
                                 <td>{{ $witness->participant_type }}</td>
                                 <td>{{ ucwords(str_replace('_', ' ', $witness->submitted_via)) }}</td>
-                                <td>{{ optional($witness->created_at)->format('Y-m-d H:i') }}</td>
+                                <td>{{ optional($witness->created_at)->timezone($incidentTz)->format('Y-m-d H:i') }} PT</td>
                                 <td>
                                     @if($witness->attachments->isNotEmpty())
                                         @foreach($witness->attachments as $attachment)
@@ -252,7 +253,7 @@
                     <tbody>
                         @forelse($incident->auditLogs as $log)
                             <tr>
-                                <td>{{ optional($log->created_at)->format('Y-m-d H:i:s') }}</td>
+                                <td>{{ optional($log->created_at)->timezone($incidentTz)->format('Y-m-d H:i:s') }} PT</td>
                                 <td>{{ optional($log->user)->name ?: 'Public/Guest' }}</td>
                                 <td>{{ ucwords(str_replace('_', ' ', $log->action)) }}</td>
                                 <td>{{ $log->ip_address ?: 'N/A' }}</td>

@@ -120,7 +120,7 @@
                                                                 @endif
                                                             </td>
                                                             <td>
-                                                                <a href="/admins/package/show/{{ $item->id }}" class="btn btn-secondary">show</a>
+                                                                <a href="/admins/package/show/{{ $item->id }}" class="btn btn-secondary">Open</a>
                                                                 <form action="/admins/package/archive/{{ $item->id }}" method="POST" style="display:inline;">
                                                                     @csrf
                                                                     <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to archive this package?');">

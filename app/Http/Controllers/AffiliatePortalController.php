@@ -11,6 +11,42 @@ use Illuminate\Http\Request;
 
 class AffiliatePortalController extends Controller
 {
+    private function decodeGalleryImages(?string $value): array
+    {
+        if (!$value) {
+            return [];
+        }
+
+        $decoded = json_decode($value, true);
+        if (!is_array($decoded)) {
+            return [];
+        }
+
+        return array_values(array_filter(array_map(function ($image) {
+            return is_string($image) ? trim($image) : '';
+        }, $decoded), function ($image) {
+            return $image !== '';
+        }));
+    }
+
+    private function normalizeImageFiles($files): array
+    {
+        if (!$files) {
+            return [];
+        }
+
+        $flattened = [];
+        $stack = is_array($files) ? $files : [$files];
+
+        array_walk_recursive($stack, function ($file) use (&$flattened) {
+            if ($file instanceof \Illuminate\Http\UploadedFile) {
+                $flattened[] = $file;
+            }
+        });
+
+        return $flattened;
+    }
+
     private function getAffiliateOrAbort(): Affiliate
     {
         $user = auth()->user();
@@ -136,7 +172,9 @@ class AffiliatePortalController extends Controller
             'font_family' => 'nullable|string|max:120',
             'profile_image' => 'nullable|image|max:4096',
             'banner_image' => 'nullable|image|max:4096',
-            'gallery_image' => 'nullable|image|max:4096',
+            'gallery_images' => 'nullable|array',
+            'gallery_images.*' => 'nullable|image|max:4096',
+            'existing_gallery_images' => 'nullable|string',
             'remove_gallery_images' => 'nullable|array',
             'remove_gallery_images.*' => 'nullable|integer|min:0',
         ]);
@@ -168,26 +206,35 @@ class AffiliatePortalController extends Controller
             $affiliate->banner_image = $name;
         }
 
-        $galleryImages = collect((array) $affiliate->gallery_images)->values();
-        $removeGalleryKeys = collect((array) $request->input('remove_gallery_images', []))
-            ->map(fn ($value) => (int) $value)
-            ->unique();
+        $currentGalleryImages = array_values(array_filter((array) $affiliate->gallery_images));
+        $existingGalleryImages = $this->decodeGalleryImages($request->input('existing_gallery_images'));
 
-        if ($removeGalleryKeys->isNotEmpty()) {
-            $galleryImages = $galleryImages->reject(function ($image, $index) use ($removeGalleryKeys) {
-                return $removeGalleryKeys->contains((int) $index);
-            })->values();
+        if (!empty($existingGalleryImages)) {
+            $existingGalleryImages = array_values(array_filter($existingGalleryImages, function ($image) use ($currentGalleryImages) {
+                return in_array($image, $currentGalleryImages, true);
+            }));
+            $galleryImages = collect($existingGalleryImages);
+        } else {
+            $galleryImages = collect($currentGalleryImages);
+            $removeGalleryKeys = collect((array) $request->input('remove_gallery_images', []))
+                ->map(fn ($value) => (int) $value)
+                ->unique();
+
+            if ($removeGalleryKeys->isNotEmpty()) {
+                $galleryImages = $galleryImages->reject(function ($image, $index) use ($removeGalleryKeys) {
+                    return $removeGalleryKeys->contains((int) $index);
+                })->values();
+            }
         }
 
-        if ($request->hasFile('gallery_image')) {
+        foreach ($this->normalizeImageFiles($request->file('gallery_images')) as $index => $image) {
             if ($galleryImages->count() >= 6) {
                 return redirect()->back()
-                    ->withErrors(['gallery_image' => 'Gallery is full. Remove one image before uploading another.'])
+                    ->withErrors(['gallery_images' => 'Gallery is full. Remove one image before uploading another.'])
                     ->withInput();
             }
 
-            $image = $request->file('gallery_image');
-            $name = 'affiliate_gallery_' . $affiliate->id . '_' . time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $name = 'affiliate_gallery_' . $affiliate->id . '_' . time() . '_' . $index . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
             $image->move(public_path('uploads'), $name);
             $galleryImages->push($name);
         }

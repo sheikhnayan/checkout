@@ -82,6 +82,10 @@
                                             <a href="{{ route('admin.promo_code.create-targeted', 'affiliate') }}" class="btn btn-warning">Create Affiliate Promo</a>
                                             <a href="{{ route('admin.promo_code.create-targeted', 'entertainer') }}" class="btn btn-info">Create Entertainer Promo</a>
                                         </div>
+                                    @elseif(auth()->user() && auth()->user()->isWebsiteUser())
+                                        <div class="d-flex gap-2 justify-content-end mb-3">
+                                            <a href="{{ route('admin.promo_code.create-targeted', 'entertainer') }}" class="btn btn-info">Create Entertainer Promo</a>
+                                        </div>
                                     @endif
 
                                     <table class="table">
@@ -117,7 +121,7 @@
                                                             @endif
                                                         </td>
                                                         <td>
-                                                            <a href="/admins/promo_code/show/{{ $item->id }}" class="btn btn-secondary">show</a>
+                                                            <a href="/admins/promo_code/show/{{ $item->id }}" class="btn btn-secondary">Open</a>
                                                             {{-- <a href="/admins/website/delete/{{ $item->id }}" class="btn btn-danger">Delete</a> --}}
                                                         </td>
                                                     </tr>

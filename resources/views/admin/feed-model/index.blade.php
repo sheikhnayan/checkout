@@ -62,7 +62,7 @@
                                 <td>{{ $model->website->name ?? 'N/A' }}</td>
                                 <td>
                                     <span class="badge {{ $model->is_real_profile ? 'bg-label-success' : 'bg-label-warning' }}">
-                                        {{ $model->is_real_profile ? 'Real' : 'Fake' }}
+                                        {{ $model->is_real_profile ? 'Verified' : 'Managed' }}
                                     </span>
                                 </td>
                                 <td><div style="max-width:380px;white-space:normal;">{{ \Illuminate\Support\Str::limit($model->bio, 120) }}</div></td>

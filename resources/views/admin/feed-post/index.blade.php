@@ -4,7 +4,7 @@
 @php $firstWebsite = $websites->first(); @endphp
 @php
     $isApprover = auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isWebsiteUser());
-    $pendingCount = $posts->where('approval_status', 'pending')->count();
+    $reviewCount = $posts->where('review_required', true)->count();
 @endphp
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
@@ -25,9 +25,15 @@
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
 
-        @if($isApprover && $pendingCount > 0)
-            <div class="alert alert-warning">
-                <strong>{{ $pendingCount }}</strong> entertainer post(s) are waiting for approval.
+        @if($isApprover && $reviewCount > 0)
+            <div class="alert alert-warning d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <strong>{{ $reviewCount }}</strong> verified entertainer post(s) have been published and still need review.
+                </div>
+                <form action="{{ route('admin.feed-post.bulk-approve') }}" method="POST" id="feed-post-bulk-approve-form" class="d-flex align-items-center gap-2 flex-wrap">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-success" onclick="return window.confirm('Mark the selected posts as reviewed?')">Mark Selected Reviewed</button>
+                </form>
             </div>
         @endif
 
@@ -49,6 +55,11 @@
                 <table class="table align-middle">
                     <thead>
                         <tr>
+                            @if($isApprover)
+                                <th style="width:48px;">
+                                    <input type="checkbox" class="form-check-input" id="feed-post-select-all">
+                                </th>
+                            @endif
                             <th>Post</th>
                             <th>Website</th>
                             <th>Posted By</th>
@@ -62,6 +73,13 @@
                     <tbody>
                         @forelse($posts as $post)
                             <tr>
+                                @if($isApprover)
+                                    <td>
+                                        @if($post->review_required)
+                                            <input type="checkbox" class="form-check-input feed-post-review-checkbox" name="feed_post_ids[]" value="{{ $post->id }}" form="feed-post-bulk-approve-form">
+                                        @endif
+                                    </td>
+                                @endif
                                 <td>
                                     <div class="fw-semibold">{{ \Illuminate\Support\Str::limit($post->caption ?: 'Untitled post', 70) }}</div>
                                     <small class="text-muted">{{ optional($post->posted_at)->format('M d, Y h:i A') }}</small>
@@ -70,10 +88,10 @@
                                 <td>{{ $post->author_name }}</td>
                                 <td>
                                     @if($post->author_mode === 'club')
-                                        <span class="badge bg-label-success">Real (Club)</span>
+                                        <span class="badge bg-label-success">Official (Club)</span>
                                     @elseif($post->feedModel)
                                         <span class="badge {{ $post->feedModel->is_real_profile ? 'bg-label-success' : 'bg-label-warning' }}">
-                                            {{ $post->feedModel->is_real_profile ? 'Real (Model)' : 'Fake (Model)' }}
+                                            {{ $post->feedModel->is_real_profile ? 'Verified (Profile)' : 'Managed (Profile)' }}
                                         </span>
                                     @else
                                         <span class="badge bg-label-secondary">Unknown</span>
@@ -82,7 +100,9 @@
                                 <td>{{ count((array) $post->resolved_media_items) }} media item(s)</td>
                                 <td>{{ $post->comments_count }}</td>
                                 <td>
-                                    @if(($post->approval_status ?? 'approved') === 'pending')
+                                    @if($post->review_required)
+                                        <span class="badge bg-warning text-dark">Review Needed</span>
+                                    @elseif(($post->approval_status ?? 'approved') === 'pending')
                                         <span class="badge bg-warning text-dark">Pending Approval</span>
                                     @elseif(($post->approval_status ?? 'approved') === 'rejected')
                                         <span class="badge bg-danger">Rejected</span>
@@ -94,7 +114,16 @@
                                     <a href="{{ route('club.feed', $post->website->slug) }}#post-{{ $post->id }}" target="_blank" class="btn btn-sm btn-outline-secondary">View Live</a>
                                     <a href="{{ route('admin.feed-post.show', $post) }}" class="btn btn-sm btn-outline-info">Comments</a>
                                     <a href="{{ route('admin.feed-post.edit', $post) }}" class="btn btn-sm btn-outline-primary">Edit</a>
-                                    @if($isApprover && ($post->approval_status ?? 'approved') === 'pending')
+                                    @if($isApprover && $post->review_required)
+                                        <form action="{{ route('admin.feed-post.approve', $post) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Mark this post as reviewed and keep it live?')">Mark Reviewed</button>
+                                        </form>
+                                        <form action="{{ route('admin.feed-post.reject', $post) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Unapprove this post and remove it from the live feed?')">Unapprove</button>
+                                        </form>
+                                    @elseif($isApprover && ($post->approval_status ?? 'approved') === 'pending')
                                         <form action="{{ route('admin.feed-post.approve', $post) }}" method="POST" class="d-inline">
                                             @csrf
                                             <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Approve this entertainer post?')">Approve</button>
@@ -112,7 +141,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center py-5 text-muted">No feed posts created yet.</td>
+                                <td colspan="{{ $isApprover ? 9 : 8 }}" class="text-center py-5 text-muted">No feed posts created yet.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -121,4 +150,31 @@
         </div>
     </div>
 </div>
+
+@if($isApprover)
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const selectAll = document.getElementById('feed-post-select-all');
+    const checkboxes = Array.from(document.querySelectorAll('.feed-post-review-checkbox'));
+
+    if (!selectAll || checkboxes.length === 0) {
+        return;
+    }
+
+    selectAll.addEventListener('change', function () {
+        checkboxes.forEach(function (checkbox) {
+            checkbox.checked = selectAll.checked;
+        });
+    });
+
+    checkboxes.forEach(function (checkbox) {
+        checkbox.addEventListener('change', function () {
+            selectAll.checked = checkboxes.every(function (item) {
+                return item.checked;
+            });
+        });
+    });
+});
+</script>
+@endif
 @endsection

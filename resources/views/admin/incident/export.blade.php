@@ -17,11 +17,14 @@
     </style>
 </head>
 <body>
+    @php
+        $incidentTz = 'America/Los_Angeles';
+    @endphp
     <h1>Incident Report Packet</h1>
     <div class="meta small">
         Incident ID: {{ $incident->id }}<br>
         Club: {{ $incident->website->name }}<br>
-        Exported At: {{ now()->format('Y-m-d H:i:s') }}
+        Exported At: {{ now($incidentTz)->format('Y-m-d H:i:s') }} PT
     </div>
 
     <div class="section">
