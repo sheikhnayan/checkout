@@ -211,19 +211,7 @@ class TransactionController extends Controller
                         $website = Website::findOrFail($website_id);
                         $mailData['price_breakdown'] = $this->buildPackagePriceBreakdown($add->fresh(), $website);
     
-                        // Dynamically set SMTP config from $website
-                        if ($website->smtp->host && $website->smtp->port && $website->smtp->username && $website->smtp->password && $website->smtp->encryption) {
-                            config([
-                                'mail.mailers.smtp.host' => $website->smtp->host,
-                                'mail.mailers.smtp.port' => $website->smtp->port,
-                                'mail.mailers.smtp.username' => $website->smtp->username,
-                                'mail.mailers.smtp.password' => $website->smtp->password,
-                                'mail.mailers.smtp.encryption' => $website->smtp->encryption,
-                                'mail.from.address' => $website->smtp->from_email ?? $website->email,
-                                'mail.from.name' => $website->smtp->from_name ?? $website->name,
-                            ]);
-                            // dd(config('mail'));
-                        }
+                        $this->applyWebsiteSmtpConfig($website);
     
                         // Club/manager email — no QR code
                         $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
@@ -424,19 +412,7 @@ class TransactionController extends Controller
                         $website = Website::findOrFail($website_id);
                         $mailData['price_breakdown'] = $this->buildPackagePriceBreakdown($add->fresh(), $website);
     
-                        // Dynamically set SMTP config from $website
-                        if ($website->smtp->host && $website->smtp->port && $website->smtp->username && $website->smtp->password && $website->smtp->encryption) {
-                            config([
-                                'mail.mailers.smtp.host' => $website->smtp->host,
-                                'mail.mailers.smtp.port' => $website->smtp->port,
-                                'mail.mailers.smtp.username' => $website->smtp->username,
-                                'mail.mailers.smtp.password' => $website->smtp->password,
-                                'mail.mailers.smtp.encryption' => $website->smtp->encryption,
-                                'mail.from.address' => $website->smtp->from_email ?? $website->email,
-                                'mail.from.name' => $website->smtp->from_name ?? $website->name,
-                            ]);
-                            // dd(config('mail'));
-                        }
+                        $this->applyWebsiteSmtpConfig($website);
     
                         // Club/manager email — no QR code
                         $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
@@ -618,19 +594,7 @@ class TransactionController extends Controller
     
                         $website = Website::findOrFail($request->website_id);
     
-                        // Dynamically set SMTP config from $website
-                        if ($website->smtp->host && $website->smtp->port && $website->smtp->username && $website->smtp->password && $website->smtp->encryption) {
-                            config([
-                                'mail.mailers.smtp.host' => $website->smtp->host,
-                                'mail.mailers.smtp.port' => $website->smtp->port,
-                                'mail.mailers.smtp.username' => $website->smtp->username,
-                                'mail.mailers.smtp.password' => $website->smtp->password,
-                                'mail.mailers.smtp.encryption' => $website->smtp->encryption,
-                                'mail.from.address' => $website->smtp->from_email ?? $website->email,
-                                'mail.from.name' => $website->smtp->from_name ?? $website->name,
-                            ]);
-                            // dd(config('mail'));
-                        }
+                        $this->applyWebsiteSmtpConfig($website);
     
                         $send_mail = new \App\Mail\TransactionMail($mailData);
                         $send_mail->subject('New Package Purched - ' . $transaction_id);
@@ -991,6 +955,48 @@ class TransactionController extends Controller
 
                 return max(1, (int) $transaction->package_number_of_guest);
             });
+    }
+
+    private function applyWebsiteSmtpConfig(Website $website): void
+    {
+        $smtp = optional($website)->smtp;
+
+        if (!$this->hasUsableSmtp($smtp)) {
+            return;
+        }
+
+        config([
+            'mail.default' => 'smtp',
+            'mail.mailers.smtp.host' => $smtp->host,
+            'mail.mailers.smtp.port' => $smtp->port,
+            'mail.mailers.smtp.username' => $smtp->username,
+            'mail.mailers.smtp.password' => $smtp->password,
+            'mail.mailers.smtp.encryption' => $this->normalizeSmtpEncryption($smtp->encryption),
+            'mail.from.address' => $smtp->from_email ?: config('mail.from.address'),
+            'mail.from.name' => $smtp->from_name ?: config('mail.from.name'),
+        ]);
+    }
+
+    private function hasUsableSmtp($smtp): bool
+    {
+        return $smtp
+            && !empty($smtp->host)
+            && !empty($smtp->port)
+            && !empty($smtp->username)
+            && !empty($smtp->password);
+    }
+
+    private function normalizeSmtpEncryption($value): ?string
+    {
+        if (in_array($value, ['tls', 'ssl'], true)) {
+            return $value;
+        }
+
+        if ((string) $value === '1') {
+            return 'tls';
+        }
+
+        return null;
     }
 
     private function validateTransportationAvailability(Website $website, Request $request, ?Package $selectedPackage = null): void
