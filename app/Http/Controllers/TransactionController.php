@@ -49,7 +49,8 @@ class TransactionController extends Controller
         foreach ($cartItems as $item) {
             $package = Package::find($item['package_id']);
             if ($package) {
-                $result = PackageLimitHelper::canPurchase($package, $item['quantity']);
+                $requestedQuantity = max(1, (int) ($item['guests'] ?? $item['quantity'] ?? 1));
+                $result = PackageLimitHelper::canPurchase($package, $requestedQuantity);
                 if (!$result['allowed']) {
                     throw ValidationException::withMessages(['package_limit' => $result['message']]);
                 }
