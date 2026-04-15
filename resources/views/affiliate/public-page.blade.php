@@ -1215,7 +1215,17 @@ const clubConfigs = {
                             <div class="vip-guest-control">
                                 <div class="vip-guest-label">Guests</div>
                                 <select class="form-select package_number_of_guestss" data-id="{{ $package->id }}" data-multiple="{{ $package->multiple }}">
-                                    @for($i = 1; $i <= $package->number_of_guest; $i++)
+                                    @php
+                                        $maxGuests = 1;
+                                        if ($package->package_type === 'ticket' && $package->daily_ticket_limit) {
+                                            $maxGuests = $package->daily_ticket_limit;
+                                        } elseif ($package->package_type === 'table' && $package->daily_table_limit) {
+                                            $maxGuests = $package->daily_table_limit;
+                                        } elseif ($package->number_of_guest) {
+                                            $maxGuests = $package->number_of_guest;
+                                        }
+                                    @endphp
+                                    @for($i = 1; $i <= $maxGuests; $i++)
                                         <option value="{{ $i }}">{{ $i }}</option>
                                     @endfor
                                 </select>

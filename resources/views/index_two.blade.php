@@ -2305,7 +2305,17 @@
                                                                 <select data-multiple="{{ $item->multiple }}"
                                                                     data-id="{{ $item->id }}"
                                                                     class="form-select package_number_of_guestss">
-                                                                    @for ($i = 1; $i <= $item->number_of_guest; $i++)
+                                                                    @php
+                                                                        $maxGuests = 1;
+                                                                        if ($item->package_type === 'ticket' && $item->daily_ticket_limit) {
+                                                                            $maxGuests = $item->daily_ticket_limit;
+                                                                        } elseif ($item->package_type === 'table' && $item->daily_table_limit) {
+                                                                            $maxGuests = $item->daily_table_limit;
+                                                                        } elseif ($item->number_of_guest) {
+                                                                            $maxGuests = $item->number_of_guest;
+                                                                        }
+                                                                    @endphp
+                                                                    @for ($i = 1; $i <= $maxGuests; $i++)
                                                                         <option value="{{ $i }}">{{ $i }}</option>
                                                                     @endfor
                                                                 </select>

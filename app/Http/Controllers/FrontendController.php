@@ -270,7 +270,7 @@ class FrontendController extends Controller
     /**
      * Check if a package can be purchased and get available capacity
      */
-    public function checkPackageCapacity($packageId, Request $request)
+    public function checkPackageCapacity($slug, $packageId, Request $request)
     {
         $package = Package::find($packageId);
 
