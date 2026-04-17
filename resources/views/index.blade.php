@@ -1963,7 +1963,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             <label>Reservation Date</label>
                             <div class="date-input-wrapper">
                                 <select id="package_use_date" style="width: 100%;" required aria-required="true" aria-describedby="package_use_date_error">
-                                    <option value="" selected disabled>Select Date</option>
+                                    <option value="" selected>Select Date</option>
                                     @foreach($eventDateOptions as $dateOption)
                                         <option value="{{ $dateOption['value'] }}">
                                             {{ $dateOption['label'] }}
@@ -3294,6 +3294,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 var selected = getSelectedUseDate();
                 if (selected) {
                     $('.package_use_date').val(selected);
+                } else {
+                    $('.package_use_date').val('');
                 }
             }
 
@@ -3347,6 +3349,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             updateGuestSelectOptions($select, cartRemaining);
 
                             var reducedTo = parseInt($select.val(), 10) || 1;
+                            var existingCartPackage = window.cart.find(function(pkg) { return String(pkg.packageId) === String(packageId); });
+                            if (existingCartPackage && (parseInt(existingCartPackage.guests, 10) || 1) !== reducedTo) {
+                                existingCartPackage.guests = reducedTo;
+                                syncCheckoutCartFields();
+                                window.renderCart();
+                                window.calculateCartTotal();
+                            }
+
                             if (showAlertWhenReduced && previous > reducedTo) {
                                 alert('Guest selection was adjusted to prevent over-crowding this event for the selected date.');
                             }
