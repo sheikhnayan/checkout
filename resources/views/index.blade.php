@@ -4461,9 +4461,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 allowInput: false
             });
 
-            // Event checkout date is fixed to the event start date.
-            $('#package_use_date').val("{{ $eventDateLong }}");
-            $('.package_use_date').val("{{ $eventCheckoutDateValue }}");
+            // Keep hidden use-date in sync with actual selected reservation date.
+            syncUseDateField();
         </script>
 
         <script>
