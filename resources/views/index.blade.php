@@ -2900,7 +2900,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                     <span>I agree to receive notifications from the driver regarding my transportation pickup.</span>
                                                                 </label>
     
-                                                                <label class="consent-label">
+                                                                <label class="consent-label" style="margin-top: 1.4rem;">
                                                                     <input type="checkbox" id="termsConsent" required />
                                                                     <span>I agree to the {{ $data->name }} <a
                                                                         target="_blank" href="{{ $data->terms }}">Terms of
@@ -3106,6 +3106,68 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
 
         </main>
+        <style>
+            #checkout-processing-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(8, 12, 22, 0.78);
+                backdrop-filter: blur(5px);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+            }
+
+            #checkout-processing-overlay.is-visible {
+                display: flex;
+            }
+
+            .checkout-processing-card {
+                width: min(92vw, 420px);
+                border-radius: 16px;
+                border: 1px solid rgba(255, 255, 255, 0.14);
+                background: linear-gradient(150deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+                box-shadow: 0 22px 55px rgba(0, 0, 0, 0.35);
+                padding: 22px 20px;
+                text-align: center;
+            }
+
+            .checkout-processing-spinner {
+                width: 56px;
+                height: 56px;
+                margin: 0 auto 12px;
+                border-radius: 50%;
+                border: 3px solid rgba(255,255,255,0.18);
+                border-top-color: var(--accent);
+                animation: checkoutSpin .9s linear infinite;
+            }
+
+            .checkout-processing-title {
+                margin: 0;
+                color: #f8fbff;
+                font-size: 18px;
+                font-weight: 700;
+                letter-spacing: .01em;
+            }
+
+            .checkout-processing-copy {
+                margin: 7px 0 0;
+                color: rgba(226, 234, 248, 0.88);
+                font-size: 13px;
+                line-height: 1.45;
+            }
+
+            @keyframes checkoutSpin {
+                to { transform: rotate(360deg); }
+            }
+        </style>
+        <div id="checkout-processing-overlay" aria-hidden="true" role="status" aria-live="polite">
+            <div class="checkout-processing-card">
+                <div class="checkout-processing-spinner" aria-hidden="true"></div>
+                <p class="checkout-processing-title">Processing Your Purchase</p>
+                <p class="checkout-processing-copy">Please wait while we securely complete your transaction.</p>
+            </div>
+        </div>
         <footer class="aff-footer">
             <div class="container aff-footer-inner">
                 <a href="https://cartvip.com" target="_blank" rel="noopener" class="aff-footer-brand">
@@ -3119,6 +3181,58 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <!-- jQuery -->
         <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+        <script>
+            function showCheckoutProcessingOverlay() {
+                var overlay = document.getElementById('checkout-processing-overlay');
+                if (!overlay) {
+                    return;
+                }
+
+                overlay.classList.add('is-visible');
+                overlay.setAttribute('aria-hidden', 'false');
+
+                var submitButton = document.getElementById('submitBtn');
+                if (submitButton) {
+                    if (!submitButton.dataset.defaultText) {
+                        submitButton.dataset.defaultText = submitButton.textContent;
+                    }
+                    submitButton.disabled = true;
+                    submitButton.textContent = 'Processing...';
+                }
+            }
+
+            function hideCheckoutProcessingOverlay() {
+                var overlay = document.getElementById('checkout-processing-overlay');
+                if (!overlay) {
+                    return;
+                }
+
+                overlay.classList.remove('is-visible');
+                overlay.setAttribute('aria-hidden', 'true');
+
+                var submitButton = document.getElementById('submitBtn');
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = submitButton.dataset.defaultText || 'Complete Purchase';
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                var form = document.getElementById('payment-form');
+                if (!form) {
+                    return;
+                }
+
+                form.addEventListener('submit', function(event) {
+                    window.setTimeout(function() {
+                        if (!event.defaultPrevented) {
+                            showCheckoutProcessingOverlay();
+                        }
+                    }, 0);
+                });
+            });
+        </script>
 
         <script>
             // --- Shareable Link Refinement ---
@@ -4727,14 +4841,17 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         e.preventDefault();
 
                         if (!ensureReservationDateSelected()) {
+                            hideCheckoutProcessingOverlay();
                             return;
                         }
 
                         prepareCheckoutCartPayload(form);
+                        showCheckoutProcessingOverlay();
 
                         const {token, error} = await stripe.createToken(cardNumber);
 
                         if (error) {
+                            hideCheckoutProcessingOverlay();
                             document.getElementById('card-errors').textContent = error.message;
                         } else {
                             const hiddenInput = document.createElement('input');
