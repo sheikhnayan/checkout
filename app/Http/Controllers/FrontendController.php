@@ -278,7 +278,16 @@ class FrontendController extends Controller
             return response()->json(['available' => false, 'message' => 'Package not found']);
         }
 
-        $capacity = \App\Helpers\PackageLimitHelper::getAvailableCapacity($package);
+        $targetDate = null;
+        if ($request->filled('use_date')) {
+            try {
+                $targetDate = \Carbon\Carbon::parse((string) $request->query('use_date'))->startOfDay();
+            } catch (\Throwable $exception) {
+                $targetDate = null;
+            }
+        }
+
+        $capacity = \App\Helpers\PackageLimitHelper::getAvailableCapacity($package, $targetDate);
         
         if ($capacity <= 0) {
             return response()->json([

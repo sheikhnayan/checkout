@@ -9,7 +9,7 @@ use App\Models\Website;
 use App\Models\Setting;
 use App\Models\SMTP;
 use App\Mail\CustomInvoiceMail;
-use App\Mail\TransactionMail;
+use App\Mail\CustomInvoicePaymentConfirmationMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Stripe;
@@ -656,54 +656,14 @@ class CustomInvoiceController extends Controller
         try {
             $this->applyInvoiceSmtpConfig($invoice, auth()->user());
 
-            $cartItems = collect($invoice->items ?? [])->map(function ($item) {
-                $qty = max(1, (int) ($item->quantity ?? 1));
-                $price = (float) ($item->price ?? 0);
-
-                return [
-                    'package_name' => $item->name,
-                    'guests' => $qty,
-                    'is_multiple' => true,
-                    'unit_price' => $price,
-                    'line_total' => $price * $qty,
-                    'addons' => [],
-                ];
-            })->values()->all();
-
-            $mailData = [
-                'transaction_id' => $transaction->transaction_id,
-                'package_first_name' => $invoice->client_name,
-                'package_last_name' => '',
-                'package_phone' => '',
-                'package_email' => $invoice->client_email,
-                'package_dob' => '',
-                'package_note' => $invoice->notes,
-                'transportation_pickup_time' => '',
-                'transportation_address' => '',
-                'transportation_phone' => '',
-                'transportation_guest' => '',
-                'transportation_note' => '',
-                'addons' => '',
-                'package_id' => 'Custom Invoice #' . $invoice->id,
-                'payment_first_name' => (string) ($request->cardholder_name ?? $request->firstName ?? $invoice->client_name),
-                'payment_last_name' => (string) ($request->lastName ?? ''),
-                'payment_phone' => '',
-                'payment_email' => $invoice->client_email,
-                'payment_address' => '',
-                'payment_city' => '',
-                'payment_state' => '',
-                'payment_country' => '',
-                'payment_dob' => '',
-                'payment_zip_code' => '',
-                'event_id' => null,
-                'website_id' => $website->id,
-                'total' => (float) $transaction->total,
-                'type' => 'custom_invoice_' . $paymentType,
-                'cart_items' => $cartItems,
-            ];
-
-            $clientMail = new TransactionMail($mailData);
-            $clientMail->subject('Custom Invoice Payment Confirmation - ' . $transaction->transaction_id);
+            $clientMail = new CustomInvoicePaymentConfirmationMail(
+                $invoice,
+                $transaction,
+                $paymentType,
+                $website,
+                (string) ($request->cardholder_name ?? $request->firstName ?? ''),
+                (string) ($request->lastName ?? '')
+            );
 
             if ($invoice->client_email && filter_var($invoice->client_email, FILTER_VALIDATE_EMAIL)) {
                 Mail::to($invoice->client_email)->send(clone $clientMail);

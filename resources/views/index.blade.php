@@ -1931,15 +1931,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     readonly style="-webkit-text-fill-color: #fff !important; color: #fff !important; opacity: 1 !important; width: 100%;">
                                 <span class="custom-calendar-icon" style="display:none;"></span>
                             </div>
-                            @if (!is_null($event->remaining_attendee_capacity))
-                                <div id="event-capacity-note" class="hero-capacity-note{{ !empty($event->is_sold_out) ? ' sold-out' : '' }}">
-                                    @if (!empty($event->is_sold_out))
-                                        Sold out
-                                    @else
-                                        {{ $event->remaining_attendee_capacity }} spots remaining of {{ $event->attendee_limit }}
-                                    @endif
-                                </div>
-                            @endif
                         </div>
 
                         <a href="{{ $packagesPageUrl }}" class="back-to-packages-btn">
@@ -2197,15 +2188,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                 })
                                                 ->values();
                                         @endphp
-                                        @if (!is_null($event->remaining_attendee_capacity))
-                                            <div id="event-cart-capacity-banner" class="event-cart-capacity-banner{{ !empty($event->is_sold_out) ? ' sold-out' : '' }}">
-                                                @if (!empty($event->is_sold_out))
-                                                    This event is sold out.
-                                                @else
-                                                    {{ $event->remaining_attendee_capacity }} spots currently available for checkout.
-                                                @endif
-                                            </div>
-                                        @endif
                                         <div class="mb-3 package-category-tiles" style="width:100%;">
                                             @foreach ($sortedPackageCategories as $category)
                                                 <div class="package-category-wrap mb-2">
@@ -2264,15 +2246,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                     @endfor
                                                                 </select>
                                                             </div>
-                                                            @if (!is_null($event->remaining_attendee_capacity))
-                                                                <div class="vip-availability-note" data-package-availability="{{ $item->id }}">
-                                                                    @if (!empty($event->is_sold_out))
-                                                                        No spots remaining for this event.
-                                                                    @else
-                                                                        {{ $event->remaining_attendee_capacity }} spots remain for this event.
-                                                                    @endif
-                                                                </div>
-                                                            @endif
                                                             <div class="vip-price-tag price-{{ $item->id }}" data-price="{{ $item->price }}">${{ number_format((float) $item->price, 2) }}</div>
                                                         </div>
                                                     </div>
@@ -2904,13 +2877,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                     </div>
                                                 @endif
                                                 <div class="event-location">{{ $data->location }}</div>
-                                                @if (!is_null($item->remaining_attendee_capacity))
-                                                    <div class="event-capacity-chip{{ !empty($item->is_sold_out) ? ' sold-out' : '' }}">
-                                                        {{ !empty($item->is_sold_out) ? 'Sold Out' : $item->remaining_attendee_capacity . ' Spots Left' }}
-                                                    </div>
-                                                @else
-                                                    <div class="event-location">Reserve</div>
-                                                @endif
+                                                <div class="event-location">Reserve</div>
                                             </div>
                                         </a>
                                     </div>
@@ -3235,26 +3202,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             }
 
             function hasEventCapacityLimit() {
-                return window.eventCapacityState && window.eventCapacityState.remaining !== null;
+                return false;
             }
 
             function getCartAttendeeCount(excludedPackageId) {
-                ensureCartArray();
-                return window.cart.reduce(function(sum, pkg) {
-                    if (excludedPackageId !== undefined && excludedPackageId !== null && String(pkg.packageId) === String(excludedPackageId)) {
-                        return sum;
-                    }
-
-                    return sum + (parseInt(pkg.guests, 10) || 1);
-                }, 0);
+                return 0;
             }
 
             function getAvailableEventSeats(packageId) {
-                if (!hasEventCapacityLimit()) {
-                    return null;
-                }
-
-                return Math.max((parseInt(window.eventCapacityState.remaining, 10) || 0) - getCartAttendeeCount(packageId), 0);
+                return null;
             }
 
             function setPackageButtonState($button, disabled, label) {
@@ -3271,55 +3227,17 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             }
 
             function syncEventCapacityUi() {
-                if (!hasEventCapacityLimit()) {
-                    return;
-                }
-
-                $('.vip-btn').each(function() {
-                    var $button = $(this);
-                    var packageId = $button.data('id');
-                    var guests = parseInt($('.package_number_of_guestss[data-id="' + packageId + '"]').val(), 10) || 1;
-                    var availableSeats = getAvailableEventSeats(packageId);
-                    var $note = $('[data-package-availability="' + packageId + '"]');
-
-                    if (availableSeats <= 0) {
-                        setPackageButtonState($button, true, 'Sold Out');
-                        $note.text('No spots remaining for this event.');
-                        return;
-                    }
-
-                    if (guests > availableSeats) {
-                        setPackageButtonState($button, true, 'Only ' + availableSeats + ' Left');
-                        $note.text('Only ' + availableSeats + ' spots remain for this event.');
-                        return;
-                    }
-
-                    setPackageButtonState($button, false, $button.data('default-label') || 'Add to Cart');
-                    $note.text(availableSeats + ' spots remain for this event.');
-                });
-
-                var availableForCart = getAvailableEventSeats(null);
-                var $banner = $('#event-cart-capacity-banner');
-                if ($banner.length) {
-                    $banner.text(availableForCart <= 0 ? 'This event is sold out.' : availableForCart + ' spots currently available for checkout.');
-                    $banner.toggleClass('sold-out', availableForCart <= 0);
-                }
+                return;
             }
 
             window.addPackageToCart = function(packageId, packageName, packagePrice, guests, addons, transportation, isMultiple) {
                 console.log('addPackageToCart called', packageId, packageName);
                 ensureCartArray();
                 var normalizedGuests = parseInt(guests, 10) || 1;
-                var availableSeats = getAvailableEventSeats(packageId);
-
-                if (availableSeats !== null && normalizedGuests > availableSeats) {
-                    alert(availableSeats > 0 ? ('Only ' + availableSeats + ' spots remain for this event.') : 'This event is sold out.');
-                    syncEventCapacityUi();
-                    return Promise.resolve(false);
-                }
+                var useDate = String($('input[name="package_use_date"]').val() || $('#package_use_date').val() || '').trim();
 
                 // Check daily limits for this package
-                return $.get('/{{ $data->slug }}/package/' + packageId + '/capacity')
+                return $.get('/{{ $data->slug }}/package/' + packageId + '/capacity', { use_date: useDate })
                     .then(function(response) {
                         if (!response.available) {
                             alert('This package is no longer available: ' + response.message);

@@ -34,6 +34,14 @@ class TransactionController extends Controller
 
         $cartItems = $this->extractCartItemsFromRequest($request);
         $cartSummary = $this->summarizeCartItems($cartItems);
+        $requestedUseDate = null;
+        if ($request->filled('package_use_date')) {
+            try {
+                $requestedUseDate = Carbon::parse((string) $request->input('package_use_date'))->startOfDay();
+            } catch (\Throwable $exception) {
+                $requestedUseDate = null;
+            }
+        }
 
         $selectedPackage = Package::find($cartSummary['primary_package_id'] ?: $request->input('package_id'));
         $requiresTransportation = $this->cartRequiresTransportation($cartItems, $selectedPackage);
@@ -41,7 +49,8 @@ class TransactionController extends Controller
         if ($selectedPackage && $selectedPackage->event_id) {
             $this->ensureEventCapacityAvailable(
                 Event::find($selectedPackage->event_id),
-                $cartSummary['total_guests']
+                $cartSummary['total_guests'],
+                $requestedUseDate
             );
         }
 
@@ -50,7 +59,7 @@ class TransactionController extends Controller
             $package = Package::find($item['package_id']);
             if ($package) {
                 $requestedQuantity = max(1, (int) ($item['guests'] ?? $item['quantity'] ?? 1));
-                $result = PackageLimitHelper::canPurchase($package, $requestedQuantity);
+                $result = PackageLimitHelper::canPurchase($package, $requestedQuantity, $requestedUseDate);
                 if (!$result['allowed']) {
                     throw ValidationException::withMessages(['package_limit' => $result['message']]);
                 }
@@ -922,7 +931,7 @@ class TransactionController extends Controller
         return $value === true || $value === 1 || $value === '1' || $value === 'true';
     }
 
-    private function ensureEventCapacityAvailable(?Event $event, int $requestedGuests): void
+    private function ensureEventCapacityAvailable(?Event $event, int $requestedGuests, ?Carbon $targetDate = null): void
     {
         if (!$event || $event->attendee_limit === null) {
             return;
@@ -934,7 +943,7 @@ class TransactionController extends Controller
         }
 
         $requestedGuests = max(1, $requestedGuests);
-        $confirmedAttendees = $this->countConfirmedEventAttendees($event);
+        $confirmedAttendees = $this->countConfirmedEventAttendees($event, $targetDate);
         $remainingCapacity = max($limit - $confirmedAttendees, 0);
 
         if ($requestedGuests > $remainingCapacity) {
@@ -948,12 +957,24 @@ class TransactionController extends Controller
         }
     }
 
-    private function countConfirmedEventAttendees(Event $event): int
+    private function countConfirmedEventAttendees(Event $event, ?Carbon $targetDate = null): int
     {
-        return Transaction::query()
+        $query = Transaction::query()
             ->where('event_id', $event->id)
-            ->where('status', 1)
-            ->get(['type', 'package_number_of_guest', 'men', 'women'])
+            ->where('status', 1);
+
+        if ($targetDate) {
+            $dateString = $targetDate->toDateString();
+            $query->where(function ($dateQuery) use ($dateString) {
+                $dateQuery->whereDate('package_use_date', $dateString)
+                    ->orWhere(function ($fallbackDateQuery) use ($dateString) {
+                        $fallbackDateQuery->whereNull('package_use_date')
+                            ->whereDate('created_at', $dateString);
+                    });
+            });
+        }
+
+        return $query->get(['type', 'package_number_of_guest', 'men', 'women'])
             ->sum(function (Transaction $transaction) {
                 if ($transaction->type === 'reservation') {
                     return max(0, (int) $transaction->men) + max(0, (int) $transaction->women);
