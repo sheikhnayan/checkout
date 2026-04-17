@@ -1058,6 +1058,14 @@ body {
     opacity: .7;
 }
 
+.reservation-date-error {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    color: #ffb4b4;
+    font-weight: 600;
+}
+
 .hero-capacity-note {
     margin-top: 6px;
     font-size: 11px;
@@ -1954,15 +1962,17 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         <div class="hero-date-card">
                             <label>Reservation Date</label>
                             <div class="date-input-wrapper">
-                                <select id="package_use_date" style="width: 100%;">
+                                <select id="package_use_date" style="width: 100%;" required aria-required="true" aria-describedby="package_use_date_error">
+                                    <option value="" selected disabled>Select Date</option>
                                     @foreach($eventDateOptions as $dateOption)
-                                        <option value="{{ $dateOption['value'] }}" {{ $dateOption['value'] === $eventCheckoutDateValue ? 'selected' : '' }}>
+                                        <option value="{{ $dateOption['value'] }}">
                                             {{ $dateOption['label'] }}
                                         </option>
                                     @endforeach
                                 </select>
                                 <span class="custom-calendar-icon" style="display:none;"></span>
                             </div>
+                            <small id="package_use_date_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
                         </div>
 
                         <a href="{{ $packagesPageUrl }}" class="back-to-packages-btn">
@@ -2548,7 +2558,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                     <label for="">Number of Guest(s)</label>
     
                                                                     <input type="number" class="form-control"
-                                                                        name="transportation_guest" value="0"
+                                                                        name="transportation_guest" value="0" min="1" required
                                                                         style="width: 120px; max-width: 120px; color: #fff;"  />
     
     
@@ -2790,7 +2800,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 </label>
                                                             </div>
 
-                                                            <input type="hidden" class="package_use_date" name="package_use_date" value="{{ $eventCheckoutDateValue }}">
+                                                            <input type="hidden" class="package_use_date" name="package_use_date" value="">
                                                             <input type="hidden" class="promo_code" name="promo_code">
                                                             <input type="hidden" class="discounted_amount" name="discounted_amount">
                                                             
@@ -3063,11 +3073,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         $('.default-total').show();
                     }, 700);
                         // Keep selected date synced to hidden checkout field.
-                        var desiredDate = params.use_date || "{{ $eventCheckoutDateValue }}";
+                        var desiredDate = params.use_date || '';
                         if ($('#package_use_date option[value="' + desiredDate + '"]').length) {
                             $('#package_use_date').val(desiredDate);
                         } else {
-                            $('#package_use_date').val("{{ $eventCheckoutDateValue }}");
+                            $('#package_use_date').val('');
                         }
                         $('.package_use_date').val($('#package_use_date').val());
             }
@@ -3242,6 +3252,33 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 return String($('#package_use_date').val() || $('.package_use_date').val() || '').trim();
             }
 
+            function showReservationDateError(message) {
+                var text = String(message || 'Please select a reservation date.').trim();
+                $('#package_use_date').addClass('required-field').attr('aria-invalid', 'true');
+                $('#package_use_date_error').text(text).show();
+            }
+
+            function clearReservationDateError() {
+                $('#package_use_date').removeClass('required-field').removeAttr('aria-invalid');
+                $('#package_use_date_error').hide();
+            }
+
+            function ensureReservationDateSelected() {
+                var selectedDate = getSelectedUseDate();
+                if (selectedDate) {
+                    clearReservationDateError();
+                    return true;
+                }
+
+                showReservationDateError('Please select a reservation date above before continuing.');
+                var dateCard = document.querySelector('.hero-date-card');
+                if (dateCard && typeof dateCard.scrollIntoView === 'function') {
+                    dateCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                $('#package_use_date').trigger('focus');
+                return false;
+            }
+
             function getCartAttendeeCount(excludedPackageId) {
                 ensureCartArray();
                 return window.cart.reduce(function(sum, pkg) {
@@ -3342,6 +3379,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 ensureCartArray();
                 var normalizedGuests = parseInt(guests, 10) || 1;
                 var useDate = getSelectedUseDate();
+
+                if (!ensureReservationDateSelected()) {
+                    return Promise.resolve(false);
+                }
 
                 // Check daily limits for this package
                 return $.get('/{{ $data->slug }}/package/' + packageId + '/capacity', { use_date: useDate, requested_quantity: normalizedGuests })
@@ -4001,6 +4042,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 });
 
                 $(document).on('change', '#package_use_date', function() {
+                    clearReservationDateError();
                     syncUseDateField();
                     refreshEventPackageSelectionLimits(true);
                 });
@@ -4095,6 +4137,17 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         isValid = false;
                         firstInvalidField = scheduleValidation.field || firstInvalidField;
                         alertMessage = scheduleValidation.message;
+                    }
+                }
+
+                if (stepNumber === 2 && window.requiresTransportation) {
+                    const transportationGuestField = $('[name="transportation_guest"]');
+                    const transportationGuestValue = parseInt(transportationGuestField.val(), 10);
+                    if (!Number.isFinite(transportationGuestValue) || transportationGuestValue < 1) {
+                        transportationGuestField.addClass('required-field');
+                        isValid = false;
+                        firstInvalidField = firstInvalidField || transportationGuestField;
+                        alertMessage = 'Please enter Number of Guest(s) in Transportation (minimum 1).';
                     }
                 }
                 
@@ -4304,7 +4357,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 syncCheckoutCartFields();
             }
 
-            document.getElementById('payment-form')?.addEventListener('submit', function() {
+            document.getElementById('payment-form')?.addEventListener('submit', function(e) {
+                if (!ensureReservationDateSelected()) {
+                    e.preventDefault();
+                    return;
+                }
                 prepareCheckoutCartPayload(this);
             });
 
@@ -4400,8 +4457,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         </script>
 
         <script>
-            // Keep hidden submit value stable even if scripts rerun.
-            $('.package_use_date').val("{{ $eventCheckoutDateValue }}");
+            // Keep hidden submit value synced to selected reservation date.
+            syncUseDateField();
         </script>
 
         @if ($data->payment_method == 'stripe')
@@ -4440,6 +4497,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     const form = document.getElementById('payment-form');
                     form.addEventListener('submit', async function(e) {
                         e.preventDefault();
+
+                        if (!ensureReservationDateSelected()) {
+                            return;
+                        }
+
                         prepareCheckoutCartPayload(form);
 
                         const {token, error} = await stripe.createToken(cardNumber);

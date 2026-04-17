@@ -2621,7 +2621,7 @@
                                                                             Guest(s)</label>
 
                                                                         <input type="number" class="form-control"
-                                                                            name="transportation_guest" value="0"
+                                                                            name="transportation_guest" value="0" min="1" required
                                                                             style="width: 120px; max-width: 120px; color: #fff;" />
 
 
@@ -4147,6 +4147,17 @@
                         isValid = false;
                         firstInvalidField = scheduleValidation.field || firstInvalidField;
                         alertMessage = scheduleValidation.message;
+                    }
+                }
+
+                if (stepNumber === 2 && window.requiresTransportation) {
+                    const transportationGuestField = $('[name="transportation_guest"]');
+                    const transportationGuestValue = parseInt(transportationGuestField.val(), 10);
+                    if (!Number.isFinite(transportationGuestValue) || transportationGuestValue < 1) {
+                        transportationGuestField.addClass('required-field');
+                        isValid = false;
+                        firstInvalidField = firstInvalidField || transportationGuestField;
+                        alertMessage = 'Please enter Number of Guest(s) in Transportation (minimum 1).';
                     }
                 }
 

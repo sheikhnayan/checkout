@@ -1404,7 +1404,7 @@ const clubConfigs = {
                 </div>
                 <div class="form-group mb-2"><label>Pick-up Address</label><input type="text" name="transportation_address" placeholder=""></div>
                 <div class="form-row">
-                    <div class="form-group"><label>Number of Guests</label><input type="number" name="transportation_guest" value="0" style="width:120px;max-width:120px;"></div>
+                    <div class="form-group"><label>Number of Guests</label><input type="number" name="transportation_guest" value="0" min="1" required style="width:120px;max-width:120px;"></div>
                 </div>
                 <div class="form-group mb-2"><label>Pickup Note</label><textarea name="transportation_note" placeholder="Any special instructions?"></textarea></div>
                 <div class="step-navigation">
@@ -2320,7 +2320,15 @@ function validateStep(n) {
             const req = ['[name="package_use_date"]','[name="transportation_pickup_time"]','[name="transportation_address"]','[name="transportation_phone"]'];
             let ok = true;
             req.forEach(s => { const f=$(s); if (!f.val()?.trim()) { f.addClass('required-field'); ok=false; } else f.removeClass('required-field'); });
-            if (!ok) { alert('Please fill in transportation details.'); return false; }
+            const transportationGuestField = $('[name="transportation_guest"]');
+            const transportationGuestValue = parseInt(transportationGuestField.val(), 10);
+            if (!Number.isFinite(transportationGuestValue) || transportationGuestValue < 1) {
+                transportationGuestField.addClass('required-field');
+                ok = false;
+            } else {
+                transportationGuestField.removeClass('required-field');
+            }
+            if (!ok) { alert('Please fill in transportation details, including Number of Guests (minimum 1).'); return false; }
         } else {
             if (!$('#transportation_part').is(':checked')) { alert('Please confirm your transportation arrangement.'); return false; }
         }
