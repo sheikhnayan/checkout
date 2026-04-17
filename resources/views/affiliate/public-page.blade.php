@@ -1137,6 +1137,10 @@ const clubConfigs = {
         </div>
         <div id="package-search-empty" class="package-search-empty">No packages matched your filters.</div>
 
+        <div style="margin: 8px 0 14px; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);">
+            This experience is fulfilled by the venue. Entry is subject to venue rules including minimum age requirements (18+ or 21+ depending on venue), valid ID, and dress code.
+        </div>
+
         @foreach($sortedPackageCategoryGroups as $categoryGroup)
             <button
                 type="button"
@@ -1486,8 +1490,15 @@ const clubConfigs = {
             </label>
             <label class="consent-label">
                 <input type="checkbox" id="termsConsent" required>
-                <span>I agree to the <a id="terms-link" href="#" target="_blank">Terms of Service</a> and <a id="privacy-link" href="#" target="_blank">Privacy Policy</a>.</span>
+                <span>I understand that all sales are final. I agree to the <a id="terms-link" href="#" target="_blank">Terms of Service</a>, and acknowledge that CartVIP is the merchant of record for this purchase.</span>
             </label>
+
+            <p style="margin: 12px 0 0; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);">
+                All bookings are processed by CartVIP. By completing this purchase, you agree to our no-refund policy and venue entry requirements.
+            </p>
+            <p style="margin: 8px 0 0; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.72);">
+                By completing this purchase, you confirm you are authorized to use this payment method and agree not to initiate a chargeback without contacting CartVIP first.
+            </p>
 
             <div class="step-navigation">
                 <button type="button" class="btn-prev" id="prev-to-transport">← Transportation</button>
@@ -1568,7 +1579,10 @@ const clubConfigs = {
             <span class="brand-dot" aria-hidden="true"></span>
             <span>Powered by CartVIP.com</span>
         </a>
-        <div class="aff-footer-note">Professional booking and checkout infrastructure by CartVIP.</div>
+        <div class="aff-footer-note">All bookings and payments are processed securely by CartVIP, the merchant of record for all transactions.</div>
+        <a id="footer-terms-link" href="#" target="_blank" rel="noopener" class="aff-footer-brand" style="font-size:12px; opacity:.9;">
+            <span>Terms of Service</span>
+        </a>
     </div>
 </footer>
 
@@ -1914,6 +1928,7 @@ function activateClub(slug) {
     $('#rf-lbl').text(c.refundableName || 'Processing Fees');
     $('#promo-lbl').text(c.promoCodeName || 'Promo Code');
     $('#terms-link').attr('href', c.terms);
+    $('#footer-terms-link').attr('href', c.terms);
     $('#privacy-link').attr('href', c.privacy);
     $('#sms-consent-text').text('I agree to receive SMS communications from ' + c.name + ' regarding my upcoming reservation. Message and data rates may apply. Reply STOP to opt out.');
     $('#transport-confirm-text').text(c.transportConfirmText);

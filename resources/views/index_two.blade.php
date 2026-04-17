@@ -2293,10 +2293,9 @@
                                                 </label>
                                                 <label class="consent-label">
                                                     <input type="checkbox" id="termsConsent_two" required />
-                                                    <span>I agree to the {{ $data->name }} <a
+                                                    <span>I understand that all sales are final. I agree to the <a
                                                         target="_blank" href="{{ $data->terms }}">Terms of
-                                                        Service</a> and <a href="{{ $data->policy }}"
-                                                        target="_blank">Privacy Policy</a>.</span>
+                                                        Service</a>, and acknowledge that CartVIP is the merchant of record for this purchase.</span>
                                                 </label>
                                             </div>
                                             <button class="submit-btn" type="submit" id="submitBtn_two">Create
@@ -2559,6 +2558,10 @@
                                             <p class="step-title">Payment</p>
                                         </li>
                                     </ul>
+
+                                    <div style="display:none; margin: 10px 0 14px; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);" class="dynamic-price">
+                                        This experience is fulfilled by the venue. Entry is subject to venue rules including minimum age requirements (18+ or 21+ depending on venue), valid ID, and dress code.
+                                    </div>
 
                                     <form action="{{ route('checkout.store', ['slug' => $data->slug]) }}"
                                         id="payment-form" method="post">
@@ -3018,13 +3021,18 @@
 
                                                             <label class="consent-label" style="margin-top: 1.4rem;">
                                                                 <input type="checkbox" id="termsConsent" required />
-                                                                <span>I agree to the {{ $data->name }} <a
+                                                                <span>I understand that all sales are final. I agree to the <a
                                                                     target="_blank" href="{{ $data->terms }}">Terms
                                                                     of
-                                                                    Service</a> and <a target="_blank"
-                                                                    href="{{ $data->privacy }}">Privacy
-                                                                    Policy</a>.</span>
+                                                                    Service</a>, and acknowledge that CartVIP is the merchant of record for this purchase.</span>
                                                             </label>
+
+                                                            <p style="margin: 12px 0 0; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);">
+                                                                All bookings are processed by CartVIP. By completing this purchase, you agree to our no-refund policy and venue entry requirements.
+                                                            </p>
+                                                            <p style="margin: 8px 0 0; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.72);">
+                                                                By completing this purchase, you confirm you are authorized to use this payment method and agree not to initiate a chargeback without contacting CartVIP first.
+                                                            </p>
                                                         </div>
 
                                                         <input type="hidden" class="package_use_date"
@@ -3305,7 +3313,10 @@
                     <span class="brand-dot" aria-hidden="true"></span>
                     <span>Powered by CartVIP.com</span>
                 </a>
-                <div class="aff-footer-note">{{ $data->footer_text }}</div>
+                <div class="aff-footer-note">All bookings and payments are processed securely by CartVIP, the merchant of record for all transactions.</div>
+                <a href="{{ $data->terms }}" target="_blank" rel="noopener" class="aff-footer-brand" style="font-size:12px; opacity:.9;">
+                    <span>Terms of Service</span>
+                </a>
             </div>
         </footer>
         <script src="scripts/main.js"></script>

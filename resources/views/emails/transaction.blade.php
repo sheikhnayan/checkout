@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>New Package Purchase</title>
+    <title>Your CartVIP Booking Confirmation</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f8f8f8; color: #222; margin: 0; padding: 0; }
         .container { background: #fff; max-width: 600px; margin: 30px auto; border-radius: 8px; box-shadow: 0 2px 8px #eee; padding: 32px; }
@@ -14,45 +14,57 @@
         .total { font-weight: bold; color: #2a7ae2; font-size: 1.2em; }
         .ticket-box { margin-top: 24px; padding: 18px; border: 1px solid #dbeafe; border-radius: 10px; background: #f8fbff; text-align: center; }
         .ticket-code { display: inline-block; margin-top: 10px; padding: 8px 12px; border-radius: 8px; background: #0f172a; color: #fff; font-weight: bold; letter-spacing: 0.06em; }
+        .summary-grid { margin-top: 16px; display: grid; grid-template-columns: 1fr; gap: 14px; }
+        .summary-card { border: 1px solid #e5e7eb; border-radius: 10px; background: #fcfdff; padding: 12px 14px; }
+        .summary-card h4 { margin: 0 0 10px; font-size: 14px; color: #0f172a; }
+        .summary-list { margin: 0; padding: 0; list-style: none; }
+        .summary-list li { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid #eef2f7; font-size: 13px; }
+        .summary-list li:last-child { border-bottom: none; }
+        .summary-list .k { color: #475569; font-weight: 600; }
+        .summary-list .v { color: #111827; text-align: right; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h2>New Package Purchase</h2>
+    <h2>Your CartVIP Booking Confirmation</h2>
+    <p>Thank you for your purchase. CartVIP has securely processed your booking as the merchant of record.</p>
     <p><strong>Transaction ID:</strong> {{ $mailData['transaction_id'] ?? '' }}</p>
 
-    <div class="section-title">Package Holder Information</div>
-    <table>
-        <tr><th>First Name</th><td>{{ $mailData['package_first_name'] ?? '' }}</td></tr>
-        <tr><th>Last Name</th><td>{{ $mailData['package_last_name'] ?? '' }}</td></tr>
-        <tr><th>Phone</th><td>{{ $mailData['package_phone'] ?? '' }}</td></tr>
-        <tr><th>Email</th><td>{{ $mailData['package_email'] ?? '' }}</td></tr>
-        <tr><th>Date of Birth</th><td>{{ $mailData['package_dob'] ?? '' }}</td></tr>
-        <tr><th>Note</th><td>{{ $mailData['package_note'] ?? '' }}</td></tr>
-    </table>
+    <div class="section-title">Reservation Summary</div>
+    <div class="summary-grid">
+        <div class="summary-card">
+            <h4>Package Holder</h4>
+            <ul class="summary-list">
+                <li><span class="k">Name</span><span class="v">{{ trim(($mailData['package_first_name'] ?? '') . ' ' . ($mailData['package_last_name'] ?? '')) ?: 'N/A' }}</span></li>
+                <li><span class="k">Phone</span><span class="v">{{ $mailData['package_phone'] ?? 'N/A' }}</span></li>
+                <li><span class="k">Email</span><span class="v">{{ $mailData['package_email'] ?? 'N/A' }}</span></li>
+                <li><span class="k">Date of Birth</span><span class="v">{{ $mailData['package_dob'] ?? 'N/A' }}</span></li>
+                <li><span class="k">Note</span><span class="v">{{ $mailData['package_note'] ?? 'N/A' }}</span></li>
+            </ul>
+        </div>
 
-    <div class="section-title">Transportation</div>
-    <table>
-        <tr><th>Pickup Time</th><td>{{ $mailData['transportation_pickup_time'] ?? '' }}</td></tr>
-        <tr><th>Address</th><td>{{ $mailData['transportation_address'] ?? '' }}</td></tr>
-        <tr><th>Phone</th><td>{{ $mailData['transportation_phone'] ?? '' }}</td></tr>
-        <tr><th>Guests</th><td>{{ $mailData['transportation_guest'] ?? '' }}</td></tr>
-        <tr><th>Note</th><td>{{ $mailData['transportation_note'] ?? '' }}</td></tr>
-    </table>
+        <div class="summary-card">
+            <h4>Transportation</h4>
+            <ul class="summary-list">
+                <li><span class="k">Pickup Time</span><span class="v">{{ $mailData['transportation_pickup_time'] ?? 'N/A' }}</span></li>
+                <li><span class="k">Address</span><span class="v">{{ $mailData['transportation_address'] ?? 'N/A' }}</span></li>
+                <li><span class="k">Phone</span><span class="v">{{ $mailData['transportation_phone'] ?? 'N/A' }}</span></li>
+                <li><span class="k">Guests</span><span class="v">{{ $mailData['transportation_guest'] ?? 'N/A' }}</span></li>
+                <li><span class="k">Note</span><span class="v">{{ $mailData['transportation_note'] ?? 'N/A' }}</span></li>
+            </ul>
+        </div>
 
-    <div class="section-title">Payment Information</div>
-    <table>
-        <tr><th>First Name</th><td>{{ $mailData['payment_first_name'] ?? '' }}</td></tr>
-        <tr><th>Last Name</th><td>{{ $mailData['payment_last_name'] ?? '' }}</td></tr>
-        <tr><th>Phone</th><td>{{ $mailData['payment_phone'] ?? '' }}</td></tr>
-        <tr><th>Email</th><td>{{ $mailData['payment_email'] ?? '' }}</td></tr>
-        <tr><th>Address</th><td>{{ $mailData['payment_address'] ?? '' }}</td></tr>
-        <tr><th>City</th><td>{{ $mailData['payment_city'] ?? '' }}</td></tr>
-        <tr><th>State</th><td>{{ $mailData['payment_state'] ?? '' }}</td></tr>
-        <tr><th>Country</th><td>{{ $mailData['payment_country'] ?? '' }}</td></tr>
-        <tr><th>Date of Birth</th><td>{{ $mailData['payment_dob'] ?? '' }}</td></tr>
-        <tr><th>Zip Code</th><td>{{ $mailData['payment_zip_code'] ?? '' }}</td></tr>
-    </table>
+        <div class="summary-card">
+            <h4>Payment Holder</h4>
+            <ul class="summary-list">
+                <li><span class="k">Name</span><span class="v">{{ trim(($mailData['payment_first_name'] ?? '') . ' ' . ($mailData['payment_last_name'] ?? '')) ?: 'N/A' }}</span></li>
+                <li><span class="k">Phone</span><span class="v">{{ $mailData['payment_phone'] ?? 'N/A' }}</span></li>
+                <li><span class="k">Email</span><span class="v">{{ $mailData['payment_email'] ?? 'N/A' }}</span></li>
+                <li><span class="k">Address</span><span class="v">{{ trim(implode(', ', array_filter([$mailData['payment_address'] ?? null, $mailData['payment_city'] ?? null, $mailData['payment_state'] ?? null, $mailData['payment_zip_code'] ?? null, $mailData['payment_country'] ?? null]))) ?: 'N/A' }}</span></li>
+                <li><span class="k">Date of Birth</span><span class="v">{{ $mailData['payment_dob'] ?? 'N/A' }}</span></li>
+            </ul>
+        </div>
+    </div>
 
     <div class="section-title">Order Details</div>
     @php
