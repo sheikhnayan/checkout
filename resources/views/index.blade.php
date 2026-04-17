@@ -2690,7 +2690,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         </div>
                                                                     <label for="card_number">Card Number</label>
                                                                     <input type="tel" name="card_number" id="card_number"
-                                                                        placeholder="" required />
+                                                                        placeholder="" inputmode="numeric" autocomplete="cc-number" required />
                                                                 </div>
     
                                                             </div>
@@ -4366,6 +4366,115 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             function prepareCheckoutCartPayload(form) {
                 syncCheckoutCartFields();
             }
+
+            (function initRawCardNumberFormatting() {
+                function detectCardMeta(digits) {
+                    var number = String(digits || '');
+
+                    if (/^3[47]/.test(number)) {
+                        return { maxLen: 15, validLens: [15], grouping: [4, 6, 5] }; // Amex
+                    }
+                    if (/^3(?:0[0-5]|[68])/.test(number)) {
+                        return { maxLen: 14, validLens: [14], grouping: [4, 6, 4] }; // Diners
+                    }
+                    if (/^(5[1-5]|2[2-7])/.test(number)) {
+                        return { maxLen: 16, validLens: [16], grouping: [4, 4, 4, 4] }; // Mastercard
+                    }
+                    if (/^(6011|65|64[4-9])/.test(number)) {
+                        return { maxLen: 19, validLens: [16, 19], grouping: [4, 4, 4, 4, 3] }; // Discover
+                    }
+                    if (/^4/.test(number)) {
+                        return { maxLen: 19, validLens: [13, 16, 19], grouping: [4, 4, 4, 4, 3] }; // Visa
+                    }
+                    if (/^35/.test(number)) {
+                        return { maxLen: 19, validLens: [16, 17, 18, 19], grouping: [4, 4, 4, 4, 3] }; // JCB
+                    }
+
+                    return { maxLen: 19, validLens: [13, 14, 15, 16, 17, 18, 19], grouping: [4, 4, 4, 4, 3] };
+                }
+
+                function formatWithGrouping(digits, grouping) {
+                    var cursor = 0;
+                    var parts = [];
+
+                    for (var i = 0; i < grouping.length && cursor < digits.length; i++) {
+                        var size = grouping[i];
+                        var chunk = digits.slice(cursor, cursor + size);
+                        if (!chunk) {
+                            break;
+                        }
+                        parts.push(chunk);
+                        cursor += size;
+                    }
+
+                    if (cursor < digits.length) {
+                        parts.push(digits.slice(cursor));
+                    }
+
+                    return parts.join(' ');
+                }
+
+                function applyMask(input) {
+                    if (!input) {
+                        return;
+                    }
+
+                    var digits = String(input.value || '').replace(/\D/g, '');
+                    var meta = detectCardMeta(digits);
+
+                    if (digits.length > meta.maxLen) {
+                        digits = digits.slice(0, meta.maxLen);
+                    }
+
+                    input.value = formatWithGrouping(digits, meta.grouping);
+                    input.maxLength = formatWithGrouping(new Array(meta.maxLen + 1).join('9'), meta.grouping).length;
+                    input.setAttribute('inputmode', 'numeric');
+                    input.setAttribute('autocomplete', 'cc-number');
+                    input.setCustomValidity('');
+
+                    if (digits.length > 0 && meta.validLens.indexOf(digits.length) === -1) {
+                        input.setCustomValidity('Please enter a valid card number.');
+                    }
+                }
+
+                function bindField(input) {
+                    if (!input || input.dataset.cardFormatBound === '1') {
+                        return;
+                    }
+
+                    input.dataset.cardFormatBound = '1';
+                    applyMask(input);
+                    input.addEventListener('input', function() { applyMask(input); });
+                    input.addEventListener('blur', function() { applyMask(input); });
+                }
+
+                var cardFields = document.querySelectorAll('input[name="card_number"]');
+                cardFields.forEach(function(field) { bindField(field); });
+
+                var form = document.getElementById('payment-form');
+                if (form) {
+                    form.addEventListener('submit', function(event) {
+                        var inputs = form.querySelectorAll('input[name="card_number"]');
+                        var hasInvalid = false;
+
+                        inputs.forEach(function(input) {
+                            applyMask(input);
+                            if (!input.checkValidity()) {
+                                hasInvalid = true;
+                            }
+                            input.value = String(input.value || '').replace(/\D/g, '');
+                        });
+
+                        if (hasInvalid) {
+                            event.preventDefault();
+                            var first = inputs[0];
+                            if (first) {
+                                first.reportValidity();
+                            }
+                        }
+                    });
+                }
+            })();
 
             document.getElementById('payment-form')?.addEventListener('submit', function(e) {
                 if (!ensureReservationDateSelected()) {

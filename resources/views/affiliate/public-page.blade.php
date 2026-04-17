@@ -1445,7 +1445,7 @@ const clubConfigs = {
 
             {{-- Authorize.net raw card fields --}}
             <div id="authorize-section" style="display:none;">
-                <div class="form-group mb-2"><label>Card Number</label><input type="tel" name="card_number" placeholder=""></div>
+                <div class="form-group mb-2"><label>Card Number</label><input type="tel" name="card_number" placeholder="" inputmode="numeric" autocomplete="cc-number"></div>
                 <div class="form-row">
                     <div class="form-group"><label>Month (MM)</label><input type="tel" maxlength="2" name="card_month" placeholder="MM" required></div>
                     <div class="form-group"><label>Year (YY)</label><input type="tel" maxlength="2" name="card_year" placeholder="YY" required></div>
@@ -2365,6 +2365,118 @@ $(document).ready(function() {
 </script>
 
 <script>
+// ============================================================
+//  RAW CARD INPUT FORMATTER (Authorize.net fields)
+// ============================================================
+(function initRawCardNumberFormatting() {
+    function detectCardMeta(digits) {
+        const number = String(digits || '');
+
+        if (/^3[47]/.test(number)) {
+            return { maxLen: 15, validLens: [15], grouping: [4, 6, 5] };
+        }
+        if (/^3(?:0[0-5]|[68])/.test(number)) {
+            return { maxLen: 14, validLens: [14], grouping: [4, 6, 4] };
+        }
+        if (/^(5[1-5]|2[2-7])/.test(number)) {
+            return { maxLen: 16, validLens: [16], grouping: [4, 4, 4, 4] };
+        }
+        if (/^(6011|65|64[4-9])/.test(number)) {
+            return { maxLen: 19, validLens: [16, 19], grouping: [4, 4, 4, 4, 3] };
+        }
+        if (/^4/.test(number)) {
+            return { maxLen: 19, validLens: [13, 16, 19], grouping: [4, 4, 4, 4, 3] };
+        }
+        if (/^35/.test(number)) {
+            return { maxLen: 19, validLens: [16, 17, 18, 19], grouping: [4, 4, 4, 4, 3] };
+        }
+
+        return { maxLen: 19, validLens: [13, 14, 15, 16, 17, 18, 19], grouping: [4, 4, 4, 4, 3] };
+    }
+
+    function formatWithGrouping(digits, grouping) {
+        let cursor = 0;
+        const parts = [];
+
+        for (let i = 0; i < grouping.length && cursor < digits.length; i++) {
+            const size = grouping[i];
+            const chunk = digits.slice(cursor, cursor + size);
+            if (!chunk) {
+                break;
+            }
+            parts.push(chunk);
+            cursor += size;
+        }
+
+        if (cursor < digits.length) {
+            parts.push(digits.slice(cursor));
+        }
+
+        return parts.join(' ');
+    }
+
+    function applyMask(input) {
+        if (!input) {
+            return;
+        }
+
+        let digits = String(input.value || '').replace(/\D/g, '');
+        const meta = detectCardMeta(digits);
+
+        if (digits.length > meta.maxLen) {
+            digits = digits.slice(0, meta.maxLen);
+        }
+
+        input.value = formatWithGrouping(digits, meta.grouping);
+        input.maxLength = formatWithGrouping('9'.repeat(meta.maxLen), meta.grouping).length;
+        input.setAttribute('inputmode', 'numeric');
+        input.setAttribute('autocomplete', 'cc-number');
+        input.setCustomValidity('');
+
+        if (digits.length > 0 && !meta.validLens.includes(digits.length)) {
+            input.setCustomValidity('Please enter a valid card number.');
+        }
+    }
+
+    function bindField(input) {
+        if (!input || input.dataset.cardFormatBound === '1') {
+            return;
+        }
+
+        input.dataset.cardFormatBound = '1';
+        applyMask(input);
+        input.addEventListener('input', function() { applyMask(input); });
+        input.addEventListener('blur', function() { applyMask(input); });
+    }
+
+    const cardFields = document.querySelectorAll('input[name="card_number"]');
+    cardFields.forEach(function(field) { bindField(field); });
+
+    const form = document.getElementById('payment-form');
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            const inputs = form.querySelectorAll('input[name="card_number"]');
+            let hasInvalid = false;
+
+            inputs.forEach(function(input) {
+                applyMask(input);
+                if (!input.checkValidity()) {
+                    hasInvalid = true;
+                }
+                input.value = String(input.value || '').replace(/\D/g, '');
+            });
+
+            if (hasInvalid) {
+                event.preventDefault();
+                const first = inputs[0];
+                if (first) {
+                    first.reportValidity();
+                }
+            }
+        });
+    }
+})();
+
 // ============================================================
 //  FORM SUBMIT (Stripe token or direct Authorize.net POST)
 // ============================================================
