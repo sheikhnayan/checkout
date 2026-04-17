@@ -10,6 +10,7 @@ use App\Models\Setting;
 use App\Models\SMTP;
 use App\Mail\CustomInvoiceMail;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Stripe;
 use net\authorize\api\contract\v1 as AnetAPI;
 use net\authorize\api\controller as AnetController;
@@ -503,9 +504,22 @@ class CustomInvoiceController extends Controller
      */
     private function processAuthorizePayment($invoice, $website, $setting, $request, $amount, $paymentType)
     {
+        $loginId = $website->authorize_login_id
+            ?: $website->authorize_app_key
+            ?: $setting->authorize_login
+            ?: $setting->authorize_key;
+
+        $transactionKey = $website->authorize_transaction_key
+            ?: $website->authorize_secret_key
+            ?: $setting->authorize_secret;
+
+        if (empty($loginId) || empty($transactionKey)) {
+            return redirect()->back()->with('error', 'Payment processing failed: Authorize.Net credentials are not configured.');
+        }
+
         $merchantAuthentication = new AnetAPI\MerchantAuthenticationType();
-        $merchantAuthentication->setName($website->authorize_login_id ?? $setting->authorize_login);
-        $merchantAuthentication->setTransactionKey($website->authorize_transaction_key ?? $setting->authorize_key);
+        $merchantAuthentication->setName($loginId);
+        $merchantAuthentication->setTransactionKey($transactionKey);
 
         $charge = new AnetAPI\CreditCardType();
         $charge->setCardNumber($request->cardNumber);
@@ -532,7 +546,16 @@ class CustomInvoiceController extends Controller
 
         $controller = new AnetController\CreateTransactionController($request_obj);
         
-        $apiUrl = ($website->sandbox_mode ?? $setting->sandbox_mode) 
+        $useSandbox = $website->sandbox_mode;
+        if ($useSandbox === null) {
+            $useSandbox = $setting->sandbox_mode;
+        }
+        if ($useSandbox === null) {
+            // Match current checkout behavior when no toggle is configured.
+            $useSandbox = true;
+        }
+
+        $apiUrl = $useSandbox
             ? \net\authorize\api\constants\ANetEnvironment::SANDBOX 
             : \net\authorize\api\constants\ANetEnvironment::PRODUCTION;
             
@@ -579,9 +602,47 @@ class CustomInvoiceController extends Controller
                         ->with('paymentType', $paymentType)
                         ->with('success', $message);
                 }
+
+                if ($tresponse != null && $tresponse->getErrors() != null) {
+                    $error = $tresponse->getErrors()[0] ?? null;
+                    $code = $error ? $error->getErrorCode() : null;
+                    $text = $error ? $error->getErrorText() : 'Unknown Authorize.Net error.';
+                    $errorMessage = 'Payment processing failed' . ($code ? ' (' . $code . ')' : '') . ': ' . $text;
+
+                    Log::error('Custom invoice Authorize.Net transaction error', [
+                        'invoice_id' => $invoice->id,
+                        'website_id' => $website->id,
+                        'sandbox_mode' => (bool) $useSandbox,
+                        'error_code' => $code,
+                        'error_text' => $text,
+                    ]);
+
+                    return redirect()->back()->with('error', $errorMessage);
+                }
+            }
+
+            $messages = $response->getMessages()->getMessage();
+            if (!empty($messages)) {
+                $first = $messages[0];
+                $gatewayMessage = trim(($first->getCode() ? $first->getCode() . ': ' : '') . $first->getText());
+
+                Log::error('Custom invoice Authorize.Net API message error', [
+                    'invoice_id' => $invoice->id,
+                    'website_id' => $website->id,
+                    'sandbox_mode' => (bool) $useSandbox,
+                    'message' => $gatewayMessage,
+                ]);
+
+                return redirect()->back()->with('error', 'Payment processing failed: ' . $gatewayMessage);
             }
         }
 
-        return redirect()->back()->with('error', 'Payment processing failed!');
+        Log::error('Custom invoice Authorize.Net null/empty response', [
+            'invoice_id' => $invoice->id,
+            'website_id' => $website->id,
+            'sandbox_mode' => (bool) $useSandbox,
+        ]);
+
+        return redirect()->back()->with('error', 'Payment processing failed: empty response from Authorize.Net.');
     }
 }
