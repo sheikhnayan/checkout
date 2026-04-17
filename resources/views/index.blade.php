@@ -770,55 +770,64 @@ input::placeholder, textarea::placeholder {
     outline-offset: 2px;
 }
 
-/* Payment agreement toggles: match affiliate public-page look exactly */
-.payment-consent-group .consent-label {
-    display:flex;
-    gap:10px;
-    align-items:flex-start;
-    cursor:pointer;
-    margin-bottom:10px;
-    font-size:13px;
+/* Payment agreement toggles: exact affiliate parity, locked with stronger selectors */
+#payment-consent-group .consent-label {
+    display: flex !important;
+    gap: 10px !important;
+    align-items: flex-start !important;
+    cursor: pointer !important;
+    margin-bottom: 10px !important;
+    font-size: 13px !important;
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 400 !important;
 }
-.payment-consent-group .consent-label span {
-    flex:1;
-    line-height:1.4;
+#payment-consent-group .consent-label span {
+    flex: 1 !important;
+    line-height: 1.4 !important;
+    font-size: 13px !important;
+    font-family: 'Inter', sans-serif !important;
 }
-.payment-consent-group .consent-label input {
-    -webkit-appearance:none;
-    appearance:none;
-    width:46px !important;
-    height:26px;
-    border-radius:999px;
-    border:1px solid rgba(255,255,255,0.28);
-    background:rgba(255,255,255,0.16);
-    position:relative;
-    margin-top:0 !important;
-    padding:0 !important;
-    flex-shrink:0;
-    cursor:pointer;
-    transition:background .2s ease, border-color .2s ease;
+#payment-consent-group .consent-label input[type="checkbox"] {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    width: 46px !important;
+    min-width: 46px !important;
+    height: 26px !important;
+    border-radius: 999px !important;
+    border: 1px solid rgba(255,255,255,0.28) !important;
+    background: rgba(255,255,255,0.16) !important;
+    position: relative !important;
+    margin-top: 0 !important;
+    padding: 0 !important;
+    flex-shrink: 0 !important;
+    cursor: pointer !important;
+    transition: background .2s ease, border-color .2s ease !important;
 }
-.payment-consent-group .consent-label input::before {
-    content:'';
-    position:absolute;
-    top:2px;
-    left:2px;
-    width:20px;
-    height:20px;
-    border-radius:50%;
-    background:#fff;
-    transition:transform .2s ease;
+#payment-consent-group .consent-label input[type="checkbox"]::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 2px !important;
+    left: 2px !important;
+    width: 20px !important;
+    height: 20px !important;
+    border-radius: 50% !important;
+    background: #fff !important;
+    transition: transform .2s ease !important;
 }
-.payment-consent-group .consent-label input:checked {
-    background:#ffcc00;
-    border-color:#ffcc00;
+#payment-consent-group .consent-label input[type="checkbox"]:checked {
+    background: #ffcc00 !important;
+    border-color: #ffcc00 !important;
 }
-.payment-consent-group .consent-label input:checked::before {
-    transform:translateX(20px);
+#payment-consent-group .consent-label input[type="checkbox"]:checked::before {
+    transform: translateX(20px) !important;
 }
-.payment-consent-group .consent-label input:focus-visible {
-    outline:2px solid rgba(255,204,0,0.7);
-    outline-offset:2px;
+#payment-consent-group .consent-label input[type="checkbox"]:focus-visible {
+    outline: 2px solid rgba(255,204,0,0.7) !important;
+    outline-offset: 2px !important;
+}
+#payment-consent-group .consent-label a {
+    font-size: 13px !important;
+    font-family: 'Inter', sans-serif !important;
 }
 
 .checkbox-container label {
@@ -2876,7 +2885,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     </div>
 </div>
     
-                                                            <div class="checkbox-container payment-consent-group">
+                                                            <div class="checkbox-container payment-consent-group" id="payment-consent-group">
                                                                 <label class="consent-label">
                                                                     <input type="checkbox" id="smsConsent" required />
                                                                     <span>I agree to receive SMS communications from
