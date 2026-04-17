@@ -533,8 +533,8 @@ class CustomInvoiceController extends Controller
         $controller = new AnetController\CreateTransactionController($request_obj);
         
         $apiUrl = ($website->sandbox_mode ?? $setting->sandbox_mode) 
-            ? \net\authorize\api\constants\AnetEnvironment::SANDBOX 
-            : \net\authorize\api\constants\AnetEnvironment::PRODUCTION;
+            ? \net\authorize\api\constants\ANetEnvironment::SANDBOX 
+            : \net\authorize\api\constants\ANetEnvironment::PRODUCTION;
             
         $response = $controller->executeWithApiResponse($apiUrl);
 
