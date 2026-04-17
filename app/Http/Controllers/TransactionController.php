@@ -237,8 +237,10 @@ class TransactionController extends Controller
                             \Illuminate\Support\Facades\Mail::to($purchaserEmail)->send($send_mail_purchaser);
                         }
                     } catch (\Throwable $th) {
-                        //throw $th;
-                        // dd($th);
+                        report($th);
+                        throw ValidationException::withMessages([
+                            'email' => 'Email delivery failed: ' . $th->getMessage(),
+                        ]);
                     }
     
     
@@ -438,8 +440,10 @@ class TransactionController extends Controller
                             \Illuminate\Support\Facades\Mail::to($purchaserEmail)->send($send_mail_purchaser);
                         }
                     } catch (\Throwable $th) {
-                        //throw $th;
-                        // dd($th);
+                        report($th);
+                        throw ValidationException::withMessages([
+                            'email' => 'Email delivery failed: ' . $th->getMessage(),
+                        ]);
                     }
     
     
@@ -603,8 +607,10 @@ class TransactionController extends Controller
                             \Illuminate\Support\Facades\Mail::to($value->email)->send($send_mail);
                         }
                     } catch (\Throwable $th) {
-                        //throw $th;
-                        // dd($th);
+                        report($th);
+                        throw ValidationException::withMessages([
+                            'email' => 'Email delivery failed: ' . $th->getMessage(),
+                        ]);
                     }
 
             // Redirect to thank you page with transaction details
