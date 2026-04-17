@@ -968,6 +968,7 @@ class TransactionController extends Controller
         $smtp = optional($website)->smtp;
 
         if (!$this->hasUsableSmtp($smtp)) {
+            $this->applyDefaultSmtpConfig();
             return;
         }
 
@@ -980,6 +981,24 @@ class TransactionController extends Controller
             'mail.mailers.smtp.encryption' => $this->normalizeSmtpEncryption($smtp->encryption),
             'mail.from.address' => $smtp->from_email ?: config('mail.from.address'),
             'mail.from.name' => $smtp->from_name ?: config('mail.from.name'),
+        ]);
+    }
+
+    private function applyDefaultSmtpConfig(): void
+    {
+        $defaultHost = (string) config('mail.mailers.smtp.host');
+        $defaultPort = (string) config('mail.mailers.smtp.port');
+
+        if ($defaultHost === '' || $defaultPort === '') {
+            throw ValidationException::withMessages([
+                'email' => 'Email delivery failed: default SMTP is not configured. Please set MAIL_HOST and MAIL_PORT in .env.',
+            ]);
+        }
+
+        config([
+            'mail.default' => 'smtp',
+            'mail.from.address' => config('mail.from.address'),
+            'mail.from.name' => config('mail.from.name'),
         ]);
     }
 

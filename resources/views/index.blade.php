@@ -2208,20 +2208,18 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         @endif
                                         <div class="mb-3 package-category-tiles" style="width:100%;">
                                             @foreach ($sortedPackageCategories as $category)
-                                                <button
-                                                    type="button"
-                                                    class="btn btn-outline-light package-category-tile mb-2 w-100"
-                                                    data-target="#category-group-{{ $category['id'] }}"
-                                                    style="background: {{ $brandPrimary }}; border-color: {{ $brandPrimary }}; color: #000; display:flex; justify-content:space-between; align-items:center; text-align:left; padding:14px 16px; border-radius:12px; font-size:15px; font-weight:600;"
-                                                >
-                                                    {{ $category['name'] }}
-                                                    <span class="package-category-indicator" style="opacity:.7; font-size:12px;">+</span>
-                                                </button>
-                                            @endforeach
-                                        </div>
+                                                <div class="package-category-wrap mb-2">
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-outline-light package-category-tile w-100"
+                                                        data-target="#category-group-{{ $category['id'] }}"
+                                                        style="background: {{ $brandPrimary }}; border-color: {{ $brandPrimary }}; color: #000; display:flex; justify-content:space-between; align-items:center; text-align:left; padding:14px 16px; border-radius:12px; font-size:15px; font-weight:600;"
+                                                    >
+                                                        {{ $category['name'] }}
+                                                        <span class="package-category-indicator" style="opacity:.7; font-size:12px;">+</span>
+                                                    </button>
 
-                                        @foreach ($sortedPackageCategories as $category)
-                                            <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: none;">
+                                                    <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: none;">
                                                 @foreach ($category['packages'] as $item)
                                                     <div class="vip-card" id="pkg-card-{{ $item->id }}">
                                                         <div class="vip-card-main">
@@ -2279,7 +2277,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                         </div>
                                                     </div>
                                                 @endforeach
-                                            </div>
+                                                    </div>
+                                                </div>
                                         @endforeach
                                     @else
                                         <p style="opacity:.6;">No packages are available yet.</p>
@@ -3316,47 +3315,50 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 if (availableSeats !== null && normalizedGuests > availableSeats) {
                     alert(availableSeats > 0 ? ('Only ' + availableSeats + ' spots remain for this event.') : 'This event is sold out.');
                     syncEventCapacityUi();
-                    return false;
+                    return Promise.resolve(false);
                 }
 
                 // Check daily limits for this package
-                $.get('/{{ $data->slug }}/package/' + packageId + '/capacity', function(response) {
-                    if (!response.available) {
-                        alert('This package is no longer available: ' + response.message);
-                        return false;
-                    }
+                return $.get('/{{ $data->slug }}/package/' + packageId + '/capacity')
+                    .then(function(response) {
+                        if (!response.available) {
+                            alert('This package is no longer available: ' + response.message);
+                            return false;
+                        }
 
-                    var existing = window.cart.find(p => p.packageId == packageId);
-                    if (!existing) {
-                        window.cart.push({
-                            packageId: packageId,
-                            packageName: packageName,
-                            packagePrice: parseFloat(packagePrice),
-                            guests: normalizedGuests,
-                            isMultiple: parseMultipleFlag(isMultiple),
-                            addons: addons || [],
-                            transportation: transportation
-                        });
-                    } else {
-                        existing.packageName = packageName;
-                        existing.packagePrice = parseFloat(packagePrice);
-                        existing.guests = normalizedGuests;
-                        existing.isMultiple = parseMultipleFlag(isMultiple);
-                        existing.addons = addons || [];
-                        existing.transportation = transportation;
-                    }
-                    $('#cart-section').show();
-                    $('#shareLinkContainer').show();
-                    window.renderCart();
-                    syncCheckoutCartFields();
-                    window.calculateCartTotal();
-                    syncTransportationStateFromCart();
-                    syncEventCapacityUi();
-                    return true;
-                }).fail(function() {
-                    alert('Error checking package availability. Please try again.');
-                    return false;
-                });
+                        var existing = window.cart.find(function(p) { return p.packageId == packageId; });
+                        if (!existing) {
+                            window.cart.push({
+                                packageId: packageId,
+                                packageName: packageName,
+                                packagePrice: parseFloat(packagePrice),
+                                guests: normalizedGuests,
+                                isMultiple: parseMultipleFlag(isMultiple),
+                                addons: addons || [],
+                                transportation: transportation
+                            });
+                        } else {
+                            existing.packageName = packageName;
+                            existing.packagePrice = parseFloat(packagePrice);
+                            existing.guests = normalizedGuests;
+                            existing.isMultiple = parseMultipleFlag(isMultiple);
+                            existing.addons = addons || [];
+                            existing.transportation = transportation;
+                        }
+
+                        $('#cart-section').show();
+                        $('#shareLinkContainer').show();
+                        window.renderCart();
+                        syncCheckoutCartFields();
+                        window.calculateCartTotal();
+                        syncTransportationStateFromCart();
+                        syncEventCapacityUi();
+                        return true;
+                    })
+                    .catch(function() {
+                        alert('Error checking package availability. Please try again.');
+                        return false;
+                    });
             };
 
             window.removePackageFromCart = function(packageId) {
@@ -3927,7 +3929,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         });
                     });
 
-                    var added = window.addPackageToCart(
+                    window.addPackageToCart(
                         selection.packageId,
                         selection.packageName,
                         selection.packagePrice,
@@ -3935,23 +3937,23 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         selectedAddons,
                         selection.transportation,
                         selection.isMultiple
-                    );
+                    ).then(function(added) {
+                        if (!added) {
+                            return;
+                        }
 
-                    if (!added) {
-                        return;
-                    }
+                        $('#package_id').val(selection.packageId);
+                        $('#addons').val(selectedAddons.map(function(addon) { return addon.id; }).join(','));
+                        $('.package_number_of_guest').val(selection.guests);
+                        $('.dynamic-price').show();
+                        $('.default-price').hide();
+                        $('#checkout-steps').show();
+                        syncTransportationStateFromCart();
+                        showStep(1);
 
-                    $('#package_id').val(selection.packageId);
-                    $('#addons').val(selectedAddons.map(function(addon) { return addon.id; }).join(','));
-                    $('.package_number_of_guest').val(selection.guests);
-                    $('.dynamic-price').show();
-                    $('.default-price').hide();
-                    $('#checkout-steps').show();
-                    syncTransportationStateFromCart();
-                    showStep(1);
-
-                    bootstrap.Modal.getOrCreateInstance(document.getElementById('addonSelectionModal')).hide();
-                    window.pendingPackageSelection = null;
+                        bootstrap.Modal.getOrCreateInstance(document.getElementById('addonSelectionModal')).hide();
+                        window.pendingPackageSelection = null;
+                    });
                 });
             });
             
