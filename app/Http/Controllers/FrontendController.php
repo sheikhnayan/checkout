@@ -78,15 +78,15 @@ class FrontendController extends Controller
                 })
                 ->first();
 
-            if ($event) {
+            if ($event && $this->isEventCurrentOrUpcoming($event)) {
                 $event = $this->decorateEventAttendanceData($event);
+
+                $packageCategories = $this->buildPackageCategories($data, (int) $event->id, false);
+
+                $data->setRelation('events', $this->activeWebsiteEvents($data->id));
+
+                return view('index', compact('data', 'event', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup'));
             }
-
-            $packageCategories = $this->buildPackageCategories($data, $event ? (int) $event->id : -1, false);
-
-            $data->setRelation('events', $this->activeWebsiteEvents($data->id));
-
-            return view('index', compact('data', 'event', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup'));
         }
 
         $packageCategories = $this->buildPackageCategories($data, null, true);
@@ -222,21 +222,26 @@ class FrontendController extends Controller
             ->orderByRaw('COALESCE(start_date, date) ASC')
             ->get()
             ->filter(function (Event $event) {
-                $end = $event->end_date ?: $event->start_date ?: $event->date;
-                if (!$end) {
-                    return false;
-                }
-
-                try {
-                    return \Carbon\Carbon::parse($end)->endOfDay()->gte(now());
-                } catch (\Throwable $e) {
-                    return false;
-                }
+                return $this->isEventCurrentOrUpcoming($event);
             })
             ->values()
             ->map(function (Event $event) {
                 return $this->decorateEventAttendanceData($event);
             });
+    }
+
+    private function isEventCurrentOrUpcoming(Event $event): bool
+    {
+        $end = $event->end_date ?: $event->start_date ?: $event->date;
+        if (!$end) {
+            return false;
+        }
+
+        try {
+            return \Carbon\Carbon::parse($end)->endOfDay()->gte(now());
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     private function decorateEventAttendanceData(Event $event): Event

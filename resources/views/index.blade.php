@@ -1905,7 +1905,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 ? $eventStart->format('l, F d, Y') . ' - ' . $eventEnd->format('l, F d, Y')
                                 : $eventStart->format('l, F d, Y'))
                             : '';
-                        $eventCheckoutDateValue = $eventStart ? $eventStart->format('Y-m-d') : now()->format('Y-m-d');
                         $eventDateOptions = [];
                         if ($eventStart) {
                             $dateCursor = $eventStart->copy()->startOfDay();
@@ -1917,6 +1916,23 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 ];
                                 $dateCursor->addDay();
                             }
+                        }
+
+                        // Default to the nearest valid event day: start day if upcoming, today if event is in progress.
+                        $today = now()->startOfDay();
+                        if ($eventStart) {
+                            $rangeStart = $eventStart->copy()->startOfDay();
+                            $rangeEnd = ($eventEnd ?: $eventStart)->copy()->startOfDay();
+
+                            if ($today->lt($rangeStart)) {
+                                $eventCheckoutDateValue = $rangeStart->format('Y-m-d');
+                            } elseif ($today->gt($rangeEnd)) {
+                                $eventCheckoutDateValue = $rangeEnd->format('Y-m-d');
+                            } else {
+                                $eventCheckoutDateValue = $today->format('Y-m-d');
+                            }
+                        } else {
+                            $eventCheckoutDateValue = $today->format('Y-m-d');
                         }
                         $packagesPageUrl = route('index', $data->slug);
                         if (request()->filled('aff')) {
