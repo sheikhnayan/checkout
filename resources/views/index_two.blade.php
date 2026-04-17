@@ -858,6 +858,56 @@
         }
 
         /* Checkbox containers - unified toggle switch */
+        .consent-label {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            cursor: pointer;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+        .consent-label span {
+            flex: 1;
+            line-height: 1.4;
+        }
+        .consent-label input {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 46px !important;
+            height: 26px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.28);
+            background: rgba(255,255,255,0.16);
+            position: relative;
+            margin-top: 0 !important;
+            padding: 0 !important;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: background .2s ease, border-color .2s ease;
+        }
+        .consent-label input::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            transition: transform .2s ease;
+        }
+        .consent-label input:checked {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        .consent-label input:checked::before {
+            transform: translateX(20px);
+        }
+        .consent-label input:focus-visible {
+            outline: 2px solid rgba(255,204,0,0.7);
+            outline-offset: 2px;
+        }
+
         .checkbox-container label {
             display: flex;
             gap: 10px;
@@ -2169,7 +2219,7 @@
                                         </div>
                                         <div class="col-md-12">
                                             <div class="checkbox-container">
-                                                <label>
+                                                <label class="consent-label">
                                                     <input type="checkbox" id="smsConsent_two" required />
                                                     <span>I agree to receive SMS communications from {{ $data->name }}
                                                     regarding my
@@ -2177,11 +2227,11 @@
                                                     frequency
                                                     may vary. Reply STOP to opt out at any time.</span>
                                                 </label>
-                                                <label class="driver-notification-consent-wrap" style="display:none;">
+                                                <label class="consent-label driver-notification-consent-wrap" style="display:none;">
                                                     <input type="checkbox" id="driverNotificationConsent_two" class="driver-notification-consent-input" />
                                                     <span>I agree to receive notifications from the driver regarding my transportation pickup.</span>
                                                 </label>
-                                                <label>
+                                                <label class="consent-label">
                                                     <input type="checkbox" id="termsConsent_two" required />
                                                     <span>I agree to the {{ $data->name }} <a
                                                         target="_blank" href="{{ $data->terms }}">Terms of
@@ -2892,7 +2942,7 @@
                                                         </div>
 
                                                         <div class="checkbox-container">
-                                                            <label>
+                                                            <label class="consent-label">
                                                                 <input type="checkbox" id="smsConsent" required />
                                                                 <span>I agree to receive SMS communications from
                                                                 {{ $data->name }}
@@ -2901,12 +2951,12 @@
                                                                 frequency may vary. Reply
                                                                 STOP to opt out at any time.</span>
                                                             </label>
-                                                            <label class="driver-notification-consent-wrap" style="display:none;">
+                                                            <label class="consent-label driver-notification-consent-wrap" style="display:none;">
                                                                 <input type="checkbox" id="driverNotificationConsent" class="driver-notification-consent-input" />
                                                                 <span>I agree to receive notifications from the driver regarding my transportation pickup.</span>
                                                             </label>
 
-                                                            <label>
+                                                            <label class="consent-label">
                                                                 <input type="checkbox" id="termsConsent" required />
                                                                 <span>I agree to the {{ $data->name }} <a
                                                                     target="_blank" href="{{ $data->terms }}">Terms
