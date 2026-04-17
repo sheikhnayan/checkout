@@ -47,7 +47,6 @@
         * { box-sizing: border-box; }
         body {
             background:
-                radial-gradient(circle at top left, rgba(255, 204, 0, 0.08), transparent 28%),
                 radial-gradient(circle at top right, rgba(26, 117, 255, 0.12), transparent 34%),
                 linear-gradient(180deg, #0b0e1a 0%, #0f1526 52%, #0b0e1a 100%);
             color: var(--aff-text);

@@ -287,24 +287,90 @@ class FrontendController extends Controller
             }
         }
 
+        if (!$targetDate) {
+            $targetDate = \Carbon\Carbon::today();
+        }
+
         $capacity = \App\Helpers\PackageLimitHelper::getAvailableCapacity($package, $targetDate);
+        $eventRemaining = null;
+
+        if ($package->event_id) {
+            $event = Event::find($package->event_id);
+            if ($event && $event->attendee_limit !== null) {
+                $eventLimit = (int) $event->attendee_limit;
+                if ($eventLimit > 0) {
+                    $confirmed = $this->countConfirmedEventAttendeesForDate($event, $targetDate);
+                    $eventRemaining = max($eventLimit - $confirmed, 0);
+                }
+            }
+        }
+
+        $maxSelect = $capacity;
+        if ($eventRemaining !== null) {
+            $maxSelect = min($maxSelect, $eventRemaining);
+        }
+
+        $requestedQuantity = max(1, (int) $request->query('requested_quantity', 1));
         
-        if ($capacity <= 0) {
+        if ($maxSelect <= 0) {
+            $message = $eventRemaining !== null && $eventRemaining <= 0
+                ? 'This event is sold out for the selected date.'
+                : ($package->package_type === 'table'
+                    ? 'No tables available for the selected date.'
+                    : 'No tickets available for the selected date.');
+
             return response()->json([
                 'available' => false,
-                'message' => $package->package_type === 'table' 
-                    ? 'No tables available for today' 
-                    : 'No tickets available for today'
+                'message' => $message,
+                'event_remaining' => $eventRemaining,
+                'capacity' => max(0, (int) $capacity),
+                'max_select' => 0,
+            ]);
+        }
+
+        if ($requestedQuantity > $maxSelect) {
+            return response()->json([
+                'available' => false,
+                'message' => 'Only ' . $maxSelect . ' spots can be booked for the selected date.',
+                'event_remaining' => $eventRemaining,
+                'capacity' => max(0, (int) $capacity),
+                'max_select' => max(0, (int) $maxSelect),
             ]);
         }
 
         return response()->json([
             'available' => true,
             'capacity' => $capacity,
+            'event_remaining' => $eventRemaining,
+            'max_select' => max(0, (int) $maxSelect),
             'package_type' => $package->package_type,
             'daily_limit' => $package->package_type === 'table' 
                 ? $package->daily_table_limit 
                 : $package->daily_ticket_limit
         ]);
+    }
+
+    private function countConfirmedEventAttendeesForDate(Event $event, \Carbon\Carbon $targetDate): int
+    {
+        $dateString = $targetDate->toDateString();
+
+        return Transaction::query()
+            ->where('event_id', $event->id)
+            ->where('status', 1)
+            ->where(function ($query) use ($dateString) {
+                $query->whereDate('package_use_date', $dateString)
+                    ->orWhere(function ($fallbackQuery) use ($dateString) {
+                        $fallbackQuery->whereNull('package_use_date')
+                            ->whereDate('created_at', $dateString);
+                    });
+            })
+            ->get(['type', 'package_number_of_guest', 'men', 'women'])
+            ->sum(function (Transaction $transaction) {
+                if ($transaction->type === 'reservation') {
+                    return max(0, (int) $transaction->men) + max(0, (int) $transaction->women);
+                }
+
+                return max(1, (int) $transaction->package_number_of_guest);
+            });
     }
 }

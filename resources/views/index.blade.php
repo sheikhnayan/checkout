@@ -893,7 +893,6 @@ input::placeholder, textarea::placeholder {
 /* Exact affiliate-page layout surfaces */
 body {
     background:
-        radial-gradient(circle at top left, color-mix(in srgb, var(--accent) 14%, transparent), transparent 28%),
         radial-gradient(circle at top right, rgba(255, 255, 255, 0.06), transparent 34%),
         linear-gradient(180deg, var(--bg) 0%, #0f1526 48%, var(--bg) 100%) !important;
     color: var(--text-main) !important;
@@ -1907,6 +1906,18 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 : $eventStart->format('l, F d, Y'))
                             : '';
                         $eventCheckoutDateValue = $eventStart ? $eventStart->format('Y-m-d') : now()->format('Y-m-d');
+                        $eventDateOptions = [];
+                        if ($eventStart) {
+                            $dateCursor = $eventStart->copy()->startOfDay();
+                            $dateEnd = ($eventEnd ?: $eventStart)->copy()->startOfDay();
+                            while ($dateCursor->lte($dateEnd)) {
+                                $eventDateOptions[] = [
+                                    'value' => $dateCursor->format('Y-m-d'),
+                                    'label' => $dateCursor->format('l, F d, Y'),
+                                ];
+                                $dateCursor->addDay();
+                            }
+                        }
                         $packagesPageUrl = route('index', $data->slug);
                         if (request()->filled('aff')) {
                             $packagesPageUrl .= '?aff=' . urlencode((string) request()->input('aff'));
@@ -1927,8 +1938,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         <div class="hero-date-card">
                             <label>Reservation Date</label>
                             <div class="date-input-wrapper">
-                                <input id="package_use_date" type="text" value="{{ $eventDateLong }}"
-                                    readonly style="-webkit-text-fill-color: #fff !important; color: #fff !important; opacity: 1 !important; width: 100%;">
+                                <select id="package_use_date" style="width: 100%;">
+                                    @foreach($eventDateOptions as $dateOption)
+                                        <option value="{{ $dateOption['value'] }}" {{ $dateOption['value'] === $eventCheckoutDateValue ? 'selected' : '' }}>
+                                            {{ $dateOption['label'] }}
+                                        </option>
+                                    @endforeach
+                                </select>
                                 <span class="custom-calendar-icon" style="display:none;"></span>
                             </div>
                         </div>
@@ -3030,9 +3046,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         $('.default-price').hide();
                         $('.default-total').show();
                     }, 700);
-                        // Keep event checkout locked to the event start date while showing the full range to guests.
-                        $('#package_use_date').val("{{ $eventDateLong }}");
-                        $('.package_use_date').val("{{ $eventCheckoutDateValue }}");
+                        // Keep selected date synced to hidden checkout field.
+                        var desiredDate = params.use_date || "{{ $eventCheckoutDateValue }}";
+                        if ($('#package_use_date option[value="' + desiredDate + '"]').length) {
+                            $('#package_use_date').val(desiredDate);
+                        } else {
+                            $('#package_use_date').val("{{ $eventCheckoutDateValue }}");
+                        }
+                        $('.package_use_date').val($('#package_use_date').val());
             }
 
             function getUrlWithSelections() {
@@ -3201,16 +3222,86 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 return parseMultipleFlag(pkg.isMultiple) ? (parseInt(pkg.guests) || 1) : 1;
             }
 
-            function hasEventCapacityLimit() {
-                return false;
+            function getSelectedUseDate() {
+                return String($('#package_use_date').val() || $('.package_use_date').val() || '').trim();
             }
 
             function getCartAttendeeCount(excludedPackageId) {
-                return 0;
+                ensureCartArray();
+                return window.cart.reduce(function(sum, pkg) {
+                    if (excludedPackageId !== undefined && excludedPackageId !== null && String(pkg.packageId) === String(excludedPackageId)) {
+                        return sum;
+                    }
+
+                    return sum + (parseInt(pkg.guests, 10) || 1);
+                }, 0);
             }
 
-            function getAvailableEventSeats(packageId) {
-                return null;
+            function syncUseDateField() {
+                var selected = getSelectedUseDate();
+                if (selected) {
+                    $('.package_use_date').val(selected);
+                }
+            }
+
+            function updateGuestSelectOptions($select, maxSelectable) {
+                var current = parseInt($select.val(), 10) || 1;
+                var safeMax = Math.max(0, parseInt(maxSelectable, 10) || 0);
+                var html = '';
+
+                if (safeMax <= 0) {
+                    html = '<option value="1">1</option>';
+                    $select.html(html);
+                    $select.val('1');
+                    $select.prop('disabled', true);
+                    return;
+                }
+
+                for (var i = 1; i <= safeMax; i++) {
+                    html += '<option value="' + i + '">' + i + '</option>';
+                }
+
+                $select.html(html);
+                $select.val(String(Math.min(current, safeMax)));
+                $select.prop('disabled', false);
+            }
+
+            function refreshEventPackageSelectionLimits(showAlertWhenReduced) {
+                var useDate = getSelectedUseDate();
+                $('.package_number_of_guestss').each(function() {
+                    var $select = $(this);
+                    var packageId = $select.data('id');
+                    var previous = parseInt($select.val(), 10) || 1;
+
+                    $.get('/{{ $data->slug }}/package/' + packageId + '/capacity', { use_date: useDate })
+                        .done(function(response) {
+                            var endpointMax = parseInt(response.max_select, 10);
+                            if (!Number.isFinite(endpointMax)) {
+                                endpointMax = parseInt(response.capacity, 10);
+                            }
+                            if (!Number.isFinite(endpointMax)) {
+                                endpointMax = 1;
+                            }
+
+                            var cartRemaining = endpointMax;
+                            if (response.event_remaining !== null && response.event_remaining !== undefined) {
+                                var eventRemaining = parseInt(response.event_remaining, 10);
+                                if (Number.isFinite(eventRemaining)) {
+                                    cartRemaining = Math.min(cartRemaining, Math.max(eventRemaining - getCartAttendeeCount(packageId), 0));
+                                }
+                            }
+
+                            updateGuestSelectOptions($select, cartRemaining);
+
+                            var reducedTo = parseInt($select.val(), 10) || 1;
+                            if (showAlertWhenReduced && previous > reducedTo) {
+                                alert('Guest selection was adjusted to prevent over-crowding this event for the selected date.');
+                            }
+
+                            var $button = $('.vip-btn[data-id="' + packageId + '"]');
+                            setPackageButtonState($button, cartRemaining <= 0, cartRemaining <= 0 ? 'Sold Out' : ($button.data('default-label') || 'Add to Cart'));
+                        });
+                });
             }
 
             function setPackageButtonState($button, disabled, label) {
@@ -3234,13 +3325,30 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 console.log('addPackageToCart called', packageId, packageName);
                 ensureCartArray();
                 var normalizedGuests = parseInt(guests, 10) || 1;
-                var useDate = String($('input[name="package_use_date"]').val() || $('#package_use_date').val() || '').trim();
+                var useDate = getSelectedUseDate();
 
                 // Check daily limits for this package
-                return $.get('/{{ $data->slug }}/package/' + packageId + '/capacity', { use_date: useDate })
+                return $.get('/{{ $data->slug }}/package/' + packageId + '/capacity', { use_date: useDate, requested_quantity: normalizedGuests })
                     .then(function(response) {
                         if (!response.available) {
                             alert('This package is no longer available: ' + response.message);
+                            return false;
+                        }
+
+                        var effectiveMax = parseInt(response.max_select, 10);
+                        if (!Number.isFinite(effectiveMax)) {
+                            effectiveMax = parseInt(response.capacity, 10) || 0;
+                        }
+                        if (response.event_remaining !== null && response.event_remaining !== undefined) {
+                            var eventRemaining = parseInt(response.event_remaining, 10);
+                            if (Number.isFinite(eventRemaining)) {
+                                effectiveMax = Math.min(effectiveMax, Math.max(eventRemaining - getCartAttendeeCount(packageId), 0));
+                            }
+                        }
+
+                        if (normalizedGuests > effectiveMax) {
+                            alert('Only ' + Math.max(effectiveMax, 0) + ' guests can be selected for this package/date to avoid over-crowding the event.');
+                            refreshEventPackageSelectionLimits(true);
                             return false;
                         }
 
@@ -3271,6 +3379,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         window.calculateCartTotal();
                         syncTransportationStateFromCart();
                         syncEventCapacityUi();
+                        refreshEventPackageSelectionLimits(false);
                         return true;
                     })
                     .catch(function() {
@@ -3768,6 +3877,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             }
 
             $(document).ready(function () {
+                syncUseDateField();
                 var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
                 popoverTriggerList.forEach(function (popoverTriggerEl) {
                     bootstrap.Popover.getOrCreateInstance(popoverTriggerEl, {
@@ -3873,6 +3983,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         window.pendingPackageSelection = null;
                     });
                 });
+
+                $(document).on('change', '#package_use_date', function() {
+                    syncUseDateField();
+                    refreshEventPackageSelectionLimits(true);
+                });
+
+                setTimeout(function() {
+                    refreshEventPackageSelectionLimits(false);
+                }, 150);
             });
             
             // Step Management Functions

@@ -1031,7 +1031,6 @@
         /* Exact affiliate-page layout surfaces */
         body {
             background:
-                radial-gradient(circle at top left, color-mix(in srgb, var(--accent) 14%, transparent), transparent 28%),
                 radial-gradient(circle at top right, rgba(255, 255, 255, 0.06), transparent 34%),
                 linear-gradient(180deg, var(--bg) 0%, #0f1526 48%, var(--bg) 100%) !important;
             color: var(--text-main) !important;
