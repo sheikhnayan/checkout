@@ -298,6 +298,11 @@ class FrontendController extends Controller
 
         $capacity = \App\Helpers\PackageLimitHelper::getAvailableCapacity($package, $targetDate);
         $eventRemaining = null;
+        $perPurchaseCap = null;
+
+        if ($package->package_type === 'table') {
+            $perPurchaseCap = max(0, (int) ($package->guests_per_table ?? 0));
+        }
 
         if ($package->event_id) {
             $event = Event::find($package->event_id);
@@ -311,6 +316,9 @@ class FrontendController extends Controller
         }
 
         $maxSelect = $capacity;
+        if ($perPurchaseCap !== null && $perPurchaseCap > 0) {
+            $maxSelect = min($maxSelect, $perPurchaseCap);
+        }
         if ($eventRemaining !== null) {
             $maxSelect = min($maxSelect, $eventRemaining);
         }
@@ -321,8 +329,8 @@ class FrontendController extends Controller
             $message = $eventRemaining !== null && $eventRemaining <= 0
                 ? 'This event is sold out for the selected date.'
                 : ($package->package_type === 'table'
-                    ? 'No tables available for the selected date.'
-                    : 'No tickets available for the selected date.');
+                    ? 'No tables are available for this package on the selected date.'
+                    : 'No tickets are available for this package on the selected date.');
 
             return response()->json([
                 'available' => false,
@@ -330,16 +338,20 @@ class FrontendController extends Controller
                 'event_remaining' => $eventRemaining,
                 'capacity' => max(0, (int) $capacity),
                 'max_select' => 0,
+                'per_purchase_cap' => $perPurchaseCap,
+                'sold_out' => true,
             ]);
         }
 
         if ($requestedQuantity > $maxSelect) {
             return response()->json([
                 'available' => false,
-                'message' => 'Only ' . $maxSelect . ' spots can be booked for the selected date.',
+                'message' => 'The quantity you entered is unavailable for the selected date. Please choose up to ' . $maxSelect . ' guest(s).',
                 'event_remaining' => $eventRemaining,
                 'capacity' => max(0, (int) $capacity),
                 'max_select' => max(0, (int) $maxSelect),
+                'per_purchase_cap' => $perPurchaseCap,
+                'sold_out' => false,
             ]);
         }
 
@@ -348,6 +360,8 @@ class FrontendController extends Controller
             'capacity' => $capacity,
             'event_remaining' => $eventRemaining,
             'max_select' => max(0, (int) $maxSelect),
+            'per_purchase_cap' => $perPurchaseCap,
+            'sold_out' => false,
             'package_type' => $package->package_type,
             'daily_limit' => $package->package_type === 'table' 
                 ? $package->daily_table_limit 

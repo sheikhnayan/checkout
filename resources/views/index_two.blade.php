@@ -2404,29 +2404,45 @@
                                                                 data-refundable="{{ $data->refundable_fee }}"
                                                                 data-sales_tax="{{ $data->sales_tax_fee ?? 10 }}"
                                                                 data-transportation="{{ $item->transportation }}"
-                                                                data-service_charge="{{ $data->service_charge_fee ?? 10 }}">Add to Cart</button>
+                                                                data-service_charge="{{ $data->service_charge_fee ?? 10 }}"
+                                                                data-default-label="Add to Cart">Add to Cart</button>
                                                         </div>
 
                                                         <div class="vip-card-side">
                                                             <div class="vip-guest-control">
                                                                 <div class="vip-guest-label">Guests</div>
-                                                                <select data-multiple="{{ $item->multiple }}"
-                                                                    data-id="{{ $item->id }}"
-                                                                    class="form-select package_number_of_guestss">
-                                                                    @php
-                                                                        $maxGuests = 1;
-                                                                        if ($item->package_type === 'ticket' && $item->daily_ticket_limit) {
-                                                                            $maxGuests = $item->daily_ticket_limit;
-                                                                        } elseif ($item->package_type === 'table' && $item->daily_table_limit) {
-                                                                            $maxGuests = $item->daily_table_limit;
-                                                                        } elseif ($item->number_of_guest) {
-                                                                            $maxGuests = $item->number_of_guest;
-                                                                        }
-                                                                    @endphp
-                                                                    @for ($i = 1; $i <= $maxGuests; $i++)
-                                                                        <option value="{{ $i }}">{{ $i }}</option>
-                                                                    @endfor
-                                                                </select>
+                                                                <div class="package-guest-input-wrap">
+                                                                    @if ($item->package_type === 'ticket')
+                                                                        <input
+                                                                            type="number"
+                                                                            min="1"
+                                                                            step="1"
+                                                                            value="1"
+                                                                            data-package-type="{{ $item->package_type }}"
+                                                                            data-guests-per-table="{{ (int) ($item->guests_per_table ?? 0) }}"
+                                                                            data-multiple="{{ $item->multiple }}"
+                                                                            data-id="{{ $item->id }}"
+                                                                            class="form-select package_number_of_guestss"
+                                                                        />
+                                                                    @else
+                                                                        @php
+                                                                            $tableCap = max(1, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 1));
+                                                                        @endphp
+                                                                        <select
+                                                                            data-package-type="{{ $item->package_type }}"
+                                                                            data-guests-per-table="{{ (int) ($item->guests_per_table ?? 0) }}"
+                                                                            data-multiple="{{ $item->multiple }}"
+                                                                            data-id="{{ $item->id }}"
+                                                                            class="form-select package_number_of_guestss"
+                                                                        >
+                                                                            @for ($i = 1; $i <= $tableCap; $i++)
+                                                                                <option value="{{ $i }}">{{ $i }}</option>
+                                                                            @endfor
+                                                                        </select>
+                                                                    @endif
+                                                                </div>
+                                                                <small class="package-guest-error" style="display:none;color:#ff6b6b;font-size:11px;line-height:1.35;margin-top:4px;"></small>
+                                                                <div class="package-soldout" style="display:none;color:#ff2b2b;font-size:12px;font-weight:700;line-height:1.35;margin-top:4px;">Sold Out!</div>
                                                             </div>
                                                             <div class="vip-price-tag price-{{ $item->id }}"
                                                                 data-price="{{ $item->price }}">${{ number_format((float) $item->price, 2) }}</div>
@@ -3150,6 +3166,7 @@
                                                         {{ \Carbon\Carbon::parse($eventStartDate)->format('d') }}</span>
                                                 </div>
                                             </div>
+                                            <div class="event-location" style="font-weight:700;">{{ $item->name }}</div>
                                             @if($eventEndDate && $eventStartDate !== $eventEndDate)
                                                 <div class="event-location">
                                                     {{ \Carbon\Carbon::parse($eventStartDate)->format('M d') }} - {{ \Carbon\Carbon::parse($eventEndDate)->format('M d') }}
@@ -3478,34 +3495,150 @@
                 return parseMultipleFlag(pkg.isMultiple) ? (parseInt(pkg.guests) || 1) : 1;
             }
 
+            function getSelectedUseDate() {
+                return String($('#package_use_date').val() || $('.package_use_date').val() || '').trim();
+            }
+
+            function clearGuestFieldError($field) {
+                const $control = $field.closest('.vip-guest-control');
+                $control.find('.package-guest-error').hide().text('');
+                $field.removeClass('required-field').removeAttr('aria-invalid');
+            }
+
+            function showGuestFieldError($field, message) {
+                const $control = $field.closest('.vip-guest-control');
+                $control.find('.package-guest-error').text(message || 'The quantity you entered is unavailable for the selected date. Please choose a lower number.').show();
+                $field.addClass('required-field').attr('aria-invalid', 'true');
+            }
+
+            function updateGuestControlAvailability($field, maxSelectable, soldOutMessage) {
+                const current = parseInt($field.val(), 10) || 1;
+                const safeMax = Math.max(0, parseInt(maxSelectable, 10) || 0);
+                const isTicketInput = $field.is('input[type="number"]');
+                const $control = $field.closest('.vip-guest-control');
+                const $inputWrap = $control.find('.package-guest-input-wrap');
+                const $soldOut = $control.find('.package-soldout');
+                let html = '';
+
+                clearGuestFieldError($field);
+
+                if (safeMax <= 0) {
+                    $inputWrap.hide();
+                    $soldOut.text(soldOutMessage || 'Sold Out for Selected Date').show();
+                    $field.val('1').prop('disabled', true);
+                    return;
+                }
+
+                $soldOut.hide();
+                $inputWrap.show();
+
+                if (isTicketInput) {
+                    const safeValue = Math.min(Math.max(current, 1), safeMax);
+                    $field.prop('disabled', false);
+                    $field.attr('min', '1');
+                    $field.attr('step', '1');
+                    $field.val(String(safeValue));
+                    return;
+                }
+
+                for (let i = 1; i <= safeMax; i++) {
+                    html += '<option value="' + i + '">' + i + '</option>';
+                }
+
+                $field.html(html);
+                $field.val(String(Math.min(current, safeMax)));
+                $field.prop('disabled', false);
+            }
+
+            function refreshPackageAvailabilityForSelectedDate(showAlertWhenReduced) {
+                const useDate = getSelectedUseDate();
+                $('.package_number_of_guestss').each(function() {
+                    const $field = $(this);
+                    const packageId = $field.data('id');
+                    const previous = parseInt($field.val(), 10) || 1;
+
+                    $.get('/{{ $data->slug }}/package/' + packageId + '/capacity', { use_date: useDate })
+                        .done(function(response) {
+                            let maxSelectable = parseInt(response.max_select, 10);
+                            if (!Number.isFinite(maxSelectable)) {
+                                maxSelectable = parseInt(response.capacity, 10) || 0;
+                            }
+
+                            updateGuestControlAvailability($field, maxSelectable, response.message || 'Sold Out for Selected Date');
+
+                            const reducedTo = parseInt($field.val(), 10) || 1;
+                            const existingCartPackage = window.cart.find(function(pkg) { return String(pkg.packageId) === String(packageId); });
+                            if (existingCartPackage && (parseInt(existingCartPackage.guests, 10) || 1) !== reducedTo) {
+                                existingCartPackage.guests = reducedTo;
+                                syncCheckoutCartFields();
+                                window.renderCart();
+                                window.calculateCartTotal();
+                            }
+
+                            if (showAlertWhenReduced && previous > reducedTo) {
+                                alert('Your guest count was adjusted to match current availability for the selected date.');
+                            }
+
+                            const $button = $('.vip-btn[data-id="' + packageId + '"]');
+                            if ($button.length) {
+                                if (!$button.data('default-label')) {
+                                    $button.data('default-label', ($button.attr('data-default-label') || $button.text() || 'Add to Cart').trim());
+                                }
+                                const isSoldOut = maxSelectable <= 0;
+                                $button.prop('disabled', isSoldOut);
+                                $button.text(isSoldOut ? 'Sold Out' : ($button.data('default-label') || 'Add to Cart'));
+                            }
+                        });
+                });
+            }
+
             // Define cart functions directly on window
             window.addPackageToCart = function(packageId, packageName, packagePrice, guests, addons, transportation, isMultiple) {
                 console.log('addPackageToCart called', packageId, packageName);
                 ensureCartArray();
+                let normalizedGuests = parseInt(guests, 10) || 1;
+                let useDate = getSelectedUseDate();
                 
                 // Check daily limits for this package
-                $.get('/{{ $data->slug }}/package/' + packageId + '/capacity', function(response) {
+                $.get('/{{ $data->slug }}/package/' + packageId + '/capacity', {
+                    use_date: useDate,
+                    requested_quantity: normalizedGuests
+                }, function(response) {
                     if (!response.available) {
-                        alert('This package is no longer available: ' + response.message);
+                        alert(response.message || 'This package is not available for the selected date.');
+                        refreshPackageAvailabilityForSelectedDate(true);
+                        return false;
+                    }
+
+                    let maxSelectable = parseInt(response.max_select, 10);
+                    if (!Number.isFinite(maxSelectable)) {
+                        maxSelectable = parseInt(response.capacity, 10) || 0;
+                    }
+
+                    if (normalizedGuests > maxSelectable) {
+                        const $field = $('.package_number_of_guestss[data-id="' + packageId + '"]');
+                        updateGuestControlAvailability($field, maxSelectable, response.message || 'Sold Out for Selected Date');
+                        showGuestFieldError($field, response.message || 'The quantity you entered is unavailable for the selected date. Please choose a lower number.');
                         return false;
                     }
 
                     let existing = window.cart.find(p => p.packageId === packageId);
                     if (existing) {
-                        existing.guests = guests;
+                        existing.guests = normalizedGuests;
                         existing.addons = addons;
                         existing.transportation = transportation;
                         existing.isMultiple = parseMultipleFlag(isMultiple);
                     } else {
-                        window.cart.push({ packageId, packageName, packagePrice, guests, addons, transportation, isMultiple: parseMultipleFlag(isMultiple) });
+                        window.cart.push({ packageId, packageName, packagePrice, guests: normalizedGuests, addons, transportation, isMultiple: parseMultipleFlag(isMultiple) });
                     }
                     window.renderCart();
                     syncCheckoutCartFields();
                     window.calculateCartTotal();
                     syncTransportationStateFromCart();
+                    refreshPackageAvailabilityForSelectedDate(false);
                     return true;
                 }).fail(function() {
-                    alert('Error checking package availability. Please try again.');
+                    alert('We could not verify availability right now. Please try again.');
                     return false;
                 });
             };
@@ -4295,6 +4428,10 @@
                     bootstrap.Modal.getOrCreateInstance(document.getElementById('addonSelectionModal')).hide();
                     window.pendingPackageSelection = null;
                 });
+
+                setTimeout(function() {
+                    refreshPackageAvailabilityForSelectedDate(false);
+                }, 180);
             });
 
             // Step Management Functions
@@ -4513,16 +4650,38 @@
         <script>
             $('.package_number_of_guestss').on('change', function() {
                 ensureCartArray();
-                var selectedValue = $(this).val();
-                $('.package_number_of_guest').val(selectedValue);
-                var packageId = $(this).data('id');
-                var pkg = window.cart.find(p => p.packageId == packageId);
-                if (pkg) {
-                    pkg.guests = parseInt(selectedValue);
-                    pkg.isMultiple = parseMultipleFlag($(this).data('multiple'));
-                    window.renderCart();
-                    window.calculateCartTotal();
-                }
+                var $field = $(this);
+                var selectedValue = parseInt($field.val(), 10) || 1;
+                var packageId = $field.data('id');
+                var useDate = getSelectedUseDate();
+
+                $.get('/{{ $data->slug }}/package/' + packageId + '/capacity', {
+                    use_date: useDate,
+                    requested_quantity: selectedValue
+                }).done(function(response) {
+                    var maxSelectable = parseInt(response.max_select, 10);
+                    if (!Number.isFinite(maxSelectable)) {
+                        maxSelectable = parseInt(response.capacity, 10) || 1;
+                    }
+
+                    if (selectedValue > maxSelectable) {
+                        updateGuestControlAvailability($field, maxSelectable, response.message || 'Sold Out for Selected Date');
+                        showGuestFieldError($field, response.message || 'The quantity you entered is unavailable for the selected date. Please choose a lower number.');
+                        return;
+                    }
+
+                    clearGuestFieldError($field);
+                    $('.package_number_of_guest').val(String(selectedValue));
+                    var pkg = window.cart.find(function(p) { return String(p.packageId) === String(packageId); });
+                    if (pkg) {
+                        pkg.guests = selectedValue;
+                        pkg.isMultiple = parseMultipleFlag($field.data('multiple'));
+                        window.renderCart();
+                        window.calculateCartTotal();
+                    }
+                }).fail(function() {
+                    showGuestFieldError($field, 'We could not verify availability right now. Please try again.');
+                });
             });
         </script>
 
@@ -4891,6 +5050,7 @@
             $('#package_use_date').on('change', function() {
                 const val = $('#package_use_date').val();
                 $('.package_use_date').val(val);
+                refreshPackageAvailabilityForSelectedDate(true);
             });
         </script>
 

@@ -1212,26 +1212,44 @@ const clubConfigs = {
                                 data-transportation="{{ $package->transportation }}"
                                 data-club-id="{{ $club->id }}"
                                 data-club-slug="{{ $club->slug }}"
+                                data-default-label="Add to Cart"
                             >Add to Cart</button>
                         </div>
                         <div class="vip-card-side">
                             <div class="vip-guest-control">
                                 <div class="vip-guest-label">Guests</div>
-                                <select class="form-select package_number_of_guestss" data-id="{{ $package->id }}" data-multiple="{{ $package->multiple }}">
-                                    @php
-                                        $maxGuests = 1;
-                                        if ($package->package_type === 'ticket' && $package->daily_ticket_limit) {
-                                            $maxGuests = $package->daily_ticket_limit;
-                                        } elseif ($package->package_type === 'table' && $package->daily_table_limit) {
-                                            $maxGuests = $package->daily_table_limit;
-                                        } elseif ($package->number_of_guest) {
-                                            $maxGuests = $package->number_of_guest;
-                                        }
-                                    @endphp
-                                    @for($i = 1; $i <= $maxGuests; $i++)
-                                        <option value="{{ $i }}">{{ $i }}</option>
-                                    @endfor
-                                </select>
+                                <div class="package-guest-input-wrap">
+                                    @if ($package->package_type === 'ticket')
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            step="1"
+                                            value="1"
+                                            class="form-select package_number_of_guestss"
+                                            data-id="{{ $package->id }}"
+                                            data-multiple="{{ $package->multiple }}"
+                                            data-package-type="{{ $package->package_type }}"
+                                            data-guests-per-table="{{ (int) ($package->guests_per_table ?? 0) }}"
+                                        >
+                                    @else
+                                        @php
+                                            $tableCap = max(1, (int) ($package->guests_per_table ?: $package->number_of_guest ?: 1));
+                                        @endphp
+                                        <select
+                                            class="form-select package_number_of_guestss"
+                                            data-id="{{ $package->id }}"
+                                            data-multiple="{{ $package->multiple }}"
+                                            data-package-type="{{ $package->package_type }}"
+                                            data-guests-per-table="{{ (int) ($package->guests_per_table ?? 0) }}"
+                                        >
+                                            @for($i = 1; $i <= $tableCap; $i++)
+                                                <option value="{{ $i }}">{{ $i }}</option>
+                                            @endfor
+                                        </select>
+                                    @endif
+                                </div>
+                                <small class="package-guest-error" style="display:none;color:#ff6b6b;font-size:11px;line-height:1.35;margin-top:4px;"></small>
+                                <div class="package-soldout" style="display:none;color:#ff2b2b;font-size:12px;font-weight:700;line-height:1.35;margin-top:4px;">Sold Out for Selected Date</div>
                             </div>
                             <div class="vip-price-tag">${{ number_format((float) $package->price, 2) }}</div>
                         </div>
@@ -1681,20 +1699,151 @@ function getBillableGuests(item) {
     return parseMultipleFlag(item.isMultiple) ? (parseInt(item.guests) || 1) : 1;
 }
 
-window.addToCart = function(pkgId, pkgName, pkgPrice, guests, addons, transport, isMultiple) {
+function getSelectedUseDate() {
+    return String($('#package_use_date').val() || $('.package_use_date').val() || '').trim();
+}
+
+function clearGuestFieldError($field) {
+    const $control = $field.closest('.vip-guest-control');
+    $control.find('.package-guest-error').hide().text('');
+    $field.removeClass('required-field').removeAttr('aria-invalid');
+}
+
+function showGuestFieldError($field, message) {
+    const $control = $field.closest('.vip-guest-control');
+    $control.find('.package-guest-error').text(message || 'The quantity you entered is unavailable for the selected date. Please choose a lower number.').show();
+    $field.addClass('required-field').attr('aria-invalid', 'true');
+}
+
+function updateGuestControlAvailability($field, maxSelectable, soldOutMessage) {
+    const current = parseInt($field.val(), 10) || 1;
+    const safeMax = Math.max(0, parseInt(maxSelectable, 10) || 0);
+    const isTicketInput = $field.is('input[type="number"]');
+    const $control = $field.closest('.vip-guest-control');
+    const $inputWrap = $control.find('.package-guest-input-wrap');
+    const $soldOut = $control.find('.package-soldout');
+    let html = '';
+
+    clearGuestFieldError($field);
+
+    if (safeMax <= 0) {
+        $inputWrap.hide();
+        $soldOut.text(soldOutMessage || 'Sold Out for Selected Date').show();
+        $field.val('1').prop('disabled', true);
+        return;
+    }
+
+    $soldOut.hide();
+    $inputWrap.show();
+
+    if (isTicketInput) {
+        const safeValue = Math.min(Math.max(current, 1), safeMax);
+        $field.prop('disabled', false);
+        $field.attr('min', '1');
+        $field.attr('step', '1');
+        $field.val(String(safeValue));
+        return;
+    }
+
+    for (let i = 1; i <= safeMax; i++) {
+        html += '<option value="' + i + '">' + i + '</option>';
+    }
+
+    $field.html(html);
+    $field.val(String(Math.min(current, safeMax)));
+    $field.prop('disabled', false);
+}
+
+function getPackageClubSlug(pkgId) {
+    const $btn = $('.vip-btn[data-id="' + pkgId + '"]').first();
+    const fromButton = String($btn.data('club-slug') || '').trim();
+    if (fromButton) {
+        return fromButton;
+    }
+
+    return String(window.activeClubSlug || '').trim();
+}
+
+function refreshPackageAvailabilityForSelectedDate(showAlertWhenReduced) {
+    const useDate = getSelectedUseDate();
+
+    $('.package_number_of_guestss').each(function() {
+        const $field = $(this);
+        const pkgId = $field.data('id');
+        const previous = parseInt($field.val(), 10) || 1;
+        const clubSlug = getPackageClubSlug(pkgId);
+
+        if (!clubSlug) {
+            return;
+        }
+
+        $.get('/' + clubSlug + '/package/' + pkgId + '/capacity', { use_date: useDate })
+            .done(function(response) {
+                let maxSelectable = parseInt(response.max_select, 10);
+                if (!Number.isFinite(maxSelectable)) {
+                    maxSelectable = parseInt(response.capacity, 10) || 0;
+                }
+
+                updateGuestControlAvailability($field, maxSelectable, response.message || 'Sold Out for Selected Date');
+
+                const reducedTo = parseInt($field.val(), 10) || 1;
+                const existingCartPackage = window.cart.find(function(item) { return String(item.pkgId) === String(pkgId); });
+                if (existingCartPackage && (parseInt(existingCartPackage.guests, 10) || 1) !== reducedTo) {
+                    existingCartPackage.guests = reducedTo;
+                    syncCheckoutCartFields();
+                    renderCart();
+                    calcTotal();
+                }
+
+                if (showAlertWhenReduced && previous > reducedTo) {
+                    alert('Your guest count was adjusted to match current availability for the selected date.');
+                }
+
+                const $button = $('.vip-btn[data-id="' + pkgId + '"]').first();
+                if ($button.length) {
+                    if (!$button.data('default-label')) {
+                        $button.data('default-label', ($button.attr('data-default-label') || $button.text() || 'Add to Cart').trim());
+                    }
+
+                    const isSoldOut = maxSelectable <= 0;
+                    $button.prop('disabled', isSoldOut);
+                    $button.text(isSoldOut ? 'Sold Out' : ($button.data('default-label') || 'Add to Cart'));
+                }
+            });
+    });
+}
+
+window.addToCart = function(pkgId, pkgName, pkgPrice, guests, addons, transport, isMultiple, clubSlug) {
     ensureCart();
     const normalizedGuests = parseInt(guests) || 1;
+    const useDate = getSelectedUseDate();
     
     // Check daily limits for this package
-    const activeClub = window.activeClub;
-    if (!activeClub || !activeClub.slug) {
+    const targetSlug = String(clubSlug || getPackageClubSlug(pkgId) || '').trim();
+    if (!targetSlug) {
         alert('Unable to verify package availability. Please refresh and try again.');
         return false;
     }
     
-    $.get('/' + activeClub.slug + '/package/' + pkgId + '/capacity', function(response) {
+    $.get('/' + targetSlug + '/package/' + pkgId + '/capacity', {
+        use_date: useDate,
+        requested_quantity: normalizedGuests
+    }, function(response) {
         if (!response.available) {
-            alert('This package is no longer available: ' + response.message);
+            alert(response.message || 'This package is currently unavailable for the selected date.');
+            refreshPackageAvailabilityForSelectedDate(true);
+            return false;
+        }
+
+        let maxSelectable = parseInt(response.max_select, 10);
+        if (!Number.isFinite(maxSelectable)) {
+            maxSelectable = parseInt(response.capacity, 10) || 0;
+        }
+
+        if (normalizedGuests > maxSelectable) {
+            const $field = $('.package_number_of_guestss[data-id="' + pkgId + '"]');
+            updateGuestControlAvailability($field, maxSelectable, response.message || 'Sold Out for Selected Date');
+            showGuestFieldError($field, response.message || 'The quantity you entered is unavailable for the selected date. Please choose a lower number.');
             return false;
         }
 
@@ -1721,9 +1870,10 @@ window.addToCart = function(pkgId, pkgName, pkgPrice, guests, addons, transport,
 
         syncTransportStateFromCart();
         renderCart(); calcTotal();
+        refreshPackageAvailabilityForSelectedDate(false);
         return true;
     }).fail(function() {
-        alert('Error checking package availability. Please try again.');
+        alert('We could not verify availability right now. Please try again.');
         return false;
     });
 };
@@ -2126,6 +2276,7 @@ $(document).ready(function() {
                     guests: guests,
                     isMultiple: isMultiple,
                     transport: transport,
+                    clubSlug: clubSlug,
                     addons: Array.isArray(res) ? res : []
                 };
 
@@ -2150,7 +2301,7 @@ $(document).ready(function() {
             });
         });
 
-        window.addToCart(selection.pkgId, selection.pkgName, selection.pkgPrice, selection.guests, addons, selection.transport, selection.isMultiple);
+        window.addToCart(selection.pkgId, selection.pkgName, selection.pkgPrice, selection.guests, addons, selection.transport, selection.isMultiple, selection.clubSlug);
         $('#package_id').val(selection.pkgId);
         $('.package_number_of_guest').val(selection.guests);
 
@@ -2338,21 +2489,52 @@ $(document).ready(function() {
 
     // Guest select change → update cart
     $(document).on('change', '.package_number_of_guestss', function() {
-        $('.package_number_of_guest').val($(this).val());
-        const pkgId = $(this).data('id');
-        let p = window.cart.find(x => x.pkgId == pkgId);
-        if (p) {
-            p.guests = parseInt($(this).val());
-            p.isMultiple = parseMultipleFlag($(this).data('multiple'));
-            syncTransportStateFromCart();
-            renderCart();
-            calcTotal();
+        const $field = $(this);
+        const selectedValue = parseInt($field.val(), 10) || 1;
+        const pkgId = $field.data('id');
+        const useDate = getSelectedUseDate();
+        const clubSlug = getPackageClubSlug(pkgId);
+
+        if (!clubSlug) {
+            showGuestFieldError($field, 'Unable to verify availability for this package. Please refresh and try again.');
+            return;
         }
+
+        $.get('/' + clubSlug + '/package/' + pkgId + '/capacity', {
+            use_date: useDate,
+            requested_quantity: selectedValue
+        }).done(function(response) {
+            let maxSelectable = parseInt(response.max_select, 10);
+            if (!Number.isFinite(maxSelectable)) {
+                maxSelectable = parseInt(response.capacity, 10) || 1;
+            }
+
+            if (selectedValue > maxSelectable) {
+                updateGuestControlAvailability($field, maxSelectable, response.message || 'Sold Out for Selected Date');
+                showGuestFieldError($field, response.message || 'The quantity you entered is unavailable for the selected date. Please choose a lower number.');
+                return;
+            }
+
+            clearGuestFieldError($field);
+            $('.package_number_of_guest').val(String(selectedValue));
+
+            let p = window.cart.find(x => String(x.pkgId) === String(pkgId));
+            if (p) {
+                p.guests = selectedValue;
+                p.isMultiple = parseMultipleFlag($field.data('multiple'));
+                syncTransportStateFromCart();
+                renderCart();
+                calcTotal();
+            }
+        }).fail(function() {
+            showGuestFieldError($field, 'We could not verify availability right now. Please try again.');
+        });
     });
 
     // Reservation date change → sync hidden field
     $('#package_use_date').on('change', function() {
         $('.package_use_date').val($(this).val());
+        refreshPackageAvailabilityForSelectedDate(true);
     });
 
     // Business expense toggle
@@ -2361,6 +2543,10 @@ $(document).ready(function() {
     });
 
     setSelectionsFromParams();
+
+    setTimeout(function() {
+        refreshPackageAvailabilityForSelectedDate(false);
+    }, 180);
 });
 </script>
 

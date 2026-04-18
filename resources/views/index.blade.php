@@ -2381,21 +2381,38 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                         <div class="vip-card-side">
                                                             <div class="vip-guest-control">
                                                                 <div class="vip-guest-label">Guests</div>
-                                                                <select data-multiple="{{ $item->multiple }}" data-id="{{ $item->id }}" class="form-select package_number_of_guestss">
-                                                                    @php
-                                                                        $maxGuests = 1;
-                                                                        if ($item->package_type === 'ticket' && $item->daily_ticket_limit) {
-                                                                            $maxGuests = $item->daily_ticket_limit;
-                                                                        } elseif ($item->package_type === 'table' && $item->daily_table_limit) {
-                                                                            $maxGuests = $item->daily_table_limit;
-                                                                        } elseif ($item->number_of_guest) {
-                                                                            $maxGuests = $item->number_of_guest;
-                                                                        }
-                                                                    @endphp
-                                                                    @for ($i = 1; $i <= $maxGuests; $i++)
-                                                                        <option value="{{ $i }}">{{ $i }}</option>
-                                                                    @endfor
-                                                                </select>
+                                                                <div class="package-guest-input-wrap">
+                                                                    @if ($item->package_type === 'ticket')
+                                                                        <input
+                                                                            type="number"
+                                                                            min="1"
+                                                                            step="1"
+                                                                            value="1"
+                                                                            data-package-type="{{ $item->package_type }}"
+                                                                            data-guests-per-table="{{ (int) ($item->guests_per_table ?? 0) }}"
+                                                                            data-multiple="{{ $item->multiple }}"
+                                                                            data-id="{{ $item->id }}"
+                                                                            class="form-select package_number_of_guestss"
+                                                                        />
+                                                                    @else
+                                                                        @php
+                                                                            $tableCap = max(1, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 1));
+                                                                        @endphp
+                                                                        <select
+                                                                            data-package-type="{{ $item->package_type }}"
+                                                                            data-guests-per-table="{{ (int) ($item->guests_per_table ?? 0) }}"
+                                                                            data-multiple="{{ $item->multiple }}"
+                                                                            data-id="{{ $item->id }}"
+                                                                            class="form-select package_number_of_guestss"
+                                                                        >
+                                                                            @for ($i = 1; $i <= $tableCap; $i++)
+                                                                                <option value="{{ $i }}">{{ $i }}</option>
+                                                                            @endfor
+                                                                        </select>
+                                                                    @endif
+                                                                </div>
+                                                                <small class="package-guest-error" style="display:none;color:#ff6b6b;font-size:11px;line-height:1.35;margin-top:4px;"></small>
+                                                                <div class="package-soldout" style="display:none;color:#ff2b2b;font-size:12px;font-weight:700;line-height:1.35;margin-top:4px;">Sold Out!</div>
                                                             </div>
                                                             <div class="vip-price-tag price-{{ $item->id }}" data-price="{{ $item->price }}">${{ number_format((float) $item->price, 2) }}</div>
                                                         </div>
@@ -3026,6 +3043,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                         {{ \Carbon\Carbon::parse($eventStartDate)->format('M') }}<span> <br>
                                                             {{ \Carbon\Carbon::parse($eventStartDate)->format('d') }}</span></div>
                                                 </div>
+                                                <div class="event-location" style="font-weight:700;">{{ $item->name }}</div>
                                                 @if($eventEndDate && $eventStartDate !== $eventEndDate)
                                                     <div class="event-location">
                                                         {{ \Carbon\Carbon::parse($eventStartDate)->format('M d') }} - {{ \Carbon\Carbon::parse($eventEndDate)->format('M d') }}
@@ -3534,16 +3552,45 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 }
             }
 
-            function updateGuestSelectOptions($select, maxSelectable) {
-                var current = parseInt($select.val(), 10) || 1;
+            function clearGuestFieldError($field) {
+                var $control = $field.closest('.vip-guest-control');
+                $control.find('.package-guest-error').hide().text('');
+                $field.removeClass('required-field').removeAttr('aria-invalid');
+            }
+
+            function showGuestFieldError($field, message) {
+                var $control = $field.closest('.vip-guest-control');
+                $control.find('.package-guest-error').text(message || 'The quantity you entered is unavailable for the selected date. Please choose a lower number.').show();
+                $field.addClass('required-field').attr('aria-invalid', 'true');
+            }
+
+            function updateGuestSelectOptions($field, maxSelectable, soldOutMessage) {
+                var current = parseInt($field.val(), 10) || 1;
                 var safeMax = Math.max(0, parseInt(maxSelectable, 10) || 0);
+                var isTicketInput = $field.is('input[type="number"]');
+                var $control = $field.closest('.vip-guest-control');
+                var $inputWrap = $control.find('.package-guest-input-wrap');
+                var $soldOut = $control.find('.package-soldout');
                 var html = '';
 
+                clearGuestFieldError($field);
+
                 if (safeMax <= 0) {
-                    html = '<option value="1">1</option>';
-                    $select.html(html);
-                    $select.val('1');
-                    $select.prop('disabled', true);
+                    $inputWrap.hide();
+                    $soldOut.text(soldOutMessage || 'Sold Out for Selected Date').show();
+                    $field.val('1').prop('disabled', true);
+                    return;
+                }
+
+                $soldOut.hide();
+                $inputWrap.show();
+
+                if (isTicketInput) {
+                    var safeValue = Math.min(Math.max(current, 1), safeMax);
+                    $field.prop('disabled', false);
+                    $field.attr('min', '1');
+                    $field.attr('step', '1');
+                    $field.val(String(safeValue));
                     return;
                 }
 
@@ -3551,17 +3598,17 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     html += '<option value="' + i + '">' + i + '</option>';
                 }
 
-                $select.html(html);
-                $select.val(String(Math.min(current, safeMax)));
-                $select.prop('disabled', false);
+                $field.html(html);
+                $field.val(String(Math.min(current, safeMax)));
+                $field.prop('disabled', false);
             }
 
             function refreshEventPackageSelectionLimits(showAlertWhenReduced) {
                 var useDate = getSelectedUseDate();
                 $('.package_number_of_guestss').each(function() {
-                    var $select = $(this);
-                    var packageId = $select.data('id');
-                    var previous = parseInt($select.val(), 10) || 1;
+                    var $field = $(this);
+                    var packageId = $field.data('id');
+                    var previous = parseInt($field.val(), 10) || 1;
 
                     $.get('/{{ $data->slug }}/package/' + packageId + '/capacity', { use_date: useDate })
                         .done(function(response) {
@@ -3581,9 +3628,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 }
                             }
 
-                            updateGuestSelectOptions($select, cartRemaining);
+                            updateGuestSelectOptions($field, cartRemaining, response.message || 'Sold Out for Selected Date');
 
-                            var reducedTo = parseInt($select.val(), 10) || 1;
+                            var reducedTo = parseInt($field.val(), 10) || 1;
                             var existingCartPackage = window.cart.find(function(pkg) { return String(pkg.packageId) === String(packageId); });
                             if (existingCartPackage && (parseInt(existingCartPackage.guests, 10) || 1) !== reducedTo) {
                                 existingCartPackage.guests = reducedTo;
@@ -3593,7 +3640,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             }
 
                             if (showAlertWhenReduced && previous > reducedTo) {
-                                alert('Guest selection was adjusted to prevent over-crowding this event for the selected date.');
+                                alert('Your guest count was adjusted to match current availability for the selected date.');
                             }
 
                             var $button = $('.vip-btn[data-id="' + packageId + '"]');
@@ -3619,6 +3666,36 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 return;
             }
 
+            function resetCartForDateChange() {
+                ensureCartArray();
+                if (!window.cart.length) {
+                    return;
+                }
+
+                window.cart = [];
+                window.cartCoupon = null;
+
+                $('#cart-list').html('');
+                $('#cart-total').text('');
+                $('#cart-coupon').html('');
+                $('#cart-section').hide();
+                $('#shareLinkContainer').hide();
+                $('#shareableLink').val('').hide();
+                $('#shareActions').hide();
+                $('#promo_code').val('');
+                $('#applyPromoBtn').prop('disabled', false);
+                $('.promo_code').val('');
+                $('#package_id').val('');
+                $('#addons').val('');
+                $('.package_number_of_guest').val('1');
+                $('.vip-card').removeClass('selected');
+
+                syncCheckoutCartFields();
+                window.calculateCartTotal();
+                syncTransportationStateFromCart();
+                syncEventCapacityUi();
+            }
+
             window.addPackageToCart = function(packageId, packageName, packagePrice, guests, addons, transportation, isMultiple) {
                 console.log('addPackageToCart called', packageId, packageName);
                 ensureCartArray();
@@ -3633,7 +3710,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 return $.get('/{{ $data->slug }}/package/' + packageId + '/capacity', { use_date: useDate, requested_quantity: normalizedGuests })
                     .then(function(response) {
                         if (!response.available) {
-                            alert('This package is no longer available: ' + response.message);
+                            alert(response.message || 'This package is currently unavailable for the selected date.');
                             return false;
                         }
 
@@ -4179,6 +4256,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             }
 
             $(document).ready(function () {
+                window.lastSelectedUseDate = getSelectedUseDate();
                 syncUseDateField();
                 var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
                 popoverTriggerList.forEach(function (popoverTriggerEl) {
@@ -4287,6 +4365,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 });
 
                 $(document).on('change', '#package_use_date', function() {
+                    var previousDate = String(window.lastSelectedUseDate || '').trim();
+                    var currentDate = getSelectedUseDate();
+
+                    if (previousDate && currentDate && previousDate !== currentDate && Array.isArray(window.cart) && window.cart.length) {
+                        resetCartForDateChange();
+                        alert('Cart was reset because reservation date changed. Please add packages again for the new date.');
+                    }
+
+                    window.lastSelectedUseDate = currentDate;
                     clearReservationDateError();
                     syncUseDateField();
                     refreshEventPackageSelectionLimits(true);
@@ -4513,18 +4600,41 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
         <script>
             $('.package_number_of_guestss').on('change', function() {
-                var selectedValue = $(this).val();
-                $('.package_number_of_guest').val(selectedValue);
-                var packageId = $(this).data('id');
-                var pkg = window.cart.find(p => p.packageId == packageId);
-                if (pkg) {
-                    pkg.guests = parseInt(selectedValue);
-                    pkg.isMultiple = parseMultipleFlag($(this).data('multiple'));
-                    window.renderCart();
-                    window.calculateCartTotal();
-                }
+                var $field = $(this);
+                var selectedValue = parseInt($field.val(), 10) || 1;
+                var packageId = $field.data('id');
+                var useDate = getSelectedUseDate();
 
-                syncEventCapacityUi();
+                $.get('/{{ $data->slug }}/package/' + packageId + '/capacity', {
+                    use_date: useDate,
+                    requested_quantity: selectedValue
+                }).done(function(response) {
+                    var maxSelectable = parseInt(response.max_select, 10);
+                    if (!Number.isFinite(maxSelectable)) {
+                        maxSelectable = parseInt(response.capacity, 10) || 1;
+                    }
+
+                    if (selectedValue > maxSelectable) {
+                        updateGuestSelectOptions($field, maxSelectable, response.message || 'Sold Out!');
+                        showGuestFieldError($field, response.message || 'The selected quantity is not available for this date.');
+                        return;
+                    }
+
+                    clearGuestFieldError($field);
+                    $('.package_number_of_guest').val(String(selectedValue));
+
+                    var pkg = window.cart.find(function(p) { return String(p.packageId) === String(packageId); });
+                    if (pkg) {
+                        pkg.guests = selectedValue;
+                        pkg.isMultiple = parseMultipleFlag($field.data('multiple'));
+                        window.renderCart();
+                        window.calculateCartTotal();
+                    }
+
+                    syncEventCapacityUi();
+                }).fail(function() {
+                    showGuestFieldError($field, 'Could not verify availability right now. Please try again.');
+                });
             });
         </script>
 

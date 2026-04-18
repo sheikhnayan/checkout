@@ -46,13 +46,7 @@ class TransactionController extends Controller
         $selectedPackage = Package::find($cartSummary['primary_package_id'] ?: $request->input('package_id'));
         $requiresTransportation = $this->cartRequiresTransportation($cartItems, $selectedPackage);
 
-        if ($selectedPackage && $selectedPackage->event_id) {
-            $this->ensureEventCapacityAvailable(
-                Event::find($selectedPackage->event_id),
-                $cartSummary['total_guests'],
-                $requestedUseDate
-            );
-        }
+        $this->ensureCartEventCapacitiesAvailable($cartItems, $requestedUseDate);
 
         // Validate daily package limits
         foreach ($cartItems as $item) {
@@ -749,6 +743,11 @@ class TransactionController extends Controller
             ], 422);
         }
 
+        $eventName = trim((string) optional($transaction->event)->name);
+        if ($eventName === '') {
+            $eventName = trim((string) optional(optional($transaction->package)->event)->name);
+        }
+
         $storedCartItems = $this->normalizeStoredCartItems($transaction->cart_items);
         $packageDetails = collect($storedCartItems)
             ->map(function ($item) {
@@ -761,9 +760,24 @@ class TransactionController extends Controller
                     return null;
                 }
 
+                $addons = collect((array) ($item['addons'] ?? []))
+                    ->map(function ($addon) {
+                        if (is_array($addon)) {
+                            $name = trim((string) ($addon['name'] ?? ''));
+                            return $name !== '' ? $name : null;
+                        }
+
+                        $name = trim((string) $addon);
+                        return $name !== '' ? $name : null;
+                    })
+                    ->filter()
+                    ->values()
+                    ->all();
+
                 return [
                     'package_name' => $packageName,
                     'guests' => max(1, (int) ($item['guests'] ?? $item['quantity'] ?? 1)),
+                    'addons' => $addons,
                 ];
             })
             ->filter()
@@ -779,6 +793,7 @@ class TransactionController extends Controller
             $packageDetails = [[
                 'package_name' => $fallbackPackageName,
                 'guests' => max(1, (int) $transaction->package_number_of_guest),
+                'addons' => [],
             ]];
         }
 
@@ -797,6 +812,7 @@ class TransactionController extends Controller
                 'package_email' => $transaction->package_email,
                 'package_phone' => $transaction->package_phone,
                 'website_name' => optional($transaction->website)->name,
+                'event_name' => $eventName !== '' ? $eventName : null,
                 'total' => number_format((float) $transaction->total, 2, '.', ''),
                 'package_use_date' => $transaction->package_use_date,
                 'package_details' => $packageDetails,
@@ -994,6 +1010,39 @@ class TransactionController extends Controller
             throw ValidationException::withMessages([
                 'package_id' => $message,
             ]);
+        }
+    }
+
+    private function ensureCartEventCapacitiesAvailable(array $cartItems, ?Carbon $targetDate = null): void
+    {
+        if (empty($cartItems)) {
+            return;
+        }
+
+        $requestedGuestsByEvent = [];
+
+        foreach ($cartItems as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $packageId = (int) ($item['package_id'] ?? 0);
+            if ($packageId <= 0) {
+                continue;
+            }
+
+            $package = Package::find($packageId);
+            $eventId = (int) optional($package)->event_id;
+            if ($eventId <= 0) {
+                continue;
+            }
+
+            $guests = max(1, (int) ($item['guests'] ?? $item['quantity'] ?? 1));
+            $requestedGuestsByEvent[$eventId] = ($requestedGuestsByEvent[$eventId] ?? 0) + $guests;
+        }
+
+        foreach ($requestedGuestsByEvent as $eventId => $requestedGuests) {
+            $this->ensureEventCapacityAvailable(Event::find($eventId), (int) $requestedGuests, $targetDate);
         }
     }
 

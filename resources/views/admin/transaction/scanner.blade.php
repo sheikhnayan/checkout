@@ -152,11 +152,17 @@ document.addEventListener('DOMContentLoaded', function () {
             ? '<div><strong>Packages:</strong></div><ul class="mb-2 ps-3">' + packageDetails.map(function (item) {
                 const guests = Number(item.guests || 0) || 1;
                 const guestLabel = guests === 1 ? 'person' : 'people';
-                return '<li>' + escapeHtml(item.package_name || 'Package') + ' - ' + guests + ' ' + guestLabel + '</li>';
+                const addons = Array.isArray(item.addons) ? item.addons.filter(Boolean) : [];
+                const addonsHtml = addons.length
+                    ? '<div class="mt-1"><strong>Add-ons:</strong> ' + addons.map(function (addonName) {
+                        return escapeHtml(addonName);
+                    }).join(', ') + '</div>'
+                    : '<div class="mt-1"><strong>Add-ons:</strong> None</div>';
+                return '<li>' + escapeHtml(item.package_name || 'Package') + ' - ' + guests + ' ' + guestLabel + addonsHtml + '</li>';
             }).join('') + '</ul>'
             : '<div><strong>Packages:</strong> -</div>';
         const checkedInText = transaction.checked_in_status
-            ? '<div><strong>Check-In:</strong> Already checked in at ' + (transaction.checked_in_at_pacific || '-') + ' PT</div>'
+            ? '<div style="color:#ff2b2b;font-weight:700;"><strong>Check-In:</strong> ALREADY CHECKED IN at ' + (transaction.checked_in_at_pacific || '-') + ' PT</div>'
             : '<div><strong>Check-In:</strong> Not checked in</div>';
 
         ticketDetails.innerHTML = [
@@ -166,6 +172,7 @@ document.addEventListener('DOMContentLoaded', function () {
             '<div><strong>Email:</strong> ' + (transaction.package_email || '-') + '</div>',
             '<div><strong>Phone:</strong> ' + (transaction.package_phone || '-') + '</div>',
             '<div><strong>Website:</strong> ' + (transaction.website_name || '-') + '</div>',
+            '<div><strong>Event:</strong> ' + (transaction.event_name || '-') + '</div>',
             '<div><strong>Total:</strong> $' + (transaction.total || '0.00') + '</div>',
             '<div><strong>Total Guests:</strong> ' + (transaction.total_guests || '-') + '</div>',
             '<div><strong>Use Date:</strong> ' + (transaction.package_use_date || '-') + '</div>',
@@ -177,12 +184,12 @@ document.addEventListener('DOMContentLoaded', function () {
         checkInBtn.disabled = !!transaction.checked_in_status;
         if (transaction.checked_in_status) {
             checkInBtn.textContent = 'Already Checked In';
-            checkInBtn.classList.remove('btn-success');
-            checkInBtn.classList.add('btn-secondary');
+            checkInBtn.classList.remove('btn-success', 'btn-secondary');
+            checkInBtn.classList.add('btn-danger');
         } else {
             checkInBtn.textContent = 'Checked In';
             checkInBtn.classList.add('btn-success');
-            checkInBtn.classList.remove('btn-secondary');
+            checkInBtn.classList.remove('btn-secondary', 'btn-danger');
         }
 
         ticketResult.classList.remove('d-none');

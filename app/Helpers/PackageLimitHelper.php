@@ -14,11 +14,12 @@ class PackageLimitHelper
     public static function canPurchase(Package $package, int $quantity = 1, ?Carbon $date = null): array
     {
         $targetDate = $date ? $date->copy()->startOfDay() : Carbon::today();
+        $requestedQuantity = max(1, (int) $quantity);
         
         if ($package->package_type === 'table') {
-            return self::checkTableLimit($package, $quantity, $targetDate);
+            return self::checkTableLimit($package, $requestedQuantity, $targetDate);
         } else {
-            return self::checkTicketLimit($package, $quantity, $targetDate);
+            return self::checkTicketLimit($package, $requestedQuantity, $targetDate);
         }
     }
 
@@ -35,27 +36,36 @@ class PackageLimitHelper
         if ($availableTickets < $quantity) {
             return [
                 'allowed' => false,
-                'message' => "Only {$availableTickets} tickets remaining for " . $targetDate->format('Y-m-d') . ". Requested: {$quantity}"
+                'message' => "Only {$availableTickets} ticket(s) are available for " . $targetDate->format('Y-m-d') . ". You requested {$quantity}."
             ];
         }
 
         return ['allowed' => true, 'message' => ''];
     }
 
-    private static function checkTableLimit(Package $package, int $tableQuantity, Carbon $targetDate): array
+    private static function checkTableLimit(Package $package, int $requestedGuests, Carbon $targetDate): array
     {
-        if (!$package->daily_table_limit) {
+        $guestsPerTable = max(0, (int) ($package->guests_per_table ?? 0));
+        if ($guestsPerTable > 0 && $requestedGuests > $guestsPerTable) {
+            return [
+                'allowed' => false,
+                'message' => "This table package allows up to {$guestsPerTable} guest(s) per booking."
+            ];
+        }
+
+        $dailyTableLimit = max(0, (int) ($package->daily_table_limit ?? 0));
+        if ($dailyTableLimit <= 0 || $guestsPerTable <= 0) {
             return ['allowed' => true, 'message' => ''];
         }
 
-        $bookedToday = self::countSoldUnitsForDate($package->id, $targetDate);
+        $dailySeatLimit = $dailyTableLimit * $guestsPerTable;
+        $bookedToday = self::countSoldUnitsForDate($package->id, $targetDate, true);
+        $availableSeats = max($dailySeatLimit - $bookedToday, 0);
 
-        $availableTables = $package->daily_table_limit - $bookedToday;
-
-        if ($availableTables < $tableQuantity) {
+        if ($availableSeats < $requestedGuests) {
             return [
                 'allowed' => false,
-                'message' => "Only {$availableTables} tables remaining for " . $targetDate->format('Y-m-d') . ". Requested: {$tableQuantity}"
+                'message' => "Only {$availableSeats} seat(s) are available for " . $targetDate->format('Y-m-d') . ". You requested {$requestedGuests}."
             ];
         }
 
@@ -69,15 +79,20 @@ class PackageLimitHelper
     {
         $date = ($date ?? Carbon::today())->copy()->startOfDay();
 
-        $soldUnits = self::countSoldUnitsForDate($package->id, $date);
-
         if ($package->package_type === 'table') {
-            if (!$package->daily_table_limit) {
+            $dailyTableLimit = max(0, (int) ($package->daily_table_limit ?? 0));
+            $guestsPerTable = max(0, (int) ($package->guests_per_table ?? 0));
+
+            if ($dailyTableLimit <= 0 || $guestsPerTable <= 0) {
                 return PHP_INT_MAX;
             }
 
-            return max(0, $package->daily_table_limit - $soldUnits);
+            $dailySeatLimit = $dailyTableLimit * $guestsPerTable;
+            $soldSeats = self::countSoldUnitsForDate($package->id, $date, true);
+
+            return max(0, $dailySeatLimit - $soldSeats);
         } else {
+            $soldUnits = self::countSoldUnitsForDate($package->id, $date, false);
             if (!$package->daily_ticket_limit) {
                 return PHP_INT_MAX;
             }
@@ -86,7 +101,7 @@ class PackageLimitHelper
         }
     }
 
-    private static function countSoldUnitsForDate(int $packageId, Carbon $targetDate): int
+    private static function countSoldUnitsForDate(int $packageId, Carbon $targetDate, bool $countGuestsAlways = false): int
     {
         $dateString = $targetDate->toDateString();
 
@@ -104,13 +119,13 @@ class PackageLimitHelper
         $soldUnits = 0;
 
         foreach ($transactions as $transaction) {
-            $soldUnits += self::extractPackageUnitsFromTransaction($transaction, $packageId);
+            $soldUnits += self::extractPackageUnitsFromTransaction($transaction, $packageId, $countGuestsAlways);
         }
 
         return max(0, (int) $soldUnits);
     }
 
-    private static function extractPackageUnitsFromTransaction(Transaction $transaction, int $packageId): int
+    private static function extractPackageUnitsFromTransaction(Transaction $transaction, int $packageId, bool $countGuestsAlways = false): int
     {
         $units = 0;
         $cartItems = self::decodeCartItems($transaction->cart_items);
@@ -128,14 +143,15 @@ class PackageLimitHelper
 
                 $guests = max(1, (int) ($item['guests'] ?? $item['quantity'] ?? 1));
                 $isMultiple = self::isTruthy($item['is_multiple'] ?? $item['isMultiple'] ?? true);
-                $units += $isMultiple ? $guests : 1;
+                $units += $countGuestsAlways ? $guests : ($isMultiple ? $guests : 1);
             }
 
             return $units;
         }
 
         if ((int) $transaction->package_id === $packageId) {
-            return max(1, (int) ($transaction->package_number_of_guest ?? 1));
+            $storedGuests = max(1, (int) ($transaction->package_number_of_guest ?? 1));
+            return $countGuestsAlways ? $storedGuests : $storedGuests;
         }
 
         return 0;
