@@ -44,9 +44,9 @@
                                     <div id="scanStatus" class="small text-muted mb-3">Waiting for scan...</div>
 
                                     <div id="ticketResult" class="d-none">
-                                        <div class="rounded-3 p-3 mb-3" style="background:#f8fafc;border:1px solid #e2e8f0;">
+                                        <div class="rounded-3 p-3 mb-3" style="background:#0f172a;border:1px solid #334155;color:#e2e8f0;">
                                             <div class="fw-semibold mb-2">Purchase Details</div>
-                                            <div class="small" id="ticketDetails"></div>
+                                            <div class="small" id="ticketDetails" style="color:#e2e8f0;"></div>
                                         </div>
 
                                         <form method="POST" action="{{ route('admin.transaction.scan.check-in') }}" id="checkInForm" class="d-flex flex-wrap gap-2">
@@ -82,6 +82,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let html5QrCode = null;
     let scannerStarted = false;
+
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
 
     function setStatus(message, isError) {
         scanStatus.textContent = message;
@@ -138,6 +147,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderDetails(data) {
         const transaction = data.transaction;
+        const packageDetails = Array.isArray(transaction.package_details) ? transaction.package_details : [];
+        const packageListHtml = packageDetails.length
+            ? '<div><strong>Packages:</strong></div><ul class="mb-2 ps-3">' + packageDetails.map(function (item) {
+                const guests = Number(item.guests || 0) || 1;
+                const guestLabel = guests === 1 ? 'person' : 'people';
+                return '<li>' + escapeHtml(item.package_name || 'Package') + ' - ' + guests + ' ' + guestLabel + '</li>';
+            }).join('') + '</ul>'
+            : '<div><strong>Packages:</strong> -</div>';
         const checkedInText = transaction.checked_in_status
             ? '<div><strong>Check-In:</strong> Already checked in at ' + (transaction.checked_in_at_pacific || '-') + ' PT</div>'
             : '<div><strong>Check-In:</strong> Not checked in</div>';
@@ -150,7 +167,9 @@ document.addEventListener('DOMContentLoaded', function () {
             '<div><strong>Phone:</strong> ' + (transaction.package_phone || '-') + '</div>',
             '<div><strong>Website:</strong> ' + (transaction.website_name || '-') + '</div>',
             '<div><strong>Total:</strong> $' + (transaction.total || '0.00') + '</div>',
+            '<div><strong>Total Guests:</strong> ' + (transaction.total_guests || '-') + '</div>',
             '<div><strong>Use Date:</strong> ' + (transaction.package_use_date || '-') + '</div>',
+            packageListHtml,
             checkedInText
         ].join('');
 

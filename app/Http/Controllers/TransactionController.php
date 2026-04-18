@@ -749,6 +749,44 @@ class TransactionController extends Controller
             ], 422);
         }
 
+        $storedCartItems = $this->normalizeStoredCartItems($transaction->cart_items);
+        $packageDetails = collect($storedCartItems)
+            ->map(function ($item) {
+                if (!is_array($item)) {
+                    return null;
+                }
+
+                $packageName = trim((string) ($item['package_name'] ?? $item['packageName'] ?? $item['pkgName'] ?? ''));
+                if ($packageName === '') {
+                    return null;
+                }
+
+                return [
+                    'package_name' => $packageName,
+                    'guests' => max(1, (int) ($item['guests'] ?? $item['quantity'] ?? 1)),
+                ];
+            })
+            ->filter()
+            ->values()
+            ->all();
+
+        if (empty($packageDetails)) {
+            $fallbackPackageName = trim((string) optional($transaction->package)->name);
+            if ($fallbackPackageName === '') {
+                $fallbackPackageName = 'Package';
+            }
+
+            $packageDetails = [[
+                'package_name' => $fallbackPackageName,
+                'guests' => max(1, (int) $transaction->package_number_of_guest),
+            ]];
+        }
+
+        $totalGuests = (int) collect($packageDetails)->sum('guests');
+        if ($totalGuests <= 0) {
+            $totalGuests = max(1, (int) $transaction->package_number_of_guest);
+        }
+
         return response()->json([
             'success' => true,
             'transaction' => [
@@ -761,6 +799,8 @@ class TransactionController extends Controller
                 'website_name' => optional($transaction->website)->name,
                 'total' => number_format((float) $transaction->total, 2, '.', ''),
                 'package_use_date' => $transaction->package_use_date,
+                'package_details' => $packageDetails,
+                'total_guests' => $totalGuests,
                 'checked_in_status' => (bool) $transaction->checked_in_status,
                 'checked_in_at_pacific' => optional($transaction->checked_in_at_pacific)->format('Y-m-d h:i A') . (optional($transaction->checked_in_at_pacific)->format('Y-m-d h:i A') ? ' PT' : ''),
             ],
