@@ -3608,6 +3608,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 return String($('#package_use_date').val() || $('.package_use_date').val() || '').trim();
             }
 
+            window.getSelectedUseDate = getSelectedUseDate;
+
             function showReservationDateError(message) {
                 var text = String(message || 'Please select a reservation date.').trim();
                 $('#package_use_date').addClass('required-field').attr('aria-invalid', 'true');
@@ -3620,7 +3622,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             }
 
             function ensureReservationDateSelected() {
-                var selectedDate = getSelectedUseDate();
+                var selectedDate = window.getSelectedUseDate();
                 if (selectedDate) {
                     clearReservationDateError();
                     return true;
@@ -3647,7 +3649,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             }
 
             function syncUseDateField() {
-                var selected = getSelectedUseDate();
+                var selected = window.getSelectedUseDate();
                 if (selected) {
                     $('.package_use_date').val(selected);
                 } else {
@@ -3708,7 +3710,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             }
 
             function refreshEventPackageSelectionLimits(showAlertWhenReduced) {
-                var useDate = getSelectedUseDate();
+                var useDate = window.getSelectedUseDate();
                 $('.package_number_of_guestss').each(function() {
                     var $field = $(this);
                     var packageId = $field.data('id');
@@ -3803,7 +3805,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 console.log('addPackageToCart called', packageId, packageName);
                 ensureCartArray();
                 var normalizedGuests = parseInt(guests, 10) || 1;
-                var useDate = getSelectedUseDate();
+                var useDate = window.getSelectedUseDate();
 
                 if (!ensureReservationDateSelected()) {
                     return Promise.resolve(false);
@@ -4307,7 +4309,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             }
 
             $(document).ready(function () {
-                window.lastSelectedUseDate = getSelectedUseDate();
+                window.lastSelectedUseDate = (typeof window.getSelectedUseDate === 'function')
+                    ? window.getSelectedUseDate()
+                    : String($('#package_use_date').val() || $('.package_use_date').val() || '').trim();
                 syncUseDateField();
                 var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
                 popoverTriggerList.forEach(function (popoverTriggerEl) {
@@ -4422,7 +4426,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                 $(document).on('change', '#package_use_date', function() {
                     var previousDate = String(window.lastSelectedUseDate || '').trim();
-                    var currentDate = getSelectedUseDate();
+                    var currentDate = (typeof window.getSelectedUseDate === 'function')
+                        ? window.getSelectedUseDate()
+                        : String($('#package_use_date').val() || $('.package_use_date').val() || '').trim();
 
                     if (previousDate && currentDate && previousDate !== currentDate && Array.isArray(window.cart) && window.cart.length) {
                         resetCartForDateChange();
@@ -4659,7 +4665,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 var $field = $(this);
                 var selectedValue = parseInt($field.val(), 10) || 1;
                 var packageId = $field.data('id');
-                var useDate = getSelectedUseDate();
+                var useDate = (typeof window.getSelectedUseDate === 'function')
+                    ? window.getSelectedUseDate()
+                    : String($('#package_use_date').val() || $('.package_use_date').val() || '').trim();
 
                 $.get('/{{ $data->slug }}/package/' + packageId + '/capacity', {
                     use_date: useDate,
