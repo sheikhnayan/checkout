@@ -729,15 +729,101 @@
         /* Cart */
         #cart-section {
             background:
-                linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)),
-                linear-gradient(135deg, color-mix(in srgb, var(--aff-accent) 16%, transparent), rgba(11, 16, 29, 0.94) 58%);
-            border:1px solid color-mix(in srgb, var(--aff-accent) 34%, rgba(255,255,255,0.12));
-            border-radius:12px;
-            padding:16px 18px;
+                linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03)),
+                radial-gradient(circle at top right, color-mix(in srgb, var(--aff-accent) 22%, transparent), transparent 48%),
+                linear-gradient(135deg, rgba(10, 16, 32, 0.96), rgba(7, 11, 22, 0.94));
+            border:1px solid color-mix(in srgb, var(--aff-accent) 44%, rgba(255,255,255,0.12));
+            border-radius:16px;
+            padding:18px 20px;
             margin-bottom:1.2rem;
             display:none;
-            box-shadow:0 16px 34px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08);
+            box-shadow:0 20px 42px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.14);
             backdrop-filter:blur(10px);
+        }
+
+        #cart-section #cart-list > div {
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.03);
+            padding: 10px 12px;
+            margin-bottom: 8px;
+        }
+
+        #cart-section .cart-heading {
+            font-weight: 800;
+            font-size: 16px;
+            margin-bottom: 12px;
+            letter-spacing: .01em;
+        }
+
+        #cart-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        #cart-section #cart-list .cart-line {
+            border: 1px solid rgba(255,255,255,0.16);
+            border-radius: 12px;
+            background: linear-gradient(140deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+            padding: 12px;
+        }
+
+        #cart-section .cart-line-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        #cart-section .cart-item-name {
+            font-weight: 700;
+            color: #f7f9ff;
+            line-height: 1.3;
+        }
+
+        #cart-section .cart-item-price {
+            margin-top: 4px;
+            color: var(--aff-accent);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        #cart-section .cart-remove-btn {
+            border: 1px solid rgba(255,255,255,0.28);
+            background: rgba(255,255,255,0.07);
+            color: #fff;
+            border-radius: 999px;
+            padding: 4px 11px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        #cart-section .cart-remove-btn:hover {
+            border-color: rgba(255,255,255,0.55);
+            background: rgba(255,255,255,0.14);
+        }
+
+        #cart-section .cart-addons {
+            margin-top: 8px;
+            font-size: 12px;
+            line-height: 1.5;
+            color: rgba(232, 235, 246, 0.8);
+        }
+
+        #cart-total {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.14);
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        #cart-coupon {
+            margin-top: 6px;
+            font-size: 13px;
+            color: #74d49f;
         }
 
         /* Addons */
@@ -932,6 +1018,11 @@
 
         /* Mobile */
         @media(max-width:768px) {
+            .container.py-4 {
+                padding-left: 4px;
+                padding-right: 4px;
+            }
+
             .step-title { font-size:.55rem !important; }
             input, select, textarea { font-size:16px !important; }
             .vip-card { flex-direction:column; align-items:flex-start; }
@@ -1281,55 +1372,17 @@ const clubConfigs = {
 
     {{-- ===== CART ===== --}}
     <div id="cart-section">
-        <div style="font-weight:700;font-size:15px;margin-bottom:10px;">Your Cart</div>
+        <div class="cart-heading">Your Cart</div>
         <div id="cart-list"></div>
         <div id="cart-total" style="font-size:15px;margin-top:8px;font-weight:600;"></div>
         <div id="cart-coupon" style="font-size:13px;color:#4caf7d;margin-top:4px;"></div>
     </div>
 
-    @if(($affiliate->show_location_section ?? true) && $featuredClub && ($featuredClub->location || $featuredClub->phone || $featuredClub->email))
-        <section class="aff-location-card mt-3">
-            <div class="aff-location-shell">
-                <div class="aff-location-copy">
-                    <span class="aff-location-kicker">Club Contact & Location</span>
-                    <h3 class="aff-location-title">{{ $featuredClub->name }}</h3>
-                    @if($featuredClub->location)
-                        <p class="aff-location-address">{{ $featuredClub->location }}</p>
-                    @endif
-                    <div class="aff-location-contact">
-                        @if($featuredClub->phone)
-                            <a class="aff-location-chip" href="tel:{{ $featuredClub->phone }}">
-                                <i class="fas fa-phone"></i>
-                                <span>{{ $featuredClub->phone }}</span>
-                            </a>
-                        @endif
-                        @if($featuredClub->email)
-                            <a class="aff-location-chip" href="mailto:{{ $featuredClub->email }}">
-                                <i class="fas fa-envelope"></i>
-                                <span>{{ $featuredClub->email }}</span>
-                            </a>
-                        @endif
-                    </div>
-                </div>
-                @if($featuredClub->location)
-                    <div class="aff-location-map">
-                        <iframe
-                            src="https://www.google.com/maps?q={{ urlencode($featuredClub->location) }}&output=embed"
-                            allowfullscreen
-                            loading="lazy"
-                            referrerpolicy="no-referrer-when-downgrade">
-                        </iframe>
-                    </div>
-                @endif
-            </div>
-        </section>
-    @endif
-
     <div id="shareLinkContainer" style="margin-bottom:1rem;">
         <button type="button" id="generateShareLink" style="background:var(--aff-accent);color:#000;font-weight:700;border:none;padding:8px 20px;border-radius:25px;cursor:pointer;font-size:14px;">&#128279; Share Cart Link</button>
         <div style="position:relative;margin-top:8px;">
             <input type="text" id="shareableLink" readonly style="width:100%;display:none;padding-right:40px;">
-            <div id="copyTooltip" style="display:none;position:absolute;top:-35px;right:0;background:#28a745;color:white;padding:8px 12px;border-radius:4px;font-size:12px;white-space:nowrap;z-index:1000;">URL Copied!</div>
+            <div id="copyTooltip" style="display:none;position:absolute;top:-35px;right:0;background:#28a745;color:white;padding:8px 12px;border-radius:4px;font-size:12px;white-space:nowrap;z-index:1000;">Link copied!</div>
         </div>
     </div>
 
@@ -1524,6 +1577,44 @@ const clubConfigs = {
             </div>
         </section>
     </form>
+
+    @if(($affiliate->show_location_section ?? true) && $featuredClub && ($featuredClub->location || $featuredClub->phone || $featuredClub->email))
+        <section class="aff-location-card mt-3">
+            <div class="aff-location-shell">
+                <div class="aff-location-copy">
+                    <span class="aff-location-kicker">Club Contact & Location</span>
+                    <h3 class="aff-location-title">{{ $featuredClub->name }}</h3>
+                    @if($featuredClub->location)
+                        <p class="aff-location-address">{{ $featuredClub->location }}</p>
+                    @endif
+                    <div class="aff-location-contact">
+                        @if($featuredClub->phone)
+                            <a class="aff-location-chip" href="tel:{{ $featuredClub->phone }}">
+                                <i class="fas fa-phone"></i>
+                                <span>{{ $featuredClub->phone }}</span>
+                            </a>
+                        @endif
+                        @if($featuredClub->email)
+                            <a class="aff-location-chip" href="mailto:{{ $featuredClub->email }}">
+                                <i class="fas fa-envelope"></i>
+                                <span>{{ $featuredClub->email }}</span>
+                            </a>
+                        @endif
+                    </div>
+                </div>
+                @if($featuredClub->location)
+                    <div class="aff-location-map">
+                        <iframe
+                            src="https://www.google.com/maps?q={{ urlencode($featuredClub->location) }}&output=embed"
+                            allowfullscreen
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                @endif
+            </div>
+        </section>
+    @endif
 
 </div>
 </main>
@@ -1898,10 +1989,10 @@ function renderCart() {
         const priceLine = parseMultipleFlag(p.isMultiple)
             ? ('$' + formatCurrency(unitPrice) + ' &times; ' + (parseInt(p.guests, 10) || 1) + ' = $' + formatCurrency(lineTotal))
             : ('$' + formatCurrency(lineTotal));
-        html += `<div style="border-bottom:1px solid rgba(255,255,255,0.08);padding:8px 0;">`
-            + `<strong>${p.pkgName}</strong> &mdash; <span style="color:var(--aff-accent)">${priceLine}</span>`
-            + `<button onclick="window.removeFromCart('${p.pkgId}')" style="float:right;background:#c00;color:#fff;border:none;border-radius:5px;padding:3px 9px;cursor:pointer;font-size:12px;">Remove</button>`
-            + (p.addons.length ? `<div style="margin-left:18px;font-size:12px;opacity:.6;">Add-ons: ${p.addons.map(a => a.name + ' ($' + formatCurrency(a.price) + ')').join(', ')}</div>` : '')
+        html += `<div class="cart-line">`
+            + `<div class="cart-line-main"><div><div class="cart-item-name">${p.pkgName}</div><div class="cart-item-price">${priceLine}</div></div>`
+            + `<button onclick="window.removeFromCart('${p.pkgId}')" class="cart-remove-btn">Remove</button></div>`
+            + (p.addons.length ? `<div class="cart-addons">Add-ons: ${p.addons.map(a => a.name + ' ($' + formatCurrency(a.price) + ')').join(', ')}</div>` : '')
             + '</div>';
     });
     $('#cart-list').html(html);
@@ -2152,6 +2243,12 @@ function openAddonSelectionModal(selection) {
 }
 
 $(document).ready(function() {
+    function showCopyTooltip() {
+        const tooltip = $('#copyTooltip');
+        tooltip.text('Link copied!').show();
+        setTimeout(function() { tooltip.hide(); }, 2000);
+    }
+
     document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (element) {
         new bootstrap.Popover(element, {
             trigger: 'focus hover',
@@ -2336,12 +2433,19 @@ $(document).ready(function() {
             success: function(res) {
                 if (res.success) {
                     $('#shareableLink').val(res.short_url).show();
+                    navigator.clipboard.writeText(res.short_url).then(function() {
+                        showCopyTooltip();
+                    }).catch(function() {
+                        $('#shareableLink').select();
+                    });
                 } else {
-                    alert('Error: ' + res.message);
+                    $('#shareableLink').val(getUrlWithSelections()).show();
+                    $('#shareableLink').select();
                 }
             },
             error: function() {
-                alert('Error generating share link. Please try again.');
+                $('#shareableLink').val(getUrlWithSelections()).show();
+                $('#shareableLink').select();
             },
             complete: function() {
                 $btn.prop('disabled', false).html('&#128279; Share Cart Link');
@@ -2352,9 +2456,7 @@ $(document).ready(function() {
     $('#shareableLink').on('click', function() {
         const url = $(this).val();
         navigator.clipboard.writeText(url).then(function() {
-            const tooltip = $('#copyTooltip');
-            tooltip.show();
-            setTimeout(function() { tooltip.hide(); }, 2000);
+            showCopyTooltip();
         }).catch(function() {
             $('#shareableLink').select();
         });

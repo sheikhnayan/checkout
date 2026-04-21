@@ -1021,13 +1021,99 @@
         /* Cart section card */
         #cart-section {
             background:
-                linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)),
-                linear-gradient(135deg, color-mix(in srgb, var(--accent) 16%, transparent), rgba(11, 16, 29, 0.94) 58%) !important;
-            border: 1px solid color-mix(in srgb, var(--accent) 34%, rgba(255,255,255,0.12)) !important;
-            border-radius: 12px !important;
-            padding: 16px 18px;
-            box-shadow: 0 16px 34px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08);
+                linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03)),
+                radial-gradient(circle at top right, color-mix(in srgb, var(--accent) 22%, transparent), transparent 48%),
+                linear-gradient(135deg, rgba(10, 16, 32, 0.96), rgba(7, 11, 22, 0.94)) !important;
+            border: 1px solid color-mix(in srgb, var(--accent) 44%, rgba(255,255,255,0.12)) !important;
+            border-radius: 16px !important;
+            padding: 18px 20px;
+            box-shadow: 0 20px 42px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.14);
             backdrop-filter: blur(10px);
+        }
+
+        #cart-section #cart-list > div {
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.03);
+            padding: 10px 12px;
+            margin-bottom: 8px;
+        }
+
+        #cart-section .cart-heading {
+            font-weight: 800;
+            font-size: 16px;
+            margin-bottom: 12px;
+            letter-spacing: .01em;
+        }
+
+        #cart-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        #cart-section #cart-list .cart-line {
+            border: 1px solid rgba(255,255,255,0.16);
+            border-radius: 12px;
+            background: linear-gradient(140deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+            padding: 12px;
+        }
+
+        #cart-section .cart-line-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        #cart-section .cart-item-name {
+            font-weight: 700;
+            color: #f7f9ff;
+            line-height: 1.3;
+        }
+
+        #cart-section .cart-item-price {
+            margin-top: 4px;
+            color: var(--accent);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        #cart-section .cart-remove-btn {
+            border: 1px solid rgba(255,255,255,0.28);
+            background: rgba(255,255,255,0.07);
+            color: #fff;
+            border-radius: 999px;
+            padding: 4px 11px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        #cart-section .cart-remove-btn:hover {
+            border-color: rgba(255,255,255,0.55);
+            background: rgba(255,255,255,0.14);
+        }
+
+        #cart-section .cart-addons {
+            margin-top: 8px;
+            font-size: 12px;
+            line-height: 1.5;
+            color: rgba(232, 235, 246, 0.8);
+        }
+
+        #cart-total {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.14);
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        #cart-coupon {
+            margin-top: 6px;
+            font-size: 13px;
+            color: #74d49f;
         }
 
         /* Step navigation — centered flex row */
@@ -1869,6 +1955,21 @@
                 padding-right: 8px;
             }
 
+            .events-section-container.container {
+                padding-left: 4px;
+                padding-right: 4px;
+            }
+
+            #events-list {
+                margin-left: -4px;
+                margin-right: -4px;
+            }
+
+            #events-list .event-card-item {
+                padding-left: 4px;
+                padding-right: 4px;
+            }
+
             .aff-hero {
                 padding: 10px 0 8px;
             }
@@ -2025,6 +2126,11 @@
             .container {
                 padding-left: 6px;
                 padding-right: 6px;
+            }
+
+            .events-section-container.container {
+                padding-left: 2px;
+                padding-right: 2px;
             }
 
             .hero-gallery-grid { grid-template-columns: 1fr; }
@@ -2456,7 +2562,7 @@
                                     @endif
 
                                     <section id="cart-section" class="container py-4" style="display:none; margin-bottom:2rem;">
-                                        <div style="font-weight:700;font-size:15px;margin-bottom:10px;">Your Cart</div>
+                                        <div class="cart-heading">Your Cart</div>
                                         <div id="cart-list"></div>
                                         <div id="cart-total" style="font-size:15px;margin-top:8px;font-weight:600;"></div>
                                         <div id="cart-coupon" style="font-size:13px;color:#4caf7d;margin-top:4px;"></div>
@@ -2508,15 +2614,8 @@
                                                         style="width:100%;margin-top:8px;display:none;padding-right:40px;"
                                                         />
                                                     <div id="copyTooltip" style="position: absolute; top: -35px; right: 0; background: #28a745; color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; display: none; white-space: nowrap; z-index: 1000;">
-                                                        URL Copied!
+                                                        Link copied!
                                                     </div>
-                                                </div>
-                                                <div id="shareActions" style="display:none; margin-top:8px; gap:8px; flex-wrap:wrap;">
-                                                    <button type="button" class="vip-btn-submit share-action-btn" data-share-option="native" style="width:auto; height:auto; padding:8px 12px;">More</button>
-                                                    <button type="button" class="vip-btn-submit share-action-btn" data-share-option="whatsapp" style="width:auto; height:auto; padding:8px 12px;">WhatsApp</button>
-                                                    <button type="button" class="vip-btn-submit share-action-btn" data-share-option="facebook" style="width:auto; height:auto; padding:8px 12px;">Facebook</button>
-                                                    <button type="button" class="vip-btn-submit share-action-btn" data-share-option="email" style="width:auto; height:auto; padding:8px 12px;">Email</button>
-                                                    <button type="button" class="vip-btn-submit share-action-btn" data-share-option="copy" style="width:auto; height:auto; padding:8px 12px;">Copy</button>
                                                 </div>
                                             </div>
 
@@ -3127,7 +3226,7 @@
 
 
             <section>
-                <div class="container py-5">
+                <div class="container py-5 events-section-container">
                     <div class="event-header">
                         <h2>Upcoming Events</h2>
                         <div class="event-filters" style="display: flex; gap: 10px;">
@@ -3143,12 +3242,15 @@
                         </div>
                     </div>
                     <div class="row g-4" id="events-list">
-                        @foreach ($data->events as $item)
+                        @php
+                            $todayPacific = \Carbon\Carbon::now('America/Los_Angeles')->toDateString();
+                        @endphp
+                        @forelse ($data->events as $item)
                             @php
                                 $eventStartDate = $item->start_date ?? $item->date;
                                 $eventEndDate = $item->end_date ?? $eventStartDate;
                             @endphp
-                               @if (!$item->is_archieved && $eventEndDate && \Carbon\Carbon::parse($eventEndDate)->endOfDay()->gte(\Carbon\Carbon::now()))
+                            @if (!$item->is_archieved && $eventEndDate && \Carbon\Carbon::parse($eventEndDate)->toDateString() >= $todayPacific)
                                 <div class="col-md-4 event-card-item"
                                     data-date="{{ \Carbon\Carbon::parse($eventStartDate)->format('Y-m-d') }}">
                                     <a href="/{{ $data->slug }}?event_name={{ $item->name }}"
@@ -3189,7 +3291,9 @@
                                     </a>
                                 </div>
                             @endif
-                        @endforeach
+                        @empty
+                            <div class="col-12" style="opacity:.75;">No upcoming events available.</div>
+                        @endforelse
                     </div>
                 </div>
 
@@ -3659,7 +3763,7 @@
                     return;
                 }
                 $('#cart-section').show();
-                let html = '';
+                    let html = '';
                 window.cart.forEach(pkg => {
                     let billableGuests = getBillableGuests(pkg);
                     let unitPrice = parseFloat(pkg.packagePrice) || 0;
@@ -3667,10 +3771,10 @@
                     let priceLine = parseMultipleFlag(pkg.isMultiple)
                         ? (formatCurrency(unitPrice) + ' &times; ' + (parseInt(pkg.guests, 10) || 1) + ' = ' + formatCurrency(lineTotal))
                         : formatCurrency(lineTotal);
-                    html += `<div style="border-bottom:1px solid rgba(255,255,255,0.08);padding:8px 0;">`
-                        + `<strong>${pkg.packageName}</strong> &mdash; <span style="color:var(--accent)">${priceLine}</span>`
-                        + `<button onclick='window.removePackageFromCart("${pkg.packageId}")' style="float:right;background:#c00;color:#fff;border:none;border-radius:5px;padding:3px 9px;cursor:pointer;font-size:12px;">Remove</button>`
-                        + (pkg.addons.length ? `<div style="margin-left:18px;font-size:12px;opacity:.6;">Add-ons: ${pkg.addons.map(a => a.name + ' (' + formatCurrency(a.price) + ')').join(', ')}</div>` : '')
+                    html += `<div class="cart-line">`
+                        + `<div class="cart-line-main"><div><div class="cart-item-name">${pkg.packageName}</div><div class="cart-item-price">${priceLine}</div></div>`
+                        + `<button onclick='window.removePackageFromCart("${pkg.packageId}")' class="cart-remove-btn">Remove</button></div>`
+                        + (pkg.addons.length ? `<div class="cart-addons">Add-ons: ${pkg.addons.map(a => a.name + ' (' + formatCurrency(a.price) + ')').join(', ')}</div>` : '')
                         + `</div>`;
                 });
                 $('#cart-list').html(html);
@@ -3847,59 +3951,12 @@
             }
 
             $(document).ready(function() {
-                function copyShareText(text) {
-                    if (navigator.clipboard && navigator.clipboard.writeText) {
-                        return navigator.clipboard.writeText(text).catch(function() {
-                            window.prompt('Copy this link', text);
-                        });
-                    }
-
-                    window.prompt('Copy this link', text);
-                    return Promise.resolve();
-                }
-
-                async function shareShortUrl(url, option) {
-                    var payload = {
-                        title: document.title,
-                        text: 'Check out this package selection',
-                        url: url
-                    };
-                    var shareLine = payload.text + ' ' + payload.url;
-
-                    if (option === 'native') {
-                        if (navigator.share) {
-                            try {
-                                await navigator.share(payload);
-                                return;
-                            } catch (error) {
-                                if (error && error.name === 'AbortError') {
-                                    return;
-                                }
-                            }
-                        }
-
-                        await copyShareText(url);
-                        return;
-                    }
-
-                    if (option === 'whatsapp') {
-                        window.open('https://wa.me/?text=' + encodeURIComponent(shareLine), '_blank', 'noopener');
-                        return;
-                    }
-
-                    if (option === 'facebook') {
-                        window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url), '_blank', 'noopener');
-                        return;
-                    }
-
-                    if (option === 'email') {
-                        var subject = encodeURIComponent(payload.title || 'Check this out');
-                        var body = encodeURIComponent(payload.text + '\n\n' + payload.url);
-                        window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
-                        return;
-                    }
-
-                    await copyShareText(url);
+                function showCopyTooltip() {
+                    const tooltip = $('#copyTooltip');
+                    tooltip.text('Link copied!').show();
+                    setTimeout(function() {
+                        tooltip.hide();
+                    }, 2000);
                 }
 
                 // Generate link button
@@ -3922,13 +3979,21 @@
                         success: function(res) {
                             if (res.success) {
                                 $('#shareableLink').val(res.short_url).show();
-                                $('#shareActions').css('display', 'flex');
+                                navigator.clipboard.writeText(res.short_url).then(function() {
+                                    showCopyTooltip();
+                                }).catch(function() {
+                                    $('#shareableLink').select();
+                                });
                             } else {
-                                alert('Error: ' + res.message);
+                                const fallbackUrl = getUrlWithSelections();
+                                $('#shareableLink').val(fallbackUrl).show();
+                                $('#shareableLink').select();
                             }
                         },
                         error: function(err) {
-                            alert('Error generating share link. Please try again.');
+                            const fallbackUrl = getUrlWithSelections();
+                            $('#shareableLink').val(fallbackUrl).show();
+                            $('#shareableLink').select();
                             console.error(err);
                         }
                     });
@@ -3938,28 +4003,11 @@
                 $('#shareableLink').on('click', function() {
                     const url = $(this).val();
                     navigator.clipboard.writeText(url).then(function() {
-                        // Show tooltip
-                        const tooltip = $('#copyTooltip');
-                        tooltip.show();
-                        // Hide tooltip after 2 seconds
-                        setTimeout(function() {
-                            tooltip.hide();
-                        }, 2000);
+                        showCopyTooltip();
                     }).catch(function(err) {
                         console.error('Failed to copy:', err);
-                        // Fallback: select the text
-                        $(this).select();
+                        $('#shareableLink').select();
                     });
-                });
-
-                $('#shareActions').on('click', '.share-action-btn', function() {
-                    const url = $('#shareableLink').val();
-                    if (!url) {
-                        alert('Generate a shareable link first.');
-                        return;
-                    }
-
-                    shareShortUrl(url, $(this).data('share-option'));
                 });
 
                 // On page load, check for params

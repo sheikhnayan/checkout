@@ -121,24 +121,6 @@ label{
     background: #eee;
   }
 
-    .admin-multi-select {
-        min-height: 220px;
-        background: #131a2a !important;
-        color: #f3f4f6 !important;
-        border: 1px solid #2c3650 !important;
-    }
-
-    .admin-multi-select option {
-        color: #f3f4f6;
-        background: #131a2a;
-        padding: 6px 8px;
-    }
-
-    .admin-multi-select option:checked {
-        background: #ffcc00 !important;
-        color: #16120a !important;
-    }
-
     .addon-row {
         display: flex;
         gap: 10px;
@@ -148,6 +130,7 @@ label{
 
     .addon-row .addon-select {
         flex: 1;
+        min-height: 40px;
     }
 </style>
     <!-- Content wrapper -->
@@ -348,7 +331,7 @@ label{
                                                     <div id="addon-rows">
                                                         @foreach($selectedAddonIds as $selectedAddonId)
                                                             <div class="addon-row">
-                                                                <select class="form-control admin-multi-select addon-select">
+                                                                <select class="form-control addon-select">
                                                                     <option value="">Select Add-on</option>
                                                                     @foreach($addons as $addon)
                                                                         <option value="{{ $addon->id }}" {{ (string) $addon->id === (string) $selectedAddonId ? 'selected' : '' }}>{{ $addon->name }}</option>
@@ -455,7 +438,7 @@ label{
             row.className = 'addon-row';
 
             const select = document.createElement('select');
-            select.className = 'form-control admin-multi-select addon-select';
+            select.className = 'form-control addon-select';
             select.innerHTML = optionsMarkup;
             if (selectedValue) {
                 select.value = selectedValue;

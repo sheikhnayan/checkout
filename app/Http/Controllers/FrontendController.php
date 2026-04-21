@@ -238,7 +238,8 @@ class FrontendController extends Controller
         }
 
         try {
-            return \Carbon\Carbon::parse($end)->endOfDay()->gte(now());
+            $todayPacific = \Carbon\Carbon::now('America/Los_Angeles')->startOfDay();
+            return \Carbon\Carbon::parse($end, 'America/Los_Angeles')->startOfDay()->gte($todayPacific);
         } catch (\Throwable $e) {
             return false;
         }
