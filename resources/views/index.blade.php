@@ -2452,7 +2452,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                         type="button"
                                                         class="btn btn-outline-light package-category-tile w-100"
                                                         data-target="#category-group-{{ $category['id'] }}"
-                                                        onclick="(function(btn){var wrap=btn.closest('.package-category-wrap');if(!wrap){return;}var target=wrap.querySelector('.package-category-group');if(!target){return;}var open=btn.classList.contains('active');document.querySelectorAll('.package-category-tile').forEach(function(el){el.classList.remove('active');var ind=el.querySelector('.package-category-indicator');if(ind){ind.textContent='+';}});document.querySelectorAll('.package-category-group').forEach(function(group){group.style.display='none';});if(!open){btn.classList.add('active');var current=btn.querySelector('.package-category-indicator');if(current){current.textContent='−';}target.style.display='block';}})(this);"
                                                         style="background: {{ $brandPrimary }}; border-color: {{ $brandPrimary }}; color: #000; display:flex; justify-content:space-between; align-items:center; text-align:left; padding:14px 16px; border-radius:12px; font-size:15px; font-weight:600;"
                                                     >
                                                         {{ $category['name'] }}
