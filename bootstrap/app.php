@@ -15,6 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'website.user' => \App\Http\Middleware\WebsiteUserAccess::class,
             'image.upload.guard' => \App\Http\Middleware\ValidateImageUploads::class,
             'route.permission' => \App\Http\Middleware\CheckRoutePermission::class,
+            'mrrollcall.restrict' => \App\Http\Middleware\RestrictMrRollCallDomain::class,
+        ]);
+
+        $middleware->appendToGroup('web', [
+            \App\Http\Middleware\RestrictMrRollCallDomain::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
