@@ -3657,6 +3657,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 }
             }
 
+            window.syncUseDateField = syncUseDateField;
+
             function clearGuestFieldError($field) {
                 var $control = $field.closest('.vip-guest-control');
                 $control.find('.package-guest-error').hide().text('');
@@ -4317,7 +4319,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 window.lastSelectedUseDate = (typeof window.getSelectedUseDate === 'function')
                     ? window.getSelectedUseDate()
                     : String($('#package_use_date').val() || $('.package_use_date').val() || '').trim();
-                syncUseDateField();
+                if (typeof window.syncUseDateField === 'function') {
+                    window.syncUseDateField();
+                }
                 var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
                 popoverTriggerList.forEach(function (popoverTriggerEl) {
                     bootstrap.Popover.getOrCreateInstance(popoverTriggerEl, {
@@ -4442,7 +4446,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                     window.lastSelectedUseDate = currentDate;
                     clearReservationDateError();
-                    syncUseDateField();
+                    if (typeof window.syncUseDateField === 'function') {
+                        window.syncUseDateField();
+                    }
                     refreshEventPackageSelectionLimits(true);
                 });
 
@@ -5010,12 +5016,20 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             });
 
             // Keep hidden use-date in sync with actual selected reservation date.
-            syncUseDateField();
+            if (typeof window.syncUseDateField === 'function') {
+                window.syncUseDateField();
+            } else {
+                $('.package_use_date').val(String($('#package_use_date').val() || '').trim());
+            }
         </script>
 
         <script>
             // Keep hidden submit value synced to selected reservation date.
-            syncUseDateField();
+            if (typeof window.syncUseDateField === 'function') {
+                window.syncUseDateField();
+            } else {
+                $('.package_use_date').val(String($('#package_use_date').val() || '').trim());
+            }
         </script>
 
         @if ($data->payment_method == 'stripe')
