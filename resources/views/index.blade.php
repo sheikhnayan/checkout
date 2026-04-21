@@ -3569,27 +3569,36 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
             function syncTransportationStateFromCart() {
                 window.requiresTransportation = cartRequiresTransportation();
+                const transportationFields = $('#transport-form').find('input, select, textarea');
                 const transportationPhoneField = $('input[name="transportation_phone"]');
                 const transportationAddressField = $('input[name="transportation_address"]');
                 const transportationPickupTimeField = $('input[name="transportation_pickup_time"]');
+                const transportationGuestField = $('input[name="transportation_guest"]');
                 const pickupDateField = $('input[name="package_use_date"]');
                 const driverNotificationConsentWrap = $('.driver-notification-consent-wrap');
                 const driverNotificationConsentInputs = $('.driver-notification-consent-input');
                 if (window.requiresTransportation) {
                     $('#step-2 .step-title').text('Transportation');
                     $('#next-to-transport').text('Next: Transportation Details');
+                    transportationFields.prop('disabled', false);
                     transportationPhoneField.prop('required', true).attr('aria-required', 'true');
                     transportationAddressField.prop('required', true).attr('aria-required', 'true');
                     transportationPickupTimeField.prop('required', true).attr('aria-required', 'true');
+                    transportationGuestField.prop('required', true).attr('aria-required', 'true');
+                    if (!Number.isFinite(parseInt(transportationGuestField.val(), 10)) || parseInt(transportationGuestField.val(), 10) < 1) {
+                        transportationGuestField.val('1');
+                    }
                     pickupDateField.prop('required', true).attr('aria-required', 'true');
                     driverNotificationConsentWrap.css('display', 'flex');
                     driverNotificationConsentInputs.prop('required', true).attr('aria-required', 'true');
                 } else {
                     $('#step-2 .step-title').text('Confirmation');
                     $('#next-to-transport').text('Next: Transportation Confirmation');
+                    transportationFields.prop('disabled', true);
                     transportationPhoneField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
                     transportationAddressField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
                     transportationPickupTimeField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
+                    transportationGuestField.prop('required', false).removeClass('required-field').removeAttr('aria-required').val('0');
                     pickupDateField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
                     driverNotificationConsentWrap.hide();
                     driverNotificationConsentInputs.prop('checked', false).prop('required', false).removeAttr('aria-required');

@@ -1760,23 +1760,32 @@ function cartRequiresTransport() {
 
 function syncTransportStateFromCart() {
     window.requiresTransport = cartRequiresTransport();
+    const transportationFields = $('#transport-form').find('input, select, textarea');
     const transportationPhoneField = $('[name="transportation_phone"]');
     const transportationAddressField = $('[name="transportation_address"]');
     const transportationPickupTimeField = $('[name="transportation_pickup_time"]');
+    const transportationGuestField = $('[name="transportation_guest"]');
     const pickupDateField = $('[name="package_use_date"]');
     const driverNotificationConsentWrap = $('#driverNotificationConsentWrap');
     const driverNotificationConsent = $('#driverNotificationConsent');
     if (window.requiresTransport) {
+        transportationFields.prop('disabled', false);
         transportationPhoneField.prop('required', true).attr('aria-required', 'true');
         transportationAddressField.prop('required', true).attr('aria-required', 'true');
         transportationPickupTimeField.prop('required', true).attr('aria-required', 'true');
+        transportationGuestField.prop('required', true).attr('aria-required', 'true');
+        if (!Number.isFinite(parseInt(transportationGuestField.val(), 10)) || parseInt(transportationGuestField.val(), 10) < 1) {
+            transportationGuestField.val('1');
+        }
         pickupDateField.prop('required', true).attr('aria-required', 'true');
         driverNotificationConsentWrap.css('display', 'flex');
         driverNotificationConsent.prop('required', true).attr('aria-required', 'true');
     } else {
+        transportationFields.prop('disabled', true);
         transportationPhoneField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
         transportationAddressField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
         transportationPickupTimeField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
+        transportationGuestField.prop('required', false).removeClass('required-field').removeAttr('aria-required').val('0');
         pickupDateField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
         driverNotificationConsentWrap.hide();
         driverNotificationConsent.prop('checked', false).prop('required', false).removeAttr('aria-required');
