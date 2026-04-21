@@ -2614,6 +2614,12 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                 Link copied!
                                             </div>
                                         </div>
+                                                <div id="shareActions" style="display:none;gap:8px;flex-wrap:wrap;margin-top:8px;">
+                                                    <button type="button" class="checkout-share-btn" data-share="email" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">Email</button>
+                                                    <button type="button" class="checkout-share-btn" data-share="whatsapp" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">WhatsApp</button>
+                                                    <button type="button" class="checkout-share-btn" data-share="facebook" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">Facebook</button>
+                                                    <button type="button" class="checkout-share-btn" data-share="copy" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">Copy</button>
+                                                </div>
                                     </div>
                                     <!-- Step Progress Indicator -->
                                     <ul class="checkout-steps" id="checkout-steps" style="display: none;">
@@ -4084,6 +4090,26 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     }, 2000);
                 }
 
+                function getShareableUrl() {
+                    var existing = String($('#shareableLink').val() || '').trim();
+                    return existing || getUrlWithSelections();
+                }
+
+                function revealShareActions() {
+                    $('#shareActions').css('display', 'flex');
+                }
+
+                function copyShareUrl(url) {
+                    navigator.clipboard.writeText(url).then(function() {
+                        showCopyTooltip();
+                        alert('Link copied!');
+                    }).catch(function() {
+                        $('#shareableLink').val(url).show().trigger('focus').select();
+                        revealShareActions();
+                        alert('Link ready. Press Ctrl+C to copy.');
+                    });
+                }
+
                 setSelectionsFromParams();
 
                 $('#generateShareLink').on('click', function() {
@@ -4106,6 +4132,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         success: function(res) {
                             if (res.success) {
                                 $('#shareableLink').val(res.short_url).show();
+                                revealShareActions();
                                 navigator.clipboard.writeText(res.short_url).then(function() {
                                     showCopyTooltip();
                                 }).catch(function() {
@@ -4114,16 +4141,47 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             } else {
                                 const fallbackUrl = getUrlWithSelections();
                                 $('#shareableLink').val(fallbackUrl).show();
+                                revealShareActions();
                                 $('#shareableLink').select();
                             }
                         },
                         error: function(err) {
                             const fallbackUrl = getUrlWithSelections();
                             $('#shareableLink').val(fallbackUrl).show();
+                            revealShareActions();
                             $('#shareableLink').select();
                             console.error(err);
                         }
                     });
+                });
+
+                $(document).on('click', '#shareActions .checkout-share-btn', function() {
+                    var mode = String($(this).data('share') || '').toLowerCase();
+                    var url = getShareableUrl();
+
+                    if (!url) {
+                        alert('Please generate a shareable link first.');
+                        return;
+                    }
+
+                    if (mode === 'email') {
+                        window.location.href = 'mailto:?subject=' + encodeURIComponent('Checkout Link') + '&body=' + encodeURIComponent(url);
+                        return;
+                    }
+
+                    if (mode === 'whatsapp') {
+                        window.open('https://wa.me/?text=' + encodeURIComponent(url), '_blank', 'noopener');
+                        return;
+                    }
+
+                    if (mode === 'facebook') {
+                        window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url), '_blank', 'noopener');
+                        return;
+                    }
+
+                    if (mode === 'copy') {
+                        copyShareUrl(url);
+                    }
                 });
 
                 syncEventCapacityUi();
@@ -4138,6 +4196,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         $('#shareableLink').select();
                     });
                 });
+
+                if (String($('#shareableLink').val() || '').trim()) {
+                    revealShareActions();
+                }
 
             });
 

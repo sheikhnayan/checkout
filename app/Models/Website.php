@@ -39,6 +39,7 @@ class Website extends Model
         'service_charge_name',
         'processing_fee',
         'processing_fee_type',
+        'withdraw_charge',
         'promo_code_name',
         'font_color',
         'text_description',

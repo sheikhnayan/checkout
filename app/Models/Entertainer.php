@@ -80,6 +80,18 @@ class Entertainer extends Model
         return $this->hasMany(EntertainerWalletTransaction::class);
     }
 
+    public function withdrawPayoutMethods()
+    {
+        return $this->hasMany(WithdrawPayoutMethod::class, 'owner_id')
+            ->where('owner_type', 'entertainer');
+    }
+
+    public function withdrawRequests()
+    {
+        return $this->hasMany(WithdrawRequest::class, 'owner_id')
+            ->where('owner_type', 'entertainer');
+    }
+
     public static function generateUniqueSlug(string $name): string
     {
         $base = Str::slug($name ?: 'entertainer');

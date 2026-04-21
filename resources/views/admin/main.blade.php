@@ -761,6 +761,24 @@
   </li>
   @endif
 
+  @if(auth()->check() && auth()->user()->isAdmin())
+  <li class="menu-item {{ request()->is('admins/withdraw/affiliates*') ? 'active' : '' }}">
+    <a href="{{ route('admin.withdraw.affiliates') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-money-withdraw"></i>
+      <div class="text-truncate">Affiliate Withdrawals</div>
+    </a>
+  </li>
+  @endif
+
+  @if($authUser && ($authUser->isAdmin() || ($authUser->isWebsiteUser() && $authUser->website_id)))
+  <li class="menu-item {{ request()->is('admins/withdraw/entertainers*') ? 'active' : '' }}">
+    <a href="{{ route('admin.withdraw.entertainers') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-wallet-alt"></i>
+      <div class="text-truncate">Entertainer Withdrawals</div>
+    </a>
+  </li>
+  @endif
+
   @if(auth()->check() && auth()->user()->isAffiliate())
   <li class="menu-item {{ request()->is('affiliate-portal/dashboard') ? 'active' : '' }}">
     <a href="{{ route('affiliate.portal.dashboard') }}" class="menu-link">
@@ -787,6 +805,13 @@
     <a href="{{ route('affiliate.portal.wallet') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-wallet"></i>
       <div class="text-truncate">Wallet</div>
+    </a>
+  </li>
+
+  <li class="menu-item {{ request()->is('affiliate-portal/withdraw*') ? 'active' : '' }}">
+    <a href="{{ route('affiliate.portal.withdraw') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-money-withdraw"></i>
+      <div class="text-truncate">Withdraw</div>
     </a>
   </li>
 
@@ -826,6 +851,13 @@
     <a href="{{ route('entertainer.portal.wallet') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-wallet"></i>
       <div class="text-truncate">Wallet</div>
+    </a>
+  </li>
+
+  <li class="menu-item {{ request()->is('entertainer-portal/withdraw*') ? 'active' : '' }}">
+    <a href="{{ route('entertainer.portal.withdraw') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-money-withdraw"></i>
+      <div class="text-truncate">Withdraw</div>
     </a>
   </li>
 

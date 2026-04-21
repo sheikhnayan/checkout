@@ -1384,6 +1384,12 @@ const clubConfigs = {
             <input type="text" id="shareableLink" readonly style="width:100%;display:none;padding-right:40px;">
             <div id="copyTooltip" style="display:none;position:absolute;top:-35px;right:0;background:#28a745;color:white;padding:8px 12px;border-radius:4px;font-size:12px;white-space:nowrap;z-index:1000;">Link copied!</div>
         </div>
+        <div id="shareActions" style="display:none;gap:8px;flex-wrap:wrap;margin-top:8px;">
+            <button type="button" class="checkout-share-btn" data-share="email" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">Email</button>
+            <button type="button" class="checkout-share-btn" data-share="whatsapp" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">WhatsApp</button>
+            <button type="button" class="checkout-share-btn" data-share="facebook" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">Facebook</button>
+            <button type="button" class="checkout-share-btn" data-share="copy" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">Copy</button>
+        </div>
     </div>
 
     {{-- ===== PRICE SUMMARY ===== --}}
@@ -2249,6 +2255,26 @@ $(document).ready(function() {
         setTimeout(function() { tooltip.hide(); }, 2000);
     }
 
+    function getShareableUrl() {
+        const existing = String($('#shareableLink').val() || '').trim();
+        return existing || getUrlWithSelections();
+    }
+
+    function revealShareActions() {
+        $('#shareActions').css('display', 'flex');
+    }
+
+    function copyShareUrl(url) {
+        navigator.clipboard.writeText(url).then(function() {
+            showCopyTooltip();
+            alert('Link copied!');
+        }).catch(function() {
+            $('#shareableLink').val(url).show().trigger('focus').select();
+            revealShareActions();
+            alert('Link ready. Press Ctrl+C to copy.');
+        });
+    }
+
     document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (element) {
         new bootstrap.Popover(element, {
             trigger: 'focus hover',
@@ -2433,6 +2459,7 @@ $(document).ready(function() {
             success: function(res) {
                 if (res.success) {
                     $('#shareableLink').val(res.short_url).show();
+                    revealShareActions();
                     navigator.clipboard.writeText(res.short_url).then(function() {
                         showCopyTooltip();
                     }).catch(function() {
@@ -2440,11 +2467,13 @@ $(document).ready(function() {
                     });
                 } else {
                     $('#shareableLink').val(getUrlWithSelections()).show();
+                    revealShareActions();
                     $('#shareableLink').select();
                 }
             },
             error: function() {
                 $('#shareableLink').val(getUrlWithSelections()).show();
+                revealShareActions();
                 $('#shareableLink').select();
             },
             complete: function() {
@@ -2461,6 +2490,39 @@ $(document).ready(function() {
             $('#shareableLink').select();
         });
     });
+
+    $(document).on('click', '#shareActions .checkout-share-btn', function() {
+        const mode = String($(this).data('share') || '').toLowerCase();
+        const url = getShareableUrl();
+
+        if (!url) {
+            alert('Please generate a shareable link first.');
+            return;
+        }
+
+        if (mode === 'email') {
+            window.location.href = 'mailto:?subject=' + encodeURIComponent('Checkout Link') + '&body=' + encodeURIComponent(url);
+            return;
+        }
+
+        if (mode === 'whatsapp') {
+            window.open('https://wa.me/?text=' + encodeURIComponent(url), '_blank', 'noopener');
+            return;
+        }
+
+        if (mode === 'facebook') {
+            window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url), '_blank', 'noopener');
+            return;
+        }
+
+        if (mode === 'copy') {
+            copyShareUrl(url);
+        }
+    });
+
+    if (String($('#shareableLink').val() || '').trim()) {
+        revealShareActions();
+    }
 
     function buildAffiliateSharePayload(data) {
         const payload = data || {};

@@ -34,6 +34,7 @@ use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\JobMarketplaceController;
 use App\Http\Controllers\Admin\JobMarketplaceController as AdminJobMarketplaceController;
 use App\Http\Controllers\Admin\WebsiteRoleController;
+use App\Http\Controllers\WithdrawController;
 
 
 // Authentication Routes
@@ -303,6 +304,16 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
     // Website Role Management
     Route::resource('website-roles', WebsiteRoleController::class)->except(['show']);
     Route::post('website-roles/{website_role}/archive', [WebsiteRoleController::class, 'archive'])->name('website-roles.archive');
+
+    // Withdraw management (admin side)
+    Route::group(['prefix' => 'withdraw', 'as' => 'withdraw.'], function () {
+        Route::get('/affiliates', [WithdrawController::class, 'adminAffiliates'])->name('affiliates');
+        Route::post('/affiliates/{id}/status', [WithdrawController::class, 'adminAffiliateStatus'])->name('affiliates.status');
+        Route::post('/affiliates/charge', [WithdrawController::class, 'adminAffiliateCharge'])->name('affiliates.charge');
+        Route::get('/entertainers', [WithdrawController::class, 'adminEntertainers'])->name('entertainers');
+        Route::post('/entertainers/{id}/status', [WithdrawController::class, 'adminEntertainerStatus'])->name('entertainers.status');
+        Route::post('/entertainers/charge', [WithdrawController::class, 'adminEntertainerCharge'])->name('entertainers.charge');
+    });
 });
 
 Route::group(['prefix'=> 'affiliate-portal', 'as' => 'affiliate.portal.', 'middleware' => ['auth', 'image.upload.guard']], function () {
@@ -312,6 +323,12 @@ Route::group(['prefix'=> 'affiliate-portal', 'as' => 'affiliate.portal.', 'middl
     Route::get('/settings', [AffiliatePortalController::class, 'settings'])->name('settings');
     Route::post('/settings', [AffiliatePortalController::class, 'updateSettings'])->name('settings.update');
     Route::get('/wallet', [AffiliatePortalController::class, 'wallet'])->name('wallet');
+    // Withdraw
+    Route::get('/withdraw', [WithdrawController::class, 'index'])->name('withdraw');
+    Route::post('/withdraw/request', [WithdrawController::class, 'storeRequest'])->name('withdraw.request');
+    Route::post('/withdraw/methods', [WithdrawController::class, 'storeMethod'])->name('withdraw.methods.store');
+    Route::post('/withdraw/methods/{id}/delete', [WithdrawController::class, 'destroyMethod'])->name('withdraw.methods.destroy');
+    Route::post('/withdraw/methods/{id}/default', [WithdrawController::class, 'setDefaultMethod'])->name('withdraw.methods.default');
 });
 
 Route::group(['prefix'=> 'entertainer-portal', 'as' => 'entertainer.portal.', 'middleware' => ['auth', 'image.upload.guard']], function () {
@@ -321,6 +338,12 @@ Route::group(['prefix'=> 'entertainer-portal', 'as' => 'entertainer.portal.', 'm
     Route::get('/settings', [EntertainerPortalController::class, 'settings'])->name('settings');
     Route::post('/settings', [EntertainerPortalController::class, 'updateSettings'])->name('settings.update');
     Route::get('/wallet', [EntertainerPortalController::class, 'wallet'])->name('wallet');
+    // Withdraw
+    Route::get('/withdraw', [WithdrawController::class, 'index'])->name('withdraw');
+    Route::post('/withdraw/request', [WithdrawController::class, 'storeRequest'])->name('withdraw.request');
+    Route::post('/withdraw/methods', [WithdrawController::class, 'storeMethod'])->name('withdraw.methods.store');
+    Route::post('/withdraw/methods/{id}/delete', [WithdrawController::class, 'destroyMethod'])->name('withdraw.methods.destroy');
+    Route::post('/withdraw/methods/{id}/default', [WithdrawController::class, 'setDefaultMethod'])->name('withdraw.methods.default');
 });
 
 // Payment Logo routes (outside admin group for direct access)

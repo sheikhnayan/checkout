@@ -79,6 +79,18 @@ class Affiliate extends Model
         return $this->hasMany(AffiliateWalletTransaction::class);
     }
 
+    public function withdrawPayoutMethods()
+    {
+        return $this->hasMany(WithdrawPayoutMethod::class, 'owner_id')
+            ->where('owner_type', 'affiliate');
+    }
+
+    public function withdrawRequests()
+    {
+        return $this->hasMany(WithdrawRequest::class, 'owner_id')
+            ->where('owner_type', 'affiliate');
+    }
+
     public static function generateUniqueSlug(string $name): string
     {
         $base = Str::slug($name ?: 'affiliate');
