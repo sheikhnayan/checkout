@@ -2474,7 +2474,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                     ><i class="fas fa-info"></i></button>
                                                                 @endif
                                                             </div>
-                                                            <button class="vip-btn btn-{{ $item->id }} mt-2" style="background-color: {{ $brandPrimary }} !important;"
+                                                            <button type="button" class="vip-btn btn-{{ $item->id }} mt-2" style="background-color: {{ $brandPrimary }} !important;"
                                                                 data-id="{{ $item->id }}" data-name="{{ $item->name }}" data-price="{{ $item->price }}"
                                                                 data-gratuity="{{ $data->gratuity_fee }}"
                                                                 data-refundable="{{ $data->refundable_fee }}"
@@ -3693,6 +3693,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     $field.prop('disabled', false);
                     $field.attr('min', '1');
                     $field.attr('step', '1');
+                    $field.attr('max', String(safeMax));
                     $field.val(String(safeValue));
                     return;
                 }
@@ -3828,7 +3829,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         }
 
                         if (normalizedGuests > effectiveMax) {
-                            alert('Only ' + Math.max(effectiveMax, 0) + ' guests can be selected for this package/date to avoid over-crowding the event.');
+                            var $field = $('.package_number_of_guestss[data-id="' + packageId + '"]');
+                            updateGuestSelectOptions($field, effectiveMax, response.message || 'Sold Out for Selected Date');
+                            showGuestFieldError($field, response.message || ('Only ' + Math.max(effectiveMax, 0) + ' guests can be selected for this package/date.'));
                             refreshEventPackageSelectionLimits(true);
                             return false;
                         }
@@ -4688,6 +4691,21 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 }).fail(function() {
                     showGuestFieldError($field, 'Could not verify availability right now. Please try again.');
                 });
+            });
+
+            $(document).on('input', '.package_number_of_guestss[type="number"]', function() {
+                var $field = $(this);
+                var entered = parseInt($field.val(), 10);
+                var maxAllowed = parseInt($field.attr('max'), 10);
+
+                if (!Number.isFinite(entered) || entered < 1) {
+                    $field.val('1');
+                    return;
+                }
+
+                if (Number.isFinite(maxAllowed) && maxAllowed > 0 && entered > maxAllowed) {
+                    $field.val(String(maxAllowed));
+                }
             });
         </script>
 
