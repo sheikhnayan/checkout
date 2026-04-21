@@ -2452,13 +2452,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                         type="button"
                                                         class="btn btn-outline-light package-category-tile w-100"
                                                         data-target="#category-group-{{ $category['id'] }}"
+                                                        onclick="(function(btn){var wrap=btn.closest('.package-category-wrap');if(!wrap){return;}var target=wrap.querySelector('.package-category-group');if(!target){return;}var open=btn.classList.contains('active');document.querySelectorAll('.package-category-tile').forEach(function(el){el.classList.remove('active');var ind=el.querySelector('.package-category-indicator');if(ind){ind.textContent='+';}});document.querySelectorAll('.package-category-group').forEach(function(group){group.style.display='none';});if(!open){btn.classList.add('active');var current=btn.querySelector('.package-category-indicator');if(current){current.textContent='−';}target.style.display='block';}})(this);"
                                                         style="background: {{ $brandPrimary }}; border-color: {{ $brandPrimary }}; color: #000; display:flex; justify-content:space-between; align-items:center; text-align:left; padding:14px 16px; border-radius:12px; font-size:15px; font-weight:600;"
                                                     >
                                                         {{ $category['name'] }}
                                                         <span class="package-category-indicator" style="opacity:.7; font-size:12px;">+</span>
                                                     </button>
 
-                                                    <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: none; margin-top: 8px;">
+                                                    <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: none;">
                                                 @foreach ($category['packages'] as $item)
                                                     <div class="vip-card" id="pkg-card-{{ $item->id }}">
                                                         <div class="vip-card-main">
@@ -2527,7 +2528,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                     </div>
                                                 </div>
                                         @endforeach
-                                        </div>
                                     @else
                                         <p style="opacity:.6;">No packages are available yet.</p>
                                     @endif
@@ -4318,8 +4318,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                 $(document).on('click', '.package-category-tile', function() {
                     var $tile = $(this);
-                    var $wrap = $tile.closest('.package-category-wrap');
-                    var $target = $wrap.find('.package-category-group').first();
+                    var $target = $tile.closest('.package-category-wrap').find('.package-category-group').first();
                     var isOpen = $tile.hasClass('active');
 
                     if (!$target.length) {
