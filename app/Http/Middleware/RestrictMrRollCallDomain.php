@@ -38,23 +38,15 @@ class RestrictMrRollCallDomain
             $isAllowed = true;
         }
 
-        // Allow feed index.
-        if ($path === 'feed') {
-            $isAllowed = true;
-        }
-
-        // Allow club feed page.
-        if (preg_match('#^[^/]+/feed$#', $path) === 1) {
-            $isAllowed = true;
-        }
-
-        // Allow feed profile pages.
-        if (preg_match('#^[^/]+/feed/profile$#', $path) === 1) {
-            $isAllowed = true;
-        }
-
-        // Allow feed model profile pages.
-        if (preg_match('#^[^/]+/feed/models/[^/]+$#', $path) === 1) {
+        // Allow everything related to feed feature.
+        if (
+            $path === 'feed' ||
+            str_starts_with($path, 'feed/') ||
+            preg_match('#^[^/]+/feed($|/)#', $path) === 1 ||
+            $path === 'roll-call' ||
+            str_starts_with($path, 'roll-call/') ||
+            preg_match('#^[^/]+/roll-call($|/)#', $path) === 1
+        ) {
             $isAllowed = true;
         }
 
