@@ -2451,6 +2451,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                     type="button"
                                                     class="btn btn-outline-light package-category-tile mb-2 w-100"
                                                     data-target="#category-group-{{ $category['id'] }}"
+                                                    onclick="(function(btn){var targetSel=btn.getAttribute('data-target');if(!targetSel){return;}var target=document.querySelector(targetSel);if(!target){return;}var wasOpen=btn.classList.contains('active');document.querySelectorAll('.package-category-tile').forEach(function(el){el.classList.remove('active');var indicator=el.querySelector('.package-category-indicator');if(indicator){indicator.textContent='+';}});document.querySelectorAll('.package-category-group').forEach(function(group){group.style.display='none';});if(!wasOpen){btn.classList.add('active');var currentIndicator=btn.querySelector('.package-category-indicator');if(currentIndicator){currentIndicator.textContent='−';}target.style.display='block';}})(this);"
                                                     style="background: {{ $brandPrimary }}; border-color: {{ $brandPrimary }}; color: #000; display:flex; justify-content:space-between; align-items:center; text-align:left; padding:14px 16px; border-radius:12px; font-size:15px; font-weight:600;"
                                                 >
                                                     {{ $category['name'] }}
