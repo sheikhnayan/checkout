@@ -2447,21 +2447,18 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         @endphp
                                         <div class="mb-3 package-category-tiles" style="width:100%;">
                                             @foreach ($sortedPackageCategories as $category)
-                                                <button
-                                                    type="button"
-                                                    class="btn btn-outline-light package-category-tile mb-2 w-100"
-                                                    data-target="#category-group-{{ $category['id'] }}"
-                                                    onclick="(function(btn){var targetSel=btn.getAttribute('data-target');if(!targetSel){return;}var target=document.querySelector(targetSel);if(!target){return;}var wasOpen=btn.classList.contains('active');document.querySelectorAll('.package-category-tile').forEach(function(el){el.classList.remove('active');var indicator=el.querySelector('.package-category-indicator');if(indicator){indicator.textContent='+';}});document.querySelectorAll('.package-category-group').forEach(function(group){group.style.display='none';});if(!wasOpen){btn.classList.add('active');var currentIndicator=btn.querySelector('.package-category-indicator');if(currentIndicator){currentIndicator.textContent='−';}target.style.display='block';}})(this);"
-                                                    style="background: {{ $brandPrimary }}; border-color: {{ $brandPrimary }}; color: #000; display:flex; justify-content:space-between; align-items:center; text-align:left; padding:14px 16px; border-radius:12px; font-size:15px; font-weight:600;"
-                                                >
-                                                    {{ $category['name'] }}
-                                                    <span class="package-category-indicator" style="opacity:.7; font-size:12px;">+</span>
-                                                </button>
-                                            @endforeach
-                                        </div>
+                                                <div class="package-category-wrap mb-2">
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-outline-light package-category-tile w-100"
+                                                        data-target="#category-group-{{ $category['id'] }}"
+                                                        style="background: {{ $brandPrimary }}; border-color: {{ $brandPrimary }}; color: #000; display:flex; justify-content:space-between; align-items:center; text-align:left; padding:14px 16px; border-radius:12px; font-size:15px; font-weight:600;"
+                                                    >
+                                                        {{ $category['name'] }}
+                                                        <span class="package-category-indicator" style="opacity:.7; font-size:12px;">+</span>
+                                                    </button>
 
-                                        @foreach ($sortedPackageCategories as $category)
-                                            <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: none;">
+                                                    <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: none; margin-top: 8px;">
                                                 @foreach ($category['packages'] as $item)
                                                     <div class="vip-card" id="pkg-card-{{ $item->id }}">
                                                         <div class="vip-card-main">
@@ -2527,8 +2524,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                         </div>
                                                     </div>
                                                 @endforeach
-                                            </div>
+                                                    </div>
+                                                </div>
                                         @endforeach
+                                        </div>
                                     @else
                                         <p style="opacity:.6;">No packages are available yet.</p>
                                     @endif
@@ -4318,10 +4317,16 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 });
 
                 $(document).on('click', '.package-category-tile', function() {
-                    var targetSelector = String($(this).data('target') || '');
-                    var targetId = targetSelector.replace(/^#/, '');
-                    var $target = targetId ? $('#' + targetId) : $();
-                    var isOpen = $(this).hasClass('active');
+                    var $tile = $(this);
+                    var $wrap = $tile.closest('.package-category-wrap');
+                    var $target = $wrap.find('.package-category-group').first();
+                    var isOpen = $tile.hasClass('active');
+
+                    if (!$target.length) {
+                        var targetSelector = String($tile.data('target') || '');
+                        var targetId = targetSelector.replace(/^#/, '');
+                        $target = targetId ? $('#' + targetId) : $();
+                    }
 
                     $('.package-category-tile')
                         .removeClass('active')
@@ -4330,7 +4335,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     $('.package-category-group').stop(true, true).slideUp(180);
 
                     if (!isOpen && $target.length) {
-                        $(this)
+                        $tile
                             .addClass('active')
                             .css({ backgroundColor: '#101725', color: '{{ $brandPrimary }}' })
                             .find('.package-category-indicator').text('−');
