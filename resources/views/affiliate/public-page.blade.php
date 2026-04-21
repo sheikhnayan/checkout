@@ -1315,16 +1315,18 @@ const clubConfigs = {
                                             type="number"
                                             min="1"
                                             step="1"
-                                            value="1"
+                                            value="2"
+                                            max="{{ (int) ($package->number_of_guest ?? 2) }}"
                                             class="form-select package_number_of_guestss"
                                             data-id="{{ $package->id }}"
                                             data-multiple="{{ $package->multiple }}"
                                             data-package-type="{{ $package->package_type }}"
                                             data-guests-per-table="{{ (int) ($package->guests_per_table ?? 0) }}"
+                                            data-package-guest-limit="{{ (int) ($package->number_of_guest ?? 2) }}"
                                         >
                                     @else
                                         @php
-                                            $tableCap = max(1, (int) ($package->guests_per_table ?: $package->number_of_guest ?: 1));
+                                            $tableCap = max(2, (int) ($package->guests_per_table ?: $package->number_of_guest ?: 2));
                                         @endphp
                                         <select
                                             class="form-select package_number_of_guestss"
@@ -1332,9 +1334,10 @@ const clubConfigs = {
                                             data-multiple="{{ $package->multiple }}"
                                             data-package-type="{{ $package->package_type }}"
                                             data-guests-per-table="{{ (int) ($package->guests_per_table ?? 0) }}"
+                                            data-package-guest-limit="{{ $tableCap }}"
                                         >
                                             @for($i = 1; $i <= $tableCap; $i++)
-                                                <option value="{{ $i }}">{{ $i }}</option>
+                                                <option value="{{ $i }}" @selected($i == 2)>{{ $i }}</option>
                                             @endfor
                                         </select>
                                     @endif
@@ -1423,7 +1426,7 @@ const clubConfigs = {
         <input type="hidden" name="payment_total"           class="payment_total">
         <input type="hidden" name="commission_base_amount"  id="commission_base_amount">
         <input type="hidden" name="affiliate_slug"          value="{{ $affiliate->slug }}">
-        <input type="hidden" name="package_number_of_guest" class="package_number_of_guest" value="1">
+        <input type="hidden" name="package_number_of_guest" class="package_number_of_guest" value="2">
         <input type="hidden" name="package_use_date"        class="package_use_date" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
         <input type="hidden" name="promo_code"              class="promo_code">
         <input type="hidden" name="discounted_amount"       class="discounted_amount">

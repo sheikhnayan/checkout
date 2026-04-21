@@ -218,11 +218,11 @@ class TransactionController extends Controller
     
                         // Club/manager email — no QR code
                         $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
-                        $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr);
+                        $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr, $add, $cartItems, $mailData['price_breakdown'], $website);
                         $send_mail_club->subject('New Package Purched - ' . $transaction_id);
 
                         // Purchaser email — full mail with QR
-                        $send_mail_purchaser = new \App\Mail\TransactionMail($mailData);
+                        $send_mail_purchaser = new \App\Mail\TransactionMail($mailData, $add, $cartItems, $mailData['price_breakdown'], $website);
                         $send_mail_purchaser->subject('New Package Purched - ' . $transaction_id);
 
                         $clubEmails = collect($website->emails ?? [])
@@ -421,11 +421,11 @@ class TransactionController extends Controller
     
                         // Club/manager email — no QR code
                         $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
-                        $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr);
+                        $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr, $add, $cartItems, $mailData['price_breakdown'], $website);
                         $send_mail_club->subject('New Package Purched - ' . $transaction_id);
 
                         // Purchaser email — full mail with QR
-                        $send_mail_purchaser = new \App\Mail\TransactionMail($mailData);
+                        $send_mail_purchaser = new \App\Mail\TransactionMail($mailData, $add, $cartItems, $mailData['price_breakdown'], $website);
                         $send_mail_purchaser->subject('New Package Purched - ' . $transaction_id);
 
                         $clubEmails = collect($website->emails ?? [])

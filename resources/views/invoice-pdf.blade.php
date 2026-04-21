@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice - {{ $transaction->transaction_id }}</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: #333;
+            line-height: 1.5;
+            margin: 0;
+            padding: 20px;
+        }
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header {
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 0 0 10px 0;
+        }
+        .header-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin: 0;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #333;
+            text-transform: uppercase;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 13px;
+        }
+        .info-label {
+            color: #666;
+            font-weight: 600;
+        }
+        .info-value {
+            color: #333;
+        }
+        .grid-2 {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 20px;
+        }
+        .grid-2 .section {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 13px;
+        }
+        thead {
+            background-color: #f5f5f5;
+        }
+        th {
+            padding: 10px 8px;
+            text-align: left;
+            font-weight: 700;
+            color: #333;
+            border-bottom: 2px solid #ddd;
+        }
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #eee;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .total-section {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-left: 3px solid #667eea;
+            margin-top: 20px;
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 13px;
+        }
+        .total-row.grand-total {
+            font-size: 16px;
+            font-weight: 700;
+            color: #667eea;
+            border-top: 1px solid #ddd;
+            padding-top: 12px;
+            margin-top: 8px;
+        }
+        .addon-row td:first-child {
+            padding-left: 24px;
+            color: #666;
+            font-size: 12px;
+        }
+        .addons-label {
+            color: #999;
+            font-size: 11px;
+        }
+        .footer {
+            border-top: 1px solid #e0e0e0;
+            padding-top: 20px;
+            margin-top: 30px;
+            font-size: 11px;
+            color: #666;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="invoice-container">
+    <!-- Header -->
+    <div class="header">
+        <h1 class="header-title">INVOICE</h1>
+        <p class="header-subtitle">Transaction ID: {{ $transaction->transaction_id }}</p>
+    </div>
+
+    <!-- Billing & Order Info -->
+    <div class="grid-2">
+        <div class="section">
+            <div class="section-title">Bill To</div>
+            <div class="info-row">
+                <span class="info-label">Name</span>
+                <span class="info-value">{{ trim(($transaction->package_first_name ?? '') . ' ' . ($transaction->package_last_name ?? '')) ?: 'N/A' }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Email</span>
+                <span class="info-value">{{ $transaction->package_email ?? 'N/A' }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Phone</span>
+                <span class="info-value">{{ $transaction->package_phone ?? 'N/A' }}</span>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Order Details</div>
+            <div class="info-row">
+                <span class="info-label">Order Date</span>
+                <span class="info-value">{{ $transaction->created_at->format('M d, Y') }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Payment Date</span>
+                <span class="info-value">{{ $transaction->updated_at->format('M d, Y') }}</span>
+            </div>
+            @if($transaction->type === 'package' && $transaction->event)
+            <div class="info-row">
+                <span class="info-label">Event</span>
+                <span class="info-value">{{ $transaction->event->name ?? 'N/A' }}</span>
+            </div>
+            @endif
+        </div>
+    </div>
+
+    <!-- Items Table -->
+    <div class="section">
+        <div class="section-title">Order Summary</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th class="text-right">Qty</th>
+                    <th class="text-right">Unit Price</th>
+                    <th class="text-right">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if(!empty($cartItems))
+                    @php
+                        $grandTotal = 0;
+                    @endphp
+                    @foreach($cartItems as $cartItem)
+                        @php
+                            $isMultiple = !empty($cartItem['is_multiple']);
+                            $guests = max(1, (int) ($cartItem['guests'] ?? 1));
+                            $unitPrice = (float) ($cartItem['unit_price'] ?? 0);
+                            $pkgSubtotal = $isMultiple ? $unitPrice * $guests : $unitPrice;
+                            $addonsTotal = collect($cartItem['addons'] ?? [])->sum(fn($a) => (float)($a['price'] ?? 0));
+                            $itemTotal = (float) ($cartItem['line_total'] ?? ($pkgSubtotal + $addonsTotal));
+                            $grandTotal += $itemTotal;
+                        @endphp
+                        <tr>
+                            <td>{{ $cartItem['package_name'] ?? 'Package' }}</td>
+                            <td class="text-right">{{ $guests }}</td>
+                            <td class="text-right">${{ number_format($unitPrice, 2) }}</td>
+                            <td class="text-right">${{ number_format($pkgSubtotal, 2) }}</td>
+                        </tr>
+                        @if($isMultiple && $guests > 1)
+                        <tr class="addon-row">
+                            <td colspan="4"><span class="addons-label">${{ number_format($unitPrice, 2) }} x {{ $guests }} guests</span></td>
+                        </tr>
+                        @endif
+                        @foreach($cartItem['addons'] ?? [] as $addon)
+                            @if(!empty($addon['name']))
+                            <tr class="addon-row">
+                                <td>+ {{ $addon['name'] }}</td>
+                                <td class="text-right">1</td>
+                                <td class="text-right">
+                                    @if(($addon['price'] ?? 0) > 0)
+                                        ${{ number_format((float) $addon['price'], 2) }}
+                                    @else
+                                        <span class="addons-label">Included</span>
+                                    @endif
+                                </td>
+                                <td class="text-right">
+                                    @if(($addon['price'] ?? 0) > 0)
+                                        ${{ number_format((float) $addon['price'], 2) }}
+                                    @else
+                                        <span class="addons-label">—</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endif
+                        @endforeach
+                    @endforeach
+                @endif
+            </tbody>
+        </table>
+
+        <!-- Price Breakdown -->
+        @if(!empty($priceBreakdown))
+        <div class="total-section">
+            <div class="total-row">
+                <span>Packages Subtotal</span>
+                <span>${{ number_format((float) ($priceBreakdown['packages_subtotal'] ?? 0), 2) }}</span>
+            </div>
+            <div class="total-row">
+                <span>Add-ons Subtotal</span>
+                <span>${{ number_format((float) ($priceBreakdown['addons_subtotal'] ?? 0), 2) }}</span>
+            </div>
+
+            @if(!empty($priceBreakdown['gratuity']['enabled']))
+            <div class="total-row">
+                <span>{{ $priceBreakdown['gratuity']['name'] }} ({{ number_format((float) $priceBreakdown['gratuity']['rate'], 2) }}%)</span>
+                <span>${{ number_format((float) $priceBreakdown['gratuity']['amount'], 2) }}</span>
+            </div>
+            @endif
+
+            @if(!empty($priceBreakdown['service_charge']['enabled']))
+            <div class="total-row">
+                <span>{{ $priceBreakdown['service_charge']['name'] }} ({{ number_format((float) $priceBreakdown['service_charge']['rate'], 2) }}%)</span>
+                <span>${{ number_format((float) $priceBreakdown['service_charge']['amount'], 2) }}</span>
+            </div>
+            @endif
+
+            @if(!empty($priceBreakdown['sales_tax']['enabled']))
+            <div class="total-row">
+                <span>{{ $priceBreakdown['sales_tax']['name'] }} ({{ number_format((float) $priceBreakdown['sales_tax']['rate'], 2) }}%)</span>
+                <span>${{ number_format((float) $priceBreakdown['sales_tax']['amount'], 2) }}</span>
+            </div>
+            @endif
+
+            @if((float) ($priceBreakdown['promo_discount'] ?? 0) > 0)
+            <div class="total-row">
+                <span>Promo Code Discount</span>
+                <span>-${{ number_format((float) $priceBreakdown['promo_discount'], 2) }}</span>
+            </div>
+            @endif
+
+            @if(!empty($priceBreakdown['processing_fee']['enabled']))
+            <div class="total-row">
+                <span>Processing Fee @if(($priceBreakdown['processing_fee']['type'] ?? 'percentage') === 'percentage')({{ number_format((float) $priceBreakdown['processing_fee']['rate'], 2) }}%)@endif</span>
+                <span>${{ number_format((float) $priceBreakdown['processing_fee']['amount'], 2) }}</span>
+            </div>
+            @endif
+
+            <div class="total-row grand-total">
+                <span>Amount Due</span>
+                <span>${{ number_format((float) ($priceBreakdown['grand_total'] ?? $transaction->total), 2) }}</span>
+            </div>
+        </div>
+        @else
+        <div class="total-section">
+            <div class="total-row grand-total">
+                <span>Amount Due</span>
+                <span>${{ number_format((float) $transaction->total, 2) }}</span>
+            </div>
+        </div>
+        @endif
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>Thank you for your purchase! This is an automated invoice. Please do not reply to this email.</p>
+        <p style="margin-top: 10px; font-size: 10px; color: #999;">CartVIP - Payment Processing</p>
+    </div>
+</div>
+</body>
+</html>

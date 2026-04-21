@@ -2523,26 +2523,29 @@
                                                                             type="number"
                                                                             min="1"
                                                                             step="1"
-                                                                            value="1"
+                                                                            value="2"
+                                                                            max="{{ (int) ($item->number_of_guest ?? 2) }}"
                                                                             data-package-type="{{ $item->package_type }}"
                                                                             data-guests-per-table="{{ (int) ($item->guests_per_table ?? 0) }}"
+                                                                            data-package-guest-limit="{{ (int) ($item->number_of_guest ?? 2) }}"
                                                                             data-multiple="{{ $item->multiple }}"
                                                                             data-id="{{ $item->id }}"
                                                                             class="form-select package_number_of_guestss"
                                                                         />
                                                                     @else
                                                                         @php
-                                                                            $tableCap = max(1, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 1));
+                                                                            $tableCap = max(2, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 2));
                                                                         @endphp
                                                                         <select
                                                                             data-package-type="{{ $item->package_type }}"
                                                                             data-guests-per-table="{{ (int) ($item->guests_per_table ?? 0) }}"
+                                                                            data-package-guest-limit="{{ $tableCap }}"
                                                                             data-multiple="{{ $item->multiple }}"
                                                                             data-id="{{ $item->id }}"
                                                                             class="form-select package_number_of_guestss"
                                                                         >
                                                                             @for ($i = 1; $i <= $tableCap; $i++)
-                                                                                <option value="{{ $i }}">{{ $i }}</option>
+                                                                                <option value="{{ $i }}" @selected($i == 2)>{{ $i }}</option>
                                                                             @endfor
                                                                         </select>
                                                                     @endif
@@ -2900,7 +2903,7 @@
                                         <input type="hidden" name="affiliate_slug" value="{{ $affiliateReferral->slug ?? '' }}">
 
                                         <input type="hidden" name="package_number_of_guest"
-                                            class="package_number_of_guest" value="1">
+                                            class="package_number_of_guest" value="2">
 
                                         <!-- Step 3: Payment Information -->
                                         <section class="checkout-section payment-info dynamic-price mt-4"

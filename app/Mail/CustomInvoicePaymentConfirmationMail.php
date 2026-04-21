@@ -7,9 +7,11 @@ use App\Models\Transaction;
 use App\Models\Website;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class CustomInvoicePaymentConfirmationMail extends Mailable
 {
@@ -62,6 +64,32 @@ class CustomInvoicePaymentConfirmationMail extends Mailable
 
     public function attachments(): array
     {
-        return [];
+        if (!$this->invoice || !$this->transaction) {
+            return [];
+        }
+
+        try {
+            $pdf = Pdf::loadView('custom-invoice-pdf', [
+                'invoice' => $this->invoice,
+                'transaction' => $this->transaction,
+                'paymentType' => $this->paymentType,
+                'website' => $this->website,
+            ]);
+
+            return [
+                Attachment::fromData(
+                    fn() => $pdf->output(),
+                    'invoice-' . $this->invoice->id . '.pdf'
+                )->withMime('application/pdf'),
+            ];
+        } catch (\Exception $e) {
+            // If PDF generation fails, return no attachments
+            \Log::warning('Custom Invoice PDF generation failed', [
+                'invoice_id' => $this->invoice->id ?? 'unknown',
+                'transaction_id' => $this->transaction->transaction_id ?? 'unknown',
+                'error' => $e->getMessage(),
+            ]);
+            return [];
+        }
     }
 }

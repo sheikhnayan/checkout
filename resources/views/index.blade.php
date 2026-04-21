@@ -2493,26 +2493,29 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                             type="number"
                                                                             min="1"
                                                                             step="1"
-                                                                            value="1"
+                                                                            value="2"
+                                                                            max="{{ (int) ($item->number_of_guest ?? 2) }}"
                                                                             data-package-type="{{ $item->package_type }}"
                                                                             data-guests-per-table="{{ (int) ($item->guests_per_table ?? 0) }}"
+                                                                            data-package-guest-limit="{{ (int) ($item->number_of_guest ?? 2) }}"
                                                                             data-multiple="{{ $item->multiple }}"
                                                                             data-id="{{ $item->id }}"
                                                                             class="form-select package_number_of_guestss"
                                                                         />
                                                                     @else
                                                                         @php
-                                                                            $tableCap = max(1, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 1));
+                                                                            $tableCap = max(2, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 2));
                                                                         @endphp
                                                                         <select
                                                                             data-package-type="{{ $item->package_type }}"
                                                                             data-guests-per-table="{{ (int) ($item->guests_per_table ?? 0) }}"
+                                                                            data-package-guest-limit="{{ $tableCap }}"
                                                                             data-multiple="{{ $item->multiple }}"
                                                                             data-id="{{ $item->id }}"
                                                                             class="form-select package_number_of_guestss"
                                                                         >
                                                                             @for ($i = 1; $i <= $tableCap; $i++)
-                                                                                <option value="{{ $i }}">{{ $i }}</option>
+                                                                                <option value="{{ $i }}" @selected($i == 2)>{{ $i }}</option>
                                                                             @endfor
                                                                         </select>
                                                                     @endif
@@ -2835,7 +2838,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                                         <input type="hidden" name="affiliate_slug" value="{{ $affiliateReferral->slug ?? '' }}">
     
-                                        <input type="hidden" name="package_number_of_guest" class="package_number_of_guest" value="1">
+                                        <input type="hidden" name="package_number_of_guest" class="package_number_of_guest" value="2">
     
                                         <!-- Step 3: Payment Information -->
                                         <section class="checkout-section payment-info dynamic-price mt-4" id="section-3" style="display: none;">
@@ -3813,7 +3816,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 $('.promo_code').val('');
                 $('#package_id').val('');
                 $('#addons').val('');
-                $('.package_number_of_guest').val('1');
+                $('.package_number_of_guest').val('2');
+                $('.package_number_of_guestss').val('2');
                 $('.vip-card').removeClass('selected');
 
                 syncCheckoutCartFields();
