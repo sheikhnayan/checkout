@@ -3709,6 +3709,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 $field.prop('disabled', false);
             }
 
+            window.clearGuestFieldError = clearGuestFieldError;
+            window.showGuestFieldError = showGuestFieldError;
+            window.updateGuestSelectOptions = updateGuestSelectOptions;
+            window.parseMultipleFlag = parseMultipleFlag;
+
             function refreshEventPackageSelectionLimits(showAlertWhenReduced) {
                 var useDate = window.getSelectedUseDate();
                 $('.package_number_of_guestss').each(function() {
@@ -4679,25 +4684,35 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     }
 
                     if (selectedValue > maxSelectable) {
-                        updateGuestSelectOptions($field, maxSelectable, response.message || 'Sold Out!');
-                        showGuestFieldError($field, response.message || 'The selected quantity is not available for this date.');
+                        if (typeof window.updateGuestSelectOptions === 'function') {
+                            window.updateGuestSelectOptions($field, maxSelectable, response.message || 'Sold Out!');
+                        }
+                        if (typeof window.showGuestFieldError === 'function') {
+                            window.showGuestFieldError($field, response.message || 'The selected quantity is not available for this date.');
+                        }
                         return;
                     }
 
-                    clearGuestFieldError($field);
+                    if (typeof window.clearGuestFieldError === 'function') {
+                        window.clearGuestFieldError($field);
+                    }
                     $('.package_number_of_guest').val(String(selectedValue));
 
                     var pkg = window.cart.find(function(p) { return String(p.packageId) === String(packageId); });
                     if (pkg) {
                         pkg.guests = selectedValue;
-                        pkg.isMultiple = parseMultipleFlag($field.data('multiple'));
+                        pkg.isMultiple = (typeof window.parseMultipleFlag === 'function')
+                            ? window.parseMultipleFlag($field.data('multiple'))
+                            : ($field.data('multiple') === true || $field.data('multiple') === 1 || $field.data('multiple') === '1' || $field.data('multiple') === 'true');
                         window.renderCart();
                         window.calculateCartTotal();
                     }
 
                     syncEventCapacityUi();
                 }).fail(function() {
-                    showGuestFieldError($field, 'Could not verify availability right now. Please try again.');
+                    if (typeof window.showGuestFieldError === 'function') {
+                        window.showGuestFieldError($field, 'Could not verify availability right now. Please try again.');
+                    }
                 });
             });
 
