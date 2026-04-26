@@ -1693,69 +1693,85 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 12px;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.12);
+            gap: 16px;
+            padding: 14px 16px;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 14px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03));
+            margin-bottom: 10px;
         }
 
         #addonSelectionModal .addon-modal-label {
-            display: inline-block;
-            color: #e8eaf6 !important;
-            font-size: 14px;
+            display: block;
+            color: #f4f6ff !important;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.35;
+            flex: 1;
+        }
+
+        #addonSelectionModal .addon-modal-unit {
+            color: rgba(247, 226, 180, 0.95);
+            font-weight: 600;
+            margin-left: 6px;
         }
 
         #addonSelectionModal .addon-modal-desc {
             display: block;
-            margin-top: 3px;
-            color: rgba(232, 234, 246, 0.7);
+            margin-top: 4px;
+            color: rgba(232, 234, 246, 0.72);
             font-size: 12px;
             line-height: 1.45;
+            font-weight: 500;
         }
 
-        #addonSelectionModal .addon-switch {
-            position: relative;
+        #addonSelectionModal .addon-line-total {
             display: inline-block;
-            width: 46px;
-            height: 26px;
+            margin-top: 5px;
+            color: #fff;
+            font-size: 12px;
+            opacity: 0.88;
+        }
+
+        #addonSelectionModal .addon-qty-stepper {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px;
+            border-radius: 999px;
+            background: rgba(8, 12, 24, 0.7);
+            border: 1px solid rgba(255,255,255,0.15);
             flex-shrink: 0;
         }
 
-        #addonSelectionModal .addon-modal-switch-input {
-            position: absolute;
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        #addonSelectionModal .addon-switch-slider {
-            position: absolute;
-            inset: 0;
-            cursor: pointer;
-            background: rgba(255,255,255,0.18);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 999px;
-            transition: all .2s ease;
-        }
-
-        #addonSelectionModal .addon-switch-slider::before {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            left: 2px;
-            top: 2px;
+        #addonSelectionModal .addon-qty-btn {
+            background: rgba(255,255,255,0.09);
+            border: 1px solid rgba(255,255,255,0.26);
+            color: #fff;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
-            background: #fff;
-            transition: transform .2s ease;
+            font-size: 1.2em;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            transition: all .15s ease;
         }
 
-        #addonSelectionModal .addon-modal-switch-input:checked + .addon-switch-slider {
-            background: var(--brand-gradient);
-            border-color: rgba(247,226,180,0.65);
+        #addonSelectionModal .addon-qty-btn:hover {
+            background: var(--aff-accent, #f7e2b4);
+            color: #111;
+            border-color: transparent;
         }
 
-        #addonSelectionModal .addon-modal-switch-input:checked + .addon-switch-slider::before {
-            transform: translateX(20px);
+        #addonSelectionModal .addon-qty-val {
+            min-width: 30px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 1rem;
+            color: #fff;
         }
 
         .vip-price {
@@ -3792,7 +3808,7 @@
                     html += `<div class="cart-line">`
                         + `<div class="cart-line-main"><div><div class="cart-item-name">${pkg.packageName}</div><div class="cart-item-price">${priceLine}</div></div>`
                         + `<button onclick='window.removePackageFromCart("${pkg.packageId}")' class="cart-remove-btn">Remove</button></div>`
-                        + (pkg.addons.length ? `<div class="cart-addons">Add-ons: ${pkg.addons.map(a => a.name + ' (' + formatCurrency(a.price) + ')').join(', ')}</div>` : '')
+                        + (pkg.addons.length ? `<div class="cart-addons">Add-ons: ${pkg.addons.map(a => a.name + ((parseInt(a.qty, 10) || 1) > 1 ? (' x' + (parseInt(a.qty, 10) || 1)) : '') + ' (' + formatCurrency(a.price) + ')').join(', ')}</div>` : '')
                         + `</div>`;
                 });
                 $('#cart-list').html(html);
@@ -4439,16 +4455,26 @@
                 if (!addons.length) {
                     html = '<p style="margin:0;opacity:.8;">No add-ons available for this package. Click confirm to continue.</p>';
                 } else {
+                    let existingCartPkg = Array.isArray(window.cart) ? window.cart.find(p => p.packageId == selection.packageId) : null;
+                    let existingAddons = existingCartPkg ? (existingCartPkg.addons || []) : [];
                     addons.forEach(function(addon) {
+                        let unitPrice = parseFloat(addon.price || 0);
+                        let existingAddon = existingAddons.find(a => String(a.id) === String(addon.id));
+                        let currentQty = existingAddon ? (parseInt(existingAddon.qty, 10) || (existingAddon.price > 0 ? Math.round(existingAddon.price / unitPrice) : 1)) : 0;
+                        if (!Number.isFinite(currentQty) || currentQty < 0) {
+                            currentQty = 0;
+                        }
                         let description = String(addon.description || '').trim();
                         let descriptionHtml = description ? ('<small class="addon-modal-desc">' + escapeAddonHtml(description) + '</small>') : '';
-                        html += '<label class="addon-modal-row">'
-                            + '<span class="addon-modal-label">' + escapeAddonHtml(addon.name) + ' <span style="opacity:.6;">(' + formatCurrency(addon.price || 0) + ')</span>' + descriptionHtml + '</span>'
-                            + '<span class="addon-switch">'
-                            + '<input type="checkbox" class="addon-modal-switch-input" data-id="' + addon.id + '" data-name="' + escapeAddonHtml(addon.name) + '" data-price="' + parseFloat(addon.price || 0) + '">'
-                            + '<span class="addon-switch-slider"></span>'
+                        let lineTotal = unitPrice * currentQty;
+                        html += '<div class="addon-modal-row">'
+                            + '<span class="addon-modal-label">' + escapeAddonHtml(addon.name) + '<span class="addon-modal-unit">' + formatCurrency(unitPrice) + '/ea</span>' + descriptionHtml + '<small class="addon-line-total">Line total: <span class="addon-line-total-value" data-id="' + addon.id + '">' + formatCurrency(lineTotal) + '</span></small></span>'
+                            + '<span class="addon-qty-stepper">'
+                            + '<button type="button" class="addon-qty-btn addon-qty-dec" data-id="' + addon.id + '">&#8722;</button>'
+                            + '<span class="addon-qty-val" data-id="' + addon.id + '" data-name="' + escapeAddonHtml(addon.name) + '" data-price="' + unitPrice + '">' + currentQty + '</span>'
+                            + '<button type="button" class="addon-qty-btn addon-qty-inc" data-id="' + addon.id + '">+</button>'
                             + '</span>'
-                            + '</label>';
+                            + '</div>';
                     });
                 }
 
@@ -4530,12 +4556,18 @@
                     let selection = window.pendingPackageSelection;
                     let selectedAddons = [];
 
-                    $('#addonSelectionModalBody .addon-modal-switch-input:checked').each(function() {
-                        selectedAddons.push({
-                            id: $(this).data('id'),
-                            name: $(this).data('name'),
-                            price: parseFloat($(this).data('price'))
-                        });
+                    $('#addonSelectionModalBody .addon-qty-val').each(function() {
+                        let qty = parseInt($(this).text(), 10) || 0;
+                        if (qty > 0) {
+                            let unitPrice = parseFloat($(this).data('price'));
+                            selectedAddons.push({
+                                id: $(this).data('id'),
+                                name: $(this).data('name'),
+                                unit_price: unitPrice,
+                                price: unitPrice * qty,
+                                qty: qty
+                            });
+                        }
                     });
 
                     window.addPackageToCart(selection.packageId, selection.packageName, selection.packagePrice, selection.guests, selectedAddons, selection.transportation, selection.isMultiple);
@@ -4549,6 +4581,26 @@
 
                     bootstrap.Modal.getOrCreateInstance(document.getElementById('addonSelectionModal')).hide();
                     window.pendingPackageSelection = null;
+                });
+
+                $(document).on('click', '#addonSelectionModalBody .addon-qty-dec', function() {
+                    let id = $(this).data('id');
+                    let valEl = $('#addonSelectionModalBody .addon-qty-val[data-id="' + id + '"]');
+                    let current = parseInt(valEl.text(), 10) || 0;
+                    let next = current > 0 ? current - 1 : 0;
+                    valEl.text(next);
+                    let unitPrice = parseFloat(valEl.data('price')) || 0;
+                    $('#addonSelectionModalBody .addon-line-total-value[data-id="' + id + '"]').text(formatCurrency(unitPrice * next));
+                });
+
+                $(document).on('click', '#addonSelectionModalBody .addon-qty-inc', function() {
+                    let id = $(this).data('id');
+                    let valEl = $('#addonSelectionModalBody .addon-qty-val[data-id="' + id + '"]');
+                    let current = parseInt(valEl.text(), 10) || 0;
+                    let next = current + 1;
+                    valEl.text(next);
+                    let unitPrice = parseFloat(valEl.data('price')) || 0;
+                    $('#addonSelectionModalBody .addon-line-total-value[data-id="' + id + '"]').text(formatCurrency(unitPrice * next));
                 });
 
                 setTimeout(function() {
@@ -4815,10 +4867,37 @@
             $('#applyPromoBtn').on('click', function() {
                 let code = $('#promo_code').val().trim();
                 if (!code) return;
-                $.get('/{{ $data->slug }}/check/' + encodeURIComponent(code), { source: 'club' }, function(res) {
+
+                var promoSource = '{{ !empty($affiliateReferral) ? 'affiliate' : 'club' }}';
+                var ownerSlug = '{{ !empty($affiliateReferral) ? $affiliateReferral->slug : '' }}';
+                var cartItems = Array.isArray(window.cart) ? window.cart : [];
+                var packageIds = [];
+                var subtotal = 0;
+                var totalQty = 0;
+
+                cartItems.forEach(function(pkg) {
+                    var pkgId = parseInt(pkg.packageId, 10) || 0;
+                    if (pkgId > 0 && packageIds.indexOf(pkgId) === -1) {
+                        packageIds.push(pkgId);
+                    }
+
+                    var guests = parseInt(pkg.guests, 10) || 1;
+                    var billableGuests = (pkg.isMultiple === true || pkg.isMultiple === 1 || pkg.isMultiple === '1') ? guests : 1;
+                    subtotal += (parseFloat(pkg.packagePrice) || 0) * billableGuests;
+                    subtotal += (pkg.addons || []).reduce(function(sum, addon) { return sum + (parseFloat(addon.price) || 0); }, 0);
+                    totalQty += guests;
+                });
+
+                $.get('/{{ $data->slug }}/check/' + encodeURIComponent(code), {
+                    source: promoSource,
+                    owner_slug: ownerSlug,
+                    package_ids: packageIds.join(','),
+                    subtotal: subtotal.toFixed(2),
+                    total_qty: totalQty
+                }, function(res) {
                     if (res.valid === false || res.valid === "false") {
                         window.cartCoupon = null;
-                        alert('Invalid promo code');
+                        alert(res.message || 'Invalid promo code');
                         window.calculateCartTotal();
                     } else {
                         window.cartCoupon = {

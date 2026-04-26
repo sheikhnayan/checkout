@@ -36,7 +36,7 @@ function renderCart() {
         html += `<div style='border-bottom:1px solid #444; padding:10px 0;'>`
             + `<strong>${pkg.packageName}</strong> x${pkg.guests} - $${(pkg.packagePrice * pkg.guests).toFixed(2)}`
             + `<button onclick='removePackageFromCart("${pkg.packageId}")' style='float:right; color:#fff; background:#c00; border:none; border-radius:5px; padding:5px 10px; cursor:pointer;'>Remove</button>`
-            + `<div style='margin-left:20px; font-size:12px;'>Addons: ${pkg.addons.length ? pkg.addons.map(a => a.name + ' ($' + a.price + ')').join(', ') : 'None'}</div>`
+            + `<div style='margin-left:20px; font-size:12px;'>Addons: ${pkg.addons.length ? pkg.addons.map(a => a.name + (a.qty && a.qty > 1 ? ' x' + a.qty : '') + ' ($' + parseFloat(a.price).toFixed(2) + ')').join(', ') : 'None'}</div>`
             + `</div>`;
     });
     $('#cart-list').html(html);
@@ -121,7 +121,8 @@ $(document).on('change', '.termsConsent', function() {
                 addons.push({ 
                     id: $(this).attr('id'), 
                     name: $(this).data('name'), 
-                    price: parseFloat($(this).data('price')) 
+                    price: parseFloat($(this).data('price')),
+                    qty: 1
                 });
             });
             pkg.addons = addons;

@@ -50,9 +50,17 @@ class TransactionMail extends Mailable
      */
     public function content(): Content
     {
+        $clubName = $this->mailData['club_name']
+            ?? $this->mailData['website_name']
+            ?? optional($this->website)->name
+            ?? null;
+
         return new Content(
             view: 'emails.transaction',
-            with: ['mailData' => $this->mailData],
+            with: [
+                'mailData' => $this->mailData,
+                'clubName' => $clubName,
+            ],
         );
     }
 

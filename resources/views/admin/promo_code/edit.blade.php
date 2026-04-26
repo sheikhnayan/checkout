@@ -107,41 +107,185 @@ label{
                                     <form action="{{ route('admin.promo_code.update', $id) }}" method="post" enctype="multipart/form-data">
                                         @csrf
 
+                                        @php
+                                            $selectedPackageIds = old('applies_to_package_ids', (array) ($data->applies_to_package_ids ?? []));
+                                            $selectedPackageIds = array_map('strval', $selectedPackageIds);
+                                            $discountMethod = old('discount_method', $data->discount_method ?? 'code');
+                                            $discountType = old('discount_value_type', $data->discount_value_type ?? $data->type ?? 'percentage');
+                                            $discountValue = old('discount_value', $data->discount_value ?? $data->percentage ?? 0);
+                                            $appliesTo = old('applies_to', $data->applies_to ?? 'all_packages');
+                                            $minReqType = old('min_requirement_type', $data->min_requirement_type ?? 'none');
+                                        @endphp
+
                                         <div class="card-body">
                                             <h5 class="mb-3 text-dark">{{ $title ?? 'Promo Code' }}</h5>
+
+                                            <h6 class="form-section-title">Amount Off Products</h6>
                                             <div class="row">
-                                                <div class="col-md-6">
+                                                <div class="col-md-4">
                                                     <div class="mb-3">
-                                                        <label for="name" class="form-label">Name</label>
-                                                        <input type="text" name="name" class="form-control" id="name" value="{{ $data->name }}" placeholder="Promo Code Name" required>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="percentage" class="form-label">Percentage</label>
-                                                        <input type="number" step="0.00001" name="percentage" value="{{ $data->percentage }}" class="form-control" id="percentage" placeholder="Promo Code Percentage" required>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="code" class="form-label">Promo Code</label>
-                                                        <input type="text" name="promo_code" class="form-control" value="{{ $data->promo_code }}" id="code" placeholder="Promo Code" required>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="type" class="form-label">Type</label>
-                                                        <select name="type" class="form-control" id="type" required>
-                                                            <option {{ $data->type == 'percentage' ? 'selected' : '' }} value="percentage">Percentage</option>
-                                                            <option {{ $data->type == 'fixed' ? 'selected' : '' }} value="fixed">Fixed Amount</option>
+                                                        <label for="discount_method" class="form-label">Method</label>
+                                                        <select name="discount_method" id="discount_method" class="form-control" required>
+                                                            <option value="code" {{ $discountMethod === 'code' ? 'selected' : '' }}>Discount Code</option>
+                                                            <option value="automatic" {{ $discountMethod === 'automatic' ? 'selected' : '' }}>Automatic Discount</option>
                                                         </select>
                                                     </div>
                                                 </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-3">
+                                                        <label for="name" class="form-label">Internal Name</label>
+                                                        <input type="text" name="name" class="form-control" id="name" value="{{ old('name', $data->name) }}" placeholder="VIP Spring Offer">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4" id="promo-code-col">
+                                                    <div class="mb-3">
+                                                        <label for="code" class="form-label">Discount Code</label>
+                                                        <input type="text" name="promo_code" class="form-control" value="{{ old('promo_code', $data->promo_code) }}" id="code" placeholder="VIP100" required>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                                                @if(($promoAudience ?? ($data->audience ?? 'club')) === 'affiliate')
+                                            <h6 class="form-section-title">Discount Value</h6>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="mb-3">
+                                                        <label for="discount_value_type" class="form-label">Value Type</label>
+                                                        <select name="discount_value_type" class="form-control" id="discount_value_type" required>
+                                                            <option value="percentage" {{ $discountType === 'percentage' ? 'selected' : '' }}>Percentage</option>
+                                                            <option value="fixed" {{ $discountType === 'fixed' ? 'selected' : '' }}>Fixed Amount</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-3">
+                                                        <label for="discount_value" class="form-label">Value</label>
+                                                        <input type="number" step="0.01" min="0" name="discount_value" class="form-control" id="discount_value" value="{{ $discountValue }}" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-3">
+                                                        <label for="applies_to" class="form-label">Applies To</label>
+                                                        <select name="applies_to" class="form-control" id="applies_to" required>
+                                                            <option value="all_packages" {{ $appliesTo === 'all_packages' ? 'selected' : '' }}>All Packages</option>
+                                                            <option value="specific_packages" {{ $appliesTo === 'specific_packages' ? 'selected' : '' }}>Specific Packages</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row" id="specific-packages-row" style="display:none;">
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label for="applies_to_package_ids" class="form-label">Select Packages</label>
+                                                        <select name="applies_to_package_ids[]" id="applies_to_package_ids" class="form-control" multiple size="6">
+                                                            @foreach(($packageOptions ?? []) as $pkg)
+                                                                <option value="{{ $pkg['id'] }}" {{ in_array((string) $pkg['id'], $selectedPackageIds, true) ? 'selected' : '' }}>{{ $pkg['name'] }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <h6 class="form-section-title">Eligibility</h6>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="eligibility" class="form-label">Customer Eligibility</label>
+                                                        <select name="eligibility" class="form-control" id="eligibility">
+                                                            <option value="all_customers" {{ old('eligibility', $data->eligibility ?? 'all_customers') === 'all_customers' ? 'selected' : '' }}>All Customers</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <h6 class="form-section-title">Minimum Purchase Requirements</h6>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="mb-3">
+                                                        <label for="min_requirement_type" class="form-label">Requirement Type</label>
+                                                        <select name="min_requirement_type" class="form-control" id="min_requirement_type">
+                                                            <option value="none" {{ $minReqType === 'none' ? 'selected' : '' }}>No Minimum Requirements</option>
+                                                            <option value="amount" {{ $minReqType === 'amount' ? 'selected' : '' }}>Minimum Purchase Amount</option>
+                                                            <option value="quantity" {{ $minReqType === 'quantity' ? 'selected' : '' }}>Minimum Quantity of Items</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4" id="min-amount-col" style="display:none;">
+                                                    <div class="mb-3">
+                                                        <label for="min_purchase_amount" class="form-label">Minimum Amount ($)</label>
+                                                        <input type="number" min="0" step="0.01" name="min_purchase_amount" id="min_purchase_amount" class="form-control" value="{{ old('min_purchase_amount', $data->min_purchase_amount) }}">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4" id="min-qty-col" style="display:none;">
+                                                    <div class="mb-3">
+                                                        <label for="min_purchase_quantity" class="form-label">Minimum Quantity</label>
+                                                        <input type="number" min="1" step="1" name="min_purchase_quantity" id="min_purchase_quantity" class="form-control" value="{{ old('min_purchase_quantity', $data->min_purchase_quantity) }}">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <h6 class="form-section-title">Maximum Discount Uses</h6>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="mb-3">
+                                                        <label for="usage_limit_total" class="form-label">Usage Limit (Total)</label>
+                                                        <input type="number" min="1" step="1" name="usage_limit_total" id="usage_limit_total" class="form-control" value="{{ old('usage_limit_total', $data->usage_limit_total) }}" placeholder="Leave blank for unlimited">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 d-flex align-items-end">
+                                                    <div class="mb-3 form-check">
+                                                        <input type="checkbox" class="form-check-input" id="limit_one_per_customer" name="limit_one_per_customer" value="1" {{ old('limit_one_per_customer', $data->limit_one_per_customer) ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="limit_one_per_customer">Limit to one use per customer</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 d-flex align-items-end">
+                                                    <div class="mb-3 form-check">
+                                                        <input type="checkbox" class="form-check-input" id="is_active" name="is_active" value="1" {{ old('is_active', $data->is_active ?? 1) ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="is_active">Active</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <h6 class="form-section-title">Combinations</h6>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="mb-3 form-check">
+                                                        <input type="checkbox" class="form-check-input" id="combine_product_discounts" name="combine_product_discounts" value="1" {{ old('combine_product_discounts', $data->combine_product_discounts) ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="combine_product_discounts">Product Discounts</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-3 form-check">
+                                                        <input type="checkbox" class="form-check-input" id="combine_order_discounts" name="combine_order_discounts" value="1" {{ old('combine_order_discounts', $data->combine_order_discounts) ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="combine_order_discounts">Order Discounts</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-3 form-check">
+                                                        <input type="checkbox" class="form-check-input" id="combine_shipping_discounts" name="combine_shipping_discounts" value="1" {{ old('combine_shipping_discounts', $data->combine_shipping_discounts) ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="combine_shipping_discounts">Shipping Discounts</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <h6 class="form-section-title">Active Dates</h6>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="starts_at" class="form-label">Start Date</label>
+                                                        <input type="datetime-local" name="starts_at" class="form-control" id="starts_at" value="{{ old('starts_at', optional($data->starts_at)->format('Y-m-d\\TH:i')) }}">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="ends_at" class="form-label">End Date</label>
+                                                        <input type="datetime-local" name="ends_at" class="form-control" id="ends_at" value="{{ old('ends_at', optional($data->ends_at)->format('Y-m-d\\TH:i')) }}">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            @if(($promoAudience ?? ($data->audience ?? 'club')) === 'affiliate')
+                                            <h6 class="form-section-title">Affiliate Target</h6>
+                                            <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="affiliate_id" class="form-label">Specific Affiliate</label>
@@ -155,9 +299,12 @@ label{
                                                         </select>
                                                     </div>
                                                 </div>
-                                                @endif
+                                            </div>
+                                            @endif
 
-                                                @if(($promoAudience ?? ($data->audience ?? 'club')) === 'entertainer')
+                                            @if(($promoAudience ?? ($data->audience ?? 'club')) === 'entertainer')
+                                            <h6 class="form-section-title">Entertainer Target</h6>
+                                            <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="entertainer_id" class="form-label">Specific Entertainer</label>
@@ -171,27 +318,65 @@ label{
                                                         </select>
                                                     </div>
                                                 </div>
-                                                @endif
+                                            </div>
+                                            @endif
 
+                                            <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
                                                         <label for="description" class="form-label">Description</label>
-                                                        <textarea name="description" class="form-control" id="description" rows="4" placeholder="Promo Code Description">{{ $data->description }}</textarea>
+                                                        <textarea name="description" class="form-control" id="description" rows="4" placeholder="Promo Code Description">{{ old('description', $data->description) }}</textarea>
                                                     </div>
                                                 </div>
-
-
                                             </div>
+
                                             <input type="hidden" name="audience" value="{{ $promoAudience ?? ($data->audience ?? 'club') }}">
                                             <input type="hidden" name="website_id" value="{{ $data->website_id }}">
-                                            <div id="promocodes-list"></div>
 
-                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                            <button type="submit" class="btn btn-primary">Update Promo Code</button>
                                             <a href="{{ route('admin.promo_code.index') }}" class="btn btn-danger">Cancel</a>
-
-
-
+                                        </div>
                                     </form>
+
+                                    <script>
+                                        (function () {
+                                            var appliesTo = document.getElementById('applies_to');
+                                            var specificPackagesRow = document.getElementById('specific-packages-row');
+                                            var minRequirementType = document.getElementById('min_requirement_type');
+                                            var minAmountCol = document.getElementById('min-amount-col');
+                                            var minQtyCol = document.getElementById('min-qty-col');
+                                            var discountMethod = document.getElementById('discount_method');
+                                            var promoCodeCol = document.getElementById('promo-code-col');
+                                            var codeInput = document.getElementById('code');
+
+                                            function syncAppliesTo() {
+                                                if (!appliesTo || !specificPackagesRow) return;
+                                                specificPackagesRow.style.display = appliesTo.value === 'specific_packages' ? '' : 'none';
+                                            }
+
+                                            function syncMinimumRequirement() {
+                                                if (!minRequirementType) return;
+                                                var val = minRequirementType.value;
+                                                if (minAmountCol) minAmountCol.style.display = val === 'amount' ? '' : 'none';
+                                                if (minQtyCol) minQtyCol.style.display = val === 'quantity' ? '' : 'none';
+                                            }
+
+                                            function syncDiscountMethod() {
+                                                if (!discountMethod || !promoCodeCol || !codeInput) return;
+                                                var isCode = discountMethod.value === 'code';
+                                                promoCodeCol.style.display = isCode ? '' : 'none';
+                                                codeInput.required = isCode;
+                                            }
+
+                                            if (appliesTo) appliesTo.addEventListener('change', syncAppliesTo);
+                                            if (minRequirementType) minRequirementType.addEventListener('change', syncMinimumRequirement);
+                                            if (discountMethod) discountMethod.addEventListener('change', syncDiscountMethod);
+
+                                            syncAppliesTo();
+                                            syncMinimumRequirement();
+                                            syncDiscountMethod();
+                                        })();
+                                    </script>
                                 </div>
                             </div>
                         </div>

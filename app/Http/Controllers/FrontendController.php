@@ -129,6 +129,9 @@ class FrontendController extends Controller
 
         $check = PromoCode::where('website_id', $website->id)
             ->where('is_archieved', 0)
+            ->where(function ($query) {
+                $query->whereNull('is_active')->orWhere('is_active', 1);
+            })
             ->where('audience', $source)
             ->whereRaw('LOWER(promo_code) = ?', [strtolower($normalizedCode)]);
 
@@ -169,7 +172,66 @@ class FrontendController extends Controller
         $check = $check->first();
 
         if ($check) {
-            return response()->json(['valid' => true, 'discount' => $check->percentage, 'type' => $check->type, 'id' => $check->id]);
+            $now = now();
+            if ($check->starts_at && $check->starts_at->gt($now)) {
+                return response()->json(['valid' => false, 'message' => 'This promo code is not active yet.']);
+            }
+
+            if ($check->ends_at && $check->ends_at->lt($now)) {
+                return response()->json(['valid' => false, 'message' => 'This promo code has expired.']);
+            }
+
+            if (!empty($check->usage_limit_total) && (int) ($check->usage_count ?? 0) >= (int) $check->usage_limit_total) {
+                return response()->json(['valid' => false, 'message' => 'This promo code has reached its usage limit.']);
+            }
+
+            $packageIds = collect(explode(',', (string) request()->query('package_ids', '')))
+                ->map(fn ($id) => (int) trim($id))
+                ->filter(fn ($id) => $id > 0)
+                ->unique()
+                ->values()
+                ->all();
+
+            if (($check->applies_to ?? PromoCode::APPLIES_TO_ALL_PACKAGES) === PromoCode::APPLIES_TO_SPECIFIC_PACKAGES) {
+                $allowedPackageIds = collect((array) ($check->applies_to_package_ids ?? []))
+                    ->map(fn ($id) => (int) $id)
+                    ->filter(fn ($id) => $id > 0)
+                    ->values();
+
+                $hasMatch = !empty($packageIds) && collect($packageIds)->intersect($allowedPackageIds)->isNotEmpty();
+                if (!$hasMatch) {
+                    return response()->json(['valid' => false, 'message' => 'This promo code does not apply to the selected package(s).']);
+                }
+            }
+
+            $subtotal = (float) request()->query('subtotal', 0);
+            $totalQty = (int) request()->query('total_qty', 0);
+            $minRequirementType = (string) ($check->min_requirement_type ?? PromoCode::MIN_REQUIREMENT_NONE);
+
+            if ($minRequirementType === PromoCode::MIN_REQUIREMENT_AMOUNT) {
+                $minAmount = (float) ($check->min_purchase_amount ?? 0);
+                if ($minAmount > 0 && $subtotal < $minAmount) {
+                    return response()->json(['valid' => false, 'message' => 'Minimum order amount for this code is $' . number_format($minAmount, 2) . '.']);
+                }
+            }
+
+            if ($minRequirementType === PromoCode::MIN_REQUIREMENT_QUANTITY) {
+                $minQty = (int) ($check->min_purchase_quantity ?? 0);
+                if ($minQty > 0 && $totalQty < $minQty) {
+                    return response()->json(['valid' => false, 'message' => 'Minimum quantity for this code is ' . $minQty . '.']);
+                }
+            }
+
+            $discountType = $check->discount_value_type ?: ($check->type ?: PromoCode::DISCOUNT_TYPE_PERCENTAGE);
+            $discountValue = isset($check->discount_value) ? (float) $check->discount_value : (float) ($check->percentage ?? 0);
+
+            return response()->json([
+                'valid' => true,
+                'discount' => $discountValue,
+                'type' => $discountType,
+                'id' => $check->id,
+                'message' => 'Promo code applied successfully.',
+            ]);
         }
 
         return response()->json(['valid' => false]);

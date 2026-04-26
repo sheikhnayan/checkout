@@ -16,6 +16,7 @@ use App\Models\Entertainer;
 use App\Models\EntertainerPackage;
 use App\Models\EntertainerWalletTransaction;
 use App\Models\PromoCode;
+use App\Models\Addon;
 use App\Mail\TransactionMail;
 use App\Helpers\PackageLimitHelper;
 use Illuminate\Support\Facades\Mail;
@@ -172,6 +173,7 @@ class TransactionController extends Controller
                     $add->addons = $cartSummary['addons_summary'];
                     $add->type = 'package';
                     $add->save();
+                    $this->incrementPromoUsage($validatedPromoCodeId);
                     $this->applyReferralCommission($request, $add, (float) ($cartSummary['commission_base_amount'] ?? 0));
     
                     try {
@@ -212,6 +214,8 @@ class TransactionController extends Controller
                         ];
     
                         $website = Website::findOrFail($website_id);
+                        $mailData['club_name'] = $website->name;
+                        $mailData['website_name'] = $website->name;
                         $mailData['price_breakdown'] = $this->buildPackagePriceBreakdown($add->fresh(), $website);
     
                         $this->applyWebsiteSmtpConfig($website);
@@ -219,7 +223,7 @@ class TransactionController extends Controller
                         // Club/manager email — no QR code
                         $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
                         $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr, $add, $cartItems, $mailData['price_breakdown'], $website);
-                        $send_mail_club->subject('New Package Purched - ' . $transaction_id);
+                        $send_mail_club->subject('Package Purchase - ' . $transaction_id . ' - ' . ($website->name ?? 'Club'));
 
                         // Purchaser email — full mail with QR
                         $send_mail_purchaser = new \App\Mail\TransactionMail($mailData, $add, $cartItems, $mailData['price_breakdown'], $website);
@@ -375,6 +379,7 @@ class TransactionController extends Controller
                     $add->addons = $cartSummary['addons_summary'];
                     $add->type = 'package';
                     $add->save();
+                    $this->incrementPromoUsage($validatedPromoCodeId);
                     $this->applyReferralCommission($request, $add, (float) ($cartSummary['commission_base_amount'] ?? 0));
     
                     try {
@@ -415,6 +420,8 @@ class TransactionController extends Controller
                         ];
     
                         $website = Website::findOrFail($website_id);
+                        $mailData['club_name'] = $website->name;
+                        $mailData['website_name'] = $website->name;
                         $mailData['price_breakdown'] = $this->buildPackagePriceBreakdown($add->fresh(), $website);
     
                         $this->applyWebsiteSmtpConfig($website);
@@ -422,7 +429,7 @@ class TransactionController extends Controller
                         // Club/manager email — no QR code
                         $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
                         $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr, $add, $cartItems, $mailData['price_breakdown'], $website);
-                        $send_mail_club->subject('New Package Purched - ' . $transaction_id);
+                        $send_mail_club->subject('Package Purchase - ' . $transaction_id . ' - ' . ($website->name ?? 'Club'));
 
                         // Purchaser email — full mail with QR
                         $send_mail_purchaser = new \App\Mail\TransactionMail($mailData, $add, $cartItems, $mailData['price_breakdown'], $website);
@@ -600,11 +607,13 @@ class TransactionController extends Controller
                         ];
     
                         $website = Website::findOrFail($request->website_id);
+                        $mailData['club_name'] = $website->name;
+                        $mailData['website_name'] = $website->name;
     
                         $this->applyWebsiteSmtpConfig($website);
     
                         $send_mail = new \App\Mail\TransactionMail($mailData);
-                        $send_mail->subject('New Package Purched - ' . $transaction_id);
+                        $send_mail->subject('Package Purchase - ' . $transaction_id . ' - ' . ($website->name ?? 'Club'));
                         // Send the email
                         foreach ($website->emails as $key => $value) {
                             \Illuminate\Support\Facades\Mail::to($value->email)->send($send_mail);
@@ -910,10 +919,46 @@ class TransactionController extends Controller
                     return null;
                 }
 
+                $addonId = (int) ($addon['id'] ?? 0);
+                $qty = (int) ($addon['qty'] ?? $addon['quantity'] ?? 0);
+                $linePrice = isset($addon['price']) ? (float) $addon['price'] : 0;
+                $unitPrice = isset($addon['unit_price'])
+                    ? (float) $addon['unit_price']
+                    : 0;
+
+                if ($unitPrice <= 0 && $qty > 0 && $linePrice > 0) {
+                    $unitPrice = $linePrice / $qty;
+                }
+
+                if (($unitPrice <= 0 || $qty <= 0) && $addonId > 0) {
+                    $catalogUnit = (float) optional(Addon::find($addonId))->price;
+                    if ($catalogUnit > 0) {
+                        if ($unitPrice <= 0) {
+                            $unitPrice = $catalogUnit;
+                        }
+                        if ($qty <= 0 && $linePrice > 0) {
+                            $estimatedQty = (int) round($linePrice / $catalogUnit);
+                            if ($estimatedQty > 0) {
+                                $qty = $estimatedQty;
+                            }
+                        }
+                    }
+                }
+
+                if ($qty <= 0) {
+                    $qty = 1;
+                }
+
+                if ($unitPrice <= 0) {
+                    $unitPrice = $qty > 0 ? ($linePrice / $qty) : $linePrice;
+                }
+
                 return [
-                    'id' => $addon['id'] ?? null,
+                    'id' => $addonId > 0 ? $addonId : null,
                     'name' => $addon['name'] ?? '',
-                    'price' => isset($addon['price']) ? (float) $addon['price'] : 0,
+                    'qty' => $qty,
+                    'unit_price' => $unitPrice,
+                    'price' => $linePrice,
                 ];
             })->filter()->values()->all();
 
@@ -1426,9 +1471,46 @@ class TransactionController extends Controller
                         return null;
                     }
 
+                    $addonId = (int) ($addon['id'] ?? 0);
+                    $qty = (int) ($addon['qty'] ?? $addon['quantity'] ?? 0);
+                    $linePrice = (float) ($addon['price'] ?? 0);
+                    $unitPrice = isset($addon['unit_price'])
+                        ? (float) $addon['unit_price']
+                        : 0;
+
+                    if ($unitPrice <= 0 && $qty > 0 && $linePrice > 0) {
+                        $unitPrice = $linePrice / $qty;
+                    }
+
+                    if (($unitPrice <= 0 || $qty <= 0) && $addonId > 0) {
+                        $catalogUnit = (float) optional(Addon::find($addonId))->price;
+                        if ($catalogUnit > 0) {
+                            if ($unitPrice <= 0) {
+                                $unitPrice = $catalogUnit;
+                            }
+                            if ($qty <= 0 && $linePrice > 0) {
+                                $estimatedQty = (int) round($linePrice / $catalogUnit);
+                                if ($estimatedQty > 0) {
+                                    $qty = $estimatedQty;
+                                }
+                            }
+                        }
+                    }
+
+                    if ($qty <= 0) {
+                        $qty = 1;
+                    }
+
+                    if ($unitPrice <= 0) {
+                        $unitPrice = $qty > 0 ? ($linePrice / $qty) : $linePrice;
+                    }
+
                     return [
+                        'id' => $addonId > 0 ? $addonId : null,
                         'name' => trim((string) ($addon['name'] ?? '')),
-                        'price' => (float) ($addon['price'] ?? 0),
+                        'qty' => $qty,
+                        'unit_price' => round($unitPrice, 2),
+                        'price' => round($linePrice, 2),
                     ];
                 })
                 ->filter(fn ($addon) => $addon !== null && $addon['name'] !== '')
@@ -1699,9 +1781,15 @@ class TransactionController extends Controller
             return [null, 0];
         }
 
+        $this->validatePromoConstraintsForCheckout($promo, $request);
+
         $baseAmount = max((float) $request->input('payment_total', $request->input('total', 0)), 0);
-        $rawAmount = (float) ($promo->percentage ?? 0);
-        $discount = $promo->type === 'fixed'
+        $alreadyDiscounted = max((float) $request->input('discounted_amount', 0), 0);
+        $baseAmount = max($baseAmount + $alreadyDiscounted, 0);
+
+        $discountType = $promo->discount_value_type ?: ($promo->type ?: PromoCode::DISCOUNT_TYPE_PERCENTAGE);
+        $rawAmount = isset($promo->discount_value) ? (float) $promo->discount_value : (float) ($promo->percentage ?? 0);
+        $discount = $discountType === PromoCode::DISCOUNT_TYPE_FIXED
             ? $rawAmount
             : ($baseAmount * $rawAmount / 100);
 
@@ -1721,6 +1809,99 @@ class TransactionController extends Controller
         }
 
         return PromoCode::AUDIENCE_CLUB;
+    }
+
+    private function validatePromoConstraintsForCheckout(PromoCode $promo, Request $request): void
+    {
+        if ((int) ($promo->is_archieved ?? 0) !== 0 || (isset($promo->is_active) && !$promo->is_active)) {
+            throw ValidationException::withMessages([
+                'promo_code' => 'This promo code is no longer active.',
+            ]);
+        }
+
+        $now = now();
+        if ($promo->starts_at && $promo->starts_at->gt($now)) {
+            throw ValidationException::withMessages([
+                'promo_code' => 'This promo code is not active yet.',
+            ]);
+        }
+
+        if ($promo->ends_at && $promo->ends_at->lt($now)) {
+            throw ValidationException::withMessages([
+                'promo_code' => 'This promo code has expired.',
+            ]);
+        }
+
+        if (!empty($promo->usage_limit_total) && (int) ($promo->usage_count ?? 0) >= (int) $promo->usage_limit_total) {
+            throw ValidationException::withMessages([
+                'promo_code' => 'This promo code has reached its usage limit.',
+            ]);
+        }
+
+        $cartItems = $this->extractCartItemsFromRequest($request);
+        $packageIds = collect($cartItems)->map(fn ($item) => (int) ($item['package_id'] ?? 0))->filter(fn ($id) => $id > 0)->unique();
+
+        if (($promo->applies_to ?? PromoCode::APPLIES_TO_ALL_PACKAGES) === PromoCode::APPLIES_TO_SPECIFIC_PACKAGES) {
+            $allowedPackageIds = collect((array) ($promo->applies_to_package_ids ?? []))
+                ->map(fn ($id) => (int) $id)
+                ->filter(fn ($id) => $id > 0)
+                ->unique();
+
+            if ($allowedPackageIds->isEmpty() || $packageIds->intersect($allowedPackageIds)->isEmpty()) {
+                throw ValidationException::withMessages([
+                    'promo_code' => 'This promo code does not apply to selected package(s).',
+                ]);
+            }
+        }
+
+        $cartSubtotal = collect($cartItems)->sum(function (array $item) {
+            $guests = max(1, (int) ($item['guests'] ?? 1));
+            $isMultiple = $this->isTruthy($item['is_multiple'] ?? false);
+            $unitPrice = (float) ($item['unit_price'] ?? 0);
+            $line = $isMultiple ? $unitPrice * $guests : $unitPrice;
+            $addons = collect((array) ($item['addons'] ?? []))->sum(fn ($addon) => (float) ($addon['price'] ?? 0));
+            return $line + $addons;
+        });
+
+        $cartQuantity = collect($cartItems)->sum(fn (array $item) => max(1, (int) ($item['guests'] ?? 1)));
+        $minReqType = (string) ($promo->min_requirement_type ?? PromoCode::MIN_REQUIREMENT_NONE);
+
+        if ($minReqType === PromoCode::MIN_REQUIREMENT_AMOUNT) {
+            $minAmount = (float) ($promo->min_purchase_amount ?? 0);
+            if ($minAmount > 0 && $cartSubtotal < $minAmount) {
+                throw ValidationException::withMessages([
+                    'promo_code' => 'Minimum order amount for this promo is $' . number_format($minAmount, 2) . '.',
+                ]);
+            }
+        }
+
+        if ($minReqType === PromoCode::MIN_REQUIREMENT_QUANTITY) {
+            $minQty = (int) ($promo->min_purchase_quantity ?? 0);
+            if ($minQty > 0 && $cartQuantity < $minQty) {
+                throw ValidationException::withMessages([
+                    'promo_code' => 'Minimum quantity for this promo is ' . $minQty . '.',
+                ]);
+            }
+        }
+
+        if ((bool) ($promo->limit_one_per_customer ?? false)) {
+            $email = trim((string) $request->input('package_email', $request->input('reservation_email', '')));
+            if ($email !== '' && Transaction::where('promo_code', $promo->id)->where('package_email', $email)->exists()) {
+                throw ValidationException::withMessages([
+                    'promo_code' => 'This promo code can only be used once per customer.',
+                ]);
+            }
+        }
+    }
+
+    private function incrementPromoUsage(?int $promoCodeId): void
+    {
+        $promoId = (int) $promoCodeId;
+        if ($promoId <= 0) {
+            return;
+        }
+
+        PromoCode::where('id', $promoId)->increment('usage_count');
     }
 
 }

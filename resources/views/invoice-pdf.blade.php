@@ -16,9 +16,15 @@
             margin: 0 auto;
         }
         .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
             border-bottom: 2px solid #667eea;
             padding-bottom: 20px;
             margin-bottom: 30px;
+        }
+        .header-content {
+            flex: 1;
         }
         .header-title {
             font-size: 28px;
@@ -30,6 +36,22 @@
             font-size: 14px;
             color: #666;
             margin: 0;
+        }
+        .header-qr {
+            text-align: center;
+            margin-left: 20px;
+        }
+        .header-qr img {
+            width: 120px;
+            height: 120px;
+            border: 1px solid #ddd;
+            padding: 5px;
+            background: white;
+        }
+        .header-qr-label {
+            font-size: 10px;
+            color: #999;
+            margin-top: 5px;
         }
         .section {
             margin-bottom: 30px;
@@ -134,8 +156,16 @@
 <div class="invoice-container">
     <!-- Header -->
     <div class="header">
-        <h1 class="header-title">INVOICE</h1>
-        <p class="header-subtitle">Transaction ID: {{ $transaction->transaction_id }}</p>
+        <div class="header-content">
+            <h1 class="header-title">INVOICE</h1>
+            <p class="header-subtitle">Transaction ID: {{ $transaction->transaction_id }}</p>
+        </div>
+        @if($transaction->ticket_qr_code)
+        <div class="header-qr">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ urlencode($transaction->ticket_qr_code) }}" alt="QR Code">
+            <div class="header-qr-label">Scan for Details</div>
+        </div>
+        @endif
     </div>
 
     <!-- Billing & Order Info -->
@@ -215,19 +245,40 @@
                         @endif
                         @foreach($cartItem['addons'] ?? [] as $addon)
                             @if(!empty($addon['name']))
+                            @php
+                                $addonQty = max(1, (int) ($addon['qty'] ?? 1));
+                                $addonLineTotal = (float) ($addon['price'] ?? 0);
+                                $addonUnitPrice = isset($addon['unit_price'])
+                                    ? (float) $addon['unit_price']
+                                    : ($addonQty > 0 ? $addonLineTotal / $addonQty : $addonLineTotal);
+                                if (($addonUnitPrice <= 0 || !isset($addon['qty'])) && !empty($addon['id'])) {
+                                    $catalogUnit = (float) optional(\App\Models\Addon::find((int) $addon['id']))->price;
+                                    if ($catalogUnit > 0) {
+                                        if ($addonUnitPrice <= 0) {
+                                            $addonUnitPrice = $catalogUnit;
+                                        }
+                                        if (!isset($addon['qty']) && $addonLineTotal > 0) {
+                                            $estimatedQty = (int) round($addonLineTotal / $catalogUnit);
+                                            if ($estimatedQty > 0) {
+                                                $addonQty = $estimatedQty;
+                                            }
+                                        }
+                                    }
+                                }
+                            @endphp
                             <tr class="addon-row">
                                 <td>+ {{ $addon['name'] }}</td>
-                                <td class="text-right">1</td>
+                                <td class="text-right">{{ $addonQty }}</td>
                                 <td class="text-right">
-                                    @if(($addon['price'] ?? 0) > 0)
-                                        ${{ number_format((float) $addon['price'], 2) }}
+                                    @if($addonLineTotal > 0)
+                                        ${{ number_format($addonUnitPrice, 2) }}
                                     @else
                                         <span class="addons-label">Included</span>
                                     @endif
                                 </td>
                                 <td class="text-right">
-                                    @if(($addon['price'] ?? 0) > 0)
-                                        ${{ number_format((float) $addon['price'], 2) }}
+                                    @if($addonLineTotal > 0)
+                                        ${{ number_format($addonLineTotal, 2) }}
                                     @else
                                         <span class="addons-label">—</span>
                                     @endif

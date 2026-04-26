@@ -62,6 +62,9 @@
         --admin-text: #e8eaf6;
         --admin-text-muted: #b9bfd5;
         --admin-accent: #ffcc00;
+        --admin-section-start: #41d1ff;
+        --admin-section-end: #4ade80;
+        --admin-section-label: #9fdcff;
       }
 
       body,
@@ -1376,6 +1379,36 @@
       /* ── Text-dark class override (some cards still use it) ── */
       body .content-wrapper .text-dark {
         color: #e8eaf6 !important;
+      }
+
+      /* ── Highlight section titles inside admin forms ── */
+      body .content-wrapper form .form-section-title,
+      body .content-wrapper form .website-section-title,
+      body .content-wrapper form .section-title,
+      body .content-wrapper form .card-title,
+      body .content-wrapper form h4,
+      body .content-wrapper form h5,
+      body .content-wrapper form h6 {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        width: fit-content;
+        margin-bottom: 0.9rem;
+        padding: 0.45rem 0.9rem;
+        border-radius: 12px;
+        border: 1px solid rgba(65, 209, 255, 0.28);
+        border-left: 4px solid var(--admin-section-start);
+        background: linear-gradient(120deg, rgba(65, 209, 255, 0.18), rgba(74, 222, 128, 0.14));
+        color: #e8fbff !important;
+        font-weight: 800;
+        letter-spacing: 0.01em;
+        box-shadow: 0 8px 20px rgba(18, 27, 46, 0.25);
+      }
+
+      body .content-wrapper form .form-label {
+        color: var(--admin-section-label) !important;
+        font-weight: 700;
+        letter-spacing: 0.01em;
       }
     </style>
 

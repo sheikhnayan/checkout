@@ -181,20 +181,22 @@ label{
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-6">
+                                                <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="start_date" class="form-label">Start Date</label>
-                                                        <input type="date" name="start_date" class="form-control" id="start_date" placeholder="Event Start Date" required>
+                                                        <label class="form-label">Event Dates <span class="text-danger">*</span></label>
+                                                        @php($operatingDays = $website->operating_days ?? [])
+                                                        @if(!empty($operatingDays))
+                                                            <p class="text-muted small mb-2"><i class="fas fa-info-circle"></i> This club operates on: <strong>{{ implode(', ', array_map('ucfirst', $operatingDays)) }}</strong>. Other days are disabled.</p>
+                                                        @else
+                                                            <p class="text-muted small mb-2"><i class="fas fa-info-circle"></i> No operating-day restrictions — all days are available.</p>
+                                                        @endif
+                                                        <input type="text" id="event_dates_picker" class="form-control" placeholder="Click to select one or more event dates" readonly style="cursor:pointer;">
+                                                        <input type="hidden" name="event_dates" id="event_dates_hidden" value="{{ old('event_dates', '[]') }}">
+                                                        <div id="event-dates-tags" class="d-flex flex-wrap gap-1 mt-2"></div>
+                                                        <small class="text-muted">Select multiple non-continuous dates (e.g. Apr 1, Apr 15, Apr 19). Click a date again to deselect it.</small>
                                                     </div>
                                                 </div>
-
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="end_date" class="form-label">End Date</label>
-                                                        <input type="date" name="end_date" class="form-control" id="end_date" placeholder="Event End Date (optional)">
-                                                        <small class="text-muted">Leave blank for a single-day event.</small>
-                                                    </div>
-                                                </div>
+                                                <input type="hidden" name="website_id" value="{{ $id }}">
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
@@ -331,6 +333,83 @@ label{
 
         rowsContainer.querySelectorAll('.remove-package-row').forEach(bindRemove);
         addButton.addEventListener('click', function () { addRow(''); });
+    })();
+</script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    flatpickr(".flatpickr-time", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: false
+    });
+
+    (function () {
+        var operatingDays = @json($operatingDays ?? []);
+        var dayMap = { 0: 'sunday', 1: 'monday', 2: 'tuesday', 3: 'wednesday', 4: 'thursday', 5: 'friday', 6: 'saturday' };
+        var hiddenInput = document.getElementById('event_dates_hidden');
+        var tagsContainer = document.getElementById('event-dates-tags');
+
+        if (!hiddenInput || !tagsContainer) { return; }
+
+        var selectedDates = [];
+        try {
+            var parsed = JSON.parse(hiddenInput.value || '[]');
+            selectedDates = Array.isArray(parsed) ? parsed : [];
+        } catch(e) { selectedDates = []; }
+
+        function formatDisplay(d) {
+            var parts = d.split('-');
+            return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]))
+                .toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function renderTags() {
+            tagsContainer.innerHTML = '';
+            selectedDates.forEach(function (date) {
+                var tag = document.createElement('span');
+                tag.className = 'badge bg-primary d-inline-flex align-items-center gap-1 me-1 mb-1';
+                tag.style.cssText = 'font-size:.8em;padding:5px 8px;';
+                tag.appendChild(document.createTextNode(formatDisplay(date) + '\u00a0'));
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.style.cssText = 'background:none;border:none;color:white;cursor:pointer;padding:0;font-size:1.1em;line-height:1;';
+                btn.innerHTML = '&times;';
+                btn.dataset.date = date;
+                btn.addEventListener('click', function () {
+                    selectedDates = selectedDates.filter(function (d) { return d !== date; });
+                    fp.setDate(selectedDates.map(function (d) { return d + 'T00:00:00'; }), false);
+                    renderTags();
+                });
+                tag.appendChild(btn);
+                tagsContainer.appendChild(tag);
+            });
+            hiddenInput.value = JSON.stringify(selectedDates);
+        }
+
+        var disableFn = operatingDays.length > 0 ? [function (date) {
+            return !operatingDays.includes(dayMap[date.getDay()]);
+        }] : [];
+
+        var fp = flatpickr('#event_dates_picker', {
+            mode: 'multiple',
+            dateFormat: 'Y-m-d',
+            defaultDate: selectedDates.map(function (d) { return d + 'T00:00:00'; }),
+            disable: disableFn,
+            onChange: function (dates) {
+                selectedDates = dates.map(function (d) {
+                    var y = d.getFullYear();
+                    var m = String(d.getMonth() + 1).padStart(2, '0');
+                    var day = String(d.getDate()).padStart(2, '0');
+                    return y + '-' + m + '-' + day;
+                });
+                renderTags();
+            }
+        });
+
+        renderTags();
     })();
 </script>
 

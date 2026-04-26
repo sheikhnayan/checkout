@@ -29,6 +29,9 @@
     <h2>Your CartVIP Booking Confirmation</h2>
     <p>Thank you for your purchase. CartVIP has securely processed your booking as the merchant of record.</p>
     <p><strong>Transaction ID:</strong> {{ $mailData['transaction_id'] ?? '' }}</p>
+    @if(!empty($clubName))
+    <p><strong>Club:</strong> {{ $clubName }}</p>
+    @endif
 
     <div class="section-title">Reservation Summary</div>
     <div class="summary-grid">
@@ -109,14 +112,35 @@
             </tr>
             @foreach($ci['addons'] ?? [] as $addon)
                 @if(!empty($addon['name']))
+                @php
+                    $addonQty = max(1, (int) ($addon['qty'] ?? 1));
+                    $addonLineTotal = (float) ($addon['price'] ?? 0);
+                    $addonUnitPrice = isset($addon['unit_price'])
+                        ? (float) $addon['unit_price']
+                        : ($addonQty > 0 ? $addonLineTotal / $addonQty : $addonLineTotal);
+                    if (($addonUnitPrice <= 0 || !isset($addon['qty'])) && !empty($addon['id'])) {
+                        $catalogUnit = (float) optional(\App\Models\Addon::find((int) $addon['id']))->price;
+                        if ($catalogUnit > 0) {
+                            if ($addonUnitPrice <= 0) {
+                                $addonUnitPrice = $catalogUnit;
+                            }
+                            if (!isset($addon['qty']) && $addonLineTotal > 0) {
+                                $estimatedQty = (int) round($addonLineTotal / $catalogUnit);
+                                if ($estimatedQty > 0) {
+                                    $addonQty = $estimatedQty;
+                                }
+                            }
+                        }
+                    }
+                @endphp
                 <tr style="color:#555;">
                     <td style="padding-left:18px;">+ {{ $addon['name'] }}</td>
-                    <td style="text-align:right;">1</td>
+                    <td style="text-align:right;">{{ $addonQty }}</td>
                     <td style="text-align:right;">
-                        @if(($addon['price'] ?? 0) > 0) ${{ number_format((float)$addon['price'],2) }} @else Included @endif
+                        @if($addonLineTotal > 0) ${{ number_format($addonUnitPrice,2) }} @else Included @endif
                     </td>
                     <td style="text-align:right;">
-                        @if(($addon['price'] ?? 0) > 0) ${{ number_format((float)$addon['price'],2) }} @else — @endif
+                        @if($addonLineTotal > 0) ${{ number_format($addonLineTotal,2) }} @else — @endif
                     </td>
                 </tr>
                 @endif

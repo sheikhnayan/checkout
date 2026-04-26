@@ -80,8 +80,10 @@ class EventController extends Controller
             ->where('status', 1)
             ->orderBy('name')
             ->get();
+
+        $website = Website::findOrFail($websiteId);
         
-        return view('admin.event.create', compact('id', 'packages'));
+        return view('admin.event.create', compact('id', 'packages', 'website'));
     }
 
     /**
@@ -122,13 +124,37 @@ class EventController extends Controller
             'time_end' => 'nullable|string|max:30',
             'package_ids' => 'nullable|array',
             'package_ids.*' => 'nullable|integer',
+            'event_dates' => 'nullable|string',
         ]);
 
-        $startDateInput = $validated['start_date'] ?? $validated['date'] ?? null;
-        $startDate = $startDateInput ? Carbon::parse($startDateInput)->format('Y-m-d') : null;
-        $endDate = !empty($validated['end_date'])
-            ? Carbon::parse($validated['end_date'])->format('Y-m-d')
-            : $startDate;
+        // Resolve dates from multi-date picker or fallback to start/end fields
+        $eventDates = null;
+        $startDate = null;
+        $endDate = null;
+
+        if ($request->filled('event_dates')) {
+            $rawDates = json_decode($request->input('event_dates'), true);
+            if (is_array($rawDates) && !empty($rawDates)) {
+                $validDates = collect($rawDates)
+                    ->filter(fn($d) => is_string($d) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $d))
+                    ->sort()
+                    ->values()
+                    ->all();
+                if (!empty($validDates)) {
+                    $eventDates = $validDates;
+                    $startDate = $validDates[0];
+                    $endDate = end($validDates);
+                }
+            }
+        }
+
+        if (!$startDate) {
+            $startDateInput = $validated['start_date'] ?? $validated['date'] ?? null;
+            $startDate = $startDateInput ? Carbon::parse($startDateInput)->format('Y-m-d') : null;
+            $endDate = !empty($validated['end_date'])
+                ? Carbon::parse($validated['end_date'])->format('Y-m-d')
+                : $startDate;
+        }
 
         $time = $this->buildTimeRange($request->input('time_start'), $request->input('time_end'));
 
@@ -139,6 +165,7 @@ class EventController extends Controller
         $add->date = $startDate;
         $add->start_date = $startDate;
         $add->end_date = $endDate;
+        $add->event_dates = $eventDates;
         $add->description = $request->description;
         $add->secondary_description = $request->secondary_description;
         
@@ -222,7 +249,9 @@ class EventController extends Controller
             ->pluck('id')
             ->all();
 
-        return view('admin.event.edit', compact('data', 'id', 'packages', 'selectedPackageIds'));
+        $website = Website::findOrFail($data->website_id);
+
+        return view('admin.event.edit', compact('data', 'id', 'packages', 'selectedPackageIds', 'website'));
     }
 
     /**
@@ -257,13 +286,37 @@ class EventController extends Controller
             'time_end' => 'nullable|string|max:30',
             'package_ids' => 'nullable|array',
             'package_ids.*' => 'nullable|integer',
+            'event_dates' => 'nullable|string',
         ]);
 
-        $startDateInput = $validated['start_date'] ?? $validated['date'] ?? $add->date;
-        $startDate = $startDateInput ? Carbon::parse($startDateInput)->format('Y-m-d') : null;
-        $endDate = !empty($validated['end_date'])
-            ? Carbon::parse($validated['end_date'])->format('Y-m-d')
-            : $startDate;
+        // Resolve dates from multi-date picker or fallback to start/end fields
+        $eventDates = null;
+        $startDate = null;
+        $endDate = null;
+
+        if ($request->filled('event_dates')) {
+            $rawDates = json_decode($request->input('event_dates'), true);
+            if (is_array($rawDates) && !empty($rawDates)) {
+                $validDates = collect($rawDates)
+                    ->filter(fn($d) => is_string($d) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $d))
+                    ->sort()
+                    ->values()
+                    ->all();
+                if (!empty($validDates)) {
+                    $eventDates = $validDates;
+                    $startDate = $validDates[0];
+                    $endDate = end($validDates);
+                }
+            }
+        }
+
+        if (!$startDate) {
+            $startDateInput = $validated['start_date'] ?? $validated['date'] ?? $add->date;
+            $startDate = $startDateInput ? Carbon::parse($startDateInput)->format('Y-m-d') : null;
+            $endDate = !empty($validated['end_date'])
+                ? Carbon::parse($validated['end_date'])->format('Y-m-d')
+                : $startDate;
+        }
 
         $time = $this->buildTimeRange($request->input('time_start'), $request->input('time_end'));
 
@@ -274,6 +327,7 @@ class EventController extends Controller
         $add->date = $startDate;
         $add->start_date = $startDate;
         $add->end_date = $endDate;
+        $add->event_dates = $eventDates;
         $add->description = $request->description;
         $add->secondary_description = $request->secondary_description;
         

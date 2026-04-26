@@ -12,6 +12,7 @@ use App\Models\SMTP;
 use App\Models\PaymentLogo;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class WebsiteController extends Controller
 {
@@ -313,13 +314,20 @@ class WebsiteController extends Controller
     {
         $user = auth()->user();
         $data = Website::with('paymentLogos')->findOrFail($id);
+        $websiteAdminUser = User::where('website_id', $data->id)
+            ->where('user_type', 'website_user')
+            ->whereHas('websiteRole', function ($query) {
+                $query->where('is_website_admin', true);
+            })
+            ->orderBy('id')
+            ->first();
         
         // Check authorization for website users
         if ($user->isWebsiteUser() && $data->id != $user->website_id) {
             abort(403, 'Access denied. You can only edit your own website.');
         }
         
-        return view('admin.website.edit', compact('data'));
+        return view('admin.website.edit', compact('data', 'websiteAdminUser'));
     }
 
     /**
@@ -329,8 +337,23 @@ class WebsiteController extends Controller
     {
         $user = auth()->user();
         $add = Website::find($id);
+        $websiteAdminUser = User::where('website_id', $add->id)
+            ->where('user_type', 'website_user')
+            ->whereHas('websiteRole', function ($query) {
+                $query->where('is_website_admin', true);
+            })
+            ->orderBy('id')
+            ->first();
 
         $request->validate([
+            'website_admin_name' => 'required|string|max:255',
+            'website_admin_email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore(optional($websiteAdminUser)->id),
+            ],
+            'website_admin_password' => 'nullable|string|min:8|confirmed',
             'operating_days' => 'nullable|array',
             'operating_days.*' => 'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
             'operating_start_time' => 'nullable|date_format:H:i',
@@ -465,6 +488,29 @@ class WebsiteController extends Controller
             $email->website_id = $add->id;
             $email->email = $value->email;
             $email->save();
+        }
+
+        if ($websiteAdminUser) {
+            $websiteAdminUser->name = $request->website_admin_name;
+            $websiteAdminUser->email = $request->website_admin_email;
+            if ($request->filled('website_admin_password')) {
+                $websiteAdminUser->password = Hash::make($request->website_admin_password);
+            }
+            $websiteAdminUser->save();
+        } else {
+            $websiteAdminRole = WebsiteRole::where('website_id', $add->id)
+                ->where('is_website_admin', true)
+                ->orderBy('id')
+                ->first();
+
+            User::create([
+                'name' => $request->website_admin_name,
+                'email' => $request->website_admin_email,
+                'password' => Hash::make($request->website_admin_password ?: str()->random(16)),
+                'website_id' => $add->id,
+                'website_role_id' => optional($websiteAdminRole)->id,
+                'user_type' => 'website_user',
+            ]);
         }
 
         $add->update();

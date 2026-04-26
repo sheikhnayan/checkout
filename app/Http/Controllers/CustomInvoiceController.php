@@ -665,6 +665,10 @@ class CustomInvoiceController extends Controller
                 (string) ($request->lastName ?? '')
             );
 
+            $managerMail = (clone $clientMail)->subject(
+                'Custom Invoice Payment Confirmation - ' . $transaction->transaction_id . ' - ' . ($website->name ?? 'Club')
+            );
+
             if ($invoice->client_email && filter_var($invoice->client_email, FILTER_VALIDATE_EMAIL)) {
                 Mail::to($invoice->client_email)->send(clone $clientMail);
             }
@@ -675,7 +679,7 @@ class CustomInvoiceController extends Controller
                 ->values();
 
             foreach ($managerEmails as $managerEmail) {
-                Mail::to($managerEmail)->send(clone $clientMail);
+                Mail::to($managerEmail)->send(clone $managerMail);
             }
         } catch (\Throwable $e) {
             Log::warning('Custom invoice payment confirmation email failed', [

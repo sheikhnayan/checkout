@@ -16,9 +16,15 @@
             margin: 0 auto;
         }
         .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
             border-bottom: 2px solid #667eea;
             padding-bottom: 20px;
             margin-bottom: 30px;
+        }
+        .header-content {
+            flex: 1;
         }
         .header-title {
             font-size: 28px;
@@ -30,6 +36,22 @@
             font-size: 14px;
             color: #666;
             margin: 0;
+        }
+        .header-qr {
+            text-align: center;
+            margin-left: 20px;
+        }
+        .header-qr img {
+            width: 120px;
+            height: 120px;
+            border: 1px solid #ddd;
+            padding: 5px;
+            background: white;
+        }
+        .header-qr-label {
+            font-size: 10px;
+            color: #999;
+            margin-top: 5px;
         }
         .section {
             margin-bottom: 30px;
@@ -141,8 +163,16 @@
 <div class="invoice-container">
     <!-- Header -->
     <div class="header">
-        <h1 class="header-title">INVOICE</h1>
-        <p class="header-subtitle">Invoice #{{ $invoice->id }} | Transaction ID: {{ $transaction->transaction_id }}</p>
+        <div class="header-content">
+            <h1 class="header-title">INVOICE</h1>
+            <p class="header-subtitle">Invoice #{{ $invoice->id }} | Transaction ID: {{ $transaction->transaction_id }}</p>
+        </div>
+        @if($transaction && $transaction->ticket_qr_code)
+        <div class="header-qr">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ urlencode($transaction->ticket_qr_code) }}" alt="QR Code">
+            <div class="header-qr-label">Scan for Details</div>
+        </div>
+        @endif
     </div>
 
     <!-- Billing & Order Info -->

@@ -262,6 +262,37 @@
                                                         <input type="email" name="email" class="form-control" value="{{ $data->email }}" id="email" placeholder="Email" required>
                                                     </div>
                                                 </div>
+                                                <div class="col-md-12 mt-2">
+                                                    <h5 class="website-section-title">Website Admin Access</h5>
+                                                    <p class="text-muted">This user will have full access for this website (except super-admin-only platform features).</p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="website_admin_name" class="form-label">Website Admin Name</label>
+                                                        <input type="text" name="website_admin_name" class="form-control" id="website_admin_name" value="{{ old('website_admin_name', optional($websiteAdminUser)->name) }}" placeholder="Admin Name" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="website_admin_email" class="form-label">Website Admin Email</label>
+                                                        <input type="email" name="website_admin_email" class="form-control @error('website_admin_email') is-invalid @enderror" id="website_admin_email" value="{{ old('website_admin_email', optional($websiteAdminUser)->email) }}" placeholder="admin@website.com" required>
+                                                        @error('website_admin_email')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="website_admin_password" class="form-label">Website Admin Password</label>
+                                                        <input type="password" name="website_admin_password" class="form-control" id="website_admin_password" placeholder="Leave blank to keep current password">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="website_admin_password_confirmation" class="form-label">Confirm Password</label>
+                                                        <input type="password" name="website_admin_password_confirmation" class="form-control" id="website_admin_password_confirmation" placeholder="Confirm new password">
+                                                    </div>
+                                                </div>
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
                                                         <label class="form-label">Contact Emails</label>
@@ -337,6 +368,7 @@
                                                         <label for="gallery_images" class="form-label">Gallery Images</label>
                                                         <input type="file" name="gallery_images[]" class="form-control" id="gallery_images" accept="image/*" multiple>
                                                         <small class="form-text text-muted">Upload multiple images. Uploading new ones replaces current gallery images.</small>
+                                                        <input type="hidden" name="existing_gallery_images" id="existing_gallery_images" value='@json(array_values((array) ($data->gallery_images ?? [])))'>
                                                         @if(!empty($data->gallery_images))
                                                             <div class="d-flex flex-wrap gap-2 mt-2">
                                                                 @foreach((array) $data->gallery_images as $galleryImage)

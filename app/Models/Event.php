@@ -13,6 +13,7 @@ class Event extends Model
         'date',
         'start_date',
         'end_date',
+        'event_dates',
         'address',
         'image',
         'gallery_images',
@@ -25,6 +26,7 @@ class Event extends Model
 
     protected $casts = [
         'gallery_images' => 'array',
+        'event_dates' => 'array',
         'start_date' => 'date',
         'end_date' => 'date',
     ];

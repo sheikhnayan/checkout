@@ -109,32 +109,173 @@ label{
 
                                         <div class="card-body">
                                             <h5 class="mb-3 text-dark">{{ $title ?? 'Promo Code' }}</h5>
+
+                                            <h6 class="form-section-title">Amount Off Products</h6>
                                             <div class="row">
-                                                <div class="col-md-6">
+                                                <div class="col-md-4">
                                                     <div class="mb-3">
-                                                        <label for="name" class="form-label">Name</label>
-                                                        <input type="text" name="name" class="form-control" id="name" placeholder="Promo Code Name" required>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="percentage" class="form-label">Percentage</label>
-                                                        <input type="number" step="0.00001" name="percentage" class="form-control" id="percentage" placeholder="Promo Code Percentage" required>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="type" class="form-label">Type</label>
-                                                        <select name="type" class="form-control" id="type" required>
-                                                            <option value="percentage">Percentage</option>
-                                                            <option value="fixed">Fixed Amount</option>
+                                                        <label for="discount_method" class="form-label">Method</label>
+                                                        <select name="discount_method" id="discount_method" class="form-control" required>
+                                                            <option value="code" {{ old('discount_method', 'code') === 'code' ? 'selected' : '' }}>Discount Code</option>
+                                                            <option value="automatic" {{ old('discount_method') === 'automatic' ? 'selected' : '' }}>Automatic Discount</option>
                                                         </select>
                                                     </div>
                                                 </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-3">
+                                                        <label for="name" class="form-label">Internal Name</label>
+                                                        <input type="text" name="name" class="form-control" id="name" value="{{ old('name') }}" placeholder="VIP Spring Offer">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4" id="promo-code-col">
+                                                    <div class="mb-3">
+                                                        <label for="code" class="form-label">Discount Code</label>
+                                                        <input type="text" name="promo_code" class="form-control" id="code" value="{{ old('promo_code') }}" placeholder="VIP100" required>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                                                @if(($promoAudience ?? 'club') === 'affiliate')
+                                            <h6 class="form-section-title">Discount Value</h6>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="mb-3">
+                                                        <label for="discount_value_type" class="form-label">Value Type</label>
+                                                        <select name="discount_value_type" class="form-control" id="discount_value_type" required>
+                                                            <option value="percentage" {{ old('discount_value_type', 'percentage') === 'percentage' ? 'selected' : '' }}>Percentage</option>
+                                                            <option value="fixed" {{ old('discount_value_type') === 'fixed' ? 'selected' : '' }}>Fixed Amount</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-3">
+                                                        <label for="discount_value" class="form-label">Value</label>
+                                                        <input type="number" step="0.01" min="0" name="discount_value" class="form-control" id="discount_value" value="{{ old('discount_value') }}" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-3">
+                                                        <label for="applies_to" class="form-label">Applies To</label>
+                                                        <select name="applies_to" class="form-control" id="applies_to" required>
+                                                            <option value="all_packages" {{ old('applies_to', 'all_packages') === 'all_packages' ? 'selected' : '' }}>All Packages</option>
+                                                            <option value="specific_packages" {{ old('applies_to') === 'specific_packages' ? 'selected' : '' }}>Specific Packages</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row" id="specific-packages-row" style="display:none;">
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label for="applies_to_package_ids" class="form-label">Select Packages</label>
+                                                        <select name="applies_to_package_ids[]" id="applies_to_package_ids" class="form-control" multiple size="6">
+                                                            @foreach(($packageOptions ?? []) as $pkg)
+                                                                <option value="{{ $pkg['id'] }}" {{ in_array((string) $pkg['id'], array_map('strval', old('applies_to_package_ids', [])), true) ? 'selected' : '' }}>{{ $pkg['name'] }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <h6 class="form-section-title">Eligibility</h6>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="eligibility" class="form-label">Customer Eligibility</label>
+                                                        <select name="eligibility" class="form-control" id="eligibility">
+                                                            <option value="all_customers" {{ old('eligibility', 'all_customers') === 'all_customers' ? 'selected' : '' }}>All Customers</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <h6 class="form-section-title">Minimum Purchase Requirements</h6>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="mb-3">
+                                                        <label for="min_requirement_type" class="form-label">Requirement Type</label>
+                                                        <select name="min_requirement_type" class="form-control" id="min_requirement_type">
+                                                            <option value="none" {{ old('min_requirement_type', 'none') === 'none' ? 'selected' : '' }}>No Minimum Requirements</option>
+                                                            <option value="amount" {{ old('min_requirement_type') === 'amount' ? 'selected' : '' }}>Minimum Purchase Amount</option>
+                                                            <option value="quantity" {{ old('min_requirement_type') === 'quantity' ? 'selected' : '' }}>Minimum Quantity of Items</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4" id="min-amount-col" style="display:none;">
+                                                    <div class="mb-3">
+                                                        <label for="min_purchase_amount" class="form-label">Minimum Amount ($)</label>
+                                                        <input type="number" min="0" step="0.01" name="min_purchase_amount" id="min_purchase_amount" class="form-control" value="{{ old('min_purchase_amount') }}">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4" id="min-qty-col" style="display:none;">
+                                                    <div class="mb-3">
+                                                        <label for="min_purchase_quantity" class="form-label">Minimum Quantity</label>
+                                                        <input type="number" min="1" step="1" name="min_purchase_quantity" id="min_purchase_quantity" class="form-control" value="{{ old('min_purchase_quantity') }}">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <h6 class="form-section-title">Maximum Discount Uses</h6>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="mb-3">
+                                                        <label for="usage_limit_total" class="form-label">Usage Limit (Total)</label>
+                                                        <input type="number" min="1" step="1" name="usage_limit_total" id="usage_limit_total" class="form-control" value="{{ old('usage_limit_total') }}" placeholder="Leave blank for unlimited">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 d-flex align-items-end">
+                                                    <div class="mb-3 form-check">
+                                                        <input type="checkbox" class="form-check-input" id="limit_one_per_customer" name="limit_one_per_customer" value="1" {{ old('limit_one_per_customer') ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="limit_one_per_customer">Limit to one use per customer</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 d-flex align-items-end">
+                                                    <div class="mb-3 form-check">
+                                                        <input type="checkbox" class="form-check-input" id="is_active" name="is_active" value="1" {{ old('is_active', '1') ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="is_active">Active</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <h6 class="form-section-title">Combinations</h6>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="mb-3 form-check">
+                                                        <input type="checkbox" class="form-check-input" id="combine_product_discounts" name="combine_product_discounts" value="1" {{ old('combine_product_discounts') ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="combine_product_discounts">Product Discounts</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-3 form-check">
+                                                        <input type="checkbox" class="form-check-input" id="combine_order_discounts" name="combine_order_discounts" value="1" {{ old('combine_order_discounts') ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="combine_order_discounts">Order Discounts</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-3 form-check">
+                                                        <input type="checkbox" class="form-check-input" id="combine_shipping_discounts" name="combine_shipping_discounts" value="1" {{ old('combine_shipping_discounts') ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="combine_shipping_discounts">Shipping Discounts</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <h6 class="form-section-title">Active Dates</h6>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="starts_at" class="form-label">Start Date</label>
+                                                        <input type="datetime-local" name="starts_at" class="form-control" id="starts_at" value="{{ old('starts_at') }}">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="ends_at" class="form-label">End Date</label>
+                                                        <input type="datetime-local" name="ends_at" class="form-control" id="ends_at" value="{{ old('ends_at') }}">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            @if(($promoAudience ?? 'club') === 'affiliate')
+                                            <h6 class="form-section-title">Affiliate Target</h6>
+                                            <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="affiliate_id" class="form-label">Specific Affiliate</label>
@@ -148,9 +289,12 @@ label{
                                                         </select>
                                                     </div>
                                                 </div>
-                                                @endif
+                                            </div>
+                                            @endif
 
-                                                @if(($promoAudience ?? 'club') === 'entertainer')
+                                            @if(($promoAudience ?? 'club') === 'entertainer')
+                                            <h6 class="form-section-title">Entertainer Target</h6>
+                                            <div class="row">
                                                 @if(($canSelectWebsite ?? false) === true)
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
@@ -163,11 +307,9 @@ label{
                                                                 </option>
                                                             @endforeach
                                                         </select>
-                                                        <small class="text-muted">Select a club to load only its entertainers.</small>
                                                     </div>
                                                 </div>
                                                 @endif
-
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="entertainer_id" class="form-label">Specific Entertainer</label>
@@ -179,41 +321,69 @@ label{
                                                                 </option>
                                                             @endforeach
                                                         </select>
-                                                        @if(($canSelectWebsite ?? false) && empty(old('website_id', $selectedWebsiteId ?? null)))
-                                                            <small class="text-muted">Choose a club first to enable entertainer selection.</small>
-                                                        @endif
                                                     </div>
                                                 </div>
-                                                @endif
+                                            </div>
+                                            @endif
 
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label for="code" class="form-label">Promo Code</label>
-                                                        <input type="text" name="promo_code" class="form-control" id="code" placeholder="Promo Code" required>
-                                                    </div>
-                                                </div>
-
+                                            <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
                                                         <label for="description" class="form-label">Description</label>
-                                                        <textarea name="description" class="form-control" id="description" rows="4" placeholder="Promo Code Description"></textarea>
+                                                        <textarea name="description" class="form-control" id="description" rows="4" placeholder="Promo Code Description">{{ old('description') }}</textarea>
                                                     </div>
                                                 </div>
-
-
                                             </div>
+
                                             <input type="hidden" name="audience" value="{{ $promoAudience ?? 'club' }}">
                                             @if(($promoAudience ?? 'club') !== 'entertainer' || !($canSelectWebsite ?? false))
                                                 <input type="hidden" name="website_id" value="{{ old('website_id', $id) }}">
                                             @endif
-                                            <div id="addons-list"></div>
 
-                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                            <button type="submit" class="btn btn-primary">Save Promo Code</button>
                                             <a href="{{ route('admin.promo_code.index') }}" class="btn btn-danger">Cancel</a>
-
-
-
+                                        </div>
                                     </form>
+
+                                    <script>
+                                        (function () {
+                                            var appliesTo = document.getElementById('applies_to');
+                                            var specificPackagesRow = document.getElementById('specific-packages-row');
+                                            var minRequirementType = document.getElementById('min_requirement_type');
+                                            var minAmountCol = document.getElementById('min-amount-col');
+                                            var minQtyCol = document.getElementById('min-qty-col');
+                                            var discountMethod = document.getElementById('discount_method');
+                                            var promoCodeCol = document.getElementById('promo-code-col');
+                                            var codeInput = document.getElementById('code');
+
+                                            function syncAppliesTo() {
+                                                if (!appliesTo || !specificPackagesRow) return;
+                                                specificPackagesRow.style.display = appliesTo.value === 'specific_packages' ? '' : 'none';
+                                            }
+
+                                            function syncMinimumRequirement() {
+                                                if (!minRequirementType) return;
+                                                var val = minRequirementType.value;
+                                                if (minAmountCol) minAmountCol.style.display = val === 'amount' ? '' : 'none';
+                                                if (minQtyCol) minQtyCol.style.display = val === 'quantity' ? '' : 'none';
+                                            }
+
+                                            function syncDiscountMethod() {
+                                                if (!discountMethod || !promoCodeCol || !codeInput) return;
+                                                var isCode = discountMethod.value === 'code';
+                                                promoCodeCol.style.display = isCode ? '' : 'none';
+                                                codeInput.required = isCode;
+                                            }
+
+                                            if (appliesTo) appliesTo.addEventListener('change', syncAppliesTo);
+                                            if (minRequirementType) minRequirementType.addEventListener('change', syncMinimumRequirement);
+                                            if (discountMethod) discountMethod.addEventListener('change', syncDiscountMethod);
+
+                                            syncAppliesTo();
+                                            syncMinimumRequirement();
+                                            syncDiscountMethod();
+                                        })();
+                                    </script>
 
                                     @if(($promoAudience ?? 'club') === 'entertainer' && ($canSelectWebsite ?? false))
                                     <script>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Affiliate;
 use App\Models\Entertainer;
+use App\Models\Package;
 use App\Models\PromoCode;
 use App\Models\Website;
 use Illuminate\Validation\Rule;
@@ -86,8 +87,9 @@ class PromoCodeController extends Controller
 
         $promoAudience = PromoCode::AUDIENCE_CLUB;
         $title = 'Club Promo Code';
+        $packageOptions = $this->websitePackages((int) $id);
 
-        return view('admin.promo_code.create', compact('id', 'promoAudience', 'title'));
+        return view('admin.promo_code.create', compact('id', 'promoAudience', 'title', 'packageOptions'));
     }
 
     public function createTargeted(Request $request, string $audience)
@@ -128,6 +130,7 @@ class PromoCodeController extends Controller
         }
 
         $targetOptions = $this->promoTargetOptions($selectedWebsiteId);
+        $packageOptions = $this->websitePackages($selectedWebsiteId);
 
         return view('admin.promo_code.create', compact(
             'id',
@@ -136,7 +139,8 @@ class PromoCodeController extends Controller
             'targetOptions',
             'websiteOptions',
             'selectedWebsiteId',
-            'canSelectWebsite'
+            'canSelectWebsite',
+            'packageOptions'
         ));
     }
 
@@ -158,7 +162,6 @@ class PromoCodeController extends Controller
         $request->validate([
             'website_id' => [Rule::requiredIf(in_array($audience, [PromoCode::AUDIENCE_CLUB, PromoCode::AUDIENCE_ENTERTAINER], true)), 'nullable', 'integer', 'exists:websites,id'],
             'name' => 'nullable|string|max:255',
-            'percentage' => 'nullable|numeric|min:0',
             'audience' => ['required', Rule::in(PromoCode::ALLOWED_AUDIENCES)],
             'affiliate_id' => 'nullable|integer|exists:affiliates,id',
             'entertainer_id' => 'nullable|integer|exists:entertainers,id',
@@ -167,25 +170,66 @@ class PromoCodeController extends Controller
                 'string',
                 'max:100',
             ],
-            'type' => 'nullable|string|max:50',
+            'discount_method' => ['required', Rule::in([PromoCode::DISCOUNT_METHOD_CODE, PromoCode::DISCOUNT_METHOD_AUTOMATIC])],
+            'discount_value_type' => ['required', Rule::in([PromoCode::DISCOUNT_TYPE_PERCENTAGE, PromoCode::DISCOUNT_TYPE_FIXED])],
+            'discount_value' => 'required|numeric|min:0',
+            'applies_to' => ['required', Rule::in([PromoCode::APPLIES_TO_ALL_PACKAGES, PromoCode::APPLIES_TO_SPECIFIC_PACKAGES])],
+            'applies_to_package_ids' => 'nullable|array',
+            'applies_to_package_ids.*' => 'nullable|integer',
+            'eligibility' => 'nullable|string|max:50',
+            'min_requirement_type' => ['nullable', Rule::in([PromoCode::MIN_REQUIREMENT_NONE, PromoCode::MIN_REQUIREMENT_AMOUNT, PromoCode::MIN_REQUIREMENT_QUANTITY])],
+            'min_purchase_amount' => 'nullable|numeric|min:0',
+            'min_purchase_quantity' => 'nullable|integer|min:1',
+            'usage_limit_total' => 'nullable|integer|min:1',
+            'limit_one_per_customer' => 'nullable|boolean',
+            'combine_product_discounts' => 'nullable|boolean',
+            'combine_order_discounts' => 'nullable|boolean',
+            'combine_shipping_discounts' => 'nullable|boolean',
+            'starts_at' => 'nullable|date',
+            'ends_at' => 'nullable|date|after_or_equal:starts_at',
+            'is_active' => 'nullable|boolean',
             'description' => 'nullable|string|max:1000',
         ]);
 
         [$affiliateId, $entertainerId] = $this->normalizeTargetIds($request);
         $websiteId = $this->resolvePromoWebsiteId($audience, $request, $affiliateId, $entertainerId);
-    $this->validateTargetSelection($audience, $affiliateId, $entertainerId, $websiteId);
+        $this->validateTargetSelection($audience, $affiliateId, $entertainerId, $websiteId);
         $this->ensurePromoCodeIsUnique($websiteId, strtoupper(trim((string) $request->promo_code)), $audience, $affiliateId, $entertainerId);
+
+        $packageIds = $this->normalizePackageIdsForWebsite($request->input('applies_to_package_ids', []), $websiteId);
+        if ($request->input('applies_to') === PromoCode::APPLIES_TO_SPECIFIC_PACKAGES && empty($packageIds)) {
+            throw ValidationException::withMessages([
+                'applies_to_package_ids' => 'Select at least one package when Applies To is set to specific packages.',
+            ]);
+        }
         
         $add = new PromoCode;
         $add->name = $request->name;
-        $add->percentage = $request->percentage;
+        $add->percentage = $request->discount_value;
         $add->promo_code = strtoupper(trim((string) $request->promo_code));
-        $add->type = $request->type;
+        $add->type = $request->discount_value_type;
         $add->audience = $audience;
         $add->affiliate_id = $affiliateId;
         $add->entertainer_id = $entertainerId;
         $add->description = $request->description;
         $add->website_id = $websiteId;
+        $add->discount_method = $request->input('discount_method', PromoCode::DISCOUNT_METHOD_CODE);
+        $add->discount_value_type = $request->discount_value_type;
+        $add->discount_value = $request->discount_value;
+        $add->applies_to = $request->input('applies_to', PromoCode::APPLIES_TO_ALL_PACKAGES);
+        $add->applies_to_package_ids = !empty($packageIds) ? array_values($packageIds) : null;
+        $add->eligibility = $request->input('eligibility', 'all_customers');
+        $add->min_requirement_type = $request->input('min_requirement_type', PromoCode::MIN_REQUIREMENT_NONE);
+        $add->min_purchase_amount = $request->filled('min_purchase_amount') ? $request->input('min_purchase_amount') : null;
+        $add->min_purchase_quantity = $request->filled('min_purchase_quantity') ? (int) $request->input('min_purchase_quantity') : null;
+        $add->usage_limit_total = $request->filled('usage_limit_total') ? (int) $request->input('usage_limit_total') : null;
+        $add->limit_one_per_customer = $request->boolean('limit_one_per_customer');
+        $add->combine_product_discounts = $request->boolean('combine_product_discounts');
+        $add->combine_order_discounts = $request->boolean('combine_order_discounts');
+        $add->combine_shipping_discounts = $request->boolean('combine_shipping_discounts');
+        $add->starts_at = $request->input('starts_at');
+        $add->ends_at = $request->input('ends_at');
+        $add->is_active = $request->has('is_active') ? $request->boolean('is_active') : true;
         $add->save();
 
         return $audience === PromoCode::AUDIENCE_CLUB
@@ -235,9 +279,10 @@ class PromoCodeController extends Controller
             PromoCode::AUDIENCE_ENTERTAINER => 'Entertainer Promo Code',
             default => 'Club Promo Code',
         };
-        $targetOptions = $promoAudience === PromoCode::AUDIENCE_CLUB ? [] : $this->promoTargetOptions();
+        $targetOptions = $promoAudience === PromoCode::AUDIENCE_CLUB ? [] : $this->promoTargetOptions((int) $data->website_id);
+        $packageOptions = $this->websitePackages((int) $data->website_id);
 
-        return view('admin.promo_code.edit', compact('data', 'id', 'targetOptions', 'promoAudience', 'title'));
+        return view('admin.promo_code.edit', compact('data', 'id', 'targetOptions', 'promoAudience', 'title', 'packageOptions'));
     }
 
     /**
@@ -258,7 +303,6 @@ class PromoCodeController extends Controller
 
         $request->validate([
             'name' => 'nullable|string|max:255',
-            'percentage' => 'nullable|numeric|min:0',
             'affiliate_id' => 'nullable|integer|exists:affiliates,id',
             'entertainer_id' => 'nullable|integer|exists:entertainers,id',
             'promo_code' => [
@@ -266,7 +310,24 @@ class PromoCodeController extends Controller
                 'string',
                 'max:100',
             ],
-            'type' => 'nullable|string|max:50',
+            'discount_method' => ['required', Rule::in([PromoCode::DISCOUNT_METHOD_CODE, PromoCode::DISCOUNT_METHOD_AUTOMATIC])],
+            'discount_value_type' => ['required', Rule::in([PromoCode::DISCOUNT_TYPE_PERCENTAGE, PromoCode::DISCOUNT_TYPE_FIXED])],
+            'discount_value' => 'required|numeric|min:0',
+            'applies_to' => ['required', Rule::in([PromoCode::APPLIES_TO_ALL_PACKAGES, PromoCode::APPLIES_TO_SPECIFIC_PACKAGES])],
+            'applies_to_package_ids' => 'nullable|array',
+            'applies_to_package_ids.*' => 'nullable|integer',
+            'eligibility' => 'nullable|string|max:50',
+            'min_requirement_type' => ['nullable', Rule::in([PromoCode::MIN_REQUIREMENT_NONE, PromoCode::MIN_REQUIREMENT_AMOUNT, PromoCode::MIN_REQUIREMENT_QUANTITY])],
+            'min_purchase_amount' => 'nullable|numeric|min:0',
+            'min_purchase_quantity' => 'nullable|integer|min:1',
+            'usage_limit_total' => 'nullable|integer|min:1',
+            'limit_one_per_customer' => 'nullable|boolean',
+            'combine_product_discounts' => 'nullable|boolean',
+            'combine_order_discounts' => 'nullable|boolean',
+            'combine_shipping_discounts' => 'nullable|boolean',
+            'starts_at' => 'nullable|date',
+            'ends_at' => 'nullable|date|after_or_equal:starts_at',
+            'is_active' => 'nullable|boolean',
             'description' => 'nullable|string|max:1000',
         ]);
 
@@ -274,15 +335,39 @@ class PromoCodeController extends Controller
         $websiteId = $this->resolvePromoWebsiteId($audience, $request, $affiliateId, $entertainerId, $add);
         $this->validateTargetSelection($audience, $affiliateId, $entertainerId, $websiteId);
         $this->ensurePromoCodeIsUnique($websiteId, strtoupper(trim((string) $request->promo_code)), $audience, $affiliateId, $entertainerId, $add->id);
+
+        $packageIds = $this->normalizePackageIdsForWebsite($request->input('applies_to_package_ids', []), $websiteId);
+        if ($request->input('applies_to') === PromoCode::APPLIES_TO_SPECIFIC_PACKAGES && empty($packageIds)) {
+            throw ValidationException::withMessages([
+                'applies_to_package_ids' => 'Select at least one package when Applies To is set to specific packages.',
+            ]);
+        }
         
         $add->name = $request->name;
-        $add->percentage = $request->percentage;
+        $add->percentage = $request->discount_value;
         $add->promo_code = strtoupper(trim((string) $request->promo_code));
-        $add->type = $request->type;
+        $add->type = $request->discount_value_type;
         $add->affiliate_id = $affiliateId;
         $add->entertainer_id = $entertainerId;
         $add->description = $request->description;
         $add->website_id = $websiteId;
+        $add->discount_method = $request->input('discount_method', PromoCode::DISCOUNT_METHOD_CODE);
+        $add->discount_value_type = $request->discount_value_type;
+        $add->discount_value = $request->discount_value;
+        $add->applies_to = $request->input('applies_to', PromoCode::APPLIES_TO_ALL_PACKAGES);
+        $add->applies_to_package_ids = !empty($packageIds) ? array_values($packageIds) : null;
+        $add->eligibility = $request->input('eligibility', 'all_customers');
+        $add->min_requirement_type = $request->input('min_requirement_type', PromoCode::MIN_REQUIREMENT_NONE);
+        $add->min_purchase_amount = $request->filled('min_purchase_amount') ? $request->input('min_purchase_amount') : null;
+        $add->min_purchase_quantity = $request->filled('min_purchase_quantity') ? (int) $request->input('min_purchase_quantity') : null;
+        $add->usage_limit_total = $request->filled('usage_limit_total') ? (int) $request->input('usage_limit_total') : null;
+        $add->limit_one_per_customer = $request->boolean('limit_one_per_customer');
+        $add->combine_product_discounts = $request->boolean('combine_product_discounts');
+        $add->combine_order_discounts = $request->boolean('combine_order_discounts');
+        $add->combine_shipping_discounts = $request->boolean('combine_shipping_discounts');
+        $add->starts_at = $request->input('starts_at');
+        $add->ends_at = $request->input('ends_at');
+        $add->is_active = $request->has('is_active') ? $request->boolean('is_active') : true;
         $add->update();
 
         return $audience === PromoCode::AUDIENCE_CLUB
@@ -473,5 +558,39 @@ class PromoCodeController extends Controller
         }
 
         return null;
+    }
+
+    private function normalizePackageIdsForWebsite(array $packageIds, ?int $websiteId): array
+    {
+        $ids = collect($packageIds)
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn ($id) => $id > 0)
+            ->unique()
+            ->values();
+
+        if ($ids->isEmpty()) {
+            return [];
+        }
+
+        $query = Package::query()->whereIn('id', $ids->all());
+        if ($websiteId) {
+            $query->where('website_id', $websiteId);
+        }
+
+        return $query->pluck('id')->map(fn ($id) => (int) $id)->all();
+    }
+
+    private function websitePackages(?int $websiteId): array
+    {
+        if (!$websiteId) {
+            return [];
+        }
+
+        return Package::where('website_id', $websiteId)
+            ->where('is_archieved', 0)
+            ->orderBy('name')
+            ->get(['id', 'name'])
+            ->map(fn ($pkg) => ['id' => (int) $pkg->id, 'name' => (string) $pkg->name])
+            ->all();
     }
 }
