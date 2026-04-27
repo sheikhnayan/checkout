@@ -116,7 +116,7 @@
                                                                     @endif
                                                                 </td>
                                                                 <td>{{ $user->websiteRole->name ?? 'Unassigned' }}</td>
-                                                                <td>{{ $user->created_at->format('M d, Y H:i') }}</td>
+                                                                <td>{{ $user->created_at->timezone('America/Los_Angeles')->format('M d, Y h:i A') }} PT</td>
                                                                 <td>
                                                                     <a href="{{ route('admin.website-users.edit', $user->id) }}" class="btn btn-primary">Edit</a>
                                                                     <form action="{{ route('admin.website-users.archive', $user->id) }}" method="POST" style="display:inline;">
@@ -168,7 +168,7 @@
                                                                     @endif
                                                                 </td>
                                                                 <td>{{ $user->websiteRole->name ?? 'Unassigned' }}</td>
-                                                                <td>{{ $user->created_at->format('M d, Y H:i') }}</td>
+                                                                <td>{{ $user->created_at->timezone('America/Los_Angeles')->format('M d, Y h:i A') }} PT</td>
                                                                 <td>
                                                                     <form action="{{ route('admin.website-users.archive', $user->id) }}" method="POST" style="display:inline;">
                                                                         @csrf

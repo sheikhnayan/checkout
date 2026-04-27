@@ -130,7 +130,7 @@
 
     <div class="col-md-6">
         <label for="posted_at" class="form-label">Post Date</label>
-        <input type="datetime-local" name="posted_at" id="posted_at" class="form-control" value="{{ old('posted_at', optional($feedPost->posted_at ?? now())->format('Y-m-d\TH:i')) }}">
+        <input type="datetime-local" name="posted_at" id="posted_at" class="form-control" value="{{ old('posted_at', optional($feedPost->posted_at ?? now('America/Los_Angeles'))?->timezone('America/Los_Angeles')->format('Y-m-d\TH:i')) }}">
     </div>
 
     <div class="col-md-6 d-flex align-items-center">

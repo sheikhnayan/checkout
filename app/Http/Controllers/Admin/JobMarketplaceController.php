@@ -178,17 +178,7 @@ class JobMarketplaceController extends Controller
 
     private function accessibleWebsiteIds(): array
     {
-        $user = auth()->user();
-
-        if ($user && $user->isAdmin()) {
-            return Website::pluck('id')->all();
-        }
-
-        if ($user && $user->isWebsiteUser() && $user->website_id) {
-            return [(int) $user->website_id];
-        }
-
-        return [];
+        return auth()->user()->accessibleWebsiteIds();
     }
 
     private function accessibleWebsites()

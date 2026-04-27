@@ -151,7 +151,7 @@
                     </tr>
                     <tr>
                         <td>Date:</td>
-                        <td>{{ $invoice->created_at->format('M d, Y') }}</td>
+                        <td>{{ $invoice->created_at->timezone('America/Los_Angeles')->format('M d, Y') }}</td>
                     </tr>
                     <tr>
                         <td>Bill To:</td>

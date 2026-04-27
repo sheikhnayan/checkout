@@ -106,7 +106,7 @@
                                                     @elseif($invoice->status === 'sent')
                                                         <span class="badge bg-primary">Sent</span>
                                                         @if($invoice->sent_at)
-                                                            <div style="font-size: 11px; color: #6c757d; margin-top: 4px;">{{ $invoice->sent_at->format('M d, Y h:i A') }}</div>
+                                                            <div style="font-size: 11px; color: #6c757d; margin-top: 4px;">{{ $invoice->sent_at->timezone('America/Los_Angeles')->format('M d, Y h:i A') }} PT</div>
                                                         @endif
                                                     @elseif($invoice->status === 'paid')
                                                         <span class="badge bg-success">Paid</span>
@@ -114,7 +114,7 @@
                                                         <span class="badge bg-danger">{{ ucfirst($invoice->status) }}</span>
                                                     @endif
                                                 </td>
-                                                <td>{{ $invoice->created_at->format('M d, Y') }}</td>
+                                                <td>{{ $invoice->created_at->timezone('America/Los_Angeles')->format('M d, Y') }}</td>
                                                 <td>
                                                     <a href="{{ route('admin.custom-invoice.show', $invoice->id) }}" class="btn btn-sm btn-info">
                                                         <i class="fas fa-eye"></i>

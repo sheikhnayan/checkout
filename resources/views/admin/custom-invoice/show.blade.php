@@ -70,7 +70,7 @@
                                                 <p><strong>Website:</strong> {{ $customInvoice->website->name }}</p>
                                             </div>
                                             <div class="col-md-6">
-                                                <p><strong>Invoice Date:</strong> {{ $customInvoice->created_at->format('M d, Y') }}</p>
+                                                <p><strong>Invoice Date:</strong> {{ $customInvoice->created_at->timezone('America/Los_Angeles')->format('M d, Y') }}</p>
                                                 <p><strong>Status:</strong> 
                                                     @if($customInvoice->archived_at)
                                                         <span class="badge bg-dark">Archived</span>
@@ -85,7 +85,7 @@
                                                     @endif
                                                 </p>
                                                 @if($customInvoice->paid_at)
-                                                    <p><strong>Paid Date:</strong> {{ $customInvoice->paid_at->format('M d, Y H:i') }}</p>
+                                                    <p><strong>Paid Date:</strong> {{ $customInvoice->paid_at->timezone('America/Los_Angeles')->format('M d, Y h:i A') }} PT</p>
                                                 @endif
                                             </div>
                                         </div>
@@ -224,21 +224,21 @@
                                         @if($customInvoice->sent_at)
                                         <div class="mb-3">
                                             <strong>Email Sent At:</strong><br>
-                                            {{ $customInvoice->sent_at->format('M d, Y H:i') }}
+                                            {{ $customInvoice->sent_at->timezone('America/Los_Angeles')->format('M d, Y h:i A') }} PT
                                         </div>
                                         @endif
 
                                         @if($customInvoice->archived_at)
                                         <div class="mb-3">
                                             <strong>Archived At:</strong><br>
-                                            {{ $customInvoice->archived_at->format('M d, Y H:i') }}
+                                            {{ $customInvoice->archived_at->timezone('America/Los_Angeles')->format('M d, Y h:i A') }} PT
                                         </div>
                                         @endif
 
                                         @if($customInvoice->paid_at)
                                         <div class="mb-3">
                                             <strong>Paid At:</strong><br>
-                                            {{ $customInvoice->paid_at->format('M d, Y H:i') }}
+                                            {{ $customInvoice->paid_at->timezone('America/Los_Angeles')->format('M d, Y h:i A') }} PT
                                         </div>
                                         @endif
                                     </div>

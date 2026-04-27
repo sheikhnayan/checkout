@@ -1972,18 +1972,23 @@
             }
 
             .events-section-container.container {
-                padding-left: 4px;
-                padding-right: 4px;
+                padding-left: 2px;
+                padding-right: 2px;
             }
 
             #events-list {
-                margin-left: -4px;
-                margin-right: -4px;
+                margin-left: -2px;
+                margin-right: -2px;
             }
 
             #events-list .event-card-item {
-                padding-left: 4px;
-                padding-right: 4px;
+                padding-left: 2px;
+                padding-right: 2px;
+            }
+
+            #events-list .event-card {
+                padding-left: 0;
+                padding-right: 0;
             }
 
             .aff-hero {
@@ -2065,6 +2070,7 @@
             .aff-banner { width: 100%; }
             .aff-banner-content { max-width: 100%; padding: 10px 8px 8px; }
             .hero-date-card { max-width: 100%; }
+            .event-hero-copy { padding-left: 8px; padding-right: 8px; }
             .story-copy-block.is-collapsed .story-copy-collapsible {
                 display: -webkit-box;
                 -webkit-box-orient: vertical;
@@ -2145,8 +2151,28 @@
             }
 
             .events-section-container.container {
-                padding-left: 2px;
-                padding-right: 2px;
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            #events-list {
+                margin-left: -1px;
+                margin-right: -1px;
+            }
+
+            #events-list .event-card-item {
+                padding-left: 1px;
+                padding-right: 1px;
+            }
+
+            #events-list .event-card {
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            .event-hero-copy {
+                padding-left: 6px;
+                padding-right: 6px;
             }
 
             .hero-gallery-grid { grid-template-columns: 1fr; }
@@ -4524,6 +4550,14 @@
                     let guests = parseInt($guestSelect.val()) || 1;
                     let isMultiple = parseMultipleFlag($guestSelect.data('multiple'));
                     let transportation = $btn.data('transportation');
+
+                    const _selectedDate = String(getSelectedUseDate()).trim();
+                    if (!_selectedDate) {
+                        const $dateCard = document.querySelector('.hero-date-card');
+                        if ($dateCard) { $dateCard.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+                        $('#package_use_date').focus();
+                        return;
+                    }
 
                     $('.vip-card').removeClass('selected');
                     $btn.closest('.vip-card').addClass('selected');

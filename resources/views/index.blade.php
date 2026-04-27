@@ -1897,18 +1897,23 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
 
     .events-section-container.container {
-        padding-left: 4px;
-        padding-right: 4px;
+        padding-left: 2px;
+        padding-right: 2px;
     }
 
     #events-list {
-        margin-left: -4px;
-        margin-right: -4px;
+        margin-left: -2px;
+        margin-right: -2px;
     }
 
     #events-list .event-card-item {
-        padding-left: 4px;
-        padding-right: 4px;
+        padding-left: 2px;
+        padding-right: 2px;
+    }
+
+    #events-list .event-card {
+        padding-left: 0;
+        padding-right: 0;
     }
 
     .aff-hero {
@@ -1991,7 +1996,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .event-hero-layout { grid-template-columns: 1fr; gap: 14px; }
     .event-banner-wrap { order: 2; width: 100%; min-width: 0; max-width: none; height: auto; justify-self: stretch; }
     .event-banner-wrap .aff-banner { width: 100%; height: auto; min-height: 420px; }
-    .event-hero-copy { order: 1; padding: 12px 10px; min-height: 0; }
+    .event-hero-copy { order: 1; padding: 10px 8px; min-height: 0; }
     .aff-banner { width: 100%; min-height: 420px; }
     .hero-date-card { max-width: 100%; }
     .story-copy-block.is-collapsed .story-copy-collapsible {
@@ -2074,8 +2079,28 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
 
     .events-section-container.container {
-        padding-left: 2px;
-        padding-right: 2px;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    #events-list {
+        margin-left: -1px;
+        margin-right: -1px;
+    }
+
+    #events-list .event-card-item {
+        padding-left: 1px;
+        padding-right: 1px;
+    }
+
+    #events-list .event-card {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .event-hero-copy {
+        padding-left: 6px;
+        padding-right: 6px;
     }
 
     .hero-gallery-grid { grid-template-columns: 1fr; }
@@ -4467,6 +4492,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     var $guestSelect = $('.package_number_of_guestss[data-id="' + packageId + '"]');
                     var guests = parseInt($guestSelect.val()) || 1;
                     var isMultiple = parseMultipleFlag($guestSelect.data('multiple'));
+
+                    if (!ensureReservationDateSelected()) {
+                        return;
+                    }
 
                     $('.vip-card').removeClass('selected');
                     $btn.closest('.vip-card').addClass('selected');

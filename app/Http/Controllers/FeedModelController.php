@@ -136,6 +136,10 @@ class FeedModelController extends Controller
             return Website::orderBy('name')->get();
         }
 
+        if ($user->isManager()) {
+            return Website::whereIn('id', $user->accessibleWebsiteIds())->orderBy('name')->get();
+        }
+
         if ($user->isWebsiteUser() && $user->website_id) {
             return Website::where('id', $user->website_id)->orderBy('name')->get();
         }

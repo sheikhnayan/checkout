@@ -40,7 +40,7 @@ class CheckRoutePermission
             return $next($request);
         }
 
-        if (!$user->isWebsiteUser() && !$user->isBouncer()) {
+        if (!$user->isWebsiteUser() && !$user->isBouncer() && !$user->isManager()) {
             abort(403, 'Access denied.');
         }
 

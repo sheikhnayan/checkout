@@ -301,6 +301,10 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
     Route::resource('website-users', App\Http\Controllers\Admin\WebsiteUserController::class);
     Route::post('website-users/archive/{id}', [App\Http\Controllers\Admin\WebsiteUserController::class, 'archive'])->name('website-users.archive');
 
+    // Manager Users Management (super admin only — enforced inside controller)
+    Route::resource('manager-users', App\Http\Controllers\Admin\ManagerUserController::class);
+    Route::post('manager-users/archive/{id}', [App\Http\Controllers\Admin\ManagerUserController::class, 'archive'])->name('manager-users.archive');
+
     // Website Role Management
     Route::resource('website-roles', WebsiteRoleController::class)->except(['show']);
     Route::post('website-roles/{website_role}/archive', [WebsiteRoleController::class, 'archive'])->name('website-roles.archive');

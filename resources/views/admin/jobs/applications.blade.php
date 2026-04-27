@@ -70,7 +70,7 @@
                                         <button type="submit" class="btn btn-sm btn-primary">Save</button>
                                     </form>
                                 </td>
-                                <td>{{ optional($application->submitted_at)->format('M d, Y h:i A') }}</td>
+                                <td>{{ optional($application->submitted_at)?->timezone('America/Los_Angeles')->format('M d, Y h:i A') }} PT</td>
                                 <td>
                                     <a href="{{ route('admin.jobs.applications.show', $application->id) }}" class="btn btn-sm btn-outline-light">View</a>
                                 </td>

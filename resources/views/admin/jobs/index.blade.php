@@ -55,7 +55,7 @@
                                     @endif
                                 </td>
                                 <td>{{ $job->applications_count }}</td>
-                                <td>{{ optional($job->created_at)->format('M d, Y h:i A') }}</td>
+                                <td>{{ optional($job->created_at)?->timezone('America/Los_Angeles')->format('M d, Y h:i A') }} PT</td>
                                 <td>
                                     <a href="{{ route('admin.jobs.edit', $job) }}" class="btn btn-sm btn-primary">Edit</a>
                                 </td>

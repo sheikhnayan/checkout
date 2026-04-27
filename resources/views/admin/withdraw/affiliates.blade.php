@@ -93,7 +93,7 @@
                         @forelse($requests as $wr)
                         <tr>
                             <td>{{ $wr->id }}</td>
-                            <td>{{ $wr->created_at->format('M d, Y') }}</td>
+                            <td>{{ $wr->created_at->timezone('America/Los_Angeles')->format('M d, Y') }}</td>
                             <td>
                                 @php $aff = $affiliates->get($wr->owner_id) @endphp
                                 @if($aff)

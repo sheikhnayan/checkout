@@ -1019,15 +1019,23 @@
         /* Mobile */
         @media(max-width:768px) {
             .container.py-4 {
-                padding-left: 4px;
-                padding-right: 4px;
+                padding-left: 2px;
+                padding-right: 2px;
             }
 
             .step-title { font-size:.55rem !important; }
             input, select, textarea { font-size:16px !important; }
             .vip-card { flex-direction:column; align-items:flex-start; }
             .package-search-wrap { grid-template-columns: 1fr; }
-            .aff-banner-content { padding:22px 18px; }
+            .aff-banner-content { padding:16px 12px; }
+            .aff-story,
+            .aff-location-card,
+            #cart-section,
+            .checkout-section,
+            .vip-pack {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
             .aff-gallery { grid-template-columns:repeat(2, minmax(0, 1fr)); }
             .aff-profile-head {
                 width: 100%;
@@ -1041,6 +1049,11 @@
             .aff-footer-inner {
                 justify-content: center;
                 text-align: center;
+            }
+
+            #events-list .event-card {
+                padding-left: 0;
+                padding-right: 0;
             }
         }
     </style>
@@ -2389,6 +2402,14 @@ $(document).ready(function() {
         const isMultiple = parseMultipleFlag($guestSel.data('multiple'));
         const transport = $(this).data('transportation');
         const clubSlug  = $(this).data('club-slug');
+
+        const _selectedDate = String(getSelectedUseDate()).trim();
+        if (!_selectedDate) {
+            const $dateCard = document.querySelector('.hero-date-card, #package_use_date');
+            if ($dateCard) { $dateCard.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+            $('#package_use_date').focus();
+            return;
+        }
 
         // Highlight selected card
         $('.vip-card').removeClass('selected');

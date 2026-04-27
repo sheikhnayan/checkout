@@ -12,25 +12,37 @@ class AdminController extends Controller
     public function index()
     {
         $user = auth()->user();
-        
-        // Get transactions based on user type
+
         if ($user->isAdmin()) {
             $recentTransactions = \App\Models\Transaction::latest()->take(5)->get();
-        } elseif ($user->isWebsiteUser() && $user->website_id) {
-            // Website user sees only their website's transactions
-            $recentTransactions = \App\Models\Transaction::where(function($query) use ($user) {
-                $query->whereHas('event', function($subQuery) use ($user) {
-                    $subQuery->where('website_id', $user->website_id);
-                })
-                ->orWhereHas('package', function($subQuery) use ($user) {
-                    $subQuery->where('website_id', $user->website_id);
-                });
-            })->latest()->take(5)->get();
-        } else {
-            $recentTransactions = collect();
+            return view('admin.dashboard', compact('recentTransactions'));
         }
-        
-        return view('admin.dashboard', compact('recentTransactions'));
+
+        // Website users and managers: scoped dashboard
+        $accessibleIds = $user->accessibleWebsiteIds();
+
+        $allocatedWebsites = $user->isManager()
+            ? $user->managedWebsites()->orderBy('name')->get()
+            : ($user->website ? collect([$user->website]) : collect());
+
+        $scopedEventCount = \App\Models\Event::whereIn('website_id', $accessibleIds)->count();
+
+        $scopedTransactionCount = \App\Models\Transaction::where(function ($q) use ($accessibleIds) {
+            $q->whereHas('event', fn($s) => $s->whereIn('website_id', $accessibleIds))
+              ->orWhereHas('package', fn($s) => $s->whereIn('website_id', $accessibleIds));
+        })->count();
+
+        $recentTransactions = \App\Models\Transaction::where(function ($q) use ($accessibleIds) {
+            $q->whereHas('event', fn($s) => $s->whereIn('website_id', $accessibleIds))
+              ->orWhereHas('package', fn($s) => $s->whereIn('website_id', $accessibleIds));
+        })->latest()->take(5)->get();
+
+        return view('admin.dashboard', compact(
+            'recentTransactions',
+            'allocatedWebsites',
+            'scopedEventCount',
+            'scopedTransactionCount'
+        ));
     }
 
     /**

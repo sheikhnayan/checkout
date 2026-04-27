@@ -561,12 +561,12 @@
             };
 
             $pendingFeedPostCount = 0;
-            if ($authUser && ($authUser->isAdmin() || $authUser->isWebsiteUser())) {
+            if ($authUser && ($authUser->isAdmin() || $authUser->isWebsiteUser() || $authUser->isManager())) {
               $pendingFeedPostCountQuery = \App\Models\FeedPost::query()
                 ->where('review_required', true);
 
-              if ($authUser->isWebsiteUser() && $authUser->website_id) {
-                $pendingFeedPostCountQuery->where('website_id', $authUser->website_id);
+              if (($authUser->isWebsiteUser() || $authUser->isManager()) && !empty($authUser->accessibleWebsiteIds())) {
+                $pendingFeedPostCountQuery->whereIn('website_id', $authUser->accessibleWebsiteIds());
               }
 
               $pendingFeedPostCount = (int) $pendingFeedPostCountQuery->count();
@@ -581,6 +581,15 @@
   <li class="menu-header small text-uppercase">
     <span class="menu-header-text">Site Settings</span>
   </li>
+
+  @if($authUser && ($authUser->isWebsiteUser() || $authUser->isManager()))
+    <li class="menu-item {{ request()->routeIs('admin.index') ? 'active' : '' }}">
+      <a href="{{ route('admin.index') }}" class="menu-link">
+        <i class="menu-icon tf-icons bx bx-home-circle"></i>
+        <div class="text-truncate">Dashboard</div>
+      </a>
+    </li>
+  @endif
 
   @if(auth()->check() && auth()->user()->isAdmin())
   <li class="menu-item {{ request()->is('admins/website') ? 'active' : '' }}">
@@ -605,6 +614,15 @@
     <a href="{{ route('admin.website-roles.index') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-shield-quarter"></i>
       <div class="text-truncate">Website Roles</div>
+    </a>
+  </li>
+  @endif
+
+  @if(auth()->check() && auth()->user()->isAdmin())
+  <li class="menu-item {{ request()->is('admins/manager-users*') ? 'active' : '' }}">
+    <a href="{{ route('admin.manager-users.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-user-check"></i>
+      <div class="text-truncate">Manager Users</div>
     </a>
   </li>
   @endif
@@ -773,7 +791,7 @@
   </li>
   @endif
 
-  @if($authUser && ($authUser->isAdmin() || ($authUser->isWebsiteUser() && $authUser->website_id)))
+  @if($authUser && $canAccessRoute('admin.withdraw.entertainers'))
   <li class="menu-item {{ request()->is('admins/withdraw/entertainers*') ? 'active' : '' }}">
     <a href="{{ route('admin.withdraw.entertainers') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-wallet-alt"></i>

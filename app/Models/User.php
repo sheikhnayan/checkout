@@ -80,6 +80,31 @@ class User extends Authenticatable
     }
 
     /**
+     * The websites this manager user is allocated to manage (pivot).
+     */
+    public function managedWebsites()
+    {
+        return $this->belongsToMany(Website::class, 'manager_websites', 'user_id', 'website_id')->withTimestamps();
+    }
+
+    /**
+     * Return the website IDs this user is allowed to access.
+     * Admin → all. Manager → allocated websites. Website user/bouncer → their single website.
+     */
+    public function accessibleWebsiteIds(): array
+    {
+        if ($this->isAdmin()) {
+            return Website::pluck('id')->map(fn ($id) => (int) $id)->all();
+        }
+
+        if ($this->isManager()) {
+            return $this->managedWebsites()->pluck('websites.id')->map(fn ($id) => (int) $id)->all();
+        }
+
+        return $this->website_id ? [(int) $this->website_id] : [];
+    }
+
+    /**
      * Check if the user is an admin.
      */
     public function isAdmin()
@@ -110,6 +135,11 @@ class User extends Authenticatable
         return $this->user_type === 'bouncer';
     }
 
+    public function isManager(): bool
+    {
+        return $this->user_type === 'manager';
+    }
+
     public function isWebsiteAdmin(): bool
     {
         return (bool) optional($this->websiteRole)->is_website_admin;
@@ -125,7 +155,7 @@ class User extends Authenticatable
             return true;
         }
 
-        if (!$this->isWebsiteUser() && !$this->isBouncer()) {
+        if (!$this->isWebsiteUser() && !$this->isBouncer() && !$this->isManager()) {
             return false;
         }
 

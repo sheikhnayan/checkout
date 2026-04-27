@@ -205,7 +205,7 @@ class WebsiteUserController extends Controller
             return;
         }
 
-        if (($user->isWebsiteUser() || $user->isBouncer()) && $user->isWebsiteAdmin()) {
+        if (($user->isWebsiteUser() || $user->isBouncer() || $user->isManager()) && $user->isWebsiteAdmin()) {
             return;
         }
 
@@ -214,13 +214,7 @@ class WebsiteUserController extends Controller
 
     private function accessibleWebsiteIds(): array
     {
-        $user = auth()->user();
-
-        if ($user->isAdmin()) {
-            return Website::pluck('id')->map(fn ($id) => (int) $id)->all();
-        }
-
-        return $user->website_id ? [(int) $user->website_id] : [];
+        return auth()->user()->accessibleWebsiteIds();
     }
 
     private function ensureWebsiteAccess(int $websiteId): void

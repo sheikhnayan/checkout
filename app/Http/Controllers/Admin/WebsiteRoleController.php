@@ -170,13 +170,7 @@ class WebsiteRoleController extends Controller
 
     private function accessibleWebsiteIds(): array
     {
-        $user = auth()->user();
-
-        if ($user->isAdmin()) {
-            return Website::query()->pluck('id')->map(fn ($id) => (int) $id)->all();
-        }
-
-        return $user->website_id ? [(int) $user->website_id] : [];
+        return auth()->user()->accessibleWebsiteIds();
     }
 
     private function accessibleWebsites()

@@ -44,7 +44,7 @@
                                         <button type="submit" class="btn btn-sm btn-primary">Save</button>
                                     </form>
                                 </td>
-                                <td>{{ optional($requestItem->submitted_at)->format('M d, Y h:i A') }}</td>
+                                <td>{{ optional($requestItem->submitted_at)?->timezone('America/Los_Angeles')->format('M d, Y h:i A') }} PT</td>
                             </tr>
                             <tr>
                                 <td colspan="7">
