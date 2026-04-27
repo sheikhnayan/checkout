@@ -340,8 +340,8 @@
                                                                 data-business_purpose="{{ $item->business_purpose }}"
                                                                 data-total="{{ $item->total }}"
                                                                 data-subtotal="{{ $item->actual_total }}"
-                                                                data-refundable="{{ ($item->actual_total / 100)* $item->website->refundable_fee }}"
-                                                                data-gratuity="{{ ($item->actual_total / 100)* $item->website->gratuity_fee }}"
+                                                                data-refundable="{{ number_format(($item->actual_total / 100) * $item->website->refundable_fee, 2) }}"
+                                                                data-gratuity="{{ number_format(($item->actual_total / 100) * $item->website->gratuity_fee, 2) }}"
                                                                 data-due="{{ $item->actual_total - $item->total }}"
                                                                 @php
                                                                     $promo_name = \App\Models\PromoCode::where('id', $item->promo_code)->first();

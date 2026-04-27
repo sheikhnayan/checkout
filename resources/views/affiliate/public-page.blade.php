@@ -649,6 +649,37 @@
             color: #555555 !important;
         }
 
+        /* Flatpickr time picker dropdown */
+        .flatpickr-calendar {
+            background: #ffffff !important;
+            color: #111111 !important;
+        }
+        .flatpickr-calendar .flatpickr-time input,
+        .flatpickr-calendar .flatpickr-time .numInputWrapper input,
+        .flatpickr-calendar .numInput {
+            background: #ffffff !important;
+            color: #111111 !important;
+            -webkit-text-fill-color: #111111 !important;
+        }
+        .flatpickr-calendar .flatpickr-time .flatpickr-am-pm {
+            background: #ffffff !important;
+            color: #111111 !important;
+            -webkit-text-fill-color: #111111 !important;
+        }
+        .flatpickr-calendar .flatpickr-time .arrowUp,
+        .flatpickr-calendar .flatpickr-time .arrowDown {
+            fill: #111111 !important;
+        }
+        .flatpickr-calendar .numInputWrapper span.arrowUp::after {
+            border-bottom-color: #111111 !important;
+        }
+        .flatpickr-calendar .numInputWrapper span.arrowDown::after {
+            border-top-color: #111111 !important;
+        }
+        .flatpickr-calendar .flatpickr-time .flatpickr-time-separator {
+            color: #111111 !important;
+        }
+
         .date-input-wrapper {
             position: relative;
             width: 100%;
