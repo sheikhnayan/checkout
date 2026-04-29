@@ -269,7 +269,7 @@
                                                             @php
                                                                 $cartItems = is_array($item->cart_items ?? null) ? $item->cart_items : json_decode($item->cart_items ?? '[]', true);
                                                                 $packageSummary = collect($cartItems)->map(function ($cartItem) {
-                                                                    $packageName = $cartItem['package_name'] ?? optional(\App\Models\Package::find($cartItem['package_id'] ?? null))->name ?? ('Package #' . ($cartItem['package_id'] ?? ''));
+                                                                    $packageName = html_entity_decode($cartItem['package_name'] ?? optional(\App\Models\Package::find($cartItem['package_id'] ?? null))->name ?? ('Package #' . ($cartItem['package_id'] ?? '')), ENT_QUOTES | ENT_HTML5, 'UTF-8');
                                                                     $guests = (int) ($cartItem['guests'] ?? 1);
                                                                     $isMultiple = in_array($cartItem['is_multiple'] ?? false, [true, 1, '1', 'true'], true);
                                                                     $unitPrice = (float) ($cartItem['unit_price'] ?? 0);

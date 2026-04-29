@@ -833,7 +833,21 @@
                     <span style="letter-spacing:.14em;text-transform:uppercase;font-size:.75rem;">CartVIP Feed Directory</span>
                 @endif
             </div>
-            <a href="{{ $club ? url($club->slug) : url('/') }}">Back to Checkout</a>
+            @php
+                if ($club) {
+                    $domain = trim((string) ($club->domain ?? ''));
+                    if ($domain !== '') {
+                        $checkoutUrl = (str_starts_with($domain, 'http://') || str_starts_with($domain, 'https://'))
+                            ? rtrim($domain, '/')
+                            : 'https://' . $domain;
+                    } else {
+                        $checkoutUrl = url($club->slug);
+                    }
+                } else {
+                    $checkoutUrl = url('/');
+                }
+            @endphp
+            <a href="{{ $checkoutUrl }}">Back to Checkout</a>
         </div>
 
         @if($club)

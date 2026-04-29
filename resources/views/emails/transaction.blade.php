@@ -101,7 +101,7 @@
                 $ciLineTotal = (float)($ci['line_total'] ?? ($ciPkgSub + $ciAddonsTotal));
             @endphp
             <tr>
-                <td><strong>{{ $ci['package_name'] ?? ('Package #' . ($ci['package_id'] ?? '')) }}</strong>
+                <td><strong>{{ html_entity_decode($ci['package_name'] ?? ('Package #' . ($ci['package_id'] ?? '')), ENT_QUOTES | ENT_HTML5, 'UTF-8') }}</strong>
                     @if($ciIsMultiple && $ciGuests > 1)
                         <br><small style="color:#888;">${{ number_format($ciUnit,2) }} × {{ $ciGuests }} guests</small>
                     @endif
