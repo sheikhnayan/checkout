@@ -127,7 +127,6 @@ label{
                                                         <label for="discount_method" class="form-label">Method</label>
                                                         <select name="discount_method" id="discount_method" class="form-control" required>
                                                             <option value="code" {{ $discountMethod === 'code' ? 'selected' : '' }}>Discount Code</option>
-                                                            <option value="automatic" {{ $discountMethod === 'automatic' ? 'selected' : '' }}>Automatic Discount</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -234,7 +233,7 @@ label{
                                                 <div class="col-md-4 d-flex align-items-end">
                                                     <div class="mb-3 form-check">
                                                         <input type="checkbox" class="form-check-input" id="limit_one_per_customer" name="limit_one_per_customer" value="1" {{ old('limit_one_per_customer', $data->limit_one_per_customer) ? 'checked' : '' }}>
-                                                        <label class="form-check-label" for="limit_one_per_customer">Limit to one use per customer</label>
+                                                        <label class="form-check-label" for="limit_one_per_customer">Limit to one use per email address</label>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4 d-flex align-items-end">

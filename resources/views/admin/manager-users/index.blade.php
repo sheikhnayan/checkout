@@ -9,32 +9,48 @@
         <div class="row">
             <div class="col-xxl-12 mb-6 order-0">
                 <div class="app-main__inner">
-                    <div class="app-page-title mt-4">
+                    <div class="app-page-title mt-4" data-step="" data-title="" data-intro="">
                         <div class="page-title-wrapper">
                             <div class="page-title-heading">
+
                                 <div class="page-title-icon">
                                     <i class="fas fa-user-shield icon-gradient bg-arielle-smile"></i>
                                 </div>
+
                                 <div>
-                                    <span class="text-capitalize">Manager Users</span>
+                                    <span class="text-capitalize">
+                                        Manager Users
+                                    </span>
                                 </div>
+
+                            </div>
+                            <div class="page-title-actions">
                             </div>
                         </div>
-                        <div class="page-title-subheading opacity-10 mt-3" style="white-space: nowrap; overflow-x: auto;">
-                            <nav aria-label="breadcrumb">
+                        <div class="page-title-subheading opacity-10 mt-3"
+                            style="white-space: nowrap; overflow-x: auto;">
+                            <nav class="" aria-label="breadcrumb">
                                 <ol class="breadcrumb" style="float: left">
+
                                     <li class="breadcrumb-item opacity-10">
-                                        <a href="#"><i class="fas fa-home"></i></a>
+                                        <a href="#">
+                                            <i class="fas fa-home" role="img" aria-hidden="true"></i>
+                                            <span class="visually-hidden">Home</span>
+                                        </a>
                                         <i class="fas fa-chevron-right ms-1"></i>
                                     </li>
-                                    <li class="breadcrumb-item">Settings</li>
-                                    <i class="fas fa-chevron-right ms-1"></i>
-                                    <li class="active breadcrumb-item" aria-current="page">Manager Users</li>
+
+                                    <li class="breadcrumb-item ">
+                                        Setting
+                                        <i class="fas fa-chevron-right ms-1"></i>
+                                    </li>
+                                    <li class="active breadcrumb-item" aria-current="page">
+                                        Manager Users
+                                    </li>
                                 </ol>
-                                <div class="btn-group" role="group" style="float: right">
-                                    <a href="{{ route('admin.manager-users.create') }}" class="btn btn-primary">
-                                        <i class="fas fa-plus"></i> Add Manager User
-                                    </a>
+
+                                <div class="btn-group" role="group" aria-label="Basic example" style="float: right">
+                                    <a href="{{ route('admin.manager-users.create') }}" class="btn btn-primary">Add Manager User</a>
                                 </div>
                             </nav>
                         </div>

@@ -208,7 +208,7 @@ label{
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="time" class="form-label">Time Range</label>
+                                                        <label for="time" class="form-label">Time Range (Pacific Time)</label>
                                                         <div style="display: flex; gap: 10px;">
                                                             <input type="text" name="time_start" class="form-control flatpickr-time" id="time_start"
                                                             style="height: 35.1166px"
@@ -249,41 +249,64 @@ label{
                                                     </div>
                                                 </div>
 
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label for="description" class="form-label">Description</label>
+                                                        <textarea name="description" class="form-control" id="description" rows="4" placeholder="Event Description" required>{{ old('description') }}</textarea>
+                                                    </div>
+                                                </div>
 
-            markAllSelected();
-        }
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label for="secondary_description" class="form-label">Secondary Description</label>
+                                                        <textarea name="secondary_description" class="form-control" id="secondary_description" rows="3" placeholder="Optional secondary description shown on the event page">{{ old('secondary_description') }}</textarea>
+                                                    </div>
+                                                </div>
 
-        function markAllSelected() {
-            Array.from(selected.options).forEach(function (option) {
-                option.selected = true;
-            });
-        }
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label for="event_gallery_picker" class="form-label">Event Gallery Images</label>
+                                                        <input type="file" class="form-control" id="event_gallery_picker" accept="image/*" data-criteria-bound="1">
+                                                        <input type="file" name="gallery_images[]" class="d-none" id="gallery_images" accept="image/*" multiple>
+                                                        <input type="hidden" name="existing_gallery_images" id="existing_gallery_images" value='[]'>
+                                                        <small class="form-text text-muted">Upload one image at a time. Added images appear below and can be removed before saving.</small>
+                                                        <div id="event-gallery-preview" class="d-flex flex-wrap gap-2 mt-2"></div>
+                                                    </div>
+                                                </div>
 
-        addBtn.addEventListener('click', function () {
-            moveSelected(available, selected);
-        });
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label for="status">Status</label>
+                                                        <select name="status" class="form-control" id="status" required>
+                                                            <option value="1" {{ old('status', '1') == '1' ? 'selected' : '' }}>Active</option>
+                                                            <option value="0" {{ old('status') == '0' ? 'selected' : '' }}>Inactive</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <input type="hidden" name="website_id" value="{{ $id }}">
+                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                            <a href="{{ route('admin.event.index') }}" class="btn btn-danger">Cancel</a>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        removeBtn.addEventListener('click', function () {
-            moveSelected(selected, available);
-        });
-
-        addAllBtn.addEventListener('click', function () {
-            moveAll(available, selected);
-        });
-
-        removeAllBtn.addEventListener('click', function () {
-            moveAll(selected, available);
-        });
-
-        if (form) {
-            form.addEventListener('submit', markAllSelected);
-        }
-
-        markAllSelected();
-    })();
-</script>
-
+            <!-- Add these scripts at the end of your file, before </body> -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
+    flatpickr(".flatpickr-time", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: false
+    });
+
     (function () {
         const rowsContainer = document.getElementById('package-rows');
         const addButton = document.getElementById('add-package-row');
@@ -334,17 +357,6 @@ label{
         rowsContainer.querySelectorAll('.remove-package-row').forEach(bindRemove);
         addButton.addEventListener('click', function () { addRow(''); });
     })();
-</script>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script>
-    flatpickr(".flatpickr-time", {
-        enableTime: true,
-        noCalendar: true,
-        dateFormat: "H:i",
-        time_24hr: false
-    });
 
     (function () {
         var operatingDays = @json($operatingDays ?? []);
@@ -410,6 +422,105 @@ label{
         });
 
         renderTags();
+    })();
+
+    (function () {
+        const picker = document.getElementById('event_gallery_picker');
+        const galleryInput = document.getElementById('gallery_images');
+        const preview = document.getElementById('event-gallery-preview');
+        const existingInput = document.getElementById('existing_gallery_images');
+
+        if (!picker || !galleryInput || !preview || !existingInput) {
+            return;
+        }
+
+        let existingImages = [];
+        try {
+            existingImages = JSON.parse(existingInput.value || '[]');
+            if (!Array.isArray(existingImages)) {
+                existingImages = [];
+            }
+        } catch (e) {
+            existingImages = [];
+        }
+
+        let dt = new DataTransfer();
+
+        function syncExisting() {
+            existingInput.value = JSON.stringify(existingImages);
+        }
+
+        function syncFiles() {
+            galleryInput.files = dt.files;
+        }
+
+        function render() {
+            preview.innerHTML = '';
+
+            existingImages.forEach(function (name, index) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'position-relative';
+                wrapper.style.width = '96px';
+                wrapper.innerHTML = '<img src="/uploads/' + name + '" style="width:96px;height:64px;object-fit:cover;border-radius:6px;border:1px solid #ddd;">'
+                    + '<button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" style="line-height:1;padding:2px 6px;" data-existing-index="' + index + '">&times;</button>';
+                preview.appendChild(wrapper);
+            });
+
+            Array.from(dt.files).forEach(function (file, index) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'position-relative';
+                wrapper.style.width = '96px';
+                const url = URL.createObjectURL(file);
+                wrapper.innerHTML = '<img src="' + url + '" style="width:96px;height:64px;object-fit:cover;border-radius:6px;border:1px solid #ddd;">'
+                    + '<button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" style="line-height:1;padding:2px 6px;" data-new-index="' + index + '">&times;</button>';
+                preview.appendChild(wrapper);
+            });
+        }
+
+        picker.addEventListener('change', function () {
+            const file = picker.files && picker.files[0] ? picker.files[0] : null;
+            if (!file) {
+                return;
+            }
+
+            dt.items.add(file);
+            syncFiles();
+            render();
+            picker.value = '';
+        });
+
+        preview.addEventListener('click', function (event) {
+            const existingBtn = event.target.closest('[data-existing-index]');
+            if (existingBtn) {
+                const idx = Number(existingBtn.getAttribute('data-existing-index'));
+                if (!Number.isNaN(idx)) {
+                    existingImages.splice(idx, 1);
+                    syncExisting();
+                    render();
+                }
+                return;
+            }
+
+            const newBtn = event.target.closest('[data-new-index]');
+            if (newBtn) {
+                const idx = Number(newBtn.getAttribute('data-new-index'));
+                if (!Number.isNaN(idx)) {
+                    const next = new DataTransfer();
+                    Array.from(dt.files).forEach(function (file, fileIndex) {
+                        if (fileIndex !== idx) {
+                            next.items.add(file);
+                        }
+                    });
+                    dt = next;
+                    syncFiles();
+                    render();
+                }
+            }
+        });
+
+        syncExisting();
+        syncFiles();
+        render();
     })();
 </script>
 

@@ -24,7 +24,7 @@
 
                                         <div>
                                             <span class="text-capitalize">
-                                                Website User
+                                                Website Users
                                             </span>
                                         </div>
 
@@ -51,13 +51,14 @@
                                                 <i class="fas fa-chevron-right ms-1"></i>
                                             </li>
                                             <li class="active breadcrumb-item" aria-current="page">
-                                                Website User
+                                                Website Users
                                             </li>
 
                                         </ol>
 
                                         <div class="btn-group" role="group" aria-label="Basic example" style="float: right">
                                             <a href="{{ route('admin.website-users.create') }}" class="btn btn-primary">Add Website User</a>
+                                        </div>
                                     </nav>
                                 </div>
                             </div>

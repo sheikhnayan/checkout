@@ -108,6 +108,109 @@ class FrontendController extends Controller
         return response()->json($data);
     }
 
+    public function autoDiscounts($slug)
+    {
+        $website = Website::where('slug', $slug)
+            ->where('status', 1)
+            ->where('is_archieved', 0)
+            ->first();
+
+        if (!$website) {
+            return response()->json(['valid' => false]);
+        }
+
+        $source = strtolower((string) request()->query('source', PromoCode::AUDIENCE_CLUB));
+        $ownerSlug = trim((string) request()->query('owner_slug', ''));
+
+        if (!in_array($source, PromoCode::ALLOWED_AUDIENCES, true)) {
+            return response()->json(['valid' => false]);
+        }
+
+        $query = PromoCode::where('website_id', $website->id)
+            ->where('is_archieved', 0)
+            ->where('discount_method', PromoCode::DISCOUNT_METHOD_AUTOMATIC)
+            ->where(function ($q) {
+                $q->whereNull('is_active')->orWhere('is_active', 1);
+            })
+            ->where('audience', $source);
+
+        if ($source === PromoCode::AUDIENCE_AFFILIATE) {
+            $affiliate = Affiliate::where('slug', $ownerSlug)
+                ->where('status', 'approved')
+                ->where('is_active', true)
+                ->whereHas('affiliateWebsites', function ($q) use ($website) {
+                    $q->where('website_id', $website->id)->where('is_active', true);
+                })
+                ->first();
+            if (!$affiliate) {
+                return response()->json(['valid' => false]);
+            }
+            $query->where('affiliate_id', $affiliate->id)->whereNull('entertainer_id');
+        } elseif ($source === PromoCode::AUDIENCE_ENTERTAINER) {
+            $entertainer = Entertainer::where('slug', $ownerSlug)
+                ->where('website_id', $website->id)
+                ->where('status', 'approved')
+                ->where('is_active', true)
+                ->first();
+            if (!$entertainer) {
+                return response()->json(['valid' => false]);
+            }
+            $query->where('entertainer_id', $entertainer->id)->whereNull('affiliate_id');
+        } else {
+            $query->whereNull('affiliate_id')->whereNull('entertainer_id');
+        }
+
+        $candidates = $query->get();
+
+        $packageIds = collect(explode(',', (string) request()->query('package_ids', '')))
+            ->map(fn ($id) => (int) trim($id))
+            ->filter(fn ($id) => $id > 0)
+            ->unique()
+            ->values()
+            ->all();
+
+        $subtotal = (float) request()->query('subtotal', 0);
+        $totalQty = (int) request()->query('total_qty', 0);
+        $now = now();
+
+        foreach ($candidates as $promo) {
+            if ($promo->starts_at && $promo->starts_at->gt($now)) continue;
+            if ($promo->ends_at && $promo->ends_at->lt($now)) continue;
+            if (!empty($promo->usage_limit_total) && (int) ($promo->usage_count ?? 0) >= (int) $promo->usage_limit_total) continue;
+
+            if (($promo->applies_to ?? PromoCode::APPLIES_TO_ALL_PACKAGES) === PromoCode::APPLIES_TO_SPECIFIC_PACKAGES) {
+                $allowedIds = collect((array) ($promo->applies_to_package_ids ?? []))
+                    ->map(fn ($id) => (int) $id)
+                    ->filter(fn ($id) => $id > 0)
+                    ->values();
+                if (empty($packageIds) || collect($packageIds)->intersect($allowedIds)->isEmpty()) continue;
+            }
+
+            $minType = (string) ($promo->min_requirement_type ?? PromoCode::MIN_REQUIREMENT_NONE);
+            if ($minType === PromoCode::MIN_REQUIREMENT_AMOUNT) {
+                $minAmount = (float) ($promo->min_purchase_amount ?? 0);
+                if ($minAmount > 0 && $subtotal < $minAmount) continue;
+            }
+            if ($minType === PromoCode::MIN_REQUIREMENT_QUANTITY) {
+                $minQty = (int) ($promo->min_purchase_quantity ?? 0);
+                if ($minQty > 0 && $totalQty < $minQty) continue;
+            }
+
+            $discountType = $promo->discount_value_type ?: ($promo->type ?: PromoCode::DISCOUNT_TYPE_PERCENTAGE);
+            $discountValue = isset($promo->discount_value) ? (float) $promo->discount_value : (float) ($promo->percentage ?? 0);
+
+            return response()->json([
+                'valid' => true,
+                'id'    => $promo->id,
+                'name'  => $promo->name ?: 'Automatic Discount',
+                'discount' => $discountValue,
+                'type'     => $discountType,
+            ]);
+        }
+
+        return response()->json(['valid' => false]);
+    }
+
     public function checkCode($slug, $code)
     {
         $website = Website::where('slug', $slug)

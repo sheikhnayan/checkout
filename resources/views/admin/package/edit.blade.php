@@ -240,10 +240,10 @@ label{
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="package_type" class="form-label">Package Type *</label>
+                                                        <label for="package_type" class="form-label">Product Type *</label>
                                                         <select name="package_type" class="form-control" id="package_type" required onchange="togglePackageTypeFields()">
                                                             <option value="ticket" {{ old('package_type', $data->package_type ?? 'ticket') === 'ticket' ? 'selected' : '' }}>Ticket</option>
-                                                            <option value="table" {{ old('package_type', $data->package_type ?? 'ticket') === 'table' ? 'selected' : '' }}>Table</option>
+                                                            <option value="table" {{ old('package_type', $data->package_type ?? 'ticket') === 'table' ? 'selected' : '' }}>Package</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -275,7 +275,7 @@ label{
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <div class="toggle-field">
-                                                            <p class="toggle-text">Multiple</p>
+                                                            <p class="toggle-text">Charge per Quantity</p>
                                                             <label class="toggle-switch" for="multiple">
                                                                 <input id="multiple" type="checkbox" name="multiple" class="toggle-switch-input" @checked(old('multiple', $data->multiple == 1))>
                                                                 <span class="toggle-switch-slider"></span>

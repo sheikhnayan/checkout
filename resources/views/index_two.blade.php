@@ -156,6 +156,14 @@
                 border-color: #ff6b6b !important;
             }
 
+            .reservation-date-error {
+                display: none;
+                margin-top: 6px;
+                color: #ff6b6b;
+                font-size: 12px;
+                font-weight: 600;
+            }
+
             /* Consistent button styles */
             .same-as-info,
             .same-as-info-transport {
@@ -1835,6 +1843,84 @@
             margin-bottom: 12px;
         }
 
+        .guest-count .guest-gender-row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 6px;
+        }
+
+        .guest-count .guest-gender-row .guest-section {
+            min-width: 0;
+        }
+
+        .guest-count .guest-list > h2 {
+            font-size: 1rem;
+            margin-bottom: 6px;
+        }
+
+        .guest-count .guest-section {
+            padding: 4px 6px;
+            margin-bottom: 4px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .guest-count .guest-section .label {
+            font-size: 13px;
+            font-weight: 700;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .guest-count .counter {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .guest-count .guest-qty-stepper {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px;
+            border-radius: 999px;
+            background: rgba(8, 12, 24, 0.7);
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .guest-count .guest-qty-btn {
+            background: rgba(255,255,255,0.09);
+            border: 1px solid rgba(255,255,255,0.26);
+            color: #fff;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 13px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            transition: all .15s ease;
+        }
+
+        .guest-count .guest-qty-btn:hover {
+            background: var(--accent);
+            color: #111;
+            border-color: transparent;
+        }
+
+        .guest-count .guest-qty-val {
+            min-width: 18px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 12px;
+            color: #fff;
+        }
+
         .section-kicker-lg {
             opacity: .6;
             font-size: .85rem;
@@ -2008,6 +2094,10 @@
             .guest-count .guest-list {
                 display: flex;
                 flex-direction: column;
+            }
+
+            .guest-count {
+                padding: 8px 6px;
             }
 
             .guest-count .guest-section--men {
@@ -2245,9 +2335,10 @@
                             <label>Choose Your Reservation Date</label>
                             <div class="date-input-wrapper">
                                 <input id="package_use_date" type="text"
-                                    value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" style="width: 100%;" readonly>
+                                    value="" style="width: 100%;" readonly aria-describedby="package_use_date_error">
                                 <span class="custom-calendar-icon"></span>
                             </div>
+                            <small id="package_use_date_error" class="reservation-date-error">Please select a reservation date.</small>
                         </div>
                     </div>
                 </section>
@@ -2383,40 +2474,45 @@
                                     <div class="row">
                                         <div class="col-md-12 guest-list">
                                             <h2>Total Guests</h2>
-                                            <div class="guest-section guest-section--women"
-                                                style="border-color: {{ $brandPrimary }} !important;">
-                                                <span class="label">Women</span>
-                                                <div class="counter">
-                                                    <span class="count" id="womenCount">0</span>
-                                                    <button class="btn-gray" type="button"
-                                                        onclick="decrements('women')">−</button>
-                                                    <button class="btn-yellow"
-                                                        style="background-color: {{ $brandPrimary }} !important;"
-                                                        type="button" onclick="increments('women')">+</button>
+                                            <div class="guest-gender-row">
+                                                <div class="guest-section guest-section--men"
+                                                    style="border-color: {{ $brandPrimary }} !important;">
+                                                    <span class="label">Men</span>
+                                                    <div class="counter">
+                                                        <span class="addon-qty-stepper guest-qty-stepper">
+                                                            <button class="addon-qty-btn guest-qty-btn" type="button"
+                                                                onclick="decrements('men')">−</button>
+                                                            <span class="count addon-qty-val guest-qty-val" id="menCount">0</span>
+                                                            <button class="addon-qty-btn guest-qty-btn" type="button"
+                                                                onclick="increments('men')">+</button>
+                                                        </span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="guest-section guest-section--men"
-                                                style="border-color: {{ $brandPrimary }} !important;">
-                                                <span class="label">Men</span>
-                                                <div class="counter">
-                                                    <span class="count" id="menCount">0</span>
-                                                    <button class="btn-gray" type="button"
-                                                        onclick="decrements('men')">−</button>
-                                                    <button class="btn-yellow"
-                                                        style="background-color: {{ $brandPrimary }} !important;"
-                                                        type="button" onclick="increments('men')">+</button>
+                                                <div class="guest-section guest-section--women"
+                                                    style="border-color: {{ $brandPrimary }} !important;">
+                                                    <span class="label">Women</span>
+                                                    <div class="counter">
+                                                        <span class="addon-qty-stepper guest-qty-stepper">
+                                                            <button class="addon-qty-btn guest-qty-btn" type="button"
+                                                                onclick="decrements('women')">−</button>
+                                                            <span class="count addon-qty-val guest-qty-val" id="womenCount">0</span>
+                                                            <button class="addon-qty-btn guest-qty-btn" type="button"
+                                                                onclick="increments('women')">+</button>
+                                                        </span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="guest-section guest-section--total"
-                                                style="border-color: {{ $brandPrimary }} !important;">
-                                                <span class="label">Total Guests</span>
-                                                <div class="counter">
-                                                    <span class="count" id="totalCount">0</span>
-                                                    <button class="btn-gray" type="button"
-                                                        onclick="resets()">−</button>
-                                                    <button class="btn-yellow"
-                                                        style="background-color: {{ $brandPrimary }} !important;"
-                                                        type="button" onclick="increments('total')">+</button>
+                                                <div class="guest-section guest-section--total"
+                                                    style="border-color: {{ $brandPrimary }} !important;">
+                                                    <span class="label">Total Guests</span>
+                                                    <div class="counter">
+                                                        <span class="addon-qty-stepper guest-qty-stepper">
+                                                            <button class="addon-qty-btn guest-qty-btn" type="button"
+                                                                onclick="resets()">−</button>
+                                                            <span class="count addon-qty-val guest-qty-val" id="totalCount">0</span>
+                                                            <button class="addon-qty-btn guest-qty-btn" type="button"
+                                                                onclick="increments('total')">+</button>
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <input type="hidden" name="men_count" id="men_count" value="0">
@@ -2558,7 +2654,7 @@
 
                                                         <div class="vip-card-side">
                                                             <div class="vip-guest-control">
-                                                                <div class="vip-guest-label">Guests</div>
+                                                                <div class="vip-guest-label">{{ $item->package_type === 'ticket' ? 'Quantity' : ($item->package_type === 'table' ? '# of Guest' : 'Guests') }}</div>
                                                                 <div class="package-guest-input-wrap">
                                                                     @if ($item->package_type === 'ticket')
                                                                         <input
@@ -3663,6 +3759,33 @@
                 return String($('#package_use_date').val() || $('.package_use_date').val() || '').trim();
             }
 
+            function showReservationDateError(message) {
+                const text = String(message || 'Please select a reservation date.').trim();
+                $('#package_use_date').addClass('required-field').attr('aria-invalid', 'true');
+                $('#package_use_date_error').text(text).show();
+            }
+
+            function clearReservationDateError() {
+                $('#package_use_date').removeClass('required-field').removeAttr('aria-invalid');
+                $('#package_use_date_error').hide();
+            }
+
+            function ensureReservationDateSelected() {
+                const selectedDate = getSelectedUseDate();
+                if (selectedDate) {
+                    clearReservationDateError();
+                    return true;
+                }
+
+                showReservationDateError('Please select a reservation date above before continuing.');
+                const dateCard = document.querySelector('.hero-date-card');
+                if (dateCard && typeof dateCard.scrollIntoView === 'function') {
+                    dateCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                $('#package_use_date').trigger('focus');
+                return false;
+            }
+
             function clearGuestFieldError($field) {
                 const $control = $field.closest('.vip-guest-control');
                 $control.find('.package-guest-error').hide().text('');
@@ -3853,23 +3976,24 @@
                 let sales_tax = parseFloat($('#sales_tax').val()) || 0;
                 let service_charge = parseFloat($('#service_charge').val()) || 0;
                 
-                let service_charge_price = ("{{ $data->service_charge_name }}" != "0") ? (subtotal / 100) * service_charge : 0;
-                let gratuited_price = ("{{ $data->gratuity_name }}" != "0") ? (subtotal / 100) * gratuity : 0;
-                let sales_tax_price = ("{{ $data->sales_tax_name }}" != "0") ? ((subtotal + service_charge_price + gratuited_price) / 100) * sales_tax : 0;
-                
-                let totalBeforeCoupon = subtotal + service_charge_price + sales_tax_price + gratuited_price;
-                
                 // Apply coupon discount
                 let promoDiscount = 0;
                 if (window.cartCoupon) {
                     if (window.cartCoupon.type == 'percentage') {
-                        promoDiscount = (totalBeforeCoupon / 100) * window.cartCoupon.discount;
+                        promoDiscount = (subtotal / 100) * window.cartCoupon.discount;
                     } else {
                         promoDiscount = window.cartCoupon.discount;
                     }
                 }
 
-                let amountAfterCoupon = totalBeforeCoupon - promoDiscount;
+                promoDiscount = Math.min(Math.max(promoDiscount, 0), subtotal);
+
+                let discountedSubtotal = subtotal - promoDiscount;
+                let service_charge_price = ("{{ $data->service_charge_name }}" != "0") ? (discountedSubtotal / 100) * service_charge : 0;
+                let gratuited_price = ("{{ $data->gratuity_name }}" != "0") ? (discountedSubtotal / 100) * gratuity : 0;
+                let sales_tax_price = ("{{ $data->sales_tax_name }}" != "0") ? ((discountedSubtotal + service_charge_price + gratuited_price) / 100) * sales_tax : 0;
+
+                let amountAfterCoupon = discountedSubtotal + service_charge_price + sales_tax_price + gratuited_price;
                 let processingFee = parseFloat($('#processing_fee').val()) || 0;
                 let processingFeeType = ($('#processing_fee_type').val() || 'percentage').toLowerCase();
                 let processingFeeAmount = processingFeeType === 'flat'
@@ -3895,9 +4019,10 @@
                 
                 if (window.cartCoupon && promoDiscount > 0) {
                     if ($('.default-promo-discount').length === 0) {
-                        $('.default-gratuity').after('<div style="font-size: 12px;" class="default-promo-discount">Promo Code Discount: <span>$0.00</span></div>');
+                        $('.default-package-price').after('<div style="font-size: inherit !important; color: #22c55e !important; font-weight: 700 !important;" class="default-promo-discount">Promo Code Discount: <span style="font-size: inherit !important; color: #22c55e !important; font-weight: 700 !important;">$0.00</span></div>');
                     }
                     $('.default-promo-discount span').text('-' + formatCurrency(promoDiscount));
+                    $('.default-package-price').after($('.default-promo-discount'));
                 } else {
                     $('.default-promo-discount').remove();
                 }
@@ -4551,11 +4676,7 @@
                     let isMultiple = parseMultipleFlag($guestSelect.data('multiple'));
                     let transportation = $btn.data('transportation');
 
-                    const _selectedDate = String(getSelectedUseDate()).trim();
-                    if (!_selectedDate) {
-                        const $dateCard = document.querySelector('.hero-date-card');
-                        if ($dateCard) { $dateCard.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-                        $('#package_use_date').focus();
+                    if (!ensureReservationDateSelected()) {
                         return;
                     }
 
@@ -4966,9 +5087,68 @@
                 if (!country) {
                     $state.html('<option value="">Select State/Province</option>');
                     return;
+                            // Auto-discount logic: wrap calculateCartTotal to fetch and apply automatic discounts
+                            (function () {
+                                var _origCalcCartTotal = window.calculateCartTotal;
+                                var _autoDiscountTimer = null;
                 }
+                                var promoSource = '{{ !empty($affiliateReferral) ? 'affiliate' : 'club' }}';
+                                var ownerSlug = '{{ !empty($affiliateReferral) ? $affiliateReferral->slug : '' }}';
+                                var siteSlug = '{{ $data->slug }}';
 
+                                function fetchAutoDiscount() {
+                                    var cartItems = Array.isArray(window.cart) ? window.cart : [];
+                                    if (cartItems.length === 0) {
+                                        if (window.cartCoupon && window.cartCoupon.isAutomatic) {
+                                            window.cartCoupon = null;
+                                            _origCalcCartTotal();
+                                        }
+                                        return;
+                                    }
+                                    var packageIds = [];
+                                    var subtotal = 0;
+                                    var totalQty = 0;
+                                    cartItems.forEach(function (pkg) {
+                                        var pkgId = parseInt(pkg.packageId, 10) || 0;
+                                        if (pkgId > 0 && packageIds.indexOf(pkgId) === -1) packageIds.push(pkgId);
+                                        var guests = parseInt(pkg.guests, 10) || 1;
+                                        var billable = (pkg.isMultiple === true || pkg.isMultiple === 1 || pkg.isMultiple === '1') ? guests : 1;
+                                        subtotal += (parseFloat(pkg.packagePrice) || 0) * billable;
+                                        subtotal += (pkg.addons || []).reduce(function (s, a) { return s + (parseFloat(a.price) || 0); }, 0);
+                                        totalQty += guests;
+                                    });
+                                    $.get('/' + siteSlug + '/auto-discounts', {
+                                        source: promoSource,
+                                        owner_slug: ownerSlug,
+                                        package_ids: packageIds.join(','),
+                                        subtotal: subtotal.toFixed(2),
+                                        total_qty: totalQty
+                                    }, function (res) {
+                                        if (res.valid) {
+                                            window.cartCoupon = {
+                                                code: res.name,
+                                                id: res.id,
+                                                discount: parseFloat(res.discount),
+                                                type: res.type || 'percentage',
+                                                isAutomatic: true
+                                            };
+                                        } else if (window.cartCoupon && window.cartCoupon.isAutomatic) {
+                                            window.cartCoupon = null;
+                                        }
+                                        _origCalcCartTotal();
+                                    });
+                                }
                 // Example API for US states: https://countriesnow.space/api/v0.1/countries/states
+                                window.calculateCartTotal = function () {
+                                    _origCalcCartTotal();
+                                    if (!window.cartCoupon || window.cartCoupon.isAutomatic) {
+                                        clearTimeout(_autoDiscountTimer);
+                                        _autoDiscountTimer = setTimeout(fetchAutoDiscount, 400);
+                                    }
+                                };
+                            })();
+                        </script>
+
                 // You can use another API if you prefer
                 $.ajax({
                     url: 'https://countriesnow.space/api/v0.1/countries/states',
@@ -5252,11 +5432,9 @@
                 allowInput: false
             });
 
-            const initialAvailableDate = getFirstAvailableDate();
-
             flatpickr("#package_use_date", {
                 dateFormat: "Y-m-d",
-                defaultDate: initialAvailableDate,
+                defaultDate: null,
                 minDate: "today",
                 allowInput: false,
                 clickOpens: true,
@@ -5265,9 +5443,11 @@
                 }],
                 onReady: function(selectedDates, dateStr, instance) {
                     $('.package_use_date').val(dateStr || instance.input.value);
+                    clearReservationDateError();
                 },
                 onChange: function(selectedDates, dateStr) {
                     $('.package_use_date').val(dateStr);
+                    clearReservationDateError();
                 }
             });
 
@@ -5278,13 +5458,14 @@
                 }
             });
 
-            $('.package_use_date').val($('#package_use_date').val());
+            $('.package_use_date').val('');
         </script>
 
         <script>
             $('#package_use_date').on('change', function() {
                 const val = $('#package_use_date').val();
                 $('.package_use_date').val(val);
+                clearReservationDateError();
                 refreshPackageAvailabilityForSelectedDate(true);
             });
         </script>

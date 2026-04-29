@@ -262,6 +262,27 @@
             white-space: pre-wrap;
         }
 
+        .profile-packages-link {
+            margin-top: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .95rem;
+            font-weight: 700;
+            color: #f4cf86;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            text-decoration-color: rgba(244, 207, 134, 0.75);
+            text-shadow: 0 0 8px rgba(244, 207, 134, 0.5), 0 0 18px rgba(224, 180, 93, 0.3);
+            transition: color .16s ease, text-shadow .16s ease, transform .16s ease;
+        }
+
+        .profile-packages-link:hover {
+            color: #ffe2ac;
+            text-shadow: 0 0 10px rgba(255, 226, 172, 0.62), 0 0 22px rgba(224, 180, 93, 0.42);
+            transform: translateY(-1px);
+        }
+
         .profile-appearances {
             margin-top: 14px;
             max-width: 720px;
@@ -818,6 +839,10 @@
                 grid-template-columns: 1fr;
             }
 
+            .profile-packages-link {
+                font-size: .9rem;
+            }
+
             .profile-avatar,
             .profile-avatar-fallback {
                 width: 108px;
@@ -946,6 +971,12 @@
                     <h1 class="profile-title">{{ $profileTitle }}</h1>
                     @if($profileSubtitle)
                         <p class="profile-copy">{{ $profileSubtitle }}</p>
+                    @endif
+                    @if($profileType === 'model' && !empty($packagesUrl))
+                        <a class="profile-packages-link" href="{{ $packagesUrl }}">
+                            Click here for my packages
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
                     @endif
 
                     @if($profileType === 'model' && $performanceDates->isNotEmpty())

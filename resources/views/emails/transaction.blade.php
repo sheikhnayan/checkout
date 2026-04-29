@@ -79,7 +79,29 @@
         }
         $mailCartItems = is_array($rawMailCartItems) ? $rawMailCartItems : [];
         $mailPriceBreakdown = is_array($mailData['price_breakdown'] ?? null) ? $mailData['price_breakdown'] : null;
+        $reservationDateRaw = $mailData['package_use_date'] ?? $mailData['reservation_date'] ?? null;
+        $reservationDateFormatted = 'N/A';
+        if (!empty($reservationDateRaw)) {
+            try {
+                $reservationDateFormatted = \Carbon\Carbon::parse($reservationDateRaw)->format('M d, Y');
+            } catch (\Throwable $e) {
+                $reservationDateFormatted = (string) $reservationDateRaw;
+            }
+        }
+        $totalAddonQty = collect($mailCartItems)
+            ->sum(function ($item) {
+                return collect($item['addons'] ?? [])->sum(function ($addon) {
+                    return max(1, (int) ($addon['qty'] ?? 1));
+                });
+            });
     @endphp
+    <table>
+        <tr><th>Order Date (Reservation Date)</th><td>{{ $reservationDateFormatted }}</td></tr>
+        <tr><th>Total Add-on Qty</th><td>{{ $totalAddonQty }}</td></tr>
+        @if(!empty($mailData['ticket_qr_code']))
+        <tr><th>Ticket Number</th><td>{{ $mailData['ticket_qr_code'] }}</td></tr>
+        @endif
+    </table>
     @if(!empty($mailCartItems))
     <table>
         <thead>
@@ -134,7 +156,7 @@
                     }
                 @endphp
                 <tr style="color:#555;">
-                    <td style="padding-left:18px;">+ {{ $addon['name'] }}</td>
+                    <td style="padding-left:18px;">+ {{ $addon['name'] }} x{{ $addonQty }}</td>
                     <td style="text-align:right;">{{ $addonQty }}</td>
                     <td style="text-align:right;">
                         @if($addonLineTotal > 0) ${{ number_format($addonUnitPrice,2) }} @else Included @endif

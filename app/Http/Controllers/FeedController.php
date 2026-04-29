@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\FeedComment;
+use App\Models\Entertainer;
 use App\Models\FeedModel;
 use App\Models\FeedModelPerformanceDate;
 use App\Models\FeedPost;
@@ -217,6 +218,12 @@ class FeedController extends Controller
             ->orderBy('name')
             ->get();
 
+        $entertainer = Entertainer::where('website_id', $club->id)
+            ->where('feed_model_id', $feedModel->id)
+            ->where('status', 'approved')
+            ->where('is_active', true)
+            ->first();
+
         return view('feed.profile', [
             'club' => $club,
             'profileType' => 'model',
@@ -227,6 +234,7 @@ class FeedController extends Controller
             'posts' => $posts,
             'models' => $models,
             'activeModel' => $feedModel,
+            'packagesUrl' => $entertainer ? route('entertainer.public', $entertainer->slug) : null,
             'performanceDates' => $this->formatPerformanceDates($feedModel),
             'rollCallDefaultDate' => now()->format('Y-m-d'),
         ]);

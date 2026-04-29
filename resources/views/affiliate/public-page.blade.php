@@ -1352,7 +1352,7 @@ const clubConfigs = {
                         </div>
                         <div class="vip-card-side">
                             <div class="vip-guest-control">
-                                <div class="vip-guest-label">Guests</div>
+                                <div class="vip-guest-label">{{ $package->package_type === 'ticket' ? 'Quantity' : ($package->package_type === 'table' ? '# of Guest' : 'Guests') }}</div>
                                 <div class="package-guest-input-wrap">
                                     @if ($package->package_type === 'ticket')
                                         <input
@@ -2082,16 +2082,18 @@ function calcTotal() {
     let sub = 0;
     window.cart.forEach(p => { sub += (p.pkgPrice * getBillableGuests(p)) + p.addons.reduce((s, a) => s + parseFloat(a.price), 0); });
 
-    let scAmt = (c.serviceChargeName !== '0' && c.serviceChargeName !== 0) ? sub * c.serviceChargeFee / 100 : 0;
-    let grAmt = (c.gratuityName !== '0' && c.gratuityName !== 0) ? sub * c.gratuityFee / 100 : 0;
-    let stAmt = (c.salesTaxName !== '0' && c.salesTaxName !== 0) ? (sub + scAmt + grAmt) * c.salesTaxFee / 100 : 0;
-    let totalBeforeCoupon = sub + scAmt + stAmt + grAmt;
-
     let promoDisc = 0;
     if (window.cartCoupon) {
-        promoDisc = window.cartCoupon.type === 'percentage' ? totalBeforeCoupon * window.cartCoupon.discount / 100 : window.cartCoupon.discount;
+        promoDisc = window.cartCoupon.type === 'percentage' ? sub * window.cartCoupon.discount / 100 : window.cartCoupon.discount;
     }
-    let amountAfterCoupon = totalBeforeCoupon - promoDisc;
+
+    promoDisc = Math.min(Math.max(promoDisc, 0), sub);
+
+    let discountedSub = sub - promoDisc;
+    let scAmt = (c.serviceChargeName !== '0' && c.serviceChargeName !== 0) ? discountedSub * c.serviceChargeFee / 100 : 0;
+    let grAmt = (c.gratuityName !== '0' && c.gratuityName !== 0) ? discountedSub * c.gratuityFee / 100 : 0;
+    let stAmt = (c.salesTaxName !== '0' && c.salesTaxName !== 0) ? (discountedSub + scAmt + grAmt) * c.salesTaxFee / 100 : 0;
+    let amountAfterCoupon = discountedSub + scAmt + stAmt + grAmt;
     let processingFeeRate = parseFloat(c.processingFee || 0) || 0;
     let processingFeeType = String(c.processingFeeType || 'percentage').toLowerCase();
     let processingFeeAmt = processingFeeType === 'flat'
@@ -2114,8 +2116,9 @@ function calcTotal() {
     }
 
     if (promoDisc > 0) {
-        if (!$('.promo-disc-row').length) $('.default-gratuity').after('<div class="promo-disc-row" style="font-size:13px;">Promo Discount: <span>$0.00</span></div>');
+        if (!$('.promo-disc-row').length) $('.default-package-price').after('<div class="promo-disc-row" style="font-size:inherit !important; color:#22c55e !important; font-weight:700 !important;">Promo Discount: <span style="font-size:inherit !important; color:#22c55e !important; font-weight:700 !important;">$0.00</span></div>');
         $('.promo-disc-row span').text('-$' + formatCurrency(promoDisc));
+        $('.default-package-price').after($('.promo-disc-row'));
     } else { $('.promo-disc-row').remove(); }
 
     if (processingFeeAmt > 0) {
@@ -3059,6 +3062,68 @@ $('#applyPromoBtn').on('click', function() {
         }
     });
 });
+
+<script>
+// Auto-discount logic: wrap calcTotal to fetch and apply automatic discounts
+(function () {
+    var _origCalcTotal = calcTotal;
+    var _autoDiscountTimer = null;
+    var promoSource = '{{ $isEntertainerProfile ? 'entertainer' : 'affiliate' }}';
+    var ownerSlug = '{{ $affiliate->slug }}';
+
+    function fetchAutoDiscount() {
+        var c = window.activeClub;
+        if (!c) return;
+        var cartItems = Array.isArray(window.cart) ? window.cart : [];
+        if (cartItems.length === 0) {
+            if (window.cartCoupon && window.cartCoupon.isAutomatic) {
+                window.cartCoupon = null;
+                _origCalcTotal();
+            }
+            return;
+        }
+        var packageIds = [];
+        var subtotal = 0;
+        var totalQty = 0;
+        cartItems.forEach(function (pkg) {
+            var pkgId = parseInt(pkg.pkgId || pkg.packageId, 10) || 0;
+            if (pkgId > 0 && packageIds.indexOf(pkgId) === -1) packageIds.push(pkgId);
+            var guests = parseInt(pkg.guests, 10) || 1;
+            var billable = (pkg.isMultiple === true || pkg.isMultiple === 1 || pkg.isMultiple === '1') ? guests : 1;
+            subtotal += (parseFloat(pkg.pkgPrice || pkg.packagePrice) || 0) * billable;
+            subtotal += (pkg.addons || []).reduce(function (s, a) { return s + parseFloat(a.price || 0); }, 0);
+            totalQty += guests;
+        });
+        $.get('/' + c.slug + '/auto-discounts', {
+            source: promoSource,
+            owner_slug: ownerSlug,
+            package_ids: packageIds.join(','),
+            subtotal: subtotal.toFixed(2),
+            total_qty: totalQty
+        }, function (res) {
+            if (res.valid) {
+                window.cartCoupon = {
+                    code: res.name,
+                    id: res.id,
+                    discount: parseFloat(res.discount),
+                    type: res.type || 'percentage',
+                    isAutomatic: true
+                };
+            } else if (window.cartCoupon && window.cartCoupon.isAutomatic) {
+                window.cartCoupon = null;
+            }
+            _origCalcTotal();
+        });
+    }
+
+    calcTotal = function () {
+        _origCalcTotal();
+        if (!window.cartCoupon || window.cartCoupon.isAutomatic) {
+            clearTimeout(_autoDiscountTimer);
+            _autoDiscountTimer = setTimeout(fetchAutoDiscount, 400);
+        }
+    };
+})();
 </script>
 
 <script>

@@ -161,7 +161,8 @@ label{
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="image" class="form-label">Image</label>
-                                                        <input type="file" name="image" class="form-control" id="image" placeholder="Image">
+                                                        <input type="file" name="image" class="form-control" id="image" placeholder="Image" data-criteria-bound="1">
+                                                        <small class="text-muted d-block mt-1">Allowed image types: JPG, PNG, WEBP, GIF, SVG. Max size: 4MB per image.</small>
                                                         <img src="{{ asset('uploads/'.$data->image) }}" width="200px" style="width: 200px;">
                                                     </div>
                                                 </div>
@@ -208,7 +209,7 @@ label{
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="time" class="form-label">Time Range</label>
+                                                        <label for="time" class="form-label">Time Range (Pacific Time)</label>
                                                         <div style="display: flex; gap: 10px;">
                                                             <input type="text" name="time_start" class="form-control flatpickr-time" id="time_start"
                                                             style="height: 35.1166px"
@@ -268,7 +269,7 @@ label{
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
                                                         <label for="event_gallery_picker" class="form-label">Event Gallery Images</label>
-                                                        <input type="file" class="form-control" id="event_gallery_picker" accept="image/*">
+                                                        <input type="file" class="form-control" id="event_gallery_picker" accept="image/*" data-criteria-bound="1">
                                                         <input type="file" name="gallery_images[]" class="d-none" id="gallery_images" accept="image/*" multiple>
                                                         <input type="hidden" name="existing_gallery_images" id="existing_gallery_images" value='@json((array) ($data->gallery_images ?? []))'>
                                                         <small class="form-text text-muted">Upload one image at a time. Added images appear below and can be removed before saving.</small>
@@ -290,6 +291,7 @@ label{
                                             </div>
 
                                             <button type="submit" class="btn btn-primary">Submit</button>
+                                            <a href="{{ (!empty($website) && !empty($website->slug)) ? route('index', ['slug' => $website->slug, 'event_name' => $data->name]) : '#' }}" target="_blank" rel="noopener noreferrer" class="btn btn-info">Go to Events Page</a>
                                             <a href="{{ route('admin.event.index') }}" class="btn btn-danger">Cancel</a>
 
 

@@ -365,17 +365,12 @@
 
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="gallery_images" class="form-label">Gallery Images</label>
-                                                        <input type="file" name="gallery_images[]" class="form-control" id="gallery_images" accept="image/*" multiple>
-                                                        <small class="form-text text-muted">Upload multiple images. Uploading new ones replaces current gallery images.</small>
-                                                        <input type="hidden" name="existing_gallery_images" id="existing_gallery_images" value='@json(array_values((array) ($data->gallery_images ?? [])))'>
-                                                        @if(!empty($data->gallery_images))
-                                                            <div class="d-flex flex-wrap gap-2 mt-2">
-                                                                @foreach((array) $data->gallery_images as $galleryImage)
-                                                                    <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image" style="width:90px;height:60px;object-fit:cover;border-radius:6px;border:1px solid #ddd;">
-                                                                @endforeach
-                                                            </div>
-                                                        @endif
+                                                        <label for="website_gallery_picker" class="form-label">Gallery Images</label>
+                                                        <input type="file" class="form-control" id="website_gallery_picker" accept="image/*" data-criteria-bound="1">
+                                                        <input type="file" name="gallery_images[]" class="d-none" id="gallery_images" accept="image/*" multiple>
+                                                        <input type="hidden" name="existing_gallery_images" id="existing_gallery_images" value='@json((array) ($data->gallery_images ?? []))'>
+                                                        <small class="form-text text-muted">Upload one image at a time. Added images appear below and can be removed before saving.</small>
+                                                        <div id="website-gallery-preview" class="d-flex flex-wrap gap-2 mt-2"></div>
                                                     </div>
                                                 </div>
                                                 
@@ -649,5 +644,104 @@
                 });
                 $('#emails-json').val(JSON.stringify(emails));
             });
+
+            (function () {
+                const picker = document.getElementById('website_gallery_picker');
+                const galleryInput = document.getElementById('gallery_images');
+                const preview = document.getElementById('website-gallery-preview');
+                const existingInput = document.getElementById('existing_gallery_images');
+
+                if (!picker || !galleryInput || !preview || !existingInput) {
+                    return;
+                }
+
+                let existingImages = [];
+                try {
+                    existingImages = JSON.parse(existingInput.value || '[]');
+                    if (!Array.isArray(existingImages)) {
+                        existingImages = [];
+                    }
+                } catch (e) {
+                    existingImages = [];
+                }
+
+                let dt = new DataTransfer();
+
+                function syncExisting() {
+                    existingInput.value = JSON.stringify(existingImages);
+                }
+
+                function syncFiles() {
+                    galleryInput.files = dt.files;
+                }
+
+                function render() {
+                    preview.innerHTML = '';
+
+                    existingImages.forEach(function (name, index) {
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'position-relative';
+                        wrapper.style.width = '96px';
+                        wrapper.innerHTML = '<img src="/uploads/' + name + '" style="width:96px;height:64px;object-fit:cover;border-radius:6px;border:1px solid #ddd;">'
+                            + '<button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" style="line-height:1;padding:2px 6px;" data-existing-index="' + index + '">&times;</button>';
+                        preview.appendChild(wrapper);
+                    });
+
+                    Array.from(dt.files).forEach(function (file, index) {
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'position-relative';
+                        wrapper.style.width = '96px';
+                        const url = URL.createObjectURL(file);
+                        wrapper.innerHTML = '<img src="' + url + '" style="width:96px;height:64px;object-fit:cover;border-radius:6px;border:1px solid #ddd;">'
+                            + '<button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" style="line-height:1;padding:2px 6px;" data-new-index="' + index + '">&times;</button>';
+                        preview.appendChild(wrapper);
+                    });
+                }
+
+                picker.addEventListener('change', function () {
+                    const file = picker.files && picker.files[0] ? picker.files[0] : null;
+                    if (!file) {
+                        return;
+                    }
+
+                    dt.items.add(file);
+                    syncFiles();
+                    render();
+                    picker.value = '';
+                });
+
+                preview.addEventListener('click', function (event) {
+                    const existingBtn = event.target.closest('[data-existing-index]');
+                    if (existingBtn) {
+                        const idx = Number(existingBtn.getAttribute('data-existing-index'));
+                        if (!Number.isNaN(idx)) {
+                            existingImages.splice(idx, 1);
+                            syncExisting();
+                            render();
+                        }
+                        return;
+                    }
+
+                    const newBtn = event.target.closest('[data-new-index]');
+                    if (newBtn) {
+                        const idx = Number(newBtn.getAttribute('data-new-index'));
+                        if (!Number.isNaN(idx)) {
+                            const next = new DataTransfer();
+                            Array.from(dt.files).forEach(function (file, fileIndex) {
+                                if (fileIndex !== idx) {
+                                    next.items.add(file);
+                                }
+                            });
+                            dt = next;
+                            syncFiles();
+                            render();
+                        }
+                    }
+                });
+
+                syncExisting();
+                syncFiles();
+                render();
+            })();
             </script>
 @endsection

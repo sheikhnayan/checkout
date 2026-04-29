@@ -185,6 +185,7 @@ class TransactionController extends Controller
                             'package_last_name' => $request->input('package_last_name'),
                             'package_phone' => $request->input('package_phone'),
                             'package_email' => $request->input('package_email'),
+                            'package_use_date' => $request->input('package_use_date'),
                             'package_dob' => $add->package_dob,
                             'package_note' => $request->input('package_note'),
                             'transportation_pickup_time' => $request->input('transportation_pickup_time'),
@@ -391,6 +392,7 @@ class TransactionController extends Controller
                             'package_last_name' => $request->input('package_last_name'),
                             'package_phone' => $request->input('package_phone'),
                             'package_email' => $request->input('package_email'),
+                            'package_use_date' => $request->input('package_use_date'),
                             'package_dob' => $add->package_dob,
                             'package_note' => $request->input('package_note'),
                             'transportation_pickup_time' => $request->input('transportation_pickup_time'),
@@ -1537,30 +1539,30 @@ class TransactionController extends Controller
 
         $itemsSubtotal = $packagesSubtotal + $addonsSubtotal;
 
+        // Coupon discount applies only to package subtotal (packages + addons), never on additional charges.
+        $promoDiscount = max(0, (float) ($transaction->discounted_amount ?? 0));
+        if ($promoDiscount > $itemsSubtotal) {
+            $promoDiscount = $itemsSubtotal;
+        }
+        $discountedItemsSubtotal = max($itemsSubtotal - $promoDiscount, 0);
+
         $serviceChargeRate = (float) ($website->service_charge_fee ?? 0);
         $serviceChargeName = (string) ($website->service_charge_name ?? 'Service Charge');
         $serviceChargeEnabled = $serviceChargeRate > 0 && trim($serviceChargeName) !== '' && trim($serviceChargeName) !== '0';
-        $serviceChargeAmount = $serviceChargeEnabled ? ($itemsSubtotal * $serviceChargeRate / 100) : 0;
+        $serviceChargeAmount = $serviceChargeEnabled ? ($discountedItemsSubtotal * $serviceChargeRate / 100) : 0;
 
         $gratuityRate = (float) ($website->gratuity_fee ?? 0);
         $gratuityName = (string) ($website->gratuity_name ?? 'Gratuity Fee');
         $gratuityEnabled = $gratuityRate > 0 && trim($gratuityName) !== '' && trim($gratuityName) !== '0';
-        $gratuityAmount = $gratuityEnabled ? ($itemsSubtotal * $gratuityRate / 100) : 0;
+        $gratuityAmount = $gratuityEnabled ? ($discountedItemsSubtotal * $gratuityRate / 100) : 0;
 
         $salesTaxRate = (float) ($website->sales_tax_fee ?? 0);
         $salesTaxName = (string) ($website->sales_tax_name ?? 'Sales Tax');
         $salesTaxEnabled = $salesTaxRate > 0 && trim($salesTaxName) !== '' && trim($salesTaxName) !== '0';
-        $salesTaxBase = $itemsSubtotal + $serviceChargeAmount + $gratuityAmount;
+        $salesTaxBase = $discountedItemsSubtotal + $serviceChargeAmount + $gratuityAmount;
         $salesTaxAmount = $salesTaxEnabled ? ($salesTaxBase * $salesTaxRate / 100) : 0;
 
-        $preDiscountTotal = $itemsSubtotal + $serviceChargeAmount + $gratuityAmount + $salesTaxAmount;
-
-        $promoDiscount = max(0, (float) ($transaction->discounted_amount ?? 0));
-        if ($promoDiscount > $preDiscountTotal) {
-            $promoDiscount = $preDiscountTotal;
-        }
-
-        $afterDiscountTotal = max($preDiscountTotal - $promoDiscount, 0);
+        $afterDiscountTotal = $discountedItemsSubtotal + $serviceChargeAmount + $gratuityAmount + $salesTaxAmount;
 
         $processingFeeRate = (float) ($website->processing_fee ?? 0);
         $processingFeeType = strtolower((string) ($website->processing_fee_type ?? 'percentage'));
@@ -1616,7 +1618,7 @@ class TransactionController extends Controller
                 'rate' => round($processingFeeRate, 4),
                 'amount' => round($processingFeeAmount, 2),
             ],
-            'pre_discount_total' => round($preDiscountTotal, 2),
+            'pre_discount_total' => round($itemsSubtotal, 2),
             'after_discount_total' => round($afterDiscountTotal, 2),
             'grand_total' => round($grandTotal, 2),
             'refundable' => [
@@ -1783,9 +1785,9 @@ class TransactionController extends Controller
 
         $this->validatePromoConstraintsForCheckout($promo, $request);
 
-        $baseAmount = max((float) $request->input('payment_total', $request->input('total', 0)), 0);
-        $alreadyDiscounted = max((float) $request->input('discounted_amount', 0), 0);
-        $baseAmount = max($baseAmount + $alreadyDiscounted, 0);
+        // Discount must be calculated only from package subtotal (packages + addons), excluding all extra charges.
+        $cartItems = $this->extractCartItemsFromRequest($request);
+        $baseAmount = $this->calculateCartItemsSubtotal($cartItems);
 
         $discountType = $promo->discount_value_type ?: ($promo->type ?: PromoCode::DISCOUNT_TYPE_PERCENTAGE);
         $rawAmount = isset($promo->discount_value) ? (float) $promo->discount_value : (float) ($promo->percentage ?? 0);
@@ -1854,14 +1856,7 @@ class TransactionController extends Controller
             }
         }
 
-        $cartSubtotal = collect($cartItems)->sum(function (array $item) {
-            $guests = max(1, (int) ($item['guests'] ?? 1));
-            $isMultiple = $this->isTruthy($item['is_multiple'] ?? false);
-            $unitPrice = (float) ($item['unit_price'] ?? 0);
-            $line = $isMultiple ? $unitPrice * $guests : $unitPrice;
-            $addons = collect((array) ($item['addons'] ?? []))->sum(fn ($addon) => (float) ($addon['price'] ?? 0));
-            return $line + $addons;
-        });
+        $cartSubtotal = $this->calculateCartItemsSubtotal($cartItems);
 
         $cartQuantity = collect($cartItems)->sum(fn (array $item) => max(1, (int) ($item['guests'] ?? 1)));
         $minReqType = (string) ($promo->min_requirement_type ?? PromoCode::MIN_REQUIREMENT_NONE);
@@ -1902,6 +1897,21 @@ class TransactionController extends Controller
         }
 
         PromoCode::where('id', $promoId)->increment('usage_count');
+    }
+
+    private function calculateCartItemsSubtotal(array $cartItems): float
+    {
+        $subtotal = collect($cartItems)->sum(function (array $item) {
+            $guests = max(1, (int) ($item['guests'] ?? 1));
+            $isMultiple = $this->isTruthy($item['is_multiple'] ?? false);
+            $unitPrice = (float) ($item['unit_price'] ?? 0);
+            $line = $isMultiple ? $unitPrice * $guests : $unitPrice;
+            $addons = collect((array) ($item['addons'] ?? []))->sum(fn ($addon) => (float) ($addon['price'] ?? 0));
+
+            return $line + $addons;
+        });
+
+        return round(max((float) $subtotal, 0), 2);
     }
 
 }

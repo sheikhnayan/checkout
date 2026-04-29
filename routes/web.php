@@ -98,6 +98,7 @@ Route::post('/jobs/{job}/apply', [JobMarketplaceController::class, 'submitApplic
 Route::get('/{slug}/addons/{id}', [FrontendController::class, 'addons'])->name('addons');
 
 Route::get('/{slug}/check/{code}', [FrontendController::class, 'checkCode'])->name('check.code');
+Route::get('/{slug}/auto-discounts', [FrontendController::class, 'autoDiscounts'])->name('auto.discounts');
 
 Route::get('/{slug}/package/{packageId}/capacity', [FrontendController::class, 'checkPackageCapacity'])->name('package.capacity');
 

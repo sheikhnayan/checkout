@@ -153,6 +153,18 @@
     </style>
 </head>
 <body>
+@php
+    $club = $website ?? ($transaction->website ?? null);
+    $reservationDateRaw = $transaction->package_use_date ?? null;
+    $reservationDateFormatted = 'N/A';
+    if (!empty($reservationDateRaw)) {
+        try {
+            $reservationDateFormatted = \Carbon\Carbon::parse($reservationDateRaw)->format('M d, Y');
+        } catch (\Throwable $e) {
+            $reservationDateFormatted = (string) $reservationDateRaw;
+        }
+    }
+@endphp
 <div class="invoice-container">
     <!-- Header -->
     <div class="header">
@@ -164,6 +176,7 @@
         <div class="header-qr">
             <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ urlencode($transaction->ticket_qr_code) }}" alt="QR Code">
             <div class="header-qr-label">Scan for Details</div>
+            <div class="header-qr-label">Ticket #: {{ $transaction->ticket_qr_code }}</div>
         </div>
         @endif
     </div>
@@ -189,8 +202,8 @@
         <div class="section">
             <div class="section-title">Order Details</div>
             <div class="info-row">
-                <span class="info-label">Order Date</span>
-                <span class="info-value">{{ $transaction->created_at->format('M d, Y') }}</span>
+                <span class="info-label">Reservation Date</span>
+                <span class="info-value">{{ $reservationDateFormatted }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">Payment Date</span>
@@ -202,6 +215,26 @@
                 <span class="info-value">{{ $transaction->event->name ?? 'N/A' }}</span>
             </div>
             @endif
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Club Details</div>
+        <div class="info-row">
+            <span class="info-label">Club</span>
+            <span class="info-value">{{ $club->name ?? 'N/A' }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Location</span>
+            <span class="info-value">{{ $club->location ?? 'N/A' }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Phone</span>
+            <span class="info-value">{{ $club->phone ?? 'N/A' }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Email</span>
+            <span class="info-value">{{ $club->email ?? 'N/A' }}</span>
         </div>
     </div>
 
@@ -221,6 +254,7 @@
                 @if(!empty($cartItems))
                     @php
                         $grandTotal = 0;
+                        $totalAddonQty = 0;
                     @endphp
                     @foreach($cartItems as $cartItem)
                         @php
@@ -266,8 +300,9 @@
                                     }
                                 }
                             @endphp
+                            @php($totalAddonQty += $addonQty)
                             <tr class="addon-row">
-                                <td>+ {{ $addon['name'] }}</td>
+                                <td>+ {{ $addon['name'] }} x{{ $addonQty }}</td>
                                 <td class="text-right">{{ $addonQty }}</td>
                                 <td class="text-right">
                                     @if($addonLineTotal > 0)
@@ -294,6 +329,10 @@
         <!-- Price Breakdown -->
         @if(!empty($priceBreakdown))
         <div class="total-section">
+            <div class="total-row">
+                <span>Total Add-on Qty</span>
+                <span>{{ $totalAddonQty ?? 0 }}</span>
+            </div>
             <div class="total-row">
                 <span>Packages Subtotal</span>
                 <span>${{ number_format((float) ($priceBreakdown['packages_subtotal'] ?? 0), 2) }}</span>

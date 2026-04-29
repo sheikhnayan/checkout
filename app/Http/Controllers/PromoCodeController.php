@@ -165,11 +165,12 @@ class PromoCodeController extends Controller
             'audience' => ['required', Rule::in(PromoCode::ALLOWED_AUDIENCES)],
             'affiliate_id' => 'nullable|integer|exists:affiliates,id',
             'entertainer_id' => 'nullable|integer|exists:entertainers,id',
-            'promo_code' => [
-                'required',
-                'string',
-                'max:100',
-            ],
+                'promo_code' => [
+                    Rule::requiredIf($request->input('discount_method') !== PromoCode::DISCOUNT_METHOD_AUTOMATIC),
+                    'nullable',
+                    'string',
+                    'max:100',
+                ],
             'discount_method' => ['required', Rule::in([PromoCode::DISCOUNT_METHOD_CODE, PromoCode::DISCOUNT_METHOD_AUTOMATIC])],
             'discount_value_type' => ['required', Rule::in([PromoCode::DISCOUNT_TYPE_PERCENTAGE, PromoCode::DISCOUNT_TYPE_FIXED])],
             'discount_value' => 'required|numeric|min:0',
@@ -194,7 +195,9 @@ class PromoCodeController extends Controller
         [$affiliateId, $entertainerId] = $this->normalizeTargetIds($request);
         $websiteId = $this->resolvePromoWebsiteId($audience, $request, $affiliateId, $entertainerId);
         $this->validateTargetSelection($audience, $affiliateId, $entertainerId, $websiteId);
-        $this->ensurePromoCodeIsUnique($websiteId, strtoupper(trim((string) $request->promo_code)), $audience, $affiliateId, $entertainerId);
+        if ($request->input('discount_method') !== PromoCode::DISCOUNT_METHOD_AUTOMATIC || $request->filled('promo_code')) {
+            $this->ensurePromoCodeIsUnique($websiteId, strtoupper(trim((string) $request->promo_code)), $audience, $affiliateId, $entertainerId);
+        }
 
         $packageIds = $this->normalizePackageIdsForWebsite($request->input('applies_to_package_ids', []), $websiteId);
         if ($request->input('applies_to') === PromoCode::APPLIES_TO_SPECIFIC_PACKAGES && empty($packageIds)) {
@@ -206,7 +209,9 @@ class PromoCodeController extends Controller
         $add = new PromoCode;
         $add->name = $request->name;
         $add->percentage = $request->discount_value;
-        $add->promo_code = strtoupper(trim((string) $request->promo_code));
+            $add->promo_code = ($request->input('discount_method') === PromoCode::DISCOUNT_METHOD_AUTOMATIC && !$request->filled('promo_code'))
+                ? null
+                : strtoupper(trim((string) $request->promo_code));
         $add->type = $request->discount_value_type;
         $add->audience = $audience;
         $add->affiliate_id = $affiliateId;
@@ -305,11 +310,12 @@ class PromoCodeController extends Controller
             'name' => 'nullable|string|max:255',
             'affiliate_id' => 'nullable|integer|exists:affiliates,id',
             'entertainer_id' => 'nullable|integer|exists:entertainers,id',
-            'promo_code' => [
-                'required',
-                'string',
-                'max:100',
-            ],
+                'promo_code' => [
+                    Rule::requiredIf($request->input('discount_method') !== PromoCode::DISCOUNT_METHOD_AUTOMATIC),
+                    'nullable',
+                    'string',
+                    'max:100',
+                ],
             'discount_method' => ['required', Rule::in([PromoCode::DISCOUNT_METHOD_CODE, PromoCode::DISCOUNT_METHOD_AUTOMATIC])],
             'discount_value_type' => ['required', Rule::in([PromoCode::DISCOUNT_TYPE_PERCENTAGE, PromoCode::DISCOUNT_TYPE_FIXED])],
             'discount_value' => 'required|numeric|min:0',
@@ -334,7 +340,9 @@ class PromoCodeController extends Controller
         [$affiliateId, $entertainerId] = $this->normalizeTargetIds($request);
         $websiteId = $this->resolvePromoWebsiteId($audience, $request, $affiliateId, $entertainerId, $add);
         $this->validateTargetSelection($audience, $affiliateId, $entertainerId, $websiteId);
-        $this->ensurePromoCodeIsUnique($websiteId, strtoupper(trim((string) $request->promo_code)), $audience, $affiliateId, $entertainerId, $add->id);
+            if ($request->input('discount_method') !== PromoCode::DISCOUNT_METHOD_AUTOMATIC || $request->filled('promo_code')) {
+                $this->ensurePromoCodeIsUnique($websiteId, strtoupper(trim((string) $request->promo_code)), $audience, $affiliateId, $entertainerId, $add->id);
+            }
 
         $packageIds = $this->normalizePackageIdsForWebsite($request->input('applies_to_package_ids', []), $websiteId);
         if ($request->input('applies_to') === PromoCode::APPLIES_TO_SPECIFIC_PACKAGES && empty($packageIds)) {
@@ -345,7 +353,9 @@ class PromoCodeController extends Controller
         
         $add->name = $request->name;
         $add->percentage = $request->discount_value;
-        $add->promo_code = strtoupper(trim((string) $request->promo_code));
+            $add->promo_code = ($request->input('discount_method') === PromoCode::DISCOUNT_METHOD_AUTOMATIC && !$request->filled('promo_code'))
+                ? null
+                : strtoupper(trim((string) $request->promo_code));
         $add->type = $request->discount_value_type;
         $add->affiliate_id = $affiliateId;
         $add->entertainer_id = $entertainerId;

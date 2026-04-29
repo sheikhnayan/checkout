@@ -356,11 +356,11 @@ label{
 
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="gallery_images" class="form-label">Gallery Images</label>
-                                                        <input type="file" class="form-control" id="website_gallery_picker" accept="image/*">
+                                                        <label for="website_gallery_picker" class="form-label">Gallery Images</label>
+                                                        <input type="file" class="form-control" id="website_gallery_picker" accept="image/*" data-criteria-bound="1">
                                                         <input type="file" name="gallery_images[]" class="d-none" id="gallery_images" accept="image/*" multiple>
-                                                        <input type="hidden" name="existing_gallery_images" id="existing_gallery_images" value="[]">
-                                                        <small class="form-text text-muted">Upload one image at a time. Added images will appear below and can be removed before save.</small>
+                                                        <input type="hidden" name="existing_gallery_images" id="existing_gallery_images" value='[]'>
+                                                        <small class="form-text text-muted">Upload one image at a time. Added images appear below and can be removed before saving.</small>
                                                         <div id="website-gallery-preview" class="d-flex flex-wrap gap-2 mt-2"></div>
                                                     </div>
                                                 </div>
@@ -786,9 +786,9 @@ label{
                     existingImages.forEach(function (name, index) {
                         const wrapper = document.createElement('div');
                         wrapper.className = 'position-relative';
-                        wrapper.style.width = '90px';
+                        wrapper.style.width = '96px';
 
-                        wrapper.innerHTML = '<img src="/uploads/' + name + '" style="width:90px;height:60px;object-fit:cover;border-radius:6px;border:1px solid #ddd;">'
+                        wrapper.innerHTML = '<img src="/uploads/' + name + '" style="width:96px;height:64px;object-fit:cover;border-radius:6px;border:1px solid #ddd;">'
                             + '<button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" style="line-height:1;padding:2px 6px;" data-existing-index="' + index + '">&times;</button>';
                         preview.appendChild(wrapper);
                     });
@@ -796,10 +796,10 @@ label{
                     Array.from(dt.files).forEach(function (file, index) {
                         const wrapper = document.createElement('div');
                         wrapper.className = 'position-relative';
-                        wrapper.style.width = '90px';
+                        wrapper.style.width = '96px';
 
                         const url = URL.createObjectURL(file);
-                        wrapper.innerHTML = '<img src="' + url + '" style="width:90px;height:60px;object-fit:cover;border-radius:6px;border:1px solid #ddd;">'
+                        wrapper.innerHTML = '<img src="' + url + '" style="width:96px;height:64px;object-fit:cover;border-radius:6px;border:1px solid #ddd;">'
                             + '<button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" style="line-height:1;padding:2px 6px;" data-new-index="' + index + '">&times;</button>';
                         preview.appendChild(wrapper);
                     });
