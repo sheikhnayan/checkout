@@ -833,7 +833,7 @@
                     <span style="letter-spacing:.14em;text-transform:uppercase;font-size:.75rem;">CartVIP Feed Directory</span>
                 @endif
             </div>
-            <a href="{{ $club ? 'https://app.cartvip.com/' . $club->slug) : url('/') }}">Back to Checkout</a>
+            <a href="{{ $club ? 'https://app.cartvip.com/' . $club->slug : url('/') }}">Back to Checkout</a>
         </div>
 
         @if($club)
