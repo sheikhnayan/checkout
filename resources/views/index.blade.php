@@ -5050,69 +5050,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 if (!country) {
                     $state.html('<option value="">Select State/Province</option>');
                     return;
-                        <script>
-                            // Auto-discount logic: wrap calculateCartTotal to fetch and apply automatic discounts
-                            (function () {
-                                var _origCalcCartTotal = window.calculateCartTotal;
-                                var _autoDiscountTimer = null;
-
-                                var promoSource = '{{ !empty($affiliateReferral) ? 'affiliate' : 'club' }}';
-                                var ownerSlug = '{{ !empty($affiliateReferral) ? $affiliateReferral->slug : '' }}';
-                                var siteSlug = '{{ $data->slug }}';
                 }
-                                function fetchAutoDiscount() {
-                                    var cartItems = Array.isArray(window.cart) ? window.cart : [];
-                                    if (cartItems.length === 0) {
-                                        if (window.cartCoupon && window.cartCoupon.isAutomatic) {
-                                            window.cartCoupon = null;
-                                            _origCalcCartTotal();
-                                        }
-                                        return;
-                                    }
-                                    var packageIds = [];
-                                    var subtotal = 0;
-                                    var totalQty = 0;
-                                    cartItems.forEach(function (pkg) {
-                                        var pkgId = parseInt(pkg.packageId, 10) || 0;
-                                        if (pkgId > 0 && packageIds.indexOf(pkgId) === -1) packageIds.push(pkgId);
-                                        var guests = parseInt(pkg.guests, 10) || 1;
-                                        var billable = (pkg.isMultiple === true || pkg.isMultiple === 1 || pkg.isMultiple === '1') ? guests : 1;
-                                        subtotal += (parseFloat(pkg.packagePrice) || 0) * billable;
-                                        subtotal += (pkg.addons || []).reduce(function (s, a) { return s + (parseFloat(a.price) || 0); }, 0);
-                                        totalQty += guests;
-                                    });
-                                    $.get('/' + siteSlug + '/auto-discounts', {
-                                        source: promoSource,
-                                        owner_slug: ownerSlug,
-                                        package_ids: packageIds.join(','),
-                                        subtotal: subtotal.toFixed(2),
-                                        total_qty: totalQty
-                                    }, function (res) {
-                                        if (res.valid) {
-                                            window.cartCoupon = {
-                                                code: res.name,
-                                                id: res.id,
-                                                discount: parseFloat(res.discount),
-                                                type: res.type || 'percentage',
-                                                isAutomatic: true
-                                            };
-                                        } else if (window.cartCoupon && window.cartCoupon.isAutomatic) {
-                                            window.cartCoupon = null;
-                                        }
-                                        _origCalcCartTotal();
-                                    });
-                                }
-
-                                window.calculateCartTotal = function () {
-                                    _origCalcCartTotal();
-                                    // Only trigger auto-discount fetch when no manual coupon is active
-                                    if (!window.cartCoupon || window.cartCoupon.isAutomatic) {
-                                        clearTimeout(_autoDiscountTimer);
-                                        _autoDiscountTimer = setTimeout(fetchAutoDiscount, 400);
-                                    }
-                                };
-                            })();
-                        </script>
                 // Example API for US states: https://countriesnow.space/api/v0.1/countries/states
                 // You can use another API if you prefer
                 $.ajax({
@@ -5136,6 +5074,70 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     }
                 });
             });
+        </script>
+
+        <script>
+            // Auto-discount logic: wrap calculateCartTotal to fetch and apply automatic discounts
+            (function () {
+                var _origCalcCartTotal = window.calculateCartTotal;
+                var _autoDiscountTimer = null;
+
+                var promoSource = '{{ !empty($affiliateReferral) ? 'affiliate' : 'club' }}';
+                var ownerSlug = '{{ !empty($affiliateReferral) ? $affiliateReferral->slug : '' }}';
+                var siteSlug = '{{ $data->slug }}';
+
+                function fetchAutoDiscount() {
+                    var cartItems = Array.isArray(window.cart) ? window.cart : [];
+                    if (cartItems.length === 0) {
+                        if (window.cartCoupon && window.cartCoupon.isAutomatic) {
+                            window.cartCoupon = null;
+                            _origCalcCartTotal();
+                        }
+                        return;
+                    }
+                    var packageIds = [];
+                    var subtotal = 0;
+                    var totalQty = 0;
+                    cartItems.forEach(function (pkg) {
+                        var pkgId = parseInt(pkg.packageId, 10) || 0;
+                        if (pkgId > 0 && packageIds.indexOf(pkgId) === -1) packageIds.push(pkgId);
+                        var guests = parseInt(pkg.guests, 10) || 1;
+                        var billable = (pkg.isMultiple === true || pkg.isMultiple === 1 || pkg.isMultiple === '1') ? guests : 1;
+                        subtotal += (parseFloat(pkg.packagePrice) || 0) * billable;
+                        subtotal += (pkg.addons || []).reduce(function (s, a) { return s + (parseFloat(a.price) || 0); }, 0);
+                        totalQty += guests;
+                    });
+                    $.get('/' + siteSlug + '/auto-discounts', {
+                        source: promoSource,
+                        owner_slug: ownerSlug,
+                        package_ids: packageIds.join(','),
+                        subtotal: subtotal.toFixed(2),
+                        total_qty: totalQty
+                    }, function (res) {
+                        if (res.valid) {
+                            window.cartCoupon = {
+                                code: res.name,
+                                id: res.id,
+                                discount: parseFloat(res.discount),
+                                type: res.type || 'percentage',
+                                isAutomatic: true
+                            };
+                        } else if (window.cartCoupon && window.cartCoupon.isAutomatic) {
+                            window.cartCoupon = null;
+                        }
+                        _origCalcCartTotal();
+                    });
+                }
+
+                window.calculateCartTotal = function () {
+                    _origCalcCartTotal();
+                    // Only trigger auto-discount fetch when no manual coupon is active
+                    if (!window.cartCoupon || window.cartCoupon.isAutomatic) {
+                        clearTimeout(_autoDiscountTimer);
+                        _autoDiscountTimer = setTimeout(fetchAutoDiscount, 400);
+                    }
+                };
+            })();
         </script>
 
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
