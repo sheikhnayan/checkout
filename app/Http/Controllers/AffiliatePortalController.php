@@ -7,6 +7,7 @@ use App\Models\AffiliatePackage;
 use App\Models\AffiliateWebsite;
 use App\Models\Package;
 use App\Models\Website;
+use App\Services\CommissionLifecycleRunner;
 use Illuminate\Http\Request;
 
 class AffiliatePortalController extends Controller
@@ -60,6 +61,8 @@ class AffiliatePortalController extends Controller
 
     public function dashboard()
     {
+        app(CommissionLifecycleRunner::class)->runSafely();
+
         $affiliate = $this->getAffiliateOrAbort();
         $affiliate->loadCount('affiliatePackages');
 
@@ -81,7 +84,7 @@ class AffiliatePortalController extends Controller
             ->where('status', 1)
             ->whereIn('id', $allowedWebsiteIds)
             ->with(['packages' => function ($query) {
-                $query->where('status', 1)->where('is_archieved', 0);
+                $query->clubVisible()->where('status', 1)->where('is_archieved', 0);
             }])
             ->get();
 
@@ -115,14 +118,22 @@ class AffiliatePortalController extends Controller
         $requestedPackageIds = collect($request->input('package_ids', []))->map(fn ($id) => (int) $id)->unique()->values();
 
         $packageIds = Package::whereIn('id', $requestedPackageIds->all())
+            ->clubVisible()
             ->whereIn('website_id', $allowedWebsiteIds)
             ->where('status', 1)
             ->where('is_archieved', 0)
             ->pluck('id')
             ->values();
 
+        $clubPackageIds = Package::query()
+            ->clubVisible()
+            ->whereIn('website_id', $allowedWebsiteIds)
+            ->pluck('id')
+            ->values();
+
         AffiliatePackage::where('affiliate_id', $affiliate->id)
             ->whereIn('website_id', $allowedWebsiteIds)
+            ->whereIn('package_id', $clubPackageIds->all())
             ->whereNotIn('package_id', $packageIds->all())
             ->delete();
 
@@ -248,6 +259,8 @@ class AffiliatePortalController extends Controller
 
     public function wallet()
     {
+        app(CommissionLifecycleRunner::class)->runSafely();
+
         $affiliate = $this->getAffiliateOrAbort();
         $transactions = $affiliate->walletTransactions()->latest()->paginate(20);
 

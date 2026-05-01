@@ -106,7 +106,7 @@
                                                 @if($transaction->event)
                                                     <span class="badge bg-primary">Event: {{ $transaction->event->name }}</span>
                                                 @elseif($transaction->package)
-                                                    <span class="badge bg-info">Package: {{ $transaction->package->name }}</span>
+                                                    <span class="badge bg-info">Package: {{ $transaction->package_table_label }}</span>
                                                 @else
                                                     <span class="text-muted">N/A</span>
                                                 @endif
@@ -353,7 +353,7 @@
                                                 @if($transaction->event)
                                                     <span class="badge bg-primary">{{ $transaction->event->name }}</span>
                                                 @elseif($transaction->package)
-                                                    <span class="badge bg-info">{{ $transaction->package->name }}</span>
+                                                    <span class="badge bg-info">{{ $transaction->package_table_label }}</span>
                                                 @else
                                                     <span class="text-muted">N/A</span>
                                                 @endif

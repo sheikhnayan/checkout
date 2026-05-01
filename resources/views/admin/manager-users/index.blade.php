@@ -104,14 +104,15 @@
                                                                 <span class="text-muted">None</span>
                                                             @else
                                                                 <span class="badge bg-info text-dark">{{ $manager->managedWebsites->count() }} club(s)</span>
-                                                                <div class="mt-1">
-                                                                    @foreach($manager->managedWebsites->take(3) as $w)
-                                                                        <small class="d-block text-white-50">{{ $w->name }}</small>
-                                                                    @endforeach
-                                                                    @if($manager->managedWebsites->count() > 3)
-                                                                        <small class="text-white-50">+{{ $manager->managedWebsites->count() - 3 }} more</small>
-                                                                    @endif
-                                                                </div>
+                                                                <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-info"
+                                                                    data-bs-toggle="popover"
+                                                                    data-bs-trigger="click"
+                                                                    data-bs-placement="bottom"
+                                                                    data-bs-html="true"
+                                                                    data-bs-content="{{ $manager->managedWebsites->pluck('name')->map(fn($n) => '<div>'.e($n).'</div>')->implode('') }}"
+                                                                    title="Allocated Clubs">
+                                                                    <i class="fas fa-info-circle"></i>
+                                                                </button>
                                                             @endif
                                                         </td>
                                                         <td>{{ $manager->created_at->timezone('America/Los_Angeles')->format('M d, Y h:i A') }} PT</td>
@@ -160,7 +161,20 @@
                                                         <td>{{ $manager->email }}</td>
                                                         <td>{{ $manager->websiteRole->name ?? '<span class="text-muted">Unassigned</span>' }}</td>
                                                         <td>
-                                                            <span class="badge bg-info text-dark">{{ $manager->managedWebsites->count() }} club(s)</span>
+                                                            @if($manager->managedWebsites->isEmpty())
+                                                                <span class="text-muted">None</span>
+                                                            @else
+                                                                <span class="badge bg-info text-dark">{{ $manager->managedWebsites->count() }} club(s)</span>
+                                                                <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-info"
+                                                                    data-bs-toggle="popover"
+                                                                    data-bs-trigger="click"
+                                                                    data-bs-placement="bottom"
+                                                                    data-bs-html="true"
+                                                                    data-bs-content="{{ $manager->managedWebsites->pluck('name')->map(fn($n) => '<div>'.e($n).'</div>')->implode('') }}"
+                                                                    title="Allocated Clubs">
+                                                                    <i class="fas fa-info-circle"></i>
+                                                                </button>
+                                                            @endif
                                                         </td>
                                                         <td>{{ $manager->deleted_at->timezone('America/Los_Angeles')->format('M d, Y h:i A') }} PT</td>
                                                         <td>
@@ -186,4 +200,21 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (el) {
+        new bootstrap.Popover(el, { sanitize: false });
+    });
+
+    // Close popover when clicking outside
+    document.addEventListener('click', function (e) {
+        document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (el) {
+            if (!el.contains(e.target)) {
+                bootstrap.Popover.getInstance(el)?.hide();
+            }
+        });
+    });
+});
+</script>
 @endsection

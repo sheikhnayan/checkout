@@ -9,6 +9,7 @@ use App\Models\EntertainerWalletTransaction;
 use App\Models\Setting;
 use App\Models\WithdrawPayoutMethod;
 use App\Models\WithdrawRequest;
+use App\Services\CommissionLifecycleRunner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -69,6 +70,8 @@ class WithdrawController extends Controller
      */
     public function index()
     {
+        app(CommissionLifecycleRunner::class)->runSafely();
+
         $resolved = $this->resolveOwner();
         $owner    = $resolved['owner'];
         $type     = $resolved['type'];

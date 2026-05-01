@@ -76,6 +76,7 @@ class EventController extends Controller
         }
 
         $packages = Package::where('website_id', $websiteId)
+            ->clubVisible()
             ->where('is_archieved', 0)
             ->where('status', 1)
             ->orderBy('name')
@@ -237,12 +238,14 @@ class EventController extends Controller
         }
 
         $packages = Package::where('website_id', $data->website_id)
+            ->clubVisible()
             ->where('is_archieved', 0)
             ->where('status', 1)
             ->orderBy('name')
             ->get();
 
         $selectedPackageIds = Package::where('website_id', $data->website_id)
+            ->clubVisible()
             ->where('is_archieved', 0)
             ->where('status', 1)
             ->where('event_id', $data->id)
@@ -467,6 +470,7 @@ class EventController extends Controller
         }
 
         $allowedIds = Package::where('website_id', $websiteId)
+            ->clubVisible()
             ->where('is_archieved', 0)
             ->where('status', 1)
             ->whereIn('id', array_values(array_unique($ids)))
@@ -484,12 +488,14 @@ class EventController extends Controller
     private function syncEventPackages(int $eventId, int $websiteId, array $selectedPackageIds): void
     {
         Package::where('website_id', $websiteId)
+            ->clubVisible()
             ->where('event_id', $eventId)
             ->whereNotIn('id', $selectedPackageIds)
             ->update(['event_id' => null]);
 
         if (!empty($selectedPackageIds)) {
             Package::where('website_id', $websiteId)
+                ->clubVisible()
                 ->whereIn('id', $selectedPackageIds)
                 ->update(['event_id' => $eventId]);
         }

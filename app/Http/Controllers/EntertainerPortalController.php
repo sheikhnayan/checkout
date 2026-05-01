@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Entertainer;
 use App\Models\EntertainerPackage;
 use App\Models\Package;
+use App\Services\CommissionLifecycleRunner;
 use Illuminate\Http\Request;
 
 class EntertainerPortalController extends Controller
@@ -58,6 +59,8 @@ class EntertainerPortalController extends Controller
 
     public function dashboard()
     {
+        app(CommissionLifecycleRunner::class)->runSafely();
+
         $entertainer = $this->getEntertainerOrAbort();
         $entertainer->load(['website']);
         $entertainer->loadCount('entertainerPackages');
@@ -73,6 +76,7 @@ class EntertainerPortalController extends Controller
 
         $packages = Package::query()
             ->where('website_id', $entertainer->website_id)
+            ->clubVisible()
             ->where('status', 1)
             ->where('is_archieved', 0)
             ->orderBy('name')
@@ -98,14 +102,22 @@ class EntertainerPortalController extends Controller
         $requestedPackageIds = collect($request->input('package_ids', []))->map(fn ($id) => (int) $id)->unique()->values();
 
         $packageIds = Package::whereIn('id', $requestedPackageIds->all())
+            ->clubVisible()
             ->where('website_id', $entertainer->website_id)
             ->where('status', 1)
             ->where('is_archieved', 0)
             ->pluck('id')
             ->values();
 
+        $clubPackageIds = Package::query()
+            ->clubVisible()
+            ->where('website_id', $entertainer->website_id)
+            ->pluck('id')
+            ->values();
+
         EntertainerPackage::where('entertainer_id', $entertainer->id)
             ->where('website_id', $entertainer->website_id)
+            ->whereIn('package_id', $clubPackageIds->all())
             ->whereNotIn('package_id', $packageIds->all())
             ->delete();
 
@@ -235,6 +247,8 @@ class EntertainerPortalController extends Controller
 
     public function wallet()
     {
+        app(CommissionLifecycleRunner::class)->runSafely();
+
         $entertainer = $this->getEntertainerOrAbort();
         $transactions = $entertainer->walletTransactions()->latest()->paginate(20);
 

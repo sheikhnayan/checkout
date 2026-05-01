@@ -137,11 +137,15 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::get('/show/{id}', [PackageController::class,'show'])->name('show');
         Route::post('/archive/{id}', [PackageController::class,'archive'])->name('archive');
         Route::post('/unarchive/{id}', [PackageController::class,'unarchive'])->name('unarchive');
-            Route::post('/toggle-status/{id}', [PackageController::class,'toggleStatus'])->name('toggle-status');
+        Route::post('/toggle-status/{id}', [PackageController::class,'toggleStatus'])->name('toggle-status');
         Route::get('/create/{id}', [PackageController::class,'create'])->name('create');
+        Route::get('/create-targeted/{audience}', [PackageController::class,'createTargeted'])->name('create-targeted');
         Route::post('/store', [PackageController::class,'store'])->name('store');
+        Route::post('/store-targeted', [PackageController::class,'storeTargeted'])->name('store-targeted');
         Route::get('/edit/{id}', [PackageController::class,'edit'])->name('edit');
+        Route::get('/edit-targeted/{id}', [PackageController::class,'editTargeted'])->name('edit-targeted');
         Route::post('/update/{id}', [PackageController::class,'update'])->name('update');
+        Route::post('/update-targeted/{id}', [PackageController::class,'updateTargeted'])->name('update-targeted');
     });
 
     Route::group(['prefix'=> 'event', 'as' => 'event.'], function () {

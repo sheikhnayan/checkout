@@ -898,61 +898,77 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 12px;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.12);
+            gap: 16px;
+            padding: 14px 16px;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 14px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03));
+            margin-bottom: 10px;
         }
         #addonSelectionModal .addon-modal-label {
-            display: inline-block;
-            color: #e8eaf6 !important;
-            font-size: 14px;
+            display: block;
+            color: #f4f6ff !important;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.35;
+            flex: 1;
+        }
+        #addonSelectionModal .addon-modal-unit {
+            color: rgba(247, 226, 180, 0.95);
+            font-weight: 600;
+            margin-left: 6px;
         }
         #addonSelectionModal .addon-modal-desc {
             display: block;
-            margin-top: 3px;
-            color: rgba(232, 234, 246, 0.7);
+            margin-top: 4px;
+            color: rgba(232, 234, 246, 0.72);
             font-size: 12px;
             line-height: 1.45;
+            font-weight: 500;
         }
-        #addonSelectionModal .addon-switch {
-            position: relative;
+        #addonSelectionModal .addon-line-total {
             display: inline-block;
-            width: 46px;
-            height: 26px;
+            margin-top: 5px;
+            color: #fff;
+            font-size: 12px;
+            opacity: 0.88;
+        }
+        #addonSelectionModal .addon-qty-stepper {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px;
+            border-radius: 999px;
+            background: rgba(8, 12, 24, 0.7);
+            border: 1px solid rgba(255,255,255,0.15);
             flex-shrink: 0;
         }
-        #addonSelectionModal .addon-modal-switch-input {
-            position: absolute;
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        #addonSelectionModal .addon-switch-slider {
-            position: absolute;
-            inset: 0;
-            cursor: pointer;
-            background: rgba(255,255,255,0.18);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 999px;
-            transition: all .2s ease;
-        }
-        #addonSelectionModal .addon-switch-slider::before {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            left: 2px;
-            top: 2px;
+        #addonSelectionModal .addon-qty-btn {
+            background: rgba(255,255,255,0.09);
+            border: 1px solid rgba(255,255,255,0.26);
+            color: #fff;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
-            background: #fff;
-            transition: transform .2s ease;
+            font-size: 1.2em;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            transition: all .15s ease;
         }
-        #addonSelectionModal .addon-modal-switch-input:checked + .addon-switch-slider {
-            background: linear-gradient(135deg, #f7e2b4 0%, #ddb774 52%, #ffcc00 100%);
-            border-color: rgba(247,226,180,0.65);
+        #addonSelectionModal .addon-qty-btn:hover {
+            background: var(--aff-accent, #f7e2b4);
+            color: #111;
+            border-color: transparent;
         }
-        #addonSelectionModal .addon-modal-switch-input:checked + .addon-switch-slider::before {
-            transform: translateX(20px);
+        #addonSelectionModal .addon-qty-val {
+            min-width: 30px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 1rem;
+            color: #fff;
         }
 
         /* Price summary */
@@ -1254,23 +1270,25 @@ const clubConfigs = {
                 ->values();
         @endphp
 
-        <div class="package-search-wrap" id="package-search-wrap">
-            <div class="package-search-field">
-                <label for="package-search-text">Search</label>
-                <input type="text" id="package-search-text" placeholder="Search package, club, or city/location">
+        @if(!$isEntertainerProfile)
+            <div class="package-search-wrap" id="package-search-wrap">
+                <div class="package-search-field">
+                    <label for="package-search-text">Search</label>
+                    <input type="text" id="package-search-text" placeholder="Search package, club, or city/location">
+                </div>
+                <div class="package-search-field">
+                    <label for="package-location-filter">Filter by Location</label>
+                    <select id="package-location-filter">
+                        <option value="">All Locations</option>
+                        @foreach($uniqueClubsForFilter as $clubOption)
+                            <option value="{{ $clubOption->id }}">{{ $clubOption->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <button type="button" id="package-search-clear" class="package-search-clear">Clear</button>
             </div>
-            <div class="package-search-field">
-                <label for="package-location-filter">Filter by Location</label>
-                <select id="package-location-filter">
-                    <option value="">All Locations</option>
-                    @foreach($uniqueClubsForFilter as $clubOption)
-                        <option value="{{ $clubOption->id }}">{{ $clubOption->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <button type="button" id="package-search-clear" class="package-search-clear">Clear</button>
-        </div>
-        <div id="package-search-empty" class="package-search-empty">No packages matched your filters.</div>
+            <div id="package-search-empty" class="package-search-empty">No packages matched your filters.</div>
+        @endif
 
         <div style="margin: 8px 0 14px; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);">
             This experience is fulfilled by the venue. Entry is subject to venue rules including minimum age requirements (18+ or 21+ depending on venue), valid ID, and dress code.
@@ -2054,7 +2072,7 @@ function renderCart() {
         html += `<div class="cart-line">`
             + `<div class="cart-line-main"><div><div class="cart-item-name">${p.pkgName}</div><div class="cart-item-price">${priceLine}</div></div>`
             + `<button onclick="window.removeFromCart('${p.pkgId}')" class="cart-remove-btn">Remove</button></div>`
-            + (p.addons.length ? `<div class="cart-addons">Add-ons: ${p.addons.map(a => a.name + ' ($' + formatCurrency(a.price) + ')').join(', ')}</div>` : '')
+            + (p.addons.length ? `<div class="cart-addons">Add-ons: ${p.addons.map(a => a.name + ((parseInt(a.qty, 10) || 1) > 1 ? (' x' + (parseInt(a.qty, 10) || 1)) : '') + ' ($' + formatCurrency(a.price) + ')').join(', ')}</div>` : '')
             + '</div>';
     });
     $('#cart-list').html(html);
@@ -2064,7 +2082,10 @@ function renderCart() {
 function syncCheckoutCartFields() {
     const firstCartItem = window.cart[0] || null;
     const totalGuests = window.cart.reduce((sum, item) => sum + (parseInt(item.guests, 10) || 1), 0);
-    const addonSummary = window.cart.flatMap(item => Array.isArray(item.addons) ? item.addons : []).map(addon => addon.name + ' ($' + addon.price + ')').join(', ');
+    const addonSummary = window.cart
+        .flatMap(item => Array.isArray(item.addons) ? item.addons : [])
+        .map(addon => addon.name + ((parseInt(addon.qty, 10) || 1) > 1 ? (' x' + (parseInt(addon.qty, 10) || 1)) : '') + ' ($' + addon.price + ')')
+        .join(', ');
 
     $('#cart_items').val(window.cart.length ? JSON.stringify(window.cart) : '');
     $('#addons').val(addonSummary);
@@ -2289,20 +2310,37 @@ function openAddonSelectionModal(selection) {
     if (!addons.length) {
         html = '<p style="margin:0;opacity:.8;">No add-ons available for this package. Click confirm to continue.</p>';
     } else {
+        const existingCartPkg = Array.isArray(window.cart)
+            ? window.cart.find(function(p) {
+                return String(p.pkgId || p.packageId) === String(selection.pkgId || selection.packageId);
+            })
+            : null;
+        const existingAddons = existingCartPkg ? (existingCartPkg.addons || []) : [];
+
         addons.forEach(function(a) {
+            const unitPrice = parseFloat(a.price || 0);
+            const existingAddon = existingAddons.find(function(x) { return String(x.id) === String(a.id); });
+            let currentQty = existingAddon
+                ? (parseInt(existingAddon.qty, 10) || ((existingAddon.price > 0 && unitPrice > 0) ? Math.round(existingAddon.price / unitPrice) : 1))
+                : 0;
+            if (!Number.isFinite(currentQty) || currentQty < 0) {
+                currentQty = 0;
+            }
             const description = String(a.description || '').trim();
             const descriptionHtml = description ? ('<small class="addon-modal-desc">' + escapeAddonHtml(description) + '</small>') : '';
-            html += '<label class="addon-modal-row">'
-                + '<span class="addon-modal-label">' + escapeAddonHtml(a.name) + ' <span style="opacity:.6;">($' + formatCurrency(a.price || 0) + ')</span>' + descriptionHtml + '</span>'
-                + '<span class="addon-switch">'
-                + '<input type="checkbox" class="addon-modal-switch-input" data-id="' + a.id + '" data-name="' + escapeAddonHtml(a.name) + '" data-price="' + parseFloat(a.price || 0) + '">'
-                + '<span class="addon-switch-slider"></span>'
+            const lineTotal = unitPrice * currentQty;
+            html += '<div class="addon-modal-row">'
+                + '<span class="addon-modal-label">' + escapeAddonHtml(a.name) + '<span class="addon-modal-unit">' + formatCurrency(unitPrice) + '/ea</span>' + descriptionHtml + '<small class="addon-line-total">Line total: <span class="addon-line-total-value" data-id="' + a.id + '">' + formatCurrency(lineTotal) + '</span></small></span>'
+                + '<span class="addon-qty-stepper">'
+                + '<button type="button" class="addon-qty-btn addon-qty-dec" data-id="' + a.id + '">&#8722;</button>'
+                + '<span class="addon-qty-val" data-id="' + a.id + '" data-name="' + escapeAddonHtml(a.name) + '" data-price="' + unitPrice + '">' + currentQty + '</span>'
+                + '<button type="button" class="addon-qty-btn addon-qty-inc" data-id="' + a.id + '">+</button>'
                 + '</span>'
-                + '</label>';
+                + '</div>';
         });
     }
 
-    $('#addonSelectionModalTitle').text('Select Add-ons for ' + selection.pkgName);
+    $('#addonSelectionModalTitle').text('Select Add-ons for ' + (selection.pkgName || selection.packageName));
     $('#addonSelectionModalBody').html(html);
     bootstrap.Modal.getOrCreateInstance(document.getElementById('addonSelectionModal')).show();
 }
@@ -2483,12 +2521,18 @@ $(document).ready(function() {
         const selection = window.pendingPackageSelection;
         const addons = [];
 
-        $('#addonSelectionModalBody .addon-modal-switch-input:checked').each(function() {
-            addons.push({
-                id: $(this).data('id'),
-                name: $(this).data('name'),
-                price: parseFloat($(this).data('price'))
-            });
+        $('#addonSelectionModalBody .addon-qty-val').each(function() {
+            const qty = parseInt($(this).text(), 10) || 0;
+            if (qty > 0) {
+                const unitPrice = parseFloat($(this).data('price')) || 0;
+                addons.push({
+                    id: $(this).data('id'),
+                    name: $(this).data('name'),
+                    unit_price: unitPrice,
+                    price: unitPrice * qty,
+                    qty: qty
+                });
+            }
         });
 
         window.addToCart(selection.pkgId, selection.pkgName, selection.pkgPrice, selection.guests, addons, selection.transport, selection.isMultiple, selection.clubSlug);
@@ -2503,6 +2547,26 @@ $(document).ready(function() {
 
         bootstrap.Modal.getOrCreateInstance(document.getElementById('addonSelectionModal')).hide();
         window.pendingPackageSelection = null;
+    });
+
+    $(document).on('click', '#addonSelectionModalBody .addon-qty-dec', function() {
+        const id = $(this).data('id');
+        const valEl = $('#addonSelectionModalBody .addon-qty-val[data-id="' + id + '"]');
+        const current = parseInt(valEl.text(), 10) || 0;
+        const next = current > 0 ? current - 1 : 0;
+        valEl.text(next);
+        const unitPrice = parseFloat(valEl.data('price')) || 0;
+        $('#addonSelectionModalBody .addon-line-total-value[data-id="' + id + '"]').text(formatCurrency(unitPrice * next));
+    });
+
+    $(document).on('click', '#addonSelectionModalBody .addon-qty-inc', function() {
+        const id = $(this).data('id');
+        const valEl = $('#addonSelectionModalBody .addon-qty-val[data-id="' + id + '"]');
+        const current = parseInt(valEl.text(), 10) || 0;
+        const next = current + 1;
+        valEl.text(next);
+        const unitPrice = parseFloat(valEl.data('price')) || 0;
+        $('#addonSelectionModalBody .addon-line-total-value[data-id="' + id + '"]').text(formatCurrency(unitPrice * next));
     });
 
     $('#generateShareLink').on('click', function() {
@@ -3023,7 +3087,7 @@ $('#payment-form').on('submit', async function(e) {
     const pkgId = $('#package_id').val();
     const pkg = window.cart.find(p => p.pkgId == pkgId);
     if (pkg) {
-        $('#addons').val(pkg.addons.map(a => a.name + ' ($' + a.price + ')').join(', '));
+        $('#addons').val(pkg.addons.map(a => a.name + ((parseInt(a.qty, 10) || 1) > 1 ? (' x' + (parseInt(a.qty, 10) || 1)) : '') + ' ($' + a.price + ')').join(', '));
     }
 
     if (c.paymentMethod === 'stripe') {

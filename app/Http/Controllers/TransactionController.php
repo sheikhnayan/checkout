@@ -17,6 +17,7 @@ use App\Models\EntertainerPackage;
 use App\Models\EntertainerWalletTransaction;
 use App\Models\PromoCode;
 use App\Models\Addon;
+use App\Services\CommissionLifecycleRunner;
 use App\Mail\TransactionMail;
 use App\Helpers\PackageLimitHelper;
 use Illuminate\Support\Facades\Mail;
@@ -497,6 +498,8 @@ class TransactionController extends Controller
 
     public function index()
     {
+        app(CommissionLifecycleRunner::class)->runSafely();
+
         $user = auth()->user();
         
         if ($user->isAdmin()) {
@@ -689,8 +692,14 @@ class TransactionController extends Controller
             }
         }
         
+        $previousStatus = (string) $change->status;
         $change->status = $status;
         $change->update();
+
+        // Reverse approved commissions if transaction is canceled or refunded.
+        if (in_array((string) $status, ['0', '2'], true) && !in_array($previousStatus, ['0', '2'], true)) {
+            $this->reverseCommissionsIfNeeded($change);
+        }
 
         return back();
     }
@@ -1309,27 +1318,29 @@ class TransactionController extends Controller
         $transaction->affiliate_id = $affiliate->id;
         $transaction->affiliate_commission_percentage = $commissionPercentage;
         $transaction->affiliate_commission_amount = $commissionAmount;
+        $transaction->affiliate_commission_status = Transaction::COMMISSION_STATUS_PENDING;
+        $transaction->affiliate_commission_hold_until = $this->commissionHoldUntil($transaction);
+        $transaction->affiliate_commission_approved_at = null;
+        $transaction->affiliate_commission_reversed_at = null;
         $transaction->affiliate_source = $affiliate->slug;
         $transaction->save();
 
         if ($commissionAmount > 0) {
-            $newBalance = round((float) $affiliate->wallet_balance + $commissionAmount, 2);
-            $affiliate->wallet_balance = $newBalance;
-            $affiliate->save();
-
             AffiliateWalletTransaction::create([
                 'affiliate_id' => $affiliate->id,
                 'transaction_id' => $transaction->id,
                 'type' => 'commission',
-                'status' => 'credited',
-                'amount' => $commissionAmount,
-                'balance_after' => $newBalance,
-                'description' => 'Commission earned from package purchase #' . $transaction->id,
+                'status' => 'pending',
+                'amount' => 0,
+                'balance_after' => (float) $affiliate->wallet_balance,
+                'description' => 'Commission pending hold period for purchase #' . $transaction->id,
                 'meta' => [
                     'package_id' => $packageId,
                     'website_id' => $transaction->website_id,
                     'commission_percentage' => $commissionPercentage,
                     'commission_base_amount' => round(max($baseAmount, 0), 2),
+                    'commission_amount' => $commissionAmount,
+                    'hold_until' => optional($transaction->affiliate_commission_hold_until)->toDateTimeString(),
                 ],
             ]);
         }
@@ -1374,30 +1385,278 @@ class TransactionController extends Controller
         $transaction->entertainer_id = $entertainer->id;
         $transaction->entertainer_commission_percentage = $commissionPercentage;
         $transaction->entertainer_commission_amount = $commissionAmount;
+        $transaction->entertainer_commission_status = Transaction::COMMISSION_STATUS_PENDING;
+        $transaction->entertainer_commission_hold_until = $this->commissionHoldUntil($transaction);
+        $transaction->entertainer_commission_approved_at = null;
+        $transaction->entertainer_commission_reversed_at = null;
         $transaction->entertainer_source = $entertainer->slug;
         $transaction->save();
 
         if ($commissionAmount > 0) {
-            $newBalance = round((float) $entertainer->wallet_balance + $commissionAmount, 2);
-            $entertainer->wallet_balance = $newBalance;
-            $entertainer->save();
-
             EntertainerWalletTransaction::create([
                 'entertainer_id' => $entertainer->id,
                 'transaction_id' => $transaction->id,
                 'type' => 'commission',
-                'status' => 'completed',
-                'amount' => $commissionAmount,
-                'balance_after' => $newBalance,
-                'description' => 'Commission earned from package purchase #' . $transaction->id,
+                'status' => 'pending',
+                'amount' => 0,
+                'balance_after' => (float) $entertainer->wallet_balance,
+                'description' => 'Commission pending hold period for purchase #' . $transaction->id,
                 'meta' => [
                     'package_id' => $packageId,
                     'website_id' => $transaction->website_id,
                     'commission_percentage' => $commissionPercentage,
                     'commission_base_amount' => round(max($baseAmount, 0), 2),
+                    'commission_amount' => $commissionAmount,
+                    'hold_until' => optional($transaction->entertainer_commission_hold_until)->toDateTimeString(),
                 ],
             ]);
         }
+    }
+
+    public function approveMaturedCommissions(): array
+    {
+        $now = now();
+
+        $transactions = Transaction::query()
+            ->where(function ($query) use ($now) {
+                $query->where(function ($affiliateQuery) use ($now) {
+                    $affiliateQuery->where('affiliate_commission_status', Transaction::COMMISSION_STATUS_PENDING)
+                        ->whereNotNull('affiliate_id')
+                        ->where('affiliate_commission_amount', '>', 0)
+                        ->where(function ($holdQuery) use ($now) {
+                            $holdQuery->whereNull('affiliate_commission_hold_until')
+                                ->orWhere('affiliate_commission_hold_until', '<=', $now);
+                        });
+                })->orWhere(function ($entertainerQuery) use ($now) {
+                    $entertainerQuery->where('entertainer_commission_status', Transaction::COMMISSION_STATUS_PENDING)
+                        ->whereNotNull('entertainer_id')
+                        ->where('entertainer_commission_amount', '>', 0)
+                        ->where(function ($holdQuery) use ($now) {
+                            $holdQuery->whereNull('entertainer_commission_hold_until')
+                                ->orWhere('entertainer_commission_hold_until', '<=', $now);
+                        });
+                });
+            })
+            ->get();
+
+        $approvedAffiliate = 0;
+        $approvedEntertainer = 0;
+
+        foreach ($transactions as $transaction) {
+            if ($this->approveAffiliateCommissionIfMatured($transaction, $now)) {
+                $approvedAffiliate++;
+            }
+
+            if ($this->approveEntertainerCommissionIfMatured($transaction, $now)) {
+                $approvedEntertainer++;
+            }
+        }
+
+        return [
+            'transactions_scanned' => $transactions->count(),
+            'affiliate_approved' => $approvedAffiliate,
+            'entertainer_approved' => $approvedEntertainer,
+        ];
+    }
+
+    private function approveAffiliateCommissionIfMatured(Transaction $transaction, Carbon $now): bool
+    {
+        if ((string) $transaction->affiliate_commission_status !== Transaction::COMMISSION_STATUS_PENDING) {
+            return false;
+        }
+
+        if (!$transaction->affiliate_id || (float) $transaction->affiliate_commission_amount <= 0) {
+            return false;
+        }
+
+        if ($transaction->affiliate_commission_hold_until && $transaction->affiliate_commission_hold_until->gt($now)) {
+            return false;
+        }
+
+        $affiliate = Affiliate::find($transaction->affiliate_id);
+        if (!$affiliate) {
+            return false;
+        }
+
+        $commissionAmount = round((float) $transaction->affiliate_commission_amount, 2);
+        $newBalance = round((float) $affiliate->wallet_balance + $commissionAmount, 2);
+
+        $affiliate->wallet_balance = $newBalance;
+        $affiliate->save();
+
+        AffiliateWalletTransaction::create([
+            'affiliate_id' => $affiliate->id,
+            'transaction_id' => $transaction->id,
+            'type' => 'commission',
+            'status' => 'credited',
+            'amount' => $commissionAmount,
+            'balance_after' => $newBalance,
+            'description' => 'Commission approved after hold period for purchase #' . $transaction->id,
+            'meta' => [
+                'website_id' => $transaction->website_id,
+                'commission_percentage' => (float) ($transaction->affiliate_commission_percentage ?? 0),
+                'commission_base_amount' => round(max((float) ($transaction->actual_total ?? $transaction->total ?? 0), 0), 2),
+                'hold_until' => optional($transaction->affiliate_commission_hold_until)->toDateTimeString(),
+                'approved_at' => $now->toDateTimeString(),
+            ],
+        ]);
+
+        $transaction->affiliate_commission_status = Transaction::COMMISSION_STATUS_APPROVED;
+        $transaction->affiliate_commission_approved_at = $now;
+        $transaction->save();
+
+        return true;
+    }
+
+    private function approveEntertainerCommissionIfMatured(Transaction $transaction, Carbon $now): bool
+    {
+        if ((string) $transaction->entertainer_commission_status !== Transaction::COMMISSION_STATUS_PENDING) {
+            return false;
+        }
+
+        if (!$transaction->entertainer_id || (float) $transaction->entertainer_commission_amount <= 0) {
+            return false;
+        }
+
+        if ($transaction->entertainer_commission_hold_until && $transaction->entertainer_commission_hold_until->gt($now)) {
+            return false;
+        }
+
+        $entertainer = Entertainer::find($transaction->entertainer_id);
+        if (!$entertainer) {
+            return false;
+        }
+
+        $commissionAmount = round((float) $transaction->entertainer_commission_amount, 2);
+        $newBalance = round((float) $entertainer->wallet_balance + $commissionAmount, 2);
+
+        $entertainer->wallet_balance = $newBalance;
+        $entertainer->save();
+
+        EntertainerWalletTransaction::create([
+            'entertainer_id' => $entertainer->id,
+            'transaction_id' => $transaction->id,
+            'type' => 'commission',
+            'status' => 'credited',
+            'amount' => $commissionAmount,
+            'balance_after' => $newBalance,
+            'description' => 'Commission approved after hold period for purchase #' . $transaction->id,
+            'meta' => [
+                'website_id' => $transaction->website_id,
+                'commission_percentage' => (float) ($transaction->entertainer_commission_percentage ?? 0),
+                'commission_base_amount' => round(max((float) ($transaction->actual_total ?? $transaction->total ?? 0), 0), 2),
+                'hold_until' => optional($transaction->entertainer_commission_hold_until)->toDateTimeString(),
+                'approved_at' => $now->toDateTimeString(),
+            ],
+        ]);
+
+        $transaction->entertainer_commission_status = Transaction::COMMISSION_STATUS_APPROVED;
+        $transaction->entertainer_commission_approved_at = $now;
+        $transaction->save();
+
+        return true;
+    }
+
+    private function reverseCommissionsIfNeeded(Transaction $transaction): void
+    {
+        $this->reverseAffiliateCommissionIfNeeded($transaction);
+        $this->reverseEntertainerCommissionIfNeeded($transaction);
+    }
+
+    private function reverseAffiliateCommissionIfNeeded(Transaction $transaction): void
+    {
+        if ((string) $transaction->affiliate_commission_status !== Transaction::COMMISSION_STATUS_APPROVED) {
+            return;
+        }
+
+        if (!$transaction->affiliate_id || (float) $transaction->affiliate_commission_amount <= 0) {
+            return;
+        }
+
+        $affiliate = Affiliate::find($transaction->affiliate_id);
+        if (!$affiliate) {
+            return;
+        }
+
+        $reverseAmount = round((float) $transaction->affiliate_commission_amount, 2);
+        $newBalance = round((float) $affiliate->wallet_balance - $reverseAmount, 2);
+
+        $affiliate->wallet_balance = $newBalance;
+        $affiliate->save();
+
+        AffiliateWalletTransaction::create([
+            'affiliate_id' => $affiliate->id,
+            'transaction_id' => $transaction->id,
+            'type' => 'commission',
+            'status' => 'reversed',
+            'amount' => -$reverseAmount,
+            'balance_after' => $newBalance,
+            'description' => 'Commission reversed due to canceled/refunded transaction #' . $transaction->id,
+            'meta' => [
+                'website_id' => $transaction->website_id,
+                'reversed_at' => now()->toDateTimeString(),
+            ],
+        ]);
+
+        $transaction->affiliate_commission_status = Transaction::COMMISSION_STATUS_REVERSED;
+        $transaction->affiliate_commission_reversed_at = now();
+        $transaction->save();
+    }
+
+    private function reverseEntertainerCommissionIfNeeded(Transaction $transaction): void
+    {
+        if ((string) $transaction->entertainer_commission_status !== Transaction::COMMISSION_STATUS_APPROVED) {
+            return;
+        }
+
+        if (!$transaction->entertainer_id || (float) $transaction->entertainer_commission_amount <= 0) {
+            return;
+        }
+
+        $entertainer = Entertainer::find($transaction->entertainer_id);
+        if (!$entertainer) {
+            return;
+        }
+
+        $reverseAmount = round((float) $transaction->entertainer_commission_amount, 2);
+        $newBalance = round((float) $entertainer->wallet_balance - $reverseAmount, 2);
+
+        $entertainer->wallet_balance = $newBalance;
+        $entertainer->save();
+
+        EntertainerWalletTransaction::create([
+            'entertainer_id' => $entertainer->id,
+            'transaction_id' => $transaction->id,
+            'type' => 'commission',
+            'status' => 'reversed',
+            'amount' => -$reverseAmount,
+            'balance_after' => $newBalance,
+            'description' => 'Commission reversed due to canceled/refunded transaction #' . $transaction->id,
+            'meta' => [
+                'website_id' => $transaction->website_id,
+                'reversed_at' => now()->toDateTimeString(),
+            ],
+        ]);
+
+        $transaction->entertainer_commission_status = Transaction::COMMISSION_STATUS_REVERSED;
+        $transaction->entertainer_commission_reversed_at = now();
+        $transaction->save();
+    }
+
+    private function commissionHoldUntil(Transaction $transaction): Carbon
+    {
+        $website = $transaction->website ?: Website::find($transaction->website_id);
+        $isAuthorize = $website && (string) $website->payment_method === 'authorize';
+
+        if ($isAuthorize) {
+            $holdDays = (int) ($website->commission_hold_days_authorize
+                ?? env('COMMISSION_HOLD_DAYS_AUTHORIZE', 90));
+        } else {
+            $holdDays = (int) ($website->commission_hold_days
+                ?? env('COMMISSION_HOLD_DAYS', 60));
+        }
+
+        return now()->addDays(max($holdDays, 0));
     }
 
     private function ensureScannerAccess(): void

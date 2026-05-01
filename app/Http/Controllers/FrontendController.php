@@ -344,6 +344,7 @@ class FrontendController extends Controller
     {
         $packagesQuery = Package::with('category')
             ->where('website_id', $website->id)
+            ->clubVisible()
             ->where('status', 1)
                 ->where('is_archieved', 0)
             ->when($nullEventOnly, function ($query) {

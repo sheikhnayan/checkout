@@ -12,6 +12,9 @@ class Package extends Model
         'description',
         'status',
         'website_id',
+        'audience',
+        'affiliate_id',
+        'entertainer_id',
         'number_of_guest',
         'guest_limit_type',
         'package_type',
@@ -23,6 +26,16 @@ class Package extends Model
         'package_category_id',
         'event_id',
         'is_archieved',
+    ];
+    
+    public const AUDIENCE_CLUB = 'club';
+    public const AUDIENCE_AFFILIATE = 'affiliate';
+    public const AUDIENCE_ENTERTAINER = 'entertainer';
+    
+    public const ALLOWED_AUDIENCES = [
+        self::AUDIENCE_CLUB,
+        self::AUDIENCE_AFFILIATE,
+        self::AUDIENCE_ENTERTAINER,
     ];
 
     /**
@@ -37,6 +50,16 @@ class Package extends Model
     {
         return $this->belongsTo(Website::class);
     }
+    
+    public function affiliate()
+    {
+        return $this->belongsTo(Affiliate::class);
+    }
+    
+    public function entertainer()
+    {
+        return $this->belongsTo(Entertainer::class);
+    }
 
     public function category()
     {
@@ -46,5 +69,13 @@ class Package extends Model
     public function event()
     {
         return $this->belongsTo(Event::class);
+    }
+    
+    public function scopeClubVisible($query)
+    {
+        return $query->where(function ($builder) {
+            $builder->whereNull('audience')
+                ->orWhere('audience', self::AUDIENCE_CLUB);
+        });
     }
 }

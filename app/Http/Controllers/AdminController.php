@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Services\CommissionLifecycleRunner;
 
 class AdminController extends Controller
 {
@@ -11,6 +12,8 @@ class AdminController extends Controller
      */
     public function index()
     {
+        app(CommissionLifecycleRunner::class)->runSafely();
+
         $user = auth()->user();
 
         if ($user->isAdmin()) {

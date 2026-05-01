@@ -3,11 +3,18 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+use App\Models\Affiliate;
+use App\Models\AffiliatePackage;
+use App\Models\AffiliateWebsite;
 use App\Models\Website;
 use App\Models\Package;
 use App\Models\Addon;
 use App\Models\GeneralAddon;
 use App\Models\Event;
+use App\Models\Entertainer;
+use App\Models\EntertainerPackage;
 use App\Models\PackageCategory;
 
 class PackageController extends Controller
@@ -34,12 +41,8 @@ class PackageController extends Controller
     public function archive($id)
     {
         $user = auth()->user();
-        $data = Package::where('id',$id)->first();
-        
-        // Check authorization for website users
-        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
-            abort(403, 'Access denied. You can only manage packages for your own website.');
-        }
+        $data = Package::findOrFail($id);
+        $this->authorizePackageManagement($data, $user);
         
         $data->is_archieved = 1;
         $data->status = 0;
@@ -51,12 +54,8 @@ class PackageController extends Controller
     public function unarchive($id)
     {
         $user = auth()->user();
-        $data = Package::where('id',$id)->first();
-        
-        // Check authorization for website users
-        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
-            abort(403, 'Access denied. You can only manage packages for your own website.');
-        }
+        $data = Package::findOrFail($id);
+        $this->authorizePackageManagement($data, $user);
         
         $data->is_archieved = 0;
         $data->status = 1;
@@ -70,9 +69,7 @@ class PackageController extends Controller
         $user = auth()->user();
         $package = Package::findOrFail($id);
 
-        if ($user->isWebsiteUser() && $package->website_id != $user->website_id) {
-            abort(403, 'Access denied. You can only manage packages for your own website.');
-        }
+        $this->authorizePackageManagement($package, $user);
 
         $package->status = $package->status == 1 ? 0 : 1;
         $package->save();
@@ -92,14 +89,65 @@ class PackageController extends Controller
             abort(403, 'Access denied. You can only create packages for your own website.');
         }
         
-        $events = Event::where('website_id', $id)->where('is_archieved', 0)->get();
-        $addons = GeneralAddon::where('website_id', $id)
-            ->where('is_archieved', 0)
-            ->where('status', 1)
-            ->get();
-        $categories = PackageCategory::where('website_id', $id)->orderBy('name')->get();
+        [$events, $addons, $categories] = $this->packageFormDependencies((int) $id);
 
         return view('admin.package.create', compact('id', 'events', 'addons', 'categories'));
+    }
+
+    public function createTargeted(Request $request, string $audience)
+    {
+        $this->ensureTargetedPackagePermission(null, $audience);
+
+        if (!in_array($audience, [Package::AUDIENCE_AFFILIATE, Package::AUDIENCE_ENTERTAINER], true)) {
+            abort(404);
+        }
+
+        $title = $audience === Package::AUDIENCE_AFFILIATE
+            ? 'Affiliate Package'
+            : 'Entertainer Package';
+        $user = auth()->user();
+        $websiteOptions = collect();
+        $selectedWebsiteId = null;
+        $canSelectWebsite = false;
+
+        if ($audience === Package::AUDIENCE_AFFILIATE) {
+            $canSelectWebsite = true;
+            $websiteOptions = Website::where('is_archieved', 0)
+                ->orderBy('name')
+                ->get(['id', 'name']);
+            $selectedWebsiteId = (int) $request->query('website_id', 0);
+            if ($selectedWebsiteId <= 0 || !$websiteOptions->contains('id', $selectedWebsiteId)) {
+                $selectedWebsiteId = null;
+            }
+        } elseif ($user->isAdmin()) {
+            $canSelectWebsite = true;
+            $websiteOptions = Website::where('is_archieved', 0)
+                ->orderBy('name')
+                ->get(['id', 'name']);
+            $selectedWebsiteId = (int) $request->query('website_id', 0);
+            if ($selectedWebsiteId <= 0 || !$websiteOptions->contains('id', $selectedWebsiteId)) {
+                $selectedWebsiteId = null;
+            }
+        } elseif ($user->isWebsiteUser() && $user->website_id) {
+            $selectedWebsiteId = (int) $user->website_id;
+        } else {
+            abort(403, 'Access denied.');
+        }
+
+        [$events, $addons, $categories] = $this->packageFormDependencies($selectedWebsiteId);
+        $targetOptions = $this->packageTargetOptions($selectedWebsiteId);
+
+        return view('admin.package.create_targeted', compact(
+            'audience',
+            'title',
+            'websiteOptions',
+            'selectedWebsiteId',
+            'canSelectWebsite',
+            'targetOptions',
+            'events',
+            'addons',
+            'categories'
+        ));
     }
 
     /**
@@ -114,70 +162,34 @@ class PackageController extends Controller
             abort(403, 'Access denied. You can only create packages for your own website.');
         }
         
-        // Validate request based on package type
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'description' => 'required|string',
-            'status' => 'required|in:0,1',
-            'website_id' => 'required|integer',
-            'package_type' => 'required|in:ticket,table',
-            'daily_ticket_limit' => 'required_if:package_type,ticket|nullable|integer|min:1',
-            'daily_table_limit' => 'required_if:package_type,table|nullable|integer|min:1',
-            'guests_per_table' => 'required_if:package_type,table|nullable|integer|min:1',
-            'addons' => 'nullable|string',
-            'multiple' => 'nullable',
-            'transportation' => 'nullable',
-            'event_id' => 'nullable|integer',
-            'package_category_id' => 'nullable|integer',
-            'new_category_name' => 'nullable|string|max:255',
-        ]);
-        
-        // dd($request->all());
+        $validated = $this->validatePackagePayload($request, true);
+
         $add = new Package;
-        $add->name = $request->name;
-        $add->price = $request->price;
-        $add->description = $request->description;
-        $add->status = $request->status;
-        $add->multiple = isset($request->multiple) ? 1 :0;
-        $add->transportation = isset($request->transportation) ? 1 :0;
-        $add->package_type = $request->input('package_type', 'ticket');
-        
-        if ($add->package_type === 'table') {
-            $add->daily_table_limit = $request->input('daily_table_limit');
-            $add->guests_per_table = $request->input('guests_per_table');
-            $add->daily_ticket_limit = null;
-        } else {
-            $add->daily_ticket_limit = $request->input('daily_ticket_limit');
-            $add->daily_table_limit = null;
-            $add->guests_per_table = null;
-        }
-        
-        $add->website_id = $request->website_id;
-        $add->package_category_id = $this->resolveCategoryId($request, $request->website_id);
-        $add->event_id = $this->resolveEventId($request, (int) $request->website_id);
+        $this->fillPackageFromRequest($add, $request, (int) $validated['website_id'], Package::AUDIENCE_CLUB);
         $add->save();
-
-        $addons = array_filter(explode(',', (string) $request->addons));
-
-        foreach ($addons as $value) {
-            $addon = GeneralAddon::where('id', $value)->first();
-
-            if (!$addon) {
-                continue;
-            }
-
-            $addona = new Addon;
-            $addona->name = $addon->name;
-            $addona->addon_id = $addon->id;
-            $addona->price = $addon->price;
-            $addona->description = $addon->description;
-            $addona->status = $addon->status;
-            $addona->package_id = $add->id;
-            $addona->save();
-        }
+        $this->syncPackageAddons($add, (string) $request->addons);
 
         return redirect()->route('admin.package.show', $add->website_id);
+    }
+
+    public function storeTargeted(Request $request)
+    {
+        $audience = (string) $request->input('audience');
+        $this->ensureTargetedPackagePermission(null, $audience);
+
+        $validated = $this->validatePackagePayload($request, true, true);
+        [$affiliateId, $entertainerId] = $this->normalizeTargetIds($request);
+        $websiteId = $this->resolveTargetedPackageWebsiteId($audience, $request, $entertainerId);
+
+        $this->validateTargetSelection($audience, $affiliateId, $entertainerId, $websiteId);
+
+        $package = new Package;
+        $this->fillPackageFromRequest($package, $request, $websiteId, $audience, $affiliateId, $entertainerId);
+        $package->save();
+        $this->syncPackageAddons($package, (string) $request->addons);
+        $this->syncTargetedMappings($package);
+
+        return redirect()->route('admin.package.show', $package->website_id);
     }
 
     /**
@@ -192,13 +204,21 @@ class PackageController extends Controller
             abort(403, 'Access denied. You can only view packages for your own website.');
         }
         
-        $data = Package::with('category')->where('website_id', $id)->get();
+        $data = Package::with('category')
+            ->clubVisible()
+            ->where('website_id', $id)
+            ->get();
+
+        $targetedPackages = Package::with(['category', 'affiliate.user', 'entertainer.user'])
+            ->where('website_id', $id)
+            ->whereIn('audience', [Package::AUDIENCE_AFFILIATE, Package::AUDIENCE_ENTERTAINER])
+            ->get();
 
         $website_id = $id;
 
         $categories = PackageCategory::where('website_id', $id)->orderBy('name')->get();
 
-        return view('admin.package.show', compact('data', 'website_id', 'categories'));
+        return view('admin.package.show', compact('data', 'targetedPackages', 'website_id', 'categories'));
     }
 
     /**
@@ -208,22 +228,67 @@ class PackageController extends Controller
     {
         $user = auth()->user();
         $data = Package::findOrFail($id);
+
+        if ($data->audience && $data->audience !== Package::AUDIENCE_CLUB) {
+            abort(404);
+        }
         
         // Check authorization for website users
         if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
             abort(403, 'Access denied. You can only edit packages for your own website.');
         }
 
-        $events = Event::where('website_id', $data->website_id)->where('is_archieved', 0)->get();
-
-        $addons = GeneralAddon::where('website_id', $data->website_id)
-            ->where('is_archieved', 0)
-            ->where('status', 1)
-            ->get();
-
-        $categories = PackageCategory::where('website_id', $data->website_id)->orderBy('name')->get();
+        [$events, $addons, $categories] = $this->packageFormDependencies((int) $data->website_id);
 
         return view('admin.package.edit', compact('data', 'id', 'events', 'addons', 'categories'));
+    }
+
+    public function editTargeted(string $id)
+    {
+        $data = Package::findOrFail($id);
+        if (!in_array($data->audience, [Package::AUDIENCE_AFFILIATE, Package::AUDIENCE_ENTERTAINER], true)) {
+            abort(404);
+        }
+
+        $this->ensureTargetedPackagePermission($data);
+
+        $selectedWebsiteId = (int) request()->query('website_id', $data->website_id);
+        $websiteOptions = collect();
+        $canSelectWebsite = false;
+        $title = $data->audience === Package::AUDIENCE_AFFILIATE
+            ? 'Affiliate Package'
+            : 'Entertainer Package';
+
+        if (auth()->user()->isAdmin()) {
+            $canSelectWebsite = true;
+            $websiteOptions = Website::where('is_archieved', 0)
+                ->orderBy('name')
+                ->get(['id', 'name']);
+
+            if (!$websiteOptions->contains('id', $selectedWebsiteId)) {
+                $selectedWebsiteId = (int) $data->website_id;
+            }
+        } else {
+            $selectedWebsiteId = (int) $data->website_id;
+        }
+
+        [$events, $addons, $categories] = $this->packageFormDependencies($selectedWebsiteId);
+        $targetOptions = $this->packageTargetOptions($selectedWebsiteId);
+        $audience = $data->audience;
+
+        return view('admin.package.edit_targeted', compact(
+            'data',
+            'id',
+            'audience',
+            'title',
+            'events',
+            'addons',
+            'categories',
+            'targetOptions',
+            'websiteOptions',
+            'selectedWebsiteId',
+            'canSelectWebsite'
+        ));
     }
 
     /**
@@ -233,82 +298,47 @@ class PackageController extends Controller
     {
         $user = auth()->user();
         $data = Package::findOrFail($id);
+
+        if ($data->audience && $data->audience !== Package::AUDIENCE_CLUB) {
+            abort(404);
+        }
         
         // Check authorization for website users
         if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
             abort(403, 'Access denied. You can only update packages for your own website.');
         }
         
-        // Validate request based on package type
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'description' => 'required|string',
-            'status' => 'required|in:0,1',
-            'package_type' => 'required|in:ticket,table',
-            'daily_ticket_limit' => 'required_if:package_type,ticket|nullable|integer|min:1',
-            'daily_table_limit' => 'required_if:package_type,table|nullable|integer|min:1',
-            'guests_per_table' => 'required_if:package_type,table|nullable|integer|min:1',
-            'addons' => 'nullable|string',
-            'multiple' => 'nullable',
-            'transportation' => 'nullable',
-            'event_id' => 'nullable|integer',
-            'package_category_id' => 'nullable|integer',
-            'new_category_name' => 'nullable|string|max:255',
-        ]);
-        
-        // dd($request->all());
-        $data->name = $request->name;
-        $data->price = $request->price;
-        $data->description = $request->description;
-        $data->status = $request->status;
-        $data->multiple = isset($request->multiple) ? 1 :0;
-        $data->transportation = isset($request->transportation) ? 1 :0;
-        $data->package_type = $request->input('package_type', 'ticket');
-        
-        if ($data->package_type === 'table') {
-            $data->daily_table_limit = $request->input('daily_table_limit');
-            $data->guests_per_table = $request->input('guests_per_table');
-            $data->daily_ticket_limit = null;
-        } else {
-            $data->daily_ticket_limit = $request->input('daily_ticket_limit');
-            $data->daily_table_limit = null;
-            $data->guests_per_table = null;
-        }
-        
-        $data->package_category_id = $this->resolveCategoryId($request, $data->website_id);
-        // $data->website_id = $request->website_id;
-        $data->event_id = $this->resolveEventId($request, (int) $data->website_id);
-        $data->update();
-
-        $addons = array_filter(explode(',', (string) $request->addons));
-
-
-        $del = Addon::where('package_id', $data->id)->delete();
-        
-
-
-        foreach ($addons as $value) {
-
-            $addon = GeneralAddon::where('id', $value)->first();
-
-            if ($addon) {
-                # code...
-                $addona = new Addon;
-                $addona->name = $addon->name;
-                $addona->addon_id = $addon->id;
-                $addona->price = $addon->price;
-                $addona->description = $addon->description;
-                $addona->status = $addon->status;
-                $addona->package_id = $data->id;
-                $addona->save();
-            }
-
-
-        }
+        $this->validatePackagePayload($request);
+        $this->fillPackageFromRequest($data, $request, (int) $data->website_id, Package::AUDIENCE_CLUB);
+        $data->save();
+        $this->clearTargetedMappings($data);
+        $this->syncPackageAddons($data, (string) $request->addons);
 
         return redirect()->route('admin.package.show', $data->website_id);
 
+    }
+
+    public function updateTargeted(Request $request, string $id)
+    {
+        $data = Package::findOrFail($id);
+        if (!in_array($data->audience, [Package::AUDIENCE_AFFILIATE, Package::AUDIENCE_ENTERTAINER], true)) {
+            abort(404);
+        }
+
+        $this->ensureTargetedPackagePermission($data, $data->audience);
+
+        $this->validatePackagePayload($request, true, true);
+        [$affiliateId, $entertainerId] = $this->normalizeTargetIds($request);
+        $websiteId = $this->resolveTargetedPackageWebsiteId($data->audience, $request, $entertainerId, $data);
+
+        $this->validateTargetSelection($data->audience, $affiliateId, $entertainerId, $websiteId);
+
+        $this->fillPackageFromRequest($data, $request, $websiteId, $data->audience, $affiliateId, $entertainerId);
+        $data->save();
+        $this->syncPackageAddons($data, (string) $request->addons);
+        $this->syncTargetedMappings($data);
+
+        return redirect()->route('admin.package.show', $data->website_id);
     }
 
     private function resolveCategoryId(Request $request, $websiteId)
@@ -333,6 +363,313 @@ class PackageController extends Controller
             ->first();
 
         return $category ? $category->id : null;
+    }
+
+    private function packageFormDependencies(?int $websiteId): array
+    {
+        if (!$websiteId) {
+            return [collect(), collect(), collect()];
+        }
+
+        $events = Event::where('website_id', $websiteId)
+            ->where('is_archieved', 0)
+            ->get();
+
+        $addons = GeneralAddon::where('website_id', $websiteId)
+            ->where('is_archieved', 0)
+            ->where('status', 1)
+            ->get();
+
+        $categories = PackageCategory::where('website_id', $websiteId)
+            ->orderBy('name')
+            ->get();
+
+        return [$events, $addons, $categories];
+    }
+
+    private function validatePackagePayload(Request $request, bool $requireWebsiteId = false, bool $isTargeted = false): array
+    {
+        $rules = [
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'description' => 'required|string',
+            'status' => 'required|in:0,1',
+            'website_id' => [$requireWebsiteId ? 'required' : 'nullable', 'integer', 'exists:websites,id'],
+            'package_type' => 'required|in:ticket,table',
+            'daily_ticket_limit' => 'required_if:package_type,ticket|nullable|integer|min:1',
+            'daily_table_limit' => 'required_if:package_type,table|nullable|integer|min:1',
+            'guests_per_table' => 'required_if:package_type,table|nullable|integer|min:1',
+            'addons' => 'nullable|string',
+            'multiple' => 'nullable',
+            'transportation' => 'nullable',
+            'event_id' => $isTargeted ? 'prohibited' : 'nullable|integer',
+            'category_id' => 'nullable|integer',
+            'new_category_name' => 'nullable|string|max:255',
+        ];
+
+        if ($isTargeted) {
+            $rules['audience'] = ['required', Rule::in([Package::AUDIENCE_AFFILIATE, Package::AUDIENCE_ENTERTAINER])];
+            $rules['affiliate_id'] = 'nullable|integer|exists:affiliates,id';
+            $rules['entertainer_id'] = 'nullable|integer|exists:entertainers,id';
+        }
+
+        return $request->validate($rules);
+    }
+
+    private function fillPackageFromRequest(
+        Package $package,
+        Request $request,
+        int $websiteId,
+        string $audience,
+        ?int $affiliateId = null,
+        ?int $entertainerId = null
+    ): void {
+        $package->name = $request->name;
+        $package->price = $request->price;
+        $package->description = $request->description;
+        $package->status = $request->status;
+        $package->multiple = $request->boolean('multiple') ? 1 : 0;
+        $package->transportation = $request->boolean('transportation') ? 1 : 0;
+        $package->package_type = $request->input('package_type', 'ticket');
+        $package->website_id = $websiteId;
+        $package->audience = $audience;
+        $package->affiliate_id = $affiliateId;
+        $package->entertainer_id = $entertainerId;
+
+        if ($package->package_type === 'table') {
+            $package->daily_table_limit = $request->input('daily_table_limit');
+            $package->guests_per_table = $request->input('guests_per_table');
+            $package->daily_ticket_limit = null;
+        } else {
+            $package->daily_ticket_limit = $request->input('daily_ticket_limit');
+            $package->daily_table_limit = null;
+            $package->guests_per_table = null;
+        }
+
+        $package->package_category_id = $this->resolveCategoryId($request, $websiteId);
+        $package->event_id = $audience === Package::AUDIENCE_CLUB
+            ? $this->resolveEventId($request, $websiteId)
+            : null;
+    }
+
+    private function syncPackageAddons(Package $package, string $addonList): void
+    {
+        Addon::where('package_id', $package->id)->delete();
+
+        $addons = array_filter(explode(',', $addonList));
+
+        foreach ($addons as $value) {
+            $addon = GeneralAddon::where('id', $value)->first();
+            if (!$addon) {
+                continue;
+            }
+
+            $addona = new Addon;
+            $addona->name = $addon->name;
+            $addona->addon_id = $addon->id;
+            $addona->price = $addon->price;
+            $addona->description = $addon->description;
+            $addona->status = $addon->status;
+            $addona->package_id = $package->id;
+            $addona->save();
+        }
+    }
+
+    private function authorizePackageManagement(Package $package, $user): void
+    {
+        if ($user->isWebsiteUser() && $package->website_id != $user->website_id) {
+            abort(403, 'Access denied. You can only manage packages for your own website.');
+        }
+
+        if (in_array($package->audience, [Package::AUDIENCE_AFFILIATE, Package::AUDIENCE_ENTERTAINER], true)) {
+            $this->ensureTargetedPackagePermission($package);
+        }
+    }
+
+    private function ensureTargetedPackagePermission(?Package $package = null, ?string $audience = null): void
+    {
+        $user = auth()->user();
+        $resolvedAudience = $audience ?: ($package->audience ?? Package::AUDIENCE_CLUB);
+
+        if ($resolvedAudience === Package::AUDIENCE_CLUB) {
+            return;
+        }
+
+        if ($resolvedAudience === Package::AUDIENCE_AFFILIATE && (!$user || !$user->isAdmin())) {
+            abort(403, 'Only super admin can create or manage affiliate-specific packages.');
+        }
+
+        if ($resolvedAudience === Package::AUDIENCE_ENTERTAINER) {
+            if ($user && $user->isAdmin()) {
+                return;
+            }
+
+            if ($user && $user->isWebsiteUser()) {
+                if ($package && (int) $package->website_id !== (int) $user->website_id) {
+                    abort(403, 'Access denied. You can only manage entertainer packages for your own club.');
+                }
+
+                return;
+            }
+
+            abort(403, 'Only super admin and website admins can create or manage entertainer-specific packages.');
+        }
+    }
+
+    private function packageTargetOptions(?int $websiteId = null): array
+    {
+        $affiliates = Affiliate::with('user')
+            ->where('status', 'approved')
+            ->where('is_active', true)
+            ->when($websiteId, function ($query) use ($websiteId) {
+                $query->whereHas('affiliateWebsites', function ($targetQuery) use ($websiteId) {
+                    $targetQuery->where('website_id', $websiteId)
+                        ->where('is_active', true);
+                });
+            })
+            ->orderBy('display_name')
+            ->get();
+
+        $entertainers = Entertainer::with('user')
+            ->when($websiteId, function ($query) use ($websiteId) {
+                $query->where('website_id', $websiteId);
+            })
+            ->where('status', 'approved')
+            ->where('is_active', true)
+            ->orderBy('display_name')
+            ->get();
+
+        return [
+            'affiliates' => $affiliates,
+            'entertainers' => $entertainers,
+        ];
+    }
+
+    private function normalizeTargetIds(Request $request): array
+    {
+        $audience = (string) $request->input('audience');
+        $affiliateId = $audience === Package::AUDIENCE_AFFILIATE ? (int) $request->input('affiliate_id') : 0;
+        $entertainerId = $audience === Package::AUDIENCE_ENTERTAINER ? (int) $request->input('entertainer_id') : 0;
+
+        return [
+            $affiliateId > 0 ? $affiliateId : null,
+            $entertainerId > 0 ? $entertainerId : null,
+        ];
+    }
+
+    private function validateTargetSelection(string $audience, ?int $affiliateId, ?int $entertainerId, ?int $websiteId): void
+    {
+        if ($audience === Package::AUDIENCE_AFFILIATE) {
+            if (!$affiliateId) {
+                throw ValidationException::withMessages([
+                    'affiliate_id' => 'Select the affiliate this package belongs to.',
+                ]);
+            }
+
+            if (!$websiteId) {
+                throw ValidationException::withMessages([
+                    'website_id' => 'Select the club this affiliate package belongs to.',
+                ]);
+            }
+
+            $validAffiliate = Affiliate::where('id', $affiliateId)
+                ->where('status', 'approved')
+                ->where('is_active', true)
+                ->whereHas('affiliateWebsites', function ($query) use ($websiteId) {
+                    $query->where('website_id', $websiteId)
+                        ->where('is_active', true);
+                })
+                ->exists();
+
+            if (!$validAffiliate) {
+                throw ValidationException::withMessages([
+                    'affiliate_id' => 'Selected affiliate is not active for this club.',
+                ]);
+            }
+
+            return;
+        }
+
+        if (!$entertainerId) {
+            throw ValidationException::withMessages([
+                'entertainer_id' => 'Select the entertainer this package belongs to.',
+            ]);
+        }
+
+        $validEntertainer = Entertainer::where('id', $entertainerId)
+            ->when($websiteId, function ($query) use ($websiteId) {
+                $query->where('website_id', $websiteId);
+            })
+            ->where('status', 'approved')
+            ->where('is_active', true)
+            ->exists();
+
+        if (!$validEntertainer) {
+            throw ValidationException::withMessages([
+                'entertainer_id' => 'Selected entertainer is not active for this club.',
+            ]);
+        }
+    }
+
+    private function resolveTargetedPackageWebsiteId(string $audience, Request $request, ?int $entertainerId, ?Package $existingPackage = null): int
+    {
+        $user = auth()->user();
+
+        if ($audience === Package::AUDIENCE_ENTERTAINER) {
+            if ($user && $user->isWebsiteUser() && $user->website_id) {
+                return (int) $user->website_id;
+            }
+
+            $requestedWebsiteId = (int) $request->input('website_id', $existingPackage?->website_id);
+            if ($requestedWebsiteId > 0) {
+                return $requestedWebsiteId;
+            }
+
+            if ($entertainerId) {
+                return (int) optional(Entertainer::find($entertainerId))->website_id;
+            }
+        }
+
+        return (int) $request->input('website_id', $existingPackage?->website_id);
+    }
+
+    private function clearTargetedMappings(Package $package): void
+    {
+        AffiliatePackage::where('package_id', $package->id)->delete();
+        EntertainerPackage::where('package_id', $package->id)->delete();
+    }
+
+    private function syncTargetedMappings(Package $package): void
+    {
+        $this->clearTargetedMappings($package);
+
+        if ($package->audience === Package::AUDIENCE_AFFILIATE && $package->affiliate_id) {
+            $affiliate = Affiliate::find($package->affiliate_id);
+            AffiliatePackage::updateOrCreate(
+                [
+                    'affiliate_id' => $package->affiliate_id,
+                    'package_id' => $package->id,
+                ],
+                [
+                    'website_id' => $package->website_id,
+                    'commission_percentage' => $affiliate?->default_commission_percentage ?? 0,
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        if ($package->audience === Package::AUDIENCE_ENTERTAINER && $package->entertainer_id) {
+            EntertainerPackage::updateOrCreate(
+                [
+                    'entertainer_id' => $package->entertainer_id,
+                    'package_id' => $package->id,
+                ],
+                [
+                    'website_id' => $package->website_id,
+                    'is_active' => true,
+                ]
+            );
+        }
     }
 
     private function resolveEventId(Request $request, int $websiteId): ?int

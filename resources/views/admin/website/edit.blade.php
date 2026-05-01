@@ -564,8 +564,10 @@
                                                     </div>
                                                 </div>
 
-                                            <button type="submit" class="btn btn-primary">Submit</button>
-                                            <a href="{{ route('admin.website.index') }}" class="btn btn-danger">Cancel</a>
+                                            <div class="d-flex flex-wrap gap-2 my-3">
+                                                <button type="submit" class="btn btn-primary">Submit</button>
+                                                <a href="{{ route('admin.website.index') }}" class="btn btn-danger">Cancel</a>
+                                            </div>
                                         </div>
 
                                     </form>

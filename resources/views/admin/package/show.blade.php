@@ -75,6 +75,10 @@
 
                                     <div class="btn-group" role="group" aria-label="Basic example" style="float: right">
                                         <a href="/admins/package/create/{{ $website_id }}" class="btn btn-primary">Add Package</a>
+                                        @if(auth()->user()->isAdmin())
+                                            <a href="{{ route('admin.package.create-targeted', ['audience' => 'affiliate', 'website_id' => $website_id]) }}" class="btn btn-dark">Add Affiliate Package</a>
+                                        @endif
+                                        <a href="{{ route('admin.package.create-targeted', ['audience' => 'entertainer', 'website_id' => $website_id]) }}" class="btn btn-info">Add Entertainer Package</a>
                                     </div>
                                 </nav>
                             </div>
@@ -95,6 +99,11 @@
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categoriesPanel" type="button" role="tab" aria-controls="categoriesPanel" aria-selected="false">
                                     Categories
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="targeted-tab" data-bs-toggle="tab" data-bs-target="#targetedPackages" type="button" role="tab" aria-controls="targetedPackages" aria-selected="false">
+                                    Targeted Packages
                                 </button>
                             </li>
                         </ul>
@@ -262,6 +271,77 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="tab-pane fade" id="targetedPackages" role="tabpanel" aria-labelledby="targeted-tab">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title fw-bold">Affiliate and Entertainer Packages</h6>
+                                        @if($targetedPackages->isEmpty())
+                                            <p class="text-muted mb-0">No targeted packages created for this club yet.</p>
+                                        @else
+                                            <table class="table" id="targetedPackagesTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>SI</th>
+                                                        <th>Name</th>
+                                                        <th>Audience</th>
+                                                        <th>Assigned To</th>
+                                                        <th>Category</th>
+                                                        <th>Price</th>
+                                                        <th>Status</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($targetedPackages as $index => $item)
+                                                        @php
+                                                            $owner = $item->audience === 'affiliate'
+                                                                ? ($item->affiliate->display_name ?: optional($item->affiliate->user)->name)
+                                                                : ($item->entertainer->display_name ?: optional($item->entertainer->user)->name);
+                                                        @endphp
+                                                        <tr>
+                                                            <td>{{ $index + 1 }}</td>
+                                                            <td>{{ $item->name }}</td>
+                                                            <td>{{ ucfirst($item->audience) }}</td>
+                                                            <td>{{ $owner ?: 'Unknown' }}</td>
+                                                            <td>{{ optional($item->category)->name ?: 'Uncategorized' }}</td>
+                                                            <td>{{ $item->price }}</td>
+                                                            <td>
+                                                                <form action="/admins/package/toggle-status/{{ $item->id }}" method="POST" style="display:inline;">
+                                                                    @csrf
+                                                                    @if ($item->status == 1)
+                                                                        <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Deactivate this package?');">Active</button>
+                                                                    @else
+                                                                        <button type="submit" class="btn btn-sm btn-secondary" onclick="return confirm('Activate this package?');">Inactive</button>
+                                                                    @endif
+                                                                </form>
+                                                            </td>
+                                                            <td>
+                                                                <a href="{{ route('admin.package.edit-targeted', $item->id) }}" class="btn btn-primary">Edit</a>
+                                                                @if (empty($item->is_archieved) || $item->is_archieved == 0)
+                                                                    <form action="/admins/package/archive/{{ $item->id }}" method="POST" style="display:inline;">
+                                                                        @csrf
+                                                                        <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to archive this package?');">
+                                                                            Archive
+                                                                        </button>
+                                                                    </form>
+                                                                @else
+                                                                    <form action="/admins/package/unarchive/{{ $item->id }}" method="POST" style="display:inline;">
+                                                                        @csrf
+                                                                        <button type="submit" class="btn btn-success" onclick="return confirm('Unarchive this package?');">
+                                                                            Unarchive
+                                                                        </button>
+                                                                    </form>
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -279,6 +359,9 @@
                 $(document).ready(function() {
                     let table1 = new DataTable('#activePackagesTable');
                     let table2 = new DataTable('#archivedPackagesTable');
+                    if ($('#targetedPackagesTable').length) {
+                        let table3 = new DataTable('#targetedPackagesTable');
+                    }
                 });
             </script>
         @endsection

@@ -2840,8 +2840,7 @@
                                                     <div class="col-md-12">
 
                                                         <h2 style="margin-bottom: 35px;">Personal details <span
-                                                                style="font-size: 1rem;"> (Gifting? Enter their
-                                                                legal details here) </span></h2>
+                                                                style="font-size: 1rem;"> Is this package being purchased for someone else? If so enter their legal name here (must present ID upon entry): </span></h2>
 
                                                         <!-- Left: Form Fields -->
                                                         <div class="form-left">

@@ -56,6 +56,8 @@ class PaymentSettingsController extends Controller
             'processing_fee' => 'nullable|numeric|min:0',
             'processing_fee_type' => 'required_with:processing_fee|in:percentage,flat',
             'promo_code_name' => 'nullable|string|max:255',
+            'commission_hold_days' => 'nullable|integer|min:0|max:365',
+            'commission_hold_days_authorize' => 'nullable|integer|min:0|max:365',
         ]);
 
         // Keep existing API keys when fields are intentionally left blank during updates.

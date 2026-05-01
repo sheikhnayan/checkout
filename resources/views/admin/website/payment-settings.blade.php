@@ -455,6 +455,36 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                {{-- Commission Hold Days --}}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h6 class="mb-3">Commission Hold Period</h6>
+                                        <p class="small mb-3" style="color: #6c757d;">Number of days after a transaction before affiliate/entertainer commissions are released. Leave blank to use the system default.</p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="commission_hold_days" class="form-label">Hold Days (Stripe) <span class="text-muted small">— default: 60</span></label>
+                                            <input type="number" name="commission_hold_days" id="commission_hold_days" class="form-control @error('commission_hold_days') is-invalid @enderror"
+                                                min="0" max="365" value="{{ old('commission_hold_days', $website->commission_hold_days) }}" placeholder="60">
+                                            @error('commission_hold_days')
+                                                <span class="invalid-feedback">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="commission_hold_days_authorize" class="form-label">Hold Days (Authorize.net) <span class="text-muted small">— default: 90</span></label>
+                                            <input type="number" name="commission_hold_days_authorize" id="commission_hold_days_authorize" class="form-control @error('commission_hold_days_authorize') is-invalid @enderror"
+                                                min="0" max="365" value="{{ old('commission_hold_days_authorize', $website->commission_hold_days_authorize) }}" placeholder="90">
+                                            @error('commission_hold_days_authorize')
+                                                <span class="invalid-feedback">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

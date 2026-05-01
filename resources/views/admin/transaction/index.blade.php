@@ -195,6 +195,8 @@
                                                 @endif
                                                 <th>Affiliate</th>
                                                 <th>Affiliate Amount</th>
+                                                <th>Commission Status</th>
+                                                <th>Hold Until</th>
                                                 <th>Amount</th>
                                                 <th>Status</th>
                                                 <th>Checked In</th>
@@ -206,7 +208,7 @@
                                         <tbody>
                                             @if ($data->isEmpty())
                                                 <tr>
-                                                    <td colspan="{{ auth()->user()->isAdmin() ? '18' : '17' }}" class="text-center">No donations found.</td>
+                                                    <td colspan="{{ auth()->user()->isAdmin() ? '20' : '19' }}" class="text-center">No donations found.</td>
                                                 </tr>
                                             @else
                                                 @foreach ($data as $item)
@@ -218,7 +220,7 @@
                                                         <td>{{ $item->package_first_name }} {{ $item->package_last_name }}</td>
                                                         <td>{{ $item->package_phone }}</td>
                                                         <td>{{ $item->package_email }}</td>
-                                                        <td>{{ $item->package->name }}</td>
+                                                        <td>{{ $item->package_table_label }}</td>
                                                         <td>{{ $item->event->name ?? null}}</td>
                                                         @if ($item->type == 'package')
                                                             <td>Package</td>
@@ -238,6 +240,32 @@
                                                             @endif
                                                         </td>
                                                         <td>${{ number_format((float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0), 2) }}</td>
+                                                        <td>
+                                                            @php
+                                                                $commissionStatus = $item->affiliate_id
+                                                                    ? ($item->affiliate_commission_status ?? 'n/a')
+                                                                    : ($item->entertainer_commission_status ?? 'n/a');
+                                                            @endphp
+                                                            @if($commissionStatus === 'pending')
+                                                                <span class="badge bg-warning text-dark">Pending</span>
+                                                            @elseif($commissionStatus === 'approved')
+                                                                <span class="badge bg-success">Approved</span>
+                                                            @elseif($commissionStatus === 'paid')
+                                                                <span class="badge bg-primary">Paid</span>
+                                                            @elseif($commissionStatus === 'reversed')
+                                                                <span class="badge bg-danger">Reversed</span>
+                                                            @else
+                                                                <span class="badge bg-secondary">N/A</span>
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @php
+                                                                $holdUntil = $item->affiliate_id
+                                                                    ? $item->affiliate_commission_hold_until
+                                                                    : $item->entertainer_commission_hold_until;
+                                                            @endphp
+                                                            {{ $holdUntil ? optional($holdUntil)->timezone('America/Los_Angeles')->format('Y-m-d h:i A T') : '-' }}
+                                                        </td>
                                                         <td>${{ $item->total }}</td>
                                                         <td>
                                                             @if($item->status == 1)
@@ -268,17 +296,7 @@
                                                         <td>
                                                             @php
                                                                 $cartItems = is_array($item->cart_items ?? null) ? $item->cart_items : json_decode($item->cart_items ?? '[]', true);
-                                                                $packageSummary = collect($cartItems)->map(function ($cartItem) {
-                                                                    $packageName = html_entity_decode($cartItem['package_name'] ?? optional(\App\Models\Package::find($cartItem['package_id'] ?? null))->name ?? ('Package #' . ($cartItem['package_id'] ?? '')), ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                                                                    $guests = (int) ($cartItem['guests'] ?? 1);
-                                                                    $isMultiple = in_array($cartItem['is_multiple'] ?? false, [true, 1, '1', 'true'], true);
-                                                                    $unitPrice = (float) ($cartItem['unit_price'] ?? 0);
-                                                                    $lineTotal = (float) ($cartItem['line_total'] ?? 0);
-
-                                                                    return $isMultiple
-                                                                        ? ($packageName . ' - $' . number_format($unitPrice, 2) . ' x ' . $guests . ' = $' . number_format($lineTotal, 2))
-                                                                        : ($packageName . ' - $' . number_format($lineTotal, 2));
-                                                                })->filter()->implode(' | ');
+                                                                $packageSummary = $item->package_table_label;
 
                                                                 $addons = collect($cartItems)
                                                                     ->flatMap(function ($cartItem) {
@@ -299,7 +317,7 @@
                                                                 }
 
                                                                 if ($packageSummary === '') {
-                                                                    $packageSummary = optional($item->package)->name ?? '';
+                                                                    $packageSummary = 'N/A';
                                                                 }
                                                             @endphp
                                                             @if ($item->type == 'package')
@@ -400,6 +418,32 @@
                                                             @endif
                                                         </td>
                                                         <td>${{ number_format((float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0), 2) }}</td>
+                                                        <td>
+                                                            @php
+                                                                $commissionStatus = $item->affiliate_id
+                                                                    ? ($item->affiliate_commission_status ?? 'n/a')
+                                                                    : ($item->entertainer_commission_status ?? 'n/a');
+                                                            @endphp
+                                                            @if($commissionStatus === 'pending')
+                                                                <span class="badge bg-warning text-dark">Pending</span>
+                                                            @elseif($commissionStatus === 'approved')
+                                                                <span class="badge bg-success">Approved</span>
+                                                            @elseif($commissionStatus === 'paid')
+                                                                <span class="badge bg-primary">Paid</span>
+                                                            @elseif($commissionStatus === 'reversed')
+                                                                <span class="badge bg-danger">Reversed</span>
+                                                            @else
+                                                                <span class="badge bg-secondary">N/A</span>
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @php
+                                                                $holdUntil = $item->affiliate_id
+                                                                    ? $item->affiliate_commission_hold_until
+                                                                    : $item->entertainer_commission_hold_until;
+                                                            @endphp
+                                                            {{ $holdUntil ? optional($holdUntil)->timezone('America/Los_Angeles')->format('Y-m-d h:i A T') : '-' }}
+                                                        </td>
                                                         <td>${{ $item->total }}</td>
                                                         <td>
                                                             @if($item->status == 1)

@@ -40,6 +40,8 @@ class Website extends Model
         'processing_fee',
         'processing_fee_type',
         'withdraw_charge',
+        'commission_hold_days',
+        'commission_hold_days_authorize',
         'promo_code_name',
         'font_color',
         'text_description',
