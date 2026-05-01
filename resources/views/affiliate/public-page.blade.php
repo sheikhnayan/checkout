@@ -674,34 +674,105 @@
         }
 
         /* Flatpickr time picker dropdown */
-        .flatpickr-calendar {
+        .flatpickr-calendar.noCalendar {
             background: #ffffff !important;
             color: #111111 !important;
         }
-        .flatpickr-calendar .flatpickr-time input,
-        .flatpickr-calendar .flatpickr-time .numInputWrapper input,
-        .flatpickr-calendar .numInput {
-            background: #ffffff !important;
-            color: #111111 !important;
-            -webkit-text-fill-color: #111111 !important;
-        }
-        .flatpickr-calendar .flatpickr-time .flatpickr-am-pm {
+        .flatpickr-calendar.noCalendar .flatpickr-time input,
+        .flatpickr-calendar.noCalendar .flatpickr-time .numInputWrapper input,
+        .flatpickr-calendar.noCalendar .numInput {
             background: #ffffff !important;
             color: #111111 !important;
             -webkit-text-fill-color: #111111 !important;
         }
-        .flatpickr-calendar .flatpickr-time .arrowUp,
-        .flatpickr-calendar .flatpickr-time .arrowDown {
+        .flatpickr-calendar.noCalendar .flatpickr-time .flatpickr-am-pm {
+            background: #ffffff !important;
+            color: #111111 !important;
+            -webkit-text-fill-color: #111111 !important;
+        }
+        .flatpickr-calendar.noCalendar .flatpickr-time .arrowUp,
+        .flatpickr-calendar.noCalendar .flatpickr-time .arrowDown {
             fill: #111111 !important;
         }
-        .flatpickr-calendar .numInputWrapper span.arrowUp::after {
+        .flatpickr-calendar.noCalendar .numInputWrapper span.arrowUp::after {
             border-bottom-color: #111111 !important;
         }
-        .flatpickr-calendar .numInputWrapper span.arrowDown::after {
+        .flatpickr-calendar.noCalendar .numInputWrapper span.arrowDown::after {
             border-top-color: #111111 !important;
         }
-        .flatpickr-calendar .flatpickr-time .flatpickr-time-separator {
+        .flatpickr-calendar.noCalendar .flatpickr-time .flatpickr-time-separator {
             color: #111111 !important;
+        }
+
+        .hero-date-card {
+            margin-top: 5px;
+            max-width: 320px;
+            padding: 7px 10px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.04);
+        }
+
+        .hero-date-card label {
+            margin-bottom: 3px;
+            text-transform: uppercase;
+            font-size: 9px;
+            letter-spacing: .8px;
+            opacity: .7;
+        }
+
+        .flatpickr-calendar.aff-reservation-calendar {
+            background: #0f172a !important;
+            border: 1px solid rgba(148, 163, 184, 0.35) !important;
+            box-shadow: 0 16px 32px rgba(2, 6, 23, 0.45) !important;
+        }
+
+        .flatpickr-calendar.aff-reservation-calendar .flatpickr-months,
+        .flatpickr-calendar.aff-reservation-calendar .flatpickr-weekdays,
+        .flatpickr-calendar.aff-reservation-calendar .flatpickr-days {
+            background: #0f172a !important;
+        }
+
+        .flatpickr-calendar.aff-reservation-calendar .flatpickr-month,
+        .flatpickr-calendar.aff-reservation-calendar .flatpickr-current-month .flatpickr-monthDropdown-months,
+        .flatpickr-calendar.aff-reservation-calendar .flatpickr-current-month input.cur-year,
+        .flatpickr-calendar.aff-reservation-calendar .flatpickr-weekday,
+        .flatpickr-calendar.aff-reservation-calendar .flatpickr-day,
+        .flatpickr-calendar.aff-reservation-calendar .flatpickr-months .flatpickr-prev-month,
+        .flatpickr-calendar.aff-reservation-calendar .flatpickr-months .flatpickr-next-month {
+            color: #e2e8f0 !important;
+            fill: #e2e8f0 !important;
+        }
+
+        .flatpickr-calendar.aff-reservation-calendar .flatpickr-day:hover {
+            background: rgba(221, 183, 116, 0.28) !important;
+            border-color: rgba(201, 156, 77, 0.62) !important;
+        }
+
+        .flatpickr-calendar.aff-reservation-calendar .flatpickr-day.today {
+            border-color: #ffcc00 !important;
+            color: #ffde6b !important;
+        }
+
+        .flatpickr-calendar.aff-reservation-calendar .flatpickr-day.selected,
+        .flatpickr-calendar.aff-reservation-calendar .flatpickr-day.startRange,
+        .flatpickr-calendar.aff-reservation-calendar .flatpickr-day.endRange {
+            background: #ffcc00 !important;
+            border-color: #ffcc00 !important;
+            color: #1f1400 !important;
+        }
+
+        .flatpickr-calendar.aff-reservation-calendar .flatpickr-current-month,
+        .flatpickr-calendar.aff-reservation-calendar .flatpickr-month,
+        .flatpickr-calendar.aff-reservation-calendar .flatpickr-months {
+            overflow: visible !important;
+        }
+
+        .flatpickr-calendar.aff-reservation-calendar .flatpickr-current-month .flatpickr-monthDropdown-months,
+        .flatpickr-calendar.aff-reservation-calendar .flatpickr-current-month input.cur-year,
+        .flatpickr-calendar.aff-reservation-calendar .flatpickr-current-month .numInputWrapper {
+            height: 34px !important;
+            line-height: 34px !important;
         }
 
         .date-input-wrapper {
@@ -1554,10 +1625,10 @@ const clubConfigs = {
                     <select id="package-dob-year"  name="package_year"  class="form-select" style="flex:1;padding:10px 8px !important;" required></select>
                 </div>
             </div>
-            <div class="form-group mb-3">
-                <label>Reservation Date</label>
+            <div class="form-group mb-3 hero-date-card">
+                <label>Choose Your Reservation Date</label>
                 <div class="date-input-wrapper">
-                    <input id="package_use_date" type="text" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" readonly>
+                    <input id="package_use_date" type="text" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" readonly aria-describedby="package_use_date_error">
                     <span class="custom-calendar-icon"></span>
                 </div>
             </div>
@@ -3317,7 +3388,13 @@ flatpickr('#package_use_date', {
     defaultDate: '{{ \Carbon\Carbon::now()->format('Y-m-d') }}',
     minDate: 'today',
     allowInput: false,
-    clickOpens: true
+    clickOpens: true,
+    onReady: function(selectedDates, dateStr, instance) {
+        instance.calendarContainer.classList.add('aff-reservation-calendar');
+    },
+    onOpen: function(selectedDates, dateStr, instance) {
+        instance.calendarContainer.classList.add('aff-reservation-calendar');
+    }
 });
 $('.custom-calendar-icon').on('click', function() {
     const picker = document.getElementById('package_use_date')._flatpickr;
