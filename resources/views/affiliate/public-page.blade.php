@@ -765,6 +765,22 @@
             }
         }
 
+        /* Final override: reservation date field should match other checkout inputs */
+        #package_use_date,
+        #package_use_date.flatpickr-input,
+        #package_use_date.flatpickr-input[readonly] {
+            width: 100% !important;
+            min-height: 42px !important;
+            border-radius: 10px !important;
+            background: rgba(255,255,255,0.07) !important;
+            border: 1px solid #9797a0 !important;
+            color: #fff !important;
+            -webkit-text-fill-color: #fff !important;
+            padding: 10px 45px 10px 14px !important;
+            font-size: 15px !important;
+            box-sizing: border-box;
+        }
+
         /* Buttons */
         .btn-next, .submit-btn {
             background: var(--aff-accent) !important;

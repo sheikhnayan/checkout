@@ -1415,6 +1415,32 @@ body {
     color: #e2e8f0 !important;
 }
 
+/* Final override: keep month/year selectors fully visible on mobile */
+.flatpickr-calendar .flatpickr-months,
+.flatpickr-calendar .flatpickr-month,
+.flatpickr-calendar .flatpickr-current-month {
+    overflow: visible !important;
+}
+
+.flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months,
+.flatpickr-calendar .flatpickr-current-month input.cur-year,
+.flatpickr-calendar .flatpickr-current-month .numInputWrapper {
+    height: 34px !important;
+    line-height: 34px !important;
+}
+
+.flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    -webkit-appearance: menulist !important;
+    appearance: menulist !important;
+}
+
+.flatpickr-calendar .flatpickr-current-month input.cur-year {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
 .hero-gallery-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
