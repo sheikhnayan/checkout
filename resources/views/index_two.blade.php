@@ -1,7 +1,7 @@
 @php
-    $brandPrimary = '#ffcc00';
+    $brandPrimary = 'linear-gradient(135deg,#fff0c6 0%,#dfb86f 52%,#c99c4d 100%)';
     $brandSecondary = '#ddb774';
-    $brandGradient = 'linear-gradient(135deg, #f7e2b4 0%, #ddb774 52%, #ffcc00 100%)';
+    $brandGradient = 'linear-gradient(135deg, #f7e2b4 0%, #ddb774 52%, linear-gradient(135deg,#fff0c6 0%,#dfb86f 52%,#c99c4d 100%) 100%)';
     $data->color = $brandPrimary;
     $data->secondary_color = $brandSecondary;
     $data->background_color = '#0b0e1a';
@@ -574,7 +574,7 @@
                 transform: translateY(-50%) !important;
                 width: 16px !important;
                 height: 16px !important;
-                background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>') no-repeat center !important;
+                background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>') no-repeat center !important;
                 background-size: contain !important;
                 cursor: pointer !important;
                 z-index: 2 !important;
@@ -609,7 +609,7 @@
 
             #package_use_date[readonly],
             #package_use_date.flatpickr-input[readonly] {
-                color: #fff !important;
+                color: #000 !important;
                 -webkit-text-fill-color: #fff !important;
                 opacity: 1 !important;
                 text-shadow: 0 0 0 #fff;
@@ -831,7 +831,7 @@
             --text-main: {{ $data->font_color ?? '#e8eaf6' }};
             --aff-accent: var(--accent);
             --aff-text: var(--text-main);
-            --brand-gradient: #ffcc00;
+            --brand-gradient: linear-gradient(135deg,#fff0c6 0%,#dfb86f 52%,#c99c4d 100%);
         }
 
         /* Glassmorphism package cards */
@@ -961,8 +961,8 @@
             transition: transform .2s ease !important;
         }
         #payment-consent-group .consent-label input[type="checkbox"]:checked {
-            background: #ffcc00 !important;
-            border-color: #ffcc00 !important;
+            background: linear-gradient(135deg,#fff0c6 0%,#dfb86f 52%,#c99c4d 100%) !important;
+            border-color: linear-gradient(135deg,#fff0c6 0%,#dfb86f 52%,#c99c4d 100%) !important;
         }
         #payment-consent-group .consent-label input[type="checkbox"]:checked::before {
             transform: translateX(20px) !important;
@@ -1301,6 +1301,7 @@
             z-index: 1;
             max-width: none;
             padding: 10px 12px 9px;
+            color: #000 !important;
         }
 
         .aff-kicker {
@@ -1317,7 +1318,7 @@
             font-weight: 800;
             max-width: unset;
             margin: 2px 0 4px;
-            color: #fff !important;
+            color: #000 !important;
         }
 
         .aff-display-copy {
@@ -1325,7 +1326,7 @@
             font-size: 11px;
             line-height: 1.25;
             opacity: .82;
-            color: #d8def0 !important;
+            color: #000 !important;
         }
 
         .hero-date-card {
@@ -1343,6 +1344,7 @@
             font-size: 9px;
             letter-spacing: .8px;
             opacity: .7;
+            color: #000 !important;
         }
 
         .event-capacity-chip {
@@ -1398,15 +1400,15 @@
         }
 
         .flatpickr-day.today {
-            border-color: #ffcc00 !important;
+            border-color: linear-gradient(135deg,#fff0c6 0%,#dfb86f 52%,#c99c4d 100%) !important;
             color: #ffde6b !important;
         }
 
         .flatpickr-day.selected,
         .flatpickr-day.startRange,
         .flatpickr-day.endRange {
-            background: #ffcc00 !important;
-            border-color: #ffcc00 !important;
+            background: linear-gradient(135deg,#fff0c6 0%,#dfb86f 52%,#c99c4d 100%) !important;
+            border-color: linear-gradient(135deg,#fff0c6 0%,#dfb86f 52%,#c99c4d 100%) !important;
             color: #1f1400 !important;
         }
 
@@ -2324,7 +2326,7 @@
         </style>
     </head>
 
-    <body>
+    <body style="background: #000 !important;">
         @php
             $isSharedLink = request()->hasAny([
                 'package',
@@ -2368,7 +2370,7 @@
             </div>
         @endif
 
-        <header>
+        <header style="background: radial-gradient(circle at 18% 60px, rgba(232,190,106,.10), transparent 340px), radial-gradient(circle at 82% 180px, rgba(124,92,255,.10), transparent 360px), linear-gradient(180deg,#050507 0%,#06070a 100%);">
             <div class="container py-1">
                 @session('success')
                     <div class="alert alert-success" role="alert">Purchase Successfull!</div>
@@ -2440,7 +2442,7 @@
                 </button>
             </nav>
         @endif
-        <main>
+        <main style="background: radial-gradient(circle at 18% 60px, rgba(232,190,106,.10), transparent 340px), radial-gradient(circle at 82% 180px, rgba(124,92,255,.10), transparent 360px), linear-gradient(180deg,#050507 0%,#06070a 100%);">
             <div class="container mt-4">
                 @if ($data->reservation == 1)
                     <div class="guest">
