@@ -245,6 +245,30 @@
             background: rgba(255, 204, 0, 0.16);
         }
 
+        .aff-copy-toast {
+            position: fixed;
+            right: 16px;
+            bottom: 16px;
+            z-index: 1700;
+            background: rgba(25, 135, 84, 0.95);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 18px 28px rgba(0,0,0,0.35);
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity .2s ease, transform .2s ease;
+            pointer-events: none;
+        }
+
+        .aff-copy-toast.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         /* Package location badge */
         .club-badge { display:inline-block; font-size:10px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; padding:2px 8px; border-radius:4px; background:rgba(255,255,255,0.1); margin-bottom:6px; }
 
@@ -709,13 +733,15 @@
         }
 
         #package_use_date{
-            width: 33%;
+            width: 100%;
             border-radius: 10px;
-            background: #1c1f29;
+            background: rgba(255,255,255,0.07) !important;
+            border: 1px solid #9797a0 !important;
             color: #fff;
             -webkit-text-fill-color: #fff !important;
             opacity: 1 !important;
             text-shadow: 0 0 0 #fff;
+            font-size: 15px;
         }
 
         #package_use_date[readonly],
@@ -2667,6 +2693,32 @@ $(document).ready(function() {
     const affShareButton = document.getElementById('aff-share-page-btn');
     const affShareMenu = document.getElementById('aff-share-menu');
     let affCurrentSharePayload = null;
+    let affCopyToastTimer = null;
+
+    function showAffiliateShareToast(message) {
+        const toastId = 'aff-share-copy-toast';
+        let toast = document.getElementById(toastId);
+
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = toastId;
+            toast.className = 'aff-copy-toast';
+            toast.setAttribute('role', 'status');
+            toast.setAttribute('aria-live', 'polite');
+            document.body.appendChild(toast);
+        }
+
+        toast.textContent = message || 'Link copied!';
+        toast.classList.add('is-visible');
+
+        if (affCopyToastTimer) {
+            clearTimeout(affCopyToastTimer);
+        }
+
+        affCopyToastTimer = setTimeout(function () {
+            toast.classList.remove('is-visible');
+        }, 1800);
+    }
 
     function closeAffiliateShareMenu() {
         if (!affShareMenu) {
@@ -2728,7 +2780,11 @@ $(document).ready(function() {
             }
 
             if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(shareLine).catch(function () {});
+                navigator.clipboard.writeText(shareLine)
+                    .then(function () {
+                        showAffiliateShareToast('Link copied!');
+                    })
+                    .catch(function () {});
             }
 
             window.open('https://www.instagram.com/', '_blank', 'noopener');
@@ -2736,9 +2792,13 @@ $(document).ready(function() {
         }
 
         if (option === 'copy' && navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(cleanPayload.url).catch(function () {
-                window.prompt('Copy this link', cleanPayload.url);
-            });
+            navigator.clipboard.writeText(cleanPayload.url)
+                .then(function () {
+                    showAffiliateShareToast('Link copied!');
+                })
+                .catch(function () {
+                    window.prompt('Copy this link', cleanPayload.url);
+                });
             return;
         }
 

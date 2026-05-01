@@ -1429,6 +1429,7 @@
             gap: 8px;
             padding-top: 6px;
             height: 44px;
+            overflow: visible;
         }
 
         .flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months {
@@ -1439,9 +1440,11 @@
             font-size: 14px;
             font-weight: 600;
             height: 32px;
-            line-height: 30px;
-            padding: 0 26px 3px 10px;
+            line-height: 32px;
+            padding: 0 26px 0 10px;
             box-sizing: border-box;
+            -webkit-appearance: menulist;
+            appearance: menulist;
         }
 
         .flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months option {
@@ -1462,9 +1465,18 @@
             font-size: 14px;
             font-weight: 600;
             height: 32px;
-            line-height: 30px;
-            padding: 0 8px 3px 8px !important;
+            line-height: 32px;
+            padding: 0 8px !important;
             box-sizing: border-box;
+        }
+
+        @media (max-width: 767.98px) {
+            .flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months,
+            .flatpickr-calendar .flatpickr-current-month input.cur-year,
+            .flatpickr-calendar .flatpickr-current-month .numInputWrapper {
+                height: 34px;
+                line-height: 34px;
+            }
         }
 
         .flatpickr-calendar .flatpickr-current-month .numInputWrapper span {

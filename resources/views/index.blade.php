@@ -1387,6 +1387,27 @@ body {
     background: #111d33 !important;
     color: #e2e8f0 !important;
     border: 1px solid rgba(148, 163, 184, 0.45) !important;
+    height: 32px;
+    line-height: 32px;
+    box-sizing: border-box;
+}
+
+.flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months {
+    padding: 0 26px 0 10px;
+    -webkit-appearance: menulist;
+    appearance: menulist;
+}
+
+.flatpickr-calendar .flatpickr-current-month input.cur-year {
+    padding: 0 8px !important;
+}
+
+@media (max-width: 767.98px) {
+    .flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months,
+    .flatpickr-calendar .flatpickr-current-month input.cur-year {
+        height: 34px;
+        line-height: 34px;
+    }
 }
 
 .flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months option {
