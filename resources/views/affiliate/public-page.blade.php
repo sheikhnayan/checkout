@@ -1084,6 +1084,31 @@
             color: #fff;
         }
 
+        @media (max-width: 767.98px) {
+            #addonSelectionModal .addon-modal-row {
+                flex-wrap: wrap;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 12px;
+            }
+
+            #addonSelectionModal .addon-modal-label {
+                flex: 1 1 100%;
+                min-width: 0;
+                margin-bottom: 2px;
+            }
+
+            #addonSelectionModal .addon-qty-stepper {
+                margin-left: auto;
+                max-width: 100%;
+            }
+
+            #addonSelectionModal .addon-qty-btn {
+                width: 32px;
+                height: 32px;
+            }
+        }
+
         /* Price summary */
         .price-summary { display:none; background:rgba(255,255,255,0.04); border-radius:10px; padding:14px 16px; margin-bottom:1rem; font-size:14px; }
 

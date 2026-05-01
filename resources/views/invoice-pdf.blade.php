@@ -334,12 +334,8 @@
                 <span>{{ $totalAddonQty ?? 0 }}</span>
             </div>
             <div class="total-row">
-                <span>Packages Subtotal</span>
-                <span>${{ number_format((float) ($priceBreakdown['packages_subtotal'] ?? 0), 2) }}</span>
-            </div>
-            <div class="total-row">
-                <span>Add-ons Subtotal</span>
-                <span>${{ number_format((float) ($priceBreakdown['addons_subtotal'] ?? 0), 2) }}</span>
+                <span>Subtotal</span>
+                <span>${{ number_format((float) ($priceBreakdown['items_subtotal'] ?? (($priceBreakdown['packages_subtotal'] ?? 0) + ($priceBreakdown['addons_subtotal'] ?? 0))), 2) }}</span>
             </div>
 
             @if(!empty($priceBreakdown['gratuity']['enabled']))

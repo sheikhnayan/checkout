@@ -2065,6 +2065,21 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         padding: 8px 6px;
     }
 
+    .guest-count .guest-gender-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .guest-count .guest-section {
+        padding: 8px 10px;
+        gap: 10px;
+    }
+
+    .guest-count .counter {
+        margin-left: auto;
+        flex-shrink: 0;
+    }
+
     .guest-count .guest-section--men {
         order: 1;
     }

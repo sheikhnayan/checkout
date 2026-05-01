@@ -176,17 +176,9 @@
         @endforeach
 
         @if(!empty($mailPriceBreakdown))
-        <tr>
-            <td colspan="3"><strong>Packages Subtotal</strong></td>
-            <td style="text-align:right;"><strong>${{ number_format((float) ($mailPriceBreakdown['packages_subtotal'] ?? 0), 2) }}</strong></td>
-        </tr>
-        <tr>
-            <td colspan="3">Add-ons Subtotal</td>
-            <td style="text-align:right;">${{ number_format((float) ($mailPriceBreakdown['addons_subtotal'] ?? 0), 2) }}</td>
-        </tr>
         <tr style="background:#eef2ff;font-weight:bold;color:#3730a3;">
-            <td colspan="3">Items Subtotal (Packages + Add-ons)</td>
-            <td style="text-align:right;">${{ number_format((float) ($mailPriceBreakdown['items_subtotal'] ?? 0), 2) }}</td>
+            <td colspan="3">Subtotal</td>
+            <td style="text-align:right;">${{ number_format((float) ($mailPriceBreakdown['items_subtotal'] ?? (($mailPriceBreakdown['packages_subtotal'] ?? 0) + ($mailPriceBreakdown['addons_subtotal'] ?? 0))), 2) }}</td>
         </tr>
         @if(!empty($mailPriceBreakdown['gratuity']['enabled']))
         <tr>

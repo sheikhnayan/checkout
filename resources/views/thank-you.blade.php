@@ -403,17 +403,9 @@
                             @endif
                         @endforeach
                         @if(!empty($priceBreakdown))
-                        <tr>
-                            <td colspan="3"><strong>Packages Subtotal</strong></td>
-                            <td class="price-right"><strong>${{ number_format((float) ($priceBreakdown['packages_subtotal'] ?? 0), 2) }}</strong></td>
-                        </tr>
-                        <tr>
-                            <td colspan="3">Add-ons Subtotal</td>
-                            <td class="price-right">${{ number_format((float) ($priceBreakdown['addons_subtotal'] ?? 0), 2) }}</td>
-                        </tr>
                         <tr class="breakdown-subtotal-row">
-                            <td colspan="3">Items Subtotal (Packages + Add-ons)</td>
-                            <td class="price-right">${{ number_format((float) ($priceBreakdown['items_subtotal'] ?? 0), 2) }}</td>
+                            <td colspan="3">Subtotal</td>
+                            <td class="price-right">${{ number_format((float) ($priceBreakdown['items_subtotal'] ?? (($priceBreakdown['packages_subtotal'] ?? 0) + ($priceBreakdown['addons_subtotal'] ?? 0))), 2) }}</td>
                         </tr>
                         @if(!empty($priceBreakdown['gratuity']['enabled']))
                         <tr>

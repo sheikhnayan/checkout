@@ -277,15 +277,7 @@ label{
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-12">
-                                                    <div class="mb-3">
-                                                        <label for="status">Status</label>
-                                                        <select name="status" class="form-control" id="status" required>
-                                                            <option value="1">Active</option>
-                                                            <option value="0">Inactive</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
+                                                <input type="hidden" name="status" value="{{ old('status', $data->status) }}">
                                             </div>
                                             <input type="hidden" name="website_id" value="{{ $data->website_id }}">
                                             </div>
