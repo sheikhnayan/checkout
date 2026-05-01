@@ -2559,11 +2559,7 @@
                                                     <span class="label">Total Guests</span>
                                                     <div class="counter">
                                                         <span class="addon-qty-stepper guest-qty-stepper">
-                                                            <button class="addon-qty-btn guest-qty-btn" type="button"
-                                                                onclick="resets()">−</button>
                                                             <span class="count addon-qty-val guest-qty-val" id="totalCount">0</span>
-                                                            <button class="addon-qty-btn guest-qty-btn" type="button"
-                                                                onclick="increments('total')">+</button>
                                                         </span>
                                                     </div>
                                                 </div>
