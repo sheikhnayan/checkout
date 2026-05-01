@@ -2768,7 +2768,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         </li>
                                     </ul>
 
-                                    <div style="display:none; margin: 10px 0 14px; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);" class="dynamic-price">
+                                    <div style="display:none; margin: 10px 5px 14px; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);" class="dynamic-price">
                                         This experience is fulfilled by the venue. Entry is subject to venue rules including minimum age requirements (18+ or 21+ depending on venue), valid ID, and dress code.
                                     </div>
 

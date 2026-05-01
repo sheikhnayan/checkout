@@ -496,6 +496,10 @@ class FeedPostController extends Controller
             return false;
         }
 
+        if ((string) $post->author_mode === 'club') {
+            return true;
+        }
+
         if ((string) $post->author_mode !== 'model' || empty($post->feed_model_id)) {
             return false;
         }

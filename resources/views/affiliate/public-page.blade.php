@@ -1290,7 +1290,7 @@ const clubConfigs = {
             <div id="package-search-empty" class="package-search-empty">No packages matched your filters.</div>
         @endif
 
-        <div style="margin: 8px 0 14px; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);">
+        <div style="margin: 8px 5px 14px; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);">
             This experience is fulfilled by the venue. Entry is subject to venue rules including minimum age requirements (18+ or 21+ depending on venue), valid ID, and dress code.
         </div>
 
@@ -2228,8 +2228,8 @@ function setSelectionsFromParams() {
     <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Gallery Image</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" style="color:#fff;">Gallery Image</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <img src="" alt="" id="checkoutGalleryModalImage" class="checkout-gallery-modal-image">

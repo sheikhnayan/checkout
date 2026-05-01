@@ -8,7 +8,7 @@
     $isEntertainerUser = auth()->check() && auth()->user()->isEntertainer() && auth()->user()->entertainer;
     $entertainerProfileId = $isEntertainerUser ? auth()->user()->entertainer->feed_model_id : null;
     $showOnRollCall = old('show_on_roll_call', isset($feedPost) ? $feedPost->show_on_roll_call : false);
-    $canUseRollCallInitial = !$isEntertainerUser && $selectedAuthorMode === 'model';
+    $canUseRollCallInitial = !$isEntertainerUser && in_array($selectedAuthorMode, ['model', 'club'], true);
     $showOnRollCall = $canUseRollCallInitial ? (bool) $showOnRollCall : false;
     $rollCallStartDateSource = optional($feedPost)->roll_call_start_date
         ?? optional($feedPost)->roll_call_date
@@ -19,6 +19,7 @@
         ?? optional($feedPost)->roll_call_date;
     $rollCallStartDateValue = old('roll_call_start_date', optional($rollCallStartDateSource)->format('Y-m-d'));
     $rollCallEndDateValue = old('roll_call_end_date', optional($rollCallEndDateSource)->format('Y-m-d'));
+    $postedAtValue = old('posted_at', optional($feedPost->posted_at ?? now('America/Los_Angeles'))?->timezone('America/Los_Angeles')->format('Y-m-d H:i'));
 @endphp
 
 <style>
@@ -83,6 +84,10 @@
             grid-template-columns: 1fr;
         }
     }
+
+    .feed-calendar-input {
+        min-height: 42px;
+    }
 </style>
 
 <div class="row g-4">
@@ -130,7 +135,7 @@
 
     <div class="col-md-6">
         <label for="posted_at" class="form-label">Post Date</label>
-        <input type="datetime-local" name="posted_at" id="posted_at" class="form-control" value="{{ old('posted_at', optional($feedPost->posted_at ?? now('America/Los_Angeles'))?->timezone('America/Los_Angeles')->format('Y-m-d\TH:i')) }}">
+        <input type="text" name="posted_at" id="posted_at" class="form-control feed-calendar-input" value="{{ $postedAtValue }}" autocomplete="off" placeholder="YYYY-MM-DD HH:MM">
     </div>
 
     <div class="col-md-6 d-flex align-items-center">
@@ -149,12 +154,12 @@
 
     <div class="col-md-6" id="roll-call-date-wrap" style="display: {{ $canUseRollCallInitial && $showOnRollCall ? 'block' : 'none' }};">
         <label for="roll_call_start_date" class="form-label">Show in Roll Call from</label>
-        <input type="date" name="roll_call_start_date" id="roll_call_start_date" class="form-control" value="{{ $rollCallStartDateValue }}">
+        <input type="text" name="roll_call_start_date" id="roll_call_start_date" class="form-control feed-calendar-input" value="{{ $rollCallStartDateValue }}" autocomplete="off" placeholder="YYYY-MM-DD">
     </div>
 
     <div class="col-md-6" id="roll-call-end-date-wrap" style="display: {{ $canUseRollCallInitial && $showOnRollCall ? 'block' : 'none' }};">
         <label for="roll_call_end_date" class="form-label">Until</label>
-        <input type="date" name="roll_call_end_date" id="roll_call_end_date" class="form-control" value="{{ $rollCallEndDateValue }}">
+        <input type="text" name="roll_call_end_date" id="roll_call_end_date" class="form-control feed-calendar-input" value="{{ $rollCallEndDateValue }}" autocomplete="off" placeholder="YYYY-MM-DD">
         <small class="text-muted">This post appears in Roll Call for every date in the range. Leave end date empty for one day.</small>
     </div>
 
@@ -235,6 +240,9 @@
     <a href="{{ route('admin.feed-post.index') }}" class="btn btn-outline-secondary">Cancel</a>
 </div>
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 
 
 <script>
@@ -248,11 +256,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const addUploadRowBtn = document.getElementById('add-upload-row');
     const addExternalRowBtn = document.getElementById('add-external-row');
     const rollCallToggleWrap = document.getElementById('roll-call-toggle-wrap');
+    const postedAtInput = document.getElementById('posted_at');
     const showOnRollCallCheckbox = document.getElementById('show_on_roll_call');
     const rollCallDateWrap = document.getElementById('roll-call-date-wrap');
     const rollCallEndDateWrap = document.getElementById('roll-call-end-date-wrap');
     const rollCallStartDateInput = document.getElementById('roll_call_start_date');
     const rollCallEndDateInput = document.getElementById('roll_call_end_date');
+    let rollCallStartPicker = null;
+    let rollCallEndPicker = null;
     const selectedModelInput = @json((string) $selectedModelId);
     const isEntertainerUser = @json((bool) $isEntertainerUser);
     const hasModelSelect = modelSelect && modelSelect.tagName === 'SELECT';
@@ -277,7 +288,54 @@ document.addEventListener('DOMContentLoaded', function () {
             return false;
         }
 
-        return authorModeSelect && authorModeSelect.value === 'model';
+        return authorModeSelect && (authorModeSelect.value === 'model' || authorModeSelect.value === 'club');
+    }
+
+    function initCalendars() {
+        if (typeof flatpickr !== 'function') {
+            return;
+        }
+
+        if (postedAtInput) {
+            flatpickr(postedAtInput, {
+                enableTime: true,
+                time_24hr: false,
+                dateFormat: 'Y-m-d H:i',
+                allowInput: true,
+                disableMobile: true,
+                defaultDate: postedAtInput.value || null,
+            });
+        }
+
+        if (rollCallStartDateInput) {
+            rollCallStartPicker = flatpickr(rollCallStartDateInput, {
+                dateFormat: 'Y-m-d',
+                allowInput: true,
+                disableMobile: true,
+                defaultDate: rollCallStartDateInput.value || null,
+                monthSelectorType: 'static',
+                locale: {
+                    firstDayOfWeek: 0,
+                },
+            });
+        }
+
+        if (rollCallEndDateInput) {
+            rollCallEndPicker = flatpickr(rollCallEndDateInput, {
+                dateFormat: 'Y-m-d',
+                allowInput: true,
+                disableMobile: true,
+                defaultDate: rollCallEndDateInput.value || null,
+                monthSelectorType: 'static',
+                locale: {
+                    firstDayOfWeek: 0,
+                },
+            });
+        }
+
+        if (rollCallStartDateInput && rollCallEndPicker && rollCallStartDateInput.value) {
+            rollCallEndPicker.set('minDate', rollCallStartDateInput.value);
+        }
     }
 
     function syncModelOptions() {
@@ -480,11 +538,17 @@ document.addEventListener('DOMContentLoaded', function () {
         rollCallStartDateInput.addEventListener('change', function () {
             if (rollCallStartDateInput.value) {
                 rollCallEndDateInput.min = rollCallStartDateInput.value;
+                if (rollCallEndPicker) {
+                    rollCallEndPicker.set('minDate', rollCallStartDateInput.value);
+                }
                 if (!rollCallEndDateInput.value || rollCallEndDateInput.value < rollCallStartDateInput.value) {
                     rollCallEndDateInput.value = rollCallStartDateInput.value;
                 }
             } else {
                 rollCallEndDateInput.removeAttribute('min');
+                if (rollCallEndPicker) {
+                    rollCallEndPicker.set('minDate', null);
+                }
             }
         });
     }
@@ -495,6 +559,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     syncModelOptions();
     syncAuthorMode();
+    initCalendars();
     syncRollCallDateField();
 
     if (rollCallStartDateInput && rollCallEndDateInput && rollCallStartDateInput.value) {
