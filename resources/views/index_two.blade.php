@@ -1163,7 +1163,7 @@
             justify-content: center;
             gap: 8px;
             background: var(--accent) !important;
-            color: #000 !important;
+            color: var(--text-main) !important;
             font-weight: 700;
             border: none;
             padding: 8px 20px;
@@ -1176,14 +1176,14 @@
         }
 
         .back-home-btn i {
-            color: #000;
+            color: var(--text-main);
             font-size: 13px;
         }
 
         .back-home-btn:hover {
             opacity: .85;
             transform: translateY(-1px);
-            color: #000 !important;
+            color: var(--text-main) !important;
         }
 
         @media (max-width: 575.98px) {
@@ -2352,7 +2352,7 @@
                 border: none;
                 border-radius: 25px;
                 background: var(--accent) !important;
-                color: #000 !important;
+                color: var(--text-main) !important;
                 font-size: 14px;
                 font-weight: 700;
                 text-decoration: none;
@@ -2366,7 +2366,7 @@
             .mobile-back-home-btn:hover,
             .mobile-back-home-btn:focus-visible {
                 opacity: .85;
-                color: #000 !important;
+                color: var(--text-main) !important;
             }
 
             .aff-banner { width: 100%; }
