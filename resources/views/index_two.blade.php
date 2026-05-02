@@ -602,17 +602,17 @@
             #package_use_date:disabled,
             #package_use_date:read-only {
                 opacity: 1 !important;
-                -webkit-text-fill-color: #fff !important;
-                color: #fff !important;
-                text-shadow: 0 0 0 #fff;
+                -webkit-text-fill-color: #000 !important;
+                color: #000 !important;
+                text-shadow: 0 0 0 #000;
             }
 
             #package_use_date[readonly],
             #package_use_date.flatpickr-input[readonly] {
                 color: #000 !important;
-                -webkit-text-fill-color: #fff !important;
+                -webkit-text-fill-color: #000 !important;
                 opacity: 1 !important;
-                text-shadow: 0 0 0 #fff;
+                text-shadow: 0 0 0 #000;
             }
 
             #package_use_date:focus {
@@ -1166,9 +1166,9 @@
             min-height: 42px;
             padding: 10px 18px;
             border-radius: 14px;
-            border: 1px solid rgba(255, 204, 0, 0.45);
-            background: linear-gradient(135deg, rgba(255, 204, 0, 0.2), rgba(255, 204, 0, 0.08));
-            color: var(--text-main) !important;
+            border: 1px solid #c2903e;
+            background: #d6a857;
+            color: #1f1400 !important;
             text-decoration: none;
             font-weight: 700;
             letter-spacing: .02em;
@@ -1182,15 +1182,15 @@
         }
 
         .back-home-btn i {
-            color: var(--accent);
+            color: #1f1400;
             font-size: 13px;
         }
 
         .back-home-btn:hover {
             transform: translateY(-1px);
-            border-color: rgba(255, 204, 0, 0.7);
-            background: linear-gradient(135deg, rgba(255, 204, 0, 0.26), rgba(255, 204, 0, 0.12));
-            color: #fff !important;
+            border-color: #b7832f;
+            background: #c89544;
+            color: #1f1400 !important;
         }
 
         @media (max-width: 575.98px) {
@@ -1222,14 +1222,159 @@
 
         /* Addon selection modal — dark theme */
         #addonSelectionModal .modal-content {
-            background: #1a1d2e;
-            color: #ddd;
+            background: linear-gradient(150deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+            border: 1px solid rgba(255,255,255,0.14);
+            box-shadow: 0 22px 55px rgba(0, 0, 0, 0.35);
+            color: #f4f6ff;
         }
-        #addonSelectionModal .modal-title { color: #fff !important; }
+        #addonSelectionModal .modal-header,
+        #addonSelectionModal .modal-footer {
+            border-color: rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.03);
+        }
+        #addonSelectionModal .modal-title { color: #f8edd0 !important; }
+        #addonSelectionModal .btn-secondary {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.18);
+            color: #f2f4fa;
+        }
+        #addonSelectionModal .btn-secondary:hover {
+            background: rgba(255,255,255,0.14);
+            color: #fff;
+        }
         #addonModalConfirmBtn {
-            background: var(--brand-gradient) !important;
+            background: #d6a857 !important;
+            border: 1px solid #c2903e !important;
             color: #1f1400 !important;
             font-weight: 700;
+        }
+
+        #addonModalConfirmBtn:hover {
+            background: #c89544 !important;
+            border-color: #b7832f !important;
+        }
+
+        .modal-content {
+            background: linear-gradient(155deg, rgba(34, 25, 10, 0.98), rgba(16, 12, 6, 0.98)) !important;
+            border: 1px solid rgba(194, 144, 62, 0.65) !important;
+            color: #f4f6ff;
+            box-shadow: 0 24px 54px rgba(0, 0, 0, 0.52);
+        }
+
+        .modal-header,
+        .modal-footer {
+            border-color: rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.03);
+        }
+
+        .modal-title {
+            color: #f8edd0 !important;
+        }
+
+        .modal-body {
+            color: #e8ecf8;
+        }
+
+        #checkoutPopupModal .modal-content {
+            background: linear-gradient(155deg, rgba(34, 25, 10, 0.98), rgba(16, 12, 6, 0.98)) !important;
+            border: 1px solid rgba(194, 144, 62, 0.65) !important;
+            color: #f4f6ff !important;
+        }
+
+        #checkoutPopupModal .modal-header,
+        #checkoutPopupModal .modal-footer {
+            border-color: rgba(255,255,255,0.12) !important;
+            background: rgba(255,255,255,0.03) !important;
+        }
+
+        #checkoutPopupModal .modal-title {
+            color: #f8edd0 !important;
+        }
+
+        #checkoutPopupModal .popup-cta {
+            background: #d6a857 !important;
+            border: 1px solid #c2903e !important;
+            color: #1f1400 !important;
+            font-weight: 700;
+        }
+
+        #checkoutPopupModal .popup-cta:hover {
+            background: #c89544 !important;
+            border-color: #b7832f !important;
+            color: #1f1400 !important;
+        }
+
+        .tooltip-inner {
+            background: #d6a857 !important;
+            color: #1f1400 !important;
+            border: 1px solid #c2903e;
+            font-weight: 600;
+            opacity: 1 !important;
+            text-shadow: none !important;
+        }
+
+        .tooltip,
+        .tooltip.show {
+            opacity: 1 !important;
+            --bs-tooltip-bg: #d6a857;
+            --bs-tooltip-color: #1f1400;
+        }
+
+        .tooltip * {
+            color: #1f1400 !important;
+        }
+
+        .bs-tooltip-auto[data-popper-placement^="top"] .tooltip-arrow::before,
+        .bs-tooltip-top .tooltip-arrow::before {
+            border-top-color: #d6a857 !important;
+        }
+
+        .bs-tooltip-auto[data-popper-placement^="bottom"] .tooltip-arrow::before,
+        .bs-tooltip-bottom .tooltip-arrow::before {
+            border-bottom-color: #d6a857 !important;
+        }
+
+        .bs-tooltip-auto[data-popper-placement^="left"] .tooltip-arrow::before,
+        .bs-tooltip-start .tooltip-arrow::before {
+            border-left-color: #d6a857 !important;
+        }
+
+        .bs-tooltip-auto[data-popper-placement^="right"] .tooltip-arrow::before,
+        .bs-tooltip-end .tooltip-arrow::before {
+            border-right-color: #d6a857 !important;
+        }
+
+        #copyTooltip {
+            background: #d6a857 !important;
+            color: #1f1400 !important;
+            border: 1px solid #c2903e;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        #copyTooltip::after {
+            content: '';
+            position: absolute;
+            right: 16px;
+            bottom: -6px;
+            width: 10px;
+            height: 10px;
+            background: #d6a857;
+            border-right: 1px solid #c2903e;
+            border-bottom: 1px solid #c2903e;
+            transform: rotate(45deg);
+        }
+
+        .event-filter {
+            background: rgba(255,255,255,0.06) !important;
+            border-color: #c2903e !important;
+            color: #e4be76 !important;
+        }
+
+        .event-filter:hover,
+        .event-filters .active {
+            background: #d6a857 !important;
+            border-color: #b7832f !important;
+            color: #1f1400 !important;
         }
 
         /* Exact affiliate-page layout surfaces */
@@ -1290,10 +1435,7 @@
             width: 100%;
             min-height: 130px;
             margin: 6px 0 8px;
-            background:
-                var(--brand-gradient),
-                radial-gradient(circle at top right, rgba(221, 183, 116, 0.22), transparent 42%),
-                var(--bg);
+            background: #dfb86f;
         }
 
         .aff-banner-content {
@@ -1327,6 +1469,15 @@
             line-height: 1.25;
             opacity: .82;
             color: #000 !important;
+        }
+
+        .aff-banner .aff-display-copy a,
+        .aff-banner .aff-display-copy a:visited,
+        .aff-banner .aff-display-copy a:hover,
+        .aff-banner .aff-display-copy a:focus {
+            color: #1f1400 !important;
+            text-decoration: underline;
+            font-weight: 700;
         }
 
         .hero-date-card {
@@ -1366,8 +1517,8 @@
         }
 
         #package_use_date {
-            color: #f5f8ff !important;
-            -webkit-text-fill-color: #f5f8ff !important;
+            color: #000 !important;
+            -webkit-text-fill-color: #000 !important;
             font-weight: 600;
         }
 
@@ -1730,12 +1881,27 @@
         .club-detail-trigger { display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.07); color:var(--text-main); cursor:pointer; font-size:12px; }
         .club-detail-trigger:hover { border-color:var(--accent); color:var(--accent); }
         .club-popover { border: 1px solid rgba(255,255,255,0.12) !important; background: #0e1324 !important; }
-        .club-popover .popover-header { background:#141a2d !important; color:#fff !important; border-bottom:1px solid rgba(255,255,255,0.08) !important; font-weight:700; }
-        .club-popover .popover-body { background:#0e1324 !important; color:#d8def0 !important; font-size:13px; line-height:1.5; }
+        .club-popover {
+            border: 1px solid #c2903e !important;
+            background: #d6a857 !important;
+        }
+        .club-popover .popover-header {
+            background: #c89544 !important;
+            color: #1f1400 !important;
+            border-bottom: 1px solid #b7832f !important;
+            font-weight: 700;
+        }
+        .club-popover .popover-body {
+            background: #d6a857 !important;
+            color: #1f1400 !important;
+            font-size: 13px;
+            line-height: 1.5;
+        }
         .club-popover .popover-header,
         .club-popover .popover-body,
-        .club-popover .popover-body * { color:#d8def0 !important; }
-        .club-popover .popover-header { color:#fff !important; }
+        .club-popover .popover-body * {
+            color: #1f1400 !important;
+        }
 
         #addonSelectionModal .addon-modal-row {
             display: flex;
@@ -1909,7 +2075,7 @@
         }
 
         .guest-count .guest-section .label {
-            font-size: 13px;
+            font-size: 17px;
             font-weight: 700;
             opacity: 0.9;
             margin: 0;
@@ -1935,10 +2101,10 @@
             background: rgba(255,255,255,0.09);
             border: 1px solid rgba(255,255,255,0.26);
             color: #fff;
-            width: 22px;
-            height: 22px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
-            font-size: 13px;
+            font-size: 18px;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
@@ -1954,10 +2120,10 @@
         }
 
         .guest-count .guest-qty-val {
-            min-width: 18px;
+            min-width: 28px;
             text-align: center;
             font-weight: 800;
-            font-size: 12px;
+            font-size: 18px;
             color: #fff;
         }
 
@@ -2191,15 +2357,15 @@
                 justify-content: center;
                 gap: 7px;
                 padding: 9px 12px;
-                border: 1px solid rgba(247, 226, 180, 0.28);
+                border: 1px solid #c2903e;
                 border-radius: 12px;
-                background: linear-gradient(145deg, rgba(247, 226, 180, 0.12), rgba(221, 183, 116, 0.1));
-                color: rgba(255, 255, 255, 0.94);
+                background: #d6a857;
+                color: #1f1400 !important;
                 font-size: .82rem;
                 font-weight: 600;
                 letter-spacing: .01em;
                 text-decoration: none;
-                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
             }
 
             .mobile-back-home-btn:active {
@@ -2208,8 +2374,8 @@
 
             .mobile-back-home-btn:hover,
             .mobile-back-home-btn:focus-visible {
-                color: #fff;
-                border-color: rgba(247, 226, 180, 0.4);
+                color: #1f1400 !important;
+                border-color: #b7832f;
             }
 
             .aff-banner { width: 100%; }
@@ -2390,7 +2556,7 @@
                             <label>Choose Your Reservation Date</label>
                             <div class="date-input-wrapper">
                                 <input id="package_use_date" type="text"
-                                    value="" style="width: 100%;" readonly aria-describedby="package_use_date_error">
+                                    value="" placeholder="{{ \Carbon\Carbon::now()->format('M d, Y') }}" style="width: 100%;" readonly aria-describedby="package_use_date_error">
                                 <span class="custom-calendar-icon"></span>
                             </div>
                             <small id="package_use_date_error" class="reservation-date-error">Please select a reservation date.</small>
@@ -2805,7 +2971,7 @@
                                                     <input type="text" id="shareableLink" readonly
                                                         style="width:100%;margin-top:8px;display:none;padding-right:40px;"
                                                         />
-                                                    <div id="copyTooltip" style="position: absolute; top: -35px; right: 0; background: #28a745; color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; display: none; white-space: nowrap; z-index: 1000;">
+                                                    <div id="copyTooltip" style="position: absolute; top: -35px; right: 0; background: #d6a857; color: #1f1400; padding: 8px 12px; border-radius: 4px; font-size: 12px; display: none; white-space: nowrap; z-index: 1000;">
                                                         Link copied!
                                                     </div>
                                                 </div>
@@ -3428,13 +3594,13 @@
                         <h2>Upcoming Events</h2>
                         <div class="event-filters" style="display: flex; gap: 10px;">
                             <button type="button" class="btn btn-outline-primary event-filter" data-filter="week"
-                                style="border-color: {{ $brandPrimary }} !important; color: {{ $brandPrimary }}; font-size: 14px; padding: 5px;">This
+                                style="border-color: #c2903e !important; color: #e4be76; font-size: 14px; padding: 5px;">This
                                 Week</button>
                             <button type="button" class="btn btn-outline-primary event-filter" data-filter="month"
-                                style="border-color: {{ $brandPrimary }} !important; color: {{ $brandPrimary }}; font-size: 14px; padding: 5px;">This
+                                style="border-color: #c2903e !important; color: #e4be76; font-size: 14px; padding: 5px;">This
                                 Month</button>
                             <button type="button" class="btn btn-outline-primary event-filter" data-filter="year"
-                                style="border-color: {{ $brandPrimary }} !important; color: {{ $brandPrimary }}; font-size: 14px; padding: 5px;">This
+                                style="border-color: #c2903e !important; color: #e4be76; font-size: 14px; padding: 5px;">This
                                 Year</button>
                         </div>
                     </div>
@@ -3517,15 +3683,15 @@
 
             <div class="modal fade" id="addonSelectionModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content" style="background:#1a1d2e;color:#ddd;">
+                    <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="addonSelectionModalTitle" style="color:#fff;">Select Add-ons</h5>
+                            <h5 class="modal-title" id="addonSelectionModalTitle">Select Add-ons</h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body" id="addonSelectionModalBody"></div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn" id="addonModalConfirmBtn" style="background:var(--aff-accent);color:#000;font-weight:700;">Confirm & Add to Cart</button>
+                            <button type="button" class="btn" id="addonModalConfirmBtn">Confirm & Add to Cart</button>
                         </div>
                     </div>
                 </div>
@@ -3534,10 +3700,10 @@
             @if(isset($checkoutPopup) && $checkoutPopup)
                 <div class="modal fade" id="checkoutPopupModal" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content" style="background:#111a2e;color:#f4f6ff;border:1px solid rgba(255,255,255,.12);">
-                            <div class="modal-header {{ empty($checkoutPopup->title) ? 'justify-content-end' : '' }}" style="border-bottom:1px solid rgba(255,255,255,.1);">
+                        <div class="modal-content">
+                            <div class="modal-header {{ empty($checkoutPopup->title) ? 'justify-content-end' : '' }}">
                                 @if(!empty($checkoutPopup->title))
-                                    <h5 class="modal-title" style="color:#fff;">{{ $checkoutPopup->title }}</h5>
+                                    <h5 class="modal-title">{{ $checkoutPopup->title }}</h5>
                                 @endif
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
@@ -3549,10 +3715,10 @@
                                     <div style="line-height:1.6;white-space:normal;">{!! nl2br(e($checkoutPopup->message)) !!}</div>
                                 @endif
                             </div>
-                            <div class="modal-footer" style="border-top:1px solid rgba(255,255,255,.1);">
+                            <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                 @if(!empty($checkoutPopup->button_text) && !empty($checkoutPopup->button_url))
-                                    <a href="{{ $checkoutPopup->button_url }}" target="_blank" rel="noopener" class="btn btn-primary">{{ $checkoutPopup->button_text }}</a>
+                                    <a href="{{ $checkoutPopup->button_url }}" target="_blank" rel="noopener" class="btn popup-cta">{{ $checkoutPopup->button_text }}</a>
                                 @endif
                             </div>
                         </div>
