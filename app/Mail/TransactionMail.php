@@ -76,11 +76,26 @@ class TransactionMail extends Mailable
         }
 
         try {
+            // Pre-fetch QR code as base64 so DomPDF can embed it without external HTTP
+            $qrCodeBase64 = null;
+            if (!empty($this->transaction->ticket_qr_code)) {
+                try {
+                    $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' . urlencode($this->transaction->ticket_qr_code);
+                    $qrImageData = @file_get_contents($qrUrl);
+                    if ($qrImageData !== false) {
+                        $qrCodeBase64 = 'data:image/png;base64,' . base64_encode($qrImageData);
+                    }
+                } catch (\Exception $qrEx) {
+                    // QR fetch failed, will fall back to text
+                }
+            }
+
             $pdf = Pdf::loadView('invoice-pdf', [
                 'transaction' => $this->transaction,
                 'cartItems' => $this->cartItems,
                 'priceBreakdown' => $this->priceBreakdown,
                 'website' => $this->website,
+                'qrCodeBase64' => $qrCodeBase64,
             ]);
 
             return [

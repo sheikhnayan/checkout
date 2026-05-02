@@ -167,12 +167,7 @@
                 </tr>
                 @endif
             @endforeach
-            @if($ciAddonsTotal > 0)
-            <tr style="background:#f0f4f8;font-weight:bold;">
-                <td colspan="3">Item Subtotal</td>
-                <td style="text-align:right;">${{ number_format($ciLineTotal,2) }}</td>
-            </tr>
-            @endif
+            {{-- Item subtotal row removed --}}
         @endforeach
 
         @if(!empty($mailPriceBreakdown))

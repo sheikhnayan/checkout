@@ -394,13 +394,7 @@
                                 </tr>
                                 @endif
                             @endforeach
-                            {{-- Item subtotal if addons exist --}}
-                            @if(!empty($cartItem['addons']) && $addonsTotal > 0)
-                            <tr class="breakdown-subtotal-row">
-                                <td colspan="3">Item Subtotal</td>
-                                <td class="price-right">${{ number_format($itemTotal, 2) }}</td>
-                            </tr>
-                            @endif
+                            {{-- Item subtotal row removed --}}
                         @endforeach
                         @if(!empty($priceBreakdown))
                         <tr class="breakdown-subtotal-row">

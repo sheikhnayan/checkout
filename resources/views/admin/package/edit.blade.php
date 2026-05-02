@@ -346,7 +346,7 @@ label{
                                                 </div>
                                             </div>
                                             <input type="hidden" name="addons" id="addons-hidden" value="{{ implode(',', array_filter($selectedAddonIds, fn($id) => $id !== '')) }}">
-                                            <input type="hidden" name="website_id" value="{{ $id }}">
+                                            <input type="hidden" name="website_id" value="{{ $data->website_id }}">
                                             <div id="addons-list"></div>
                                             </div>
 

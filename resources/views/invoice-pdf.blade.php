@@ -174,7 +174,9 @@
         </div>
         @if($transaction->ticket_qr_code)
         <div class="header-qr">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ urlencode($transaction->ticket_qr_code) }}" alt="QR Code">
+            @if(!empty($qrCodeBase64))
+                <img src="{{ $qrCodeBase64 }}" alt="QR Code" width="120" height="120">
+            @endif
             <div class="header-qr-label">Scan for Details</div>
             <div class="header-qr-label">Ticket #: {{ $transaction->ticket_qr_code }}</div>
         </div>
