@@ -1163,7 +1163,8 @@
             justify-content: center;
             gap: 8px;
             background: var(--accent) !important;
-            color: var(--text-main) !important;
+            color: #000 !important;
+            -webkit-text-fill-color: #000 !important;
             font-weight: 700;
             border: none;
             padding: 8px 20px;
@@ -1175,15 +1176,23 @@
             text-decoration: none;
         }
 
+        a.back-home-btn,
+        a.back-home-btn:visited,
+        a.back-home-btn:hover,
+        a.back-home-btn:focus {
+            color: #000 !important;
+            -webkit-text-fill-color: #000 !important;
+        }
+
         .back-home-btn i {
-            color: var(--text-main);
+            color: #000 !important;
             font-size: 13px;
         }
 
         .back-home-btn:hover {
             opacity: .85;
             transform: translateY(-1px);
-            color: var(--text-main) !important;
+            color: #000 !important;
         }
 
         @media (max-width: 575.98px) {
@@ -2352,7 +2361,8 @@
                 border: none;
                 border-radius: 25px;
                 background: var(--accent) !important;
-                color: var(--text-main) !important;
+                color: #000 !important;
+                -webkit-text-fill-color: #000 !important;
                 font-size: 14px;
                 font-weight: 700;
                 text-decoration: none;
@@ -2366,7 +2376,8 @@
             .mobile-back-home-btn:hover,
             .mobile-back-home-btn:focus-visible {
                 opacity: .85;
-                color: var(--text-main) !important;
+                color: #000 !important;
+                -webkit-text-fill-color: #000 !important;
             }
 
             .aff-banner { width: 100%; }
