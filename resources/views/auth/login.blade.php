@@ -70,7 +70,7 @@
             z-index: 2;
         }
         .brand-logo img {
-            height: 44px;
+            height: 100px;
             width: auto;
             object-fit: contain;
             filter: drop-shadow(0 2px 8px rgba(244,180,0,0.3));
@@ -406,40 +406,40 @@
     <div class="auth-left">
         <div class="brand-logo">
             <img src="{{ asset('images/logo.png') }}" alt="CartVIP">
-            <div class="brand-logo-text">Cart<span>VIP</span></div>
+            {{-- <div class="brand-logo-text">Cart<span>VIP</span></div> --}}
         </div>
 
         <div class="left-hero">
-            <h1>Your <em>all-in-one</em><br>event checkout<br>platform.</h1>
-            <p>Sell packages, manage affiliates, track transactions, and grow your audience — from one powerful dashboard.</p>
+            <h1>Your <em>Command Center</em><br>for Sales, Bookings, <br>and Growth.</h1>
+            <p>Manage packages, affiliates, and transactions in one streamlined dashboard — built to maximize revenue and simplify operations.</p>
 
             <div class="feature-list">
                 <div class="feature-item">
                     <div class="feature-icon"><i class="fas fa-ticket-alt"></i></div>
                     <div class="feature-text">
                         <strong>Smart Packages</strong>
-                        <span>Create tiered VIP packages with custom pricing &amp; perks.</span>
+                        <span>Create high-converting packages with custom pricing, perks, and availability — built for real-world bookings.</span>
                     </div>
                 </div>
                 <div class="feature-item">
                     <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
                     <div class="feature-text">
-                        <strong>Live Analytics</strong>
-                        <span>Track revenue, conversions, and affiliate performance.</span>
+                        <strong>Live Performance</strong>
+                        <span>Monitor revenue, conversions, and customer activity in real time — no guesswork, just clarity.</span>
                     </div>
                 </div>
                 <div class="feature-item">
                     <div class="feature-icon"><i class="fas fa-link"></i></div>
                     <div class="feature-text">
-                        <strong>Affiliate Network</strong>
-                        <span>Empower affiliates to sell and earn commissions automatically.</span>
+                        <strong>Affiliate Engine</strong>
+                        <span>Turn partners into a sales force. Track referrals, commissions, and performance automatically.</span>
                     </div>
                 </div>
                 <div class="feature-item">
                     <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
                     <div class="feature-text">
                         <strong>Secure Checkout</strong>
-                        <span>PCI-compliant payments with Stripe &amp; Authorize.Net.</span>
+                        <span>Payments are securely processed through trusted providers, including Authorize.Net and Stripe. We do not store or handle sensitive cardholder data.</span>
                     </div>
                 </div>
             </div>
