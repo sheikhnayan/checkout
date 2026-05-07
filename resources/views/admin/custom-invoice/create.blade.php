@@ -68,7 +68,7 @@
                                         <div class="card-body pt-3">
                                             <!-- Website Selection -->
                                             <div class="form-group mb-3">
-                                                <label for="website_id" class="form-label">Website <span class="text-danger">*</span></label>
+                                                <label for="website_id" class="form-label">Website <span class="text-danger">*</span> <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The club or venue this invoice is being issued on behalf of."></i></label>
                                                 <select name="website_id" id="website_id" class="form-select @error('website_id') is-invalid @enderror" required>
                                                     <option value="">-- Select Website --</option>
                                                     @foreach($websites as $website)
@@ -95,7 +95,7 @@
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="form-group mb-3">
-                                                        <label for="client_name" class="form-label">Client Name <span class="text-danger">*</span></label>
+                                                        <label for="client_name" class="form-label">Client Name <span class="text-danger">*</span> <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Full name of the person or business being invoiced."></i></label>
                                                         <input type="text" name="client_name" id="client_name" class="form-control @error('client_name') is-invalid @enderror" 
                                                                value="{{ old('client_name') }}" required>
                                                         @error('client_name')
@@ -105,7 +105,7 @@
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-group mb-3">
-                                                        <label for="client_email" class="form-label">Client Email <span class="text-danger">*</span></label>
+                                                        <label for="client_email" class="form-label">Client Email <span class="text-danger">*</span> <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Email address where the invoice and payment link will be sent."></i></label>
                                                         <input type="email" name="client_email" id="client_email" class="form-control @error('client_email') is-invalid @enderror" 
                                                                value="{{ old('client_email') }}" required>
                                                         @error('client_email')
@@ -117,13 +117,13 @@
 
                                             <!-- Notes -->
                                             <div class="form-group mb-3">
-                                                <label for="notes" class="form-label">Notes (Optional)</label>
+                                                <label for="notes" class="form-label">Notes (Optional) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional internal notes or a message for the client shown on the invoice."></i></label>
                                                 <textarea name="notes" id="notes" class="form-control" rows="3">{{ old('notes') }}</textarea>
                                             </div>
 
                                             <!-- Line Items -->
                                             <div class="form-group mb-3">
-                                                <label class="form-label">Invoice Items <span class="text-danger">*</span></label>
+                                                <label class="form-label">Invoice Items <span class="text-danger">*</span> <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Add line items with name, quantity, and unit price for the invoice."></i></label>
                                                 <div id="itemsContainer">
                                                     <div class="invoice-item mb-3 p-3 border rounded" style="background-color: #f9f9f9;">
                                                         <div class="row">

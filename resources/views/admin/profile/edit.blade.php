@@ -75,11 +75,11 @@
                                     </div>
                                     <div class="card-body pt-3">
                                         <div class="form-group mb-3">
-                                            <label for="name" class="form-label">Name</label>
+                                            <label for="name" class="form-label">Name <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Your display name shown in the admin panel."></i></label>
                                             <input type="text" class="form-control" id="name" value="{{ $user->name }}" readonly>
                                         </div>
                                         <div class="form-group mb-3">
-                                            <label for="email" class="form-label">Email</label>
+                                            <label for="email" class="form-label">Email <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Your login email address for the admin panel."></i></label>
                                             <input type="email" class="form-control" id="email" value="{{ $user->email }}" readonly>
                                         </div>
                                     </div>
@@ -102,7 +102,7 @@
                                             @endif
 
                                             <div class="form-group mb-3">
-                                                <label for="password" class="form-label">New Password</label>
+                                                <label for="password" class="form-label">New Password <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Enter a new password to change your current one. Leave blank to keep your existing password."></i></label>
                                                 <input type="password" class="form-control @error('password') is-invalid @enderror" 
                                                        id="password" name="password" required>
                                                 @error('password')
@@ -112,7 +112,7 @@
                                             </div>
 
                                             <div class="form-group mb-3">
-                                                <label for="password_confirmation" class="form-label">Confirm New Password</label>
+                                                <label for="password_confirmation" class="form-label">Confirm New Password <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Re-enter the new password to confirm it matches."></i></label>
                                                 <input type="password" class="form-control" 
                                                        id="password_confirmation" name="password_confirmation" required>
                                             </div>

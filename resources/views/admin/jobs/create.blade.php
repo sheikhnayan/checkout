@@ -15,7 +15,7 @@
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Club / Website</label>
+                            <label class="form-label">Club / Website <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The club or venue listing this job opportunity."></i></label>
                             <select name="website_id" class="form-select" required>
                                 <option value="">Select club</option>
                                 @foreach($websites as $website)
@@ -25,7 +25,7 @@
                         </div>
 
                         <div class="col-md-3">
-                            <label class="form-label">Job Type</label>
+                            <label class="form-label">Job Type <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The category of job (e.g. security, bartender, promoter, hostess)."></i></label>
                             <select name="job_type" class="form-select" required>
                                 <option value="entertainer" {{ old('job_type') === 'entertainer' ? 'selected' : '' }}>Entertainer</option>
                                 <option value="employee" {{ old('job_type') === 'employee' ? 'selected' : '' }}>Employee</option>
@@ -33,7 +33,7 @@
                         </div>
 
                         <div class="col-md-3">
-                            <label class="form-label">Live Status</label>
+                            <label class="form-label">Live Status <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Whether this job listing is currently visible to applicants."></i></label>
                             <select name="status" class="form-select">
                                 <option value="1" selected>Live</option>
                                 <option value="0">Paused</option>
@@ -41,42 +41,42 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Job Title</label>
+                            <label class="form-label">Job Title <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The title displayed in the job listing."></i></label>
                             <input type="text" name="title" class="form-control" value="{{ old('title') }}" required>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Location</label>
+                            <label class="form-label">Location <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Where this job is based."></i></label>
                             <input type="text" name="location" class="form-control" value="{{ old('location') }}" placeholder="City, State" required>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Employment Type</label>
+                            <label class="form-label">Employment Type <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Full-time, part-time, freelance, or contract."></i></label>
                             <input type="text" name="employment_type" class="form-control" value="{{ old('employment_type') }}" placeholder="Full-time, Part-time, Weekend">
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Compensation</label>
+                            <label class="form-label">Compensation <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Pay rate or compensation details for this role."></i></label>
                             <input type="text" name="compensation" class="form-control" value="{{ old('compensation') }}" placeholder="$200/night + tips">
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label">Short Description</label>
+                            <label class="form-label">Short Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="A brief summary of the role shown in job search result cards."></i></label>
                             <textarea name="short_description" class="form-control" rows="2" required>{{ old('short_description') }}</textarea>
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label">Full Description</label>
+                            <label class="form-label">Full Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The complete job description including responsibilities and requirements."></i></label>
                             <textarea name="description" class="form-control" rows="6" required>{{ old('description') }}</textarea>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Suggested Traits (one per line)</label>
+                            <label class="form-label">Suggested Traits (one per line) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Personality traits ideal for this role, one per line."></i></label>
                             <textarea name="traits_text" class="form-control" rows="6" placeholder="Outgoing&#10;Friendly&#10;Reliable">{{ old('traits_text') }}</textarea>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Suggested Skills (one per line)</label>
+                            <label class="form-label">Suggested Skills (one per line) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Professional or technical skills required for this role, one per line."></i></label>
                             <textarea name="skills_text" class="form-control" rows="6" placeholder="Sales&#10;Hospitality&#10;Event Planning">{{ old('skills_text') }}</textarea>
                         </div>
                     </div>

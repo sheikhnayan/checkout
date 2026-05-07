@@ -12,7 +12,7 @@
 
                     @if(auth()->user()->isAdmin())
                         <div class="mb-3">
-                            <label class="form-label">Website</label>
+                            <label class="form-label">Website <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The club or venue this role belongs to."></i></label>
                             <select name="website_id" class="form-control" required>
                                 <option value="">Select Website</option>
                                 @foreach($websites as $website)
@@ -25,17 +25,17 @@
                     @endif
 
                     <div class="mb-3">
-                        <label class="form-label">Role Name</label>
+                        <label class="form-label">Role Name <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The name of this role (e.g. Manager, Security, Bartender)."></i></label>
                         <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Description</label>
+                        <label class="form-label">Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="A short description of what this role is responsible for."></i></label>
                         <textarea name="description" class="form-control" rows="2">{{ old('description') }}</textarea>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Permissions</label>
+                        <label class="form-label">Permissions <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The specific actions and sections this role is allowed to access."></i></label>
                         @foreach($permissionsByModule as $module => $permissions)
                             <div class="border rounded p-2 mb-2 permission-module" data-module="{{ $module }}">
                                 <div class="d-flex justify-content-between align-items-center gap-2">

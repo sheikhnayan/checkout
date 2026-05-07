@@ -38,6 +38,8 @@ class WebsiteUserAccess
                     // Allow access only to transaction-related routes
                     $allowedRoutes = [
                         'admin.transaction.index',
+                        'admin.transaction.affiliate',
+                        'admin.transaction.entertainer',
                         'admin.transaction.show',
                     ];
                     

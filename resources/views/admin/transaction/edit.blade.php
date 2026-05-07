@@ -86,7 +86,7 @@
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="name" class="form-label">Website Name</label>
+                                                        <label for="name" class="form-label">Website Name <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The display name of the venue or club."></i></label>
                                                         <input type="text" name="name" class="form-control" id="name" placeholder="Website Name" value="{{ $data->name }}" required>
                                                     </div>
                                                 </div>
@@ -95,7 +95,7 @@
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="name" class="form-label">Domain</label>
+                                                        <label for="name" class="form-label">Domain <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The domain or subdomain for this venue (e.g. www.myvenue.com)."></i></label>
                                                         <input type="text" name="domain" class="form-control" id="name" value="{{ $data->domain }}" placeholder="Enter Domain" required>
                                                     </div>
                                                 </div>
@@ -104,7 +104,7 @@
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="logo" class="form-label">Logo</label>
+                                                        <label for="logo" class="form-label">Logo <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Upload the venue's logo. Displayed on the checkout page and in emails."></i></label>
                                                         <input type="file" name="logo" class="form-control" id="logo" placeholder="Logo">
                                                     </div>
                                                     <div class="mb-3">
@@ -113,7 +113,7 @@
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="location" class="form-label">Location</label>
+                                                        <label for="location" class="form-label">Location <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The physical address of the venue."></i></label>
                                                         <input type="text" name="location" class="form-control" id="location-input" value="{{ $data->location }}" placeholder="Location" required autocomplete="off">
                                                         <ul id="suggestions"></ul>
                                                         <input type="hidden" name="lat" id="latitude" value="{{ $data->lat }}">
@@ -122,19 +122,19 @@
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="phone" class="form-label">Phone</label>
+                                                        <label for="phone" class="form-label">Phone <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The venue's public contact phone number."></i></label>
                                                         <input type="text" name="phone" class="form-control" value="{{ $data->phone }}" id="phone" placeholder="Phone" required>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="password" class="form-label">Email</label>
+                                                        <label for="password" class="form-label">Email <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The venue's main public contact email address."></i></label>
                                                         <input type="email" name="email" class="form-control" value="{{ $data->email }}" id="email" placeholder="Email" required>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label class="form-label">Contact Emails</label>
+                                                        <label class="form-label">Contact Emails <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Additional email addresses that receive booking confirmation notifications."></i></label>
                                                         <div id="emails-wrapper">
                                                             @foreach ($data->emails as $item)
                                                                 <div class="row mb-2 email-group">
@@ -166,19 +166,19 @@
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="gratuity_fee" class="form-label">Gratuity Fee (%)</label>
+                                                        <label for="gratuity_fee" class="form-label">Gratuity Fee (%) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Default gratuity percentage automatically applied to bookings."></i></label>
                                                         <input type="number" name="gratuity_fee" class="form-control" value="{{ $data->gratuity_fee }}" id="gratuity_fee" placeholder="Gratuity Fee" required>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="password" class="form-label">Refundable Fee (%)</label>
+                                                        <label for="password" class="form-label">Refundable Fee (%) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Percentage of the booking total held as a refundable security deposit."></i></label>
                                                         <input type="number" name="refundable_fee" class="form-control" value="{{ $data->refundable_fee }}" id="refundable_fee" placeholder="Refundable Fee" required>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="password" class="form-label">Description</label>
+                                                        <label for="password" class="form-label">Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Public description of the venue displayed on the checkout page."></i></label>
                                                         <textarea name="description" class="form-control" id="description" placeholder="Description" required>{{ $data->description }}</textarea>
                                                     </div>
                                                 </div>
@@ -189,31 +189,31 @@
                                                     <div class="row">
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
-                                                                <label for="host" class="form-label">Host</label>
+                                                                <label for="host" class="form-label">Host <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The hostname of your outgoing email server (e.g. smtp.gmail.com)."></i></label>
                                                                 <input type="text" name="host" class="form-control" id="host" value="{{ $data->smtp->host }}" placeholder="SMTP Host">
                                                             </div>
                                                         </div>
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
-                                                                <label for="port" class="form-label">Port</label>
+                                                                <label for="port" class="form-label">Port <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The port for your SMTP server (587 for TLS, 465 for SSL)."></i></label>
                                                                 <input type="number" name="port" class="form-control" id="port" value="{{ $data->smtp->port }}" placeholder="SMTP Port">
                                                             </div>
                                                         </div>
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
-                                                                <label for="username" class="form-label">Username</label>
+                                                                <label for="username" class="form-label">Username <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The username or email used to authenticate with your SMTP server."></i></label>
                                                                 <input type="text" name="username" class="form-control" value="{{ $data->smtp->username }}" id="username" placeholder="SMTP Username">
                                                             </div>
                                                         </div>
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
-                                                                <label for="password" class="form-label">Password</label>
+                                                                <label for="password" class="form-label">Password <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The password used to authenticate with your SMTP server."></i></label>
                                                                 <input type="text" name="password" class="form-control" value="{{ $data->smtp->password }}" id="password" placeholder="SMTP Password">
                                                             </div>
                                                         </div>
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
-                                                                <label for="encryption" class="form-label">Encryption</label>
+                                                                <label for="encryption" class="form-label">Encryption <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The security protocol for the SMTP connection. TLS is recommended."></i></label>
                                                                 <select name="encryption" class="form-select" id="encryption">
                                                                     <option {{ $data->smtp->encryption == 'tls' ? 'selected' : '' }} value="tls">TLS</option>
                                                                     <option {{ $data->smtp->encryption == 'ssl' ? 'selected' : '' }} value="ssl">SSL</option>
@@ -223,13 +223,13 @@
                                                         </div>
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
-                                                                <label for="from_address" class="form-label">From Address</label>
+                                                                <label for="from_address" class="form-label">From Address <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The email address that booking confirmation emails are sent from."></i></label>
                                                                 <input type="email" value="{{ $data->smtp->from_email }}" name="from_address" class="form-control" id="from_address" placeholder="From Address">
                                                             </div>
                                                         </div>
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
-                                                                <label for="from_name" class="form-label">From Name</label>
+                                                                <label for="from_name" class="form-label">From Name <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The sender name that appears in customers' email inboxes."></i></label>
                                                                 <input type="text" value="{{ $data->smtp->from_name }}" name="from_name" class="form-control" id="from_name" placeholder="From Name">
                                                             </div>
                                                         </div>
@@ -243,19 +243,19 @@
                                                     <div class="row">
                                                         <div class="col-md-4">
                                                             <div class="mb-3">
-                                                                <label for="success_page" class="form-label">Success Page</label>
+                                                                <label for="success_page" class="form-label">Success Page <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="URL customers are redirected to after a successful booking."></i></label>
                                                                 <input type="text" name="success_page" class="form-control" value="{{ $data->success_page }}" id="success_page" placeholder="Success Page URL">
                                                             </div>
                                                         </div>
                                                         <div class="col-md-4">
                                                             <div class="mb-3">
-                                                                <label for="privacy_policy" class="form-label">Privacy & Policy Page</label>
+                                                                <label for="privacy_policy" class="form-label">Privacy & Policy Page <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="URL of your venue's privacy policy page."></i></label>
                                                                 <input type="text" name="policy" class="form-control" value="{{ $data->policy }}" id="privacy_policy" placeholder="Privacy & Policy Page URL">
                                                             </div>
                                                         </div>
                                                         <div class="col-md-4">
                                                             <div class="mb-3">
-                                                                <label for="terms_conditions" class="form-label">Terms & Conditions Page</label>
+                                                                <label for="terms_conditions" class="form-label">Terms & Conditions Page <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="URL of your venue's terms and conditions page."></i></label>
                                                                 <input type="text" name="terms" class="form-control" value="{{ $data->terms }}" id="terms_conditions" placeholder="Terms & Conditions Page URL">
                                                             </div>
                                                         </div>

@@ -158,7 +158,7 @@
                                                 </div>
                                                 <div class="modal-body">
                                                     <div class="mb-3">
-                                                        <label class="form-label">Status</label>
+                                                        <label class="form-label">Status <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Update the withdrawal status. 'Done' confirms payment was sent. 'Rejected' automatically refunds the amount to the affiliate's wallet."></i></label>
                                                         <select class="form-select" name="status" required>
                                                             <option value="pending"  {{ $wr->status==='pending'  ? 'selected':'' }}>Pending</option>
                                                             <option value="done"     {{ $wr->status==='done'     ? 'selected':'' }}>Done</option>
@@ -166,7 +166,7 @@
                                                         </select>
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label class="form-label">Admin Notes <small class="text-muted">(optional)</small></label>
+                                                        <label class="form-label">Admin Notes <small class="text-muted">(optional)</small> <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Internal notes visible to the affiliate. Use to explain a rejection or confirm payment details."></i></label>
                                                         <textarea class="form-control" name="admin_notes" rows="3"
                                                                   placeholder="Notes visible to the affiliate…">{{ $wr->admin_notes }}</textarea>
                                                     </div>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Your CartVIP Booking Confirmation</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f8f8f8; color: #222; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8f8f8; color: #222; margin: 0; padding: 0; }
         .container { background: #fff; max-width: 600px; margin: 30px auto; border-radius: 8px; box-shadow: 0 2px 8px #eee; padding: 32px; }
         h2 { color: #2a7ae2; margin-top: 0; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
@@ -21,6 +21,7 @@
         .summary-list li { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid #eef2f7; font-size: 13px; }
         .summary-list li:last-child { border-bottom: none; }
         .summary-list .k { color: #475569; font-weight: 600; }
+        .summary-list .k::after { content: ': '; }
         .summary-list .v { color: #111827; text-align: right; }
     </style>
 </head>
@@ -94,9 +95,14 @@
                     return max(1, (int) ($addon['qty'] ?? 1));
                 });
             });
+        $totalItemQty = count($mailCartItems);
     @endphp
     <table>
         <tr><th>Order Date (Reservation Date)</th><td>{{ $reservationDateFormatted }}</td></tr>
+        @if(!empty($transaction?->updated_at))
+        <tr><th>Payment Date</th><td>{{ $transaction->updated_at->format('M d, Y h:i A') }}</td></tr>
+        @endif
+        <tr><th>Total Item Qty</th><td>{{ $totalItemQty }}</td></tr>
         <tr><th>Total Add-on Qty</th><td>{{ $totalAddonQty }}</td></tr>
         @if(!empty($mailData['ticket_qr_code']))
         <tr><th>Ticket Number</th><td>{{ $mailData['ticket_qr_code'] }}</td></tr>

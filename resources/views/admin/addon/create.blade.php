@@ -111,28 +111,28 @@ label{
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="name" class="form-label">Name</label>
+                                                        <label for="name" class="form-label">Name <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The name of this add-on as displayed to customers at checkout."></i></label>
                                                         <input type="text" name="name" class="form-control" id="name" placeholder="Addon Name" required>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="price" class="form-label">Price</label>
+                                                        <label for="price" class="form-label">Price <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The price charged to the customer per unit of this add-on."></i></label>
                                                         <input type="price" step="0.00001" name="price" class="form-control" id="price" placeholder="Addon Price" required>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="description" class="form-label">Description</label>
+                                                        <label for="description" class="form-label">Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="A brief description of what this add-on includes. Shown to customers on the package detail."></i></label>
                                                         <textarea name="description" class="form-control" id="description" rows="4" placeholder="Addon Description" required></textarea>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="status" class="form-label">Status</label>
+                                                        <label for="status" class="form-label">Status <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Active add-ons are available for selection on packages. Inactive ones are hidden."></i></label>
                                                         <select name="status" class="form-control" id="status" required>
                                                             <option value="1" selected>Active</option>
                                                             <option value="0">Inactive</option>

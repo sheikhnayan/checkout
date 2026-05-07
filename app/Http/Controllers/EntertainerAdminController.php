@@ -6,6 +6,7 @@ use App\Mail\EntertainerApprovedMail;
 use App\Models\Entertainer;
 use App\Models\FeedModel;
 use App\Models\SMTP;
+use App\Models\Transaction;
 use App\Models\Website;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -72,7 +73,36 @@ class EntertainerAdminController extends Controller
         $this->ensureCanManageEntertainer($entertainer);
         $entertainer->load(['user', 'website', 'feedModel']);
 
-        return view('admin.entertainer.show', compact('entertainer'));
+        $now = now();
+        $transactions = Transaction::query()
+            ->where('entertainer_id', $entertainer->id)
+            ->get();
+
+        $pendingAmount = $transactions->sum(function ($t) use ($now) {
+            $isPending = (string) ($t->entertainer_commission_status ?? '') === Transaction::COMMISSION_STATUS_PENDING;
+            $holdUntil = $t->entertainer_commission_hold_until;
+
+            if (!$isPending || !$holdUntil || $holdUntil->lte($now)) {
+                return 0;
+            }
+
+            return (float) ($t->entertainer_commission_amount ?? 0);
+        });
+
+        $payoutAmount = $transactions
+            ->where('entertainer_commission_status', Transaction::COMMISSION_STATUS_PAID)
+            ->sum(fn ($t) => (float) ($t->entertainer_commission_amount ?? 0));
+
+        $totalEarning = $transactions
+            ->reject(fn ($t) => (string) ($t->entertainer_commission_status ?? '') === Transaction::COMMISSION_STATUS_REVERSED)
+            ->sum(fn ($t) => (float) ($t->entertainer_commission_amount ?? 0));
+
+        return view('admin.entertainer.show', compact(
+            'entertainer',
+            'pendingAmount',
+            'payoutAmount',
+            'totalEarning'
+        ));
     }
 
     public function approve(Entertainer $entertainer)

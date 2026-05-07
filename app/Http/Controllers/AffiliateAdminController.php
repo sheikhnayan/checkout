@@ -8,6 +8,7 @@ use App\Models\AffiliatePackage;
 use App\Models\AffiliateWebsite;
 use App\Models\Package;
 use App\Models\SMTP;
+use App\Models\Transaction;
 use App\Models\Website;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -53,7 +54,38 @@ class AffiliateAdminController extends Controller
             ->pluck('website_id')
             ->toArray();
 
-        return view('admin.affiliate.show', compact('affiliate', 'websites', 'selectedWebsiteIds'));
+        $now = now();
+        $transactions = Transaction::query()
+            ->where('affiliate_id', $affiliate->id)
+            ->get();
+
+        $pendingAmount = $transactions->sum(function ($t) use ($now) {
+            $isPending = (string) ($t->affiliate_commission_status ?? '') === Transaction::COMMISSION_STATUS_PENDING;
+            $holdUntil = $t->affiliate_commission_hold_until;
+
+            if (!$isPending || !$holdUntil || $holdUntil->lte($now)) {
+                return 0;
+            }
+
+            return (float) ($t->affiliate_commission_amount ?? 0);
+        });
+
+        $payoutAmount = $transactions
+            ->where('affiliate_commission_status', Transaction::COMMISSION_STATUS_PAID)
+            ->sum(fn ($t) => (float) ($t->affiliate_commission_amount ?? 0));
+
+        $totalEarning = $transactions
+            ->reject(fn ($t) => (string) ($t->affiliate_commission_status ?? '') === Transaction::COMMISSION_STATUS_REVERSED)
+            ->sum(fn ($t) => (float) ($t->affiliate_commission_amount ?? 0));
+
+        return view('admin.affiliate.show', compact(
+            'affiliate',
+            'websites',
+            'selectedWebsiteIds',
+            'pendingAmount',
+            'payoutAmount',
+            'totalEarning'
+        ));
     }
 
     public function approve(Request $request, Affiliate $affiliate)

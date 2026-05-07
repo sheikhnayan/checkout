@@ -145,7 +145,7 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="payment_method" class="form-label">Payment Gateway</label>
+                                            <label for="payment_method" class="form-label">Payment Gateway <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The payment processor used to handle card transactions for this website."></i></label>
                                             <select name="payment_method" id="payment_method" class="form-control @error('payment_method') is-invalid @enderror">
                                                 <option value="authorize" @selected(old('payment_method', $website->payment_method) == 'authorize')>Authorize.net</option>
                                                 <option value="stripe" @selected(old('payment_method', $website->payment_method) == 'stripe')>Stripe</option>
@@ -178,7 +178,7 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="stripe_public_key" class="form-label">Public Key</label>
+                                            <label for="stripe_public_key" class="form-label">Public Key <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The Stripe Publishable Key used in the frontend checkout form. Safe to expose."></i></label>
                                             <input type="text" name="stripe_public_key" id="stripe_public_key" class="form-control @error('stripe_public_key') is-invalid @enderror" 
                                                 value="{{ old('stripe_public_key', $website->stripe_public_key) }}" placeholder="pk_live_...">
                                             @error('stripe_public_key')
@@ -188,7 +188,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="stripe_app_key" class="form-label">Publishable Key</label>
+                                            <label for="stripe_app_key" class="form-label">Publishable Key <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="An alternate Stripe Publishable Key field. Used on the frontend checkout form."></i></label>
                                             <input type="text" name="stripe_app_key" id="stripe_app_key" class="form-control @error('stripe_app_key') is-invalid @enderror" 
                                                 value="{{ old('stripe_app_key', $website->stripe_app_key) }}" placeholder="pk_live_...">
                                             @error('stripe_app_key')
@@ -198,7 +198,7 @@
                                     </div>
                                     <div class="col-md-12">
                                         <div class="mb-3">
-                                            <label for="stripe_secret_key" class="form-label">Secret Key</label>
+                                            <label for="stripe_secret_key" class="form-label">Secret Key <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The Stripe Secret Key used server-side to process payments. Never expose this publicly."></i></label>
                                             <input type="password" name="stripe_secret_key" id="stripe_secret_key" class="form-control @error('stripe_secret_key') is-invalid @enderror" 
                                                 value="{{ old('stripe_secret_key', $website->stripe_secret_key) }}" placeholder="sk_live_...">
                                             <small class="form-text text-muted">Click the eye icon to show/hide</small>
@@ -222,7 +222,7 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="authorize_login_id" class="form-label">Login ID</label>
+                                            <label for="authorize_login_id" class="form-label">Login ID <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Your Authorize.net API Login ID."></i></label>
                                             <input type="text" name="authorize_login_id" id="authorize_login_id" class="form-control @error('authorize_login_id') is-invalid @enderror" 
                                                 value="{{ old('authorize_login_id', $website->authorize_login_id) }}" placeholder="Your API Login ID">
                                             @error('authorize_login_id')
@@ -232,7 +232,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="authorize_transaction_key" class="form-label">Transaction Key</label>
+                                            <label for="authorize_transaction_key" class="form-label">Transaction Key <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Your Authorize.net Transaction Key."></i></label>
                                             <input type="password" name="authorize_transaction_key" id="authorize_transaction_key" class="form-control @error('authorize_transaction_key') is-invalid @enderror" 
                                                 value="{{ old('authorize_transaction_key', $website->authorize_transaction_key) }}" placeholder="Your Transaction Key">
                                             @error('authorize_transaction_key')
@@ -242,7 +242,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="authorize_app_key" class="form-label">App Key</label>
+                                            <label for="authorize_app_key" class="form-label">App Key <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Your Authorize.net Client Key used on the frontend for secure card capture."></i></label>
                                             <input type="password" name="authorize_app_key" id="authorize_app_key" class="form-control @error('authorize_app_key') is-invalid @enderror" 
                                                 value="{{ old('authorize_app_key', $website->authorize_app_key) }}" placeholder="Your App Key">
                                             @error('authorize_app_key')
@@ -252,7 +252,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="authorize_secret_key" class="form-label">Secret Key</label>
+                                            <label for="authorize_secret_key" class="form-label">Secret Key <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Your Authorize.net secret key used for server-side transaction processing."></i></label>
                                             <input type="password" name="authorize_secret_key" id="authorize_secret_key" class="form-control @error('authorize_secret_key') is-invalid @enderror" 
                                                 value="{{ old('authorize_secret_key', $website->authorize_secret_key) }}" placeholder="Your Secret Key">
                                             @error('authorize_secret_key')
@@ -289,7 +289,7 @@
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="mb-3">
-                                            <label for="processing_fee" class="form-label">Processing Fee Amount</label>
+                                            <label for="processing_fee" class="form-label">Processing Fee Amount <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The extra fee charged to customers per transaction. Can be a fixed dollar value or a percentage."></i></label>
                                             <input type="number" name="processing_fee" id="processing_fee" class="form-control @error('processing_fee') is-invalid @enderror" 
                                                 step="0.01" value="{{ old('processing_fee', $website->processing_fee ?? 0) }}" placeholder="0.00">
                                             @error('processing_fee')
@@ -299,7 +299,7 @@
                                     </div>
                                     <div class="col-md-4">
                                         <div class="mb-3">
-                                            <label for="processing_fee_type" class="form-label">Fee Type</label>
+                                            <label for="processing_fee_type" class="form-label">Fee Type <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Whether the processing fee is a fixed dollar amount or a percentage of the order total."></i></label>
                                             <select name="processing_fee_type" id="processing_fee_type" class="form-control @error('processing_fee_type') is-invalid @enderror">
                                                 <option value="percentage" @selected(old('processing_fee_type', $website->processing_fee_type ?? 'percentage') == 'percentage')>Percentage (%)</option>
                                                 <option value="flat" @selected(old('processing_fee_type', $website->processing_fee_type) == 'flat')>Flat ($)</option>
@@ -322,7 +322,7 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="gratuity_name" class="form-label">Gratuity Field Name</label>
+                                            <label for="gratuity_name" class="form-label">Gratuity Field Name <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The label shown to customers for the gratuity/tip line item at checkout."></i></label>
                                             <input type="text" name="gratuity_name" id="gratuity_name" class="form-control @error('gratuity_name') is-invalid @enderror" 
                                                 value="{{ old('gratuity_name', $website->gratuity_name) }}" placeholder="e.g., Gratuity, Tip">
                                             @error('gratuity_name')
@@ -332,7 +332,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="gratuity_fee" class="form-label">Gratuity Fee (%)</label>
+                                            <label for="gratuity_fee" class="form-label">Gratuity Fee (%) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The gratuity percentage automatically applied to bookings for this website."></i></label>
                                             <input type="number" name="gratuity_fee" id="gratuity_fee" class="form-control @error('gratuity_fee') is-invalid @enderror" 
                                                 step="0.000001" value="{{ old('gratuity_fee', $website->gratuity_fee) }}" placeholder="0.00">
                                             @error('gratuity_fee')
@@ -353,7 +353,7 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="refundable_name" class="form-label">Refundable Field Name</label>
+                                            <label for="refundable_name" class="form-label">Refundable Field Name <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The label shown to customers for the refundable deposit line item at checkout."></i></label>
                                             <input type="text" name="refundable_name" id="refundable_name" class="form-control @error('refundable_name') is-invalid @enderror" 
                                                 value="{{ old('refundable_name', $website->refundable_name) }}" placeholder="e.g., Deposit, Security Deposit">
                                             @error('refundable_name')
@@ -363,7 +363,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="refundable_fee" class="form-label">Refundable Fee (%)</label>
+                                            <label for="refundable_fee" class="form-label">Refundable Fee (%) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The percentage of the booking total held as a refundable security deposit."></i></label>
                                             <input type="number" name="refundable_fee" id="refundable_fee" class="form-control @error('refundable_fee') is-invalid @enderror" 
                                                 step="0.000001" value="{{ old('refundable_fee', $website->refundable_fee) }}" placeholder="0.00">
                                             @error('refundable_fee')
@@ -384,7 +384,7 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="sales_tax_name" class="form-label">Sales Tax Field Name</label>
+                                            <label for="sales_tax_name" class="form-label">Sales Tax Field Name <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The label shown to customers for the sales tax line item at checkout."></i></label>
                                             <input type="text" name="sales_tax_name" id="sales_tax_name" class="form-control @error('sales_tax_name') is-invalid @enderror" 
                                                 value="{{ old('sales_tax_name', $website->sales_tax_name) }}" placeholder="e.g., Sales Tax">
                                             @error('sales_tax_name')
@@ -394,7 +394,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="sales_tax_fee" class="form-label">Sales Tax Fee (%)</label>
+                                            <label for="sales_tax_fee" class="form-label">Sales Tax Fee (%) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The sales tax percentage applied to bookings for this website."></i></label>
                                             <input type="number" name="sales_tax_fee" id="sales_tax_fee" class="form-control @error('sales_tax_fee') is-invalid @enderror" 
                                                 step="0.000001" value="{{ old('sales_tax_fee', $website->sales_tax_fee) }}" placeholder="0.00">
                                             @error('sales_tax_fee')
@@ -415,7 +415,7 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="service_charge_name" class="form-label">Service Charge Field Name</label>
+                                            <label for="service_charge_name" class="form-label">Service Charge Field Name <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The label shown to customers for the service charge line item at checkout."></i></label>
                                             <input type="text" name="service_charge_name" id="service_charge_name" class="form-control @error('service_charge_name') is-invalid @enderror" 
                                                 value="{{ old('service_charge_name', $website->service_charge_name) }}" placeholder="e.g., Service Charge">
                                             @error('service_charge_name')
@@ -425,7 +425,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="service_charge_fee" class="form-label">Service Charge Fee (%)</label>
+                                            <label for="service_charge_fee" class="form-label">Service Charge Fee (%) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The service charge percentage applied to bookings for this website."></i></label>
                                             <input type="number" name="service_charge_fee" id="service_charge_fee" class="form-control @error('service_charge_fee') is-invalid @enderror" 
                                                 step="0.000001" value="{{ old('service_charge_fee', $website->service_charge_fee) }}" placeholder="0.00">
                                             @error('service_charge_fee')
@@ -446,7 +446,7 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="promo_code_name" class="form-label">Promo Code Field Name</label>
+                                            <label for="promo_code_name" class="form-label">Promo Code Field Name <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The label shown to customers for the promo code input field at checkout."></i></label>
                                             <input type="text" name="promo_code_name" id="promo_code_name" class="form-control @error('promo_code_name') is-invalid @enderror" 
                                                 value="{{ old('promo_code_name', $website->promo_code_name) }}" placeholder="e.g., Promo Code, Coupon">
                                             @error('promo_code_name')
@@ -466,7 +466,7 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="commission_hold_days" class="form-label">Hold Days (Stripe) <span class="text-muted small">— default: 60</span></label>
+                                            <label for="commission_hold_days" class="form-label">Hold Days (Stripe) <span class="text-muted small">— default: 60</span> <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Number of days before Stripe releases held funds to your account."></i></label>
                                             <input type="number" name="commission_hold_days" id="commission_hold_days" class="form-control @error('commission_hold_days') is-invalid @enderror"
                                                 min="0" max="365" value="{{ old('commission_hold_days', $website->commission_hold_days) }}" placeholder="60">
                                             @error('commission_hold_days')
@@ -476,7 +476,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label for="commission_hold_days_authorize" class="form-label">Hold Days (Authorize.net) <span class="text-muted small">— default: 90</span></label>
+                                            <label for="commission_hold_days_authorize" class="form-label">Hold Days (Authorize.net) <span class="text-muted small">— default: 90</span> <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Number of days before Authorize.net releases held funds to your account."></i></label>
                                             <input type="number" name="commission_hold_days_authorize" id="commission_hold_days_authorize" class="form-control @error('commission_hold_days_authorize') is-invalid @enderror"
                                                 min="0" max="365" value="{{ old('commission_hold_days_authorize', $website->commission_hold_days_authorize) }}" placeholder="90">
                                             @error('commission_hold_days_authorize')

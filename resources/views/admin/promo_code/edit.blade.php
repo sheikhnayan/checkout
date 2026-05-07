@@ -124,7 +124,7 @@ label{
                                             <div class="row">
                                                 <div class="col-md-4">
                                                     <div class="mb-3">
-                                                        <label for="discount_method" class="form-label">Method</label>
+                                                        <label for="discount_method" class="form-label">Method <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="How the discount is applied — currently only via a code entered by the customer at checkout."></i></label>
                                                         <select name="discount_method" id="discount_method" class="form-control" required>
                                                             <option value="code" {{ $discountMethod === 'code' ? 'selected' : '' }}>Discount Code</option>
                                                         </select>
@@ -132,13 +132,13 @@ label{
                                                 </div>
                                                 <div class="col-md-4">
                                                     <div class="mb-3">
-                                                        <label for="name" class="form-label">Internal Name</label>
+                                                        <label for="name" class="form-label">Internal Name <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="A private label for this promo code for your reference only. Not visible to customers."></i></label>
                                                         <input type="text" name="name" class="form-control" id="name" value="{{ old('name', $data->name) }}" placeholder="VIP Spring Offer">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4" id="promo-code-col">
                                                     <div class="mb-3">
-                                                        <label for="code" class="form-label">Discount Code</label>
+                                                        <label for="code" class="form-label">Discount Code <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The code customers enter at checkout to apply this discount."></i></label>
                                                         <input type="text" name="promo_code" class="form-control" value="{{ old('promo_code', $data->promo_code) }}" id="code" placeholder="VIP100" required>
                                                     </div>
                                                 </div>
@@ -148,7 +148,7 @@ label{
                                             <div class="row">
                                                 <div class="col-md-4">
                                                     <div class="mb-3">
-                                                        <label for="discount_value_type" class="form-label">Value Type</label>
+                                                        <label for="discount_value_type" class="form-label">Value Type <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Choose 'Percentage' to discount by a percentage, or 'Fixed Amount' for a set dollar value."></i></label>
                                                         <select name="discount_value_type" class="form-control" id="discount_value_type" required>
                                                             <option value="percentage" {{ $discountType === 'percentage' ? 'selected' : '' }}>Percentage</option>
                                                             <option value="fixed" {{ $discountType === 'fixed' ? 'selected' : '' }}>Fixed Amount</option>
@@ -157,13 +157,13 @@ label{
                                                 </div>
                                                 <div class="col-md-4">
                                                     <div class="mb-3">
-                                                        <label for="discount_value" class="form-label">Value</label>
+                                                        <label for="discount_value" class="form-label">Value <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The discount amount — enter a percentage number (e.g. 10 for 10%) or a fixed dollar value."></i></label>
                                                         <input type="number" step="0.01" min="0" name="discount_value" class="form-control" id="discount_value" value="{{ $discountValue }}" required>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <div class="mb-3">
-                                                        <label for="applies_to" class="form-label">Applies To</label>
+                                                        <label for="applies_to" class="form-label">Applies To <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Whether this discount applies to all packages sitewide or only specific selected packages."></i></label>
                                                         <select name="applies_to" class="form-control" id="applies_to" required>
                                                             <option value="all_packages" {{ $appliesTo === 'all_packages' ? 'selected' : '' }}>All Packages</option>
                                                             <option value="specific_packages" {{ $appliesTo === 'specific_packages' ? 'selected' : '' }}>Specific Packages</option>
@@ -174,7 +174,7 @@ label{
                                             <div class="row" id="specific-packages-row" style="display:none;">
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="applies_to_package_ids" class="form-label">Select Packages</label>
+                                                        <label for="applies_to_package_ids" class="form-label">Select Packages <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Hold Ctrl / Cmd to select multiple packages this promo code applies to."></i></label>
                                                         <select name="applies_to_package_ids[]" id="applies_to_package_ids" class="form-control" multiple size="6">
                                                             @foreach(($packageOptions ?? []) as $pkg)
                                                                 <option value="{{ $pkg['id'] }}" {{ in_array((string) $pkg['id'], $selectedPackageIds, true) ? 'selected' : '' }}>{{ $pkg['name'] }}</option>
@@ -188,7 +188,7 @@ label{
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="eligibility" class="form-label">Customer Eligibility</label>
+                                                        <label for="eligibility" class="form-label">Customer Eligibility <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Defines who is allowed to use this promo code."></i></label>
                                                         <select name="eligibility" class="form-control" id="eligibility">
                                                             <option value="all_customers" {{ old('eligibility', $data->eligibility ?? 'all_customers') === 'all_customers' ? 'selected' : '' }}>All Customers</option>
                                                         </select>
@@ -200,7 +200,7 @@ label{
                                             <div class="row">
                                                 <div class="col-md-4">
                                                     <div class="mb-3">
-                                                        <label for="min_requirement_type" class="form-label">Requirement Type</label>
+                                                        <label for="min_requirement_type" class="form-label">Requirement Type <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optionally set a minimum purchase amount or item quantity required before this discount can be applied."></i></label>
                                                         <select name="min_requirement_type" class="form-control" id="min_requirement_type">
                                                             <option value="none" {{ $minReqType === 'none' ? 'selected' : '' }}>No Minimum Requirements</option>
                                                             <option value="amount" {{ $minReqType === 'amount' ? 'selected' : '' }}>Minimum Purchase Amount</option>
@@ -210,13 +210,13 @@ label{
                                                 </div>
                                                 <div class="col-md-4" id="min-amount-col" style="display:none;">
                                                     <div class="mb-3">
-                                                        <label for="min_purchase_amount" class="form-label">Minimum Amount ($)</label>
+                                                        <label for="min_purchase_amount" class="form-label">Minimum Amount ($) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Minimum order value in dollars the customer must reach before this code can be applied."></i></label>
                                                         <input type="number" min="0" step="0.01" name="min_purchase_amount" id="min_purchase_amount" class="form-control" value="{{ old('min_purchase_amount', $data->min_purchase_amount) }}">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4" id="min-qty-col" style="display:none;">
                                                     <div class="mb-3">
-                                                        <label for="min_purchase_quantity" class="form-label">Minimum Quantity</label>
+                                                        <label for="min_purchase_quantity" class="form-label">Minimum Quantity <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Minimum number of items in the cart required to use this code."></i></label>
                                                         <input type="number" min="1" step="1" name="min_purchase_quantity" id="min_purchase_quantity" class="form-control" value="{{ old('min_purchase_quantity', $data->min_purchase_quantity) }}">
                                                     </div>
                                                 </div>
@@ -226,20 +226,14 @@ label{
                                             <div class="row">
                                                 <div class="col-md-4">
                                                     <div class="mb-3">
-                                                        <label for="usage_limit_total" class="form-label">Usage Limit (Total)</label>
+                                                        <label for="usage_limit_total" class="form-label">Usage Limit (Total) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Maximum number of times this code can be used across all customers. Leave blank for unlimited."></i></label>
                                                         <input type="number" min="1" step="1" name="usage_limit_total" id="usage_limit_total" class="form-control" value="{{ old('usage_limit_total', $data->usage_limit_total) }}" placeholder="Leave blank for unlimited">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4 d-flex align-items-end">
                                                     <div class="mb-3 form-check">
                                                         <input type="checkbox" class="form-check-input" id="limit_one_per_customer" name="limit_one_per_customer" value="1" {{ old('limit_one_per_customer', $data->limit_one_per_customer) ? 'checked' : '' }}>
-                                                        <label class="form-check-label" for="limit_one_per_customer">Limit to one use per email address</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-4 d-flex align-items-end">
-                                                    <div class="mb-3 form-check">
-                                                        <input type="checkbox" class="form-check-input" id="is_active" name="is_active" value="1" {{ old('is_active', $data->is_active ?? 1) ? 'checked' : '' }}>
-                                                        <label class="form-check-label" for="is_active">Active</label>
+                                                        <label class="form-check-label" for="limit_one_per_customer">Limit to one use per email address <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Prevents the same email address from using this code more than once."></i></label>
                                                     </div>
                                                 </div>
                                             </div>
@@ -249,19 +243,19 @@ label{
                                                 <div class="col-md-4">
                                                     <div class="mb-3 form-check">
                                                         <input type="checkbox" class="form-check-input" id="combine_product_discounts" name="combine_product_discounts" value="1" {{ old('combine_product_discounts', $data->combine_product_discounts) ? 'checked' : '' }}>
-                                                        <label class="form-check-label" for="combine_product_discounts">Product Discounts</label>
+                                                        <label class="form-check-label" for="combine_product_discounts">Product Discounts <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Allow this code to stack with other product-level discounts."></i></label>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <div class="mb-3 form-check">
                                                         <input type="checkbox" class="form-check-input" id="combine_order_discounts" name="combine_order_discounts" value="1" {{ old('combine_order_discounts', $data->combine_order_discounts) ? 'checked' : '' }}>
-                                                        <label class="form-check-label" for="combine_order_discounts">Order Discounts</label>
+                                                        <label class="form-check-label" for="combine_order_discounts">Order Discounts <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Allow this code to stack with order-level discounts."></i></label>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <div class="mb-3 form-check">
                                                         <input type="checkbox" class="form-check-input" id="combine_shipping_discounts" name="combine_shipping_discounts" value="1" {{ old('combine_shipping_discounts', $data->combine_shipping_discounts) ? 'checked' : '' }}>
-                                                        <label class="form-check-label" for="combine_shipping_discounts">Shipping Discounts</label>
+                                                        <label class="form-check-label" for="combine_shipping_discounts">Shipping Discounts <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Allow this code to stack with shipping discounts."></i></label>
                                                     </div>
                                                 </div>
                                             </div>
@@ -270,13 +264,13 @@ label{
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="starts_at" class="form-label">Start Date</label>
+                                                        <label for="starts_at" class="form-label">Start Date <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The date and time from which this code becomes valid. Leave blank to make it active immediately."></i></label>
                                                         <input type="datetime-local" name="starts_at" class="form-control" id="starts_at" value="{{ old('starts_at', optional($data->starts_at)->format('Y-m-d\\TH:i')) }}">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="ends_at" class="form-label">End Date</label>
+                                                        <label for="ends_at" class="form-label">End Date <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The date and time after which this code expires. Leave blank for no expiry."></i></label>
                                                         <input type="datetime-local" name="ends_at" class="form-control" id="ends_at" value="{{ old('ends_at', optional($data->ends_at)->format('Y-m-d\\TH:i')) }}">
                                                     </div>
                                                 </div>
@@ -287,7 +281,7 @@ label{
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="affiliate_id" class="form-label">Specific Affiliate</label>
+                                                        <label for="affiliate_id" class="form-label">Specific Affiliate <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Restrict this promo code to customers of a specific affiliate only."></i></label>
                                                         <select name="affiliate_id" class="form-control" id="affiliate_id">
                                                             <option value="">Select affiliate</option>
                                                             @foreach(($targetOptions['affiliates'] ?? collect()) as $affiliate)
@@ -306,7 +300,7 @@ label{
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="entertainer_id" class="form-label">Specific Entertainer</label>
+                                                        <label for="entertainer_id" class="form-label">Specific Entertainer <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Restrict this promo code to customers coming via a specific entertainer's link only."></i></label>
                                                         <select name="entertainer_id" class="form-control" id="entertainer_id">
                                                             <option value="">Select entertainer</option>
                                                             @foreach(($targetOptions['entertainers'] ?? collect()) as $entertainer)
@@ -323,7 +317,7 @@ label{
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="description" class="form-label">Description</label>
+                                                        <label for="description" class="form-label">Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Internal notes about this promo code. Not visible to customers."></i></label>
                                                         <textarea name="description" class="form-control" id="description" rows="4" placeholder="Promo Code Description">{{ old('description', $data->description) }}</textarea>
                                                     </div>
                                                 </div>

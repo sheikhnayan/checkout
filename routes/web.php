@@ -211,6 +211,8 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
 
     Route::group(['prefix'=> 'transaction', 'as' => 'transaction.'], function () {
         Route::get('/', [TransactionController::class,'index'])->name('index');
+        Route::get('/affiliate', [TransactionController::class,'affiliateIndex'])->name('affiliate');
+        Route::get('/entertainer', [TransactionController::class,'entertainerIndex'])->name('entertainer');
         Route::get('/show/{id}', [TransactionController::class,'show'])->name('show');
         Route::get('/change/{id}/{status}', [TransactionController::class,'update'])->name('update');
         Route::get('/scan', [TransactionController::class, 'scanPage'])->name('scan');

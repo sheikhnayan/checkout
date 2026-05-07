@@ -224,6 +224,9 @@ class FeedController extends Controller
             ->where('is_active', true)
             ->first();
 
+        $entertainerPath = $entertainer ? route('entertainer.public', $entertainer->slug, false) : null;
+        $clubCheckoutPath = route('index', $club->slug, false);
+
         return view('feed.profile', [
             'club' => $club,
             'profileType' => 'model',
@@ -234,10 +237,17 @@ class FeedController extends Controller
             'posts' => $posts,
             'models' => $models,
             'activeModel' => $feedModel,
-            'packagesUrl' => $entertainer ? route('entertainer.public', $entertainer->slug) : null,
+            'packagesUrl' => $this->toCheckoutAppUrl($entertainerPath ?: $clubCheckoutPath),
             'performanceDates' => $this->formatPerformanceDates($feedModel),
             'rollCallDefaultDate' => now()->format('Y-m-d'),
         ]);
+    }
+
+    private function toCheckoutAppUrl(string $path): string
+    {
+        $baseUrl = 'https://app.cartvip.com';
+
+        return rtrim($baseUrl, '/') . '/' . ltrim($path, '/');
     }
 
     public function storeComment(Request $request, FeedPost $feedPost): RedirectResponse

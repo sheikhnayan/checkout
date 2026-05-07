@@ -19,6 +19,8 @@ use App\Models\PackageCategory;
 
 class PackageController extends Controller
 {
+    private const SELECT_ALL_TOKEN = '__all__';
+
     /**
      * Display a listing of the resource.
      */
@@ -178,10 +180,10 @@ class PackageController extends Controller
         $this->ensureTargetedPackagePermission(null, $audience);
 
         $validated = $this->validatePackagePayload($request, true, true);
-        [$affiliateId, $entertainerId] = $this->normalizeTargetIds($request);
+        [$affiliateId, $entertainerId, $selectAllAffiliate, $selectAllEntertainer] = $this->normalizeTargetIds($request);
         $websiteId = $this->resolveTargetedPackageWebsiteId($audience, $request, $entertainerId);
 
-        $this->validateTargetSelection($audience, $affiliateId, $entertainerId, $websiteId);
+        $this->validateTargetSelection($audience, $affiliateId, $entertainerId, $websiteId, $selectAllAffiliate, $selectAllEntertainer);
 
         $package = new Package;
         $this->fillPackageFromRequest($package, $request, $websiteId, $audience, $affiliateId, $entertainerId);
@@ -275,6 +277,24 @@ class PackageController extends Controller
         [$events, $addons, $categories] = $this->packageFormDependencies($selectedWebsiteId);
         $targetOptions = $this->packageTargetOptions($selectedWebsiteId);
         $audience = $data->audience;
+        $selectAllAffiliate = false;
+        $selectAllEntertainer = false;
+
+        if ($audience === Package::AUDIENCE_AFFILIATE && !$data->affiliate_id) {
+            $mappedCount = AffiliatePackage::where('package_id', $data->id)
+                ->where('website_id', $selectedWebsiteId)
+                ->count();
+            $availableCount = (int) $targetOptions['affiliates']->count();
+            $selectAllAffiliate = $availableCount > 0 && $mappedCount === $availableCount;
+        }
+
+        if ($audience === Package::AUDIENCE_ENTERTAINER && !$data->entertainer_id) {
+            $mappedCount = EntertainerPackage::where('package_id', $data->id)
+                ->where('website_id', $selectedWebsiteId)
+                ->count();
+            $availableCount = (int) $targetOptions['entertainers']->count();
+            $selectAllEntertainer = $availableCount > 0 && $mappedCount === $availableCount;
+        }
 
         return view('admin.package.edit_targeted', compact(
             'data',
@@ -287,7 +307,9 @@ class PackageController extends Controller
             'targetOptions',
             'websiteOptions',
             'selectedWebsiteId',
-            'canSelectWebsite'
+            'canSelectWebsite',
+            'selectAllAffiliate',
+            'selectAllEntertainer'
         ));
     }
 
@@ -328,10 +350,10 @@ class PackageController extends Controller
         $this->ensureTargetedPackagePermission($data, $data->audience);
 
         $this->validatePackagePayload($request, true, true);
-        [$affiliateId, $entertainerId] = $this->normalizeTargetIds($request);
+        [$affiliateId, $entertainerId, $selectAllAffiliate, $selectAllEntertainer] = $this->normalizeTargetIds($request);
         $websiteId = $this->resolveTargetedPackageWebsiteId($data->audience, $request, $entertainerId, $data);
 
-        $this->validateTargetSelection($data->audience, $affiliateId, $entertainerId, $websiteId);
+        $this->validateTargetSelection($data->audience, $affiliateId, $entertainerId, $websiteId, $selectAllAffiliate, $selectAllEntertainer);
 
         $this->fillPackageFromRequest($data, $request, $websiteId, $data->audience, $affiliateId, $entertainerId);
         $data->save();
@@ -409,8 +431,8 @@ class PackageController extends Controller
 
         if ($isTargeted) {
             $rules['audience'] = ['required', Rule::in([Package::AUDIENCE_AFFILIATE, Package::AUDIENCE_ENTERTAINER])];
-            $rules['affiliate_id'] = 'nullable|integer|exists:affiliates,id';
-            $rules['entertainer_id'] = 'nullable|integer|exists:entertainers,id';
+            $rules['affiliate_id'] = 'nullable|string';
+            $rules['entertainer_id'] = 'nullable|string';
         }
 
         return $request->validate($rules);
@@ -548,21 +570,64 @@ class PackageController extends Controller
     private function normalizeTargetIds(Request $request): array
     {
         $audience = (string) $request->input('audience');
-        $affiliateId = $audience === Package::AUDIENCE_AFFILIATE ? (int) $request->input('affiliate_id') : 0;
-        $entertainerId = $audience === Package::AUDIENCE_ENTERTAINER ? (int) $request->input('entertainer_id') : 0;
+        $rawAffiliateId = trim((string) $request->input('affiliate_id', ''));
+        $rawEntertainerId = trim((string) $request->input('entertainer_id', ''));
+
+        $selectAllAffiliate = $audience === Package::AUDIENCE_AFFILIATE && $rawAffiliateId === self::SELECT_ALL_TOKEN;
+        $selectAllEntertainer = $audience === Package::AUDIENCE_ENTERTAINER && $rawEntertainerId === self::SELECT_ALL_TOKEN;
+
+        $affiliateId = ($audience === Package::AUDIENCE_AFFILIATE && !$selectAllAffiliate && ctype_digit($rawAffiliateId))
+            ? (int) $rawAffiliateId
+            : 0;
+        $entertainerId = ($audience === Package::AUDIENCE_ENTERTAINER && !$selectAllEntertainer && ctype_digit($rawEntertainerId))
+            ? (int) $rawEntertainerId
+            : 0;
 
         return [
             $affiliateId > 0 ? $affiliateId : null,
             $entertainerId > 0 ? $entertainerId : null,
+            $selectAllAffiliate,
+            $selectAllEntertainer,
         ];
     }
 
-    private function validateTargetSelection(string $audience, ?int $affiliateId, ?int $entertainerId, ?int $websiteId): void
+    private function validateTargetSelection(
+        string $audience,
+        ?int $affiliateId,
+        ?int $entertainerId,
+        ?int $websiteId,
+        bool $selectAllAffiliate = false,
+        bool $selectAllEntertainer = false
+    ): void
     {
         if ($audience === Package::AUDIENCE_AFFILIATE) {
+            if ($selectAllAffiliate) {
+                if (!$websiteId) {
+                    throw ValidationException::withMessages([
+                        'website_id' => 'Select the club this affiliate package belongs to.',
+                    ]);
+                }
+
+                $hasAffiliates = Affiliate::where('status', 'approved')
+                    ->where('is_active', true)
+                    ->whereHas('affiliateWebsites', function ($query) use ($websiteId) {
+                        $query->where('website_id', $websiteId)
+                            ->where('is_active', true);
+                    })
+                    ->exists();
+
+                if (!$hasAffiliates) {
+                    throw ValidationException::withMessages([
+                        'affiliate_id' => 'No active affiliates found for the selected club.',
+                    ]);
+                }
+
+                return;
+            }
+
             if (!$affiliateId) {
                 throw ValidationException::withMessages([
-                    'affiliate_id' => 'Select the affiliate this package belongs to.',
+                    'affiliate_id' => 'Select an affiliate or choose Select All Affiliates.',
                 ]);
             }
 
@@ -590,9 +655,27 @@ class PackageController extends Controller
             return;
         }
 
+        if ($selectAllEntertainer) {
+            $hasEntertainers = Entertainer::query()
+                ->when($websiteId, function ($query) use ($websiteId) {
+                    $query->where('website_id', $websiteId);
+                })
+                ->where('status', 'approved')
+                ->where('is_active', true)
+                ->exists();
+
+            if (!$hasEntertainers) {
+                throw ValidationException::withMessages([
+                    'entertainer_id' => 'No active entertainers found for the selected club.',
+                ]);
+            }
+
+            return;
+        }
+
         if (!$entertainerId) {
             throw ValidationException::withMessages([
-                'entertainer_id' => 'Select the entertainer this package belongs to.',
+                'entertainer_id' => 'Select an entertainer or choose Select All Entertainers.',
             ]);
         }
 
@@ -656,6 +739,28 @@ class PackageController extends Controller
                     'is_active' => true,
                 ]
             );
+        } elseif ($package->audience === Package::AUDIENCE_AFFILIATE) {
+            $affiliates = Affiliate::where('status', 'approved')
+                ->where('is_active', true)
+                ->whereHas('affiliateWebsites', function ($query) use ($package) {
+                    $query->where('website_id', $package->website_id)
+                        ->where('is_active', true);
+                })
+                ->get(['id', 'default_commission_percentage']);
+
+            foreach ($affiliates as $affiliate) {
+                AffiliatePackage::updateOrCreate(
+                    [
+                        'affiliate_id' => $affiliate->id,
+                        'package_id' => $package->id,
+                    ],
+                    [
+                        'website_id' => $package->website_id,
+                        'commission_percentage' => $affiliate->default_commission_percentage ?? 0,
+                        'is_active' => true,
+                    ]
+                );
+            }
         }
 
         if ($package->audience === Package::AUDIENCE_ENTERTAINER && $package->entertainer_id) {
@@ -669,6 +774,24 @@ class PackageController extends Controller
                     'is_active' => true,
                 ]
             );
+        } elseif ($package->audience === Package::AUDIENCE_ENTERTAINER) {
+            $entertainers = Entertainer::where('website_id', $package->website_id)
+                ->where('status', 'approved')
+                ->where('is_active', true)
+                ->get(['id']);
+
+            foreach ($entertainers as $entertainer) {
+                EntertainerPackage::updateOrCreate(
+                    [
+                        'entertainer_id' => $entertainer->id,
+                        'package_id' => $package->id,
+                    ],
+                    [
+                        'website_id' => $package->website_id,
+                        'is_active' => true,
+                    ]
+                );
+            }
         }
     }
 

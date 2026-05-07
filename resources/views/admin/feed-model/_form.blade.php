@@ -12,7 +12,7 @@
 
 <div class="row g-4">
     <div class="col-md-6">
-        <label for="website_id" class="form-label">Website</label>
+        <label for="website_id" class="form-label">Website <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The club or venue this entertainer profile is associated with."></i></label>
         <select name="website_id" id="website_id" class="form-control" required>
             @foreach($websites as $website)
                 <option value="{{ $website->id }}" @selected((string) $selectedWebsiteId === (string) $website->id)>{{ $website->name }}</option>
@@ -21,17 +21,17 @@
     </div>
 
     <div class="col-md-6">
-        <label for="name" class="form-label">Entertainer Name</label>
+        <label for="name" class="form-label">Entertainer Name <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The performer's display name shown on their public feed profile."></i></label>
         <input type="text" name="name" id="name" class="form-control" value="{{ old('name', $feedModel->name ?? '') }}" placeholder="Example: Aria Vale" required>
     </div>
 
     <div class="col-12">
-        <label for="bio" class="form-label">Bio</label>
+        <label for="bio" class="form-label">Bio <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="A short biography or description of the entertainer displayed on their profile."></i></label>
         <textarea name="bio" id="bio" class="form-control" rows="5" placeholder="Short profile bio for this entertainer">{{ old('bio', $feedModel->bio ?? '') }}</textarea>
     </div>
 
     <div class="col-md-6">
-        <label for="profile_image" class="form-label">Profile Image</label>
+        <label for="profile_image" class="form-label">Profile Image <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Profile photo displayed on the entertainer's feed card."></i></label>
         <input type="file" name="profile_image" id="profile_image" class="form-control" accept="image/*">
         @if(!empty($feedModel?->profile_image))
             <div class="mt-3 d-flex align-items-center gap-3">
@@ -46,13 +46,13 @@
             <input type="hidden" name="is_active" value="0">
             <input class="form-check-input" type="checkbox" value="1" id="is_active" name="is_active" @checked(old('is_active', isset($feedModel) ? $feedModel->is_active : true))>
             <label class="form-check-label" for="is_active">
-                Active and visible in feed
+                Active and visible in feed <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="When enabled, this entertainer profile is publicly visible in the feed."></i>
             </label>
         </div>
     </div>
 
     <div class="col-12">
-        <label class="form-label mb-2">Performance Dates</label>
+        <label class="form-label mb-2">Performance Dates <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Dates when this entertainer is scheduled to perform at the venue. Past dates are hidden automatically from their public profile."></i></label>
         <p class="text-muted mb-2">Build a custom roster by adding as many dates as needed. Past dates will be hidden from the public profile automatically.</p>
 
         <div class="border rounded p-3" id="performanceDateRoster">

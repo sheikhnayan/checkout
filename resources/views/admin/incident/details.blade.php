@@ -27,7 +27,7 @@
             <div class="card bg-primary text-white p-3 mb-3">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-4">
-                        <label class="form-label">Current Status</label>
+                        <label class="form-label">Current Status <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The current state of this incident report. Updated by administrators as the case progresses."></i></label>
                         <div>
                             <span class="badge {{ $statusClasses[$incident->status] ?? 'bg-secondary' }} fs-6">{{ ucwords(str_replace('_', ' ', $incident->status)) }}</span>
                         </div>
@@ -40,7 +40,7 @@
                         <form method="POST" action="{{ route('admin.incident.status.update', $incident->id) }}" class="row g-2">
                             @csrf
                             <div class="col-md-4">
-                                <label class="form-label">Update Status</label>
+                                <label class="form-label">Update Status <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Change the status of this incident. Updates are logged with a timestamp and the acting admin's name."></i></label>
                                 <select name="status" class="form-select" required>
                                     <option value="open" {{ $incident->status === 'open' ? 'selected' : '' }}>Open</option>
                                     <option value="under_review" {{ $incident->status === 'under_review' ? 'selected' : '' }}>Under Review</option>
@@ -48,7 +48,7 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Status Change Note (optional)</label>
+                                <label class="form-label">Status Change Note (optional) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional reason or context for this status change. Recorded in the incident log."></i></label>
                                 <input type="text" name="status_note" class="form-control" placeholder="Reason for status change">
                             </div>
                             <div class="col-md-2 d-grid">

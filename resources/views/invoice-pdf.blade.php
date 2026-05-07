@@ -5,7 +5,7 @@
     <title>Invoice - {{ $transaction->transaction_id }}</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Segoe UI', Arial, sans-serif;
             color: #333;
             line-height: 1.5;
             margin: 0;
@@ -74,6 +74,9 @@
         .info-label {
             color: #666;
             font-weight: 600;
+        }
+        .info-label::after {
+            content: ': ';
         }
         .info-value {
             color: #333;
@@ -172,7 +175,7 @@
             <h1 class="header-title">INVOICE</h1>
             <p class="header-subtitle">Transaction ID: {{ $transaction->transaction_id }}</p>
         </div>
-        @if($transaction->ticket_qr_code)
+        @if(($showQrInPdf ?? true) && $transaction->ticket_qr_code)
         <div class="header-qr">
             @if(!empty($qrCodeBase64))
                 <img src="{{ $qrCodeBase64 }}" alt="QR Code" width="120" height="120">
@@ -209,7 +212,7 @@
             </div>
             <div class="info-row">
                 <span class="info-label">Payment Date</span>
-                <span class="info-value">{{ $transaction->updated_at->format('M d, Y') }}</span>
+                <span class="info-value">{{ $transaction->updated_at->format('M d, Y h:i A') }}</span>
             </div>
             @if($transaction->type === 'package' && $transaction->event)
             <div class="info-row">
@@ -257,6 +260,7 @@
                     @php
                         $grandTotal = 0;
                         $totalAddonQty = 0;
+                        $totalItemQty = count($cartItems);
                     @endphp
                     @foreach($cartItems as $cartItem)
                         @php
@@ -332,6 +336,10 @@
         @if(!empty($priceBreakdown))
         <div class="total-section">
             <div class="total-row">
+                <span>Total Item Qty</span>
+                <span>{{ $totalItemQty ?? 0 }}</span>
+            </div>
+            <div class="total-row">
                 <span>Total Add-on Qty</span>
                 <span>{{ $totalAddonQty ?? 0 }}</span>
             </div>
@@ -393,7 +401,7 @@
     <!-- Footer -->
     <div class="footer">
         <p>Thank you for your purchase! This is an automated invoice. Please do not reply to this email.</p>
-        <p style="margin-top: 10px; font-size: 10px; color: #999;">CartVIP - Payment Processing</p>
+        <p style="margin-top: 10px; font-size: 10px; color: #999;">cartvip.com</p>
     </div>
 </div>
 </body>

@@ -180,6 +180,8 @@ class User extends Authenticatable
         $priorityRoutes = [
             'admin.index',
             'admin.transaction.index',
+            'admin.transaction.affiliate',
+            'admin.transaction.entertainer',
             'admin.transaction.scan',
             'admin.event.index',
             'admin.package.index',

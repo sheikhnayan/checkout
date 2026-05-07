@@ -230,6 +230,63 @@
         gap: 10px;
       }
 
+      .admin-page-controls {
+        margin: 0 0 14px;
+      }
+
+      .admin-global-back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: 10px 16px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: linear-gradient(135deg, rgba(28, 37, 60, 0.96), rgba(18, 24, 40, 0.96));
+        color: #eef2ff;
+        font-weight: 700;
+        font-size: 0.9rem;
+        letter-spacing: 0.01em;
+        text-decoration: none;
+        box-shadow: 0 10px 24px rgba(3, 8, 20, 0.35);
+        transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease, color .15s ease;
+      }
+
+      .admin-global-back-btn i {
+        width: 24px;
+        height: 24px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(255, 204, 0, 0.18);
+        color: #ffcf33;
+      }
+
+      .admin-global-back-btn:hover,
+      .admin-global-back-btn:focus {
+        color: #ffffff;
+        border-color: rgba(255, 204, 0, 0.52);
+        transform: translateY(-1px);
+        box-shadow: 0 14px 28px rgba(2, 8, 20, 0.45);
+      }
+
+      .admin-global-back-btn:hover i,
+      .admin-global-back-btn:focus i {
+        background: rgba(255, 204, 0, 0.26);
+      }
+
+      @media (max-width: 767.98px) {
+        .admin-page-controls {
+          top: 6px;
+          margin-bottom: 10px;
+        }
+
+        .admin-global-back-btn {
+          padding: 9px 12px;
+          font-size: 0.84rem;
+        }
+      }
+
       .admin-feedback-stack .alert {
         border: 1px solid var(--admin-border);
         border-left-width: 4px;
@@ -462,6 +519,7 @@
         }
       }
     </style>
+    @stack('styles')
   </head>
 
   <body>
@@ -745,7 +803,27 @@
       <div class="text-truncate">Transactions</div>
     </a>
   </li>
+  @endif
 
+  @if($authUser && $canAccessRoute('admin.transaction.affiliate'))
+  <li class="menu-item {{ request()->is('admins/transaction/affiliate') ? 'active' : '' }}">
+    <a href="{{ route('admin.transaction.affiliate') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-user-check"></i>
+      <div class="text-truncate">Affiliate Transactions</div>
+    </a>
+  </li>
+  @endif
+
+  @if($authUser && $canAccessRoute('admin.transaction.entertainer'))
+  <li class="menu-item {{ request()->is('admins/transaction/entertainer') ? 'active' : '' }}">
+    <a href="{{ route('admin.transaction.entertainer') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-microphone"></i>
+      <div class="text-truncate">Entertainer Transactions</div>
+    </a>
+  </li>
+  @endif
+
+  @if($authUser && $canAccessRoute('admin.transaction.index'))
   @if($canAccessRoute('admin.transaction.scan'))
   <li class="menu-item {{ request()->is('admins/transaction/scan*') ? 'active' : '' }}">
     <a href="{{ route('admin.transaction.scan') }}" class="menu-link">
@@ -965,6 +1043,34 @@
 
 
 
+          @php
+            $__prev = url()->previous();
+            $__curr = url()->current();
+            $__adminRoot = url('/admins');
+            // Use previous URL only if it's a different admin page
+            if ($__prev && $__prev !== $__curr && str_starts_with($__prev, $__adminRoot)) {
+              $__backUrl = $__prev;
+            } else {
+              // Derive parent by stripping the last path segment
+              $__path = rtrim(parse_url($__curr, PHP_URL_PATH), '/');
+              $__parts = array_values(array_filter(explode('/', $__path)));
+              if (count($__parts) > 1) {
+                array_pop($__parts);
+                $__backUrl = '/' . implode('/', $__parts);
+              } else {
+                $__backUrl = '/admins';
+              }
+            }
+          @endphp
+          <div class="container-xxl mt-3">
+            <div class="admin-page-controls">
+              <a href="{{ $__backUrl }}" class="admin-global-back-btn" aria-label="Go back to previous page">
+                <i class="fas fa-arrow-left"></i>
+                Back
+              </a>
+            </div>
+          </div>
+
           @yield('content')
 
         <!-- Footer -->
@@ -1125,9 +1231,9 @@
         }
 
         function bindMobileMenuToggle() {
-          const toggle = document.querySelector('.admin-mobile-menu-toggle');
           const wrapper = document.querySelector('.layout-wrapper');
           const overlay = document.querySelector('.layout-overlay');
+          const toggle = document.querySelector('.layout-menu-toggle');
 
           if (!toggle || !wrapper) {
             return;
@@ -1168,16 +1274,73 @@
           syncState();
         }
 
+        function initFieldTooltips() {
+          if (typeof bootstrap === 'undefined' || !bootstrap.Tooltip) { return; }
+          document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
+            new bootstrap.Tooltip(el, { trigger: 'hover focus', boundary: 'window' });
+          });
+        }
+
+        function adminFallbackNav() {
+          // Try HTTP referrer (same-origin only).
+          var referrer = document.referrer || '';
+          if (referrer) {
+            try {
+              var refUrl = new URL(referrer);
+              if (refUrl.origin === window.location.origin && refUrl.href !== window.location.href) {
+                window.location.href = refUrl.href;
+                return;
+              }
+            } catch (e) {}
+          }
+          // Derive parent URL by stripping the last path segment.
+          var path = window.location.pathname.replace(/\/+$/, '');
+          var parts = path.split('/').filter(Boolean);
+          if (parts.length > 1) {
+            parts.pop();
+            window.location.href = '/' + parts.join('/');
+          } else {
+            window.location.href = '/admins';
+          }
+        }
+
+        window.adminGoBack = function () {
+          // Use popstate to detect whether history.back() actually navigated.
+          // If the page hasn't changed after 300ms, fall back to URL-based navigation.
+          var navigated = false;
+          var fallbackTimer = setTimeout(function () {
+            if (!navigated) {
+              adminFallbackNav();
+            }
+          }, 300);
+
+          window.addEventListener('popstate', function onPop() {
+            navigated = true;
+            clearTimeout(fallbackTimer);
+            window.removeEventListener('popstate', onPop);
+          });
+
+          window.history.back();
+        };
+
+        function bindAdminBackButton() {
+          // No-op: back button uses onclick="adminGoBack()" directly.
+        }
+
         if (document.readyState === 'loading') {
           document.addEventListener('DOMContentLoaded', function () {
             wrapTablesForMobile();
             initAdminDataTables();
             bindMobileMenuToggle();
+            initFieldTooltips();
+            bindAdminBackButton();
           });
         } else {
           wrapTablesForMobile();
           initAdminDataTables();
           bindMobileMenuToggle();
+          initFieldTooltips();
+          bindAdminBackButton();
         }
       })();
 
@@ -1272,6 +1435,8 @@
         }
       })();
     </script>
+
+    @stack('scripts')
 
     <!-- Place this tag before closing body tag for github widget button. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
@@ -1430,6 +1595,30 @@
         color: var(--admin-section-label) !important;
         font-weight: 700;
         letter-spacing: 0.01em;
+      }
+
+      /* ── Field tooltip info icons ── */
+      .field-tip {
+        font-size: 0.78rem;
+        color: rgba(155, 175, 220, 0.65);
+        cursor: pointer;
+        vertical-align: middle;
+        transition: color .15s ease;
+      }
+      .field-tip:hover { color: #ffcc00; }
+
+      /* Override Bootstrap tooltip colours for admin */
+      .tooltip .tooltip-inner {
+        background: #1e2840;
+        color: #e8eaf6;
+        border: 1px solid rgba(255,204,0,0.35);
+        font-size: 0.8rem;
+        max-width: 260px;
+        text-align: left;
+      }
+      .tooltip .tooltip-arrow::before {
+        border-top-color: #1e2840 !important;
+        border-bottom-color: #1e2840 !important;
       }
     </style>
 

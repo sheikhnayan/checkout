@@ -89,14 +89,14 @@
 
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
-                                                <label for="name" class="form-label">Full Name</label>
+                                                <label for="name" class="form-label">Full Name <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The manager's full name used for identification in the admin panel."></i></label>
                                                 <input type="text" name="name" id="name"
                                                     class="form-control @error('name') is-invalid @enderror"
                                                     value="{{ old('name', $manager->name) }}" required>
                                                 @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                             </div>
                                             <div class="col-md-6 mb-3">
-                                                <label for="email" class="form-label">Email Address</label>
+                                                <label for="email" class="form-label">Email Address <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Login email address for this manager's admin account."></i></label>
                                                 <input type="email" name="email" id="email"
                                                     class="form-control @error('email') is-invalid @enderror"
                                                     value="{{ old('email', $manager->email) }}" required>
@@ -107,7 +107,7 @@
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
                                                 <label for="password" class="form-label">
-                                                    New Password <small class="text-white-50">(leave blank to keep current)</small>
+                                                    New Password <small class="text-white-50">(leave blank to keep current)</small> <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Enter a new password to change the current one. Leave blank to keep the existing password."></i>
                                                 </label>
                                                 <input type="password" name="password" id="password"
                                                     class="form-control @error('password') is-invalid @enderror"
@@ -115,7 +115,7 @@
                                                 @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                             </div>
                                             <div class="col-md-6 mb-3">
-                                                <label for="password_confirmation" class="form-label">Confirm New Password</label>
+                                                <label for="password_confirmation" class="form-label">Confirm New Password <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Re-enter the new password to confirm it matches."></i></label>
                                                 <input type="password" name="password_confirmation" id="password_confirmation"
                                                     class="form-control" placeholder="Confirm new password">
                                             </div>
@@ -128,7 +128,7 @@
 
                                         <div class="row">
                                             <div class="col-md-12 mb-3">
-                                                <label for="website_role_id" class="form-label">Assign Role</label>
+                                                <label for="website_role_id" class="form-label">Assign Role <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The admin role that determines this manager's access and permissions in the panel."></i></label>
                                                 <select name="website_role_id" id="website_role_id"
                                                     class="form-control @error('website_role_id') is-invalid @enderror" required>
                                                     <option value="">— Select a role —</option>

@@ -224,7 +224,7 @@ class TransactionController extends Controller
     
                         // Club/manager email — no QR code
                         $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
-                        $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr, $add, $cartItems, $mailData['price_breakdown'], $website);
+                        $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr, $add, $cartItems, $mailData['price_breakdown'], $website, false);
                         $send_mail_club->subject('Package Purchase - ' . $transaction_id . ' - ' . ($website->name ?? 'Club'));
 
                         // Purchaser email — full mail with QR
@@ -431,7 +431,7 @@ class TransactionController extends Controller
     
                         // Club/manager email — no QR code
                         $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
-                        $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr, $add, $cartItems, $mailData['price_breakdown'], $website);
+                        $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr, $add, $cartItems, $mailData['price_breakdown'], $website, false);
                         $send_mail_club->subject('Package Purchase - ' . $transaction_id . ' - ' . ($website->name ?? 'Club'));
 
                         // Purchaser email — full mail with QR
@@ -500,37 +500,75 @@ class TransactionController extends Controller
     {
         app(CommissionLifecycleRunner::class)->runSafely();
 
+        $data = $this->getAccessibleTransactionList();
+
+        return view('admin.transaction.index', [
+            'data' => $data,
+            'dashboardTitle' => 'Transactions Dashboard',
+            'dashboardSubtitle' => "Here's what's happening with your transaction performance.",
+        ]);
+    }
+
+    public function affiliateIndex()
+    {
+        app(CommissionLifecycleRunner::class)->runSafely();
+
+        $data = $this->getAccessibleTransactionList(function ($query) {
+            $query->whereNotNull('affiliate_id');
+        });
+
+        return view('admin.transaction.index', [
+            'data' => $data,
+            'dashboardTitle' => 'Affiliate Transactions',
+            'dashboardSubtitle' => 'Only affiliate-referred transactions are listed here.',
+            'isPayoutPage' => true,
+        ]);
+    }
+
+    public function entertainerIndex()
+    {
+        app(CommissionLifecycleRunner::class)->runSafely();
+
+        $data = $this->getAccessibleTransactionList(function ($query) {
+            $query->whereNotNull('entertainer_id');
+        });
+
+        return view('admin.transaction.index', [
+            'data' => $data,
+            'dashboardTitle' => 'Entertainer Transactions',
+            'dashboardSubtitle' => 'Only entertainer-referred transactions are listed here.',
+            'isPayoutPage' => true,
+        ]);
+    }
+
+    private function getAccessibleTransactionList(?callable $queryMutator = null)
+    {
         $user = auth()->user();
-        
+
         if ($user->isAdmin()) {
-            // Admin can see all transactions
-            $data = Transaction::with(['event', 'package', 'website', 'affiliate.user', 'entertainer.user'])
-                              ->latest()
-                              ->get();
+            $query = Transaction::query();
         } elseif ($user->isWebsiteUser() && $user->website_id) {
-            // Website user can only see their website's transactions
-            $data = Transaction::where(function($query) use ($user) {
-                                // Direct website_id match
-                                $query->where('website_id', $user->website_id)
-                                // OR transactions with events from their website
-                                ->orWhereHas('event', function($subQuery) use ($user) {
-                                    $subQuery->where('website_id', $user->website_id);
-                                })
-                                // OR transactions with packages from their website
-                                ->orWhereHas('package', function($subQuery) use ($user) {
-                                    $subQuery->where('website_id', $user->website_id);
-                                });
-                            })
-                            ->with(['event', 'package', 'website', 'affiliate.user'])
-                            ->with(['entertainer.user'])
-                            ->latest()
-                            ->get();
+            $query = Transaction::query()->where(function($query) use ($user) {
+                $query->where('website_id', $user->website_id)
+                    ->orWhereHas('event', function($subQuery) use ($user) {
+                        $subQuery->where('website_id', $user->website_id);
+                    })
+                    ->orWhereHas('package', function($subQuery) use ($user) {
+                        $subQuery->where('website_id', $user->website_id);
+                    });
+            });
         } else {
-            // No access for users without proper permissions
-            $data = collect();
+            return collect();
         }
-        
-        return view('admin.transaction.index', compact('data'));
+
+        if ($queryMutator) {
+            $queryMutator($query);
+        }
+
+        return $query
+            ->with(['event', 'package', 'website', 'affiliate.user', 'entertainer.user'])
+            ->latest()
+            ->get();
     }
 
     public function reservation_store($slug, Request $request)

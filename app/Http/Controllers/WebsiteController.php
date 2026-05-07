@@ -232,6 +232,8 @@ class WebsiteController extends Controller
         $transactionPermissionIds = Permission::query()
             ->whereIn('key', [
                 'admin.transaction.index',
+                'admin.transaction.affiliate',
+                'admin.transaction.entertainer',
                 'admin.transaction.show',
                 'admin.transaction.update',
                 'admin.transaction.scan',

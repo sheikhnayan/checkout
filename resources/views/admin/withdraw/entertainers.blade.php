@@ -30,7 +30,7 @@
                         @csrf
                         @if(auth()->user()->isAdmin())
                             <div>
-                                <label class="form-label mb-1" style="font-size:0.8rem;">Website</label>
+                                <label class="form-label mb-1" style="font-size:0.8rem;">Website <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Select which venue's withdrawal charge rate you want to update."></i></label>
                                 <select class="form-select form-select-sm" name="website_id" required>
                                     <option value="">— Select website —</option>
                                     @foreach($websites as $ws)
@@ -50,7 +50,7 @@
                             </small>
                         @endif
                         <div>
-                            <label class="form-label mb-1" style="font-size:0.8rem;">Charge %</label>
+                            <label class="form-label mb-1" style="font-size:0.8rem;">Charge % <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The fee percentage deducted from all entertainer withdrawal requests for the selected venue."></i></label>
                             <div class="input-group input-group-sm">
                                 <input type="number" step="0.01" min="0" max="100" class="form-control"
                                        name="withdraw_charge"
@@ -183,7 +183,7 @@
                                                 </div>
                                                 <div class="modal-body">
                                                     <div class="mb-3">
-                                                        <label class="form-label">Status</label>
+                                                        <label class="form-label">Status <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Update the withdrawal status. 'Done' confirms payment was sent. 'Rejected' automatically refunds the amount to the entertainer's wallet."></i></label>
                                                         <select class="form-select" name="status" required>
                                                             <option value="pending"  {{ $wr->status==='pending'  ? 'selected':'' }}>Pending</option>
                                                             <option value="done"     {{ $wr->status==='done'     ? 'selected':'' }}>Done</option>
@@ -191,7 +191,7 @@
                                                         </select>
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label class="form-label">Admin Notes <small class="text-muted">(optional)</small></label>
+                                                        <label class="form-label">Admin Notes <small class="text-muted">(optional)</small> <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Internal notes visible to the entertainer. Use to explain a rejection or confirm payment details."></i></label>
                                                         <textarea class="form-control" name="admin_notes" rows="3"
                                                                   placeholder="Notes visible to the entertainer…">{{ $wr->admin_notes }}</textarea>
                                                     </div>

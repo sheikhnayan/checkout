@@ -186,7 +186,7 @@
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="name" class="form-label">Website Name</label>
+                                                        <label for="name" class="form-label">Website Name <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The display name of the venue or club. Shown throughout the platform and in customer emails."></i></label>
                                                         <input type="text" name="name" class="form-control" id="name" placeholder="Website Name" value="{{ $data->name }}" required>
                                                     </div>
                                                 </div>
@@ -196,7 +196,7 @@
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="name" class="form-label">Domain</label>
+                                                        <label for="name" class="form-label">Domain <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The domain or subdomain for this venue (e.g. www.myvenue.com)."></i></label>
                                                         <input type="text" name="domain" class="form-control" id="name" value="{{ $data->domain }}" placeholder="Enter Domain" required>
                                                     </div>
                                                 </div>
@@ -206,7 +206,7 @@
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="slug" class="form-label">Slug (URL Path)</label>
+                                                        <label for="slug" class="form-label">Slug (URL Path) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The URL-friendly path for the checkout page (e.g. my-venue)."></i></label>
                                                         <input type="text" name="slug" class="form-control" id="slug" value="{{ $data->slug }}" placeholder="e.g., my-website">
                                                         <small class="form-text text-muted">Current URL: www.domain.com/<strong>{{ $data->slug }}</strong></small>
                                                     </div>
@@ -217,7 +217,7 @@
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="logo" class="form-label">Logo</label>
+                                                        <label for="logo" class="form-label">Logo <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Upload a new logo to replace the current one. Leave blank to keep the existing logo."></i></label>
                                                         <input type="file" name="logo" class="form-control" id="logo" placeholder="Logo">
                                                     </div>
                                                     <div class="mb-3">
@@ -226,14 +226,14 @@
                                                 </div>
                                                 <div class="col-md-3">
                                                     <div class="mb-3">
-                                                        <label for="logo_width" class="form-label">Logo Width (px)</label>
+                                                        <label for="logo_width" class="form-label">Logo Width (px) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional pixel width for the logo. Leave blank for default auto-sizing."></i></label>
                                                         <input type="number" name="logo_width" class="form-control" id="logo_width" value="{{ $data->logo_width }}" placeholder="Width in pixels" min="1">
                                                         <small class="form-text text-muted">Optional: Leave blank for auto-sizing</small>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-3">
                                                     <div class="mb-3">
-                                                        <label for="logo_height" class="form-label">Logo Height (px)</label>
+                                                        <label for="logo_height" class="form-label">Logo Height (px) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional pixel height for the logo. Leave blank for default auto-sizing."></i></label>
                                                         <input type="number" name="logo_height" class="form-control" id="logo_height" value="{{ $data->logo_height }}" placeholder="Height in pixels" min="1">
                                                         <small class="form-text text-muted">Optional: Leave blank for auto-sizing</small>
                                                     </div>
@@ -243,7 +243,7 @@
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="location" class="form-label">Location</label>
+                                                        <label for="location" class="form-label">Location <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The physical address of the venue. Used for the map and location display on the checkout page."></i></label>
                                                         <input type="text" name="location" class="form-control" id="location-input" value="{{ $data->location }}" placeholder="Location" required autocomplete="off">
                                                         <ul id="suggestions"></ul>
                                                         <input type="hidden" name="lat" id="latitude" value="{{ $data->lat }}">
@@ -252,13 +252,13 @@
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="phone" class="form-label">Phone</label>
+                                                        <label for="phone" class="form-label">Phone <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The venue's public contact phone number."></i></label>
                                                         <input type="text" name="phone" class="form-control" value="{{ $data->phone }}" id="phone" placeholder="Phone" required>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="password" class="form-label">Email</label>
+                                                        <label for="password" class="form-label">Email <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The venue's main public contact email address."></i></label>
                                                         <input type="email" name="email" class="form-control" value="{{ $data->email }}" id="email" placeholder="Email" required>
                                                     </div>
                                                 </div>
@@ -268,13 +268,13 @@
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="website_admin_name" class="form-label">Website Admin Name</label>
+                                                        <label for="website_admin_name" class="form-label">Website Admin Name <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Full name for the primary admin account of this website."></i></label>
                                                         <input type="text" name="website_admin_name" class="form-control" id="website_admin_name" value="{{ old('website_admin_name', optional($websiteAdminUser)->name) }}" placeholder="Admin Name" required>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="website_admin_email" class="form-label">Website Admin Email</label>
+                                                        <label for="website_admin_email" class="form-label">Website Admin Email <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Login email for the primary admin account of this website."></i></label>
                                                         <input type="email" name="website_admin_email" class="form-control @error('website_admin_email') is-invalid @enderror" id="website_admin_email" value="{{ old('website_admin_email', optional($websiteAdminUser)->email) }}" placeholder="admin@website.com" required>
                                                         @error('website_admin_email')
                                                             <div class="invalid-feedback">{{ $message }}</div>
@@ -283,19 +283,19 @@
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="website_admin_password" class="form-label">Website Admin Password</label>
+                                                        <label for="website_admin_password" class="form-label">Website Admin Password <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Leave blank to keep the current password. Enter a new password to change it."></i></label>
                                                         <input type="password" name="website_admin_password" class="form-control" id="website_admin_password" placeholder="Leave blank to keep current password">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="website_admin_password_confirmation" class="form-label">Confirm Password</label>
+                                                        <label for="website_admin_password_confirmation" class="form-label">Confirm Password <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Re-enter the new password to confirm it matches."></i></label>
                                                         <input type="password" name="website_admin_password_confirmation" class="form-control" id="website_admin_password_confirmation" placeholder="Confirm new password">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label class="form-label">Contact Emails</label>
+                                                        <label class="form-label">Contact Emails <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Additional email addresses that receive booking confirmation notifications."></i></label>
                                                         <div id="emails-wrapper">
                                                             @foreach ($data->emails as $item)
                                                                 <div class="row mb-2 email-group">
@@ -327,7 +327,7 @@
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="reservation" class="form-label">Guest-list visible?</label>
+                                                        <label for="reservation" class="form-label">Guest-list visible? <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Controls whether a guest-list / reservation tab is shown on the checkout page."></i></label>
                                                         <select name="reservation" id="reservation" class="form-control">
                                                             <option value="1" {{ $data->reservation == 1 ? 'selected' : '' }}>Yes</option>
                                                             <option value="0" {{ $data->reservation == 0 ? 'selected' : '' }}>No</option>
@@ -337,35 +337,35 @@
 
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="password" class="form-label">Description</label>
+                                                        <label for="password" class="form-label">Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Public description of the venue displayed on the checkout page."></i></label>
                                                         <textarea name="description" class="form-control" id="description" placeholder="Description" required>{{ $data->description }}</textarea>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="hero_title" class="form-label">Hero Title</label>
+                                                        <label for="hero_title" class="form-label">Hero Title <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Main headline shown at the top of the public-facing checkout page."></i></label>
                                                         <input type="text" name="hero_title" class="form-control" id="hero_title" value="{{ $data->hero_title }}" placeholder="Main headline for public page">
                                                     </div>
                                                 </div>
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="hero_subtitle" class="form-label">Hero Subtitle</label>
+                                                        <label for="hero_subtitle" class="form-label">Hero Subtitle <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Supporting subtitle text shown below the hero title on the checkout page."></i></label>
                                                         <input type="text" name="hero_subtitle" class="form-control" id="hero_subtitle" value="{{ $data->hero_subtitle }}" placeholder="Short supporting line under hero title">
                                                     </div>
                                                 </div>
 
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="secondary_description" class="form-label">Secondary Description</label>
+                                                        <label for="secondary_description" class="form-label">Secondary Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional second content block displayed on the checkout page below the main description."></i></label>
                                                         <textarea name="secondary_description" class="form-control" id="secondary_description" rows="3" placeholder="Additional section text for the new layout">{{ $data->secondary_description }}</textarea>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="website_gallery_picker" class="form-label">Gallery Images</label>
+                                                        <label for="website_gallery_picker" class="form-label">Gallery Images <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Photos displayed in the venue's image gallery on the checkout page."></i></label>
                                                         <input type="file" class="form-control" id="website_gallery_picker" accept="image/*" data-criteria-bound="1">
                                                         <input type="file" name="gallery_images[]" class="d-none" id="gallery_images" accept="image/*" multiple>
                                                         <input type="hidden" name="existing_gallery_images" id="existing_gallery_images" value='@json((array) ($data->gallery_images ?? []))'>
@@ -376,21 +376,21 @@
                                                 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="guest_list_button_text" class="form-label">Guest List Button Text</label>
+                                                        <label for="guest_list_button_text" class="form-label">Guest List Button Text <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The label displayed on the guest list / reservation tab button on the checkout page."></i></label>
                                                         <input type="text" name="guest_list_button_text" class="form-control" id="guest_list_button_text" value="{{ $data->guest_list_button_text ?? 'Guest List' }}" placeholder="Guest List Button Text">
                                                     </div>
                                                 </div>
                                                 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="package_button_text" class="form-label">Package Button Text</label>
+                                                        <label for="package_button_text" class="form-label">Package Button Text <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The label displayed on the packages tab button on the checkout page."></i></label>
                                                         <input type="text" name="package_button_text" class="form-control" id="package_button_text" value="{{ $data->package_button_text ?? 'Packages' }}" placeholder="Package Button Text">
                                                     </div>
                                                 </div>
                                                 
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="transportation_confirmation_text" class="form-label">Transportation Confirmation Text</label>
+                                                        <label for="transportation_confirmation_text" class="form-label">Transportation Confirmation Text <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The legal confirmation text shown to customers next to the transportation arrival checkbox at checkout."></i></label>
                                                         <textarea name="transportation_confirmation_text" class="form-control" id="transportation_confirmation_text" rows="3" placeholder="Transportation confirmation checkbox text">{{ $data->transportation_confirmation_text ?? 'I confirm I am not arriving via Uber, Lyft, limo, taxi, ride-sharing or any other paid service. I am arriving in a personal vehicle.' }}</textarea>
                                                     </div>
                                                 </div>
@@ -410,7 +410,7 @@
 
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label class="form-label">Operating Days</label>
+                                                        <label class="form-label">Operating Days <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Days of the week when this venue accepts bookings. Unlisted days will be unavailable to customers."></i></label>
                                                         <div class="row g-2">
                                                             @foreach($operatingDayLabels as $dayValue => $dayLabel)
                                                                 <div class="col-md-6">
@@ -430,14 +430,14 @@
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="operating_start_time" class="form-label">Operating Start Time</label>
+                                                        <label for="operating_start_time" class="form-label">Operating Start Time <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Earliest time that bookings can be made for this venue."></i></label>
                                                         <input type="time" name="operating_start_time" class="form-control" id="operating_start_time" value="{{ old('operating_start_time', $data->operating_start_time) }}">
                                                     </div>
                                                 </div>
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="operating_end_time" class="form-label">Operating End Time</label>
+                                                        <label for="operating_end_time" class="form-label">Operating End Time <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Latest time that bookings can be made for this venue."></i></label>
                                                         <input type="time" name="operating_end_time" class="form-control" id="operating_end_time" value="{{ old('operating_end_time', $data->operating_end_time) }}">
                                                     </div>
                                                 </div>
@@ -449,31 +449,31 @@
                                                     <div class="row">
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
-                                                                <label for="host" class="form-label">Host</label>
+                                                                <label for="host" class="form-label">Host <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The hostname of your outgoing email server (e.g. smtp.gmail.com)."></i></label>
                                                                 <input type="text" name="host" class="form-control" id="host" value="{{ $data->smtp->host }}" placeholder="SMTP Host">
                                                             </div>
                                                         </div>
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
-                                                                <label for="port" class="form-label">Port</label>
+                                                                <label for="port" class="form-label">Port <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The port for your SMTP server (587 for TLS, 465 for SSL)."></i></label>
                                                                 <input type="number" name="port" class="form-control" id="port" value="{{ $data->smtp->port }}" placeholder="SMTP Port">
                                                             </div>
                                                         </div>
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
-                                                                <label for="username" class="form-label">Username</label>
+                                                                <label for="username" class="form-label">Username <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The username or email used to authenticate with your SMTP server."></i></label>
                                                                 <input type="text" name="username" class="form-control" value="{{ $data->smtp->username }}" id="username" placeholder="SMTP Username">
                                                             </div>
                                                         </div>
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
-                                                                <label for="password" class="form-label">Password</label>
+                                                                <label for="password" class="form-label">Password <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The password used to authenticate with your SMTP server."></i></label>
                                                                 <input type="text" name="password" class="form-control" value="{{ $data->smtp->password }}" id="password" placeholder="SMTP Password">
                                                             </div>
                                                         </div>
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
-                                                                <label for="encryption" class="form-label">Encryption</label>
+                                                                <label for="encryption" class="form-label">Encryption <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The security protocol for the SMTP connection. TLS is recommended."></i></label>
                                                                 <select name="encryption" class="form-select" id="encryption">
                                                                     <option {{ $data->smtp->encryption == 'tls' ? 'selected' : '' }} value="tls">TLS</option>
                                                                     <option {{ $data->smtp->encryption == 'ssl' ? 'selected' : '' }} value="ssl">SSL</option>
@@ -483,13 +483,13 @@
                                                         </div>
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
-                                                                <label for="from_address" class="form-label">From Address</label>
+                                                                <label for="from_address" class="form-label">From Address <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The email address that booking confirmation emails are sent from."></i></label>
                                                                 <input type="email" value="{{ $data->smtp->from_email }}" name="from_address" class="form-control" id="from_address" placeholder="From Address">
                                                             </div>
                                                         </div>
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
-                                                                <label for="from_name" class="form-label">From Name</label>
+                                                                <label for="from_name" class="form-label">From Name <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The sender name that appears in customers' email inboxes."></i></label>
                                                                 <input type="text" value="{{ $data->smtp->from_name }}" name="from_name" class="form-control" id="from_name" placeholder="From Name">
                                                             </div>
                                                         </div>
@@ -503,19 +503,19 @@
                                                     <div class="row">
                                                         <div class="col-md-4">
                                                             <div class="mb-3">
-                                                                <label for="back_text" class="form-label">Back Button Text</label>
+                                                                <label for="back_text" class="form-label">Back Button Text <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Text label for the back navigation button on the checkout page."></i></label>
                                                                 <input type="text" name="back_text" class="form-control" id="back_text" value="{{ $data->back_text }}" placeholder="Back Button Text">
                                                             </div>
                                                         </div>
                                                         <div class="col-md-4">
                                                             <div class="mb-3">
-                                                                <label for="privacy_policy" class="form-label">Back Button Link</label>
+                                                                <label for="privacy_policy" class="form-label">Back Button Link <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="URL the back button redirects to when clicked."></i></label>
                                                                 <input type="text" name="back_link" class="form-control" id="privacy_policy" value="{{ $data->back_link }}" placeholder="Back Button Link">
                                                             </div>
                                                         </div>
                                                         <div class="col-md-4">
                                                             <div class="mb-3">
-                                                                <label for="terms_conditions" class="form-label">Footer Text</label>
+                                                                <label for="terms_conditions" class="form-label">Footer Text <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional footer text shown at the bottom of the checkout page."></i></label>
                                                                 <input type="text" name="footer_text" class="form-control" id="terms_conditions" value="{{ $data->footer_text }}" placeholder="Footer Text">
                                                             </div>
                                                         </div>
@@ -523,19 +523,19 @@
                                                     <div class="row">
                                                         <div class="col-md-4">
                                                             <div class="mb-3">
-                                                                <label for="success_page" class="form-label">Success Page</label>
+                                                                <label for="success_page" class="form-label">Success Page <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="URL customers are redirected to after a successful booking. Leave blank to use the default thank-you page."></i></label>
                                                                 <input type="text" name="success_page" class="form-control" value="{{ $data->success_page }}" id="success_page" placeholder="Success Page URL">
                                                             </div>
                                                         </div>
                                                         <div class="col-md-4">
                                                             <div class="mb-3">
-                                                                <label for="privacy_policy" class="form-label">Privacy & Policy Page</label>
+                                                                <label for="privacy_policy" class="form-label">Privacy & Policy Page <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="URL of your venue's privacy policy page."></i></label>
                                                                 <input type="text" name="policy" class="form-control" value="{{ $data->policy }}" id="privacy_policy" placeholder="Privacy & Policy Page URL">
                                                             </div>
                                                         </div>
                                                         <div class="col-md-4">
                                                             <div class="mb-3">
-                                                                <label for="terms_conditions" class="form-label">Terms & Conditions Page</label>
+                                                                <label for="terms_conditions" class="form-label">Terms & Conditions Page <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="URL of your venue's terms and conditions page."></i></label>
                                                                 <input type="text" name="terms" class="form-control" value="{{ $data->terms }}" id="terms_conditions" placeholder="Terms & Conditions Page URL">
                                                             </div>
                                                         </div>
@@ -544,14 +544,14 @@
                                                     <div class="row">
                                                         <div class="col-md-4">
                                                             <div class="mb-3">
-                                                                <label for="description_label" class="form-label">Description Label</label>
+                                                                <label for="description_label" class="form-label">Description Label <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Custom label text for the description section heading on the checkout page."></i></label>
                                                                 <input type="text" name="description_label" class="form-control" id="description_label" value="{{ $data->description_label ?? 'Description' }}" placeholder="Description">
                                                                 <small class="form-text text-muted">Label text that appears above the event description</small>
                                                             </div>
                                                         </div>
                                                         <div class="col-md-4">
                                                             <div class="mb-3">
-                                                                <label for="text_description" class="form-label">Website Description</label>
+                                                                <label for="text_description" class="form-label">Website Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="An additional text block displayed on the checkout page."></i></label>
                                                                 <textarea name="text_description" class="form-control" id="text_description" rows="3" placeholder="Enter a description for your website that will be displayed on the front-end">{{ $data->text_description ?? '' }}</textarea>
                                                                 <small class="form-text text-muted">This text will be displayed on your website's front-end</small>
                                                             </div>

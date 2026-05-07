@@ -35,7 +35,7 @@
 
                             <div class="col-12 col-lg-6">
                                 <div class="border rounded-3 p-3 h-100">
-                                    <label for="manualCode" class="form-label fw-semibold">Manual Ticket Code</label>
+                                    <label for="manualCode" class="form-label fw-semibold">Manual Ticket Code <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Enter or paste a ticket code manually to look up purchase details without using the camera scanner."></i></label>
                                     <div class="input-group mb-3">
                                         <input type="text" id="manualCode" class="form-control" placeholder="Paste or type ticket code">
                                         <button class="btn btn-outline-secondary" type="button" id="manualLookupBtn">Verify</button>

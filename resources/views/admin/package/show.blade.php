@@ -296,8 +296,12 @@
                                                     @foreach($targetedPackages as $index => $item)
                                                         @php
                                                             $owner = $item->audience === 'affiliate'
-                                                                ? ($item->affiliate->display_name ?: optional($item->affiliate->user)->name)
-                                                                : ($item->entertainer->display_name ?: optional($item->entertainer->user)->name);
+                                                                ? ($item->affiliate_id
+                                                                    ? (optional($item->affiliate)->display_name ?: optional(optional($item->affiliate)->user)->name)
+                                                                    : 'All Affiliates')
+                                                                : ($item->entertainer_id
+                                                                    ? (optional($item->entertainer)->display_name ?: optional(optional($item->entertainer)->user)->name)
+                                                                    : 'All Entertainers');
                                                         @endphp
                                                         <tr>
                                                             <td>{{ $index + 1 }}</td>

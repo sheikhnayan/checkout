@@ -111,28 +111,28 @@ label{
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="authorize_key" class="form-label">Authorize App Key</label>
+                                                        <label for="authorize_key" class="form-label">Authorize App Key <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The API Login ID for your Authorize.net payment account."></i></label>
                                                         <input type="text" name="authorize_key" class="form-control" id="authorize_key" value="{{ $data->authorize_key }}" placeholder="Authorize App Key" required>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="authorize_secret" class="form-label">Authorize Secret Key</label>
+                                                        <label for="authorize_secret" class="form-label">Authorize Secret Key <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The Transaction Key for your Authorize.net payment account."></i></label>
                                                         <input type="text" name="authorize_secret" value="{{ $data->authorize_secret }}" class="form-control" id="authorize_secret" placeholder="Authorize Secret Key" required>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="stripe_key" class="form-label">Stripe App Key</label>
+                                                        <label for="stripe_key" class="form-label">Stripe App Key <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The Publishable Key for your Stripe account, used in the frontend checkout form."></i></label>
                                                         <input type="text" name="stripe_key" class="form-control" id="stripe_key" value="{{ $data->stripe_key }}" placeholder="Stripe App Key" required>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="stripe_secret" class="form-label">Stripe Secret Key</label>
+                                                        <label for="stripe_secret" class="form-label">Stripe Secret Key <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The Secret Key for your Stripe account. Keep this private — never expose it publicly."></i></label>
                                                         <input type="text" name="stripe_secret" value="{{ $data->stripe_secret }}" class="form-control" id="stripe_secret" placeholder="Stripe Secret Key" required>
                                                     </div>
                                                 </div>

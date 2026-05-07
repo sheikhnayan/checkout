@@ -377,7 +377,7 @@ class PromoCodeController extends Controller
         $add->combine_shipping_discounts = $request->boolean('combine_shipping_discounts');
         $add->starts_at = $request->input('starts_at');
         $add->ends_at = $request->input('ends_at');
-        $add->is_active = $request->has('is_active') ? $request->boolean('is_active') : true;
+        $add->is_active = $request->has('is_active') ? $request->boolean('is_active') : ($add->is_active ?? true);
         $add->update();
 
         return $audience === PromoCode::AUDIENCE_CLUB

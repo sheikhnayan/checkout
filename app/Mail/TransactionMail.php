@@ -22,17 +22,19 @@ class TransactionMail extends Mailable
     public $cartItems;
     public $priceBreakdown;
     public $website;
+    public $includeQrInPdf;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($mailData, $transaction = null, $cartItems = null, $priceBreakdown = null, $website = null)
+    public function __construct($mailData, $transaction = null, $cartItems = null, $priceBreakdown = null, $website = null, bool $includeQrInPdf = true)
     {
         $this->mailData = $mailData;
         $this->transaction = $transaction;
         $this->cartItems = $cartItems;
         $this->priceBreakdown = $priceBreakdown;
         $this->website = $website;
+        $this->includeQrInPdf = $includeQrInPdf;
     }
 
     /**
@@ -60,6 +62,7 @@ class TransactionMail extends Mailable
             with: [
                 'mailData' => $this->mailData,
                 'clubName' => $clubName,
+                'transaction' => $this->transaction,
             ],
         );
     }
@@ -78,7 +81,7 @@ class TransactionMail extends Mailable
         try {
             // Pre-fetch QR code as base64 so DomPDF can embed it without external HTTP
             $qrCodeBase64 = null;
-            if (!empty($this->transaction->ticket_qr_code)) {
+            if ($this->includeQrInPdf && !empty($this->transaction->ticket_qr_code)) {
                 try {
                     $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' . urlencode($this->transaction->ticket_qr_code);
                     $qrImageData = @file_get_contents($qrUrl);
@@ -96,6 +99,7 @@ class TransactionMail extends Mailable
                 'priceBreakdown' => $this->priceBreakdown,
                 'website' => $this->website,
                 'qrCodeBase64' => $qrCodeBase64,
+                'showQrInPdf' => $this->includeQrInPdf,
             ]);
 
             return [

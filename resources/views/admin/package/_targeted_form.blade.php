@@ -2,8 +2,8 @@
     $formData = $data ?? null;
     $selectedWebsiteId = (int) old('website_id', $selectedWebsiteId ?? optional($formData)->website_id);
     $selectedAudience = old('audience', $audience ?? optional($formData)->audience);
-    $selectedAffiliateId = old('affiliate_id', optional($formData)->affiliate_id);
-    $selectedEntertainerId = old('entertainer_id', optional($formData)->entertainer_id);
+    $selectedAffiliateValue = (string) old('affiliate_id', ($selectAllAffiliate ?? false) ? '__all__' : (optional($formData)->affiliate_id ?? ''));
+    $selectedEntertainerValue = (string) old('entertainer_id', ($selectAllEntertainer ?? false) ? '__all__' : (optional($formData)->entertainer_id ?? ''));
     $selectedType = old('package_type', optional($formData)->package_type ?? 'ticket');
     $selectedAddons = [];
 
@@ -124,7 +124,7 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label for="website_id" class="form-label">Club</label>
+                    <label for="website_id" class="form-label">Club <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The club or venue this targeted package belongs to."></i></label>
                     <select name="website_id" class="form-control" id="targeted_website_id" {{ $canSelectWebsite ? '' : 'disabled' }}>
                         <option value="">Select Club</option>
                         @foreach($websiteOptions as $websiteOption)
@@ -139,7 +139,7 @@
 
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label class="form-label">Audience</label>
+                    <label class="form-label">Audience <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Choose who can see this package: all visitors, customers from a specific affiliate, or via an entertainer link."></i></label>
                     <input type="text" class="form-control" value="{{ ucfirst($selectedAudience) }}" disabled>
                     <input type="hidden" name="audience" value="{{ $selectedAudience }}">
                 </div>
@@ -148,11 +148,12 @@
             @if($selectedAudience === 'affiliate')
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="affiliate_id" class="form-label">Affiliate</label>
+                        <label for="affiliate_id" class="form-label">Affiliate <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Restrict this package so only the selected affiliate's customers can see and purchase it."></i></label>
                         <select name="affiliate_id" class="form-control" id="affiliate_id">
                             <option value="">Select Affiliate</option>
+                            <option value="__all__" @selected($selectedAffiliateValue === '__all__')>Select All Affiliates</option>
                             @foreach($targetOptions['affiliates'] as $affiliate)
-                                <option value="{{ $affiliate->id }}" @selected((int) $selectedAffiliateId === (int) $affiliate->id)>
+                                <option value="{{ $affiliate->id }}" @selected((string) $affiliate->id === $selectedAffiliateValue)>
                                     {{ $affiliate->display_name ?: optional($affiliate->user)->name }}
                                 </option>
                             @endforeach
@@ -162,11 +163,12 @@
             @else
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="entertainer_id" class="form-label">Entertainer</label>
+                        <label for="entertainer_id" class="form-label">Entertainer <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Restrict this package to be visible only via the selected entertainer's referral link."></i></label>
                         <select name="entertainer_id" class="form-control" id="entertainer_id">
                             <option value="">Select Entertainer</option>
+                            <option value="__all__" @selected($selectedEntertainerValue === '__all__')>Select All Entertainers</option>
                             @foreach($targetOptions['entertainers'] as $entertainer)
-                                <option value="{{ $entertainer->id }}" @selected((int) $selectedEntertainerId === (int) $entertainer->id)>
+                                <option value="{{ $entertainer->id }}" @selected((string) $entertainer->id === $selectedEntertainerValue)>
                                     {{ $entertainer->display_name ?: optional($entertainer->user)->name }}
                                 </option>
                             @endforeach
@@ -177,21 +179,21 @@
 
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label for="name" class="form-label">Name</label>
+                    <label for="name" class="form-label">Name <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The package name displayed to customers at checkout."></i></label>
                     <input type="text" name="name" class="form-control" id="name" placeholder="Package Name" value="{{ old('name', optional($formData)->name) }}" required>
                 </div>
             </div>
 
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label for="price" class="form-label">Price</label>
+                    <label for="price" class="form-label">Price <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The base price of this package. When 'Charge per Quantity' is on, this is multiplied by guest count."></i></label>
                     <input type="text" name="price" class="form-control" id="price" value="{{ old('price', optional($formData)->price) }}" placeholder="Enter Price" required>
                 </div>
             </div>
 
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label for="category_id" class="form-label">Category</label>
+                    <label for="category_id" class="form-label">Category <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Assign to an existing category to organise packages in the checkout shop view."></i></label>
                     <select name="category_id" class="form-control" id="category_id">
                         <option value="">Select Existing Category</option>
                         @foreach($categories as $category)
@@ -203,14 +205,14 @@
 
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label for="new_category_name" class="form-label">Or Create New Category</label>
+                    <label for="new_category_name" class="form-label">Or Create New Category <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Type a new category name here to create it and assign this package to it automatically."></i></label>
                     <input type="text" name="new_category_name" class="form-control" id="new_category_name" placeholder="Example: VIP Tables" value="{{ old('new_category_name') }}">
                 </div>
             </div>
 
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label for="package_type" class="form-label">Product Type *</label>
+                    <label for="package_type" class="form-label">Product Type * <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="'Ticket' = individual entry tickets with a daily limit. 'Package' = table reservations with guest capacity."></i></label>
                     <select name="package_type" class="form-control" id="package_type" required onchange="togglePackageTypeFields()">
                         <option value="ticket" @selected($selectedType === 'ticket')>Ticket</option>
                         <option value="table" @selected($selectedType === 'table')>Package</option>
@@ -220,21 +222,21 @@
 
             <div class="col-md-6" id="daily_ticket_limit_field" {{ $selectedType === 'ticket' ? '' : 'style=display:none;' }}>
                 <div class="mb-3">
-                    <label for="daily_ticket_limit" class="form-label">Daily Ticket Limit *</label>
+                    <label for="daily_ticket_limit" class="form-label">Daily Ticket Limit * <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Maximum number of tickets that can be sold for this package in a single day."></i></label>
                     <input type="number" name="daily_ticket_limit" class="form-control" id="daily_ticket_limit" value="{{ old('daily_ticket_limit', optional($formData)->daily_ticket_limit) }}" min="1">
                 </div>
             </div>
 
             <div class="col-md-6" id="daily_table_limit_field" {{ $selectedType === 'table' ? '' : 'style=display:none;' }}>
                 <div class="mb-3">
-                    <label for="daily_table_limit" class="form-label">Daily Table Limit *</label>
+                    <label for="daily_table_limit" class="form-label">Daily Table Limit * <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Maximum number of tables that can be booked for this package in a single day."></i></label>
                     <input type="number" name="daily_table_limit" class="form-control" id="daily_table_limit" value="{{ old('daily_table_limit', optional($formData)->daily_table_limit) }}" min="1">
                 </div>
             </div>
 
             <div class="col-md-6" id="guests_per_table_field" {{ $selectedType === 'table' ? '' : 'style=display:none;' }}>
                 <div class="mb-3">
-                    <label for="guests_per_table" class="form-label">Guests Per Table *</label>
+                    <label for="guests_per_table" class="form-label">Guests Per Table * <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Maximum number of guests allowed per table reservation booking."></i></label>
                     <input type="number" name="guests_per_table" class="form-control" id="guests_per_table" value="{{ old('guests_per_table', optional($formData)->guests_per_table) }}" min="1">
                 </div>
             </div>
@@ -242,7 +244,7 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <div class="toggle-field">
-                        <p class="toggle-text">Charge per Quantity</p>
+                        <p class="toggle-text">Charge per Quantity <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="When enabled, the package price is multiplied by the number of guests the customer selects."></i></p>
                         <label class="toggle-switch" for="multiple">
                             <input id="multiple" type="checkbox" name="multiple" class="toggle-switch-input" @checked(old('multiple', optional($formData)->multiple == 1))>
                             <span class="toggle-switch-slider"></span>
@@ -254,7 +256,7 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <div class="toggle-field">
-                        <p class="toggle-text">Transportation</p>
+                        <p class="toggle-text">Transportation <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="When enabled, customers can add a pick-up time and location for transportation during checkout."></i></p>
                         <label class="toggle-switch" for="transportation">
                             <input id="transportation" type="checkbox" name="transportation" class="toggle-switch-input" @checked(old('transportation', optional($formData)->transportation == 1))>
                             <span class="toggle-switch-slider"></span>
@@ -265,14 +267,14 @@
 
             <div class="col-md-12">
                 <div class="mb-3">
-                    <label for="description" class="form-label">Description</label>
+                    <label for="description" class="form-label">Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="A detailed description of what this package includes. Shown to customers on the checkout page."></i></label>
                     <textarea name="description" class="form-control" id="description" rows="4" required>{{ old('description', optional($formData)->description) }}</textarea>
                 </div>
             </div>
 
             <div class="col-md-12">
                 <div class="mb-3">
-                    <label for="status">Status</label>
+                    <label for="status">Status <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Active packages are visible and purchasable on the checkout page. Inactive ones are hidden."></i></label>
                     <select name="status" class="form-control" id="status" required>
                         <option value="1" @selected((string) old('status', optional($formData)->status ?? '1') === '1')>Active</option>
                         <option value="0" @selected((string) old('status', optional($formData)->status ?? '1') === '0')>Inactive</option>
@@ -283,7 +285,7 @@
 
         <div class="row" id="addons-row">
             <div class="col-12 mb-2">
-                <label class="form-label">Add-ons</label>
+                <label class="form-label">Add-ons <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Select optional add-ons customers can attach to this package during checkout."></i></label>
                 <div id="addon-rows">
                     @foreach($selectedAddons as $selectedAddonId)
                         <div class="addon-row">

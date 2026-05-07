@@ -83,7 +83,7 @@
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="mb-3">
-                                                    <label for="name" class="form-label">User Name</label>
+                                                    <label for="name" class="form-label">User Name <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The staff member's full name."></i></label>
                                                     <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" 
                                                            id="name" value="{{ old('name', $user->name) }}" placeholder="Enter User Name" required>
                                                     @error('name')
@@ -96,7 +96,7 @@
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="mb-3">
-                                                    <label for="email" class="form-label">Email Address</label>
+                                                    <label for="email" class="form-label">Email Address <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Login email for this website staff account."></i></label>
                                                     <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" 
                                                            id="email" value="{{ old('email', $user->email) }}" placeholder="Enter Email Address" required>
                                                     @error('email')
@@ -109,7 +109,7 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="mb-3">
-                                                    <label for="password" class="form-label">New Password</label>
+                                                    <label for="password" class="form-label">New Password <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Enter a new password to change the current one. Leave blank to keep the existing password."></i></label>
                                                     <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" 
                                                            id="password" placeholder="Leave blank to keep current password">
                                                     @error('password')
@@ -120,7 +120,7 @@
                                             
                                             <div class="col-md-6">
                                                 <div class="mb-3">
-                                                    <label for="password_confirmation" class="form-label">Confirm Password</label>
+                                                    <label for="password_confirmation" class="form-label">Confirm Password <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Re-enter the password to confirm it matches."></i></label>
                                                     <input type="password" name="password_confirmation" class="form-control" 
                                                            id="password_confirmation" placeholder="Confirm New Password">
                                                 </div>
@@ -130,7 +130,7 @@
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="mb-3">
-                                                    <label for="user_type" class="form-label">Portal Role</label>
+                                                    <label for="user_type" class="form-label">Portal Role <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Determines what features this user can access in the club portal."></i></label>
                                                     <select name="user_type" id="user_type" class="form-control @error('user_type') is-invalid @enderror" required>
                                                         <option value="website_user" {{ old('user_type', $user->user_type) === 'website_user' ? 'selected' : '' }}>Website Staff</option>
                                                         <option value="bouncer" {{ old('user_type', $user->user_type) === 'bouncer' ? 'selected' : '' }}>Bouncer</option>
@@ -145,7 +145,7 @@
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="mb-3">
-                                                    <label for="website_id" class="form-label">Assign Website</label>
+                                                    <label for="website_id" class="form-label">Assign Website <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The club or venue this user belongs to."></i></label>
                                                     <select name="website_id" id="website_id" class="form-control @error('website_id') is-invalid @enderror" required>
                                                         <option value="">Select a website</option>
                                                         @foreach($websites as $website)
@@ -164,7 +164,7 @@
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="mb-3">
-                                                    <label for="website_role_id" class="form-label">Assign Role</label>
+                                                    <label for="website_role_id" class="form-label">Assign Role <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The specific role that defines this user's permissions within their website."></i></label>
                                                     <select name="website_role_id" id="website_role_id" class="form-control @error('website_role_id') is-invalid @enderror" required>
                                                         <option value="">Select a role</option>
                                                         @foreach($roles as $role)

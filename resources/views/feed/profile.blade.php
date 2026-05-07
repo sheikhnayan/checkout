@@ -974,7 +974,7 @@
                     @endif
                     @if($profileType === 'model' && !empty($packagesUrl))
                         <a class="profile-packages-link" href="{{ $packagesUrl }}">
-                            Click here for my packages
+                            Click here to see my packages
                             <i class="fas fa-arrow-right"></i>
                         </a>
                     @endif

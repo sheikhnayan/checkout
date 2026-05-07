@@ -103,7 +103,7 @@
         <input type="hidden" name="feed_model_id" id="feed_model_id" value="{{ $entertainerProfileId }}">
     @else
         <div class="col-md-6">
-            <label for="website_id" class="form-label">Website / Club</label>
+            <label for="website_id" class="form-label">Website / Club <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The club or venue this post is associated with."></i></label>
             <select name="website_id" id="website_id" class="form-control" required>
                 @foreach($websites as $website)
                     <option value="{{ $website->id }}" @selected((string) $selectedWebsiteId === (string) $website->id)>{{ $website->name }}</option>
@@ -112,7 +112,7 @@
         </div>
 
         <div class="col-md-6">
-            <label for="author_mode" class="form-label">Post As</label>
+            <label for="author_mode" class="form-label">Post As <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Choose whether to post as the club brand or as a specific entertainer."></i></label>
             <select name="author_mode" id="author_mode" class="form-control" required>
                 <option value="model" @selected($selectedAuthorMode === 'model')>Entertainer Profile</option>
                 <option value="club" @selected($selectedAuthorMode === 'club')>Club Itself</option>
@@ -122,7 +122,7 @@
 
     @if(!$isEntertainerUser)
     <div class="col-md-6" id="feed-model-select-wrap">
-        <label for="feed_model_id" class="form-label">Entertainer Profile</label>
+        <label for="feed_model_id" class="form-label">Entertainer Profile <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The entertainer profile this post will be attributed to."></i></label>
         <select name="feed_model_id" id="feed_model_id" class="form-control">
             <option value="">Select entertainer</option>
             @foreach($feedModels as $model)
@@ -134,44 +134,44 @@
     @endif
 
     <div class="col-md-6">
-        <label for="posted_at" class="form-label">Post Date</label>
+        <label for="posted_at" class="form-label">Post Date <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The date this post is published or scheduled."></i></label>
         <input type="text" name="posted_at" id="posted_at" class="form-control feed-calendar-input" value="{{ $postedAtValue }}" autocomplete="off" placeholder="YYYY-MM-DD HH:MM">
     </div>
 
     <div class="col-md-6 d-flex align-items-center">
         <div class="form-check mt-4">
             <input class="form-check-input" type="checkbox" value="1" id="is_active" name="is_active" @checked(old('is_active', isset($feedPost) ? $feedPost->is_active : true))>
-            <label class="form-check-label" for="is_active">Visible on public feed</label>
+            <label class="form-check-label" for="is_active">Visible on public feed <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="When enabled, this post is visible to the public on the feed."></i></label>
         </div>
     </div>
 
     <div class="col-md-6 align-items-center" id="roll-call-toggle-wrap" style="display: {{ $canUseRollCallInitial ? 'flex' : 'none' }};">
         <div class="form-check mt-4">
             <input class="form-check-input" type="checkbox" value="1" id="show_on_roll_call" name="show_on_roll_call" @checked($showOnRollCall)>
-            <label class="form-check-label" for="show_on_roll_call">Do you want to post to Roll Call in feed post?</label>
+            <label class="form-check-label" for="show_on_roll_call">Do you want to post to Roll Call in feed post? <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Whether this post also appears in the Roll Call section of the feed."></i></label>
         </div>
     </div>
 
     <div class="col-md-6" id="roll-call-date-wrap" style="display: {{ $canUseRollCallInitial && $showOnRollCall ? 'block' : 'none' }};">
-        <label for="roll_call_start_date" class="form-label">Show in Roll Call from</label>
+        <label for="roll_call_start_date" class="form-label">Show in Roll Call from <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Start date for this post to appear in the Roll Call section of the feed."></i></label>
         <input type="text" name="roll_call_start_date" id="roll_call_start_date" class="form-control feed-calendar-input" value="{{ $rollCallStartDateValue }}" autocomplete="off" placeholder="YYYY-MM-DD">
     </div>
 
     <div class="col-md-6" id="roll-call-end-date-wrap" style="display: {{ $canUseRollCallInitial && $showOnRollCall ? 'block' : 'none' }};">
-        <label for="roll_call_end_date" class="form-label">Until</label>
+        <label for="roll_call_end_date" class="form-label">Until <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="End date for this post's Roll Call appearance. Leave blank for a single day."></i></label>
         <input type="text" name="roll_call_end_date" id="roll_call_end_date" class="form-control feed-calendar-input" value="{{ $rollCallEndDateValue }}" autocomplete="off" placeholder="YYYY-MM-DD">
         <small class="text-muted">This post appears in Roll Call for every date in the range. Leave end date empty for one day.</small>
     </div>
 
     <div class="col-12">
-        <label for="caption" class="form-label">Caption</label>
+        <label for="caption" class="form-label">Caption <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The text content of this feed post."></i></label>
         <textarea name="caption" id="caption" class="form-control" rows="5" placeholder="Write the post caption here">{{ old('caption', $feedPost->caption ?? '') }}</textarea>
     </div>
 
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
             <div>
-                <label class="form-label mb-0">Upload Media</label>
+                <label class="form-label mb-0">Upload Media <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Upload images or videos to attach to this post. Max 4MB each."></i></label>
                 <div><small class="text-muted">Accepted: JPG, PNG, WEBP, GIF, MP4, MOV, WEBM &mdash; max 4 MB each.</small></div>
                 <div><small class="text-muted">Recommended dimensions: <strong>1080 &times; 1080 px</strong> (square) or <strong>1080 &times; 1350 px</strong> (portrait). Actual file dimensions shown after selecting.</small></div>
             </div>
@@ -183,7 +183,7 @@
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
             <div>
-                <label class="form-label mb-0">External Media Links</label>
+                <label class="form-label mb-0">External Media Links <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="External video or image URLs to embed in this post. Enter one URL per line."></i></label>
                 <div><small class="text-muted">Use direct image/video links. Videos can also be hosted externally.</small></div>
             </div>
             <button type="button" class="btn btn-outline-primary btn-sm" id="add-external-row">Add External Media</button>
@@ -206,7 +206,7 @@
 
     @if(!empty($existingMediaItems))
         <div class="col-12">
-            <label class="form-label">Existing Media</label>
+            <label class="form-label">Existing Media <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Media files already attached to this post. Remove any you want to delete before saving."></i></label>
             <div class="row g-3">
                 @foreach($existingMediaItems as $index => $item)
                     @php

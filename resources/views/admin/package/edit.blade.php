@@ -195,7 +195,7 @@ label{
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="event_id" class="form-label">Event</label>
+                                                        <label for="event_id" class="form-label">Event <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optionally link this package to a specific event. Leave as 'No Event' for standalone packages."></i></label>
                                                         <select name="event_id" class="form-control" id="event_id">
                                                             <option value="" {{ empty($data->event_id) ? 'selected' : '' }}>No Event</option>
                                                             @foreach($events as $event)
@@ -206,21 +206,21 @@ label{
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="name" class="form-label">Name</label>
+                                                        <label for="name" class="form-label">Name <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The package name displayed to customers at checkout."></i></label>
                                                         <input type="text" name="name" class="form-control" id="name" placeholder="Package Name" value="{{ $data->name }}" required>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="name" class="form-label">Price</label>
+                                                        <label for="name" class="form-label">Price <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The base price of this package. When 'Charge per Quantity' is on, this is multiplied by guest count."></i></label>
                                                         <input type="text" name="price" class="form-control" id="name" value="{{ $data->price }}" placeholder="Enter Price" required>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="category_id" class="form-label">Category</label>
+                                                        <label for="category_id" class="form-label">Category <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Assign to an existing category to organise packages in the checkout shop view."></i></label>
                                                         <select name="category_id" class="form-control" id="category_id">
                                                             <option value="">Select Existing Category</option>
                                                             @foreach($categories as $category)
@@ -233,14 +233,14 @@ label{
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="new_category_name" class="form-label">Or Create New Category</label>
+                                                        <label for="new_category_name" class="form-label">Or Create New Category <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Type a new category name here to create it and assign this package to it automatically."></i></label>
                                                         <input type="text" name="new_category_name" class="form-control" id="new_category_name" placeholder="Example: VIP Tables">
                                                     </div>
                                                 </div>
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="package_type" class="form-label">Product Type *</label>
+                                                        <label for="package_type" class="form-label">Product Type * <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="'Ticket' = individual entry tickets with a daily limit. 'Package' = table reservations with guest capacity."></i></label>
                                                         <select name="package_type" class="form-control" id="package_type" required onchange="togglePackageTypeFields()">
                                                             <option value="ticket" {{ old('package_type', $data->package_type ?? 'ticket') === 'ticket' ? 'selected' : '' }}>Ticket</option>
                                                             <option value="table" {{ old('package_type', $data->package_type ?? 'ticket') === 'table' ? 'selected' : '' }}>Package</option>
@@ -250,7 +250,7 @@ label{
 
                                                 <div class="col-md-6" id="daily_ticket_limit_field" {{ old('package_type', $data->package_type ?? 'ticket') === 'ticket' ? '' : 'style="display:none;"' }}>
                                                     <div class="mb-3">
-                                                        <label for="daily_ticket_limit" class="form-label">Daily Ticket Limit *</label>
+                                                        <label for="daily_ticket_limit" class="form-label">Daily Ticket Limit * <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Maximum number of tickets that can be sold for this package in a single day."></i></label>
                                                         <input type="number" name="daily_ticket_limit" class="form-control" id="daily_ticket_limit" value="{{ old('daily_ticket_limit', $data->daily_ticket_limit) }}" placeholder="Maximum tickets per day" min="1">
                                                         <small>Maximum number of tickets that can be sold in a single day.</small>
                                                     </div>
@@ -258,7 +258,7 @@ label{
 
                                                 <div class="col-md-6" id="daily_table_limit_field" {{ old('package_type', $data->package_type ?? 'ticket') === 'table' ? '' : 'style="display:none;"' }}>
                                                     <div class="mb-3">
-                                                        <label for="daily_table_limit" class="form-label">Daily Table Limit *</label>
+                                                        <label for="daily_table_limit" class="form-label">Daily Table Limit * <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Maximum number of tables that can be booked for this package in a single day."></i></label>
                                                         <input type="number" name="daily_table_limit" class="form-control" id="daily_table_limit" value="{{ old('daily_table_limit', $data->daily_table_limit) }}" placeholder="Maximum tables per day" min="1">
                                                         <small>Maximum number of tables that can be booked in a single day.</small>
                                                     </div>
@@ -266,7 +266,7 @@ label{
 
                                                 <div class="col-md-6" id="guests_per_table_field" {{ old('package_type', $data->package_type ?? 'ticket') === 'table' ? '' : 'style="display:none;"' }}>
                                                     <div class="mb-3">
-                                                        <label for="guests_per_table" class="form-label">Guests Per Table *</label>
+                                                        <label for="guests_per_table" class="form-label">Guests Per Table * <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Maximum number of guests allowed per table reservation booking."></i></label>
                                                         <input type="number" name="guests_per_table" class="form-control" id="guests_per_table" value="{{ old('guests_per_table', $data->guests_per_table) }}" placeholder="Number of guests per table" min="1">
                                                         <small>Maximum guests allowed per table reservation.</small>
                                                     </div>
@@ -275,7 +275,7 @@ label{
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <div class="toggle-field">
-                                                            <p class="toggle-text">Charge per Quantity</p>
+                                                            <p class="toggle-text">Charge per Quantity <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="When enabled, the package price is multiplied by the number of guests the customer selects."></i></p>
                                                             <label class="toggle-switch" for="multiple">
                                                                 <input id="multiple" type="checkbox" name="multiple" class="toggle-switch-input" @checked(old('multiple', $data->multiple == 1))>
                                                                 <span class="toggle-switch-slider"></span>
@@ -287,7 +287,7 @@ label{
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <div class="toggle-field">
-                                                            <p class="toggle-text">Transportation</p>
+                                                            <p class="toggle-text">Transportation <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="When enabled, customers can add a pick-up time and location for transportation during checkout."></i></p>
                                                             <label class="toggle-switch" for="transportation">
                                                                 <input id="transportation" type="checkbox" name="transportation" class="toggle-switch-input" @checked(old('transportation', $data->transportation == 1))>
                                                                 <span class="toggle-switch-slider"></span>
@@ -298,14 +298,14 @@ label{
 
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="description" class="form-label">Description</label>
+                                                        <label for="description" class="form-label">Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="A detailed description of what this package includes. Shown to customers on the checkout page."></i></label>
                                                         <textarea name="description" class="form-control" id="description" rows="4" placeholder="Package Description" required>{{ $data->description }}</textarea>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="status">Status</label>
+                                                        <label for="status">Status <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Active packages are visible and purchasable on the checkout page. Inactive ones are hidden."></i></label>
                                                         <select name="status" class="form-control" id="status" required>
                                                             <option {{ $data->status == 1 ? 'selected' : '' }} value="1">Active</option>
                                                             <option {{ $data->status == 0 ? 'selected' : '' }} value="0">Inactive</option>
@@ -319,7 +319,7 @@ label{
                                             @endphp
                                             <div class="row" id="addons-row">
                                                 <div class="col-12 mb-2">
-                                                    <label class="form-label">Add-ons</label>
+                                                    <label class="form-label">Add-ons <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Select optional add-ons customers can attach to this package during checkout. Use multiple rows for the same add-on."></i></label>
                                                     @php($selectedAddonIds = collect($selectedAddons)->map(fn($id) => (string) $id)->values()->all())
                                                     @php($oldAddonsRaw = old('addons'))
                                                     @if(is_string($oldAddonsRaw) && trim($oldAddonsRaw) !== '')
