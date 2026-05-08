@@ -239,6 +239,30 @@
             gap: 6px;
         }
 
+        #feed-copy-toast {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%) translateY(12px);
+            background: #1e2330;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.13);
+            border-radius: 999px;
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: .01em;
+            box-shadow: 0 6px 28px rgba(0,0,0,0.38);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.18s ease, transform 0.18s ease;
+            z-index: 10000;
+            white-space: nowrap;
+        }
+        #feed-copy-toast.is-visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
         .feed-share-menu.is-open {
             display: grid;
         }
@@ -1192,6 +1216,7 @@
         <button type="button" class="feed-share-option" data-share-option="email">Email</button>
         <button type="button" class="feed-share-option" data-share-option="copy">Copy Link</button>
     </div>
+    <div id="feed-copy-toast" role="status" aria-live="polite"><i class="fas fa-check me-1"></i>Link copied!</div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -1272,7 +1297,16 @@
         const pageShareButton = document.getElementById('feed-share-page-btn');
         const lightboxShareButton = document.getElementById('feed-lightbox-share-btn');
         const shareMenu = document.getElementById('feed-share-menu');
+        const copyToast = document.getElementById('feed-copy-toast');
         const prefersDesktopShareMenu = window.matchMedia && window.matchMedia('(pointer: fine)').matches;
+
+        let copyToastTimer = null;
+        function showCopiedToast() {
+            if (!copyToast) return;
+            clearTimeout(copyToastTimer);
+            copyToast.classList.add('is-visible');
+            copyToastTimer = setTimeout(function () { copyToast.classList.remove('is-visible'); }, 2200);
+        }
 
         let currentItems = [];
         let currentIndex = 0;
@@ -1362,10 +1396,16 @@
                 return;
             }
 
-            if (option === 'copy' && navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(cleanPayload.url).catch(function () {
+            if (option === 'copy') {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(cleanPayload.url).then(function () {
+                        showCopiedToast();
+                    }).catch(function () {
+                        window.prompt('Copy this link', cleanPayload.url);
+                    });
+                } else {
                     window.prompt('Copy this link', cleanPayload.url);
-                });
+                }
                 return;
             }
 
