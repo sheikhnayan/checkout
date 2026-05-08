@@ -593,43 +593,48 @@ nav .tab.active p {
 }
 
 .aff-footer {
-    margin-top: 26px;
     border-top: 1px solid rgba(255,255,255,0.08);
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    background: transparent;
 }
-
-.aff-footer-inner {
+.cv-footer-legal {
+    padding: 20px 0 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.32);
+    font-size: 10.5px;
+    line-height: 1.7;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.cv-footer-legal a {
+    color: rgba(255,255,255,0.5);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.cv-footer-legal a:hover { color: rgba(255,255,255,0.85); }
+.cv-footer-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 14px;
     flex-wrap: wrap;
-    padding: 16px 0;
-    font-size: 12.5px;
-    color: rgba(232,234,246,0.72);
+    gap: 10px;
+    padding: 13px 0;
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
 }
-
-.aff-footer-brand {
-    display: inline-flex;
+.cv-footer-links {
+    display: flex;
     align-items: center;
-    gap: 8px;
-    color: rgba(232,234,246,0.9);
-    font-weight: 700;
-    letter-spacing: .02em;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+.cv-footer-links a {
+    color: rgba(255,255,255,0.45);
     text-decoration: none;
+    font-size: 11px;
+    transition: color .15s;
 }
-
-.aff-footer-brand .brand-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 0 5px rgba(255,204,0,0.16);
-}
-
-.aff-footer-note {
-    opacity: .72;
-}
+.cv-footer-links a:hover { color: rgba(255,255,255,0.85); }
 
 /* Mobile responsive navigation */
 @media (max-width: 768px) {
@@ -2202,17 +2207,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .location-map-wrap iframe { min-height: 260px; }
     .aff-display-title { margin: 2px 0 4px; }
     .aff-display-copy { font-size: 11px; }
-    .aff-footer-inner {
-        justify-content: center;
-        text-align: center;
-        flex-direction: column-reverse;
-        align-items: center;
-        gap: 6px;
+    .cv-footer-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
     }
-
-    .aff-footer-note {
-        width: 100%;
-        text-align: center;
+    .cv-footer-links {
+        gap: 12px;
     }
 }
 
@@ -3493,15 +3494,23 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             </div>
         </div>
         <footer class="aff-footer">
-            <div class="container aff-footer-inner">
-                <a href="https://cartvip.com" target="_blank" rel="noopener" class="aff-footer-brand">
-                    <span class="brand-dot" aria-hidden="true"></span>
-                    <span>Powered by CartVIP.com</span>
-                </a>
-                <div class="aff-footer-note">All bookings and payments are processed securely by CartVIP, the merchant of record for all transactions.</div>
-                <a href="{{ $data->terms }}" target="_blank" rel="noopener" class="aff-footer-brand" style="font-size:12px; opacity:.9;">
-                    <span>Terms of Service</span>
-                </a>
+            <div class="container">
+                <div class="cv-footer-legal">
+                    <div><strong style="color:rgba(255,255,255,.5);font-weight:700">Powered by CartVIP</strong></div>
+                    <div>Secure checkout technology and payment processing support are provided by CartVIP. This offer is sold and fulfilled by {{ $data->name ?? 'the venue' }}. Pricing, availability, entry requirements, refunds, and fulfillment are determined by the venue.</div>
+                    <div>Payments are processed through authorized payment providers and may be processed by CartVIP or the venue depending on configuration.</div>
+                    <div>CartVIP provides checkout infrastructure and payment support only and does not control or guarantee venue services, availability, or admission decisions.</div>
+                    <div>By completing this purchase, you agree to CartVIP's <a href="https://cartvip.com/page/terms-of-service" target="_blank" rel="noopener">Terms of Service</a>, <a href="https://cartvip.com/page/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>, and <a href="https://cartvip.com/page/merchant-disclosures" target="_blank" rel="noopener">Merchant Disclosures</a>, as well as the venue's purchase terms.</div>
+                </div>
+                <div class="cv-footer-bar">
+                    <span>&copy; {{ date('Y') }} CartVIP. All rights reserved.</span>
+                    <div class="cv-footer-links">
+                        <a href="https://cartvip.com/page/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>
+                        <a href="https://cartvip.com/page/terms-of-service" target="_blank" rel="noopener">Terms of Service</a>
+                        <a href="https://cartvip.com/page/merchant-disclosures" target="_blank" rel="noopener">Disclosures</a>
+                        <a href="mailto:hello@cartvip.com">hello@cartvip.com</a>
+                    </div>
+                </div>
             </div>
         </footer>
         <script src="scripts/main.js"></script>

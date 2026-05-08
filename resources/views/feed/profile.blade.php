@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @php
         $metaTitle = trim(($profileTitle ?? 'Profile'));
-        $metaDescription = trim((string) ($profileSubtitle ?? ''));
+        $metaDescription = trim(strip_tags((string) ($profileSubtitle ?? '')));
         if ($metaDescription === '') {
             $metaDescription = 'View updates and posts from ' . ($profileTitle ?? 'this profile') . '.';
         }
@@ -970,14 +970,9 @@
                     <div class="profile-kicker">{{ $profileType === 'club' ? 'Club Profile' : 'Entertainer Profile' }}</div>
                     <h1 class="profile-title">{{ $profileTitle }}</h1>
                     @if($profileSubtitle)
-                        <p class="profile-copy">{{ $profileSubtitle }}</p>
+                        <div class="profile-copy">{!! $profileSubtitle !!}</div>
                     @endif
-                    @if($profileType === 'model' && !empty($packagesUrl))
-                        <a class="profile-packages-link" href="{{ $packagesUrl }}">
-                            Click here to see my packages
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
-                    @endif
+                    {{-- Hidden: packages link --}}
 
                     @if($profileType === 'model' && $performanceDates->isNotEmpty())
                         <div class="profile-appearances" aria-label="Upcoming performance dates">

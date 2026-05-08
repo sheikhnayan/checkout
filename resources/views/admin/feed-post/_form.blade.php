@@ -164,8 +164,9 @@
     </div>
 
     <div class="col-12">
-        <label for="caption" class="form-label">Caption <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The text content of this feed post."></i></label>
-        <textarea name="caption" id="caption" class="form-control" rows="5" placeholder="Write the post caption here">{{ old('caption', $feedPost->caption ?? '') }}</textarea>
+        <label class="form-label">Caption <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The text content of this feed post."></i></label>
+        <div id="caption-editor"></div>
+        <textarea name="caption" id="caption" style="display:none">{{ old('caption', $feedPost->caption ?? '') }}</textarea>
     </div>
 
     <div class="col-12">
@@ -567,3 +568,40 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
+
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css" rel="stylesheet">
+<style>
+.ql-toolbar.ql-snow{background:#1e2230;border:1px solid rgba(255,255,255,.12)!important;border-bottom:1px solid rgba(255,255,255,.07)!important;border-radius:6px 6px 0 0;padding:8px}
+.ql-container.ql-snow{background:#161b2e;border:1px solid rgba(255,255,255,.12)!important;border-top:none!important;border-radius:0 0 6px 6px;font-size:14px}
+.ql-editor{min-height:140px;color:#d8def0;line-height:1.7}
+.ql-editor.ql-blank::before{color:rgba(216,222,240,.3);font-style:normal}
+.ql-snow .ql-stroke{stroke:rgba(216,222,240,.6)}
+.ql-snow .ql-fill,.ql-snow .ql-stroke.ql-fill{fill:rgba(216,222,240,.6)}
+.ql-snow .ql-picker{color:rgba(216,222,240,.6)}
+.ql-snow .ql-picker-options{background:#1e2230;border-color:rgba(255,255,255,.12)}
+.ql-snow .ql-toolbar button.ql-active .ql-stroke,.ql-snow .ql-toolbar button:hover .ql-stroke{stroke:#ffcc00}
+.ql-snow .ql-toolbar button.ql-active .ql-fill,.ql-snow .ql-toolbar button:hover .ql-fill{fill:#ffcc00}
+.ql-snow .ql-toolbar button.ql-active,.ql-snow .ql-toolbar button:hover{color:#ffcc00}
+.ql-snow a{color:#ffcc00}
+</style>
+@endpush
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var captionTA = document.getElementById('caption');
+    var quillCaption = new Quill('#caption-editor', {
+        theme: 'snow',
+        placeholder: 'Write the post caption here...',
+        modules: { toolbar: [['bold','italic','underline'],[{'list':'ordered'},{'list':'bullet'}],['link','clean']] }
+    });
+    if (captionTA && captionTA.value) quillCaption.root.innerHTML = captionTA.value;
+    var captionForm = captionTA ? captionTA.closest('form') : null;
+    if (captionForm) captionForm.addEventListener('submit', function() {
+        captionTA.value = quillCaption.root.innerHTML === '<p><br></p>' ? '' : quillCaption.root.innerHTML;
+    });
+});
+</script>
+@endpush

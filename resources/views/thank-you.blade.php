@@ -238,46 +238,16 @@
             color: #667eea;
         }
         .footer-note {
-            display: none;
-        }
-        .aff-footer {
-            background: #1a1a2e;
-            border-top: 1px solid rgba(255,255,255,.08);
-            padding: 18px 0;
-            margin-top: 10px;
-        }
-        .aff-footer-inner {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: center;
-            gap: 10px 24px;
-        }
-        .aff-footer-brand {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            color: #fff;
-            font-weight: 700;
-            font-size: 13px;
-            text-decoration: none;
-            letter-spacing: .02em;
-        }
-        .aff-footer-brand .brand-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #f5a623;
-            display: inline-block;
-            flex-shrink: 0;
-        }
-        .aff-footer-note {
-            color: rgba(255,255,255,.55);
-            font-size: 12px;
             text-align: center;
+            padding: 20px 30px;
+            background: #f8f9fa;
+            color: #6c757d;
+            font-size: 13px;
+            border-top: 1px solid #e9ecef;
+        }
+        .footer-note i {
+            color: #667eea;
+            margin-right: 5px;
         }
     </style>
 </head>
@@ -524,23 +494,11 @@
             </div>
         </div>
 
-        <div class="footer-note"></div>
-    </div>
-
-    <footer class="aff-footer">
-        <div class="aff-footer-inner">
-            <a href="https://cartvip.com" target="_blank" rel="noopener" class="aff-footer-brand">
-                <span class="brand-dot" aria-hidden="true"></span>
-                <span>Powered by CartVIP.com</span>
-            </a>
-            <div class="aff-footer-note">All bookings and payments are processed securely by CartVIP, the merchant of record for all transactions.</div>
-            @if(!empty($website->terms))
-            <a href="{{ $website->terms }}" target="_blank" rel="noopener" class="aff-footer-brand" style="font-size:12px;opacity:.9;">
-                <span>Terms of Service</span>
-            </a>
-            @endif
+        <div class="footer-note">
+            <i class="fas fa-shield-alt"></i>
+            Your payment was securely processed. If you have any questions, please contact us.
         </div>
-    </footer>
+    </div>
 
     <script>
         // Optional: Confetti effect on page load

@@ -337,8 +337,9 @@
 
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="password" class="form-label">Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Public description of the venue displayed on the checkout page."></i></label>
-                                                        <textarea name="description" class="form-control" id="description" placeholder="Description" required>{{ $data->description }}</textarea>
+                                                        <label class="form-label">Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Public description of the venue displayed on the checkout page."></i></label>
+                                                        <div id="website-description-editor"></div>
+                                                        <textarea name="description" id="description" style="display:none" required>{{ $data->description }}</textarea>
                                                     </div>
                                                 </div>
 
@@ -358,8 +359,9 @@
 
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="secondary_description" class="form-label">Secondary Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional second content block displayed on the checkout page below the main description."></i></label>
-                                                        <textarea name="secondary_description" class="form-control" id="secondary_description" rows="3" placeholder="Additional section text for the new layout">{{ $data->secondary_description }}</textarea>
+                                                        <label class="form-label">Secondary Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional second content block displayed on the checkout page below the main description."></i></label>
+                                                        <div id="website-secondary-editor"></div>
+                                                        <textarea name="secondary_description" id="secondary_description" style="display:none">{{ $data->secondary_description }}</textarea>
                                                     </div>
                                                 </div>
 
@@ -747,3 +749,50 @@
             })();
             </script>
 @endsection
+
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css" rel="stylesheet">
+<style>
+.ql-toolbar.ql-snow{background:#1e2230;border:1px solid rgba(255,255,255,.12)!important;border-bottom:1px solid rgba(255,255,255,.07)!important;border-radius:6px 6px 0 0;padding:8px}
+.ql-container.ql-snow{background:#161b2e;border:1px solid rgba(255,255,255,.12)!important;border-top:none!important;border-radius:0 0 6px 6px;font-size:14px}
+.ql-editor{min-height:140px;color:#d8def0;line-height:1.7}
+.ql-editor.ql-blank::before{color:rgba(216,222,240,.3);font-style:normal}
+.ql-snow .ql-stroke{stroke:rgba(216,222,240,.6)}
+.ql-snow .ql-fill,.ql-snow .ql-stroke.ql-fill{fill:rgba(216,222,240,.6)}
+.ql-snow .ql-picker{color:rgba(216,222,240,.6)}
+.ql-snow .ql-picker-options{background:#1e2230;border-color:rgba(255,255,255,.12)}
+.ql-snow .ql-toolbar button.ql-active .ql-stroke,.ql-snow .ql-toolbar button:hover .ql-stroke{stroke:#ffcc00}
+.ql-snow .ql-toolbar button.ql-active .ql-fill,.ql-snow .ql-toolbar button:hover .ql-fill{fill:#ffcc00}
+.ql-snow .ql-toolbar button.ql-active,.ql-snow .ql-toolbar button:hover{color:#ffcc00}
+.ql-snow a{color:#ffcc00}
+</style>
+@endpush
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var wDescTA = document.getElementById('description');
+    var quillWDesc = new Quill('#website-description-editor', {
+        theme: 'snow',
+        placeholder: 'Describe the venue...',
+        modules: { toolbar: [['bold','italic','underline'],[{'list':'ordered'},{'list':'bullet'}],['link','clean']] }
+    });
+    if (wDescTA && wDescTA.value) quillWDesc.root.innerHTML = wDescTA.value;
+
+    var wSecTA = document.getElementById('secondary_description');
+    var quillWSec = new Quill('#website-secondary-editor', {
+        theme: 'snow',
+        placeholder: 'Optional second content block...',
+        modules: { toolbar: [['bold','italic','underline'],[{'list':'ordered'},{'list':'bullet'}],['link','clean']] }
+    });
+    if (wSecTA && wSecTA.value) quillWSec.root.innerHTML = wSecTA.value;
+
+    var websiteForm = wDescTA ? wDescTA.closest('form') : null;
+    if (websiteForm) websiteForm.addEventListener('submit', function() {
+        wDescTA.value = quillWDesc.root.innerHTML === '<p><br></p>' ? '' : quillWDesc.root.innerHTML;
+        wSecTA.value = quillWSec.root.innerHTML === '<p><br></p>' ? '' : quillWSec.root.innerHTML;
+    });
+});
+</script>
+@endpush

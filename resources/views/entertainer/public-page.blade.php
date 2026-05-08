@@ -110,7 +110,7 @@
                     <div class="muted mb-0">{{ $entertainer->website->name ?? 'Club' }}</div>
                 </div>
             </div>
-            <p class="mb-0">{{ $entertainer->description ?: 'Explore my selected packages from this club.' }}</p>
+            <div class="mb-0">{!! $entertainer->description ?: 'Explore my selected packages from this club.' !!}</div>
         </div>
     </div>
 

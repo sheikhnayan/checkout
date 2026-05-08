@@ -833,7 +833,7 @@
                     <span style="letter-spacing:.14em;text-transform:uppercase;font-size:.75rem;">CartVIP Feed Directory</span>
                 @endif
             </div>
-            <a href="{{ $club ? 'https://app.cartvip.com/' . $club->slug : url('/') }}">Back to Checkout</a>
+            {{-- Hidden for now per request: Back to Checkout --}}
         </div>
 
         @if($club)
@@ -1031,7 +1031,7 @@
                             @endif
 
                             @if($post->caption)
-                                <div class="feed-caption">{!! nl2br(e($post->caption)) !!}</div>
+                                <div class="feed-caption">{!! $post->caption !!}</div>
                             @endif
 
                             <div class="feed-meta-row">

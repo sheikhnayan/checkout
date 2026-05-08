@@ -26,11 +26,13 @@
                     </div>
                     <div class="col-12">
                         <label class="form-label">Description</label>
-                        <textarea class="form-control" rows="4" name="description">{{ old('description', $entertainer->description) }}</textarea>
+                        <div id="ent-description-editor"></div>
+                        <textarea id="ent-description" style="display:none" name="description">{{ old('description', $entertainer->description) }}</textarea>
                     </div>
                     <div class="col-12">
                         <label class="form-label">Secondary Description (optional)</label>
-                        <textarea class="form-control" rows="4" name="secondary_description">{{ old('secondary_description', $entertainer->secondary_description) }}</textarea>
+                        <div id="ent-secondary-editor"></div>
+                        <textarea id="ent-secondary" style="display:none" name="secondary_description">{{ old('secondary_description', $entertainer->secondary_description) }}</textarea>
                     </div>
 
                     <div class="col-12">
@@ -195,3 +197,50 @@
 </script>
 
 @endsection
+
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css" rel="stylesheet">
+<style>
+.ql-toolbar.ql-snow{background:#1e2230;border:1px solid rgba(255,255,255,.12)!important;border-bottom:1px solid rgba(255,255,255,.07)!important;border-radius:6px 6px 0 0;padding:8px}
+.ql-container.ql-snow{background:#161b2e;border:1px solid rgba(255,255,255,.12)!important;border-top:none!important;border-radius:0 0 6px 6px;font-size:14px}
+.ql-editor{min-height:140px;color:#d8def0;line-height:1.7}
+.ql-editor.ql-blank::before{color:rgba(216,222,240,.3);font-style:normal}
+.ql-snow .ql-stroke{stroke:rgba(216,222,240,.6)}
+.ql-snow .ql-fill,.ql-snow .ql-stroke.ql-fill{fill:rgba(216,222,240,.6)}
+.ql-snow .ql-picker{color:rgba(216,222,240,.6)}
+.ql-snow .ql-picker-options{background:#1e2230;border-color:rgba(255,255,255,.12)}
+.ql-snow .ql-toolbar button.ql-active .ql-stroke,.ql-snow .ql-toolbar button:hover .ql-stroke{stroke:#ffcc00}
+.ql-snow .ql-toolbar button.ql-active .ql-fill,.ql-snow .ql-toolbar button:hover .ql-fill{fill:#ffcc00}
+.ql-snow .ql-toolbar button.ql-active,.ql-snow .ql-toolbar button:hover{color:#ffcc00}
+.ql-snow a{color:#ffcc00}
+</style>
+@endpush
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var descTA = document.getElementById('ent-description');
+    var quillDesc = new Quill('#ent-description-editor', {
+        theme: 'snow',
+        placeholder: 'Describe yourself to fans and venues...',
+        modules: { toolbar: [['bold','italic','underline'],[{'list':'ordered'},{'list':'bullet'}],['link','clean']] }
+    });
+    if (descTA && descTA.value) quillDesc.root.innerHTML = descTA.value;
+
+    var secTA = document.getElementById('ent-secondary');
+    var quillSec = new Quill('#ent-secondary-editor', {
+        theme: 'snow',
+        placeholder: 'Optional second content block...',
+        modules: { toolbar: [['bold','italic','underline'],[{'list':'ordered'},{'list':'bullet'}],['link','clean']] }
+    });
+    if (secTA && secTA.value) quillSec.root.innerHTML = secTA.value;
+
+    var settingsForm = descTA ? descTA.closest('form') : null;
+    if (settingsForm) settingsForm.addEventListener('submit', function() {
+        descTA.value = quillDesc.root.innerHTML === '<p><br></p>' ? '' : quillDesc.root.innerHTML;
+        secTA.value = quillSec.root.innerHTML === '<p><br></p>' ? '' : quillSec.root.innerHTML;
+    });
+});
+</script>
+@endpush
