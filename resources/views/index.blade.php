@@ -627,11 +627,12 @@ nav .tab.active p {
 }
 .cv-footer-legal {
     color: rgba(255,255,255,0.32);
-    font-size: 10.5px;
-    line-height: 1.75;
+    font-size: 11px;
+    line-height: 1.8;
     display: flex;
     flex-direction: column;
     gap: 8px;
+    max-width: 980px;
 }
 .cv-footer-legal p { margin: 0; }
 .cv-footer-legal a {
@@ -643,31 +644,19 @@ nav .tab.active p {
 .cv-footer-bar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     flex-wrap: wrap;
     gap: 10px;
-    padding: 13px 0;
+    padding: 14px 0 16px;
     font-size: 11px;
     color: rgba(255,255,255,0.35);
+    text-align: center;
 }
-.cv-footer-links {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-}
-.cv-footer-links a {
-    color: rgba(255,255,255,0.45);
-    text-decoration: none;
-    font-size: 11px;
-    transition: color .15s;
-}
-.cv-footer-links a:hover { color: rgba(255,255,255,0.85); }
 @media (max-width: 600px) {
-    .cv-footer-inner { flex-direction: column; align-items: center; text-align: center; padding: 22px 0 6px; gap: 16px; }
+    .cv-footer-inner { flex-direction: column; align-items: center; text-align: center; padding: 22px 0 8px; gap: 16px; }
     .cv-footer-brand { align-items: center; }
-    .cv-footer-bar { flex-direction: column; align-items: center; text-align: center; gap: 10px; }
-    .cv-footer-links { justify-content: center; gap: 12px; }
+    .cv-footer-legal { font-size: 11px; line-height: 1.75; }
+    .cv-footer-bar { gap: 8px; padding: 12px 0 14px; }
 }
 
 /* Mobile responsive navigation */
@@ -3536,12 +3525,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 </div>
                 <div class="cv-footer-bar">
                     <span>&copy; {{ date('Y') }} CartVIP.com</span>
-                    <div class="cv-footer-links">
-                        <a href="https://cartvip.com/page/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>
-                        <a href="https://cartvip.com/page/terms-of-service" target="_blank" rel="noopener">Terms of Service</a>
-                        <a href="https://cartvip.com/page/merchant-disclosures" target="_blank" rel="noopener">Merchant Disclosures</a>
-                        <a href="mailto:hello@cartvip.com">hello@cartvip.com</a>
-                    </div>
                 </div>
             </div>
         </footer>
