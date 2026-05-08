@@ -596,16 +596,44 @@ nav .tab.active p {
     border-top: 1px solid rgba(255,255,255,0.08);
     background: transparent;
 }
-.cv-footer-legal {
-    padding: 20px 0 14px;
+.cv-footer-inner {
+    padding: 28px 0 8px;
     border-bottom: 1px solid rgba(255,255,255,0.06);
-    color: rgba(255,255,255,0.32);
-    font-size: 10.5px;
-    line-height: 1.7;
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+}
+.cv-footer-brand {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    align-items: flex-start;
+    gap: 7px;
+    flex-shrink: 0;
+    padding-top: 2px;
 }
+.cv-footer-logo {
+    height: 34px;
+    width: auto;
+    display: block;
+    opacity: 0.82;
+}
+.cv-footer-powered {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.42);
+    white-space: nowrap;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+}
+.cv-footer-legal {
+    color: rgba(255,255,255,0.32);
+    font-size: 10.5px;
+    line-height: 1.75;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.cv-footer-legal p { margin: 0; }
 .cv-footer-legal a {
     color: rgba(255,255,255,0.5);
     text-decoration: underline;
@@ -625,7 +653,7 @@ nav .tab.active p {
 .cv-footer-links {
     display: flex;
     align-items: center;
-    gap: 18px;
+    gap: 16px;
     flex-wrap: wrap;
 }
 .cv-footer-links a {
@@ -635,6 +663,12 @@ nav .tab.active p {
     transition: color .15s;
 }
 .cv-footer-links a:hover { color: rgba(255,255,255,0.85); }
+@media (max-width: 600px) {
+    .cv-footer-inner { flex-direction: column; align-items: center; text-align: center; padding: 22px 0 6px; gap: 16px; }
+    .cv-footer-brand { align-items: center; }
+    .cv-footer-bar { flex-direction: column; align-items: center; text-align: center; gap: 10px; }
+    .cv-footer-links { justify-content: center; gap: 12px; }
+}
 
 /* Mobile responsive navigation */
 @media (max-width: 768px) {
@@ -2207,15 +2241,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .location-map-wrap iframe { min-height: 260px; }
     .aff-display-title { margin: 2px 0 4px; }
     .aff-display-copy { font-size: 11px; }
-    .cv-footer-bar {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-    .cv-footer-links {
-        gap: 12px;
-    }
 }
+
 
 @media(max-width:576px) {
     .container {
@@ -3495,19 +3522,24 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         </div>
         <footer class="aff-footer">
             <div class="container">
-                <div class="cv-footer-legal">
-                    <div><strong style="color:rgba(255,255,255,.5);font-weight:700">Powered by CartVIP</strong></div>
-                    <div>Secure checkout technology and payment processing support are provided by CartVIP. This offer is sold and fulfilled by {{ $data->name ?? 'the venue' }}. Pricing, availability, entry requirements, refunds, and fulfillment are determined by the venue.</div>
-                    <div>Payments are processed through authorized payment providers and may be processed by CartVIP or the venue depending on configuration.</div>
-                    <div>CartVIP provides checkout infrastructure and payment support only and does not control or guarantee venue services, availability, or admission decisions.</div>
-                    <div>By completing this purchase, you agree to CartVIP's <a href="https://cartvip.com/page/terms-of-service" target="_blank" rel="noopener">Terms of Service</a>, <a href="https://cartvip.com/page/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>, and <a href="https://cartvip.com/page/merchant-disclosures" target="_blank" rel="noopener">Merchant Disclosures</a>, as well as the venue's purchase terms.</div>
+                <div class="cv-footer-inner">
+                    <div class="cv-footer-brand">
+                        <img src="{{ asset('images/logo.png') }}" alt="CartVIP" class="cv-footer-logo">
+                        <span class="cv-footer-powered">Powered by CartVIP</span>
+                    </div>
+                    <div class="cv-footer-legal">
+                        <p>Secure checkout and booking technology provided by <a href="https://cartvip.com" target="_blank" rel="noopener">CartVIP.com</a>.</p>
+                        <p>Experiences, reservations, products, and services displayed on this website are offered and fulfilled by the participating venue or business. Pricing, availability, admission policies, refunds, and fulfillment terms are determined by the venue or merchant.</p>
+                        <p>Payments are securely processed through authorized payment providers. CartVIP provides checkout infrastructure and payment support services only.</p>
+                        <p>By completing this purchase, you agree to the participating venue or merchant's purchase terms as well as CartVIP's <a href="https://cartvip.com/page/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>, <a href="https://cartvip.com/page/terms-of-service" target="_blank" rel="noopener">Terms of Service</a>, and <a href="https://cartvip.com/page/merchant-disclosures" target="_blank" rel="noopener">Merchant Disclosures</a>.</p>
+                    </div>
                 </div>
                 <div class="cv-footer-bar">
-                    <span>&copy; {{ date('Y') }} CartVIP. All rights reserved.</span>
+                    <span>&copy; {{ date('Y') }} CartVIP.com</span>
                     <div class="cv-footer-links">
                         <a href="https://cartvip.com/page/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>
                         <a href="https://cartvip.com/page/terms-of-service" target="_blank" rel="noopener">Terms of Service</a>
-                        <a href="https://cartvip.com/page/merchant-disclosures" target="_blank" rel="noopener">Disclosures</a>
+                        <a href="https://cartvip.com/page/merchant-disclosures" target="_blank" rel="noopener">Merchant Disclosures</a>
                         <a href="mailto:hello@cartvip.com">hello@cartvip.com</a>
                     </div>
                 </div>
