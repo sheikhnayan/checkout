@@ -3871,6 +3871,46 @@
         }
         .guest .guest-section--total .addon-qty-stepper.guest-qty-stepper { padding: 0; background: transparent; border: none; }
 
+        /* Mobile responsive for guest counter */
+        @media (max-width: 767px) {
+            .guest .guest-gender-row {
+                grid-template-columns: 1fr !important;
+                gap: 10px !important;
+            }
+            .guest .guest-section {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                padding: 14px 16px !important;
+                gap: 12px !important;
+                text-align: left !important;
+                flex-wrap: nowrap !important;
+            }
+            .guest .guest-section .label {
+                margin-bottom: 0 !important;
+                font-size: 12.5px !important;
+                flex: 1 1 auto;
+                min-width: 0;
+            }
+            .guest .guest-section .counter {
+                flex: 0 0 auto;
+                margin-left: auto;
+            }
+            .guest .addon-qty-stepper.guest-qty-stepper {
+                gap: 8px;
+                padding: 3px;
+            }
+            .guest .addon-qty-btn.guest-qty-btn {
+                width: 30px !important;
+                height: 30px !important;
+                font-size: 1.1em !important;
+            }
+            .guest .addon-qty-val.guest-qty-val {
+                min-width: 26px;
+                font-size: 16px;
+            }
+        }
+
         .guest .checkbox-container {
             background: linear-gradient(180deg, rgba(36,18,58,0.85), rgba(18,10,32,0.95)) !important;
             border: 1px solid rgba(167,116,255,0.28) !important;
@@ -4692,13 +4732,18 @@
             .cv-access-grid { grid-template-columns: 1fr; }
         }
         @media (max-width: 767px) {
-            .cv-top-nav { padding:0 14px; height:52px; }
-            .cv-nav-name { font-size:15px !important; }
-            .cv-nav-logo-img { height:30px; }
-            .cv-nav-back { display:none; }
-            .cv-hamburger { display:flex; }
-            .mobile-top-actions { display:none !important; }
-            .aff-hero.cv-venue-header .aff-hero-badges { order:3; width:100%; margin-top:8px; }
+            .cv-top-nav { padding: 0 14px; height: 60px; }
+            .cv-nav-logo-img { height: 32px; max-width: 130px; }
+            .cv-nav-back { display: flex !important; padding: 7px 12px !important; font-size: 12px !important; gap: 6px !important; }
+            .cv-nav-back span { display: inline; }
+            .cv-hamburger { display: none !important; }
+            .mobile-top-actions { display: none !important; }
+            .aff-hero.cv-venue-header .aff-hero-badges { order: 3; width: 100%; margin-top: 8px; }
+        }
+        @media (max-width: 420px) {
+            .cv-nav-back { padding: 6px 10px !important; font-size: 11.5px !important; }
+            .cv-nav-back i { font-size: 10px; }
+            .cv-nav-logo-img { height: 28px; max-width: 110px; }
         }
 
         @media (min-width: 992px) {
