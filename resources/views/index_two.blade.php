@@ -2690,7 +2690,7 @@
             pointer-events: none;
         }
         .cv-nav-brand { display:flex; align-items:center; gap:12px; text-decoration:none !important; flex-shrink:0; }
-        .cv-nav-logo-img { height:42px; width:auto; max-width: 180px; display:block; object-fit: contain; }
+        .cv-nav-logo-img { height:80px; width:auto; max-width: 180px; display:block; object-fit: contain; }
 
         /* Center status block */
         .cv-nav-center {
