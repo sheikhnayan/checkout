@@ -4166,7 +4166,7 @@
             font-weight: 700 !important;
             padding: 18px 16px !important;
             border-top: 1px solid rgba(255,255,255,0.16) !important;
-            margin: 14px -16px 4px !important;
+            margin: 4px -16px 4px !important;
             display: flex !important;
             justify-content: space-between;
             align-items: center;
@@ -4208,6 +4208,7 @@
             color: rgba(255,255,255,0.7) !important;
             display: block;
             margin-bottom: 8px;
+            padding-top: 8px;
             font-weight: 500;
         }
         #cv-order-sidebar .dynamic-price.col-md-6 > .row {
@@ -5345,7 +5346,7 @@
                                                 </div>
                                             </div>
 
-                                            <div class="default-deposit"><span>Total</span><span>$0.00</span></div>
+                                            <div class="default-deposit" style="border-top: unset !important; background: transparent !important; padding: 21px 29px !important;"><span>Total</span><span>$0.00</span></div>
                                             @if ($data->refundable_fee > 0)
                                                 <div style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;"
                                                     class="vip-price default-refundable">
