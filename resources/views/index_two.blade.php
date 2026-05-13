@@ -2676,7 +2676,7 @@
             display:flex !important;
             align-items:center;
             justify-content: space-between !important;
-            padding: 0 clamp(20px, 4vw, 48px);
+            padding: 0 clamp(20px, 1vw, 48px);
             height:72px;
             width: 100%;
             box-sizing: border-box;
