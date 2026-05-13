@@ -829,7 +829,7 @@
                 gap: 14px;
                 flex-shrink: 0;
             }
-            .cv-footer-logo { height: 48px; width: auto; max-width: 200px; display: block; object-fit: contain; }
+            .cv-footer-logo { height: 100px; width: auto; max-width: 200px; display: block; object-fit: contain; }
             .cv-footer-powered {
                 font-size: 10.5px;
                 font-weight: 800;

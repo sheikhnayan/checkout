@@ -672,7 +672,7 @@ nav .tab.active p {
     gap: 14px;
     flex-shrink: 0;
 }
-.cv-footer-logo { height: 48px; width: auto; max-width: 200px; display: block; object-fit: contain; }
+.cv-footer-logo { height: 100px; width: auto; max-width: 200px; display: block; object-fit: contain; }
 .cv-footer-powered {
     font-size: 10.5px;
     font-weight: 800;
@@ -2432,7 +2432,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     display:flex !important;
     align-items:center;
     justify-content: space-between !important;
-    padding: 0 clamp(20px, 4vw, 48px);
+    padding: 0 clamp(20px, 1vw, 48px);
     height:72px;
     width: 100%;
     box-sizing: border-box;
@@ -2448,7 +2448,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     pointer-events: none;
 }
 .cv-nav-brand { display:flex; align-items:center; gap:12px; text-decoration:none !important; flex-shrink: 0; }
-.cv-nav-logo-img { height:42px; width:auto; max-width: 180px; display:block; object-fit: contain; }
+.cv-nav-logo-img { height:80px; width:auto; max-width: 180px; display:block; object-fit: contain; }
 .cv-nav-logo-box {
     width:42px;
     height:42px;
@@ -3902,7 +3902,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     font-weight: 700 !important;
     padding: 18px 16px !important;
     border-top: 1px solid rgba(255,255,255,0.16) !important;
-    margin: 14px -16px 4px !important;
+    margin: 4px -16px 4px !important;
     display: flex !important;
     justify-content: space-between;
     align-items: center;
@@ -3945,6 +3945,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     color: rgba(255,255,255,0.7) !important;
     display: block;
     margin-bottom: 8px;
+    padding-top: 8px;
     font-weight: 500;
 }
 /* Force the inner Bootstrap row to a clean flex layout regardless of Bootstrap gutters */
@@ -4739,7 +4740,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
 
 
-                                            <div class="default-deposit"><span>Total</span><span>$0.00</span></div>
+                                            <div class="default-deposit" style="border-top: unset !important; background: transparent !important; padding: 21px 29px !important;"><span>Total</span><span>$0.00</span></div>
                                             @if ($data->refundable_fee > 0)
                                                 <div style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;"
                                                     class="vip-price default-refundable">
