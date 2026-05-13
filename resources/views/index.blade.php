@@ -4145,7 +4145,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 @media (max-width: 420px) {
     .cv-nav-back { padding: 6px 10px !important; font-size: 11.5px !important; }
     .cv-nav-back i { font-size: 10px; }
-    .cv-nav-logo-img { height: 28px; max-width: 110px; }
+    .cv-nav-logo-img { height: 80px; max-width: 110px; }
 }
 
 @media (min-width: 992px) {
