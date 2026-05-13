@@ -1,22 +1,33 @@
 // This file is intentionally left blank.
 
 
-// Example: Tab switching (if you want to add Guest List functionality)
-document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', function() {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        this.classList.add('active');
-        names =  this.dataset.name;
+// Tab switching via the cv-access-card buttons (Free Ride & Entry / Packages)
+function applyAccessTab(names) {
+  const guestSection = document.querySelector('.guest');
+  const packageContent = document.querySelector('.package');
 
-        if(names === 'guest') {
-            document.querySelector('.guest').style.display = 'block';
-            document.querySelector('.package').style.display = 'none';
-        } else {
-            document.querySelector('.guest').style.display = 'none';
-            document.querySelector('.package').style.display = 'block';
-        }
-    });
+  if (names === 'guest') {
+    if (guestSection) guestSection.style.display = 'block';
+    if (packageContent) packageContent.style.display = 'none';
+  } else {
+    if (guestSection) guestSection.style.display = 'none';
+    if (packageContent) packageContent.style.display = 'block';
+  }
+}
+
+document.querySelectorAll('.cv-access-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.cv-access-tab').forEach(t => t.classList.remove('is-active'));
+    this.classList.add('is-active');
+    applyAccessTab(this.dataset.name);
+  });
 });
+
+// Initial state - read from the access tab marked is-active
+const activeAccessTab = document.querySelector('.cv-access-tab.is-active');
+if (activeAccessTab) {
+  applyAccessTab(activeAccessTab.dataset.name);
+}
 
 // Example: Highlight "Added" package button
 document.querySelectorAll('.vip-packages button').forEach(btn => {

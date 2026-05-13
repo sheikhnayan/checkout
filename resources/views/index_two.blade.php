@@ -40,20 +40,40 @@
 
             /* Step-by-step checkout styles */
             .checkout-steps {
-                display: flex;
+                display: flex !important;
                 justify-content: center;
-                align-items: center;
+                align-items: flex-start;
                 margin: 2rem 0;
                 padding: 0;
                 list-style: none;
+                gap: 0;
+                flex-wrap: nowrap !important;
+                width: 100%;
             }
 
             .step {
-                flex: 1;
+                flex: 1 1 0;
+                min-width: 0;
                 text-align: center;
                 position: relative;
-                padding: 0 1rem;
+                padding: 0 0.5rem;
             }
+
+            /* Connector line between steps */
+            .step::after {
+                content: '';
+                position: absolute;
+                top: 20px;
+                left: calc(50% + 22px);
+                width: calc(100% - 44px);
+                height: 2px;
+                background: rgba(255,255,255,0.14);
+                z-index: 0;
+                pointer-events: none;
+            }
+            .step:last-child::after { display: none; }
+            .step.completed::after,
+            .step.active::after { background: linear-gradient(90deg, #a774ff, #7c3aed); }
 
             .step-number {
                 display: flex;
@@ -62,30 +82,38 @@
                 width: 40px;
                 height: 40px;
                 border-radius: 50%;
-                background: #444;
-                color: #fff;
+                background: rgba(255,255,255,0.06);
+                color: rgba(255,255,255,0.7);
                 line-height: 1;
                 font-weight: bold;
                 margin: 0 auto 0.5rem;
-                border: 2px solid #444;
+                border: 2px solid rgba(255,255,255,0.18);
+                position: relative;
+                z-index: 1;
+                transition: all .2s;
             }
 
             .step.active .step-number {
-                background: {{ $brandPrimary }};
-                border-color: {{ $brandPrimary }};
-                color: #000;
+                background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%);
+                border-color: #7c3aed;
+                color: #fff;
+                box-shadow: 0 0 0 4px rgba(167,116,255,0.18), 0 4px 12px rgba(124,58,237,0.4);
             }
 
             .step.completed .step-number {
-                background: #28a745;
-                border-color: #28a745;
+                background: linear-gradient(135deg, #a774ff 0%, #5b21b6 100%);
+                border-color: #7c3aed;
                 color: #fff;
             }
 
             .step-title {
                 font-size: 0.875rem;
-                color: #999;
+                color: rgba(255,255,255,0.55);
                 margin: 0;
+                line-height: 1.25;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
 
             .step.active .step-title,
@@ -94,23 +122,31 @@
                 font-weight: bold;
             }
 
-            .step::after {
-                content: '';
-                position: absolute;
-                top: 20px;
-                right: -50%;
-                width: 100%;
-                height: 2px;
-                background: #444;
-                z-index: -1;
+            @media (max-width: 767px) {
+                .checkout-steps { margin: 1.25rem 0; padding: 0 4px; }
+                .step { padding: 0 0.2rem; }
+                .step-number { width: 32px; height: 32px; font-size: 13px; }
+                .step::after { top: 16px; left: calc(50% + 18px); width: calc(100% - 36px); }
+                .step-title { font-size: 0.72rem; }
+            }
+            @media (max-width: 420px) {
+                .step-title { font-size: 0.65rem; }
+                .step-number { width: 28px; height: 28px; font-size: 12px; }
+                .step::after { top: 14px; left: calc(50% + 16px); width: calc(100% - 32px); }
             }
 
-            .step:last-child::after {
-                display: none;
+            /* cv-dstep responsive - single line on mobile */
+            .cv-desktop-steps { flex-wrap: nowrap !important; }
+            @media (max-width: 767px) {
+                .cv-desktop-steps { gap: 0; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+                .cv-dstep { font-size: 9.5px !important; padding: 0 2px !important; gap: 5px !important; }
+                .cv-dstep-num { width: 26px !important; height: 26px !important; font-size: 11px !important; }
+                .cv-dstep::before { top: 13px !important; left: calc(50% + 15px) !important; right: calc(-50% + 15px) !important; }
+                .cv-dstep > span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
             }
-
-            .step.completed::after {
-                background: #28a745;
+            @media (max-width: 420px) {
+                .cv-dstep { font-size: 8.5px !important; }
+                .cv-dstep-num { width: 24px !important; height: 24px !important; font-size: 10px !important; }
             }
 
             .checkout-section {
@@ -602,17 +638,24 @@
             #package_use_date:disabled,
             #package_use_date:read-only {
                 opacity: 1 !important;
-                -webkit-text-fill-color: #000 !important;
-                color: #000 !important;
-                text-shadow: 0 0 0 #000;
+                -webkit-text-fill-color: #fff !important;
+                color: #fff !important;
+                text-shadow: none !important;
             }
 
             #package_use_date[readonly],
             #package_use_date.flatpickr-input[readonly] {
-                color: #000 !important;
-                -webkit-text-fill-color: #000 !important;
+                color: #fff !important;
+                -webkit-text-fill-color: #fff !important;
                 opacity: 1 !important;
-                text-shadow: 0 0 0 #000;
+                text-shadow: none !important;
+                cursor: pointer;
+            }
+
+            #package_use_date::placeholder {
+                color: rgba(255,255,255,0.45) !important;
+                -webkit-text-fill-color: rgba(255,255,255,0.45) !important;
+                opacity: 1 !important;
             }
 
             #package_use_date:focus {
@@ -745,74 +788,137 @@
             }
 
             .aff-footer {
-                border-top: 1px solid rgba(255,255,255,0.08);
-                background: transparent;
+                margin-top: 48px;
+                position: relative;
+                background: linear-gradient(180deg, rgba(11,8,22,0.92), rgba(5,3,12,0.98));
+                border-top: 1px solid rgba(167,116,255,0.18);
+                overflow: hidden;
             }
+            .aff-footer::before {
+                content: '';
+                position: absolute;
+                top: -1px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 60%;
+                height: 2px;
+                background: linear-gradient(90deg, transparent, #a774ff, #7c3aed, #a774ff, transparent);
+                box-shadow: 0 0 20px rgba(167,116,255,0.5);
+            }
+            .aff-footer::after {
+                content: '';
+                position: absolute;
+                top: 0; left: 0;
+                width: 100%; height: 100%;
+                background: radial-gradient(ellipse at top center, rgba(167,116,255,0.06), transparent 70%);
+                pointer-events: none;
+            }
+            .aff-footer .container { position: relative; z-index: 1; }
             .cv-footer-inner {
-                padding: 28px 0 8px;
-                border-bottom: 1px solid rgba(255,255,255,0.06);
-                display: flex;
-                gap: 28px;
-                align-items: flex-start;
+                padding: 44px 0 28px;
+                border-bottom: 1px solid rgba(167,116,255,0.12);
+                display: grid;
+                grid-template-columns: minmax(220px, 1fr) 2fr;
+                gap: 48px;
+                align-items: start;
             }
             .cv-footer-brand {
                 display: flex;
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 7px;
+                gap: 14px;
                 flex-shrink: 0;
-                padding-top: 2px;
-                min-width: 128px;
             }
-            .cv-footer-logo {
-                height: 34px;
-                width: auto;
-                display: block;
-                opacity: 0.82;
-            }
+            .cv-footer-logo { height: 48px; width: auto; max-width: 200px; display: block; object-fit: contain; }
             .cv-footer-powered {
-                font-size: 9.5px;
-                font-weight: 700;
-                color: rgba(255,255,255,0.42);
-                white-space: nowrap;
-                letter-spacing: .07em;
+                font-size: 10.5px;
+                font-weight: 800;
+                color: rgba(167,116,255,0.7);
+                letter-spacing: .12em;
                 text-transform: uppercase;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .cv-footer-powered::before {
+                content: '';
+                width: 6px; height: 6px;
+                background: #a774ff;
+                border-radius: 50%;
+                box-shadow: 0 0 8px #a774ff;
+            }
+            .cv-footer-tagline {
+                font-size: 13px;
+                color: rgba(255,255,255,0.55);
+                line-height: 1.5;
+                max-width: 280px;
+                margin: 0;
             }
             .cv-footer-legal {
-                color: rgba(255,255,255,0.32);
-                font-size: 11px;
-                line-height: 1.8;
+                color: rgba(255,255,255,0.5);
+                font-size: 12px;
+                line-height: 1.7;
                 display: flex;
                 flex-direction: column;
-                gap: 8px;
-                max-width: 980px;
-                flex: 1 1 auto;
+                gap: 10px;
                 min-width: 0;
+            }
+            .cv-footer-legal-title {
+                font-size: 11px;
+                font-weight: 800;
+                color: #c4a3ff !important;
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+                margin: 0 0 6px;
             }
             .cv-footer-legal p { margin: 0; }
             .cv-footer-legal a {
-                color: rgba(255,255,255,0.5);
-                text-decoration: underline;
-                text-underline-offset: 2px;
+                color: rgba(255,255,255,0.78);
+                text-decoration: none;
+                border-bottom: 1px dashed rgba(167,116,255,0.4);
+                transition: all .15s;
             }
-            .cv-footer-legal a:hover { color: rgba(255,255,255,0.85); }
+            .cv-footer-legal a:hover {
+                color: #c4a3ff !important;
+                border-bottom-color: #a774ff;
+            }
             .cv-footer-bar {
                 display: flex;
                 align-items: center;
-                justify-content: center;
+                justify-content: space-between;
                 flex-wrap: wrap;
-                gap: 10px;
-                padding: 14px 0 16px;
-                font-size: 11px;
-                color: rgba(255,255,255,0.35);
-                text-align: center;
+                gap: 14px;
+                padding: 18px 0 22px;
+                font-size: 12px;
+                color: rgba(255,255,255,0.55);
             }
-            @media (max-width: 600px) {
-                .cv-footer-inner { align-items: flex-start; text-align: left; padding: 22px 0 8px; gap: 16px; }
-                .cv-footer-brand { align-items: flex-start; min-width: 106px; }
-                .cv-footer-logo { height: 30px; }
-                .cv-footer-legal { font-size: 10.5px; line-height: 1.75; }
-                .cv-footer-bar { justify-content: center; text-align: center; gap: 8px; padding: 12px 0 14px; }
+            .cv-footer-bar-copy { display: inline-flex; align-items: center; gap: 6px; }
+            .cv-footer-bar-copy strong { color: #fff; font-weight: 700; }
+            .cv-footer-bar-socials { display: inline-flex; gap: 10px; }
+            .cv-footer-bar-social {
+                width: 34px; height: 34px;
+                border-radius: 10px;
+                background: rgba(167,116,255,0.08);
+                border: 1px solid rgba(167,116,255,0.28);
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                color: rgba(196,163,255,0.85) !important;
+                text-decoration: none !important;
+                transition: all .15s;
+                font-size: 13px;
+            }
+            .cv-footer-bar-social:hover {
+                background: linear-gradient(135deg, rgba(167,116,255,0.2), rgba(124,58,237,0.2));
+                border-color: #a774ff;
+                color: #fff !important;
+                transform: translateY(-2px);
+            }
+            @media (max-width: 768px) {
+                .cv-footer-inner { grid-template-columns: 1fr; gap: 24px; padding: 32px 0 22px; }
+                .cv-footer-brand { align-items: center; text-align: center; }
+                .cv-footer-tagline { max-width: 100%; text-align: center; }
+                .cv-footer-bar { justify-content: center; text-align: center; flex-direction: column; gap: 12px; }
             }
 
             /* Mobile responsive navigation */
@@ -1551,8 +1657,8 @@
         }
 
         #package_use_date {
-            color: #000 !important;
-            -webkit-text-fill-color: #000 !important;
+            color: #fff !important;
+            -webkit-text-fill-color: #fff !important;
             font-weight: 600;
         }
 
@@ -1850,21 +1956,68 @@
             color: #000 !important;
         }
 
-        .package-category-tile.active {
-            background: #101725 !important;
-            color: var(--accent) !important;
-            border-color: var(--accent) !important;
+        /* Package category tabs - vibrant purple */
+        .package-category-tiles {
+            display: flex !important;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
         }
-
         .package-category-tile {
-            background: var(--accent) !important;
-            color: #000 !important;
-            border-color: var(--accent) !important;
-            box-shadow: 0 12px 24px rgba(255, 204, 0, 0.12);
+            flex: 1 1 auto;
+            min-width: 0;
+            background: rgba(167,116,255,0.08) !important;
+            color: rgba(255,255,255,0.88) !important;
+            border: 1px solid rgba(167,116,255,0.35) !important;
+            border-radius: 12px !important;
+            padding: 13px 18px !important;
+            font-size: 14px !important;
+            font-weight: 700 !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            cursor: pointer;
+            transition: all .2s;
+            text-align: left !important;
+            box-shadow: none !important;
         }
-
         .package-category-tile:hover {
-            filter: brightness(1.03);
+            background: rgba(167,116,255,0.16) !important;
+            border-color: rgba(167,116,255,0.6) !important;
+            color: #fff !important;
+            transform: translateY(-1px);
+            filter: none !important;
+        }
+        .package-category-tile.active {
+            background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%) !important;
+            color: #fff !important;
+            border-color: #7c3aed !important;
+            box-shadow: 0 4px 14px rgba(124,58,237,0.4) !important;
+        }
+        .package-category-tile .package-category-indicator {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 800;
+            line-height: 1;
+            flex-shrink: 0;
+            transition: all .2s;
+            opacity: 1 !important;
+        }
+        .package-category-tile.active .package-category-indicator {
+            background: rgba(255,255,255,0.25);
+            transform: rotate(45deg);
+        }
+        .package-category-group { margin-bottom: 16px; }
+
+        @media (max-width: 767px) {
+            .package-category-tiles { flex-direction: column; }
+            .package-category-tile { width: 100%; }
         }
 
         .vip-card.selected {
@@ -2511,6 +2664,2047 @@
             .hero-gallery-grid { grid-template-columns: 1fr; }
         }
 
+        /* ====== CartVIP Redesign UI 2025 ====== */
+        .cv-top-nav {
+            position:sticky;
+            top:0;
+            z-index:1000;
+            background: linear-gradient(180deg, rgba(8,11,20,0.98) 0%, rgba(5,7,14,0.94) 100%);
+            backdrop-filter:blur(14px);
+            -webkit-backdrop-filter:blur(14px);
+            border-bottom:1px solid rgba(167,116,255,.14);
+            display:flex !important;
+            align-items:center;
+            justify-content: space-between !important;
+            padding: 0 clamp(20px, 4vw, 48px);
+            height:72px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .cv-top-nav::after {
+            content: '';
+            position: absolute;
+            left: 0; bottom: -1px;
+            width: 100%; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(167,116,255,0.6) 30%, rgba(124,58,237,0.6) 50%, rgba(167,116,255,0.6) 70%, transparent);
+            pointer-events: none;
+        }
+        .cv-nav-brand { display:flex; align-items:center; gap:12px; text-decoration:none !important; flex-shrink:0; }
+        .cv-nav-logo-img { height:42px; width:auto; max-width: 180px; display:block; object-fit: contain; }
+
+        /* Center status block */
+        .cv-nav-center {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            min-width: 0;
+        }
+        .cv-nav-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 16px;
+            border-radius: 999px;
+            background: rgba(167,116,255,0.06);
+            border: 1px solid rgba(167,116,255,0.22);
+            color: rgba(255,255,255,0.85) !important;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .cv-nav-status .cv-nav-status-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: #4ade80;
+            box-shadow: 0 0 10px rgba(74,222,128,0.7), 0 0 0 4px rgba(74,222,128,0.18);
+            animation: navPulse 2s ease-in-out infinite;
+        }
+        @keyframes navPulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(74,222,128,0.7), 0 0 0 4px rgba(74,222,128,0.18); }
+            50% { box-shadow: 0 0 14px rgba(74,222,128,0.9), 0 0 0 6px rgba(74,222,128,0.08); }
+        }
+        .cv-nav-status i { color: #67e8f9 !important; font-size: 11px; }
+        .cv-nav-divider {
+            width: 1px;
+            height: 24px;
+            background: rgba(255,255,255,0.1);
+        }
+        .cv-nav-trust {
+            display: inline-flex;
+            align-items: center;
+            gap: 18px;
+            font-size: 11.5px;
+            color: rgba(255,255,255,0.55);
+            font-weight: 600;
+        }
+        .cv-nav-trust > span { display: inline-flex; align-items: center; gap: 6px; }
+        .cv-nav-trust i { color: rgba(167,116,255,0.85) !important; font-size: 12px; }
+        @media (max-width: 991px) {
+            .cv-nav-trust { display: none; }
+            .cv-nav-divider { display: none; }
+        }
+        @media (max-width: 767px) {
+            .cv-nav-center { display: none; }
+        }
+        .cv-nav-logo-box {
+            width:42px; height:42px;
+            background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%);
+            border-radius:10px;
+            display:flex; align-items:center; justify-content:center;
+            font-weight:900; font-size:15px;
+            color:#fff !important;
+            flex-shrink:0;
+            letter-spacing: 0.02em;
+            box-shadow: 0 4px 14px rgba(124,58,237,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+            border: 1px solid rgba(167,116,255,0.5);
+        }
+        .cv-nav-name { font-weight:800; font-size:22px; color:#fff !important; letter-spacing:-.01em; line-height:1; }
+        .cv-nav-name .cv-nav-name-accent {
+            background: linear-gradient(135deg, #c4a3ff 0%, #a774ff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            font-weight: 900;
+        }
+        .cv-nav-back {
+            display:flex; align-items:center; gap:8px;
+            padding:9px 16px;
+            border-radius:10px;
+            background: rgba(167,116,255,0.08);
+            border: 1px solid rgba(167,116,255,0.32);
+            color: #c4a3ff !important;
+            text-decoration:none !important;
+            font-size:13.5px;
+            font-weight:700;
+            transition:all .15s;
+        }
+        .cv-nav-back:hover {
+            background: linear-gradient(135deg, rgba(167,116,255,0.18), rgba(124,58,237,0.18));
+            border-color: rgba(167,116,255,0.6);
+            color: #fff !important;
+            transform: translateX(-2px);
+        }
+        .cv-nav-back i { font-size: 11px; }
+        .cv-hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:4px; margin-left:auto; }
+        .cv-hamburger span { display:block; width:22px; height:2px; background:rgba(255,255,255,.85); border-radius:2px; }
+
+        .cv-hero-stage {
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 22px;
+            overflow: hidden;
+            min-height: 460px;
+            background-size: cover;
+            background-position: center;
+            padding: 28px 34px 32px;
+            margin-bottom: 0;
+        }
+
+        .cv-hero-stage::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(7,10,18,0.58) 0%, rgba(7,10,18,0.84) 55%, rgba(7,10,18,0.94) 100%);
+            pointer-events: none;
+        }
+
+        .cv-hero-inner {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+            height: 100%;
+        }
+
+        .cv-hero-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .cv-hero-venue {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+        }
+
+        .cv-hero-venue-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: none;
+            flex-shrink: 0;
+        }
+
+        .cv-hero-venue-initial {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 900;
+            color: #0b1020 !important;
+            background: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .cv-hero-venue-title {
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #fff !important;
+            margin: 0;
+            letter-spacing: -0.01em;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .cv-hero-venue-verified {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #0b1020 !important;
+            font-size: 10px;
+            font-weight: 900;
+        }
+
+        .cv-hero-venue-meta {
+            font-size: 13px;
+            color: rgba(255,255,255,0.62) !important;
+            margin: 3px 0 0;
+        }
+
+        .cv-hero-rating {
+            font-size: 13px;
+            color: rgba(255,255,255,0.78) !important;
+            margin-top: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .cv-hero-rating .stars { color: var(--accent) !important; letter-spacing: -1px; }
+
+        .cv-hero-badges { display: flex; gap: 24px; align-items: flex-start; }
+
+        .cv-hero-badge {
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            padding: 0;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .cv-hero-badge i {
+            color: var(--accent) !important;
+            font-size: 11px;
+            margin-top: 1px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(255,204,0,0.1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cv-hero-badge-label {
+            display: block;
+            font-size: 13px;
+            color: rgba(255,255,255,0.78) !important;
+            font-weight: 600;
+            line-height: 1.25;
+        }
+
+        .cv-hero-badge-sub {
+            display: block;
+            font-size: 13px;
+            color: rgba(255,255,255,0.95) !important;
+            margin-top: 2px;
+            line-height: 1.2;
+            font-weight: 700;
+        }
+
+        .cv-hero-content { max-width: 680px; flex: 1; min-width: 0; }
+
+        /* Hero bottom row - content + location panel side by side */
+        .cv-hero-bottom { display: flex; gap: 32px; align-items: center; flex: 1; min-height: 0; }
+
+        /* Hero Find Us / map panel - aurora theme (rose + cyan multi-tone, blends with any bg) */
+        .cv-hero-location {
+            flex: 0 0 460px;
+            background: linear-gradient(180deg, rgba(12,8,20,0.72), rgba(6,4,14,0.85)) !important;
+            backdrop-filter: blur(20px) saturate(1.6);
+            -webkit-backdrop-filter: blur(20px) saturate(1.6);
+            border: 1px solid rgba(255,255,255,0.18) !important;
+            border-radius: 20px;
+            padding: 22px;
+            align-self: stretch;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            position: relative;
+            overflow: hidden;
+            box-shadow:
+                0 16px 44px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.14),
+                inset 0 -1px 0 rgba(251,113,133,0.18);
+        }
+        .cv-hero-location::before {
+            content: '';
+            position: absolute;
+            right: -15%; top: -15%;
+            width: 70%; height: 70%;
+            background: radial-gradient(ellipse at right top, rgba(251,113,133,0.28), transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .cv-hero-location::after {
+            content: '';
+            position: absolute;
+            left: -10%; bottom: -10%;
+            width: 70%; height: 60%;
+            background: radial-gradient(ellipse at bottom left, rgba(34,211,238,0.22), transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .cv-hero-location > * { position: relative; z-index: 1; }
+
+        .cv-hero-location-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+        .cv-hero-location-titles { flex: 1; min-width: 0; position: relative; }
+        .cv-hero-location-label {
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #fb7185 0%, #f472b6 50%, #22d3ee 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent !important;
+            margin: 0 0 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .cv-hero-location-label::before {
+            content: '\f3c5';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            font-size: 11px;
+            color: #fb7185;
+            -webkit-text-fill-color: #fb7185;
+            background: none;
+        }
+        .cv-hero-location-name { font-size: 19px; font-weight: 800; color: #fff !important; line-height: 1.25; letter-spacing: -0.01em; }
+        .cv-hero-location-addr { font-size: 13.5px; color: rgba(255,255,255,0.78) !important; line-height: 1.5; margin-top: 4px; }
+        .cv-hero-location-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, rgba(251,113,133,0.18), rgba(34,211,238,0.18));
+            border: 1px solid transparent;
+            background-clip: padding-box;
+            color: #fff !important;
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            flex-shrink: 0;
+            align-self: flex-start;
+            box-shadow: 0 0 0 1px rgba(251,113,133,0.45), 0 4px 12px rgba(251,113,133,0.15);
+        }
+        .cv-hero-location-badge i { font-size: 9px; color: #fb7185; }
+
+        .cv-hero-location-map {
+            flex: 1;
+            min-height: 230px;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(0,0,0,0.4);
+            position: relative;
+            box-shadow: 0 0 0 1px rgba(251,113,133,0.15), 0 0 0 2px rgba(34,211,238,0.06);
+        }
+        .cv-hero-location-map iframe { width: 100%; height: 100%; min-height: 230px; border: 0; display: block; filter: brightness(0.85) contrast(1.08) saturate(0.95); }
+
+        .cv-hero-location-contacts { display: flex; flex-direction: column; gap: 8px; }
+        .cv-hero-location-contact {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.92) !important;
+            text-decoration: none !important;
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.14);
+            transition: all .18s;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+        .cv-hero-location-contact:hover {
+            background: linear-gradient(90deg, rgba(251,113,133,0.12), rgba(34,211,238,0.08));
+            color: #fff !important;
+            border-color: rgba(251,113,133,0.55);
+            transform: translateX(3px);
+            box-shadow: 0 4px 14px rgba(251,113,133,0.18);
+        }
+        .cv-hero-location-contact i {
+            color: #fb7185 !important;
+            font-size: 13px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(251,113,133,0.22), rgba(34,211,238,0.12));
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: inset 0 0 0 1px rgba(251,113,133,0.32);
+        }
+        .cv-hero-location-contact:nth-child(even) i {
+            color: #22d3ee !important;
+            background: linear-gradient(135deg, rgba(34,211,238,0.22), rgba(251,113,133,0.12));
+            box-shadow: inset 0 0 0 1px rgba(34,211,238,0.32);
+        }
+
+        @media (max-width: 1199px) {
+            .cv-hero-location { flex: 0 0 400px; }
+            .cv-hero-location-map { min-height: 200px; }
+        }
+
+        @media (max-width: 991px) {
+            .cv-hero-bottom { flex-direction: column; align-items: stretch; gap: 18px; }
+            .cv-hero-location { flex: 0 0 auto; }
+            .cv-hero-location-map { min-height: 200px; }
+        }
+
+        /* Upcoming Events section - dark theme matching the page */
+        .events-section-container { padding: 48px 0 !important; }
+        .events-section-container .event-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 28px; padding-bottom: 0; border-bottom: none; }
+        .events-section-container .event-header h2 { font-size: 26px; font-weight: 800; color: #fff !important; margin: 0; letter-spacing: -0.01em; }
+        .events-section-container .event-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+        .events-section-container .event-filters .event-filter {
+            background: rgba(255,255,255,0.03) !important;
+            border: 1px solid rgba(255,255,255,0.14) !important;
+            color: rgba(255,255,255,0.78) !important;
+            padding: 8px 14px !important;
+            border-radius: 999px !important;
+            font-size: 12.5px !important;
+            font-weight: 600 !important;
+            cursor: pointer;
+            transition: all .15s;
+        }
+        .events-section-container .event-filters .event-filter:hover,
+        .events-section-container .event-filters .event-filter.active {
+            background: rgba(255,204,0,0.08) !important;
+            border-color: var(--accent) !important;
+            color: var(--accent) !important;
+        }
+        .events-section-container .event-card-item { padding: 0; margin-bottom: 20px; }
+        .events-section-container .event-card {
+            display: block;
+            background: linear-gradient(180deg, rgba(36,18,58,0.85), rgba(18,10,32,0.95)) !important;
+            border: 1px solid rgba(167,116,255,0.28) !important;
+            border-radius: 20px !important;
+            overflow: hidden;
+            transition: all .25s ease;
+            text-decoration: none !important;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 10px 32px rgba(0,0,0,0.32);
+        }
+        .events-section-container .event-card::before {
+            content: '';
+            position: absolute;
+            right: -10%; top: -20%;
+            width: 50%; height: 80%;
+            background: radial-gradient(ellipse at right top, rgba(167,116,255,0.18), transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.6;
+            transition: opacity .25s;
+        }
+        .events-section-container .event-card:hover {
+            border-color: rgba(167,116,255,0.6) !important;
+            transform: translateY(-4px);
+            box-shadow: 0 20px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(167,116,255,0.32), 0 0 36px rgba(124,58,237,0.12);
+        }
+        .events-section-container .event-card:hover::before { opacity: 1; }
+
+        /* Vertical card layout: image on top, content below */
+        .events-section-container .event-card .card {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            text-align: left !important;
+            height: 100%;
+            display: flex !important;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+        }
+        .events-section-container .event-card .card > img {
+            width: 100% !important;
+            height: 220px !important;
+            object-fit: cover;
+            display: block;
+            border-radius: 0 !important;
+            margin: 0;
+        }
+        .events-section-container .event-card .card > .d-flex {
+            padding: 18px 20px 4px;
+            align-items: center;
+            gap: 12px;
+        }
+        .events-section-container .event-card .event-day {
+            font-size: 13px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.6) !important;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            width: auto !important;
+        }
+        .events-section-container .event-card .event-dates {
+            font-size: 12px;
+            font-weight: 800;
+            color: #c4a3ff !important;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            width: auto !important;
+            margin-left: auto;
+            text-align: center;
+            line-height: 1.1;
+            background: rgba(167,116,255,0.14);
+            border: 1px solid rgba(167,116,255,0.4);
+            padding: 7px 12px;
+            border-radius: 10px;
+            min-width: 60px;
+        }
+        .events-section-container .event-card .event-dates span { font-size: 18px; display: block; margin-top: 2px; color: #fff !important; font-weight: 900; }
+        .events-section-container .event-card .event-dates span br { display: none; }
+        .events-section-container .event-card .event-location {
+            font-size: 13px;
+            color: rgba(255,255,255,0.72) !important;
+            padding: 2px 20px;
+            margin-top: 4px;
+            line-height: 1.4;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .events-section-container .event-card .event-location:first-of-type {
+            color: #fff !important;
+            font-size: 19px;
+            font-weight: 800;
+            line-height: 1.25;
+            margin-top: 6px;
+            margin-bottom: 4px;
+            padding: 0 20px;
+            letter-spacing: -0.01em;
+        }
+        .events-section-container .event-card .event-location i { color: #c4a3ff !important; margin-right: 4px; width: 14px; }
+        .events-section-container .event-card .event-location:last-child {
+            margin-top: auto;
+            padding: 14px 20px 16px;
+            color: #fff !important;
+            font-weight: 800;
+            font-size: 12.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            border-top: 1px solid rgba(167,116,255,0.18);
+        }
+        .events-section-container .event-card .event-location:last-child::after {
+            content: '\f061';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            font-size: 10px;
+            color: #fff;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 14px rgba(124,58,237,0.4);
+            margin-left: auto;
+        }
+        .events-section-container .event-capacity-chip {
+            margin: 12px 20px 16px;
+            padding: 7px 12px;
+            border-radius: 999px;
+            background: rgba(34,197,94,0.14);
+            border: 1px solid rgba(34,197,94,0.4);
+            color: #4ade80 !important;
+            font-size: 11.5px;
+            font-weight: 700;
+            width: fit-content;
+            display: inline-flex;
+            align-items: center;
+        }
+        .events-section-container .event-capacity-chip.sold-out {
+            background: rgba(255,96,96,0.14);
+            border-color: rgba(255,96,96,0.4);
+            color: #ffb4b4 !important;
+        }
+
+        @media (max-width: 991px) {
+            .events-section-container .event-card .card > img { height: 200px !important; }
+        }
+        @media (max-width: 767px) {
+            .events-section-container .event-header h2 { font-size: 22px; }
+            .events-section-container .event-card .card > img { height: 180px !important; }
+        }
+
+        /* ====== ADDON MODAL - vibrant purple package-style ====== */
+        #addonSelectionModal .modal-content {
+            background: linear-gradient(180deg, rgba(36,18,58,0.96), rgba(18,10,32,0.98)) !important;
+            border: 1px solid rgba(167,116,255,0.4) !important;
+            border-radius: 20px !important;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(167,116,255,0.18) !important;
+            color: #f4f6ff !important;
+            position: relative;
+            overflow: hidden;
+        }
+        #addonSelectionModal .modal-content::before {
+            content: '';
+            position: absolute;
+            right: -10%; top: -10%;
+            width: 60%; height: 50%;
+            background: radial-gradient(ellipse at right top, rgba(167,116,255,0.18), transparent 65%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        #addonSelectionModal .modal-content > * { position: relative; z-index: 1; }
+        #addonSelectionModal .modal-header {
+            border-bottom: 1px solid rgba(167,116,255,0.18) !important;
+            padding: 20px 24px !important;
+        }
+        #addonSelectionModal .modal-title {
+            color: #fff !important;
+            font-size: 20px !important;
+            font-weight: 800 !important;
+            letter-spacing: -0.01em;
+        }
+        #addonSelectionModal .modal-body { padding: 20px 24px !important; }
+        #addonSelectionModal .modal-footer {
+            border-top: 1px solid rgba(167,116,255,0.18) !important;
+            padding: 16px 24px !important;
+            gap: 12px;
+        }
+        #addonSelectionModal .addon-modal-row {
+            background: linear-gradient(180deg, rgba(167,116,255,0.08), rgba(167,116,255,0.02)) !important;
+            border: 1px solid rgba(167,116,255,0.22) !important;
+            border-radius: 14px !important;
+            transition: all .15s;
+        }
+        #addonSelectionModal .addon-modal-row:hover {
+            border-color: rgba(167,116,255,0.5) !important;
+            background: linear-gradient(180deg, rgba(167,116,255,0.12), rgba(167,116,255,0.04)) !important;
+        }
+        #addonSelectionModal .addon-modal-unit { color: #c4a3ff !important; }
+        #addonSelectionModal .addon-qty-stepper {
+            background: rgba(0,0,0,0.4) !important;
+            border-color: rgba(167,116,255,0.32) !important;
+        }
+        #addonSelectionModal .addon-qty-btn:hover {
+            background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%) !important;
+            color: #fff !important;
+            border-color: transparent !important;
+        }
+        #addonModalConfirmBtn {
+            background: linear-gradient(135deg, #a774ff 0%, #7c3aed 50%, #5b21b6 100%) !important;
+            color: #fff !important;
+            font-weight: 800 !important;
+            border: none !important;
+            border-radius: 12px !important;
+            padding: 11px 22px !important;
+            font-size: 14px !important;
+            box-shadow: 0 4px 16px rgba(124,58,237,0.35) !important;
+            transition: all .15s !important;
+        }
+        #addonSelectionModal #addonModalConfirmBtn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        #addonSelectionModal .btn-secondary {
+            background: rgba(255,255,255,0.05) !important;
+            border: 1px solid rgba(255,255,255,0.18) !important;
+            color: rgba(255,255,255,0.85) !important;
+            border-radius: 12px !important;
+            font-weight: 600 !important;
+            padding: 11px 20px !important;
+        }
+        #addonSelectionModal .btn-close-white,
+        #addonSelectionModal .btn-close { filter: invert(1) brightness(1.5); }
+
+        /* ====== Total row strict override (defeat .vip-price gold) ====== */
+        #cv-order-sidebar .pricing-shell .default-deposit,
+        #cv-order-sidebar .pricing-shell .default-deposit * {
+            color: #fff !important;
+            background: transparent !important;
+            border-left: none !important;
+            border-right: none !important;
+            text-decoration: none !important;
+            text-shadow: none !important;
+        }
+        #cv-order-sidebar .pricing-shell .default-deposit::before,
+        #cv-order-sidebar .pricing-shell .default-deposit::after { display: none !important; content: none !important; }
+
+        /* ====== Share link button - VIBRANT purple gradient ====== */
+        #cv-order-sidebar #shareLinkContainer,
+        .cv-main-col #shareLinkContainer { margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.08); }
+        #cv-order-sidebar #generateShareLink,
+        .cv-main-col #generateShareLink,
+        #generateShareLink {
+            background: linear-gradient(135deg, #a774ff 0%, #7c3aed 50%, #5b21b6 100%) !important;
+            color: #fff !important;
+            border: none !important;
+            border-radius: 12px !important;
+            padding: 12px 18px !important;
+            font-size: 13px !important;
+            font-weight: 800 !important;
+            transition: all .15s !important;
+            cursor: pointer;
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-transform: none;
+            letter-spacing: 0.01em;
+            box-shadow: 0 4px 16px rgba(124,58,237,0.35);
+            text-decoration: none !important;
+        }
+        #generateShareLink:hover {
+            filter: brightness(1.1) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 8px 22px rgba(124,58,237,0.5) !important;
+            color: #fff !important;
+        }
+        #generateShareLink::before {
+            content: '\f1e0';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            font-size: 13px;
+        }
+        #shareableLink {
+            background: rgba(255,255,255,0.04) !important;
+            border: 1px solid rgba(255,255,255,0.14) !important;
+            color: #fff !important;
+            border-radius: 10px !important;
+            padding: 10px 12px !important;
+            font-size: 12px !important;
+            margin-top: 8px !important;
+        }
+        .checkout-share-btn {
+            background: rgba(255,255,255,0.04) !important;
+            color: rgba(255,255,255,0.78) !important;
+            border: 1px solid rgba(255,255,255,0.14) !important;
+            padding: 6px 12px !important;
+            border-radius: 999px !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            cursor: pointer;
+            transition: all .15s;
+        }
+        .checkout-share-btn:hover {
+            background: rgba(255,204,0,0.08) !important;
+            border-color: rgba(255,204,0,0.4) !important;
+            color: var(--accent) !important;
+        }
+
+        /* ====== Payment process: form sections theme (vibrant purple card style) ====== */
+        .checkout-section.holder-info,
+        .checkout-section.transport,
+        .checkout-section.payment-section,
+        .checkout-section[id^="section-"] {
+            background: linear-gradient(180deg, rgba(36,18,58,0.85), rgba(18,10,32,0.95)) !important;
+            border: 1px solid rgba(167,116,255,0.28) !important;
+            border-radius: 20px !important;
+            padding: 30px 32px !important;
+            margin-top: 24px !important;
+            margin-bottom: 8px !important;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 38px rgba(0,0,0,0.32);
+        }
+        .checkout-section[id^="section-"]::before {
+            content: '';
+            position: absolute;
+            right: -10%; top: -10%;
+            width: 50%; height: 60%;
+            background: radial-gradient(ellipse at right top, rgba(167,116,255,0.14), transparent 65%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .checkout-section[id^="section-"] > * { position: relative; z-index: 1; }
+
+        .checkout-section[id^="section-"] h2 {
+            color: #fff !important;
+            font-size: 24px !important;
+            font-weight: 800 !important;
+            letter-spacing: -0.015em !important;
+            margin-bottom: 6px !important;
+            line-height: 1.2 !important;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .checkout-section[id^="section-"] h2::before {
+            content: '';
+            width: 4px;
+            height: 28px;
+            background: linear-gradient(180deg, #c4a3ff, #7c3aed);
+            border-radius: 2px;
+            box-shadow: 0 0 12px rgba(124,58,237,0.5);
+        }
+        .checkout-section[id^="section-"] h2 span {
+            display: block !important;
+            color: rgba(255,255,255,0.62) !important;
+            font-size: 13px !important;
+            font-weight: 500 !important;
+            line-height: 1.55 !important;
+            margin-top: 10px !important;
+            margin-bottom: 10px !important;
+            padding-left: 18px;
+            border-left: 2px solid rgba(167,116,255,0.3);
+            flex-basis: 100%;
+        }
+        .checkout-section[id^="section-"] label {
+            color: rgba(255,255,255,0.78) !important;
+            font-size: 12.5px !important;
+            font-weight: 600 !important;
+            margin-bottom: 6px !important;
+            display: block !important;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+        .checkout-section[id^="section-"] .form-row {
+            display: flex !important;
+            gap: 14px !important;
+            margin-bottom: 14px !important;
+        }
+        .checkout-section[id^="section-"] .form-row .form-group {
+            flex: 1 1 0 !important;
+            min-width: 0 !important;
+        }
+        .checkout-section[id^="section-"] input[type="text"],
+        .checkout-section[id^="section-"] input[type="email"],
+        .checkout-section[id^="section-"] input[type="tel"],
+        .checkout-section[id^="section-"] input[type="number"],
+        .checkout-section[id^="section-"] textarea,
+        .checkout-section[id^="section-"] select.form-select {
+            background: rgba(255,255,255,0.03) !important;
+            border: 1px solid rgba(255,255,255,0.14) !important;
+            border-radius: 10px !important;
+            color: #fff !important;
+            padding: 12px 14px !important;
+            font-size: 14px !important;
+            width: 100% !important;
+            min-height: 46px !important;
+            transition: border-color .15s, background .15s;
+        }
+        .checkout-section[id^="section-"] input:focus,
+        .checkout-section[id^="section-"] textarea:focus,
+        .checkout-section[id^="section-"] select:focus {
+            outline: none !important;
+            border-color: #a774ff !important;
+            background: rgba(255,255,255,0.05) !important;
+            box-shadow: 0 0 0 3px rgba(167,116,255,0.16) !important;
+        }
+        .checkout-section[id^="section-"] input::placeholder,
+        .checkout-section[id^="section-"] textarea::placeholder {
+            color: rgba(255,255,255,0.32) !important;
+        }
+        .checkout-section[id^="section-"] textarea {
+            min-height: 90px !important;
+            resize: vertical;
+        }
+        .checkout-section[id^="section-"] .form-group .form-row {
+            margin-bottom: 0 !important;
+            gap: 8px !important;
+        }
+        .checkout-section[id^="section-"] .form-group .form-row select {
+            flex: 1 !important;
+        }
+
+        /* Step navigation buttons */
+        .step-navigation {
+            margin-top: 24px !important;
+            display: flex !important;
+            gap: 12px !important;
+            flex-wrap: wrap !important;
+            align-items: center !important;
+            justify-content: flex-end !important;
+        }
+        .btn-next, .submit-btn {
+            background: linear-gradient(135deg, #a774ff 0%, #7c3aed 50%, #5b21b6 100%) !important;
+            color: #fff !important;
+            border: none !important;
+            border-radius: 12px !important;
+            padding: 12px 26px !important;
+            font-weight: 800 !important;
+            font-size: 14px !important;
+            cursor: pointer !important;
+            transition: all .15s !important;
+            min-width: 180px !important;
+            box-shadow: 0 6px 20px rgba(124,58,237,0.4) !important;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-next:hover, .submit-btn:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 26px rgba(124,58,237,0.55) !important;
+        }
+        .btn-next:disabled, .submit-btn:disabled {
+            opacity: 0.45 !important;
+            cursor: not-allowed !important;
+            transform: none !important;
+            filter: none !important;
+            box-shadow: none !important;
+        }
+        .btn-prev {
+            background: rgba(255,255,255,0.04) !important;
+            color: rgba(255,255,255,0.85) !important;
+            border: 1px solid rgba(255,255,255,0.16) !important;
+            border-radius: 12px !important;
+            padding: 12px 22px !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            cursor: pointer !important;
+            transition: all .15s !important;
+            min-width: 140px !important;
+        }
+        .btn-prev:hover {
+            background: rgba(255,255,255,0.08) !important;
+            color: #fff !important;
+            border-color: rgba(255,255,255,0.28) !important;
+        }
+
+        .same-as-info, .same-as-info-transport {
+            background: rgba(167,116,255,0.12) !important;
+            color: #c4a3ff !important;
+            border: 1px solid rgba(167,116,255,0.4) !important;
+            border-radius: 10px !important;
+            padding: 9px 16px !important;
+            font-size: 12.5px !important;
+            font-weight: 700 !important;
+            cursor: pointer;
+            transition: all .15s;
+            margin-bottom: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            width: auto !important;
+            min-width: 0 !important;
+        }
+        .same-as-info:hover, .same-as-info-transport:hover {
+            background: rgba(167,116,255,0.22) !important;
+            border-color: #a774ff !important;
+            color: #fff !important;
+            transform: none !important;
+        }
+
+        .checkbox-container.transportaiton,
+        #transport-confirmation {
+            background: linear-gradient(180deg, rgba(18,22,42,0.65), rgba(10,12,26,0.78)) !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            border-radius: 18px !important;
+            padding: 24px 28px !important;
+            margin-top: 20px !important;
+        }
+        .checkbox-container.transportaiton label {
+            color: rgba(255,255,255,0.85) !important;
+            font-size: 14px !important;
+            line-height: 1.55 !important;
+            display: flex !important;
+            align-items: flex-start !important;
+            gap: 12px !important;
+        }
+
+        .checkout-section[id^="section-"] .StripeElement {
+            background: rgba(255,255,255,0.03) !important;
+            border: 1px solid rgba(255,255,255,0.14) !important;
+            border-radius: 10px !important;
+            padding: 14px !important;
+            min-height: 46px !important;
+        }
+        .checkout-section[id^="section-"] .StripeElement--focus,
+        .checkout-section[id^="section-"] .StripeElement--focused {
+            border-color: #a774ff !important;
+            background: rgba(255,255,255,0.05) !important;
+            box-shadow: 0 0 0 3px rgba(167,116,255,0.16) !important;
+        }
+
+        .checkout-section[id^="section-"] #Pick-up-time,
+        .checkout-section[id^="section-"] input[name="transportation_pickup_time"].flatpickr-time {
+            background: rgba(255,255,255,0.03) !important;
+            border: 1px solid rgba(255,255,255,0.14) !important;
+            color: #fff !important;
+            -webkit-text-fill-color: #fff !important;
+            border-radius: 10px !important;
+            padding: 10px 14px !important;
+            font-size: 14px !important;
+            min-height: 46px !important;
+            width: 100% !important;
+            max-width: 240px !important;
+            height: auto !important;
+        }
+        .checkout-section[id^="section-"] #Pick-up-time::placeholder { color: rgba(255,255,255,0.35) !important; }
+
+        .checkout-section[id^="section-"] .checkbox-container .consent-label {
+            color: rgba(255,255,255,0.78) !important;
+            background: rgba(255,255,255,0.025);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            font-size: 13px !important;
+        }
+        .checkout-section[id^="section-"] .checkbox-container .consent-label a { color: #c4a3ff !important; text-decoration: underline !important; }
+
+        @media (max-width: 767px) {
+            .checkout-section[id^="section-"] { padding: 20px !important; }
+            .checkout-section[id^="section-"] .form-row { flex-direction: column !important; gap: 12px !important; }
+            .step-navigation { justify-content: stretch !important; }
+            .btn-next, .submit-btn, .btn-prev { min-width: 100% !important; flex: 1 1 100% !important; }
+            .checkout-section[id^="section-"] .form-row .form-group { width: 100% !important; }
+        }
+
+        /* ====== Guest reservation form - vibrant purple package-card style ====== */
+        .guest > form > section:not(.location-card):not(.guest-count) {
+            background: linear-gradient(180deg, rgba(36,18,58,0.85), rgba(18,10,32,0.95)) !important;
+            border: 1px solid rgba(167,116,255,0.28) !important;
+            border-radius: 20px !important;
+            padding: 30px 32px !important;
+            margin-top: 24px !important;
+            margin-bottom: 16px !important;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 38px rgba(0,0,0,0.32);
+        }
+        .guest > form > section:not(.location-card):not(.guest-count)::before {
+            content: '';
+            position: absolute;
+            right: -10%; top: -10%;
+            width: 50%; height: 60%;
+            background: radial-gradient(ellipse at right top, rgba(167,116,255,0.14), transparent 65%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .guest > form > section:not(.location-card):not(.guest-count) > * { position: relative; z-index: 1; }
+        .guest .section-kicker-lg {
+            color: #fff !important;
+            font-size: 24px !important;
+            font-weight: 800 !important;
+            letter-spacing: -0.015em !important;
+            margin-bottom: 18px !important;
+            line-height: 1.2 !important;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .guest .section-kicker-lg::before {
+            content: '';
+            width: 4px;
+            height: 28px;
+            background: linear-gradient(180deg, #c4a3ff, #7c3aed);
+            border-radius: 2px;
+            box-shadow: 0 0 12px rgba(124,58,237,0.5);
+        }
+        .guest .form-row { display: flex !important; gap: 14px !important; margin-bottom: 14px !important; }
+        .guest .form-row .form-group { flex: 1 1 0 !important; min-width: 0 !important; }
+        .guest label {
+            color: rgba(255,255,255,0.78) !important;
+            font-size: 12.5px !important;
+            font-weight: 600 !important;
+            margin-bottom: 6px !important;
+            display: block !important;
+        }
+        .guest input[type="text"],
+        .guest input[type="email"],
+        .guest input[type="tel"],
+        .guest input[type="number"],
+        .guest textarea,
+        .guest select.form-select {
+            background: rgba(255,255,255,0.03) !important;
+            border: 1px solid rgba(255,255,255,0.14) !important;
+            border-radius: 10px !important;
+            color: #fff !important;
+            padding: 12px 14px !important;
+            font-size: 14px !important;
+            width: 100% !important;
+            min-height: 46px !important;
+            transition: border-color .15s, background .15s;
+        }
+        .guest input:focus,
+        .guest textarea:focus,
+        .guest select:focus {
+            outline: none !important;
+            border-color: #a774ff !important;
+            background: rgba(255,255,255,0.05) !important;
+            box-shadow: 0 0 0 3px rgba(167,116,255,0.16) !important;
+        }
+        .guest input::placeholder, .guest textarea::placeholder { color: rgba(255,255,255,0.32) !important; }
+        .guest textarea { min-height: 90px !important; resize: vertical; }
+
+        .guest .guest-count {
+            background: linear-gradient(180deg, rgba(36,18,58,0.85), rgba(18,10,32,0.95)) !important;
+            border: 1px solid rgba(167,116,255,0.28) !important;
+            border-radius: 20px !important;
+            padding: 30px 32px !important;
+            margin-top: 24px !important;
+            margin-bottom: 16px !important;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 38px rgba(0,0,0,0.32);
+        }
+        .guest .guest-count::before {
+            content: '';
+            position: absolute;
+            right: -10%; top: -10%;
+            width: 50%; height: 60%;
+            background: radial-gradient(ellipse at right top, rgba(167,116,255,0.14), transparent 65%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .guest .guest-count > .container { position: relative; z-index: 1; padding: 0 !important; }
+        .guest .guest-count .guest-list h2 {
+            color: #fff !important;
+            font-size: 22px !important;
+            font-weight: 800 !important;
+            letter-spacing: -0.015em !important;
+            margin: 0 0 18px !important;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .guest .guest-count .guest-list h2::before {
+            content: '';
+            width: 4px;
+            height: 26px;
+            background: linear-gradient(180deg, #c4a3ff, #7c3aed);
+            border-radius: 2px;
+            box-shadow: 0 0 12px rgba(124,58,237,0.5);
+        }
+        .guest .guest-gender-row {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+        .guest .guest-section {
+            background: linear-gradient(180deg, rgba(167,116,255,0.08), rgba(167,116,255,0.02)) !important;
+            border: 1px solid rgba(167,116,255,0.32) !important;
+            border-radius: 14px !important;
+            padding: 18px 16px !important;
+            text-align: center;
+            transition: all .15s;
+        }
+        .guest .guest-section .label {
+            display: block !important;
+            color: rgba(255,255,255,0.7) !important;
+            font-size: 12.5px !important;
+            font-weight: 700 !important;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 12px;
+        }
+        .guest .guest-section .counter { display: flex; justify-content: center; }
+        .guest .addon-qty-stepper.guest-qty-stepper {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(167,116,255,0.32);
+            border-radius: 999px;
+            padding: 4px;
+        }
+        .guest .addon-qty-btn.guest-qty-btn {
+            background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%) !important;
+            color: #fff !important;
+            border: none !important;
+            width: 34px !important;
+            height: 34px !important;
+            border-radius: 50% !important;
+            font-size: 1.2em !important;
+            font-weight: 700 !important;
+            cursor: pointer;
+            transition: all .15s;
+            box-shadow: 0 2px 8px rgba(124,58,237,0.4);
+        }
+        .guest .addon-qty-btn.guest-qty-btn:hover { filter: brightness(1.15); transform: scale(1.05); }
+        .guest .addon-qty-val.guest-qty-val {
+            min-width: 32px;
+            text-align: center;
+            color: #fff !important;
+            font-weight: 800;
+            font-size: 18px;
+        }
+        .guest .guest-section--total .addon-qty-stepper.guest-qty-stepper { padding: 0; background: transparent; border: none; }
+
+        .guest .checkbox-container {
+            background: linear-gradient(180deg, rgba(36,18,58,0.85), rgba(18,10,32,0.95)) !important;
+            border: 1px solid rgba(167,116,255,0.28) !important;
+            border-radius: 20px !important;
+            padding: 24px 28px !important;
+            margin-top: 8px !important;
+            margin-bottom: 16px !important;
+            position: relative;
+            overflow: hidden;
+        }
+        .guest .checkbox-container .consent-label {
+            display: flex !important;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 0;
+            color: rgba(255,255,255,0.82) !important;
+            font-size: 13px !important;
+            line-height: 1.5 !important;
+            margin-bottom: 0 !important;
+        }
+        .guest .checkbox-container .consent-label a { color: #c4a3ff !important; text-decoration: underline !important; }
+        .guest .submit-btn { margin-top: 20px !important; width: 100% !important; min-width: 100% !important; }
+
+        .aff-kicker {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            color: var(--accent) !important;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .cv-hero-title {
+            font-size: clamp(36px, 4vw, 60px);
+            line-height: 1.08;
+            letter-spacing: -0.02em;
+            color: #fff !important;
+            font-weight: 800;
+            margin: 0 0 14px;
+        }
+
+        .cv-hero-title-accent { color: var(--accent) !important; }
+
+        .cv-hero-subtitle {
+            max-width: 560px;
+            font-size: 15px;
+            line-height: 1.55;
+            color: rgba(255,255,255,0.72) !important;
+            margin-bottom: 18px;
+        }
+
+        .cv-hero-content .hero-date-card {
+            max-width: 420px;
+            margin-top: 0;
+            background: rgba(8,11,22,0.55);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 12px;
+            padding: 14px 16px;
+        }
+
+        .cv-hero-content .hero-date-card label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent) !important;
+            margin-bottom: 8px;
+        }
+
+        .cv-desktop-shell {
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(11,14,30,0.84), rgba(8,10,22,0.9));
+            padding: 20px 18px 16px;
+            margin-bottom: 16px;
+        }
+
+        /* Circular 4-step indicator with connecting lines */
+        .cv-desktop-steps {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0;
+            margin: 6px 0 18px;
+            position: relative;
+        }
+
+        .cv-dstep {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 8px;
+            color: rgba(255,255,255,0.55) !important;
+            font-size: 12px;
+            font-weight: 600;
+            position: relative;
+            text-align: center;
+            padding: 0 4px;
+        }
+
+        .cv-dstep::before {
+            content: '';
+            position: absolute;
+            top: 16px;
+            left: calc(50% + 18px);
+            right: calc(-50% + 18px);
+            height: 2px;
+            background: rgba(255,255,255,0.14);
+            z-index: 0;
+        }
+        .cv-dstep:last-child::before { display: none; }
+
+        .cv-dstep-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: 1.5px solid rgba(255,255,255,0.22);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 800;
+            color: rgba(255,255,255,0.85) !important;
+            background: rgba(255,255,255,0.04);
+            position: relative;
+            z-index: 1;
+            transition: all .2s;
+        }
+
+        .cv-dstep.is-active .cv-dstep-num {
+            background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%) !important;
+            border-color: #7c3aed !important;
+            color: #fff !important;
+            box-shadow: 0 0 0 4px rgba(167,116,255,0.2), 0 4px 12px rgba(124,58,237,0.4);
+        }
+        .cv-dstep.is-active { color: #c4a3ff !important; }
+        .cv-dstep.is-complete .cv-dstep-num { background: linear-gradient(135deg, #a774ff 0%, #5b21b6 100%) !important; border-color: #7c3aed !important; color: #fff !important; }
+        .cv-dstep.is-complete::before { background: linear-gradient(90deg, #a774ff, #7c3aed) !important; }
+
+        .cv-access-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 4px;
+        }
+
+        .cv-access-card {
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 14px;
+            padding: 16px 18px;
+            background: rgba(255,255,255,0.025);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: default;
+            transition: all .2s;
+            text-align: left;
+            width: 100%;
+            font-family: inherit;
+            color: inherit;
+        }
+
+        .cv-access-card.cv-access-tab { cursor: pointer; }
+        .cv-access-card.cv-access-tab:hover:not(.is-active) { border-color: rgba(255,255,255,0.28); background: rgba(255,255,255,0.04); }
+
+        .cv-access-card i { color: rgba(255,255,255,0.78) !important; font-size: 20px; flex-shrink: 0; }
+
+        .cv-access-card strong {
+            display: block;
+            font-size: 15px;
+            line-height: 1.2;
+            color: #fff !important;
+            font-weight: 700;
+        }
+
+        .cv-access-card span {
+            display: block;
+            font-size: 12px;
+            line-height: 1.3;
+            color: rgba(255,255,255,0.55) !important;
+            margin-top: 3px;
+        }
+
+        .cv-access-card.is-active {
+            border-color: var(--accent);
+            background: rgba(255,204,0,0.06);
+            box-shadow: inset 0 0 0 1px rgba(255,204,0,0.36);
+        }
+        .cv-access-card.is-active i { color: var(--accent) !important; }
+
+        /* Enhanced venue header */
+        .aff-hero.cv-venue-header { padding:16px 0; background:rgba(255,255,255,.025); border-bottom:1px solid rgba(255,255,255,.07); }
+        .aff-hero-verified { display:inline-flex; align-items:center; justify-content:center; width:17px; height:17px; border-radius:50%; background:var(--accent); color:#000 !important; font-size:9px; font-weight:900; margin-left:5px; vertical-align:middle; flex-shrink:0; }
+        .aff-hero-stars { display:flex; align-items:center; gap:4px; font-size:12px; color:rgba(255,255,255,.6) !important; margin-top:3px; }
+        .aff-hero-stars .cv-stars { color:var(--accent) !important; letter-spacing:-1px; }
+        .aff-hero-badges { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+        .aff-hero-badge { display:inline-flex; align-items:center; gap:5px; padding:5px 11px; border-radius:20px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.05); font-size:11px; font-weight:600; color:rgba(255,255,255,.8) !important; white-space:nowrap; }
+        .aff-hero-badge i { color:var(--accent) !important; font-size:11px; }
+
+        /* 2-column checkout body */
+        .cv-checkout-body { display:grid; grid-template-columns:minmax(0,1fr) 440px; gap:28px; align-items:start; margin-top:24px; }
+        .cv-main-col { min-width:0; }
+        .cv-sidebar { position:sticky; top:24px; background:rgba(16,18,34,.92); border:1px solid rgba(255,255,255,.14); border-radius:18px; padding:20px; overflow: visible; display:block !important; }
+        /* Compact spacing to fit without scroll */
+        .cv-sidebar .cv-sidebar-venue-image { height: 90px; margin-bottom: 10px; }
+        .cv-sidebar .cv-sidebar-venue-row { margin-bottom: 10px !important; }
+        .cv-sidebar #cv-sidebar-body { font-size: 13px; }
+        .cv-sidebar .cv-trust-list { gap: 10px; padding: 12px 0 0; margin: 12px 0 0; }
+        .cv-sidebar .cv-trust-item > i { width: 26px; height: 26px; font-size: 11px; }
+        .cv-sidebar .cv-trust-item strong { font-size: 12.5px; }
+        .cv-sidebar .cv-trust-item > div > span { font-size: 11px; }
+        .cv-sidebar .cv-cta-btn { padding: 13px 20px; margin-top: 12px; }
+        .cv-sidebar .cv-deposit-box { padding: 12px 14px; margin: 12px 0; }
+        .cv-sidebar .cv-deposit-main { font-size: 26px; }
+        .cv-sidebar .cv-deposit-shield { width: 36px; height: 36px; font-size: 15px; }
+        .cv-sidebar .pricing-shell .default-deposit > span:last-child { font-size: 24px !important; }
+        .cv-sidebar-header { font-size:16px; font-weight:800; letter-spacing:-.01em; display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; color:rgba(255,255,255,.95) !important; }
+        .cv-sidebar-edit-btn { font-size:12px; color:var(--accent) !important; background:none; border:none; cursor:pointer; font-weight:600; padding:0; }
+        .cv-sidebar-venue-row { display:flex; align-items:center; gap:12px; padding-bottom:14px; border-bottom:1px solid rgba(255,255,255,.08); margin-bottom:14px; }
+        .cv-sidebar-venue-thumb { width:52px; height:52px; border-radius:10px; object-fit:cover; flex-shrink:0; }
+        .cv-sidebar-venue-placeholder { width:52px; height:52px; border-radius:10px; background:rgba(255,255,255,.08); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:18px; color:var(--accent) !important; flex-shrink:0; }
+        .cv-sidebar-venue-name { font-size:14px; font-weight:700; line-height:1.3; color:rgba(255,255,255,.9) !important; }
+        .cv-sidebar-venue-date { font-size:12px; color:rgba(255,255,255,.5) !important; margin-top:3px; }
+
+        /* Sidebar cart */
+        #cv-order-sidebar #cart-section { border:none !important; background:transparent !important; border-radius:0 !important; padding:0 0 12px !important; margin-bottom:0 !important; }
+        #cv-order-sidebar #cart-section .cart-heading { font-size:12px !important; text-transform:uppercase; letter-spacing:.08em; font-weight:700; opacity:.55; margin-bottom:8px; }
+
+        /* Sidebar pricing rows */
+        #cv-order-sidebar .pricing-shell { margin-top: 0 !important; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08); }
+        #cv-order-sidebar .pricing-shell .row.g-3 { margin: 0; }
+        #cv-order-sidebar .pricing-shell .default-price { display: none !important; }
+        #cv-order-sidebar .pricing-shell .default-package-price,
+        #cv-order-sidebar .pricing-shell .default-service-charge,
+        #cv-order-sidebar .pricing-shell .default-sales-tax,
+        #cv-order-sidebar .pricing-shell .default-gratuity,
+        #cv-order-sidebar .pricing-shell .addonns > div,
+        #cv-order-sidebar .pricing-shell .sales_tax > div {
+            font-size: 14px !important;
+            color: rgba(255,255,255,0.75) !important;
+            display: flex !important;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 0;
+            font-weight: 500;
+        }
+        #cv-order-sidebar .pricing-shell .default-package-price > span:last-child,
+        #cv-order-sidebar .pricing-shell .default-service-charge > span:last-child,
+        #cv-order-sidebar .pricing-shell .default-sales-tax > span:last-child,
+        #cv-order-sidebar .pricing-shell .default-gratuity > span:last-child {
+            margin-left: auto;
+            color: rgba(255,255,255,0.95) !important;
+            font-weight: 600;
+        }
+        #cv-order-sidebar .pricing-shell .default-service-charge,
+        #cv-order-sidebar .pricing-shell .default-sales-tax,
+        #cv-order-sidebar .pricing-shell .default-gratuity { cursor: help; }
+        #cv-order-sidebar .pricing-shell .default-service-charge::after,
+        #cv-order-sidebar .pricing-shell .default-sales-tax::after {
+            content: 'i';
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+            font-size: 10px;
+            font-weight: 700;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.35);
+            color: rgba(255,255,255,0.55);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            flex-shrink: 0;
+            order: 0;
+            transition: all .15s;
+        }
+        #cv-order-sidebar .pricing-shell .default-service-charge:hover::after,
+        #cv-order-sidebar .pricing-shell .default-sales-tax:hover::after {
+            border-color: #fb7185;
+            color: #fb7185;
+            background: rgba(251,113,133,0.1);
+        }
+        .cv-deposit-label { cursor: help; }
+        .cv-deposit-label:hover .cv-info-icon { border-color: #fb7185 !important; color: #fb7185 !important; background: rgba(251,113,133,0.1); }
+        #cv-order-sidebar .pricing-shell .default-package-price > span:last-child { order: 1; }
+        #cv-order-sidebar .pricing-shell .default-service-charge > span:last-child,
+        #cv-order-sidebar .pricing-shell .default-sales-tax > span:last-child { order: 2; }
+        #cv-order-sidebar .pricing-shell .default-deposit {
+            font-size: 19px !important;
+            font-weight: 700 !important;
+            padding: 18px 16px !important;
+            border-top: 1px solid rgba(255,255,255,0.16) !important;
+            margin: 14px -16px 4px !important;
+            display: flex !important;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff !important;
+            background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)) !important;
+            border-radius: 0 !important;
+            gap: 12px !important;
+        }
+        #cv-order-sidebar .pricing-shell .default-deposit > span:first-child {
+            color: rgba(255,255,255,0.88) !important;
+            font-size: 16px !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        #cv-order-sidebar .pricing-shell .default-deposit > span:last-child {
+            color: #fff !important;
+            font-size: 28px !important;
+            font-weight: 800 !important;
+            letter-spacing: -0.015em;
+            line-height: 1;
+            margin-left: auto;
+        }
+        #cv-order-sidebar .pricing-shell hr { display: none; }
+        #cv-order-sidebar .pricing-shell .col-md-6 { width: 100%; max-width: 100%; flex: 0 0 100%; padding: 0; }
+        /* Promo code section (highest specificity to override .vip-btn-submit, #applyPromoBtn) */
+        #cv-order-sidebar .dynamic-price.col-md-6 {
+            display: block !important;
+            margin-top: 16px;
+            margin-bottom: 4px;
+            padding-top: 0;
+            border-top: none;
+            width: 100%;
+            max-width: 100%;
+            flex: 0 0 100%;
+        }
+        #cv-order-sidebar .dynamic-price.col-md-6 > label {
+            font-size: 13.5px;
+            color: rgba(255,255,255,0.7) !important;
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        #cv-order-sidebar .dynamic-price.col-md-6 > .row {
+            margin: 0 !important;
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            align-items: stretch !important;
+            gap: 0;
+            --bs-gutter-x: 0;
+        }
+        #cv-order-sidebar .dynamic-price.col-md-6 > .row > .col-md-8,
+        #cv-order-sidebar .dynamic-price.col-md-6 > .row > .col-8 {
+            flex: 1 1 auto !important;
+            width: auto !important;
+            max-width: none !important;
+            padding: 0 !important;
+            min-width: 0;
+        }
+        #cv-order-sidebar .dynamic-price.col-md-6 > .row > .col-md-4,
+        #cv-order-sidebar .dynamic-price.col-md-6 > .row > .col-4 {
+            flex: 0 0 auto !important;
+            width: auto !important;
+            max-width: none !important;
+            padding: 0 !important;
+        }
+        #cv-order-sidebar .dynamic-price.col-md-6 #promo_code {
+            background: transparent !important;
+            border: 1px solid rgba(255,255,255,0.16) !important;
+            color: #fff !important;
+            padding: 0 14px !important;
+            border-radius: 10px 0 0 10px !important;
+            font-size: 14px !important;
+            height: 46px !important;
+            min-height: 46px;
+            border-right: none !important;
+            width: 100% !important;
+            box-sizing: border-box;
+            margin: 0 !important;
+            outline: none !important;
+        }
+        #cv-order-sidebar .dynamic-price.col-md-6 #promo_code::placeholder { color: rgba(255,255,255,0.4) !important; }
+        #cv-order-sidebar .dynamic-price.col-md-6 #applyPromoBtn,
+        #cv-order-sidebar .dynamic-price.col-md-6 .vip-btn-submit {
+            background: transparent !important;
+            color: rgba(255,255,255,0.92) !important;
+            border-radius: 0 10px 10px 0 !important;
+            border-top-right-radius: 10px !important;
+            border-bottom-right-radius: 10px !important;
+            border-top-left-radius: 0 !important;
+            border-bottom-left-radius: 0 !important;
+            font-weight: 700 !important;
+            font-size: 14px !important;
+            height: 46px !important;
+            min-height: 46px;
+            border: 1px solid rgba(255,255,255,0.16) !important;
+            padding: 0 20px !important;
+            width: auto !important;
+            margin: 0 !important;
+            white-space: nowrap;
+            cursor: pointer;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        #cv-order-sidebar .dynamic-price.col-md-6 #applyPromoBtn:hover,
+        #cv-order-sidebar .dynamic-price.col-md-6 .vip-btn-submit:hover { background: rgba(255,255,255,0.06) !important; }
+        #cv-order-sidebar .pricing-shell .default-promo-discount {
+            font-size: 14px !important;
+            display: flex !important;
+            align-items: center;
+            padding: 6px 0;
+            color: #22c55e !important;
+            font-weight: 600 !important;
+        }
+        #cv-order-sidebar .pricing-shell .default-promo-discount span { margin-left: auto; }
+
+        /* Deposit box */
+        .cv-deposit-box {
+            background: rgba(255,204,0,.05);
+            border: 1px solid rgba(255,204,0,.45);
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin: 16px 0;
+        }
+        .cv-deposit-content { min-width: 0; }
+        .cv-deposit-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 4px; }
+        .cv-deposit-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.78) !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 0;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+        .cv-deposit-label .cv-info-icon {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.4);
+            color: rgba(255,255,255,0.6);
+            font-size: 9px;
+            font-style: italic;
+            font-family: 'Times New Roman', serif;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        .cv-deposit-box .cv-deposit-main {
+            font-size: 30px;
+            font-weight: 800;
+            color: #fff !important;
+            line-height: 1.05;
+        }
+        .cv-deposit-sub {
+            font-size: 12px;
+            color: rgba(255,255,255,0.55) !important;
+            margin-top: 4px;
+        }
+        .cv-deposit-due-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: rgba(255,255,255,0.72) !important;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,204,0,.18);
+        }
+        .cv-deposit-due-row #cv-due-on-arrival {
+            color: #fff !important;
+            font-weight: 700;
+        }
+        .cv-deposit-shield {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(34,197,94,0.14);
+            border: 1px solid rgba(34,197,94,0.4);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #22c55e !important;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+
+        /* Hide the redundant breakdown lines the user wants removed */
+        #cv-order-sidebar #cart-total,
+        #cv-order-sidebar #cart-section .cart-heading,
+        #cv-order-sidebar .pricing-shell .default-refundable,
+        #cv-order-sidebar .pricing-shell .default-due { display: none !important; }
+
+        /* Trust badges */
+        .cv-trust-list { display:flex; flex-direction:column; gap:14px; padding:16px 0 0; background:transparent; border-radius:0; border:none; border-top:1px solid rgba(255,255,255,.08); margin: 16px 0 0; }
+        .cv-trust-item { display:flex; align-items:center; gap:12px; }
+        .cv-trust-item > i { width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.88) !important; font-size:12px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:0; }
+        .cv-trust-item strong { display:block; font-size:13.5px; line-height:1.2; color:#fff !important; font-weight:600; }
+        .cv-trust-item > div > span { display:block; font-size:12px; color:rgba(255,255,255,.5) !important; margin-top:2px; }
+
+        /* Sidebar CTA */
+        .cv-cta-btn { width:100%; display:flex; align-items:center; justify-content:center; gap:10px; padding:16px 20px; border-radius:12px; background: linear-gradient(135deg, #a774ff 0%, #7c3aed 50%, #5b21b6 100%) !important; color:#fff !important; font-size:15px; font-weight:800; border:none; cursor:pointer; transition:all .2s; letter-spacing:-.01em; margin-top: 16px; box-shadow: 0 6px 20px rgba(124,58,237,0.4); }
+        .cv-cta-btn:hover { filter:brightness(1.1); transform: translateY(-1px); box-shadow: 0 10px 26px rgba(124,58,237,0.55); }
+        .cv-cta-btn:disabled { opacity:.45; cursor:not-allowed; filter:none; transform: none; box-shadow: none; }
+        .cv-cta-btn i { font-size:13px; }
+        .cv-cta-terms { text-align:center; font-size:12px; color:rgba(255,255,255,.5) !important; margin-top:12px; line-height:1.5; }
+        .cv-cta-terms a { color:rgba(255,255,255,.85) !important; text-decoration:underline !important; }
+
+        /* Mobile cart toggle */
+        .cv-mobile-cart-toggle { display:none !important; align-items:center; justify-content:space-between; background:rgba(255,204,0,.08); border:1px solid rgba(255,204,0,.2); border-radius:12px; padding:12px 16px; margin-bottom:16px; cursor:pointer; width:100%; text-align:left; font-size:14px; font-weight:600; color:rgba(255,255,255,.85) !important; }
+        .cv-mobile-cart-count { background:var(--accent); color:#000 !important; font-size:11px; font-weight:800; border-radius:20px; padding:2px 10px; }
+
+        .aff-story { display: none !important; }
+
+        .package { display: block; }
+
+        /* Enhanced step indicator */
+        .cv-steps { display:flex; align-items:center; margin:0 0 24px; padding:14px 16px; background:rgba(255,255,255,.025); border-radius:14px; border:1px solid rgba(255,255,255,.07); }
+        .cv-step { display:flex; align-items:center; flex:1; }
+        .cv-step-inner { display:flex; align-items:center; gap:7px; }
+        .cv-step-circle { width:28px; height:28px; border-radius:50%; border:2px solid rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:rgba(255,255,255,.35) !important; flex-shrink:0; transition:all .3s; background:transparent; }
+        .cv-step.cv-step-active .cv-step-circle { border-color:var(--accent); background:var(--accent); color:#000 !important; }
+        .cv-step.cv-step-done .cv-step-circle { border-color:rgba(255,204,0,.5); background:rgba(255,204,0,.1); color:var(--accent) !important; }
+        .cv-step-label { font-size:10px; font-weight:600; color:rgba(255,255,255,.4) !important; line-height:1.2; white-space:nowrap; }
+        .cv-step.cv-step-active .cv-step-label { color:var(--accent) !important; }
+        .cv-step.cv-step-done .cv-step-label { color:rgba(255,255,255,.65) !important; }
+        .cv-step-connector { flex:1; height:2px; background:rgba(255,255,255,.1); margin:0 6px; }
+        .cv-step.cv-step-done .cv-step-connector { background:rgba(255,204,0,.35); }
+
+        /* Package tier badges */
+        .cv-pkg-tier-badge { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:3px 9px; border-radius:20px; margin-bottom:5px; }
+        .cv-tier-1 .cv-pkg-tier-badge { background:rgba(247,201,72,.15); color:#f7c948 !important; border:1px solid rgba(247,201,72,.25); }
+        .cv-tier-2 .cv-pkg-tier-badge { background:rgba(168,184,208,.12); color:#a8b8d0 !important; border:1px solid rgba(168,184,208,.22); }
+        .cv-tier-3 .cv-pkg-tier-badge { background:rgba(183,138,224,.12); color:#b78ae0 !important; border:1px solid rgba(183,138,224,.22); }
+        .cv-tier-4 .cv-pkg-tier-badge { background:rgba(251,146,60,.12); color:#fb923c !important; border:1px solid rgba(251,146,60,.22); }
+        .cv-tier-5 .cv-pkg-tier-badge { background:rgba(34,197,94,.12); color:#22c55e !important; border:1px solid rgba(34,197,94,.22); }
+        .cv-pkg-guest-count { display:inline-flex; align-items:center; gap:4px; font-size:11px; color:rgba(255,255,255,.55) !important; margin-left:6px; vertical-align:middle; }
+        .cv-pkg-guest-count i { font-size:10px; }
+
+        /* Category tiles are now visible (vibrant purple style) */
+
+        .vip-card.cv-exact-card {
+            display: grid;
+            grid-template-columns: 130px 1fr 200px;
+            gap: 16px;
+            align-items: stretch;
+            border-radius: 16px !important;
+            padding: 12px !important;
+            border: 1px solid rgba(255,255,255,0.12) !important;
+            background: linear-gradient(180deg, rgba(18,22,42,0.76), rgba(10,12,26,0.88)) !important;
+            margin-bottom: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+        .vip-card.cv-exact-card::before {
+            content: '';
+            position: absolute;
+            right: 0; top: 0; bottom: 0;
+            width: 45%;
+            background: radial-gradient(ellipse at right center, rgba(255,255,255,0.04), transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .vip-card.cv-exact-card > * { position: relative; z-index: 1; }
+
+        .cv-pkg-media-wrap {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            min-height: 130px;
+            background: rgba(255,255,255,0.06);
+        }
+
+        .cv-pkg-media {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .cv-popular-pill {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .04em;
+            color: #2a1f00 !important;
+            background: linear-gradient(135deg,#f7d98a,#d7a74a);
+            border-radius: 999px;
+            padding: 5px 10px;
+            text-transform: uppercase;
+        }
+
+        .vip-card.cv-exact-card .vip-card-main {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 6px;
+            min-width: 0;
+        }
+
+        .cv-pkg-title-row { display: flex; align-items: center; gap: 10px; }
+        .cv-pkg-title-icon { font-size: 22px; flex-shrink: 0; color: var(--tier-accent, #fff) !important; }
+
+        .cv-pkg-title {
+            font-size: 26px;
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--tier-accent, #fff) !important;
+            letter-spacing: -0.01em;
+        }
+
+        .cv-pkg-sub {
+            font-size: 12.5px;
+            color: rgba(255,255,255,0.62) !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .cv-pkg-sub i { font-size: 12px; opacity: .7; }
+
+        .cv-pkg-desc {
+            font-size: 13px;
+            color: rgba(255,255,255,0.62) !important;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .cv-pkg-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 6px;
+        }
+
+        .cv-pkg-feature {
+            font-size: 11.5px;
+            color: rgba(255,255,255,0.65) !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .cv-pkg-feature i { color: var(--tier-accent, rgba(255,255,255,0.76)) !important; font-size: 11px; opacity: .9; }
+
+        .vip-card.cv-exact-card .vip-card-side {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: stretch;
+            gap: 6px;
+            grid-template-columns: none !important;
+            flex: initial;
+            text-align: right;
+        }
+
+        .vip-card.cv-exact-card .vip-price-tag {
+            font-size: 30px !important;
+            text-align: right;
+            padding-top: 0;
+            min-width: 0;
+            color: #fff !important;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+        .cv-price-meta {
+            text-align: right;
+            font-size: 12px;
+            color: rgba(255,255,255,0.58) !important;
+            margin-top: 2px;
+        }
+
+        .vip-card.cv-exact-card .package_number_of_guestss {
+            width: 100% !important;
+            min-width: 0;
+            margin-top: 8px;
+        }
+
+        .vip-card.cv-exact-card .vip-btn {
+            width: 100%;
+            border-radius: 10px;
+            font-weight: 800;
+            background: var(--tier-accent, var(--accent)) !important;
+            color: var(--tier-btn-color, #000) !important;
+            padding: 11px 12px !important;
+            font-size: 14px !important;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .vip-card.cv-exact-card .vip-btn::after {
+            content: '\f07a';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            font-size: 12px;
+        }
+
+        /* Tier 1 - Gold (Most Popular) */
+        .vip-card.cv-exact-card.cv-tier-1 { --tier-accent: #ffcc00; --tier-btn-color: #000; border-color: rgba(255,204,0,0.65) !important; background: linear-gradient(180deg, rgba(40,28,8,0.85), rgba(20,14,6,0.95)) !important; }
+        .vip-card.cv-exact-card.cv-tier-1::before { background: radial-gradient(ellipse at right center, rgba(255,204,0,0.12), transparent 70%); }
+
+        /* Tier 2 - Purple */
+        .vip-card.cv-exact-card.cv-tier-2 { --tier-accent: #a774ff; --tier-btn-color: #fff; border-color: rgba(167,116,255,0.55) !important; background: linear-gradient(180deg, rgba(36,18,58,0.85), rgba(18,10,32,0.95)) !important; }
+        .vip-card.cv-exact-card.cv-tier-2::before { background: radial-gradient(ellipse at right center, rgba(167,116,255,0.14), transparent 70%); }
+
+        /* Tier 3 - Silver/Diamond (dark) */
+        .vip-card.cv-exact-card.cv-tier-3 { --tier-accent: #e8e8ea; --tier-btn-color: #000; border-color: rgba(232,232,234,0.35) !important; background: linear-gradient(180deg, rgba(16,18,28,0.92), rgba(8,10,16,0.96)) !important; }
+        .vip-card.cv-exact-card.cv-tier-3::before { background: radial-gradient(ellipse at right center, rgba(232,232,234,0.06), transparent 70%); }
+        .vip-card.cv-exact-card.cv-tier-3 .vip-btn { background: rgba(255,255,255,0.94) !important; color: #000 !important; }
+
+        /* Tier 4 - Red/High Roller */
+        .vip-card.cv-exact-card.cv-tier-4 { --tier-accent: #ff5868; --tier-btn-color: #fff; border-color: rgba(255,88,104,0.55) !important; background: linear-gradient(180deg, rgba(56,14,22,0.88), rgba(28,8,14,0.96)) !important; }
+        .vip-card.cv-exact-card.cv-tier-4::before { background: radial-gradient(ellipse at right center, rgba(255,88,104,0.16), transparent 70%); }
+
+        /* Tier 5 - Green (extra) */
+        .vip-card.cv-exact-card.cv-tier-5 { --tier-accent: #4ade80; --tier-btn-color: #000; border-color: rgba(74,222,128,0.5) !important; background: linear-gradient(180deg, rgba(8,32,18,0.85), rgba(6,18,12,0.95)) !important; }
+        .vip-card.cv-exact-card.cv-tier-5::before { background: radial-gradient(ellipse at right center, rgba(74,222,128,0.12), transparent 70%); }
+
+        /* Free Ride Included callout */
+        .cv-freeride-callout { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border-radius: 14px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.08); margin: 12px 0 0; }
+        .cv-freeride-callout .cv-freeride-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,204,0,0.1); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--accent) !important; font-size: 17px; }
+        .cv-freeride-callout strong { display: block; font-size: 14px; color: var(--accent) !important; font-weight: 700; margin-bottom: 2px; }
+        .cv-freeride-callout span { display: block; font-size: 12px; color: rgba(255,255,255,0.62) !important; line-height: 1.5; }
+
+        /* Need Help section */
+        .cv-need-help { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; margin-top: 16px; border-top: 1px solid rgba(255,255,255,0.08); gap: 16px; flex-wrap: wrap; }
+        .cv-need-help-title strong { display: block; font-size: 14px; color: rgba(255,255,255,0.92) !important; font-weight: 700; }
+        .cv-need-help-title span { display: block; font-size: 12px; color: rgba(255,255,255,0.5) !important; margin-top: 2px; }
+        .cv-need-help-actions { display: flex; gap: 18px; flex-wrap: wrap; }
+        .cv-need-help-action { display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,0.85) !important; text-decoration: none !important; font-size: 13px; }
+        .cv-need-help-action > i { color: var(--accent) !important; font-size: 15px; width: 28px; height: 28px; border-radius: 999px; background: rgba(255,204,0,0.1); display: inline-flex; align-items: center; justify-content: center; }
+        .cv-need-help-action strong { display: block; font-size: 13px; color: #fff !important; font-weight: 600; line-height: 1.1; }
+        .cv-need-help-action span { display: block; font-size: 11px; color: rgba(255,255,255,0.5) !important; margin-top: 1px; }
+
+        /* Order summary sidebar refinements */
+        .cv-sidebar-venue-image { width: 100%; height: 110px; border-radius: 12px; object-fit: cover; margin-bottom: 12px; display: block; }
+        #cv-order-sidebar #cart-section #cart-list .cart-line { border: none !important; background: transparent !important; padding: 8px 0 !important; border-radius: 0 !important; margin: 0 !important; border-bottom: 1px solid rgba(255,255,255,0.07) !important; }
+        #cv-order-sidebar #cart-section #cart-list .cart-line:last-child { border-bottom: none !important; }
+        #cv-order-sidebar #cart-section #cart-list .cart-line-main { gap: 10px; }
+        #cv-order-sidebar #cart-section .cart-line-guests { font-size: 12px; color: rgba(255,255,255,0.55) !important; margin-top: 3px; }
+        #cv-order-sidebar #cart-section .cart-remove-btn { font-size: 10px; padding: 3px 8px; opacity: .65; }
+
+        /* Shareable link in sidebar */
+        #cv-order-sidebar #shareLinkContainer { margin-top:0; margin-bottom:10px; }
+        #cv-order-sidebar #generateShareLink { font-size:12px; padding:6px 12px; border-radius:8px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); color:rgba(255,255,255,.7) !important; cursor:pointer; transition:all .15s; }
+        #cv-order-sidebar #generateShareLink:hover { background:rgba(255,255,255,.11); }
+
+        /* On desktop: hide cart/pricing in main col (they'll be moved to sidebar by JS) */
+        @media (min-width: 992px) {
+            .cv-main-col #cart-section,
+            .cv-main-col .pricing-shell,
+            .cv-main-col #shareLinkContainer { display: none !important; }
+        }
+
+        /* Responsive */
+        @media (max-width: 1199px) {
+            .cv-checkout-body { grid-template-columns: minmax(0,1fr) 400px; gap: 20px; }
+        }
+        @media (max-width: 991px) {
+            .cv-checkout-body { grid-template-columns: 1fr; }
+            .cv-sidebar { position:static; display:block !important; max-height: none; overflow: visible; }
+            .cv-sidebar.cv-sidebar-open { display:block; }
+            .cv-mobile-cart-toggle { display:none !important; }
+            .vip-card.cv-exact-card { grid-template-columns: 1fr; gap: 14px; padding: 14px !important; }
+            .vip-card.cv-exact-card .cv-pkg-media-wrap { min-height: 80px; height: 80px; border-radius: 10px; overflow: hidden; }
+            .vip-card.cv-exact-card .cv-pkg-media { width: 100%; height: 100%; object-fit: cover; }
+            .vip-card.cv-exact-card .cv-pkg-title-row { margin-top: 0; }
+            .vip-card.cv-exact-card .cv-pkg-title { font-size: 22px !important; }
+            .vip-card.cv-exact-card .cv-pkg-desc { font-size: 13px !important; line-height: 1.5; }
+            .vip-card.cv-exact-card .cv-pkg-features { gap: 10px 16px; margin-top: 10px; justify-content: space-between; flex-wrap: wrap; }
+            .vip-card.cv-exact-card .cv-pkg-feature { flex: 0 0 auto; font-size: 11px !important; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+            .vip-card.cv-exact-card .cv-pkg-feature i { font-size: 16px !important; margin-bottom: 2px; }
+            .vip-card.cv-exact-card .vip-card-side {
+                display: grid !important;
+                grid-template-columns: 1fr auto;
+                grid-template-areas:
+                    "price guests"
+                    "meta button";
+                gap: 8px 12px;
+                align-items: center;
+                margin-top: 14px;
+                padding-top: 14px;
+                border-top: 1px solid rgba(255,255,255,0.08);
+                text-align: left;
+            }
+            .vip-card.cv-exact-card .vip-price-tag {
+                grid-area: price;
+                text-align: left !important;
+                font-size: 28px !important;
+            }
+            .vip-card.cv-exact-card .cv-price-meta {
+                grid-area: meta;
+                text-align: left !important;
+                font-size: 11.5px !important;
+                margin-top: -4px !important;
+            }
+            .vip-card.cv-exact-card .package-guest-input-wrap {
+                grid-area: guests;
+                width: 70px;
+            }
+            .vip-card.cv-exact-card .package_number_of_guestss { margin-top: 0 !important; min-height: 38px !important; }
+            .vip-card.cv-exact-card .vip-btn {
+                grid-area: button;
+                margin: 0 !important;
+                min-width: 150px;
+                padding: 10px 20px !important;
+            }
+            .vip-card.cv-exact-card .package-guest-error,
+            .vip-card.cv-exact-card .package-soldout {
+                grid-column: 1 / -1;
+                margin-top: 4px;
+            }
+            .cv-popular-pill { top: 8px; left: 8px; font-size: 9px; padding: 4px 9px; }
+            .cv-access-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 767px) {
+            .cv-top-nav { padding:0 14px; height:52px; }
+            .cv-nav-name { font-size:15px !important; }
+            .cv-nav-logo-img { height:30px; }
+            .cv-nav-back { display:none; }
+            .cv-hamburger { display:flex; }
+            .mobile-top-actions { display:none !important; }
+            .aff-hero.cv-venue-header .aff-hero-badges { order:3; width:100%; margin-top:8px; }
+        }
+
+        @media (min-width: 992px) {
+            .aff-hero.cv-venue-header { display: none; }
+            .hero-gallery-grid { display: none !important; }
+        }
+
         </style>
     </head>
 
@@ -2526,28 +4720,22 @@
         @endphp
         <div class="background-glow"></div>
 
-        <section class="aff-hero">
-            <div class="container">
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                    <div class="d-flex align-items-center gap-3">
-                        @if ($data->logo)
-                            <img src="{{ asset('uploads/' . $data->logo) }}" alt="{{ $data->name }}" class="aff-avatar">
-                        @else
-                            <div class="aff-initials">{{ strtoupper(substr($data->name, 0, 2)) }}</div>
-                        @endif
-                        <div>
-                            <h2 class="mb-0 aff-hero-title">{{ $data->name }}</h2>
-                            @if ($data->location)
-                                <p class="mb-0 mt-1 aff-hero-copy">{{ $data->location }}</p>
-                            @endif
-                        </div>
-                    </div>
-                    @if ($data->back_link && $data->back_text)
-                        <a href="{{ $data->back_link }}" class="back-home-btn"><i class="fas fa-arrow-left"></i><span>{{ $data->back_text }}</span></a>
-                    @endif
-                </div>
-            </div>
-        </section>
+        {{-- New CartVIP Navbar --}}
+        <nav class="cv-top-nav">
+            <a href="/" class="cv-nav-brand">
+                <img src="{{ asset('images/logo.png') }}" alt="CartVIP" class="cv-nav-logo-img">
+            </a>
+            @if ($data->back_link)
+            <a href="{{ $data->back_link }}" class="cv-nav-back">
+                <i class="fas fa-arrow-left"></i> {{ $data->back_text ?: 'Back to Home' }}
+            </a>
+            @endif
+            <button class="cv-hamburger" id="cv-hamburger" aria-label="Open menu">
+                <span></span><span></span><span></span>
+            </button>
+        </nav>
+
+        {{-- Duplicate venue header removed - club details are shown in the hero section --}}
 
         @if ($data->back_link)
             <div class="mobile-top-actions d-md-none">
@@ -2568,20 +4756,97 @@
                     <div class="alert alert-danger" role="alert">{{ $value }}</div>
                 @endsession
 
-                <section class="aff-banner">
-                    <div class="aff-banner-content">
-                        <div class="aff-kicker">Venue Checkout</div>
-                        <div class="aff-display-title">{{ $data->hero_title ?: $data->name }}</div>
-                        <div class="aff-display-copy">{!! $data->hero_subtitle ?: $data->description !!}</div>
-
-                        <div class="hero-date-card">
-                            <label>Choose Your Reservation Date</label>
-                            <div class="date-input-wrapper">
-                                <input id="package_use_date" type="text"
-                                    value="" placeholder="{{ \Carbon\Carbon::now()->format('M d, Y') }}" style="width: 100%;" readonly aria-describedby="package_use_date_error">
-                                <span class="custom-calendar-icon"></span>
+                @php
+                    $heroImage = null;
+                    if (!empty($data->gallery_images) && is_array($data->gallery_images) && !empty($data->gallery_images[0])) {
+                        $heroImage = asset('uploads/' . $data->gallery_images[0]);
+                    } elseif (!empty($data->logo)) {
+                        $heroImage = asset('uploads/' . $data->logo);
+                    } else {
+                        $heroImage = asset('images/logo.png');
+                    }
+                @endphp
+                <section class="cv-hero-stage" style="background-image:url('{{ $heroImage }}');">
+                    <div class="cv-hero-inner">
+                        <div class="cv-hero-head">
+                            <div class="cv-hero-venue">
+                                @if ($data->logo)
+                                    <img src="{{ asset('uploads/' . $data->logo) }}" alt="{{ $data->name }}" class="cv-hero-venue-avatar">
+                                @else
+                                    <span class="cv-hero-venue-initial">{{ strtoupper(substr($data->name, 0, 1)) }}</span>
+                                @endif
+                                <div>
+                                    <p class="cv-hero-venue-title">{{ $data->name }}<span class="cv-hero-venue-verified" title="Verified Venue">&check;</span></p>
+                                    <p class="cv-hero-venue-meta">{{ $data->location }}</p>
+                                </div>
                             </div>
-                            <small id="package_use_date_error" class="reservation-date-error">Please select a reservation date.</small>
+                            <div class="cv-hero-badges d-none d-lg-flex">
+                                <div class="cv-hero-badge">
+                                    <i class="fas fa-clock"></i>
+                                    <div>
+                                        <span class="cv-hero-badge-label">Open Daily</span>
+                                        <span class="cv-hero-badge-sub">6PM - 7AM</span>
+                                    </div>
+                                </div>
+                                <div class="cv-hero-badge">
+                                    <i class="fas fa-award"></i>
+                                    <div>
+                                        <span class="cv-hero-badge-label">Top Rated Club</span>
+                                        <span class="cv-hero-badge-sub">#1 in Las Vegas</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cv-hero-bottom">
+                            <div class="cv-hero-content">
+                                <div class="aff-kicker">Venue Checkout</div>
+                                @php
+                                    $heroTitleTwo = $data->hero_title ?: $data->name;
+                                    $titleWordsTwo = preg_split('/\s+/', trim($heroTitleTwo));
+                                    $heroLastWordTwo = '';
+                                    if (count($titleWordsTwo) > 1) {
+                                        $heroLastWordTwo = array_pop($titleWordsTwo);
+                                        $heroTitleLeadTwo = implode(' ', $titleWordsTwo);
+                                    } else {
+                                        $heroTitleLeadTwo = $heroTitleTwo;
+                                    }
+                                @endphp
+                                <h1 class="cv-hero-title">{{ $heroTitleLeadTwo }}@if($heroLastWordTwo) <span class="cv-hero-title-accent">{{ $heroLastWordTwo }}</span>@endif</h1>
+                                <p class="cv-hero-subtitle">{!! $data->hero_subtitle ?: $data->description !!}</p>
+
+                                <div class="hero-date-card">
+                                    <label>Choose Your Reservation Date</label>
+                                    <div class="date-input-wrapper">
+                                        <input id="package_use_date" type="text"
+                                            value="" placeholder="{{ \Carbon\Carbon::now()->format('M d, Y') }}" style="width: 100%;" readonly aria-describedby="package_use_date_error">
+                                        <span class="custom-calendar-icon"></span>
+                                    </div>
+                                    <small id="package_use_date_error" class="reservation-date-error">Please select a reservation date.</small>
+                                </div>
+                            </div>
+
+                            <aside class="cv-hero-location">
+                                <div class="cv-hero-location-header">
+                                    <div class="cv-hero-location-titles">
+                                        <div class="cv-hero-location-label">Find Us</div>
+                                        <div class="cv-hero-location-name">{{ $data->name }}</div>
+                                        <div class="cv-hero-location-addr">{{ $data->location }}</div>
+                                    </div>
+                                    <span class="cv-hero-location-badge"><i class="fas fa-map-marker-alt"></i>VIP Venue</span>
+                                </div>
+                                <div class="cv-hero-location-map">
+                                    <iframe src="https://www.google.com/maps?q={{ urlencode($data->location) }}&output=embed" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                </div>
+                                <div class="cv-hero-location-contacts">
+                                    @if($data->phone)
+                                        <a href="tel:{{ $data->phone }}" class="cv-hero-location-contact"><i class="fas fa-phone"></i><span>{{ $data->phone }}</span></a>
+                                    @endif
+                                    @if($data->email)
+                                        <a href="mailto:{{ $data->email }}" class="cv-hero-location-contact"><i class="fas fa-envelope"></i><span>{{ $data->email }}</span></a>
+                                    @endif
+                                </div>
+                            </aside>
                         </div>
                     </div>
                 </section>
@@ -2620,18 +4885,51 @@
                 </section>
             </div>
         </header>
-        @if ($data->reservation == 1)
-            <nav>
-                <button id="button" data-name='guest' class="tab active">
-                    <p>{{ $data->guest_list_button_text ?? 'Guest List' }}</p>
-                </button>
-                <button id="button" data-name="package" class="tab">
-                    <p>{{ $data->package_button_text ?? 'Packages' }}</p>
-                </button>
-            </nav>
-        @endif
         <main style="background: radial-gradient(circle at 18% 60px, rgba(232,190,106,.10), transparent 340px), radial-gradient(circle at 82% 180px, rgba(124,92,255,.10), transparent 360px), linear-gradient(180deg,#050507 0%,#06070a 100%);">
             <div class="container mt-4">
+                <div class="cv-checkout-body" id="cv-checkout-layout">
+                {{-- Mobile: toggle to show/hide order summary --}}
+                <button type="button" class="cv-mobile-cart-toggle" id="cv-mobile-cart-toggle" style="display:none;">
+                    <span><i class="fas fa-shopping-cart" style="margin-right:6px;"></i>View Order Summary</span>
+                    <span class="cv-mobile-cart-count" id="cv-mobile-cart-count">0 items</span>
+                </button>
+                <div class="cv-main-col" id="cv-checkout-main">
+                    <div class="cv-desktop-shell">
+                        <div class="cv-desktop-steps" id="cv-checkout-steps">
+                            <div class="cv-dstep is-active" id="cv-dstep-1" data-step="1"><span class="cv-dstep-num">1</span><span>Choose Date</span></div>
+                            <div class="cv-dstep" id="cv-dstep-2" data-step="2"><span class="cv-dstep-num">2</span><span>Choose Access</span></div>
+                            <div class="cv-dstep" id="cv-dstep-3" data-step="3"><span class="cv-dstep-num">3</span><span>Select Package</span></div>
+                            <div class="cv-dstep" id="cv-dstep-4" data-step="4"><span class="cv-dstep-num">4</span><span>Review &amp; Pay</span></div>
+                        </div>
+
+                        <div class="cv-access-grid">
+                            @if ($data->reservation == 1)
+                                <button type="button" class="cv-access-card cv-access-tab is-active" data-name="guest">
+                                    <i class="fas fa-car-side"></i>
+                                    <div>
+                                        <strong>{{ $data->guest_list_button_text ?? 'Free Ride & Entry' }}</strong>
+                                        <span>Complimentary ride and general entry</span>
+                                    </div>
+                                </button>
+                                <button type="button" class="cv-access-card cv-access-tab" data-name="package">
+                                    <i class="fas fa-star"></i>
+                                    <div>
+                                        <strong>{{ $data->package_button_text ?? 'Packages' }}</strong>
+                                        <span>VIP table packages &amp; experiences</span>
+                                    </div>
+                                </button>
+                            @else
+                                <div class="cv-access-card is-active">
+                                    <i class="fas fa-star"></i>
+                                    <div>
+                                        <strong>{{ $data->package_button_text ?? 'Packages' }}</strong>
+                                        <span>VIP table packages &amp; experiences</span>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
                 @if ($data->reservation == 1)
                     <div class="guest">
                         <form action="{{ route('reservations.store', ['slug' => $data->slug]) }}" method="post">
@@ -2791,37 +5089,7 @@
 
                             </section>
 
-                            <section class="location-card" style="width: 100%">
-                                <div class="location-shell">
-                                    <div class="location-copy">
-                                        <span class="location-kicker">Find Us</span>
-                                        <h2>Location</h2>
-                                        <p class="location-address">{{ $data->location }}</p>
-                                        <div class="location-contact-grid">
-                                            @if($data->phone)
-                                                <a class="location-contact-chip" href="tel:{{ $data->phone }}">
-                                                    <i class="fas fa-phone"></i>
-                                                    <span>{{ $data->phone }}</span>
-                                                </a>
-                                            @endif
-                                            @if($data->email)
-                                                <a class="location-contact-chip" href="mailto:{{ $data->email }}">
-                                                    <i class="fas fa-envelope"></i>
-                                                    <span>{{ $data->email }}</span>
-                                                </a>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <div class="location-map-wrap">
-                                        <iframe
-                                            src="https://www.google.com/maps?q={{ urlencode($data->location) }}&output=embed"
-                                            allowfullscreen
-                                            loading="lazy"
-                                            referrerpolicy="no-referrer-when-downgrade">
-                                        </iframe>
-                                    </div>
-                                </div>
-                            </section>
+                            {{-- Location card removed (now lives in the hero .cv-hero-location panel) --}}
 
 
                             <input type="hidden" name="type" value="guest">
@@ -2831,14 +5099,36 @@
                 @endif
 
 
-                <div class="package" @if ($data->reservation == 1) style="display: none;" @endif>
+                <div class="package">
                     <section class="vip-pack">
                         <div class="">
 
                             <div class="row">
                                 <div class="col-md-12">
 
-                                    <h5 class="section-kicker-lg">{{ $data->package_button_text ?? 'Packages' }}</h5>
+                                    @php
+                                        $mostPopularPackageName = '';
+                                        if (isset($packageCategories) && $packageCategories->count()) {
+                                            $firstCat = $packageCategories->first();
+                                            $firstCatPackages = is_array($firstCat) ? ($firstCat['packages'] ?? null) : ($firstCat->packages ?? null);
+                                            if ($firstCatPackages && count($firstCatPackages) > 0) {
+                                                $firstPkg = $firstCatPackages[0] ?? collect($firstCatPackages)->first();
+                                                $mostPopularPackageName = $firstPkg->name ?? '';
+                                            }
+                                        }
+                                    @endphp
+                                    <div class="cv-package-section-header" style="display:flex; justify-content:space-between; align-items:center; margin: 18px 0 12px; flex-wrap:wrap; gap:10px;">
+                                        <div>
+                                            <h5 class="section-kicker-lg" style="margin:0 !important;">Select Your Package</h5>
+                                            <p style="margin: 4px 0 0; font-size: 12.5px; color: rgba(255,255,255,0.5);">All packages include free ride, club entry, and priority access.</p>
+                                        </div>
+                                        @if($mostPopularPackageName)
+                                        <div class="cv-most-popular-tag" style="display:inline-flex; align-items:center; gap:8px; padding: 7px 12px; border-radius: 999px; background: rgba(255,204,0,0.06); border: 1px solid rgba(255,204,0,0.32); font-size: 12px; color: rgba(255,255,255,0.85); font-weight: 600;">
+                                            <span style="background: var(--accent); color: #000; padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: .04em; display: inline-flex; align-items: center; gap: 4px;"><i class="fas fa-star" style="font-size:9px;"></i>MOST POPULAR</span>
+                                            <span>{{ $mostPopularPackageName }}</span>
+                                        </div>
+                                        @endif
+                                    </div>
 
                                     @if(isset($packageCategories) && $packageCategories->count())
                                         @php
@@ -2852,49 +5142,60 @@
                                             @foreach ($sortedPackageCategories as $category)
                                                 <button
                                                     type="button"
-                                                    class="btn btn-outline-light package-category-tile mb-2 w-100"
+                                                    class="package-category-tile {{ $loop->first ? 'active' : '' }}"
                                                     data-target="#category-group-{{ $category['id'] }}"
-                                                    style="background: {{ $brandPrimary }}; border-color: {{ $brandPrimary }}; color: #000; display:flex; justify-content:space-between; align-items:center; text-align:left; padding:14px 16px; border-radius:12px; font-size:15px; font-weight:600;"
                                                 >
-                                                    {{ $category['name'] }}
-                                                    <span class="package-category-indicator" style="opacity:.7; font-size:12px;">+</span>
+                                                    <span class="package-category-name">{{ $category['name'] }}</span>
+                                                    <span class="package-category-indicator">+</span>
                                                 </button>
                                             @endforeach
                                         </div>
 
                                         @foreach ($sortedPackageCategories as $category)
-                                            <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: none;">
+                                            <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: {{ $loop->first ? 'block' : 'none' }};">
                                                 @foreach ($category['packages'] as $item)
-                                                    <div class="vip-card" id="pkg-card-{{ $item->id }}">
+                                                    @php
+                                                        $pkgTierIdx = ($loop->index % 5) + 1;
+                                                        $pkgTierIcons = ['fas fa-crown','fas fa-star','fas fa-gem','fas fa-fire','fas fa-bolt'];
+                                                        $pkgTierIcon = $pkgTierIcons[$pkgTierIdx - 1];
+                                                        $pkgGuestCap = max(1, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 1));
+                                                        $pkgTableCap = max(2, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 2));
+                                                        $firstGallery = is_array($data->gallery_images ?? null) && !empty($data->gallery_images[0]) ? asset('uploads/' . $data->gallery_images[0]) : null;
+                                                        $packageVisual = $firstGallery ?: ($data->logo ? asset('uploads/' . $data->logo) : asset('images/logo.png'));
+                                                    @endphp
+                                                    <div class="vip-card cv-tier-{{ $pkgTierIdx }} cv-exact-card" id="pkg-card-{{ $item->id }}">
+                                                        <div class="cv-pkg-media-wrap">
+                                                            <img src="{{ $packageVisual }}" alt="{{ $item->name }}" class="cv-pkg-media">
+                                                            @if ($loop->first)
+                                                                <span class="cv-popular-pill">MOST POPULAR</span>
+                                                            @endif
+                                                        </div>
+
                                                         <div class="vip-card-main">
-                                                            <div class="vip-title-row">
-                                                                <div class="vip-title">{{ $item->name }}</div>
-                                                                @if($item->description)
-                                                                    <button type="button" class="club-detail-trigger"
-                                                                        data-bs-toggle="popover" data-bs-placement="top"
-                                                                        data-bs-custom-class="club-popover" data-bs-html="true"
-                                                                        data-bs-title="{{ e($item->name) }}"
-                                                                        data-bs-content="{{ e(strip_tags($item->description ?? '')) }}"
-                                                                    ><i class="fas fa-info"></i></button>
-                                                                @endif
+                                                            <div class="cv-pkg-title-row">
+                                                                <i class="{{ $pkgTierIcon }} cv-pkg-title-icon"></i>
+                                                                <div class="cv-pkg-title">{{ $item->name }}</div>
                                                             </div>
-                                                            <button class="vip-btn btn-{{ $item->id }} mt-2"
-                                                                style="background-color: {{ $brandPrimary }} !important;"
-                                                                data-id="{{ $item->id }}"
-                                                                data-name="{{ $item->name }}"
-                                                                data-price="{{ $item->price }}"
-                                                                data-gratuity="{{ $data->gratuity_fee }}"
-                                                                data-refundable="{{ $data->refundable_fee }}"
-                                                                data-sales_tax="{{ $data->sales_tax_fee ?? 10 }}"
-                                                                data-transportation="{{ $item->transportation }}"
-                                                                data-service_charge="{{ $data->service_charge_fee ?? 10 }}"
-                                                                data-default-label="Add to Cart">Add to Cart</button>
+                                                            <span class="cv-pkg-sub"><i class="fas fa-user-friends"></i>Best for {{ $pkgGuestCap > 1 ? '2-' . $pkgGuestCap : '1' }} guests</span>
+                                                            @if($item->description)
+                                                                <p class="cv-pkg-desc">{{
+                                                                    \Illuminate\Support\Str::limit(strip_tags($item->description), 115)
+                                                                }}</p>
+                                                            @endif
+                                                            <div class="cv-pkg-features">
+                                                                <span class="cv-pkg-feature"><i class="fas fa-chair"></i>VIP Table</span>
+                                                                <span class="cv-pkg-feature"><i class="fas fa-wine-bottle"></i>1 Premium Bottle</span>
+                                                                <span class="cv-pkg-feature"><i class="fas fa-user-shield"></i>VIP Hosts</span>
+                                                                <span class="cv-pkg-feature"><i class="fas fa-shield-alt"></i>{{ $item->package_type === 'ticket' ? 'Free Entry' : 'Skip the Line' }}</span>
+                                                            </div>
                                                         </div>
 
                                                         <div class="vip-card-side">
-                                                            <div class="vip-guest-control">
-                                                                <div class="vip-guest-label">{{ $item->package_type === 'ticket' ? 'Quantity' : ($item->package_type === 'table' ? '# of Guest' : 'Guests') }}</div>
-                                                                <div class="package-guest-input-wrap">
+                                                            <div class="vip-price-tag price-{{ $item->id }}"
+                                                                data-price="{{ $item->price }}">${{ number_format((float) $item->price, 2) }}</div>
+                                                            <div class="cv-price-meta">Per Package</div>
+
+                                                            <div class="package-guest-input-wrap">
                                                                     @if ($item->package_type === 'ticket')
                                                                         <input
                                                                             type="number"
@@ -2910,28 +5211,34 @@
                                                                             class="form-select package_number_of_guestss"
                                                                         />
                                                                     @else
-                                                                        @php
-                                                                            $tableCap = max(2, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 2));
-                                                                        @endphp
                                                                         <select
                                                                             data-package-type="{{ $item->package_type }}"
                                                                             data-guests-per-table="{{ (int) ($item->guests_per_table ?? 0) }}"
-                                                                            data-package-guest-limit="{{ $tableCap }}"
+                                                                            data-package-guest-limit="{{ $pkgTableCap }}"
                                                                             data-multiple="{{ $item->multiple }}"
                                                                             data-id="{{ $item->id }}"
                                                                             class="form-select package_number_of_guestss"
                                                                         >
-                                                                            @for ($i = 1; $i <= $tableCap; $i++)
+                                                                            @for ($i = 1; $i <= $pkgTableCap; $i++)
                                                                                 <option value="{{ $i }}" @selected($i == 2)>{{ $i }}</option>
                                                                             @endfor
                                                                         </select>
                                                                     @endif
-                                                                </div>
-                                                                <small class="package-guest-error" style="display:none;color:#ff6b6b;font-size:11px;line-height:1.35;margin-top:4px;"></small>
-                                                                <div class="package-soldout" style="display:none;color:#ff2b2b;font-size:12px;font-weight:700;line-height:1.35;margin-top:4px;">Sold Out!</div>
                                                             </div>
-                                                            <div class="vip-price-tag price-{{ $item->id }}"
-                                                                data-price="{{ $item->price }}">${{ number_format((float) $item->price, 2) }}</div>
+                                                            <button class="vip-btn btn-{{ $item->id }} mt-2"
+                                                                style="background-color: {{ $brandPrimary }} !important;"
+                                                                data-id="{{ $item->id }}"
+                                                                data-name="{{ $item->name }}"
+                                                                data-price="{{ $item->price }}"
+                                                                data-gratuity="{{ $data->gratuity_fee }}"
+                                                                data-refundable="{{ $data->refundable_fee }}"
+                                                                data-sales_tax="{{ $data->sales_tax_fee ?? 10 }}"
+                                                                data-transportation="{{ $item->transportation }}"
+                                                                data-service_charge="{{ $data->service_charge_fee ?? 10 }}"
+                                                                data-default-label="Add to Cart">Add to Cart</button>
+
+                                                            <small class="package-guest-error" style="display:none;color:#ff6b6b;font-size:11px;line-height:1.35;margin-top:4px;"></small>
+                                                            <div class="package-soldout" style="display:none;color:#ff2b2b;font-size:12px;font-weight:700;line-height:1.35;margin-top:4px;">Sold Out!</div>
                                                         </div>
                                                     </div>
                                                 @endforeach
@@ -2940,6 +5247,39 @@
                                     @else
                                         <p style="opacity:.6;">No packages are available yet.</p>
                                     @endif
+
+                                    <div class="cv-freeride-callout">
+                                        <div class="cv-freeride-icon"><i class="fas fa-car-side"></i></div>
+                                        <div>
+                                            <strong>Free Ride Included</strong>
+                                            <span>Complimentary pickup &amp; return for you and your guests. We'll contact you after booking to confirm details.</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="cv-need-help">
+                                        <div class="cv-need-help-title">
+                                            <strong>Need Help?</strong>
+                                            <span>Our VIP concierge team is here for you.</span>
+                                        </div>
+                                        <div class="cv-need-help-actions">
+                                            @if($data->phone)
+                                                <a href="tel:{{ $data->phone }}" class="cv-need-help-action">
+                                                    <i class="fas fa-phone"></i>
+                                                    <span style="text-align:left;">
+                                                        <strong>Call or Text</strong>
+                                                        <span>{{ $data->phone }}</span>
+                                                    </span>
+                                                </a>
+                                            @endif
+                                            <a href="#" class="cv-need-help-action" onclick="return false;">
+                                                <i class="fas fa-comment-dots"></i>
+                                                <span style="text-align:left;">
+                                                    <strong>Live Chat</strong>
+                                                    <span>Available 24/7</span>
+                                                </span>
+                                            </a>
+                                        </div>
+                                    </div>
 
                                     <section id="cart-section" class="container py-4" style="display:none; margin-bottom:2rem;">
                                         <div class="cart-heading">Your Cart</div>
@@ -2955,34 +5295,34 @@
                                             </div>
                                             <div class="dynamic-price" style="display: none;">
                                                 <input type="hidden" id="old_price">
-                                                <div style="font-size: 16px;" class="default-package-price">Package:
+                                                <div style="font-size: 16px;" class="default-package-price"><span>Subtotal</span>
                                                     <span>$0.00</span>
                                                 </div>
                                                 <div class="addonns"></div>
 
                                                 @if ($data->service_charge_name != 0)
-                                                    <div style="font-size: 16px;" class="default-service-charge">
-                                                        {{ $data->service_charge_name ?? 'Sales Tax' }}:
+                                                    <div style="font-size: 16px;" class="default-service-charge" title="Service Fee covers payment processing and platform costs.">
+                                                        <span>{{ $data->service_charge_name ?? 'Service Fee' }}</span>
                                                         <span>$0.00</span>
                                                     </div>
                                                 @endif
                                                 <div class="sales_tax"></div>
                                                 @if ($data->sales_tax_name != 0)
-                                                    <div style="font-size: 16px;" class="default-sales-tax">
-                                                        {{ $data->sales_tax_name ?? 'Sales Tax' }}: <span>$0.00</span>
+                                                    <div style="font-size: 16px;" class="default-sales-tax" title="Sales tax applied per local regulations.">
+                                                        <span>{{ $data->sales_tax_name ?? 'Tax' }}</span> <span>$0.00</span>
                                                     </div>
                                                 @endif
 
                                                 @if ($data->gratuity_name != 0)
-                                                    <div style="font-size: 16px;" class="default-gratuity">
-                                                        {{ $data->gratuity_name ?? 'Gratuity Fee' }}:
+                                                    <div style="font-size: 16px;" class="default-gratuity" title="Gratuity for your VIP host & service staff.">
+                                                        <span>{{ $data->gratuity_name ?? 'Gratuity Fee' }}</span>
                                                         <span>$0.00</span></div>
                                                 @else
                                                     <div class="default-gratuity"></div>
                                                 @endif
 
                                                 <div style="font-size: 16px; font-weight: bold; display: none"
-                                                    class="default-total">Total: <span>$0.00</span></div>
+                                                    class="default-total"><span>Total</span> <span>$0.00</span></div>
                                             </div>
 
                                             <!-- Shareable Link Button -->
@@ -3005,10 +5345,7 @@
                                                 </div>
                                             </div>
 
-                                            <hr>
-                                            <div class="vip-price default-deposit"
-                                                style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;">
-                                                Total: <span>$0.00</span></div>
+                                            <div class="default-deposit"><span>Total</span><span>$0.00</span></div>
                                             @if ($data->refundable_fee > 0)
                                                 <div style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;"
                                                     class="vip-price default-refundable">
@@ -3028,18 +5365,41 @@
                                         </div>
                                         <div class="col-md-6 dynamic-price" style="display: none;">
                                             <label
-                                                style="color: #808080; font-size: 14px;">{{ $data->promo_code_name }}</label>
+                                                style="color: rgba(255,255,255,0.7); font-size: 13.5px;">{{ $data->promo_code_name ?: 'Have a promo code?' }}</label>
                                             <div class="row">
                                                 <div class="col-md-8 col-8" style="padding-right: 0%;">
                                                     <input type="text" id="promo_code"
-                                                        style="color: #fff; border-top-right-radius: 0px !important; border-bottom-right-radius: 0px !important;"
-                                                        placeholder="Promo or referral code?" />
+                                                        style="color: #fff;"
+                                                        placeholder="Enter code" />
                                                 </div>
                                                 <div class="col-md-4 col-4" style="padding-left: 0%;">
                                                     <button type="button" class="vip-btn-submit"
-                                                        style="width: 100%; height: 100%;"
-                                                        id="applyPromoBtn">Submit</button>
+                                                        id="applyPromoBtn">Apply</button>
                                                 </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- New visual step indicator -->
+                                    <div class="cv-steps" id="cv-steps" style="display:none; margin-bottom:20px;">
+                                        <div class="cv-step cv-step-active" id="cv-vstep-1">
+                                            <div class="cv-step-inner">
+                                                <div class="cv-step-circle">1</div>
+                                                <div class="cv-step-label">Package<br>Details</div>
+                                            </div>
+                                            <div class="cv-step-connector"></div>
+                                        </div>
+                                        <div class="cv-step" id="cv-vstep-2">
+                                            <div class="cv-step-inner">
+                                                <div class="cv-step-circle">2</div>
+                                                <div class="cv-step-label">Transport/<br>Confirm</div>
+                                            </div>
+                                            <div class="cv-step-connector"></div>
+                                        </div>
+                                        <div class="cv-step" id="cv-vstep-3">
+                                            <div class="cv-step-inner">
+                                                <div class="cv-step-circle">3</div>
+                                                <div class="cv-step-label">Review<br>&amp; Pay</div>
                                             </div>
                                         </div>
                                     </div>
@@ -3574,56 +5934,102 @@
 
             <input type="hidden" name="type" value="package">
 
-            <section class="location-card" style="width: 100%">
-                <div class="location-shell">
-                    <div class="location-copy">
-                        <span class="location-kicker">Find Us</span>
-                        <h2>Location</h2>
-                        <p class="location-address">{{ $data->location }}</p>
-                        <div class="location-contact-grid">
-                            @if($data->phone)
-                                <a class="location-contact-chip" href="tel:{{ $data->phone }}">
-                                    <i class="fas fa-phone"></i>
-                                    <span>{{ $data->phone }}</span>
-                                </a>
-                            @endif
-                            @if($data->email)
-                                <a class="location-contact-chip" href="mailto:{{ $data->email }}">
-                                    <i class="fas fa-envelope"></i>
-                                    <span>{{ $data->email }}</span>
-                                </a>
-                            @endif
+            </div>{{-- end .package --}}
+            </div>{{-- end cv-main-col --}}
+
+            {{-- RIGHT: Order Summary Sidebar --}}
+            <aside class="cv-sidebar" id="cv-order-sidebar" style="width: 100% !important;">
+                <div class="cv-sidebar-header">
+                    <span>ORDER SUMMARY</span>
+                    <button type="button" class="cv-sidebar-edit-btn" id="cv-edit-cart" style="display:none;"><i class="fas fa-pen"></i> Edit Cart</button>
+                </div>
+
+                @php
+                    $sidebarVenueImage = !empty($event->image ?? null) ? asset('uploads/' . $event->image) : ($data->logo ? asset('uploads/' . $data->logo) : null);
+                @endphp
+                @if($sidebarVenueImage)
+                    <img src="{{ $sidebarVenueImage }}" class="cv-sidebar-venue-image" alt="{{ $data->name }}">
+                @endif
+
+                {{-- Venue info --}}
+                <div class="cv-sidebar-venue-row" style="border-bottom:none; padding-bottom:0; margin-bottom:14px;">
+                    <div style="flex:1; min-width:0;">
+                        <div class="cv-sidebar-venue-name">{{ $data->name }}</div>
+                        <div class="cv-sidebar-venue-date" id="cv-sidebar-date">
+                            <i class="fas fa-calendar-alt" style="margin-right:4px;opacity:.6;"></i>Select a date above
                         </div>
                     </div>
-                    <div class="location-map-wrap">
-                        <iframe src="https://www.google.com/maps?q={{ urlencode($data->location) }}&output=embed"
-                            allowfullscreen
-                            loading="lazy"
-                            referrerpolicy="no-referrer-when-downgrade">
-                        </iframe>
+                </div>
+
+                {{-- Cart, pricing, promo will be moved here by JS --}}
+                <div id="cv-sidebar-body">
+                    {{-- JS will insert #cart-section, .pricing-shell, and #shareLinkContainer here --}}
+                </div>
+
+                {{-- Deposit box (always present, shown when selection active) --}}
+                @php
+                    $refundablePctTwo = (int) ($data->refundable_fee ?? 0);
+                @endphp
+                <div class="cv-deposit-box dynamic-price" id="cv-deposit-box" style="display:none;">
+                    <div class="cv-deposit-content">
+                        <div class="cv-deposit-top">
+                            <div class="cv-deposit-label" title="@if($refundablePctTwo > 0){{ $refundablePctTwo }}% of the total is collected today to secure your reservation. The balance is paid on arrival.@else You are paying the full amount today.@endif">@if($refundablePctTwo > 0)Due Today ({{ $refundablePctTwo }}% Deposit)@else{{ 'Due Today' }}@endif <span class="cv-info-icon">i</span></div>
+                            <div class="cv-deposit-shield"><i class="fas fa-shield-alt"></i></div>
+                        </div>
+                        <div class="cv-deposit-main" id="cv-deposit-display">$0.00</div>
+                        <div class="cv-deposit-sub">Secure your reservation</div>
+                        @if($refundablePctTwo > 0)
+                            <div class="cv-deposit-due-row">
+                                <span>Due on Arrival</span>
+                                <span id="cv-due-on-arrival">$0.00</span>
+                            </div>
+                        @endif
                     </div>
                 </div>
-            </section>
-            </div>
 
+                {{-- Trust badges --}}
+                <div class="cv-trust-list">
+                    <div class="cv-trust-item">
+                        <i class="fas fa-lock"></i>
+                        <div><strong>Secure Checkout</strong><span>Your payment is 100% secure</span></div>
+                    </div>
+                    <div class="cv-trust-item">
+                        <i class="fas fa-check-circle"></i>
+                        <div><strong>Instant Confirmation</strong><span>Receive booking details immediately</span></div>
+                    </div>
+                    <div class="cv-trust-item">
+                        <i class="fas fa-crown"></i>
+                        <div><strong>VIP Experience Guaranteed</strong><span>Premium access secured</span></div>
+                    </div>
+                    <div class="cv-trust-item">
+                        <i class="fas fa-headset"></i>
+                        <div><strong>24/7 Support</strong><span>We're here if you need help</span></div>
+                    </div>
+                </div>
 
+                {{-- CTA button --}}
+                <button type="button" class="cv-cta-btn dynamic-price" id="cv-sidebar-cta" style="display:none;" disabled>
+                    Continue to Payment <i class="fas fa-lock"></i>
+                </button>
+                <p class="cv-cta-terms">
+                    By continuing, you agree to our
+                    <a href="{{ $data->terms }}" target="_blank">Terms of Service</a> and
+                    <a href="{{ $data->privacy_policy ?? $data->terms }}" target="_blank">Privacy Policy</a>
+                </p>
+            </aside>
 
+            </div>{{-- end cv-checkout-body --}}
 
+            {{-- Location info now lives in the hero (.cv-hero-location). --}}
 
             <section>
                 <div class="container py-5 events-section-container">
                     <div class="event-header">
                         <h2>Upcoming Events</h2>
-                        <div class="event-filters" style="display: flex; gap: 10px;">
-                            <button type="button" class="btn btn-outline-primary event-filter" data-filter="week"
-                                style="border-color: #c2903e !important; color: #e4be76; font-size: 14px; padding: 5px;">This
-                                Week</button>
-                            <button type="button" class="btn btn-outline-primary event-filter" data-filter="month"
-                                style="border-color: #c2903e !important; color: #e4be76; font-size: 14px; padding: 5px;">This
-                                Month</button>
-                            <button type="button" class="btn btn-outline-primary event-filter" data-filter="year"
-                                style="border-color: #c2903e !important; color: #e4be76; font-size: 14px; padding: 5px;">This
-                                Year</button>
+                        <div class="event-filters">
+                            <button type="button" class="event-filter" data-filter="week">This Week</button>
+                            <button type="button" class="event-filter" data-filter="month">This Month</button>
+                            <button type="button" class="event-filter" data-filter="year">This Year</button>
                         </div>
                     </div>
                     <div class="row g-4" id="events-list">
@@ -3638,33 +6044,23 @@
                             @if (!$item->is_archieved && $eventEndDate && \Carbon\Carbon::parse($eventEndDate)->toDateString() >= $todayPacific)
                                 <div class="col-md-4 event-card-item"
                                     data-date="{{ \Carbon\Carbon::parse($eventStartDate)->format('Y-m-d') }}">
-                                    <a href="/{{ $data->slug }}?event_name={{ $item->name }}"
-                                        class="event-card"
-                                        style="width: 100%; background: transparent; text-decoration: none;">
-                                        <div class="card p-3 text-center">
-                                            <img src="{{ asset('uploads/' . $item->image) }}" width="100%"
-                                                height="298px" style="width: 100%; height: 298px;">
+                                    <a href="/{{ $data->slug }}?event_name={{ $item->name }}" class="event-card">
+                                        <div class="card">
+                                            <img src="{{ asset('uploads/' . $item->image) }}" alt="{{ $item->name }}">
                                             <div class="d-flex">
-                                                <div class="event-day" style="width: 50%;">
-                                                    {{ \Carbon\Carbon::parse($eventStartDate)->format('l') }}</div>
-                                                <div class="event-dates"
-                                                    style="width: 50%; color: {{ $brandPrimary }} !important;">
-                                                    {{ \Carbon\Carbon::parse($eventStartDate)->format('M') }}<span> <br>
-                                                        {{ \Carbon\Carbon::parse($eventStartDate)->format('d') }}</span>
-                                                </div>
+                                                <div class="event-day">{{ \Carbon\Carbon::parse($eventStartDate)->format('l') }}</div>
+                                                <div class="event-dates">{{ \Carbon\Carbon::parse($eventStartDate)->format('M') }}<span>{{ \Carbon\Carbon::parse($eventStartDate)->format('d') }}</span></div>
                                             </div>
-                                            <div class="event-location" style="font-weight:700;">{{ $item->name }}</div>
+                                            <div class="event-location">{{ $item->name }}</div>
                                             @if($eventEndDate && $eventStartDate !== $eventEndDate)
                                                 <div class="event-location">
                                                     {{ \Carbon\Carbon::parse($eventStartDate)->format('M d') }} - {{ \Carbon\Carbon::parse($eventEndDate)->format('M d') }}
                                                 </div>
                                             @endif
                                             @if(!empty($item->time))
-                                                <div class="event-location">
-                                                    <i class="fas fa-clock me-1"></i>{{ $item->time }}
-                                                </div>
+                                                <div class="event-location"><i class="fas fa-clock"></i>{{ $item->time }}</div>
                                             @endif
-                                            <div class="event-location">{{ $data->location }}</div>
+                                            <div class="event-location"><i class="fas fa-map-marker-alt"></i>{{ $data->location }}</div>
                                             @if (!is_null($item->remaining_attendee_capacity))
                                                 <div class="event-capacity-chip{{ !empty($item->is_sold_out) ? ' sold-out' : '' }}">
                                                     {{ !empty($item->is_sold_out) ? 'Sold Out' : $item->remaining_attendee_capacity . ' Spots Left' }}
@@ -3819,8 +6215,10 @@
                     <div class="cv-footer-brand">
                         <img src="{{ asset('images/logo.png') }}" alt="CartVIP" class="cv-footer-logo">
                         <span class="cv-footer-powered">Powered by CartVIP</span>
+                        <p class="cv-footer-tagline">Premium booking technology for unforgettable VIP experiences worldwide.</p>
                     </div>
                     <div class="cv-footer-legal">
+                        <div class="cv-footer-legal-title">Legal &amp; Disclosures</div>
                         <p>Secure checkout and booking technology provided by <a href="https://cartvip.com" target="_blank" rel="noopener">CartVIP.com</a>.</p>
                         <p>Experiences, reservations, products, and services displayed on this website are offered and fulfilled by the participating venue or business. Pricing, availability, admission policies, refunds, and fulfillment terms are determined by the venue or merchant.</p>
                         <p>Payments are securely processed through authorized payment providers. CartVIP provides checkout infrastructure and payment support services only.</p>
@@ -3828,7 +6226,13 @@
                     </div>
                 </div>
                 <div class="cv-footer-bar">
-                    <span>&copy; {{ date('Y') }} CartVIP.com</span>
+                    <span class="cv-footer-bar-copy">&copy; {{ date('Y') }} <strong>CartVIP.com</strong> &middot; All rights reserved</span>
+                    <div class="cv-footer-bar-socials">
+                        <a href="https://cartvip.com" target="_blank" rel="noopener" class="cv-footer-bar-social" aria-label="Website"><i class="fas fa-globe"></i></a>
+                        <a href="mailto:support@cartvip.com" class="cv-footer-bar-social" aria-label="Email"><i class="fas fa-envelope"></i></a>
+                        <a href="#" onclick="return false;" class="cv-footer-bar-social" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" onclick="return false;" class="cv-footer-bar-social" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    </div>
                 </div>
             </div>
         </footer>
@@ -4199,9 +6603,11 @@
                     let priceLine = parseMultipleFlag(pkg.isMultiple)
                         ? (formatCurrency(unitPrice) + ' &times; ' + (parseInt(pkg.guests, 10) || 1) + ' = ' + formatCurrency(lineTotal))
                         : formatCurrency(lineTotal);
+                    let guestQty = parseInt(pkg.guests, 10) || 1;
+                    let guestLabel = guestQty + (guestQty === 1 ? ' Guest' : ' Guests');
                     html += `<div class="cart-line">`
-                        + `<div class="cart-line-main"><div><div class="cart-item-name">${pkg.packageName}</div><div class="cart-item-price">${priceLine}</div></div>`
-                        + `<button onclick='window.removePackageFromCart("${pkg.packageId}")' class="cart-remove-btn">Remove</button></div>`
+                        + `<div class="cart-line-main"><div style="flex:1;min-width:0;"><div class="cart-item-name">${pkg.packageName}</div><div class="cart-line-guests">${guestLabel}</div></div>`
+                        + `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;"><div class="cart-item-price">${priceLine}</div><button onclick='window.removePackageFromCart("${pkg.packageId}")' class="cart-remove-btn">Remove</button></div></div>`
                         + (pkg.addons.length ? `<div class="cart-addons">Add-ons: ${pkg.addons.map(a => a.name + ((parseInt(a.qty, 10) || 1) > 1 ? (' x' + (parseInt(a.qty, 10) || 1)) : '') + ' (' + formatCurrency(a.price) + ')').join(', ')}</div>` : '')
                         + `</div>`;
                 });
@@ -4249,10 +6655,10 @@
                 let refundable_price = (grandTotal / 100) * refundable;
                 
                 // Update displays
-                $('.default-package-price span').text(formatCurrency(subtotal));
-                $('.default-service-charge span').text(formatCurrency(service_charge_price));
-                $('.default-sales-tax span').text(formatCurrency(sales_tax_price));
-                $('.default-gratuity span').text(formatCurrency(gratuited_price));
+                $('.default-package-price > span:last-child').text(formatCurrency(subtotal));
+                $('.default-service-charge > span:last-child').text(formatCurrency(service_charge_price));
+                $('.default-sales-tax > span:last-child').text(formatCurrency(sales_tax_price));
+                $('.default-gratuity > span:last-child').text(formatCurrency(gratuited_price));
 
                 if ($('.default-gratuity').length) {
                     if ($('.default-service-charge').length) {
@@ -4282,18 +6688,26 @@
                 }
                 
                 $('.default-refundable .refundable-amount').text(formatCurrency(refundable_price));
-                $('.default-total span').text(formatCurrency(grandTotal));
-                $('.default-deposit span').text(formatCurrency(grandTotal));
+                $('.default-total > span:last-child').text(formatCurrency(grandTotal));
+                $('.default-deposit > span:last-child').text(formatCurrency(grandTotal));
                 $('.default-due .due-amount').text(formatCurrency(grandTotal - refundable_price));
                 $('.payment_total').val(grandTotal.toFixed(2));
                 $('#subtotal').val(refundable_price > 0 ? refundable_price.toFixed(2) : grandTotal.toFixed(2));
                 $('#commission_base_amount').val(Math.max(subtotal - promoDiscount, 0).toFixed(2));
-                
-                $('#cart-total').text('Packages Subtotal: ' + formatCurrency(subtotal));
+
+                $('#cart-total').text('');
                 if (window.cartCoupon) {
                     $('#cart-coupon').text('Coupon: ' + window.cartCoupon.code + ' (-' + formatCurrency(promoDiscount) + ')');
                 } else {
                     $('#cart-coupon').text('');
+                }
+
+                // Update Due Today (Deposit) box: show deposit amount + Due on Arrival
+                if (refundable > 0) {
+                    $('#cv-deposit-display').text(formatCurrency(refundable_price));
+                    $('#cv-due-on-arrival').text(formatCurrency(Math.max(grandTotal - refundable_price, 0)));
+                } else {
+                    $('#cv-deposit-display').text(formatCurrency(grandTotal));
                 }
             };
             
@@ -4896,17 +7310,11 @@
                     let $target = targetId ? $('#' + targetId) : $();
                     let isOpen = $(this).hasClass('active');
 
-                    $('.package-category-tile')
-                        .removeClass('active')
-                        .css({ backgroundColor: '{{ $brandPrimary }}', color: '#000' })
-                        .find('.package-category-indicator').text('+');
+                    $('.package-category-tile').removeClass('active');
                     $('.package-category-group').stop(true, true).slideUp(180);
 
                     if (!isOpen && $target.length) {
-                        $(this)
-                            .addClass('active')
-                            .css({ backgroundColor: '#101725', color: '{{ $brandPrimary }}' })
-                            .find('.package-category-indicator').text('−');
+                        $(this).addClass('active');
                         $target.stop(true, true).slideDown(180);
                     }
                 });
@@ -5945,6 +8353,265 @@
                     modalImage.alt = '';
                 }
             });
+        </script>
+
+        {{-- CartVIP Sidebar Enhancement JS --}}
+        <script>
+        (function() {
+            /* ===== Sidebar DOM relocation ===== */
+            function initSidebar() {
+                var sidebarBody = document.getElementById('cv-sidebar-body');
+                if (!sidebarBody) return;
+
+                // Move functional elements to sidebar on desktop
+                var cartSection = document.getElementById('cart-section');
+                var pricingShell = document.querySelector('.pricing-shell');
+                var shareContainer = document.getElementById('shareLinkContainer');
+
+                if (cartSection) sidebarBody.appendChild(cartSection);
+                if (pricingShell) sidebarBody.appendChild(pricingShell);
+                if (shareContainer) sidebarBody.appendChild(shareContainer);
+
+                // Move the promo code section to AFTER the deposit box so it sits below the Due Today box.
+                var depositBox = document.getElementById('cv-deposit-box');
+                var promoCol = pricingShell ? pricingShell.querySelector('.dynamic-price.col-md-6') : null;
+                if (depositBox && promoCol && depositBox.parentNode) {
+                    depositBox.parentNode.insertBefore(promoCol, depositBox.nextSibling);
+                }
+
+                // Show sidebar
+                var sidebar = document.getElementById('cv-order-sidebar');
+                if (sidebar) sidebar.style.display = '';
+            }
+
+            /* ===== Sidebar date sync ===== */
+            function initSidebarDateSync() {
+                var dateInput = document.getElementById('package_use_date');
+                var sidebarDate = document.getElementById('cv-sidebar-date');
+                if (!dateInput || !sidebarDate) return;
+
+                function updateSidebarDate() {
+                    var val = dateInput.value;
+                    if (val) {
+                        sidebarDate.innerHTML = '<i class="fas fa-calendar-alt" style="margin-right:4px;opacity:.6;"></i>' + val;
+                    } else {
+                        sidebarDate.innerHTML = '<i class="fas fa-calendar-alt" style="margin-right:4px;opacity:.6;"></i>Select a date above';
+                    }
+                }
+
+                dateInput.addEventListener('change', updateSidebarDate);
+                dateInput.addEventListener('input', updateSidebarDate);
+                // Also watch for flatpickr changes
+                if (window.MutationObserver) {
+                    new MutationObserver(updateSidebarDate).observe(dateInput, { attributes: true, attributeFilter: ['value'] });
+                }
+                // Interval fallback for flatpickr
+                var lastDate = '';
+                setInterval(function() {
+                    if (dateInput.value !== lastDate) {
+                        lastDate = dateInput.value;
+                        updateSidebarDate();
+                    }
+                }, 500);
+                updateSidebarDate();
+            }
+
+            /* ===== Sidebar CTA wiring ===== */
+            function initSidebarCta() {
+                var ctaBtn = document.getElementById('cv-sidebar-cta');
+                if (!ctaBtn) return;
+
+                // Show CTA when a package is selected
+                if (window.MutationObserver) {
+                    var cartList = document.getElementById('cart-list');
+                    if (cartList) {
+                        new MutationObserver(function() {
+                            var hasItems = cartList.children.length > 0;
+                            ctaBtn.disabled = !hasItems;
+                            ctaBtn.style.display = hasItems ? '' : 'none';
+                            var depositBox = document.getElementById('cv-deposit-box');
+                            if (depositBox) depositBox.style.display = hasItems ? '' : 'none';
+                            // Also show edit cart link
+                            var editBtn = document.getElementById('cv-edit-cart');
+                            if (editBtn) editBtn.style.display = hasItems ? '' : 'none';
+                            // Update mobile cart count
+                            var mobileCount = document.getElementById('cv-mobile-cart-count');
+                            if (mobileCount) {
+                                var count = cartList.querySelectorAll('.cart-line').length;
+                                mobileCount.textContent = count + (count === 1 ? ' item' : ' items');
+                            }
+                            // Show mobile toggle
+                            var toggle = document.getElementById('cv-mobile-cart-toggle');
+                            if (toggle) toggle.style.display = hasItems ? 'flex' : 'none';
+                        }).observe(cartList, { childList: true });
+                    }
+                }
+
+                // CTA triggers checkout flow
+                ctaBtn.addEventListener('click', function() {
+                    var nextBtn = document.getElementById('next-to-transport');
+                    if (nextBtn && nextBtn.style.display !== 'none') {
+                        nextBtn.click();
+                    } else {
+                        // Fallback: scroll to checkout steps
+                        var steps = document.getElementById('checkout-steps');
+                        if (steps) steps.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+
+                // Deposit display is updated directly in calculateCartTotal — no observer needed.
+            }
+
+            /* ===== Mobile cart toggle ===== */
+            function initMobileToggle() {
+                var toggleBtn = document.getElementById('cv-mobile-cart-toggle');
+                var sidebar = document.getElementById('cv-order-sidebar');
+                if (!toggleBtn || !sidebar) return;
+
+                toggleBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('cv-sidebar-open');
+                    var isOpen = sidebar.classList.contains('cv-sidebar-open');
+                    toggleBtn.querySelector('span:first-child').textContent = isOpen ? 'Hide Order Summary' : 'View Order Summary';
+                    if (isOpen) {
+                        sidebar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            }
+
+            /* ===== Hamburger menu ===== */
+            function initHamburger() {
+                var hamburger = document.getElementById('cv-hamburger');
+                if (!hamburger) return;
+                hamburger.addEventListener('click', function() {
+                    var mobileActions = document.querySelector('.mobile-top-actions');
+                    if (mobileActions) {
+                        mobileActions.style.display = mobileActions.style.display === 'none' ? '' : 'none';
+                    }
+                });
+            }
+
+            /* ===== Visual step sync ===== */
+            function initVisualStepSync() {
+                // Show the new cv-steps when old checkout-steps are shown
+                if (window.MutationObserver) {
+                    var oldSteps = document.getElementById('checkout-steps');
+                    var cvSteps = document.getElementById('cv-steps');
+                    if (oldSteps && cvSteps) {
+                        new MutationObserver(function() {
+                            cvSteps.style.display = oldSteps.style.display === 'none' || oldSteps.style.display === '' ? 'none' : 'flex';
+                        }).observe(oldSteps, { attributes: true, attributeFilter: ['style'] });
+                    }
+                }
+                // Sync active step
+                var stepMap = {
+                    'step-1': 'cv-vstep-1',
+                    'step-2': 'cv-vstep-2',
+                    'step-3': 'cv-vstep-3'
+                };
+                Object.keys(stepMap).forEach(function(oldId) {
+                    var oldStep = document.getElementById(oldId);
+                    var newStep = document.getElementById(stepMap[oldId]);
+                    if (oldStep && newStep && window.MutationObserver) {
+                        new MutationObserver(function() {
+                            newStep.className = 'cv-step' +
+                                (oldStep.classList.contains('active') ? ' cv-step-active' : '') +
+                                (oldStep.classList.contains('done') ? ' cv-step-done' : '');
+                        }).observe(oldStep, { attributes: true, attributeFilter: ['class'] });
+                    }
+                });
+            }
+
+            /* ===== Dynamic checkout step indicator (cv-dstep) ===== */
+            function checkPackageFormFilled() {
+                var section = document.getElementById('section-1');
+                if (!section) return false;
+                var reqInputs = section.querySelectorAll('input[required], select[required]');
+                if (reqInputs.length === 0) return false;
+                for (var i = 0; i < reqInputs.length; i++) {
+                    if (!reqInputs[i].value || reqInputs[i].value.trim() === '') return false;
+                }
+                return true;
+            }
+
+            function updateCheckoutSteps() {
+                var stepEls = [
+                    document.getElementById('cv-dstep-1'),
+                    document.getElementById('cv-dstep-2'),
+                    document.getElementById('cv-dstep-3'),
+                    document.getElementById('cv-dstep-4')
+                ];
+                if (!stepEls[0]) return;
+
+                stepEls.forEach(function(s) {
+                    if (s) s.classList.remove('is-active', 'is-complete');
+                });
+
+                var dateInput = document.getElementById('package_use_date');
+                var dateDone = !dateInput || (dateInput.value && dateInput.value.trim() !== '');
+
+                var accessTabs = document.querySelectorAll('.cv-access-tab');
+                var accessDone = accessTabs.length === 0 || !!document.querySelector('.cv-access-tab.is-active');
+
+                var cartList = document.getElementById('cart-list');
+                var cartDone = !!(cartList && cartList.children.length > 0);
+
+                var formDone = checkPackageFormFilled();
+
+                if (dateDone) stepEls[0].classList.add('is-complete');
+                if (dateDone && accessDone) stepEls[1].classList.add('is-complete');
+                if (dateDone && accessDone && cartDone) stepEls[2].classList.add('is-complete');
+                if (dateDone && accessDone && cartDone && formDone) stepEls[3].classList.add('is-complete');
+
+                if (!dateDone) stepEls[0].classList.add('is-active');
+                else if (!accessDone) stepEls[1].classList.add('is-active');
+                else if (!cartDone) stepEls[2].classList.add('is-active');
+                else stepEls[3].classList.add('is-active');
+            }
+            window.updateCheckoutSteps = updateCheckoutSteps;
+
+            function initCheckoutSteps() {
+                if (!document.getElementById('cv-dstep-1')) return;
+                updateCheckoutSteps();
+
+                var dateInput = document.getElementById('package_use_date');
+                if (dateInput) {
+                    dateInput.addEventListener('change', updateCheckoutSteps);
+                    dateInput.addEventListener('input', updateCheckoutSteps);
+                    if (window.MutationObserver) {
+                        new MutationObserver(updateCheckoutSteps).observe(dateInput, { attributes: true, attributeFilter: ['value'] });
+                    }
+                }
+
+                document.querySelectorAll('.cv-access-tab').forEach(function(tab) {
+                    tab.addEventListener('click', function() { setTimeout(updateCheckoutSteps, 0); });
+                });
+
+                var cartList = document.getElementById('cart-list');
+                if (cartList && window.MutationObserver) {
+                    new MutationObserver(updateCheckoutSteps).observe(cartList, { childList: true });
+                }
+
+                document.addEventListener('input', function(e) {
+                    if (e.target && e.target.closest && e.target.closest('#section-1')) {
+                        updateCheckoutSteps();
+                    }
+                });
+                document.addEventListener('change', function(e) {
+                    if (e.target && e.target.closest && e.target.closest('#section-1')) {
+                        updateCheckoutSteps();
+                    }
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                initSidebar();
+                initSidebarDateSync();
+                initSidebarCta();
+                initHamburger();
+                initVisualStepSync();
+                initCheckoutSteps();
+            });
+        })();
         </script>
 
     </body>
