@@ -788,7 +788,7 @@
             }
 
             .aff-footer {
-                margin-top: 48px;
+                margin-top: 32px;
                 position: relative;
                 background: linear-gradient(180deg, rgba(11,8,22,0.92), rgba(5,3,12,0.98));
                 border-top: 1px solid rgba(167,116,255,0.18);
@@ -800,7 +800,7 @@
                 top: -1px;
                 left: 50%;
                 transform: translateX(-50%);
-                width: 60%;
+                width: 50%;
                 height: 2px;
                 background: linear-gradient(90deg, transparent, #a774ff, #7c3aed, #a774ff, transparent);
                 box-shadow: 0 0 20px rgba(167,116,255,0.5);
@@ -810,28 +810,29 @@
                 position: absolute;
                 top: 0; left: 0;
                 width: 100%; height: 100%;
-                background: radial-gradient(ellipse at top center, rgba(167,116,255,0.06), transparent 70%);
+                background: radial-gradient(ellipse at top center, rgba(167,116,255,0.05), transparent 65%);
                 pointer-events: none;
             }
             .aff-footer .container { position: relative; z-index: 1; }
             .cv-footer-inner {
-                padding: 44px 0 28px;
+                padding: 28px 0 20px;
                 border-bottom: 1px solid rgba(167,116,255,0.12);
                 display: grid;
-                grid-template-columns: minmax(220px, 1fr) 2fr;
-                gap: 48px;
+                grid-template-columns: 220px 1fr;
+                gap: 40px;
                 align-items: start;
+                text-align: left;
             }
             .cv-footer-brand {
                 display: flex;
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 14px;
+                gap: 10px;
                 flex-shrink: 0;
             }
-            .cv-footer-logo { height: 100px; width: auto; max-width: 200px; display: block; object-fit: contain; }
+            .cv-footer-logo { height: 60px; width: auto; max-width: 180px; display: block; object-fit: contain; }
             .cv-footer-powered {
-                font-size: 10.5px;
+                font-size: 10px;
                 font-weight: 800;
                 color: rgba(167,116,255,0.7);
                 letter-spacing: .12em;
@@ -848,28 +849,30 @@
                 box-shadow: 0 0 8px #a774ff;
             }
             .cv-footer-tagline {
-                font-size: 13px;
-                color: rgba(255,255,255,0.55);
+                font-size: 12.5px;
+                color: rgba(255,255,255,0.5);
                 line-height: 1.5;
-                max-width: 280px;
-                margin: 0;
+                max-width: 220px;
+                margin: 2px 0 0;
             }
             .cv-footer-legal {
                 color: rgba(255,255,255,0.5);
-                font-size: 12px;
-                line-height: 1.7;
+                font-size: 11.5px;
+                line-height: 1.55;
                 display: flex;
                 flex-direction: column;
-                gap: 10px;
+                gap: 8px;
                 min-width: 0;
+                text-align: left;
             }
             .cv-footer-legal-title {
-                font-size: 11px;
+                font-size: 10.5px;
                 font-weight: 800;
                 color: #c4a3ff !important;
                 text-transform: uppercase;
-                letter-spacing: 0.1em;
-                margin: 0 0 6px;
+                letter-spacing: 0.12em;
+                margin: 0 0 4px;
+                text-align: left;
             }
             .cv-footer-legal p { margin: 0; }
             .cv-footer-legal a {
@@ -891,26 +894,26 @@
                 align-items: center;
                 justify-content: space-between;
                 flex-wrap: wrap;
-                gap: 14px;
-                padding: 18px 0 22px;
-                font-size: 12px;
-                color: rgba(255,255,255,0.55);
+                gap: 12px;
+                padding: 14px 0 16px;
+                font-size: 11.5px;
+                color: rgba(255,255,255,0.5);
             }
-            .cv-footer-bar-copy { display: inline-flex; align-items: center; gap: 6px; }
-            .cv-footer-bar-copy strong { color: #fff; font-weight: 700; }
-            .cv-footer-bar-socials { display: inline-flex; gap: 10px; }
+            .cv-footer-bar-copy { display: inline-flex; align-items: center; gap: 5px; }
+            .cv-footer-bar-copy strong { color: rgba(255,255,255,0.85); font-weight: 700; }
+            .cv-footer-bar-socials { display: inline-flex; gap: 8px; }
             .cv-footer-bar-social {
-                width: 34px; height: 34px;
-                border-radius: 10px;
+                width: 30px; height: 30px;
+                border-radius: 8px;
                 background: rgba(167,116,255,0.08);
-                border: 1px solid rgba(167,116,255,0.28);
+                border: 1px solid rgba(167,116,255,0.22);
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
                 color: rgba(196,163,255,0.85) !important;
                 text-decoration: none !important;
                 transition: all .15s;
-                font-size: 13px;
+                font-size: 12px;
             }
             .cv-footer-bar-social:hover {
                 background: linear-gradient(135deg, rgba(167,116,255,0.2), rgba(124,58,237,0.2));
@@ -919,10 +922,12 @@
                 transform: translateY(-2px);
             }
             @media (max-width: 768px) {
-                .cv-footer-inner { grid-template-columns: 1fr; gap: 24px; padding: 32px 0 22px; }
+                .cv-footer-inner { grid-template-columns: 1fr; gap: 20px; padding: 24px 0 18px; text-align: center; }
                 .cv-footer-brand { align-items: center; text-align: center; }
                 .cv-footer-tagline { max-width: 100%; text-align: center; }
-                .cv-footer-bar { justify-content: center; text-align: center; flex-direction: column; gap: 12px; }
+                .cv-footer-legal,
+                .cv-footer-legal-title { text-align: center; }
+                .cv-footer-bar { justify-content: center; text-align: center; flex-direction: column; gap: 10px; padding: 14px 0; }
             }
 
             /* Mobile responsive navigation */
@@ -4947,7 +4952,7 @@
                                         <div class="cv-hero-location-name">{{ $data->name }}</div>
                                         <div class="cv-hero-location-addr">{{ $data->location }}</div>
                                     </div>
-                                    <span class="cv-hero-location-badge"><i class="fas fa-map-marker-alt"></i>VIP Venue</span>
+                                    {{-- <span class="cv-hero-location-badge"><i class="fas fa-map-marker-alt"></i>VIP Venue</span> --}}
                                 </div>
                                 <div class="cv-hero-location-map">
                                     <iframe src="https://www.google.com/maps?q={{ urlencode($data->location) }}&output=embed" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
@@ -6059,7 +6064,7 @@
             <aside class="cv-sidebar" id="cv-order-sidebar" style="width: 100% !important;">
                 <div class="cv-sidebar-header">
                     <span>ORDER SUMMARY</span>
-                    <button type="button" class="cv-sidebar-edit-btn" id="cv-edit-cart" style="display:none;"><i class="fas fa-pen"></i> Edit Cart</button>
+                    {{-- <button type="button" class="cv-sidebar-edit-btn" id="cv-edit-cart" style="display:none;"><i class="fas fa-pen"></i> Edit Cart</button> --}}
                 </div>
 
                 @php
