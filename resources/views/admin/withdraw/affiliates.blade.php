@@ -140,13 +140,61 @@
                                 @endif
                             </td>
                             <td style="min-width:180px;">
-                                <button class="btn btn-sm btn-outline-primary w-100"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#statusModal{{ $wr->id }}">
-                                    Update Status
-                                </button>
+                                <div class="d-flex align-items-center gap-1">
+                                    <button type="button" class="txn-action-eye view-btn btn btn-sm btn-outline-secondary"
+                                        data-bs-toggle="modal" data-bs-target="#viewWithdrawalModal{{ $wr->id }}"
+                                        data-withdrawal_id="{{ $wr->id }}"
+                                        data-owner_name="{{ $aff ? ($aff->display_name ?: ($aff->user->name ?? 'Affiliate #'.$wr->owner_id)) : 'Affiliate #'.$wr->owner_id }}"
+                                        data-amount="${{ number_format($wr->amount, 2) }}"
+                                        data-fee="${{ number_format($wr->fee_amount, 2) }}"
+                                        data-net="${{ number_format($wr->net_amount, 2) }}"
+                                        data-method="{{ $snap['label'] ?? '' }}"
+                                        data-status="{{ $wr->statusLabel() }}"
+                                        data-notes="{{ $wr->admin_notes ?? $wr->notes }}"
+                                        title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <div class="dropdown">
+                                        <button class="txn-action-more btn p-0" data-bs-toggle="dropdown" type="button" style="border:none;background:none">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end" style="background:#1e293b;border:1px solid rgba(255,255,255,0.1)">
+                                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="{{ route('admin.withdraw.affiliates.status', [$wr->id, 'done']) }}"><i class="fas fa-check me-2 text-success"></i>Mark Done</a></li>
+                                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="{{ route('admin.withdraw.affiliates.status', [$wr->id, 'rejected']) }}"><i class="fas fa-times me-2 text-danger"></i>Mark Rejected</a></li>
+                                        </ul>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary ms-2"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#statusModal{{ $wr->id }}">
+                                        Update Status
+                                    </button>
+                                </div>
 
-                                {{-- Modal --}}
+                                {{-- View Modal --}}
+                                <div class="modal fade" id="viewWithdrawalModal{{ $wr->id }}" tabindex="-1" aria-labelledby="viewWithdrawalModalLabel{{ $wr->id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="viewWithdrawalModalLabel{{ $wr->id }}">Withdrawal Details</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <ul class="list-group">
+                                                    <li class="list-group-item"><strong>ID:</strong> {{ $wr->id }}</li>
+                                                    <li class="list-group-item"><strong>Affiliate:</strong> {{ $aff ? ($aff->display_name ?: ($aff->user->name ?? 'Affiliate #'.$wr->owner_id)) : 'Affiliate #'.$wr->owner_id }}</li>
+                                                    <li class="list-group-item"><strong>Amount:</strong> ${{ number_format($wr->amount, 2) }}</li>
+                                                    <li class="list-group-item"><strong>Fee:</strong> ${{ number_format($wr->fee_amount, 2) }}</li>
+                                                    <li class="list-group-item"><strong>Net Payout:</strong> ${{ number_format($wr->net_amount, 2) }}</li>
+                                                    <li class="list-group-item"><strong>Payout Method:</strong> {{ $snap['label'] ?? '' }}</li>
+                                                    <li class="list-group-item"><strong>Status:</strong> {{ $wr->statusLabel() }}</li>
+                                                    <li class="list-group-item"><strong>Notes:</strong> {{ $wr->admin_notes ?? $wr->notes }}</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Status Modal --}}
                                 <div class="modal fade" id="statusModal{{ $wr->id }}" tabindex="-1">
                                     <div class="modal-dialog">
                                         <div class="modal-content">

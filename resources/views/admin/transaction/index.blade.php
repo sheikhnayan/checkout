@@ -272,9 +272,6 @@
                     <i class="fas fa-calendar-alt me-2" style="color:rgba(255,255,255,0.4);font-size:0.85rem"></i>
                     <input type="text" id="txnDateRange" class="txn-date-input" readonly placeholder="All time" value="{{ $initialDateRange }}">
                 </div>
-                <button class="txn-filters-btn" id="txnFiltersToggle" type="button">
-                    <i class="fas fa-sliders-h me-2"></i>Filters
-                </button>
                 <div class="dropdown">
                     <button class="txn-export-btn btn dropdown-toggle" data-bs-toggle="dropdown" type="button">
                         <i class="fas fa-download me-2"></i>Export
@@ -307,7 +304,7 @@
                 <div class="txn-stat-card">
                     <div class="txn-stat-icon" style="background:rgba(16,185,129,0.15);color:#10b981"><i class="fas fa-check-circle"></i></div>
                     <div>
-                        <div class="txn-stat-label">Completed</div>
+                        <div class="txn-stat-label">Completed Transactions</div>
                         <div class="txn-stat-value">{{ number_format($completedTxns) }}</div>
                         <div class="txn-stat-trend {{ $completedTrend >= 0 ? 'trend-up' : 'trend-down' }}">
                             <i class="fas fa-arrow-{{ $completedTrend >= 0 ? 'up' : 'down' }} me-1"></i>{{ abs($completedTrend) }}% <span>vs last week</span>
@@ -375,7 +372,7 @@
         {{-- ── CHARTS ───────────────────────────────────────────────── --}}
         <div class="row g-4 mb-4">
             <div class="col-lg-8">
-                <div class="txn-chart-card">
+                <div class="txn-chart-card" id="performanceChartCard">
                     <div class="txn-chart-header">
                         <div class="fw-semibold text-white" style="font-size:0.85rem;letter-spacing:0.05em">PERFORMANCE OVER TIME</div>
                         <select class="txn-period-select" id="chartPeriod">
@@ -386,14 +383,13 @@
                     </div>
                     <div class="d-flex flex-wrap gap-4 mb-3">
                         <div class="txn-chart-legend"><span style="background:#7c3aed"></span>Revenue</div>
-                        <div class="txn-chart-legend"><span style="background:#10b981"></span>Completed</div>
                         <div class="txn-chart-legend"><span style="background:#f59e0b"></span>Commission</div>
                     </div>
                     <canvas id="txnLineChart" style="max-height:220px"></canvas>
                 </div>
             </div>
             <div class="col-lg-4">
-                <div class="txn-chart-card" style="height:100%">
+                <div class="txn-chart-card" id="topPackagesChartCard" style="height:100%">
                     <div class="txn-chart-header">
                         <div class="fw-semibold text-white" style="font-size:0.85rem;letter-spacing:0.05em">TOP PERFORMING PACKAGES</div>
                     </div>
@@ -414,7 +410,7 @@
             </div>
 
             {{-- Filters row (toggled) --}}
-            <div class="row g-3 mb-3" id="txnFiltersRow" style="display:none">
+            <div class="row g-3 mb-3" id="txnFiltersRow" style="display:flex">
                 @if(auth()->user()->isAdmin())
                 <div class="col-md-3 col-sm-6">
                     <select id="websiteFilter" class="txn-filter-select">
@@ -838,6 +834,25 @@
             Chart.defaults.color = 'rgba(255,255,255,0.5)';
             Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
 
+            // ── Sync chart heights ───────────────────────────────────────────
+            function syncChartHeights() {
+                var perf = document.getElementById('performanceChartCard');
+                var top = document.getElementById('topPackagesChartCard');
+                if (perf && top) {
+                    // Reset heights to auto to get natural height
+                    perf.style.height = 'auto';
+                    top.style.height = 'auto';
+                    // Get computed height of top
+                    var topHeight = top.offsetHeight;
+                    if (topHeight > 0) {
+                        perf.style.height = topHeight + 'px';
+                    }
+                }
+            }
+            window.addEventListener('load', syncChartHeights);
+            window.addEventListener('resize', syncChartHeights);
+            setTimeout(syncChartHeights, 400); // In case of late rendering
+
             // Custom plugin: show total in donut center
             const donutCenterPlugin = {
                 id: 'donutCenter',
@@ -887,17 +902,6 @@
                                 yAxisID: 'yRevenue'
                             },
                             {
-                                label: 'Completed',
-                                data: chartData.map(d => d.completed),
-                                borderColor: '#10b981',
-                                backgroundColor: 'rgba(16,185,129,0.08)',
-                                fill: false,
-                                tension: 0.4,
-                                pointRadius: 3,
-                                pointHoverRadius: 5,
-                                yAxisID: 'yCount'
-                            },
-                            {
                                 label: 'Commission ($)',
                                 data: chartData.map(d => d.commission),
                                 borderColor: '#f59e0b',
@@ -929,11 +933,6 @@
                                 type: 'linear', position: 'left',
                                 grid: { color: 'rgba(255,255,255,0.04)' },
                                 ticks: { callback: v => '$' + v.toLocaleString() }
-                            },
-                            yCount: {
-                                type: 'linear', position: 'right',
-                                grid: { drawOnChartArea: false },
-                                ticks: { stepSize: 1 }
                             }
                         }
                     }
@@ -948,6 +947,7 @@
                 const data = period === '7' ? chart7Data : period === '14' ? chart14Data : allChartData;
                 lineChart.destroy();
                 lineChart = new Chart(lineCtx, buildLineChart(data));
+                setTimeout(syncChartHeights, 200);
             });
 
             // ── Donut chart ──────────────────────────────────────────────────
@@ -1036,13 +1036,7 @@
                     table.search(this.value).draw();
                 });
 
-                // ── Filters toggle ───────────────────────────────────────────
-                $('#txnFiltersToggle').on('click', function() {
-                    const row = $('#txnFiltersRow');
-                    if (row.is(':visible')) { row.slideUp(); $(this).removeClass('active'); }
-                    else { row.slideDown(); $(this).addClass('active'); }
-                });
-
+                // Filters always visible, remove toggle logic
                 function reloadWithServerFilters() {
                     const params = new URLSearchParams(window.location.search);
 
@@ -1078,17 +1072,7 @@
                     window.location.href = query ? (window.location.pathname + '?' + query) : window.location.pathname;
                 }
 
-                const hasActiveFilters = [
-                    $('#websiteFilter').val(),
-                    $('#typeFilter').val(),
-                    $('#affiliateFilter').val(),
-                    $('#statusFilter').val(),
-                    $('#txnDateRange').val()
-                ].some(function(v) { return String(v || '').trim() !== ''; });
-                if (hasActiveFilters) {
-                    $('#txnFiltersRow').show();
-                    $('#txnFiltersToggle').addClass('active');
-                }
+                // Filters always visible, no toggle needed
 
                 $('#websiteFilter, #typeFilter, #affiliateFilter, #statusFilter').on('change', function() {
                     reloadWithServerFilters();
