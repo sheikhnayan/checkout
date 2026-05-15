@@ -272,17 +272,6 @@
                     <i class="fas fa-calendar-alt me-2" style="color:rgba(255,255,255,0.4);font-size:0.85rem"></i>
                     <input type="text" id="txnDateRange" class="txn-date-input" readonly placeholder="All time" value="{{ $initialDateRange }}">
                 </div>
-                <div class="dropdown">
-                    <button class="txn-export-btn btn dropdown-toggle" data-bs-toggle="dropdown" type="button">
-                        <i class="fas fa-download me-2"></i>Export
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end" style="background:#1e293b;border:1px solid rgba(255,255,255,0.1)">
-                        <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expCsv"   href="#"><i class="fas fa-file-csv me-2"></i>Export CSV</a></li>
-                        <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expExcel" href="#"><i class="fas fa-file-excel me-2"></i>Export Excel</a></li>
-                        <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expPdf"   href="#"><i class="fas fa-file-pdf me-2"></i>Export PDF</a></li>
-                        <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expPrint" href="#"><i class="fas fa-print me-2"></i>Print</a></li>
-                    </ul>
-                </div>
             </div>
         </div>
 
@@ -403,9 +392,22 @@
         <div class="txn-table-card mb-5">
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
                 <div class="fw-semibold text-white" style="font-size:0.85rem;letter-spacing:0.05em">RECENT TRANSACTIONS</div>
-                <div class="txn-search-wrap">
-                    <i class="fas fa-search txn-search-icon"></i>
-                    <input type="text" id="txnSearch" class="txn-search-input" placeholder="Search by name, email, order ID…">
+                <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
+                    <div class="txn-search-wrap">
+                        <i class="fas fa-search txn-search-icon"></i>
+                        <input type="text" id="txnSearch" class="txn-search-input" placeholder="Search by name, email, order ID…">
+                    </div>
+                    <div class="dropdown">
+                        <button class="txn-export-btn btn dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                            <i class="fas fa-download me-2"></i>Export Table
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" style="background:#1e293b;border:1px solid rgba(255,255,255,0.1)">
+                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expCsv"   href="#"><i class="fas fa-file-csv me-2"></i>Export CSV</a></li>
+                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expExcel" href="#"><i class="fas fa-file-excel me-2"></i>Export Excel</a></li>
+                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expPdf"   href="#"><i class="fas fa-file-pdf me-2"></i>Export PDF</a></li>
+                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expPrint" href="#"><i class="fas fa-print me-2"></i>Print</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
