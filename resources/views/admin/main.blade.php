@@ -1233,34 +1233,48 @@
         function bindMobileMenuToggle() {
           const wrapper = document.querySelector('.layout-wrapper');
           const overlay = document.querySelector('.layout-overlay');
-          const toggle = document.querySelector('.layout-menu-toggle');
+          const primaryToggle = document.querySelector('.admin-mobile-menu-toggle');
+          const legacyToggle = document.querySelector('#layout-menu .layout-menu-toggle.menu-link');
+          const toggles = [primaryToggle, legacyToggle].filter(Boolean);
 
-          if (!toggle || !wrapper) {
+          if (!toggles.length || !wrapper) {
             return;
           }
 
           function syncState() {
             const expanded = wrapper.classList.contains('layout-menu-expanded');
-            toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-            toggle.setAttribute('aria-label', expanded ? 'Close sidebar' : 'Open sidebar');
+            if (primaryToggle) {
+              primaryToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+              primaryToggle.setAttribute('aria-label', expanded ? 'Close sidebar' : 'Open sidebar');
+            }
           }
 
-          toggle.addEventListener('click', function (event) {
-            event.preventDefault();
-
-            if (window.innerWidth >= 1200) {
+          toggles.forEach(function (toggle) {
+            if (toggle.dataset.mobileToggleBound === '1') {
               return;
             }
 
-            wrapper.classList.toggle('layout-menu-expanded');
-            syncState();
+            toggle.dataset.mobileToggleBound = '1';
+            toggle.addEventListener('click', function (event) {
+              event.preventDefault();
+
+              if (window.innerWidth >= 1200) {
+                return;
+              }
+
+              wrapper.classList.toggle('layout-menu-expanded');
+              syncState();
+            });
           });
 
           if (overlay) {
-            overlay.addEventListener('click', function () {
-              wrapper.classList.remove('layout-menu-expanded');
-              syncState();
-            });
+            if (overlay.dataset.mobileOverlayBound !== '1') {
+              overlay.dataset.mobileOverlayBound = '1';
+              overlay.addEventListener('click', function () {
+                wrapper.classList.remove('layout-menu-expanded');
+                syncState();
+              });
+            }
           }
 
           window.addEventListener('resize', function () {
