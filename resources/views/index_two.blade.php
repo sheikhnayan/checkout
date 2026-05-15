@@ -4863,9 +4863,9 @@
         }
         @media (max-width: 991px) {
             .cv-checkout-body { grid-template-columns: 1fr; }
-            /* Mobile: show ORDER SUMMARY sidebar ABOVE the main content */
-            .cv-sidebar { position:static; display:block !important; max-height: none; overflow: visible; order: -1; margin-bottom: 4px; }
-            .cv-main-col { order: 1; }
+            /* Mobile: sidebar is moved by JS to sit between package selection and #section-3 (Payment).
+               Drop sticky/positioning so it flows inline within the package step. */
+            .cv-sidebar { position:static; display:block !important; max-height: none; overflow: visible; margin: 16px 0; }
             .cv-sidebar.cv-sidebar-open { display:block; }
             .cv-mobile-cart-toggle { display:none !important; }
             .vip-card.cv-exact-card { grid-template-columns: 1fr; gap: 14px; padding: 14px !important; }
@@ -8681,6 +8681,43 @@
                     mobileQuery.addListener(function() {
                         collapsibleBlocks.forEach(refreshCollapsibleBlock);
                     });
+                }
+            });
+        </script>
+
+        <script>
+            // Mobile: move Order Summary between package selection and payment details section.
+            // Desktop: restore it to its original parent (checkout body) so the sidebar layout works.
+            document.addEventListener('DOMContentLoaded', function() {
+                var sidebar = document.getElementById('cv-order-sidebar');
+                var paymentSection = document.getElementById('section-3');
+                if (!sidebar || !paymentSection) return;
+
+                var originalParent = sidebar.parentNode;
+                var originalNext = sidebar.nextSibling;
+                var mq = window.matchMedia('(max-width: 991px)');
+
+                function applySidebarPlacement() {
+                    if (mq.matches) {
+                        if (sidebar.parentNode !== paymentSection.parentNode || sidebar.nextSibling !== paymentSection) {
+                            paymentSection.parentNode.insertBefore(sidebar, paymentSection);
+                        }
+                    } else {
+                        if (sidebar.parentNode !== originalParent) {
+                            if (originalNext && originalNext.parentNode === originalParent) {
+                                originalParent.insertBefore(sidebar, originalNext);
+                            } else {
+                                originalParent.appendChild(sidebar);
+                            }
+                        }
+                    }
+                }
+
+                applySidebarPlacement();
+                if (typeof mq.addEventListener === 'function') {
+                    mq.addEventListener('change', applySidebarPlacement);
+                } else if (typeof mq.addListener === 'function') {
+                    mq.addListener(applySidebarPlacement);
                 }
             });
         </script>
