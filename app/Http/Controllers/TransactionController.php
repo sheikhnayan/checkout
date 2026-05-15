@@ -496,11 +496,11 @@ class TransactionController extends Controller
         }
     }
 
-    public function index()
+    public function index(Request $request)
     {
         app(CommissionLifecycleRunner::class)->runSafely();
 
-        $data = $this->getAccessibleTransactionList();
+        $data = $this->getAccessibleTransactionList($request);
 
         return view('admin.transaction.index', [
             'data' => $data,
@@ -509,11 +509,11 @@ class TransactionController extends Controller
         ]);
     }
 
-    public function affiliateIndex()
+    public function affiliateIndex(Request $request)
     {
         app(CommissionLifecycleRunner::class)->runSafely();
 
-        $data = $this->getAccessibleTransactionList(function ($query) {
+        $data = $this->getAccessibleTransactionList($request, function ($query) {
             $query->whereNotNull('affiliate_id');
         });
 
@@ -525,11 +525,11 @@ class TransactionController extends Controller
         ]);
     }
 
-    public function entertainerIndex()
+    public function entertainerIndex(Request $request)
     {
         app(CommissionLifecycleRunner::class)->runSafely();
 
-        $data = $this->getAccessibleTransactionList(function ($query) {
+        $data = $this->getAccessibleTransactionList($request, function ($query) {
             $query->whereNotNull('entertainer_id');
         });
 
@@ -541,7 +541,7 @@ class TransactionController extends Controller
         ]);
     }
 
-    private function getAccessibleTransactionList(?callable $queryMutator = null)
+    private function getAccessibleTransactionList(Request $request, ?callable $queryMutator = null)
     {
         $user = auth()->user();
 
@@ -563,6 +563,61 @@ class TransactionController extends Controller
 
         if ($queryMutator) {
             $queryMutator($query);
+        }
+
+        $websiteName = trim((string) $request->query('website', ''));
+        if ($websiteName !== '') {
+            $query->whereHas('website', function ($websiteQuery) use ($websiteName) {
+                $websiteQuery->where('name', $websiteName);
+            });
+        }
+
+        $type = strtolower(trim((string) $request->query('type', '')));
+        if ($type === 'package' || $type === 'reservation') {
+            $query->where('type', $type);
+        }
+
+        $statusMap = [
+            'completed' => 1,
+            'canceled' => 0,
+            'refunded' => 2,
+        ];
+        $statusKey = strtolower(trim((string) $request->query('status', '')));
+        if (array_key_exists($statusKey, $statusMap)) {
+            $query->where('status', $statusMap[$statusKey]);
+        }
+
+        $affiliateFilter = trim((string) $request->query('affiliate', ''));
+        if ($affiliateFilter !== '') {
+            if (strcasecmp($affiliateFilter, 'Direct') === 0) {
+                $query->whereNull('affiliate_id')->whereNull('entertainer_id');
+            } else {
+                $query->where(function ($nameQuery) use ($affiliateFilter) {
+                    $nameQuery->whereHas('affiliate', function ($affiliateQuery) use ($affiliateFilter) {
+                        $affiliateQuery->where('display_name', $affiliateFilter)
+                            ->orWhereHas('user', function ($userQuery) use ($affiliateFilter) {
+                                $userQuery->where('name', $affiliateFilter);
+                            });
+                    })->orWhereHas('entertainer', function ($entertainerQuery) use ($affiliateFilter) {
+                        $entertainerQuery->where('display_name', $affiliateFilter)
+                            ->orWhereHas('user', function ($userQuery) use ($affiliateFilter) {
+                                $userQuery->where('name', $affiliateFilter);
+                            });
+                    });
+                });
+            }
+        }
+
+        $dateFrom = trim((string) $request->query('date_from', ''));
+        $dateTo = trim((string) $request->query('date_to', ''));
+        if ($dateFrom !== '' && $dateTo !== '') {
+            try {
+                $startUtc = Carbon::parse($dateFrom, 'America/Los_Angeles')->startOfDay()->utc();
+                $endUtc = Carbon::parse($dateTo, 'America/Los_Angeles')->endOfDay()->utc();
+                $query->whereBetween('created_at', [$startUtc, $endUtc]);
+            } catch (\Throwable $exception) {
+                // Ignore malformed date filter params.
+            }
         }
 
         return $query

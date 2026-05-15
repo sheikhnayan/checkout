@@ -241,6 +241,24 @@
                     return $row->entertainer->display_name ?: optional($row->entertainer->user)->name ?: ('Entertainer #' . $row->entertainer_id);
                 return null;
             })->filter()->unique()->values();
+
+            $filterWebsite   = (string) request('website', '');
+            $filterType      = (string) request('type', '');
+            $filterAffiliate = (string) request('affiliate', '');
+            $filterStatus    = (string) request('status', '');
+            $filterDateFrom  = (string) request('date_from', '');
+            $filterDateTo    = (string) request('date_to', '');
+
+            $initialDateRange = '';
+            if ($filterDateFrom !== '' && $filterDateTo !== '') {
+                try {
+                    $initialDateRange = \Carbon\Carbon::parse($filterDateFrom)->format('m/d/Y')
+                        . ' - '
+                        . \Carbon\Carbon::parse($filterDateTo)->format('m/d/Y');
+                } catch (\Throwable $exception) {
+                    $initialDateRange = '';
+                }
+            }
         @endphp
 
         {{-- ── HEADER ─────────────────────────────────────────────── --}}
@@ -252,7 +270,7 @@
             <div class="d-flex align-items-center gap-2 flex-wrap">
                 <div class="txn-date-range-wrap" id="txnDateRangeWrap">
                     <i class="fas fa-calendar-alt me-2" style="color:rgba(255,255,255,0.4);font-size:0.85rem"></i>
-                    <input type="text" id="txnDateRange" class="txn-date-input" readonly placeholder="All time">
+                    <input type="text" id="txnDateRange" class="txn-date-input" readonly placeholder="All time" value="{{ $initialDateRange }}">
                 </div>
                 <button class="txn-filters-btn" id="txnFiltersToggle" type="button">
                     <i class="fas fa-sliders-h me-2"></i>Filters
@@ -402,7 +420,7 @@
                     <select id="websiteFilter" class="txn-filter-select">
                         <option value="">All Websites</option>
                         @foreach(\App\Models\Website::all() as $website)
-                            <option value="{{ $website->name }}">{{ $website->name }}</option>
+                            <option value="{{ $website->name }}" {{ $filterWebsite === $website->name ? 'selected' : '' }}>{{ $website->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -410,25 +428,25 @@
                 <div class="col-md-3 col-sm-6">
                     <select id="typeFilter" class="txn-filter-select">
                         <option value="">All Types</option>
-                        <option value="Package">Package</option>
-                        <option value="Reservation">Reservation</option>
+                        <option value="Package" {{ $filterType === 'Package' ? 'selected' : '' }}>Package</option>
+                        <option value="Reservation" {{ $filterType === 'Reservation' ? 'selected' : '' }}>Reservation</option>
                     </select>
                 </div>
                 <div class="col-md-3 col-sm-6">
                     <select id="affiliateFilter" class="txn-filter-select">
                         <option value="">All Affiliates</option>
                         @foreach($referralRows as $rn)
-                            <option value="{{ $rn }}">{{ $rn }}</option>
+                            <option value="{{ $rn }}" {{ $filterAffiliate === $rn ? 'selected' : '' }}>{{ $rn }}</option>
                         @endforeach
-                        <option value="Direct">Direct (No Affiliate)</option>
+                        <option value="Direct" {{ $filterAffiliate === 'Direct' ? 'selected' : '' }}>Direct (No Affiliate)</option>
                     </select>
                 </div>
                 <div class="col-md-3 col-sm-6">
                     <select id="statusFilter" class="txn-filter-select">
                         <option value="">All Statuses</option>
-                        <option value="Completed">Completed</option>
-                        <option value="Canceled">Canceled</option>
-                        <option value="Refunded">Refunded</option>
+                        <option value="Completed" {{ $filterStatus === 'Completed' ? 'selected' : '' }}>Completed</option>
+                        <option value="Canceled" {{ $filterStatus === 'Canceled' ? 'selected' : '' }}>Canceled</option>
+                        <option value="Refunded" {{ $filterStatus === 'Refunded' ? 'selected' : '' }}>Refunded</option>
                     </select>
                 </div>
             </div>
@@ -1025,43 +1043,55 @@
                     else { row.slideDown(); $(this).addClass('active'); }
                 });
 
-                // ── Website filter (col 11 hidden) ───────────────────────────
-                $('#websiteFilter').on('change', function() {
-                    if (!table) return;
-                    table.column(11).search(this.value).draw();
-                });
+                function reloadWithServerFilters() {
+                    const params = new URLSearchParams(window.location.search);
 
-                // ── Type filter (col 12 hidden) ──────────────────────────────
-                $('#typeFilter').on('change', function() {
-                    if (!table) return;
-                    table.column(12).search(this.value).draw();
-                });
+                    const setOrDelete = function(key, value) {
+                        const normalized = String(value || '').trim();
+                        if (normalized) params.set(key, normalized);
+                        else params.delete(key);
+                    };
 
-                // ── Affiliate filter (col 4) ─────────────────────────────────
-                $('#affiliateFilter').on('change', function() {
-                    if (!table) return;
-                    const val = this.value;
-                    table.column(4).search(val === 'Direct' ? 'DIRECT' : val).draw();
-                });
+                    setOrDelete('website', $('#websiteFilter').val());
+                    setOrDelete('type', $('#typeFilter').val());
+                    setOrDelete('affiliate', $('#affiliateFilter').val());
+                    setOrDelete('status', $('#statusFilter').val());
 
-                // ── Status filter (col 6) ────────────────────────────────────
-                $('#statusFilter').on('change', function() {
-                    if (!table) return;
-                    table.column(6).search(this.value).draw();
-                });
+                    const rangeStr = String($('#txnDateRange').val() || '').trim();
+                    if (rangeStr && rangeStr.includes(' - ')) {
+                        const parts = rangeStr.split(' - ');
+                        const start = moment(parts[0], 'MM/DD/YYYY', true);
+                        const end = moment(parts[1], 'MM/DD/YYYY', true);
+                        if (start.isValid() && end.isValid()) {
+                            params.set('date_from', start.format('YYYY-MM-DD'));
+                            params.set('date_to', end.format('YYYY-MM-DD'));
+                        } else {
+                            params.delete('date_from');
+                            params.delete('date_to');
+                        }
+                    } else {
+                        params.delete('date_from');
+                        params.delete('date_to');
+                    }
 
-                // ── Date range filter ────────────────────────────────────────
-                $.fn.dataTable.ext.search.push(function(settings, rowData, rowIndex) {
-                    const rangeStr = $('#txnDateRange').val();
-                    if (!rangeStr) return true;
-                    const parts = rangeStr.split(' - ');
-                    if (parts.length !== 2) return true;
-                    const start = moment(parts[0], 'MM/DD/YYYY');
-                    const end   = moment(parts[1], 'MM/DD/YYYY').endOf('day');
-                    const datePart = (rowData[9] || '').split(' ')[0] + ' ' + (rowData[9] || '').split(' ')[1] + ' ' + (rowData[9] || '').split(' ')[2];
-                    const rowDate  = moment(datePart.trim(), 'MMM D, YYYY');
-                    if (!rowDate.isValid()) return true;
-                    return rowDate.isBetween(start, end, undefined, '[]');
+                    const query = params.toString();
+                    window.location.href = query ? (window.location.pathname + '?' + query) : window.location.pathname;
+                }
+
+                const hasActiveFilters = [
+                    $('#websiteFilter').val(),
+                    $('#typeFilter').val(),
+                    $('#affiliateFilter').val(),
+                    $('#statusFilter').val(),
+                    $('#txnDateRange').val()
+                ].some(function(v) { return String(v || '').trim() !== ''; });
+                if (hasActiveFilters) {
+                    $('#txnFiltersRow').show();
+                    $('#txnFiltersToggle').addClass('active');
+                }
+
+                $('#websiteFilter, #typeFilter, #affiliateFilter, #statusFilter').on('change', function() {
+                    reloadWithServerFilters();
                 });
 
                 $('#txnDateRange').daterangepicker({
@@ -1081,13 +1111,11 @@
 
                 $('#txnDateRange').on('apply.daterangepicker', function(ev, picker) {
                     $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
-                    if (!table) return;
-                    table.draw();
+                    reloadWithServerFilters();
                 });
                 $('#txnDateRange').on('cancel.daterangepicker', function() {
                     $(this).val('');
-                    if (!table) return;
-                    table.draw();
+                    reloadWithServerFilters();
                 });
 
                 // ── Export button wiring (custom, reliable across pages) ─────
