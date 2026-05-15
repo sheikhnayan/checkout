@@ -2909,7 +2909,7 @@
 
         .cv-hero-rating .stars { color: var(--accent) !important; letter-spacing: -1px; }
 
-        .cv-hero-badges { display: flex; gap: 24px; align-items: flex-start; }
+        .cv-hero-badges { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
 
         .cv-hero-badge {
             background: transparent;
@@ -2919,6 +2919,13 @@
             display: flex;
             gap: 10px;
             align-items: flex-start;
+        }
+
+        @media (max-width: 991px) {
+            .cv-hero-head { flex-direction: column; gap: 14px; }
+            .cv-hero-badges { width: 100%; gap: 18px; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 4px; padding-top: 14px; }
+            .cv-hero-badge { flex: 1 1 auto; min-width: 0; }
+            .cv-hero-badge-label, .cv-hero-badge-sub { font-size: 12px; }
         }
 
         .cv-hero-badge i {
@@ -5008,7 +5015,7 @@
                                     <p class="cv-hero-venue-meta">{{ $data->location }}</p>
                                 </div>
                             </div>
-                            <div class="cv-hero-badges d-none d-lg-flex">
+                            <div class="cv-hero-badges">
                                 <div class="cv-hero-badge">
                                     <i class="fas fa-clock"></i>
                                     <div>

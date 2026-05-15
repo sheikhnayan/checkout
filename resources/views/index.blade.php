@@ -2609,11 +2609,17 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-hero-venue-meta { font-size:13px; color:rgba(255,255,255,0.62) !important; margin:3px 0 0; }
 .cv-hero-rating { font-size:13px; color:rgba(255,255,255,0.78) !important; margin-top:4px; display: inline-flex; align-items: center; gap: 6px; }
 .cv-hero-rating .stars { color:var(--accent) !important; letter-spacing:-1px; }
-.cv-hero-badges { display:flex; gap:24px; align-items: flex-start; }
+.cv-hero-badges { display:flex; gap:24px; align-items: flex-start; flex-wrap: wrap; }
 .cv-hero-badge { background:transparent; border:0; border-radius:0; padding:0; display:flex; gap:10px; align-items:flex-start; }
 .cv-hero-badge i { color: var(--accent) !important; font-size: 17px; margin-top: 1px; width: 22px; height: 22px; border-radius: 50%; background: rgba(255,204,0,0.1); display: inline-flex; align-items: center; justify-content: center; font-size: 11px; }
 .cv-hero-badge-label { display:block; font-size:13px; color:rgba(255,255,255,0.78) !important; font-weight:600; line-height:1.25; }
 .cv-hero-badge-sub { display:block; font-size:13px; color:rgba(255,255,255,0.95) !important; margin-top:2px; line-height:1.2; font-weight: 700; }
+@media (max-width: 991px) {
+    .cv-hero-head { flex-direction: column; gap: 14px; }
+    .cv-hero-badges { width: 100%; gap: 18px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 4px; padding-top: 14px; }
+    .cv-hero-badge { flex: 1 1 auto; min-width: 0; }
+    .cv-hero-badge-label, .cv-hero-badge-sub { font-size: 12px; }
+}
 .cv-hero-content { max-width:680px; flex: 1; min-width: 0; }
 .aff-kicker { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.16em; color: var(--accent) !important; text-transform: uppercase; margin-bottom: 12px; }
 .cv-hero-title { font-size:clamp(36px, 4vw, 60px); line-height:1.08; letter-spacing:-0.02em; color:#fff !important; font-weight:800; margin:0 0 14px; }
@@ -4493,7 +4499,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     <p class="cv-hero-venue-meta">{{ $data->location }}</p>
                                 </div>
                             </div>
-                            <div class="cv-hero-badges d-none d-lg-flex">
+                            <div class="cv-hero-badges">
                                 <div class="cv-hero-badge">
                                     <i class="fas fa-clock"></i>
                                     <div>
