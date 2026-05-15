@@ -4085,11 +4085,44 @@
             margin-top: 4px;
         }
 
+        /* Access tab hint label */
+        .cv-access-hint {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(167,116,255,0.85);
+            margin: 18px 0 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .cv-access-hint::before {
+            content: '';
+            width: 22px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #a774ff);
+        }
+        .cv-access-hint .cv-access-hint-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #a774ff;
+            box-shadow: 0 0 8px #a774ff;
+            margin-left: 4px;
+            display: inline-block;
+            animation: cvHintPulse 2s ease-in-out infinite;
+        }
+        @keyframes cvHintPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.7); }
+        }
+
         .cv-access-card {
-            border: 1px solid rgba(255,255,255,0.14);
+            border: 1.5px solid rgba(167,116,255,0.18);
             border-radius: 14px;
-            padding: 16px 18px;
-            background: rgba(255,255,255,0.025);
+            padding: 16px 18px 16px 56px;
+            background: rgba(167,116,255,0.04);
             display: flex;
             align-items: center;
             gap: 14px;
@@ -4099,12 +4132,45 @@
             width: 100%;
             font-family: inherit;
             color: inherit;
+            position: relative;
+        }
+        .cv-access-card::before {
+            content: '';
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid rgba(167,116,255,0.45);
+            background: rgba(0,0,0,0.25);
+            transition: all .2s;
+            flex-shrink: 0;
+        }
+        .cv-access-card::after {
+            content: '';
+            position: absolute;
+            left: 24px;
+            top: 50%;
+            transform: translateY(-50%) scale(0);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%);
+            transition: transform .2s cubic-bezier(.2,.9,.3,1.4);
+            box-shadow: 0 0 10px rgba(167,116,255,0.6);
         }
 
         .cv-access-card.cv-access-tab { cursor: pointer; }
-        .cv-access-card.cv-access-tab:hover:not(.is-active) { border-color: rgba(255,255,255,0.28); background: rgba(255,255,255,0.04); }
+        .cv-access-card.cv-access-tab:hover:not(.is-active) {
+            border-color: rgba(167,116,255,0.5);
+            background: rgba(167,116,255,0.08);
+            transform: translateY(-1px);
+        }
+        .cv-access-card.cv-access-tab:hover:not(.is-active)::before { border-color: rgba(167,116,255,0.7); }
 
-        .cv-access-card i { color: rgba(255,255,255,0.78) !important; font-size: 20px; flex-shrink: 0; }
+        .cv-access-card i { color: rgba(196,163,255,0.85) !important; font-size: 20px; flex-shrink: 0; }
 
         .cv-access-card strong {
             display: block;
@@ -4123,11 +4189,18 @@
         }
 
         .cv-access-card.is-active {
-            border-color: var(--accent);
-            background: rgba(255,204,0,0.06);
-            box-shadow: inset 0 0 0 1px rgba(255,204,0,0.36);
+            border-color: #a774ff;
+            background: linear-gradient(135deg, rgba(167,116,255,0.18), rgba(124,58,237,0.12));
+            box-shadow: 0 0 0 1px rgba(167,116,255,0.4), 0 6px 22px rgba(124,58,237,0.28);
         }
-        .cv-access-card.is-active i { color: var(--accent) !important; }
+        .cv-access-card.is-active::before {
+            border-color: #a774ff;
+            background: rgba(167,116,255,0.18);
+        }
+        .cv-access-card.is-active::after {
+            transform: translateY(-50%) scale(1);
+        }
+        .cv-access-card.is-active i { color: #c4a3ff !important; }
 
         /* Enhanced venue header */
         .aff-hero.cv-venue-header { padding:16px 0; background:rgba(255,255,255,.025); border-bottom:1px solid rgba(255,255,255,.07); }
@@ -4147,7 +4220,11 @@
         .cv-checkout-body.is-guest-mode .cv-sidebar { display: none !important; }
         .cv-checkout-body.is-guest-mode .cv-main-col { max-width: 100%; }
         /* Compact spacing to fit without scroll */
-        .cv-sidebar .cv-sidebar-venue-image { height: 90px; margin-bottom: 10px; }
+        .cv-sidebar .cv-sidebar-venue-image { height: 80px; margin-bottom: 10px; padding: 6px; }
+        @media (max-width: 991px) {
+            .cv-sidebar .cv-sidebar-venue-image,
+            .cv-sidebar-venue-image { height: 70px; max-height: 70px; padding: 6px; margin-bottom: 8px; }
+        }
         .cv-sidebar .cv-sidebar-venue-row { margin-bottom: 10px !important; }
         .cv-sidebar #cv-sidebar-body { font-size: 13px; }
         .cv-sidebar .cv-trust-list { gap: 10px; padding: 12px 0 0; margin: 12px 0 0; }
@@ -4741,7 +4818,20 @@
         .cv-need-help-action span { display: block; font-size: 11px; color: rgba(255,255,255,0.5) !important; margin-top: 1px; }
 
         /* Order summary sidebar refinements */
-        .cv-sidebar-venue-image { width: 100%; height: 110px; border-radius: 12px; object-fit: cover; margin-bottom: 12px; display: block; }
+        .cv-sidebar-venue-image {
+            width: 100%;
+            height: 100px;
+            max-height: 110px;
+            border-radius: 12px;
+            object-fit: contain;
+            object-position: center;
+            margin-bottom: 12px;
+            display: block;
+            background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 8px;
+            box-sizing: border-box;
+        }
         #cv-order-sidebar #cart-section #cart-list .cart-line { border: none !important; background: transparent !important; padding: 8px 0 !important; border-radius: 0 !important; margin: 0 !important; border-bottom: 1px solid rgba(255,255,255,0.07) !important; }
         #cv-order-sidebar #cart-section #cart-list .cart-line:last-child { border-bottom: none !important; }
         #cv-order-sidebar #cart-section #cart-list .cart-line-main { gap: 10px; }
@@ -4766,7 +4856,9 @@
         }
         @media (max-width: 991px) {
             .cv-checkout-body { grid-template-columns: 1fr; }
-            .cv-sidebar { position:static; display:block !important; max-height: none; overflow: visible; }
+            /* Mobile: show ORDER SUMMARY sidebar ABOVE the main content */
+            .cv-sidebar { position:static; display:block !important; max-height: none; overflow: visible; order: -1; margin-bottom: 4px; }
+            .cv-main-col { order: 1; }
             .cv-sidebar.cv-sidebar-open { display:block; }
             .cv-mobile-cart-toggle { display:none !important; }
             .vip-card.cv-exact-card { grid-template-columns: 1fr; gap: 14px; padding: 14px !important; }
@@ -5038,6 +5130,9 @@
                             <div class="cv-dstep" id="cv-dstep-4" data-step="4"><span class="cv-dstep-num">4</span><span>Review &amp; Pay</span></div>
                         </div>
 
+                        @if ($data->reservation == 1)
+                            <div class="cv-access-hint">Choose one to continue<span class="cv-access-hint-dot"></span></div>
+                        @endif
                         <div class="cv-access-grid">
                             @if ($data->reservation == 1)
                                 <button type="button" class="cv-access-card cv-access-tab is-active" data-name="guest">
@@ -5318,9 +5413,7 @@
                                                             </div>
                                                             <span class="cv-pkg-sub"><i class="fas fa-user-friends"></i>Best for {{ $pkgGuestCap > 1 ? '2-' . $pkgGuestCap : '1' }} guests</span>
                                                             @if($item->description)
-                                                                <p class="cv-pkg-desc">{{
-                                                                    \Illuminate\Support\Str::limit(strip_tags($item->description), 115)
-                                                                }}</p>
+                                                                <p class="cv-pkg-desc">{{ strip_tags($item->description) }}</p>
                                                             @endif
                                                             <div class="cv-pkg-features">
                                                                 <span class="cv-pkg-feature"><i class="fas fa-chair"></i>VIP Table</span>
@@ -5388,38 +5481,13 @@
                                         <p style="opacity:.6;">No packages are available yet.</p>
                                     @endif
 
-                                    <div class="cv-freeride-callout">
+                                    {{-- <div class="cv-freeride-callout">
                                         <div class="cv-freeride-icon"><i class="fas fa-car-side"></i></div>
                                         <div>
                                             <strong>Free Ride Included</strong>
                                             <span>Complimentary pickup &amp; return for you and your guests. We'll contact you after booking to confirm details.</span>
                                         </div>
-                                    </div>
-
-                                    <div class="cv-need-help">
-                                        <div class="cv-need-help-title">
-                                            <strong>Need Help?</strong>
-                                            <span>Our VIP concierge team is here for you.</span>
-                                        </div>
-                                        <div class="cv-need-help-actions">
-                                            @if($data->phone)
-                                                <a href="tel:{{ $data->phone }}" class="cv-need-help-action">
-                                                    <i class="fas fa-phone"></i>
-                                                    <span style="text-align:left;">
-                                                        <strong>Call or Text</strong>
-                                                        <span>{{ $data->phone }}</span>
-                                                    </span>
-                                                </a>
-                                            @endif
-                                            <a href="#" class="cv-need-help-action" onclick="return false;">
-                                                <i class="fas fa-comment-dots"></i>
-                                                <span style="text-align:left;">
-                                                    <strong>Live Chat</strong>
-                                                    <span>Available 24/7</span>
-                                                </span>
-                                            </a>
-                                        </div>
-                                    </div>
+                                    </div> --}}
 
                                     <section id="cart-section" class="container py-4" style="display:none; margin-bottom:2rem;">
                                         <div class="cart-heading">Your Cart</div>
@@ -6139,9 +6207,9 @@
                 </div>
 
                 {{-- CTA button --}}
-                <button type="button" class="cv-cta-btn dynamic-price" id="cv-sidebar-cta" style="display:none;" disabled>
+                {{-- <button type="button" class="cv-cta-btn dynamic-price" id="cv-sidebar-cta" style="display:none;" disabled>
                     Continue to Payment <i class="fas fa-lock"></i>
-                </button>
+                </button> --}}
                 <p class="cv-cta-terms">
                     By continuing, you agree to our
                     <a href="{{ $data->terms }}" target="_blank">Terms of Service</a> and
