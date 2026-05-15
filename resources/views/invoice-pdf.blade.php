@@ -5,7 +5,7 @@
     <title>Invoice - {{ $transaction->transaction_id }}</title>
     <style>
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif;
             color: #333;
             line-height: 1.5;
             margin: 0;

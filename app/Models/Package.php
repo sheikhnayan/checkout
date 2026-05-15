@@ -10,6 +10,8 @@ class Package extends Model
         'name',
         'price',
         'description',
+        'image',
+        'mobile_image',
         'package_features',
         'status',
         'website_id',

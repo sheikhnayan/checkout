@@ -1762,7 +1762,7 @@ const clubConfigs = {
 
             {{-- Authorize.net raw card fields --}}
             <div id="authorize-section" style="display:none;">
-                <div class="form-group mb-2"><label>Card Number</label><input type="tel" name="card_number" placeholder="" inputmode="numeric" autocomplete="cc-number"></div>
+                <div class="form-group mb-2"><label>Card Number</label><input type="tel" name="card_number" placeholder="" inputmode="numeric" autocomplete="cc-number" maxlength="19"></div>
                 <div class="form-row">
                     <div class="form-group"><label>Month (MM)</label><input type="tel" maxlength="2" name="card_month" placeholder="MM" required></div>
                     <div class="form-group"><label>Year (YY)</label><input type="tel" maxlength="2" name="card_year" placeholder="YY" required></div>
@@ -3193,18 +3193,24 @@ $(document).ready(function() {
 
         let digits = String(input.value || '').replace(/\D/g, '');
         const meta = detectCardMeta(digits);
+        const maxDigits = Math.min(meta.maxLen, 16);
+        let allowedLengths = meta.validLens.filter(function(len) { return len <= maxDigits; });
 
-        if (digits.length > meta.maxLen) {
-            digits = digits.slice(0, meta.maxLen);
+        if (allowedLengths.length === 0) {
+            allowedLengths = [maxDigits];
+        }
+
+        if (digits.length > maxDigits) {
+            digits = digits.slice(0, maxDigits);
         }
 
         input.value = formatWithGrouping(digits, meta.grouping);
-        input.maxLength = formatWithGrouping('9'.repeat(meta.maxLen), meta.grouping).length;
+        input.maxLength = formatWithGrouping('9'.repeat(maxDigits), meta.grouping).length;
         input.setAttribute('inputmode', 'numeric');
         input.setAttribute('autocomplete', 'cc-number');
         input.setCustomValidity('');
 
-        if (digits.length > 0 && !meta.validLens.includes(digits.length)) {
+        if (digits.length > 0 && !allowedLengths.includes(digits.length)) {
             input.setCustomValidity('Please enter a valid card number.');
         }
     }

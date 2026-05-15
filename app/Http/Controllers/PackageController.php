@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Http\UploadedFile;
 use App\Models\Affiliate;
 use App\Models\AffiliatePackage;
 use App\Models\AffiliateWebsite;
@@ -426,6 +427,8 @@ class PackageController extends Controller
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
             'description' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
+            'mobile_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
             'package_feature_text' => 'nullable|array',
             'package_feature_text.*' => 'nullable|string|max:120',
             'package_feature_icon' => 'nullable|array',
@@ -468,6 +471,17 @@ class PackageController extends Controller
             (array) $request->input('package_feature_text', []),
             (array) $request->input('package_feature_icon', [])
         );
+
+        if ($request->hasFile('image')) {
+            $this->deleteUploadedPackageImage($package->image);
+            $package->image = $this->storeUploadedPackageImage($request->file('image'));
+        }
+
+        if ($request->hasFile('mobile_image')) {
+            $this->deleteUploadedPackageImage($package->mobile_image);
+            $package->mobile_image = $this->storeUploadedPackageImage($request->file('mobile_image'));
+        }
+
         $package->status = $request->status;
         $package->multiple = $request->boolean('multiple') ? 1 : 0;
         $package->transportation = $request->boolean('transportation') ? 1 : 0;
@@ -539,6 +553,26 @@ class PackageController extends Controller
         }
 
         return !empty($features) ? $features : null;
+    }
+
+    private function storeUploadedPackageImage(UploadedFile $image): string
+    {
+        $imageName = 'package_' . time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+        $image->move(public_path('uploads'), $imageName);
+
+        return $imageName;
+    }
+
+    private function deleteUploadedPackageImage(?string $imageName): void
+    {
+        if (!$imageName) {
+            return;
+        }
+
+        $path = public_path('uploads/' . $imageName);
+        if (file_exists($path)) {
+            @unlink($path);
+        }
     }
 
     private function authorizePackageManagement(Package $package, $user): void

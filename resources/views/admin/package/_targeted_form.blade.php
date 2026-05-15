@@ -369,6 +369,28 @@
                 </div>
             </div>
 
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="image" class="form-label">Package Image (Desktop/Default) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional package-specific image. If empty, checkout uses club logo."></i></label>
+                    <input type="file" name="image" class="form-control" id="image" accept="image/*">
+                    @if(!empty(optional($formData)->image))
+                        <small class="text-muted d-block mt-1">Current:</small>
+                        <img src="{{ asset('uploads/' . $formData->image) }}" alt="Current package image" style="width:110px;height:70px;object-fit:cover;border-radius:8px;border:1px solid #d7dce4;">
+                    @endif
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="mobile_image" class="form-label">Package Image (Mobile) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional mobile-only package image. If empty, desktop package image is used."></i></label>
+                    <input type="file" name="mobile_image" class="form-control" id="mobile_image" accept="image/*">
+                    @if(!empty(optional($formData)->mobile_image))
+                        <small class="text-muted d-block mt-1">Current:</small>
+                        <img src="{{ asset('uploads/' . $formData->mobile_image) }}" alt="Current package mobile image" style="width:110px;height:70px;object-fit:cover;border-radius:8px;border:1px solid #d7dce4;">
+                    @endif
+                </div>
+            </div>
+
             <div class="col-md-12">
                 <div class="mb-3">
                     <label class="form-label">Package Features <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Add custom feature rows for this package. Each row includes icon + short text displayed on checkout."></i></label>

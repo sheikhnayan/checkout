@@ -5,7 +5,7 @@
     <title>Invoice - #{{ $invoice->id }}</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif;
             color: #333;
             line-height: 1.5;
             margin: 0;

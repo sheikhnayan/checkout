@@ -4884,15 +4884,19 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                     @php
                                                         $pkgGuestCap = max(1, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 1));
                                                         $tableCap = max(2, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 2));
-                                                        $eventImage = !empty($event->image ?? null) ? asset('uploads/' . $event->image) : null;
-                                                        $packageVisual = $eventImage ?: ($data->logo ? asset('uploads/' . $data->logo) : asset('images/logo.png'));
+                                                        $fallbackVisual = $data->logo ? asset('uploads/' . $data->logo) : asset('images/logo.png');
+                                                        $packageVisual = !empty($item->image) ? asset('uploads/' . $item->image) : $fallbackVisual;
+                                                        $packageMobileVisual = !empty($item->mobile_image) ? asset('uploads/' . $item->mobile_image) : $packageVisual;
                                                         $tierIndex = ($loop->index % 4) + 1;
                                                         $tierIcons = [1 => 'fa-crown', 2 => 'fa-star', 3 => 'fa-gem', 4 => 'fa-fire'];
                                                         $tierIcon = $tierIcons[$tierIndex] ?? 'fa-crown';
                                                     @endphp
                                                     <div class="vip-card cv-exact-card cv-tier-{{ $tierIndex }}" id="pkg-card-{{ $item->id }}">
                                                         <div class="cv-pkg-media-wrap">
-                                                            <img src="{{ $packageVisual }}" alt="{{ $item->name }}" class="cv-pkg-media">
+                                                            <picture>
+                                                                <source media="(max-width: 767px)" srcset="{{ $packageMobileVisual }}">
+                                                                <img src="{{ $packageVisual }}" alt="{{ $item->name }}" class="cv-pkg-media">
+                                                            </picture>
                                                             {{-- @if ($loop->first)
                                                                 <span class="cv-popular-pill">MOST POPULAR</span>
                                                             @endif --}}
@@ -5427,7 +5431,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                         </div>
                                                                         <label for="card_number">Card Number</label>
                                                                         <input type="tel" name="card_number" id="card_number"
-                                                                            placeholder="" inputmode="numeric" autocomplete="cc-number" required />
+                                                                            placeholder="" inputmode="numeric" autocomplete="cc-number" maxlength="19" required />
                                                                     </div>
 
                                                                 </div>
@@ -7801,18 +7805,24 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                     var digits = String(input.value || '').replace(/\D/g, '');
                     var meta = detectCardMeta(digits);
+                    var maxDigits = Math.min(meta.maxLen, 16);
+                    var allowedLengths = meta.validLens.filter(function(len) { return len <= maxDigits; });
 
-                    if (digits.length > meta.maxLen) {
-                        digits = digits.slice(0, meta.maxLen);
+                    if (allowedLengths.length === 0) {
+                        allowedLengths = [maxDigits];
+                    }
+
+                    if (digits.length > maxDigits) {
+                        digits = digits.slice(0, maxDigits);
                     }
 
                     input.value = formatWithGrouping(digits, meta.grouping);
-                    input.maxLength = formatWithGrouping(new Array(meta.maxLen + 1).join('9'), meta.grouping).length;
+                    input.maxLength = formatWithGrouping(new Array(maxDigits + 1).join('9'), meta.grouping).length;
                     input.setAttribute('inputmode', 'numeric');
                     input.setAttribute('autocomplete', 'cc-number');
                     input.setCustomValidity('');
 
-                    if (digits.length > 0 && meta.validLens.indexOf(digits.length) === -1) {
+                    if (digits.length > 0 && allowedLengths.indexOf(digits.length) === -1) {
                         input.setCustomValidity('Please enter a valid card number.');
                     }
                 }
