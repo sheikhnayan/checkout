@@ -4120,6 +4120,10 @@
         .cv-checkout-body { display:grid; grid-template-columns:minmax(0,1fr) 440px; gap:28px; align-items:start; margin-top:24px; }
         .cv-main-col { min-width:0; }
         .cv-sidebar { position:sticky; top:24px; background:rgba(16,18,34,.92); border:1px solid rgba(255,255,255,.14); border-radius:18px; padding:20px; overflow: visible; display:block !important; }
+        /* Guest tab active: hide sidebar, give full width to .guest content */
+        .cv-checkout-body.is-guest-mode { grid-template-columns: 1fr !important; }
+        .cv-checkout-body.is-guest-mode .cv-sidebar { display: none !important; }
+        .cv-checkout-body.is-guest-mode .cv-main-col { max-width: 100%; }
         /* Compact spacing to fit without scroll */
         .cv-sidebar .cv-sidebar-venue-image { height: 90px; margin-bottom: 10px; }
         .cv-sidebar .cv-sidebar-venue-row { margin-bottom: 10px !important; }
