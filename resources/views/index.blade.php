@@ -5601,7 +5601,84 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             @keyframes checkoutSpin {
                 to { transform: rotate(360deg); }
             }
+
+            /* ===== Cart Toast Notification ===== */
+            #cv-cart-toast {
+                position: fixed;
+                top: 24px;
+                left: 50%;
+                transform: translateX(-50%) translateY(-140%);
+                z-index: 10000;
+                background: linear-gradient(135deg, rgba(36,18,58,0.98) 0%, rgba(18,10,32,0.99) 100%);
+                color: #fff;
+                border: 1px solid rgba(167,116,255,0.55);
+                border-radius: 14px;
+                padding: 14px 22px 14px 18px;
+                font-size: 14.5px;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                min-width: 280px;
+                max-width: calc(100vw - 32px);
+                box-shadow: 0 14px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(167,116,255,0.18), 0 6px 24px rgba(124,58,237,0.32);
+                transition: transform .35s cubic-bezier(.2,.9,.3,1.4), opacity .25s;
+                opacity: 0;
+                pointer-events: none;
+            }
+            #cv-cart-toast.is-visible {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+                pointer-events: auto;
+            }
+            #cv-cart-toast .cv-toast-icon {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                color: #fff;
+                font-size: 15px;
+                flex-shrink: 0;
+                box-shadow: 0 4px 14px rgba(34,197,94,0.4);
+            }
+            #cv-cart-toast .cv-toast-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+            #cv-cart-toast .cv-toast-title { font-size: 14.5px; font-weight: 800; color: #fff; letter-spacing: -0.005em; }
+            #cv-cart-toast .cv-toast-sub { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.65); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 240px; }
+            #cv-cart-toast .cv-toast-close {
+                margin-left: auto;
+                background: rgba(255,255,255,0.08);
+                border: 1px solid rgba(255,255,255,0.12);
+                color: rgba(255,255,255,0.7);
+                width: 26px;
+                height: 26px;
+                border-radius: 50%;
+                font-size: 12px;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                transition: all .15s;
+                flex-shrink: 0;
+            }
+            #cv-cart-toast .cv-toast-close:hover { background: rgba(255,255,255,0.15); color: #fff; }
+            @media (max-width: 600px) {
+                #cv-cart-toast { top: 14px; padding: 12px 16px 12px 14px; font-size: 13px; min-width: 0; width: calc(100vw - 28px); }
+                #cv-cart-toast .cv-toast-icon { width: 32px; height: 32px; font-size: 13px; }
+                #cv-cart-toast .cv-toast-title { font-size: 13.5px; }
+                #cv-cart-toast .cv-toast-sub { font-size: 11.5px; max-width: 150px; }
+            }
         </style>
+        <div id="cv-cart-toast" role="status" aria-live="polite" aria-atomic="true">
+            <span class="cv-toast-icon"><i class="fas fa-check"></i></span>
+            <span class="cv-toast-body">
+                <span class="cv-toast-title">Added to cart!</span>
+                <span class="cv-toast-sub" id="cv-cart-toast-sub"></span>
+            </span>
+            <button type="button" class="cv-toast-close" aria-label="Close" onclick="window.hideCartToast && window.hideCartToast();">&times;</button>
+        </div>
         <div id="checkout-processing-overlay" aria-hidden="true" role="status" aria-live="polite">
             <div class="checkout-processing-card">
                 <div class="checkout-processing-spinner" aria-hidden="true"></div>
@@ -5703,6 +5780,31 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     if (action === 'inc') window.increments(type);
                     else if (action === 'dec') window.decrements(type);
                 });
+            })();
+
+            // Cart toast: show a notification when an item is added (helpful on mobile
+            // where the cart sidebar is below the fold).
+            (function () {
+                var hideTimer = null;
+                window.showCartToast = function (packageName, guests) {
+                    var toast = document.getElementById('cv-cart-toast');
+                    if (!toast) return;
+                    var sub = document.getElementById('cv-cart-toast-sub');
+                    if (sub) {
+                        var qty = parseInt(guests, 10) || 1;
+                        var label = qty + (qty === 1 ? ' guest' : ' guests');
+                        sub.textContent = packageName ? (packageName + ' · ' + label) : label;
+                    }
+                    toast.classList.add('is-visible');
+                    if (hideTimer) clearTimeout(hideTimer);
+                    hideTimer = setTimeout(function () { window.hideCartToast(); }, 3000);
+                };
+                window.hideCartToast = function () {
+                    var toast = document.getElementById('cv-cart-toast');
+                    if (!toast) return;
+                    toast.classList.remove('is-visible');
+                    if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+                };
             })();
 
             // Inject inline info icons into Service Fee / Tax / Gratuity rows so the
@@ -6309,6 +6411,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         syncTransportationStateFromCart();
                         syncEventCapacityUi();
                         refreshEventPackageSelectionLimits(false);
+                        if (typeof window.showCartToast === 'function') {
+                            window.showCartToast(packageName, normalizedGuests);
+                        }
                         return true;
                     })
                     .catch(function() {
