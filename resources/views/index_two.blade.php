@@ -5284,9 +5284,9 @@
                                                     <div class="vip-card cv-tier-{{ $pkgTierIdx }} cv-exact-card" id="pkg-card-{{ $item->id }}">
                                                         <div class="cv-pkg-media-wrap">
                                                             <img src="{{ $packageVisual }}" alt="{{ $item->name }}" class="cv-pkg-media">
-                                                            @if ($loop->first)
+                                                            {{-- @if ($loop->first)
                                                                 <span class="cv-popular-pill">MOST POPULAR</span>
-                                                            @endif
+                                                            @endif --}}
                                                         </div>
 
                                                         <div class="vip-card-main">

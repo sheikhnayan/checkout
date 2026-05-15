@@ -4720,9 +4720,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                     <div class="vip-card cv-exact-card cv-tier-{{ $tierIndex }}" id="pkg-card-{{ $item->id }}">
                                                         <div class="cv-pkg-media-wrap">
                                                             <img src="{{ $packageVisual }}" alt="{{ $item->name }}" class="cv-pkg-media">
-                                                            @if ($loop->first)
+                                                            {{-- @if ($loop->first)
                                                                 <span class="cv-popular-pill">MOST POPULAR</span>
-                                                            @endif
+                                                            @endif --}}
                                                         </div>
 
                                                         <div class="vip-card-main">
