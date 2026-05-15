@@ -378,7 +378,7 @@ input[type="date"]:focus {
         appearance: none;
         background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center;
         background-size: 20px;
-        padding: 12px 40px 12px 15px !important;
+        padding: 12px 30px 12px 15px !important;
         border: 1px solid #9797a0;
         border-radius: 10px;
         color: #fff;

@@ -366,7 +366,7 @@
                     background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 15px center !important;
                     background-size: 20px !important;
                     background-color: transparent !important;
-                    padding: 12px 45px 12px 15px !important;
+                    padding: 12px 30px 12px 15px !important;
                     border: 1px solid #9797a0 !important;
                     border-radius: 10px !important;
                     color: #fff !important;
@@ -445,7 +445,7 @@
                 select.form-select {
                     font-size: 16px !important;
                     /* Prevents zoom on iOS */
-                    padding: 12px 45px 12px 15px !important;
+                    padding: 12px 30px 12px 15px !important;
                     min-height: 45px !important;
                     -webkit-appearance: none !important;
                     -moz-appearance: none !important;
