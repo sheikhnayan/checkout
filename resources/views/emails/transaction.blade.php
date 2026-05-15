@@ -39,32 +39,32 @@
         <div class="summary-card">
             <h4>Package Holder</h4>
             <ul class="summary-list">
-                <li><span class="k">Name </span><span class="v"> {{ trim(($mailData['package_first_name'] ?? '') . ' ' . ($mailData['package_last_name'] ?? '')) ?: 'N/A' }}</span></li>
-                <li><span class="k">Phone </span><span class="v"> {{ $mailData['package_phone'] ?? 'N/A' }}</span></li>
-                <li><span class="k">Email </span><span class="v"> {{ $mailData['package_email'] ?? 'N/A' }}</span></li>
-                <li><span class="k">Date of Birth </span><span class="v"> {{ $mailData['package_dob'] ?? 'N/A' }}</span></li>
-                <li><span class="k">Note </span><span class="v"> {{ $mailData['package_note'] ?? 'N/A' }}</span></li>
+                <li><span class="k">Name </span><span class="v"> {{ . ': ' . trim(($mailData['package_first_name'] ?? '') . ' ' . ($mailData['package_last_name'] ?? '')) ?: 'N/A' }}</span></li>
+                <li><span class="k">Phone </span><span class="v"> {{ . ': ' . $mailData['package_phone'] ?? 'N/A' }}</span></li>
+                <li><span class="k">Email </span><span class="v"> {{ . ': ' . $mailData['package_email'] ?? 'N/A' }}</span></li>
+                <li><span class="k">Date of Birth </span><span class="v"> {{ . ': ' . $mailData['package_dob'] ?? 'N/A' }}</span></li>
+                <li><span class="k">Note </span><span class="v"> {{ . ': ' . $mailData['package_note'] ?? 'N/A' }}</span></li>
             </ul>
         </div>
 
         <div class="summary-card">
             <h4>Transportation</h4>
             <ul class="summary-list">
-                <li><span class="k">Pickup Time </span><span class="v"> {{ $mailData['transportation_pickup_time'] ?? 'N/A' }}</span></li>
-                <li><span class="k">Address </span><span class="v"> {{ $mailData['transportation_address'] ?? 'N/A' }}</span></li>
-                <li><span class="k">Phone </span><span class="v"> {{ $mailData['transportation_phone'] ?? 'N/A' }}</span></li>
-                <li><span class="k">Guests </span><span class="v"> {{ $mailData['transportation_guest'] ?? 'N/A' }}</span></li>
-                <li><span class="k">Note</span><span class="v"> {{ $mailData['transportation_note'] ?? 'N/A' }}</span></li>
+                <li><span class="k">Pickup Time </span><span class="v"> {{ . ': ' . $mailData['transportation_pickup_time'] ?? 'N/A' }}</span></li>
+                <li><span class="k">Address </span><span class="v"> {{ . ': ' . $mailData['transportation_address'] ?? 'N/A' }}</span></li>
+                <li><span class="k">Phone </span><span class="v"> {{ . ': ' . $mailData['transportation_phone'] ?? 'N/A' }}</span></li>
+                <li><span class="k">Guests </span><span class="v"> {{ . ': ' . $mailData['transportation_guest'] ?? 'N/A' }}</span></li>
+                <li><span class="k">Note</span><span class="v"> {{ . ': ' . $mailData['transportation_note'] ?? 'N/A' }}</span></li>
             </ul>
         </div>
 
         <div class="summary-card">
             <h4>Payment Holder</h4>
             <ul class="summary-list">
-                <li><span class="k">Name </span><span class="v"> {{ trim(($mailData['payment_first_name'] ?? '') . ' ' . ($mailData['payment_last_name'] ?? '')) ?: 'N/A' }}</span></li>
-                <li><span class="k">Phone </span><span class="v"> {{ $mailData['payment_phone'] ?? 'N/A' }}</span></li>
-                <li><span class="k">Email </span><span class="v"> {{ $mailData['payment_email'] ?? 'N/A' }}</span></li>
-                <li><span class="k">Address </span><span class="v"> {{ trim(implode(', ', array_filter([$mailData['payment_address'] ?? null, $mailData['payment_city'] ?? null, $mailData['payment_state'] ?? null, $mailData['payment_zip_code'] ?? null, $mailData['payment_country'] ?? null]))) ?: 'N/A' }}</span></li>
+                <li><span class="k">Name </span><span class="v"> {{ . ': ' . trim(($mailData['payment_first_name'] ?? '') . ' ' . ($mailData['payment_last_name'] ?? '')) ?: 'N/A' }}</span></li>
+                <li><span class="k">Phone </span><span class="v"> {{ . ': ' . $mailData['payment_phone'] ?? 'N/A' }}</span></li>
+                <li><span class="k">Email </span><span class="v"> {{ . ': ' . $mailData['payment_email'] ?? 'N/A' }}</span></li>
+                <li><span class="k">Address </span><span class="v"> {{ . ': ' . trim(implode(', ', array_filter([$mailData['payment_address'] ?? null, $mailData['payment_city'] ?? null, $mailData['payment_state'] ?? null, $mailData['payment_zip_code'] ?? null, $mailData['payment_country'] ?? null]))) ?: 'N/A' }}</span></li>
                 <li><span class="k">Date of Birth </span><span class="v"> {{ $mailData['payment_dob'] ?? 'N/A' }}</span></li>
             </ul>
         </div>
