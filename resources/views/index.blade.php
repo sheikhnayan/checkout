@@ -3365,22 +3365,38 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     box-shadow: 0 0 0 3px rgba(167,116,255,0.16) !important;
 }
 
-/* Pick-up time / flatpickr-time inputs inside checkout section */
+/* Pick-up time - native <input type="time"> styled for dark theme */
 .checkout-section[id^="section-"] #Pick-up-time,
-.checkout-section[id^="section-"] input[name="transportation_pickup_time"].flatpickr-time {
+.checkout-section[id^="section-"] input[type="time"][name="transportation_pickup_time"] {
     background: rgba(255,255,255,0.03) !important;
     border: 1px solid rgba(255,255,255,0.14) !important;
     color: #fff !important;
     -webkit-text-fill-color: #fff !important;
     border-radius: 10px !important;
-    padding: 10px 14px !important;
-    font-size: 14px !important;
+    padding: 12px 14px !important;
+    font-size: 15px !important;
     min-height: 46px !important;
     width: 100% !important;
     max-width: 240px !important;
     height: auto !important;
+    cursor: pointer;
+    font-family: inherit;
+    color-scheme: dark;
 }
 .checkout-section[id^="section-"] #Pick-up-time::placeholder { color: rgba(255,255,255,0.35) !important; }
+.checkout-section[id^="section-"] input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.6) brightness(2) hue-rotate(220deg) saturate(2);
+    cursor: pointer;
+    opacity: 0.9;
+    margin-left: 8px;
+}
+.checkout-section[id^="section-"] input[type="time"]:hover::-webkit-calendar-picker-indicator { opacity: 1; }
+.checkout-section[id^="section-"] input[type="time"]:focus {
+    outline: none !important;
+    border-color: #a774ff !important;
+    background: rgba(255,255,255,0.05) !important;
+    box-shadow: 0 0 0 3px rgba(167,116,255,0.16) !important;
+}
 
 /* Consent rows inside the final review section */
 .checkout-section[id^="section-"] .checkbox-container .consent-label {
@@ -5051,31 +5067,23 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                         <div class="form-left">
                                                         
                                                             <button type="button" class="same-as-info-transport">Same as package holder information</button>
-                                                            <div class="from-row ">
-                                                                <div class=" trans-group" style="width: 50%; border: none;">
+                                                            <div class="form-row">
+                                                                <div class="form-group" style="width: 100%;">
                                                                     <label for="Pick-up-time">Pick-up Time *</label>
-                                                                    <br>
-                                                                    <br>
-                                                                    <input name="transportation_pickup_time" type="text"
+                                                                    <input name="transportation_pickup_time" type="time"
                                                                         id="Pick-up-time"
-                                                                        class="form-control flatpickr-time"
+                                                                        class="form-control"
                                                                         placeholder="Select Time"
-                                                                        value=""
-                                                                        style="width: 100px; height: 30px; color: #fff !important; font-size: 12px;"
-                                                                         />
-                                                                    <br>
-                                                                    <br>
-                                                                    <label for="">Pick-up Location</label>
-                                                                    <br>
+                                                                        value="" />
                                                                 </div>
                                                             </div>
-                                                            <div class="form-row" style="margin-top: 4rem;">
+                                                            <div class="form-row" style="margin-top: 14px;">
                                                                 <div class="form-group" style="width: 100%;">
-                                                                    <label for="address">Address</label>
+                                                                    <label for="address">Pick-up Location</label>
                                                                     <input type="text" name="transportation_address"
-                                                                        id="address" placeholder=""  />
+                                                                        id="address" placeholder="Enter pick-up address" />
                                                                 </div>
-    
+
                                                             </div>
     
                                                             <div class="form-row">
@@ -5420,10 +5428,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     </div>
 
                     <div class="cv-trust-list">
-                        <div class="cv-trust-item"><i class="fas fa-lock"></i><div><strong>Secure Checkout</strong><span>Your payment is 100% secure</span></div></div>
-                        <div class="cv-trust-item"><i class="fas fa-check-circle"></i><div><strong>Instant Confirmation</strong><span>You'll get a confirmation instantly</span></div></div>
-                        <div class="cv-trust-item"><i class="fas fa-crown"></i><div><strong>VIP Experience Guaranteed</strong><span>We take care of the rest</span></div></div>
-                        <div class="cv-trust-item"><i class="fas fa-headset"></i><div><strong>24/7 Support</strong><span>We're here to help anytime</span></div></div>
+                        <div class="cv-trust-item"><i class="fas fa-lock"></i><div><strong>Secure Checkout</strong><span>Your payment is encrypted and securely processed</span></div></div>
+                        <div class="cv-trust-item"><i class="fas fa-check-circle"></i><div><strong>Instant Confirmation</strong><span>Receive your booking details immediately after checkout</span></div></div>
+                        <div class="cv-trust-item"><i class="fas fa-bolt"></i><div><strong>Priority Reservation Access</strong><span>Reservation request and package details submitted instantly</span></div></div>
+                        <div class="cv-trust-item"><i class="fas fa-headset"></i><div><strong>Customer Support Available</strong><span>Assistance available before and after your reservation</span></div></div>
                     </div>
 
                     <button type="button" class="cv-cta-btn dynamic-price" id="cv-sidebar-cta" style="display:none;" disabled>
@@ -7743,16 +7751,29 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 return { valid: true, field: null, message: '' };
             }
 
-            flatpickr(".flatpickr-time", {
-                enableTime: true,
-                noCalendar: true,
-                dateFormat: "h:i K",
-                time_24hr: false,
-                minTime: transportationSchedule.startTime || null,
-                maxTime: transportationSchedule.endTime || null,
-                defaultDate: null,
-                allowInput: false
-            });
+            // Native <input type="time"> is used now - no flatpickr time picker needed.
+            // Still enforce min/max if provided by transportationSchedule (convert to HH:MM 24h).
+            (function () {
+                var $timeInput = $('input[name="transportation_pickup_time"]');
+                if (!$timeInput.length) return;
+                function to24h(t) {
+                    if (!t) return null;
+                    var m = String(t).trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+                    if (!m) return null;
+                    var hh = parseInt(m[1], 10);
+                    var mm = parseInt(m[2], 10);
+                    if (m[3]) {
+                        var mer = m[3].toUpperCase();
+                        if (mer === 'PM' && hh < 12) hh += 12;
+                        else if (mer === 'AM' && hh === 12) hh = 0;
+                    }
+                    return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+                }
+                var minT = to24h(transportationSchedule.startTime);
+                var maxT = to24h(transportationSchedule.endTime);
+                if (minT) $timeInput.attr('min', minT);
+                if (maxT) $timeInput.attr('max', maxT);
+            })();
 
             // Keep hidden use-date in sync with actual selected reservation date.
             if (typeof window.syncUseDateField === 'function') {
