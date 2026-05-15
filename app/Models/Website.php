@@ -14,6 +14,7 @@ class Website extends Model
     protected $fillable = [
         'name',
         'domain',
+        'google_analytics_id',
         'slug',
         'logo',
         'logo_width',

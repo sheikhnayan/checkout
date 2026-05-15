@@ -10,6 +10,7 @@ class Package extends Model
         'name',
         'price',
         'description',
+        'package_features',
         'status',
         'website_id',
         'audience',
@@ -26,6 +27,10 @@ class Package extends Model
         'package_category_id',
         'event_id',
         'is_archieved',
+    ];
+
+    protected $casts = [
+        'package_features' => 'array',
     ];
     
     public const AUDIENCE_CLUB = 'club';

@@ -132,6 +132,36 @@ label{
         flex: 1;
         min-height: 40px;
     }
+
+    .package-feature-row {
+        display: grid;
+        grid-template-columns: 46px 220px 1fr auto;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .package-feature-icon-preview {
+        width: 46px;
+        height: 40px;
+        border: 1px solid #d7dce4;
+        border-radius: 8px;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6b7280;
+    }
+
+    .package-feature-icon-preview i {
+        font-size: 16px;
+    }
+
+    @media (max-width: 992px) {
+        .package-feature-row {
+            grid-template-columns: 46px 1fr;
+        }
+    }
 </style>
     <!-- Content wrapper -->
     <div class="content-wrapper">
@@ -296,10 +326,101 @@ label{
                                                     </div>
                                                 </div>
 
+                                                @php
+                                                    $packageFeatureIconOptions = [
+                                                        'fa-chair' => 'VIP Table',
+                                                        'fa-wine-bottle' => 'Bottle',
+                                                        'fa-user-shield' => 'VIP Hosts',
+                                                        'fa-shield-alt' => 'Entry / Priority',
+                                                        'fa-crown' => 'Crown',
+                                                        'fa-star' => 'Star',
+                                                        'fa-gem' => 'Gem',
+                                                        'fa-fire' => 'Fire',
+                                                        'fa-bolt' => 'Bolt',
+                                                    ];
+
+                                                    $defaultFeatureRows = [
+                                                        ['icon' => 'fa-chair', 'text' => 'VIP Table'],
+                                                        ['icon' => 'fa-wine-bottle', 'text' => '1 Premium Bottle'],
+                                                        ['icon' => 'fa-user-shield', 'text' => 'VIP Hosts'],
+                                                        ['icon' => 'fa-shield-alt', 'text' => 'Free Entry'],
+                                                    ];
+
+                                                    $packageFeatureRows = collect(old('package_feature_text', []))
+                                                        ->map(function ($oldText, $index) use ($packageFeatureIconOptions) {
+                                                            $text = trim((string) $oldText);
+                                                            $icon = trim((string) (old('package_feature_icon.' . $index) ?? 'fa-chair'));
+
+                                                            if ($text === '') {
+                                                                return null;
+                                                            }
+
+                                                            if (!array_key_exists($icon, $packageFeatureIconOptions)) {
+                                                                $icon = 'fa-chair';
+                                                            }
+
+                                                            return [
+                                                                'icon' => $icon,
+                                                                'text' => $text,
+                                                            ];
+                                                        })
+                                                        ->filter()
+                                                        ->values()
+                                                        ->all();
+
+                                                    if (empty($packageFeatureRows)) {
+                                                        $savedFeatures = is_array($data->package_features) ? $data->package_features : [];
+
+                                                        foreach ($savedFeatures as $savedFeature) {
+                                                            $savedText = trim((string) ($savedFeature['text'] ?? ''));
+                                                            $savedIcon = trim((string) ($savedFeature['icon'] ?? 'fa-chair'));
+
+                                                            if ($savedText === '') {
+                                                                continue;
+                                                            }
+
+                                                            if (!array_key_exists($savedIcon, $packageFeatureIconOptions)) {
+                                                                $savedIcon = 'fa-chair';
+                                                            }
+
+                                                            $packageFeatureRows[] = [
+                                                                'icon' => $savedIcon,
+                                                                'text' => $savedText,
+                                                            ];
+                                                        }
+                                                    }
+
+                                                    if (empty($packageFeatureRows)) {
+                                                        $packageFeatureRows = $defaultFeatureRows;
+                                                    }
+                                                @endphp
+
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
                                                         <label for="description" class="form-label">Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="A detailed description of what this package includes. Shown to customers on the checkout page."></i></label>
                                                         <textarea name="description" class="form-control" id="description" rows="4" placeholder="Package Description" required>{{ $data->description }}</textarea>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Package Features <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Add custom feature rows for this package. Each row includes icon + short text displayed on checkout."></i></label>
+                                                        <div id="package-feature-rows">
+                                                            @foreach($packageFeatureRows as $featureRow)
+                                                                <div class="package-feature-row">
+                                                                    <div class="package-feature-icon-preview"><i class="fas {{ $featureRow['icon'] }}"></i></div>
+                                                                    <select class="form-control package-feature-icon-select" name="package_feature_icon[]">
+                                                                        @foreach($packageFeatureIconOptions as $iconClass => $iconLabel)
+                                                                            <option value="{{ $iconClass }}" {{ $featureRow['icon'] === $iconClass ? 'selected' : '' }}>{{ $iconLabel }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                    <input type="text" class="form-control" name="package_feature_text[]" value="{{ $featureRow['text'] }}" maxlength="120" placeholder="Feature text (e.g., VIP Hosts)">
+                                                                    <button type="button" class="btn btn-danger remove-package-feature-row">Remove</button>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                        <button type="button" id="add-package-feature-row" class="btn btn-primary mt-1">Add Feature</button>
+                                                        <small class="text-muted d-block mt-2">Only rows with text are saved and shown on checkout.</small>
                                                     </div>
                                                 </div>
 
@@ -463,6 +584,84 @@ label{
             form.addEventListener('submit', syncAddonsHidden);
         }
         syncAddonsHidden();
+    })();
+
+    (function () {
+        const rowsContainer = document.getElementById('package-feature-rows');
+        const addButton = document.getElementById('add-package-feature-row');
+
+        if (!rowsContainer || !addButton) {
+            return;
+        }
+
+        const iconOptionsMarkup = Array.from(rowsContainer.querySelectorAll('.package-feature-icon-select option'))
+            .map(function (option) {
+                return '<option value="' + option.value + '">' + option.textContent + '</option>';
+            })
+            .join('');
+
+        function updatePreview(row) {
+            const select = row.querySelector('.package-feature-icon-select');
+            const icon = row.querySelector('.package-feature-icon-preview i');
+            if (!select || !icon) {
+                return;
+            }
+            icon.className = 'fas ' + select.value;
+        }
+
+        function bindRow(row) {
+            const select = row.querySelector('.package-feature-icon-select');
+            const removeButton = row.querySelector('.remove-package-feature-row');
+
+            if (select) {
+                select.addEventListener('change', function () {
+                    updatePreview(row);
+                });
+            }
+
+            if (removeButton) {
+                removeButton.addEventListener('click', function () {
+                    row.remove();
+                    if (!rowsContainer.querySelector('.package-feature-row')) {
+                        addRow('fa-chair', '');
+                    }
+                });
+            }
+        }
+
+        function addRow(iconValue, textValue) {
+            const row = document.createElement('div');
+            row.className = 'package-feature-row';
+            row.innerHTML = ''
+                + '<div class="package-feature-icon-preview"><i class="fas ' + iconValue + '"></i></div>'
+                + '<select class="form-control package-feature-icon-select" name="package_feature_icon[]">' + iconOptionsMarkup + '</select>'
+                + '<input type="text" class="form-control" name="package_feature_text[]" maxlength="120" placeholder="Feature text (e.g., VIP Hosts)">'
+                + '<button type="button" class="btn btn-danger remove-package-feature-row">Remove</button>';
+
+            rowsContainer.appendChild(row);
+            const select = row.querySelector('.package-feature-icon-select');
+            const input = row.querySelector('input[name="package_feature_text[]"]');
+
+            if (select) {
+                select.value = iconValue;
+            }
+
+            if (input) {
+                input.value = textValue;
+            }
+
+            bindRow(row);
+            updatePreview(row);
+        }
+
+        rowsContainer.querySelectorAll('.package-feature-row').forEach(function (row) {
+            bindRow(row);
+            updatePreview(row);
+        });
+
+        addButton.addEventListener('click', function () {
+            addRow('fa-chair', '');
+        });
     })();
 
     // Initialize package type fields on page load

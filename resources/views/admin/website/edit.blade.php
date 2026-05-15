@@ -96,6 +96,36 @@
 .toggle-switch-input:focus-visible + .toggle-switch-slider {
     box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.25);
 }
+
+.payment-method-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+}
+
+.payment-method-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid var(--admin-border);
+    border-radius: 10px;
+    padding: 10px;
+    background: var(--admin-surface-2);
+}
+
+.payment-method-option img {
+    width: 44px;
+    height: 28px;
+    object-fit: contain;
+    background: #fff;
+    border-radius: 6px;
+    padding: 3px;
+}
+
+.payment-method-option input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+}
 </style>
 
 <style>
@@ -198,6 +228,39 @@
                                                     <div class="mb-3">
                                                         <label for="name" class="form-label">Domain <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The domain or subdomain for this venue (e.g. www.myvenue.com)."></i></label>
                                                         <input type="text" name="domain" class="form-control" id="name" value="{{ $data->domain }}" placeholder="Enter Domain" required>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label for="google_analytics_id" class="form-label">Google Analytics Measurement ID (Optional) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional GA4 Measurement ID for this website, for example G-XXXXXXXXXX."></i></label>
+                                                        <input type="text" name="google_analytics_id" class="form-control @error('google_analytics_id') is-invalid @enderror" id="google_analytics_id" value="{{ old('google_analytics_id', $data->google_analytics_id) }}" placeholder="e.g. G-XXXXXXXXXX">
+                                                        <small class="form-text text-muted">Leave blank to disable Google Analytics for this website.</small>
+                                                        @error('google_analytics_id')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Payment Icons <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Select which payment method logos should appear on this website's checkout page."></i></label>
+                                                        <div class="payment-method-grid">
+                                                            @foreach($stockPaymentLogos as $paymentKey => $paymentMethod)
+                                                                <label class="payment-method-option" for="payment_method_{{ $paymentKey }}">
+                                                                    <input id="payment_method_{{ $paymentKey }}" type="checkbox" name="payment_methods[]" value="{{ $paymentKey }}" {{ in_array($paymentKey, old('payment_methods', $selectedPaymentMethodKeys ?? []), true) ? 'checked' : '' }}>
+                                                                    <img src="{{ $paymentMethod['logo'] }}" alt="{{ $paymentMethod['name'] }}">
+                                                                    <span>{{ $paymentMethod['name'] }}</span>
+                                                                </label>
+                                                            @endforeach
+                                                        </div>
+                                                        <small class="form-text text-muted">Only selected logos will be shown on checkout for this website.</small>
+                                                        @error('payment_methods')
+                                                            <div class="text-danger mt-1">{{ $message }}</div>
+                                                        @enderror
+                                                        @error('payment_methods.*')
+                                                            <div class="text-danger mt-1">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                 </div>
                                             </div>

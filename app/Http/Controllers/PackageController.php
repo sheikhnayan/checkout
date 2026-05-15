@@ -20,6 +20,17 @@ use App\Models\PackageCategory;
 class PackageController extends Controller
 {
     private const SELECT_ALL_TOKEN = '__all__';
+    private const PACKAGE_FEATURE_ICON_OPTIONS = [
+        'fa-chair',
+        'fa-wine-bottle',
+        'fa-user-shield',
+        'fa-shield-alt',
+        'fa-crown',
+        'fa-star',
+        'fa-gem',
+        'fa-fire',
+        'fa-bolt',
+    ];
 
     /**
      * Display a listing of the resource.
@@ -415,6 +426,10 @@ class PackageController extends Controller
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
             'description' => 'required|string',
+            'package_feature_text' => 'nullable|array',
+            'package_feature_text.*' => 'nullable|string|max:120',
+            'package_feature_icon' => 'nullable|array',
+            'package_feature_icon.*' => ['nullable', Rule::in(self::PACKAGE_FEATURE_ICON_OPTIONS)],
             'status' => 'required|in:0,1',
             'website_id' => [$requireWebsiteId ? 'required' : 'nullable', 'integer', 'exists:websites,id'],
             'package_type' => 'required|in:ticket,table',
@@ -449,6 +464,10 @@ class PackageController extends Controller
         $package->name = $request->name;
         $package->price = $request->price;
         $package->description = $request->description;
+        $package->package_features = $this->normalizePackageFeatures(
+            (array) $request->input('package_feature_text', []),
+            (array) $request->input('package_feature_icon', [])
+        );
         $package->status = $request->status;
         $package->multiple = $request->boolean('multiple') ? 1 : 0;
         $package->transportation = $request->boolean('transportation') ? 1 : 0;
@@ -495,6 +514,31 @@ class PackageController extends Controller
             $addona->package_id = $package->id;
             $addona->save();
         }
+    }
+
+    private function normalizePackageFeatures(array $texts, array $icons): ?array
+    {
+        $features = [];
+
+        foreach ($texts as $index => $text) {
+            $label = trim((string) $text);
+            $icon = trim((string) ($icons[$index] ?? ''));
+
+            if ($label === '') {
+                continue;
+            }
+
+            if (!in_array($icon, self::PACKAGE_FEATURE_ICON_OPTIONS, true)) {
+                $icon = 'fa-chair';
+            }
+
+            $features[] = [
+                'icon' => $icon,
+                'text' => $label,
+            ];
+        }
+
+        return !empty($features) ? $features : null;
     }
 
     private function authorizePackageManagement(Package $package, $user): void

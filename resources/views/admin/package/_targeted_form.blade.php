@@ -24,6 +24,73 @@
     if (empty($selectedAddons)) {
         $selectedAddons = [''];
     }
+
+    $packageFeatureIconOptions = [
+        'fa-chair' => 'VIP Table',
+        'fa-wine-bottle' => 'Bottle',
+        'fa-user-shield' => 'VIP Hosts',
+        'fa-shield-alt' => 'Entry / Priority',
+        'fa-crown' => 'Crown',
+        'fa-star' => 'Star',
+        'fa-gem' => 'Gem',
+        'fa-fire' => 'Fire',
+        'fa-bolt' => 'Bolt',
+    ];
+
+    $defaultFeatureRows = [
+        ['icon' => 'fa-chair', 'text' => 'VIP Table'],
+        ['icon' => 'fa-wine-bottle', 'text' => '1 Premium Bottle'],
+        ['icon' => 'fa-user-shield', 'text' => 'VIP Hosts'],
+        ['icon' => 'fa-shield-alt', 'text' => 'Free Entry'],
+    ];
+
+    $packageFeatureRows = [];
+    $oldFeatureTexts = old('package_feature_text', []);
+    $oldFeatureIcons = old('package_feature_icon', []);
+
+    if (is_array($oldFeatureTexts) && !empty($oldFeatureTexts)) {
+        foreach ($oldFeatureTexts as $featureIndex => $featureTextRaw) {
+            $featureText = trim((string) $featureTextRaw);
+            $featureIcon = trim((string) ($oldFeatureIcons[$featureIndex] ?? 'fa-chair'));
+
+            if ($featureText === '') {
+                continue;
+            }
+
+            if (!array_key_exists($featureIcon, $packageFeatureIconOptions)) {
+                $featureIcon = 'fa-chair';
+            }
+
+            $packageFeatureRows[] = [
+                'icon' => $featureIcon,
+                'text' => $featureText,
+            ];
+        }
+    }
+
+    if (empty($packageFeatureRows) && $formData && is_array($formData->package_features ?? null)) {
+        foreach ($formData->package_features as $savedFeature) {
+            $featureText = trim((string) ($savedFeature['text'] ?? ''));
+            $featureIcon = trim((string) ($savedFeature['icon'] ?? 'fa-chair'));
+
+            if ($featureText === '') {
+                continue;
+            }
+
+            if (!array_key_exists($featureIcon, $packageFeatureIconOptions)) {
+                $featureIcon = 'fa-chair';
+            }
+
+            $packageFeatureRows[] = [
+                'icon' => $featureIcon,
+                'text' => $featureText,
+            ];
+        }
+    }
+
+    if (empty($packageFeatureRows)) {
+        $packageFeatureRows = $defaultFeatureRows;
+    }
 @endphp
 
 <style>
@@ -110,6 +177,36 @@
         color: #fff;
         font-size: 13px;
         line-height: 1.5;
+    }
+
+    .package-feature-row {
+        display: grid;
+        grid-template-columns: 46px 220px 1fr auto;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .package-feature-icon-preview {
+        width: 46px;
+        height: 40px;
+        border: 1px solid #d7dce4;
+        border-radius: 8px;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6b7280;
+    }
+
+    .package-feature-icon-preview i {
+        font-size: 16px;
+    }
+
+    @media (max-width: 992px) {
+        .package-feature-row {
+            grid-template-columns: 46px 1fr;
+        }
     }
 </style>
 
@@ -274,6 +371,28 @@
 
             <div class="col-md-12">
                 <div class="mb-3">
+                    <label class="form-label">Package Features <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Add custom feature rows for this package. Each row includes icon + short text displayed on checkout."></i></label>
+                    <div id="package-feature-rows">
+                        @foreach($packageFeatureRows as $featureRow)
+                            <div class="package-feature-row">
+                                <div class="package-feature-icon-preview"><i class="fas {{ $featureRow['icon'] }}"></i></div>
+                                <select class="form-control package-feature-icon-select" name="package_feature_icon[]">
+                                    @foreach($packageFeatureIconOptions as $iconClass => $iconLabel)
+                                        <option value="{{ $iconClass }}" {{ $featureRow['icon'] === $iconClass ? 'selected' : '' }}>{{ $iconLabel }}</option>
+                                    @endforeach
+                                </select>
+                                <input type="text" class="form-control" name="package_feature_text[]" value="{{ $featureRow['text'] }}" maxlength="120" placeholder="Feature text (e.g., VIP Hosts)">
+                                <button type="button" class="btn btn-danger remove-package-feature-row">Remove</button>
+                            </div>
+                        @endforeach
+                    </div>
+                    <button type="button" id="add-package-feature-row" class="btn btn-primary mt-1">Add Feature</button>
+                    <small class="text-muted d-block mt-2">Only rows with text are saved and shown on checkout.</small>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <div class="mb-3">
                     <label for="status">Status <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Active packages are visible and purchasable on the checkout page. Inactive ones are hidden."></i></label>
                     <select name="status" class="form-control" id="status" required>
                         <option value="1" @selected((string) old('status', optional($formData)->status ?? '1') === '1')>Active</option>
@@ -395,6 +514,84 @@
             });
             syncAddonsHidden();
         }
+
+        (function () {
+            const featureRowsContainer = document.getElementById('package-feature-rows');
+            const featureAddButton = document.getElementById('add-package-feature-row');
+
+            if (!featureRowsContainer || !featureAddButton) {
+                return;
+            }
+
+            const iconOptionsMarkup = Array.from(featureRowsContainer.querySelectorAll('.package-feature-icon-select option'))
+                .map(function (option) {
+                    return '<option value="' + option.value + '">' + option.textContent + '</option>';
+                })
+                .join('');
+
+            function updatePreview(row) {
+                const select = row.querySelector('.package-feature-icon-select');
+                const icon = row.querySelector('.package-feature-icon-preview i');
+                if (!select || !icon) {
+                    return;
+                }
+                icon.className = 'fas ' + select.value;
+            }
+
+            function bindFeatureRow(row) {
+                const select = row.querySelector('.package-feature-icon-select');
+                const removeButton = row.querySelector('.remove-package-feature-row');
+
+                if (select) {
+                    select.addEventListener('change', function () {
+                        updatePreview(row);
+                    });
+                }
+
+                if (removeButton) {
+                    removeButton.addEventListener('click', function () {
+                        row.remove();
+                        if (!featureRowsContainer.querySelector('.package-feature-row')) {
+                            addFeatureRow('fa-chair', '');
+                        }
+                    });
+                }
+            }
+
+            function addFeatureRow(iconValue, textValue) {
+                const row = document.createElement('div');
+                row.className = 'package-feature-row';
+                row.innerHTML = ''
+                    + '<div class="package-feature-icon-preview"><i class="fas ' + iconValue + '"></i></div>'
+                    + '<select class="form-control package-feature-icon-select" name="package_feature_icon[]">' + iconOptionsMarkup + '</select>'
+                    + '<input type="text" class="form-control" name="package_feature_text[]" maxlength="120" placeholder="Feature text (e.g., VIP Hosts)">'
+                    + '<button type="button" class="btn btn-danger remove-package-feature-row">Remove</button>';
+
+                featureRowsContainer.appendChild(row);
+                const select = row.querySelector('.package-feature-icon-select');
+                const input = row.querySelector('input[name="package_feature_text[]"]');
+
+                if (select) {
+                    select.value = iconValue;
+                }
+
+                if (input) {
+                    input.value = textValue;
+                }
+
+                bindFeatureRow(row);
+                updatePreview(row);
+            }
+
+            featureRowsContainer.querySelectorAll('.package-feature-row').forEach(function (row) {
+                bindFeatureRow(row);
+                updatePreview(row);
+            });
+
+            featureAddButton.addEventListener('click', function () {
+                addFeatureRow('fa-chair', '');
+            });
+        })();
 
         if (websiteSelect && !websiteSelect.disabled) {
             websiteSelect.addEventListener('change', function () {

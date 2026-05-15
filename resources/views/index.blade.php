@@ -4392,6 +4392,18 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 
         </style>
+        @php
+            $gaMeasurementId = preg_replace('/[^A-Za-z0-9_-]/', '', (string) ($data->google_analytics_id ?? ''));
+        @endphp
+        @if(!empty($gaMeasurementId))
+            <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaMeasurementId }}"></script>
+            <script>
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '{{ $gaMeasurementId }}');
+            </script>
+        @endif
     </head>
 
     <body>
@@ -4895,11 +4907,43 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                             @if($item->description)
                                                                 <p class="cv-pkg-desc">{{ strip_tags($item->description) }}</p>
                                                             @endif
+                                                            @php
+                                                                $defaultPackageFeatures = [
+                                                                    ['icon' => 'fa-chair', 'text' => 'VIP Table'],
+                                                                    ['icon' => 'fa-wine-bottle', 'text' => '1 Premium Bottle'],
+                                                                    ['icon' => 'fa-user-shield', 'text' => 'VIP Hosts'],
+                                                                    ['icon' => 'fa-shield-alt', 'text' => $item->package_type === 'ticket' ? 'Free Entry' : 'Skip the Line'],
+                                                                ];
+
+                                                                $packageFeatures = collect(is_array($item->package_features) ? $item->package_features : [])
+                                                                    ->map(function ($feature) {
+                                                                        $icon = trim((string) ($feature['icon'] ?? ''));
+                                                                        $text = trim((string) ($feature['text'] ?? ''));
+
+                                                                        if ($text === '') {
+                                                                            return null;
+                                                                        }
+
+                                                                        if (!preg_match('/^fa-[a-z0-9-]+$/i', $icon)) {
+                                                                            $icon = 'fa-chair';
+                                                                        }
+
+                                                                        return [
+                                                                            'icon' => strtolower($icon),
+                                                                            'text' => $text,
+                                                                        ];
+                                                                    })
+                                                                    ->filter()
+                                                                    ->values();
+
+                                                                if ($packageFeatures->isEmpty()) {
+                                                                    $packageFeatures = collect($defaultPackageFeatures);
+                                                                }
+                                                            @endphp
                                                             <div class="cv-pkg-features">
-                                                                <span class="cv-pkg-feature"><i class="fas fa-chair"></i>VIP Table</span>
-                                                                <span class="cv-pkg-feature"><i class="fas fa-wine-bottle"></i>1 Premium Bottle</span>
-                                                                <span class="cv-pkg-feature"><i class="fas fa-user-shield"></i>VIP Hosts</span>
-                                                                <span class="cv-pkg-feature"><i class="fas fa-shield-alt"></i>{{ $item->package_type === 'ticket' ? 'Free Entry' : 'Skip the Line' }}</span>
+                                                                @foreach($packageFeatures as $feature)
+                                                                    <span class="cv-pkg-feature"><i class="fas {{ $feature['icon'] }}"></i>{{ $feature['text'] }}</span>
+                                                                @endforeach
                                                             </div>
                                                         </div>
 
@@ -5329,29 +5373,65 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                             </div>
     
                                                             
+                                                                @php
+                                                                    $stockPaymentLogoMap = [
+                                                                        'visa' => ['name' => 'Visa', 'logo' => 'https://img.icons8.com/color/48/000000/visa.png'],
+                                                                        'mastercard' => ['name' => 'Mastercard', 'logo' => 'https://img.icons8.com/color/48/000000/mastercard-logo.png'],
+                                                                        'amex' => ['name' => 'Amex', 'logo' => 'https://img.icons8.com/color/48/000000/amex.png'],
+                                                                        'google_pay' => ['name' => 'Google Pay', 'logo' => 'https://img.icons8.com/color/48/000000/google-pay-india.png'],
+                                                                        'apple_pay' => ['name' => 'Apple Pay', 'logo' => 'https://img.icons8.com/color/48/000000/apple-pay.png'],
+                                                                    ];
+
+                                                                    $paymentLogosToRender = $data->paymentLogos->map(function ($logo) use ($stockPaymentLogoMap) {
+                                                                        $logoKey = strtolower(trim((string) $logo->logo));
+
+                                                                        if (isset($stockPaymentLogoMap[$logoKey])) {
+                                                                            return [
+                                                                                'src' => $stockPaymentLogoMap[$logoKey]['logo'],
+                                                                                'name' => $stockPaymentLogoMap[$logoKey]['name'],
+                                                                            ];
+                                                                        }
+
+                                                                        if ($logoKey === '') {
+                                                                            return null;
+                                                                        }
+
+                                                                        if (str_starts_with($logoKey, 'http://') || str_starts_with($logoKey, 'https://')) {
+                                                                            return [
+                                                                                'src' => $logoKey,
+                                                                                'name' => $logo->name,
+                                                                            ];
+                                                                        }
+
+                                                                        return [
+                                                                            'src' => asset('uploads/' . $logo->logo),
+                                                                            'name' => $logo->name,
+                                                                        ];
+                                                                    })->filter()->values();
+
+                                                                    if ($paymentLogosToRender->isEmpty()) {
+                                                                        $paymentLogosToRender = collect($stockPaymentLogoMap)->map(fn ($method) => [
+                                                                            'src' => $method['logo'],
+                                                                            'name' => $method['name'],
+                                                                        ])->values();
+                                                                    }
+                                                                @endphp
                                                             @if ($data->payment_method == 'authorize')
-                                                            <div class="form-row">
-                                                                <div class="form-group" style="width: 100%;">
-                                                                    <!-- Payment method logos start -->
-        <div style="margin-bottom: 10px;">
-            @forelse($data->paymentLogos as $logo)
-                <img src="{{ asset('uploads/' . $logo->logo) }}" alt="{{ $logo->name }}" style="height:32px; margin-right:4px;">
-            @empty
-                <!-- Default logos if no custom logos are uploaded -->
-                <img src="https://img.icons8.com/color/48/000000/visa.png" alt="Visa" style="height:32px; margin-right:4px;">
-                <img src="https://img.icons8.com/color/48/000000/mastercard-logo.png" alt="Mastercard" style="height:32px; margin-right:4px;">
-                <img src="https://img.icons8.com/color/48/000000/amex.png" alt="Amex" style="height:32px; margin-right:4px;">
-                <img src="https://img.icons8.com/color/48/000000/google-pay-india.png" alt="Google Pay" style="height:32px; margin-right:4px;">
-                <img src="https://img.icons8.com/color/48/000000/apple-pay.png" alt="Apple Pay" style="height:32px;">
-            @endforelse
-        </div>
-                                                                    <label for="card_number">Card Number</label>
-                                                                    <input type="tel" name="card_number" id="card_number"
-                                                                        placeholder="" inputmode="numeric" autocomplete="cc-number" required />
+                                                                <div class="form-row">
+                                                                    <div class="form-group" style="width: 100%;">
+                                                                        <!-- Payment method logos start -->
+                                                                        <div style="margin-bottom: 10px;">
+                                                                            @foreach($paymentLogosToRender as $logo)
+                                                                                <img src="{{ $logo['src'] }}" alt="{{ $logo['name'] }}" style="height:32px; margin-right:4px;">
+                                                                            @endforeach
+                                                                        </div>
+                                                                        <label for="card_number">Card Number</label>
+                                                                        <input type="tel" name="card_number" id="card_number"
+                                                                            placeholder="" inputmode="numeric" autocomplete="cc-number" required />
+                                                                    </div>
+
                                                                 </div>
-    
-                                                            </div>
-                                                            <div class="form-row">
+                                                                <div class="form-row">
                                                                     <div class="form-group" style="width: 25%;">
                                                                         <label>Month</label>
                                                                         <input type="tel" maxlength="2" name="card_month"
@@ -5368,37 +5448,30 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                             placeholder="CVV" required />
                                                                     </div>
                                                                 @else
-                                                                <div class="form-row">
-                                                                    @forelse($data->paymentLogos as $logo)
-                                                                        <img src="{{ asset('uploads/' . $logo->logo) }}" alt="{{ $logo->name }}" style="height:32px; margin-right:4px;">
-                                                                    @empty
-                                                                        <!-- Default logos if no custom logos are uploaded -->
-                                                                        <img src="https://img.icons8.com/color/48/000000/visa.png" alt="Visa" style="height:32px; margin-right:4px;">
-                                                                        <img src="https://img.icons8.com/color/48/000000/mastercard-logo.png" alt="Mastercard" style="height:32px; margin-right:4px;">
-                                                                        <img src="https://img.icons8.com/color/48/000000/amex.png" alt="Amex" style="height:32px; margin-right:4px;">
-                                                                        <img src="https://img.icons8.com/color/48/000000/google-pay-india.png" alt="Google Pay" style="height:32px; margin-right:4px;">
-                                                                        <img src="https://img.icons8.com/color/48/000000/apple-pay.png" alt="Apple Pay" style="height:32px;">
-                                                                    @endforelse
-                                                                </div>
-                                                                    <div style="margin-bottom: 10px;">
-                                                                    <div class="form-group" style="width: 100%;" id="card_number">
-                                                                        <label for="card_number">Card Number</label>
-                                                                        {{-- <input type="tel" name="card_number" 
-                                                                            placeholder="" required /> --}}
+                                                                    <div class="form-row">
+                                                                        @foreach($paymentLogosToRender as $logo)
+                                                                            <img src="{{ $logo['src'] }}" alt="{{ $logo['name'] }}" style="height:32px; margin-right:4px;">
+                                                                        @endforeach
                                                                     </div>
-        
-                                                                </div>
-                                                                <div class="form-row">
-                                                                    <div class="form-group" style="width: 50%;" id="expiration_date">
+                                                                    <div style="margin-bottom: 10px;">
+                                                                        <div class="form-group" style="width: 100%;" id="card_number">
+                                                                            <label for="card_number">Card Number</label>
+                                                                            {{-- <input type="tel" name="card_number" 
+                                                                            placeholder="" required /> --}}
+                                                                        </div>
+
+                                                                    </div>
+                                                                    <div class="form-row">
+                                                                        <div class="form-group" style="width: 50%;" id="expiration_date">
                                                                             <label>Expiry Date</label>
                                                                             {{-- <input type="text"  name="expiration_date"
                                                                                  placeholder="MM/YY" required /> --}}
-                                                                    </div>
-                                                                    <div class="form-group" style="width: 50%;" id="cvv">
-                                                                        <label>CVV</label>
-                                                                        {{-- <input type="tel" name="card_cvv" 
+                                                                        </div>
+                                                                        <div class="form-group" style="width: 50%;" id="cvv">
+                                                                            <label>CVV</label>
+                                                                            {{-- <input type="tel" name="card_cvv" 
                                                                             placeholder="CVV" required /> --}}
-                                                                    </div>
+                                                                        </div>
                                                                 @endif
                                                             </div>
                                                             <div class="checkbox-container" style="margin-top: 1.5rem;">

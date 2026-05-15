@@ -16,6 +16,29 @@ use Illuminate\Validation\Rule;
 
 class WebsiteController extends Controller
 {
+    private const STOCK_PAYMENT_LOGO_CATALOG = [
+        'visa' => [
+            'name' => 'Visa',
+            'logo' => 'https://img.icons8.com/color/48/000000/visa.png',
+        ],
+        'mastercard' => [
+            'name' => 'Mastercard',
+            'logo' => 'https://img.icons8.com/color/48/000000/mastercard-logo.png',
+        ],
+        'amex' => [
+            'name' => 'Amex',
+            'logo' => 'https://img.icons8.com/color/48/000000/amex.png',
+        ],
+        'google_pay' => [
+            'name' => 'Google Pay',
+            'logo' => 'https://img.icons8.com/color/48/000000/google-pay-india.png',
+        ],
+        'apple_pay' => [
+            'name' => 'Apple Pay',
+            'logo' => 'https://img.icons8.com/color/48/000000/apple-pay.png',
+        ],
+    ];
+
     /**
      * Display a listing of the resource.
      */
@@ -112,6 +135,8 @@ class WebsiteController extends Controller
             'website_admin_name' => 'required|string|max:255',
             'website_admin_email' => 'required|email|max:255|unique:users,email',
             'website_admin_password' => 'required|string|min:8|confirmed',
+            'payment_methods' => 'nullable|array',
+            'payment_methods.*' => 'in:visa,mastercard,amex,google_pay,apple_pay',
             'operating_days' => 'nullable|array',
             'operating_days.*' => 'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
             'operating_start_time' => 'nullable|date_format:H:i',
@@ -273,30 +298,7 @@ class WebsiteController extends Controller
         $smtp->from_email = $request->from_address;
         $smtp->save();
 
-        // Handle payment logos
-        if ($request->has('payment_logos')) {
-            // Files must be read from $request->file(), not from $request->input()
-            $uploadedLogoFiles = $request->file('payment_logos') ?? [];
-            foreach ($request->payment_logos as $key => $logoData) {
-                if (!empty($logoData['name'])) {
-                    $logoFile = $uploadedLogoFiles[$key]['logo'] ?? null;
-                    // Require an image file for new logos (logo column is NOT NULL)
-                    if (!$logoFile || !$logoFile->isValid()) {
-                        continue;
-                    }
-                    $logoName = time() . '_' . uniqid() . '.' . $logoFile->getClientOriginalExtension();
-                    $logoFile->move(public_path('uploads'), $logoName);
-
-                    $paymentLogo = new PaymentLogo();
-                    $paymentLogo->website_id = $add->id;
-                    $paymentLogo->name = $logoData['name'];
-                    $paymentLogo->logo = $logoName;
-                    $paymentLogo->order = $logoData['order'] ?? 0;
-                    $paymentLogo->is_active = $logoData['is_active'] ?? 1;
-                    $paymentLogo->save();
-                }
-            }
-        }
+        $this->syncWebsitePaymentLogos($add, $request->input('payment_methods', []));
 
         return redirect()->route('admin.website.index')->with('success', 'Website created successfully.');
     }
@@ -316,6 +318,18 @@ class WebsiteController extends Controller
     {
         $user = auth()->user();
         $data = Website::with('paymentLogos')->findOrFail($id);
+        $stockPaymentLogos = $this->getStockPaymentLogos();
+        $selectedPaymentMethodKeys = $data->paymentLogos
+            ->pluck('logo')
+            ->map(fn ($logo) => strtolower(trim((string) $logo)))
+            ->filter(fn ($logo) => array_key_exists($logo, $stockPaymentLogos))
+            ->values()
+            ->all();
+
+        if (empty($selectedPaymentMethodKeys)) {
+            $selectedPaymentMethodKeys = array_keys($stockPaymentLogos);
+        }
+
         $websiteAdminUser = User::where('website_id', $data->id)
             ->where('user_type', 'website_user')
             ->whereHas('websiteRole', function ($query) {
@@ -329,7 +343,7 @@ class WebsiteController extends Controller
             abort(403, 'Access denied. You can only edit your own website.');
         }
         
-        return view('admin.website.edit', compact('data', 'websiteAdminUser'));
+        return view('admin.website.edit', compact('data', 'websiteAdminUser', 'stockPaymentLogos', 'selectedPaymentMethodKeys'));
     }
 
     /**
@@ -356,6 +370,9 @@ class WebsiteController extends Controller
                 Rule::unique('users', 'email')->ignore(optional($websiteAdminUser)->id),
             ],
             'website_admin_password' => 'nullable|string|min:8|confirmed',
+            'google_analytics_id' => 'nullable|string|max:64|regex:/^[A-Za-z0-9_-]+$/',
+            'payment_methods' => 'required|array|min:1',
+            'payment_methods.*' => 'in:visa,mastercard,amex,google_pay,apple_pay',
             'operating_days' => 'nullable|array',
             'operating_days.*' => 'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
             'operating_start_time' => 'nullable|date_format:H:i',
@@ -370,6 +387,9 @@ class WebsiteController extends Controller
         // dd($request->all());
         $add->name = $request->name;
         $add->domain = $request->domain;
+        $add->google_analytics_id = $request->filled('google_analytics_id')
+            ? strtoupper(trim((string) $request->google_analytics_id))
+            : null;
         
         // Update slug if provided, otherwise regenerate from name
         if ($request->slug && $request->slug !== $add->slug) {
@@ -528,66 +548,7 @@ class WebsiteController extends Controller
         $smtp->from_email = $request->from_address;
         $smtp->save();
 
-        // Handle payment logos
-        if ($request->payment_logos) {
-            // Files must be read from $request->file(), not from $request->input()
-            $uploadedLogoFiles = $request->file('payment_logos') ?? [];
-            $savedLogoIds = [];
-
-            foreach ($request->payment_logos as $key => $logoData) {
-                if (!empty($logoData['name'])) {
-                    $logoFile = $uploadedLogoFiles[$key]['logo'] ?? null;
-
-                    if (isset($logoData['id']) && $logoData['id']) {
-                        // Update existing logo
-                        $paymentLogo = PaymentLogo::find($logoData['id']);
-                        if ($paymentLogo) {
-                            $paymentLogo->name = $logoData['name'];
-                            $paymentLogo->order = $logoData['order'] ?? 0;
-                            $paymentLogo->is_active = $logoData['is_active'] ?? 1;
-
-                            if ($logoFile && $logoFile->isValid()) {
-                                $logoName = time() . '_' . uniqid() . '.' . $logoFile->getClientOriginalExtension();
-                                $logoFile->move(public_path('uploads'), $logoName);
-                                if ($paymentLogo->logo && file_exists(public_path('uploads/' . $paymentLogo->logo))) {
-                                    @unlink(public_path('uploads/' . $paymentLogo->logo));
-                                }
-                                $paymentLogo->logo = $logoName;
-                            }
-
-                            $paymentLogo->save();
-                            $savedLogoIds[] = $paymentLogo->id;
-                        }
-                    } else {
-                        // Create new logo — require an image file (logo column is NOT NULL)
-                        if (!$logoFile || !$logoFile->isValid()) {
-                            continue;
-                        }
-                        $logoName = time() . '_' . uniqid() . '.' . $logoFile->getClientOriginalExtension();
-                        $logoFile->move(public_path('uploads'), $logoName);
-
-                        $paymentLogo = new PaymentLogo();
-                        $paymentLogo->website_id = $add->id;
-                        $paymentLogo->name = $logoData['name'];
-                        $paymentLogo->logo = $logoName;
-                        $paymentLogo->order = $logoData['order'] ?? 0;
-                        $paymentLogo->is_active = $logoData['is_active'] ?? 1;
-                        $paymentLogo->save();
-                        $savedLogoIds[] = $paymentLogo->id;
-                    }
-                }
-            }
-
-            // Delete logos that were removed — use $savedLogoIds (includes newly created IDs)
-            // to avoid whereNotIn([]) which would delete everything
-            if (!empty($savedLogoIds)) {
-                PaymentLogo::where('website_id', $id)
-                    ->whereNotIn('id', $savedLogoIds)
-                    ->delete();
-            } else {
-                PaymentLogo::where('website_id', $id)->delete();
-            }
-        }
+        $this->syncWebsitePaymentLogos($add, $request->input('payment_methods', []));
 
         return redirect()->route('admin.website.index')->with('success', 'Website updated successfully.');
     }
@@ -615,6 +576,36 @@ class WebsiteController extends Controller
         }
 
         return [];
+    }
+
+    private function getStockPaymentLogos(): array
+    {
+        return self::STOCK_PAYMENT_LOGO_CATALOG;
+    }
+
+    private function syncWebsitePaymentLogos(Website $website, array $paymentMethods): void
+    {
+        $stockPaymentLogos = $this->getStockPaymentLogos();
+        $allowedKeys = array_keys($stockPaymentLogos);
+
+        $selectedKeys = collect($paymentMethods)
+            ->map(fn ($method) => strtolower(trim((string) $method)))
+            ->filter(fn ($method) => in_array($method, $allowedKeys, true))
+            ->unique()
+            ->values()
+            ->all();
+
+        PaymentLogo::where('website_id', $website->id)->delete();
+
+        foreach ($selectedKeys as $order => $key) {
+            PaymentLogo::create([
+                'website_id' => $website->id,
+                'name' => $stockPaymentLogos[$key]['name'],
+                'logo' => $key,
+                'order' => $order,
+                'is_active' => true,
+            ]);
+        }
     }
 
     private function decodeGalleryImages($value): array
