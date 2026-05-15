@@ -873,14 +873,18 @@
             }
             .cv-footer-legal p { margin: 0; }
             .cv-footer-legal a {
-                color: rgba(255,255,255,0.78);
-                text-decoration: none;
-                border-bottom: 1px dashed rgba(167,116,255,0.4);
+                color: #c4a3ff !important;
+                font-weight: 600;
+                text-decoration: underline;
+                text-decoration-color: rgba(167,116,255,0.55);
+                text-underline-offset: 3px;
+                text-decoration-thickness: 1px;
                 transition: all .15s;
             }
             .cv-footer-legal a:hover {
-                color: #c4a3ff !important;
-                border-bottom-color: #a774ff;
+                color: #fff !important;
+                text-decoration-color: #a774ff;
+                text-decoration-thickness: 2px;
             }
             .cv-footer-bar {
                 display: flex;
@@ -5068,9 +5072,11 @@
                                                     <div class="counter">
                                                         <span class="addon-qty-stepper guest-qty-stepper">
                                                             <button class="addon-qty-btn guest-qty-btn" type="button"
+                                                                data-type="men" data-action="dec"
                                                                 onclick="decrements('men')">−</button>
                                                             <span class="count addon-qty-val guest-qty-val" id="menCount">0</span>
                                                             <button class="addon-qty-btn guest-qty-btn" type="button"
+                                                                data-type="men" data-action="inc"
                                                                 onclick="increments('men')">+</button>
                                                         </span>
                                                     </div>
@@ -5081,9 +5087,11 @@
                                                     <div class="counter">
                                                         <span class="addon-qty-stepper guest-qty-stepper">
                                                             <button class="addon-qty-btn guest-qty-btn" type="button"
+                                                                data-type="women" data-action="dec"
                                                                 onclick="decrements('women')">−</button>
                                                             <span class="count addon-qty-val guest-qty-val" id="womenCount">0</span>
                                                             <button class="addon-qty-btn guest-qty-btn" type="button"
+                                                                data-type="women" data-action="inc"
                                                                 onclick="increments('women')">+</button>
                                                         </span>
                                                     </div>
@@ -6283,6 +6291,71 @@
             </div>
         </footer>
         <script src="scripts/main.js"></script>
+        <script>
+            // Guest counter - robust override to fix double-fire / missed-click bug.
+            // main.js's updateDisplay() calls checkEligibility() which is undefined and
+            // throws mid-function, leaving state inconsistent. This replaces the global
+            // increments/decrements with safe versions and uses a single delegated
+            // click handler with a click guard to prevent double firing.
+            (function () {
+                var guestCounts = { men: 0, women: 0 };
+                var lastClickAt = 0;
+
+                function readDom() {
+                    var menEl = document.getElementById('menCount');
+                    var womenEl = document.getElementById('womenCount');
+                    if (menEl) guestCounts.men = parseInt(menEl.textContent, 10) || 0;
+                    if (womenEl) guestCounts.women = parseInt(womenEl.textContent, 10) || 0;
+                }
+                function writeDom() {
+                    var menEl = document.getElementById('menCount');
+                    var womenEl = document.getElementById('womenCount');
+                    var totalEl = document.getElementById('totalCount');
+                    var menHidden = document.getElementById('men_count');
+                    var womenHidden = document.getElementById('women_count');
+                    if (menEl) menEl.textContent = guestCounts.men;
+                    if (womenEl) womenEl.textContent = guestCounts.women;
+                    if (totalEl) totalEl.textContent = guestCounts.men + guestCounts.women;
+                    if (menHidden) menHidden.value = guestCounts.men;
+                    if (womenHidden) womenHidden.value = guestCounts.women;
+                }
+                window.increments = function (type) {
+                    if (type !== 'men' && type !== 'women') return;
+                    readDom();
+                    guestCounts[type] += 1;
+                    writeDom();
+                };
+                window.decrements = function (type) {
+                    if (type !== 'men' && type !== 'women') return;
+                    readDom();
+                    if (guestCounts[type] > 0) guestCounts[type] -= 1;
+                    writeDom();
+                };
+
+                document.addEventListener('DOMContentLoaded', function () {
+                    document.querySelectorAll('.guest-qty-btn').forEach(function (btn) {
+                        btn.removeAttribute('onclick');
+                    });
+                    readDom();
+                    writeDom();
+                });
+
+                document.addEventListener('click', function (e) {
+                    var btn = e.target.closest('.guest-qty-btn');
+                    if (!btn) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var now = Date.now();
+                    if (now - lastClickAt < 200) return;
+                    lastClickAt = now;
+                    var type = btn.getAttribute('data-type');
+                    var action = btn.getAttribute('data-action');
+                    if (!type || !action) return;
+                    if (action === 'inc') window.increments(type);
+                    else if (action === 'dec') window.decrements(type);
+                });
+            })();
+        </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <!-- jQuery -->
         <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
