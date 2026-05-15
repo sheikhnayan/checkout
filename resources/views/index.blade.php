@@ -3765,6 +3765,56 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     color: #22c55e !important;
     font-size: 17px;
     flex-shrink: 0;
+    cursor: help;
+    position: relative;
+}
+
+/* ===== Custom hover tooltip system (data-tip) ===== */
+[data-tip] { position: relative; }
+[data-tip]:hover::after,
+[data-tip]:focus-visible::after {
+    content: attr(data-tip);
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    background: linear-gradient(180deg, rgba(28,20,52,0.98), rgba(14,8,28,0.99));
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 12.5px;
+    font-weight: 500;
+    line-height: 1.5;
+    min-width: 220px;
+    max-width: 300px;
+    white-space: normal;
+    z-index: 1000;
+    border: 1px solid rgba(167,116,255,0.35);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.55), 0 0 0 1px rgba(167,116,255,0.15);
+    pointer-events: none;
+    letter-spacing: 0;
+    text-transform: none;
+    opacity: 0;
+    animation: cvTipFadeIn .15s ease-out forwards;
+}
+[data-tip]:hover::before,
+[data-tip]:focus-visible::before {
+    content: '';
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 14px;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 6px solid rgba(167,116,255,0.5);
+    z-index: 1001;
+    pointer-events: none;
+}
+[data-tip-right]:hover::after { left: auto; right: 0; }
+[data-tip-right]:hover::before { left: auto; right: 14px; }
+@keyframes cvTipFadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* Hide the redundant breakdown lines the user wants removed */
@@ -3822,7 +3872,32 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .vip-card.cv-exact-card > * { position: relative; z-index: 1; }
 .cv-pkg-media-wrap { position: relative; border-radius: 12px; overflow: hidden; min-height: 130px; background: rgba(255,255,255,0.06); }
 .cv-pkg-media { width: 100%; height: 100%; object-fit: cover; display: block; }
-.cv-popular-pill { position: absolute; top: 10px; left: 10px; font-size: 10px; font-weight: 800; letter-spacing: .04em; color: #2a1f00 !important; background: linear-gradient(135deg,#f7d98a,#d7a74a); border-radius: 999px; padding: 5px 10px; text-transform: uppercase; }
+.cv-popular-pill {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: #fff !important;
+    background: linear-gradient(135deg, #a774ff 0%, #7c3aed 50%, #5b21b6 100%);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 999px;
+    padding: 5px 11px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 14px rgba(124,58,237,0.55), inset 0 1px 0 rgba(255,255,255,0.25);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    z-index: 2;
+}
+.cv-popular-pill::before {
+    content: '\f521';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 9px;
+    color: #fff;
+}
 .vip-card.cv-exact-card .vip-card-main { display: flex; flex-direction: column; justify-content: center; gap: 6px; min-width: 0; }
 .cv-pkg-title-row { display: flex; align-items: center; gap: 10px; }
 .cv-pkg-title-icon { font-size: 22px; flex-shrink: 0; color: var(--tier-accent, #fff) !important; }
@@ -4094,7 +4169,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .vip-card.cv-exact-card .cv-pkg-title-row { margin-top: 0; }
     .vip-card.cv-exact-card .cv-pkg-title { font-size: 22px !important; }
     .vip-card.cv-exact-card .cv-pkg-desc { font-size: 13px !important; line-height: 1.5; }
-    .vip-card.cv-exact-card .cv-pkg-features { gap: 10px 16px; margin-top: 10px; justify-content: space-between; flex-wrap: wrap; }
+    .vip-card.cv-exact-card .cv-pkg-features { gap: 10px 16px; margin-top: 50px; justify-content: space-between; flex-wrap: wrap; }
     .vip-card.cv-exact-card .cv-pkg-feature { flex: 0 0 auto; font-size: 11px !important; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
     .vip-card.cv-exact-card .cv-pkg-feature i { font-size: 16px !important; margin-bottom: 2px; }
     .vip-card.cv-exact-card .vip-card-side {
@@ -4125,7 +4200,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         grid-area: guests;
         width: 70px;
     }
-    .vip-card.cv-exact-card .package_number_of_guestss { margin-top: 0 !important; min-height: 38px !important; }
+    .vip-card.cv-exact-card .package_number_of_guestss { margin-top: 0 !important; min-height: 38px !important; padding-top: 0px !important; padding-bottom: 0px !important;}
     .vip-card.cv-exact-card .vip-btn {
         grid-area: button;
         margin: 0 !important;
@@ -4774,18 +4849,18 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                 <div class="addonns"></div>
 
                                                 @if ($data->service_charge_name != 0)
-                                                    <div style="font-size: 16px;" class="default-service-charge" title="Service Fee covers payment processing and platform costs.">
+                                                    <div style="font-size: 16px;" class="default-service-charge" data-tip="Service Fee covers payment processing and platform costs.">
                                                         <span>{{ $data->service_charge_name ?? 'Service Fee' }}</span> <span>$0.00</span>
                                                     </div>
                                                 @endif
                                                 <div class="sales_tax"></div>
                                                 @if ($data->sales_tax_name != 0)
-                                                    <div style="font-size: 16px;" class="default-sales-tax" title="Sales tax applied per local regulations.">
+                                                    <div style="font-size: 16px;" class="default-sales-tax" data-tip="Sales tax applied per local regulations.">
                                                         <span>{{ $data->sales_tax_name ?? 'Tax' }}</span> <span>$0.00</span></div>
                                                 @endif
 
                                                 @if ($data->gratuity_name != 0)
-                                                    <div style="font-size: 16px;" class="default-gratuity" title="Gratuity for your VIP host & service staff.">
+                                                    <div style="font-size: 16px;" class="default-gratuity" data-tip="Gratuity for your VIP host and service staff at the venue.">
                                                         <span>{{ $data->gratuity_name ?? 'Gratuity Fee' }}</span> <span>$0.00</span></div>
                                                 @else
                                                     <div class="default-gratuity"></div>
@@ -5328,8 +5403,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     <div class="cv-deposit-box dynamic-price" id="cv-deposit-box" style="display:none;">
                         <div class="cv-deposit-content">
                             <div class="cv-deposit-top">
-                                <div class="cv-deposit-label" title="@if($refundablePct > 0){{ $refundablePct }}% of the total is collected today to secure your reservation. The balance is paid on arrival.@else You are paying the full amount today.@endif">@if($refundablePct > 0)Due Today ({{ $refundablePct }}% Deposit)@else{{ 'Due Today' }}@endif <span class="cv-info-icon">i</span></div>
-                                <div class="cv-deposit-shield"><i class="fas fa-shield-alt"></i></div>
+                                <div class="cv-deposit-label" data-tip="@if($refundablePct > 0){{ $refundablePct }}% of the total is collected today to secure your reservation. The balance is paid on arrival at the venue.@else You're paying the full amount today.@endif">@if($refundablePct > 0)Due Today ({{ $refundablePct }}% Deposit)@else{{ 'Due Today' }}@endif <span class="cv-info-icon">i</span></div>
+                                <div class="cv-deposit-shield" data-tip="Secure checkout — your payment is protected by bank-level SSL encryption and never stored on this site." data-tip-right><i class="fas fa-shield-alt"></i></div>
                             </div>
                             <div class="cv-deposit-main" id="cv-deposit-display">$0.00</div>
                             <div class="cv-deposit-sub">Secure your reservation</div>
@@ -5557,9 +5632,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     <span class="cv-footer-bar-copy">&copy; {{ date('Y') }} <strong>CartVIP.com</strong> &middot; All rights reserved</span>
                     <div class="cv-footer-bar-socials">
                         <a href="https://cartvip.com" target="_blank" rel="noopener" class="cv-footer-bar-social" aria-label="Website"><i class="fas fa-globe"></i></a>
-                        <a href="mailto:support@cartvip.com" class="cv-footer-bar-social" aria-label="Email"><i class="fas fa-envelope"></i></a>
-                        <a href="#" onclick="return false;" class="cv-footer-bar-social" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="#" onclick="return false;" class="cv-footer-bar-social" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="mailto:hello@cartvip.com" class="cv-footer-bar-social" aria-label="Email"><i class="fas fa-envelope"></i></a>
                     </div>
                 </div>
             </div>
@@ -6646,25 +6719,25 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 const monthSelect = document.getElementById(monthId);
                 const daySelect = document.getElementById(dayId);
                 const yearSelect = document.getElementById(yearId);
-                
+
                 // Check if elements exist before trying to populate them
                 if (!monthSelect || !daySelect || !yearSelect) {
                     return; // Elements don't exist, skip population
                 }
-                
-                // Months 1-12
-                monthSelect.innerHTML = '';
+
+                // Months 1-12 (with "Month" placeholder)
+                monthSelect.innerHTML = '<option value="" disabled selected hidden>Month</option>';
                 for (let m = 1; m <= 12; m++) {
                     monthSelect.innerHTML += `<option value="${m.toString().padStart(2, '0')}">${m.toString().padStart(2, '0')}</option>`;
                 }
-                // Days 1-31
-                daySelect.innerHTML = '';
+                // Days 1-31 (with "Day" placeholder)
+                daySelect.innerHTML = '<option value="" disabled selected hidden>Day</option>';
                 for (let d = 1; d <= 31; d++) {
                     daySelect.innerHTML += `<option value="${d.toString().padStart(2, '0')}">${d.toString().padStart(2, '0')}</option>`;
                 }
-                // Years: current year to (current year - 100)
+                // Years: current year to (current year - 100) (with "Year" placeholder)
                 const currentYear = new Date().getFullYear();
-                yearSelect.innerHTML = '';
+                yearSelect.innerHTML = '<option value="" disabled selected hidden>Year</option>';
                 for (let y = currentYear; y >= currentYear - 100; y--) {
                     yearSelect.innerHTML += `<option value="${y}">${y}</option>`;
                 }
