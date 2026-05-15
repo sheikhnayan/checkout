@@ -1012,12 +1012,21 @@
                 // ── DataTable ────────────────────────────────────────────────
                 let table = null;
                 try {
+                    const totalColumns = $('#txnDataTable thead th').length;
+                    const hiddenMetaTargets = totalColumns >= 2
+                        ? [totalColumns - 2, totalColumns - 1]
+                        : [];
+                    const actionTarget = totalColumns >= 3 ? totalColumns - 3 : -1;
+                    const nonOrderableTargets = [0]
+                        .concat(actionTarget >= 0 ? [actionTarget] : [])
+                        .concat(hiddenMetaTargets);
+
                     table = $('#txnDataTable').DataTable({
                         dom: 'rtip',
                         pageLength: 10,
                         columnDefs: [
-                            { orderable: false, targets: [0, 10, 11, 12] },
-                            { visible: false, targets: [11, 12] }
+                            { orderable: false, targets: nonOrderableTargets },
+                            { visible: false, targets: hiddenMetaTargets }
                         ],
                         language: {
                             paginate: {
