@@ -18,7 +18,7 @@ use Laravel\Socialite\Facades\Socialite;
 class SocialSignupController extends Controller
 {
     private const ALLOWED_ROLES = ['affiliate', 'entertainer'];
-    private const ALLOWED_PROVIDERS = ['google', 'facebook'];
+    private const ALLOWED_PROVIDERS = ['google'];
 
     public function redirect(Request $request, string $role, string $provider)
     {
