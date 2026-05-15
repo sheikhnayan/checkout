@@ -5954,9 +5954,9 @@
                                                             @endif
                                                         </div>
                                                         <div class="checkbox-container" style="margin-top: 1.5rem;">
-                                                            <label>
+                                                            <label class="consent-label">
                                                                 <input type="checkbox" id="businessExpenseCheckbox" />
-                                                                This purchase is for business purposes
+                                                                <span>This purchase is for business purposes</span>
                                                             </label>
                                                         </div>
                                                         <div id="businessFields"

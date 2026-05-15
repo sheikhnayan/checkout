@@ -5287,11 +5287,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 @endif
                                                             </div>
                                                             <div class="checkbox-container" style="margin-top: 1.5rem;">
-    <label>
-        <input type="checkbox" id="businessExpenseCheckbox" />
-        This purchase is for business purposes
-    </label>
-</div>
+                                                                <label class="consent-label">
+                                                                    <input type="checkbox" id="businessExpenseCheckbox" />
+                                                                    <span>This purchase is for business purposes</span>
+                                                                </label>
+                                                            </div>
 <div id="businessFields" style="display: none; margin-top: 1rem;">
     <div class="form-row">
         <div class="form-group" style="width: 50%;">
