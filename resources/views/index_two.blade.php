@@ -8686,12 +8686,12 @@
         </script>
 
         <script>
-            // Mobile: move Order Summary between package selection and payment details section.
-            // Desktop: restore it to its original parent (checkout body) so the sidebar layout works.
+            // Mobile: move Order Summary between package selection and the step indicator
+            // (Package Details / Transportation / Payment). Desktop: restore to its original parent.
             document.addEventListener('DOMContentLoaded', function() {
                 var sidebar = document.getElementById('cv-order-sidebar');
-                var paymentSection = document.getElementById('section-3');
-                if (!sidebar || !paymentSection) return;
+                var stepsAnchor = document.getElementById('checkout-steps');
+                if (!sidebar || !stepsAnchor) return;
 
                 var originalParent = sidebar.parentNode;
                 var originalNext = sidebar.nextSibling;
@@ -8699,8 +8699,8 @@
 
                 function applySidebarPlacement() {
                     if (mq.matches) {
-                        if (sidebar.parentNode !== paymentSection.parentNode || sidebar.nextSibling !== paymentSection) {
-                            paymentSection.parentNode.insertBefore(sidebar, paymentSection);
+                        if (sidebar.parentNode !== stepsAnchor.parentNode || sidebar.nextSibling !== stepsAnchor) {
+                            stepsAnchor.parentNode.insertBefore(sidebar, stepsAnchor);
                         }
                     } else {
                         if (sidebar.parentNode !== originalParent) {
