@@ -3984,13 +3984,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     color: rgba(255,255,255,0.95) !important;
     font-weight: 600;
 }
-/* Small (i) info icon after Service Fee and Tax labels (hover-tooltip via title attr on parent) */
+/* Small (i) info icon - rendered as inline element by JS so ::after is free for the tooltip */
 #cv-order-sidebar .pricing-shell .default-service-charge,
 #cv-order-sidebar .pricing-shell .default-sales-tax,
 #cv-order-sidebar .pricing-shell .default-gratuity { cursor: help; }
-#cv-order-sidebar .pricing-shell .default-service-charge::after,
-#cv-order-sidebar .pricing-shell .default-sales-tax::after {
-    content: 'i';
+.cv-row-info-icon {
     font-family: 'Times New Roman', serif;
     font-style: italic;
     font-size: 10px;
@@ -4005,20 +4003,19 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     justify-content: center;
     line-height: 1;
     flex-shrink: 0;
-    order: 0;
+    margin-left: 4px;
     transition: all .15s;
+    vertical-align: middle;
 }
-#cv-order-sidebar .pricing-shell .default-service-charge:hover::after,
-#cv-order-sidebar .pricing-shell .default-sales-tax:hover::after {
-    border-color: #fb7185;
-    color: #fb7185;
-    background: rgba(251,113,133,0.1);
+#cv-order-sidebar .pricing-shell .default-service-charge:hover .cv-row-info-icon,
+#cv-order-sidebar .pricing-shell .default-sales-tax:hover .cv-row-info-icon,
+#cv-order-sidebar .pricing-shell .default-gratuity:hover .cv-row-info-icon {
+    border-color: #a774ff;
+    color: #c4a3ff;
+    background: rgba(167,116,255,0.12);
 }
 .cv-deposit-label { cursor: help; }
-.cv-deposit-label:hover .cv-info-icon { border-color: #fb7185 !important; color: #fb7185 !important; background: rgba(251,113,133,0.1); }
-#cv-order-sidebar .pricing-shell .default-package-price > span:last-child { order: 1; }
-#cv-order-sidebar .pricing-shell .default-service-charge > span:last-child,
-#cv-order-sidebar .pricing-shell .default-sales-tax > span:last-child { order: 2; }
+.cv-deposit-label:hover .cv-info-icon { border-color: #a774ff !important; color: #c4a3ff !important; background: rgba(167,116,255,0.12); }
 /* Total row - prominent */
 #cv-order-sidebar .pricing-shell .default-deposit {
     font-size: 19px !important;
@@ -4682,8 +4679,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                             <p style="margin: 4px 0 0; font-size: 12.5px; color: rgba(255,255,255,0.5);">All packages include free ride, club entry, and priority access.</p>
                                         </div>
                                         @if($mostPopularPackageName)
-                                        <div class="cv-most-popular-tag" style="display:inline-flex; align-items:center; gap:8px; padding: 7px 12px; border-radius: 999px; background: rgba(255,204,0,0.06); border: 1px solid rgba(255,204,0,0.32); font-size: 12px; color: rgba(255,255,255,0.85); font-weight: 600;">
-                                            <span style="background: var(--accent); color: #000; padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: .04em; display: inline-flex; align-items: center; gap: 4px;"><i class="fas fa-star" style="font-size:9px;"></i>MOST POPULAR</span>
+                                        <div class="cv-most-popular-tag" style="display:inline-flex; align-items:center; gap:10px; padding: 7px 14px; border-radius: 999px; background: rgba(167,116,255,0.08); border: 1px solid rgba(167,116,255,0.32); font-size: 12.5px; color: rgba(255,255,255,0.9); font-weight: 600;">
+                                            <span style="background: linear-gradient(135deg, #a774ff 0%, #7c3aed 50%, #5b21b6 100%); color: #fff; padding: 3px 9px; border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: .06em; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(124,58,237,0.35), inset 0 1px 0 rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.18); text-transform: uppercase;"><i class="fas fa-fire" style="font-size:9px;"></i>MOST POPULAR</span>
                                             <span>{{ $mostPopularPackageName }}</span>
                                         </div>
                                         @endif
@@ -5706,6 +5703,37 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     if (action === 'inc') window.increments(type);
                     else if (action === 'dec') window.decrements(type);
                 });
+            })();
+
+            // Inject inline info icons into Service Fee / Tax / Gratuity rows so the
+            // row's ::after stays free for the custom hover tooltip.
+            (function () {
+                function inject() {
+                    var rows = document.querySelectorAll(
+                        '#cv-order-sidebar .pricing-shell .default-service-charge, ' +
+                        '#cv-order-sidebar .pricing-shell .default-sales-tax, ' +
+                        '#cv-order-sidebar .pricing-shell .default-gratuity'
+                    );
+                    rows.forEach(function (row) {
+                        if (!row.hasAttribute('data-tip')) return;
+                        if (row.querySelector('.cv-row-info-icon')) return;
+                        var labelSpan = row.querySelector('span');
+                        if (!labelSpan) return;
+                        var icon = document.createElement('span');
+                        icon.className = 'cv-row-info-icon';
+                        icon.textContent = 'i';
+                        icon.setAttribute('aria-hidden', 'true');
+                        labelSpan.appendChild(icon);
+                    });
+                }
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', inject);
+                } else {
+                    inject();
+                }
+                // Re-inject after JS moves pricing-shell into the sidebar.
+                setTimeout(inject, 50);
+                setTimeout(inject, 500);
             })();
         </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
