@@ -4838,12 +4838,17 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     @php
                                         $mostPopularPackageName = '';
                                         if (isset($packageCategories) && $packageCategories->count()) {
-                                            $firstCat = $packageCategories->first();
-                                            $firstCatPackages = is_array($firstCat) ? ($firstCat['packages'] ?? null) : ($firstCat->packages ?? null);
-                                            if ($firstCatPackages && count($firstCatPackages) > 0) {
-                                                $firstPkg = $firstCatPackages[0] ?? collect($firstCatPackages)->first();
-                                                $mostPopularPackageName = $firstPkg->name ?? '';
-                                            }
+                                            $mostPopularPackage = collect($packageCategories)
+                                                ->flatMap(function ($category) {
+                                                    return is_array($category)
+                                                        ? collect($category['packages'] ?? [])
+                                                        : collect($category->packages ?? []);
+                                                })
+                                                ->first(function ($package) {
+                                                    return (int) ($package->is_most_popular ?? 0) === 1;
+                                                });
+
+                                            $mostPopularPackageName = $mostPopularPackage->name ?? '';
                                         }
                                     @endphp
                                     <div class="cv-package-section-header" style="display:flex; justify-content:space-between; align-items:center; margin: 18px 0 12px; flex-wrap:wrap; gap:10px;">
@@ -4897,9 +4902,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 <source media="(max-width: 767px)" srcset="{{ $packageMobileVisual }}">
                                                                 <img src="{{ $packageVisual }}" alt="{{ $item->name }}" class="cv-pkg-media">
                                                             </picture>
-                                                            {{-- @if ($loop->first)
+                                                            @if ((int) ($item->is_most_popular ?? 0) === 1)
                                                                 <span class="cv-popular-pill">MOST POPULAR</span>
-                                                            @endif --}}
+                                                            @endif
                                                         </div>
 
                                                         <div class="vip-card-main">

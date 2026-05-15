@@ -326,6 +326,18 @@ label{
                                                     </div>
                                                 </div>
 
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <div class="toggle-field">
+                                                            <p class="toggle-text">Mark as Most Popular <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Only one package can be most popular per website. Selecting this will automatically unselect other packages."></i></p>
+                                                            <label class="toggle-switch" for="is_most_popular">
+                                                                <input id="is_most_popular" type="checkbox" name="is_most_popular" class="toggle-switch-input" @checked(old('is_most_popular'))>
+                                                                <span class="toggle-switch-slider"></span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
                                                 @php
                                                     $packageFeatureIconOptions = [
                                                         'fa-chair' => 'VIP Table',

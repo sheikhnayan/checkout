@@ -119,6 +119,7 @@
                                                         <th>Name</th>
                                                         <th>Category</th>
                                                         <th>Price</th>
+                                                        <th>Most Popular</th>
                                                         <th>Status</th>
                                                         <th>Action</th>
                                                     </tr>
@@ -132,6 +133,13 @@
                                                             <td>{{ $item->name }}</td>
                                                             <td>{{ optional($item->category)->name ?: 'Uncategorized' }}</td>
                                                             <td>{{ $item->price }}</td>
+                                                            <td>
+                                                                @if((int) ($item->is_most_popular ?? 0) === 1)
+                                                                    <span class="badge bg-warning text-dark">Yes</span>
+                                                                @else
+                                                                    <span class="badge bg-secondary">No</span>
+                                                                @endif
+                                                            </td>
                                                             <td>
                                                                 <form action="/admins/package/toggle-status/{{ $item->id }}" method="POST" style="display:inline;">
                                                                     @csrf
@@ -171,6 +179,7 @@
                                                         <th>Name</th>
                                                         <th>Category</th>
                                                         <th>Price</th>
+                                                        <th>Most Popular</th>
                                                         <th>Status</th>
                                                         <th>Action</th>
                                                     </tr>
@@ -184,6 +193,13 @@
                                                             <td>{{ $item->name }}</td>
                                                             <td>{{ optional($item->category)->name ?: 'Uncategorized' }}</td>
                                                             <td>{{ $item->price }}</td>
+                                                            <td>
+                                                                @if((int) ($item->is_most_popular ?? 0) === 1)
+                                                                    <span class="badge bg-warning text-dark">Yes</span>
+                                                                @else
+                                                                    <span class="badge bg-secondary">No</span>
+                                                                @endif
+                                                            </td>
                                                             <td>
                                                                 <form action="/admins/package/toggle-status/{{ $item->id }}" method="POST" style="display:inline;">
                                                                     @csrf
@@ -288,6 +304,7 @@
                                                         <th>Assigned To</th>
                                                         <th>Category</th>
                                                         <th>Price</th>
+                                                        <th>Most Popular</th>
                                                         <th>Status</th>
                                                         <th>Action</th>
                                                     </tr>
@@ -310,6 +327,13 @@
                                                             <td>{{ $owner ?: 'Unknown' }}</td>
                                                             <td>{{ optional($item->category)->name ?: 'Uncategorized' }}</td>
                                                             <td>{{ $item->price }}</td>
+                                                            <td>
+                                                                @if((int) ($item->is_most_popular ?? 0) === 1)
+                                                                    <span class="badge bg-warning text-dark">Yes</span>
+                                                                @else
+                                                                    <span class="badge bg-secondary">No</span>
+                                                                @endif
+                                                            </td>
                                                             <td>
                                                                 <form action="/admins/package/toggle-status/{{ $item->id }}" method="POST" style="display:inline;">
                                                                     @csrf

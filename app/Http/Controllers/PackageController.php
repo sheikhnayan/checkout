@@ -181,6 +181,9 @@ class PackageController extends Controller
         $add = new Package;
         $this->fillPackageFromRequest($add, $request, (int) $validated['website_id'], Package::AUDIENCE_CLUB);
         $add->save();
+        if ((int) ($add->is_most_popular ?? 0) === 1) {
+            $this->ensureSingleMostPopularPackage($add);
+        }
         $this->syncPackageAddons($add, (string) $request->addons);
 
         return redirect()->route('admin.package.show', $add->website_id);
@@ -200,6 +203,9 @@ class PackageController extends Controller
         $package = new Package;
         $this->fillPackageFromRequest($package, $request, $websiteId, $audience, $affiliateId, $entertainerId);
         $package->save();
+        if ((int) ($package->is_most_popular ?? 0) === 1) {
+            $this->ensureSingleMostPopularPackage($package);
+        }
         $this->syncPackageAddons($package, (string) $request->addons);
         $this->syncTargetedMappings($package);
 
@@ -345,6 +351,9 @@ class PackageController extends Controller
         $this->validatePackagePayload($request);
         $this->fillPackageFromRequest($data, $request, (int) $data->website_id, Package::AUDIENCE_CLUB);
         $data->save();
+        if ((int) ($data->is_most_popular ?? 0) === 1) {
+            $this->ensureSingleMostPopularPackage($data);
+        }
         $this->clearTargetedMappings($data);
         $this->syncPackageAddons($data, (string) $request->addons);
 
@@ -369,6 +378,9 @@ class PackageController extends Controller
 
         $this->fillPackageFromRequest($data, $request, $websiteId, $data->audience, $affiliateId, $entertainerId);
         $data->save();
+        if ((int) ($data->is_most_popular ?? 0) === 1) {
+            $this->ensureSingleMostPopularPackage($data);
+        }
         $this->syncPackageAddons($data, (string) $request->addons);
         $this->syncTargetedMappings($data);
 
@@ -442,6 +454,7 @@ class PackageController extends Controller
             'addons' => 'nullable|string',
             'multiple' => 'nullable',
             'transportation' => 'nullable',
+            'is_most_popular' => 'nullable',
             'event_id' => $isTargeted ? 'prohibited' : 'nullable|integer',
             'category_id' => 'nullable|integer',
             'new_category_name' => 'nullable|string|max:255',
@@ -485,6 +498,7 @@ class PackageController extends Controller
         $package->status = $request->status;
         $package->multiple = $request->boolean('multiple') ? 1 : 0;
         $package->transportation = $request->boolean('transportation') ? 1 : 0;
+        $package->is_most_popular = $request->boolean('is_most_popular') ? 1 : 0;
         $package->package_type = $request->input('package_type', 'ticket');
         $package->website_id = $websiteId;
         $package->audience = $audience;
@@ -528,6 +542,18 @@ class PackageController extends Controller
             $addona->package_id = $package->id;
             $addona->save();
         }
+    }
+
+    private function ensureSingleMostPopularPackage(Package $package): void
+    {
+        if (!$package->website_id || (int) ($package->is_most_popular ?? 0) !== 1) {
+            return;
+        }
+
+        Package::where('website_id', $package->website_id)
+            ->where('id', '!=', $package->id)
+            ->where('is_most_popular', 1)
+            ->update(['is_most_popular' => 0]);
     }
 
     private function normalizePackageFeatures(array $texts, array $icons): ?array

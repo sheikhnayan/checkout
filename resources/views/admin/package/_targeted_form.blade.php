@@ -442,6 +442,24 @@
                 </div>
                 <button type="button" id="add-addon-row" class="btn btn-primary mt-1">Add Add-on</button>
                 <small class="text-muted d-block mt-2">You can select the same add-on multiple times using separate rows.</small>
+
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <div class="toggle-field">
+                        <p class="toggle-text">Mark as Most Popular <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Only one package can be most popular per website. Selecting this will unselect all others."></i></p>
+                        <label class="toggle-switch" for="is_most_popular">
+                            <input
+                                id="is_most_popular"
+                                type="checkbox"
+                                name="is_most_popular"
+                                class="toggle-switch-input"
+                                @checked(old('is_most_popular', isset($data) && (int) ($data->is_most_popular ?? 0) === 1))
+                            >
+                            <span class="toggle-switch-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
             </div>
         </div>
 

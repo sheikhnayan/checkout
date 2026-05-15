@@ -358,6 +358,10 @@ class FrontendController extends Controller
             $packagesQuery->orderBy('package_category_id');
         }
 
+        if (Schema::hasColumn('packages', 'is_most_popular')) {
+            $packagesQuery->orderByDesc('is_most_popular');
+        }
+
         $packages = $packagesQuery
             ->orderBy('name')
             ->get();

@@ -13,6 +13,7 @@ class Package extends Model
         'image',
         'mobile_image',
         'package_features',
+        'is_most_popular',
         'status',
         'website_id',
         'audience',
