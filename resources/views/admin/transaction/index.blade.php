@@ -751,10 +751,15 @@
             .daterangepicker .calendar-table td { color: #e2e8f0 !important; }
             .daterangepicker td.available:hover,
             .daterangepicker th.available:hover { background-color: rgba(255,204,0,0.15) !important; color: #fff !important; border-radius: 6px !important; }
+            /* Keep days from adjacent months readable in dark custom-range mode */
             .daterangepicker td.off,
+            .daterangepicker td.off.available,
             .daterangepicker td.off.in-range,
             .daterangepicker td.off.start-date,
-            .daterangepicker td.off.end-date { color: rgba(255,255,255,0.2) !important; }
+            .daterangepicker td.off.end-date {
+                color: #94a3b8 !important;
+                background-color: rgba(255,255,255,0.03) !important;
+            }
             .daterangepicker td.in-range { background-color: rgba(255,204,0,0.12) !important; color: #fff !important; }
             .daterangepicker td.start-date,
             .daterangepicker td.end-date,

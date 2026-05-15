@@ -5,18 +5,13 @@
 function applyAccessTab(names) {
   const guestSection = document.querySelector('.guest');
   const packageContent = document.querySelector('.package');
-  const checkoutLayout = document.getElementById('cv-checkout-layout');
 
   if (names === 'guest') {
     if (guestSection) guestSection.style.display = 'block';
     if (packageContent) packageContent.style.display = 'none';
-    // Reservation tab: hide sidebar, use full width for guest content
-    if (checkoutLayout) checkoutLayout.classList.add('is-guest-mode');
   } else {
     if (guestSection) guestSection.style.display = 'none';
     if (packageContent) packageContent.style.display = 'block';
-    // Package tab: restore original layout with sidebar
-    if (checkoutLayout) checkoutLayout.classList.remove('is-guest-mode');
   }
 }
 
