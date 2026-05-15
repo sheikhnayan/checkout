@@ -6819,7 +6819,7 @@
                     html += `<div class="cart-line">`
                         + `<div class="cart-line-main"><div style="flex:1;min-width:0;"><div class="cart-item-name">${pkg.packageName}</div><div class="cart-line-guests">${guestLabel}</div></div>`
                         + `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;"><div class="cart-item-price">${priceLine}</div><button onclick='window.removePackageFromCart("${pkg.packageId}")' class="cart-remove-btn">Remove</button></div></div>`
-                        + (pkg.addons.length ? `<div class="cart-addons">Add-ons: ${pkg.addons.map(a => a.name + ((parseInt(a.qty, 10) || 1) > 1 ? (' x' + (parseInt(a.qty, 10) || 1)) : '') + ' (' + formatCurrency(a.price) + ')').join(', ')}</div>` : '')
+                        + (pkg.addons.length ? `<div class="cart-addons" style="color: #a774ff !important;">Add-ons: ${pkg.addons.map(a => a.name + ((parseInt(a.qty, 10) || 1) > 1 ? (' x' + (parseInt(a.qty, 10) || 1)) : '') + ' (' + formatCurrency(a.price) + ')').join(', ')}</div>` : '')
                         + `</div>`;
                 });
                 $('#cart-list').html(html);

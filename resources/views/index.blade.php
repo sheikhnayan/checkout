@@ -6352,7 +6352,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     html += '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;"><div class="cart-item-price">' + priceLine + '</div><button onclick="window.removePackageFromCart(' + pkg.packageId + ')" class="cart-remove-btn">Remove</button></div>';
                     html += '</div>';
                     if (pkg.addons.length > 0) {
-                        html += '<div class="cart-addons">Add-ons: ' + pkg.addons.map(function(a) { return a.name + ((parseInt(a.qty, 10) || 1) > 1 ? (' x' + (parseInt(a.qty, 10) || 1)) : '') + ' (' + formatCurrency(a.price) + ')'; }).join(', ') + '</div>';
+                        html += '<div class="cart-addons" style="color: #a774ff !important;">Add-ons: ' + pkg.addons.map(function(a) { return a.name + ((parseInt(a.qty, 10) || 1) > 1 ? (' x' + (parseInt(a.qty, 10) || 1)) : '') + ' (' + formatCurrency(a.price) + ')'; }).join(', ') + '</div>';
                     }
                     html += '</div>';
                 });
