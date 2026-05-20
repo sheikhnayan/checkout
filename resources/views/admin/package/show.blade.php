@@ -240,6 +240,7 @@
                                         <form method="POST" action="{{ route('admin.package-category.store', $website_id) }}" class="d-flex gap-2">
                                             @csrf
                                             <input type="text" name="name" class="form-control" placeholder="Category name" required style="max-width:320px;">
+                                            <input type="number" name="sort_order" class="form-control" placeholder="Sort" value="0" min="0" step="1" style="max-width:110px;">
                                             <button type="submit" class="btn btn-primary">Add</button>
                                         </form>
                                     </div>
@@ -257,6 +258,7 @@
                                                     <tr>
                                                         <th>#</th>
                                                         <th>Name</th>
+                                                        <th>Sort</th>
                                                         <th>Packages</th>
                                                         <th>Actions</th>
                                                     </tr>
@@ -268,12 +270,14 @@
                                                         <td>
                                                             <form method="POST" action="{{ route('admin.package-category.update', $cat->id) }}" class="d-flex gap-2 align-items-center">
                                                                 @csrf
+                                                            <td>{{ (int) ($item->sort_order ?? 0) }}</td>
                                                                 <input type="text" name="name" value="{{ $cat->name }}" class="form-control form-control-sm" style="max-width:240px;" required>
                                                                 <button type="submit" class="btn btn-sm btn-outline-primary">Rename</button>
                                                             </form>
                                                         </td>
                                                         <td>{{ $cat->packages()->count() }}</td>
                                                         <td>
+                                                            <th>Sort</th>
                                                             <form method="POST" action="{{ route('admin.package-category.destroy', $cat->id) }}" onsubmit="return confirm('Delete this category? Packages will become Uncategorized.')">
                                                                 @csrf
                                                                 <button type="submit" class="btn btn-sm btn-danger">Delete</button>
@@ -282,6 +286,7 @@
                                                     </tr>
                                                     @endforeach
                                                 </tbody>
+                                                            <td>{{ (int) ($item->sort_order ?? 0) }}</td>
                                             </table>
                                         @endif
                                     </div>
@@ -300,6 +305,7 @@
                                                     <tr>
                                                         <th>SI</th>
                                                         <th>Name</th>
+                                                        <th>Sort</th>
                                                         <th>Audience</th>
                                                         <th>Assigned To</th>
                                                         <th>Category</th>
@@ -313,9 +319,17 @@
                                                     @foreach($targetedPackages as $index => $item)
                                                         @php
                                                             $owner = $item->audience === 'affiliate'
-                                                                ? ($item->affiliate_id
+                                                                <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
                                                                     ? (optional($item->affiliate)->display_name ?: optional(optional($item->affiliate)->user)->name)
                                                                     : 'All Affiliates')
+                                                        <td>
+                                                            <form method="POST" action="{{ route('admin.package-category.update', $cat->id) }}" class="d-flex gap-2 align-items-center">
+                                                                @csrf
+                                                                <input type="hidden" name="name" value="{{ $cat->name }}">
+                                                                <input type="number" name="sort_order" value="{{ (int) ($cat->sort_order ?? 0) }}" class="form-control form-control-sm" min="0" step="1" style="max-width:110px;" required>
+                                                                <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
+                                                            </form>
+                                                        </td>
                                                                 : ($item->entertainer_id
                                                                     ? (optional($item->entertainer)->display_name ?: optional(optional($item->entertainer)->user)->name)
                                                                     : 'All Entertainers');
@@ -336,6 +350,7 @@
                                                             </td>
                                                             <td>
                                                                 <form action="/admins/package/toggle-status/{{ $item->id }}" method="POST" style="display:inline;">
+                                                                <th>Sort</th>
                                                                     @csrf
                                                                     @if ($item->status == 1)
                                                                         <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Deactivate this package?');">Active</button>
@@ -347,6 +362,7 @@
                                                             <td>
                                                                 <a href="{{ route('admin.package.edit-targeted', $item->id) }}" class="btn btn-primary">Edit</a>
                                                                 @if (empty($item->is_archieved) || $item->is_archieved == 0)
+                                                                <td>{{ (int) ($item->sort_order ?? 0) }}</td>
                                                                     <form action="/admins/package/archive/{{ $item->id }}" method="POST" style="display:inline;">
                                                                         @csrf
                                                                         <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to archive this package?');">

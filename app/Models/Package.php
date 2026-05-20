@@ -8,6 +8,7 @@ class Package extends Model
 {
     protected $fillable = [
         'name',
+        'sort_order',
         'price',
         'description',
         'image',

@@ -257,8 +257,8 @@
             <div class="success-icon">
                 <i class="fas fa-check"></i>
             </div>
-            <h1>Thank You!</h1>
-            <p>Your payment has been processed successfully</p>
+            <h1>{{ isset($transaction) && $transaction->type === 'reservation' ? 'Booking Confirmed!' : 'Thank You!' }}</h1>
+            <p>{{ isset($transaction) && $transaction->type === 'reservation' ? 'Your booking has been successfully secured.' : 'Your payment has been processed successfully' }}</p>
         </div>
 
         <div class="content-section">
@@ -279,7 +279,7 @@
             @endphp
             <div class="detail-box">
                 <div class="detail-row">
-                    <label>Transaction ID</label>
+                    <label>Confirmation #</label>
                     <span>{{ $transaction->transaction_id }}</span>
                 </div>
                 @if($transaction->type === 'custom_invoice' && isset($invoice))
@@ -462,7 +462,7 @@
             <div class="info-box">
                 <p>
                     <i class="fas fa-envelope"></i>
-                    <strong>Confirmation Email:</strong> A confirmation email has been sent to your email address with all the transaction details.
+                    <strong>Confirmation Email:</strong> A confirmation email has been sent to your email address with your booking details.
                 </p>
             </div>
 
@@ -470,7 +470,7 @@
             <div class="info-box" style="background: #fff3cd; border-left-color: #f39c12;">
                 <p>
                     <i class="fas fa-info-circle" style="color: #f39c12;"></i>
-                    <strong>Deposit Payment:</strong> You have paid the deposit amount. The remaining balance will be due on arrival. Please keep your transaction ID for reference.
+                    <strong>Deposit Payment:</strong> You have paid the deposit amount. The remaining balance will be due on arrival. Please keep your confirmation number for reference.
                 </p>
             </div>
             @endif

@@ -224,12 +224,10 @@ class TransactionController extends Controller
     
                         // Club/manager email — no QR code
                         $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
-                        $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr, $add, $cartItems, $mailData['price_breakdown'], $website, false);
-                        $send_mail_club->subject('Package Purchase - ' . $transaction_id . ' - ' . ($website->name ?? 'Club'));
+                        $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr, $add, $cartItems, $mailData['price_breakdown'], $website, false, 'manager');
 
                         // Purchaser email — full mail with QR
-                        $send_mail_purchaser = new \App\Mail\TransactionMail($mailData, $add, $cartItems, $mailData['price_breakdown'], $website);
-                        $send_mail_purchaser->subject('New Package Purched - ' . $transaction_id);
+                        $send_mail_purchaser = new \App\Mail\TransactionMail($mailData, $add, $cartItems, $mailData['price_breakdown'], $website, true, 'guest');
 
                         $clubEmails = collect($website->emails ?? [])
                             ->pluck('email')
@@ -431,12 +429,10 @@ class TransactionController extends Controller
     
                         // Club/manager email — no QR code
                         $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
-                        $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr, $add, $cartItems, $mailData['price_breakdown'], $website, false);
-                        $send_mail_club->subject('Package Purchase - ' . $transaction_id . ' - ' . ($website->name ?? 'Club'));
+                        $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr, $add, $cartItems, $mailData['price_breakdown'], $website, false, 'manager');
 
                         // Purchaser email — full mail with QR
-                        $send_mail_purchaser = new \App\Mail\TransactionMail($mailData, $add, $cartItems, $mailData['price_breakdown'], $website);
-                        $send_mail_purchaser->subject('New Package Purched - ' . $transaction_id);
+                        $send_mail_purchaser = new \App\Mail\TransactionMail($mailData, $add, $cartItems, $mailData['price_breakdown'], $website, true, 'guest');
 
                         $clubEmails = collect($website->emails ?? [])
                             ->pluck('email')
@@ -648,8 +644,11 @@ class TransactionController extends Controller
 
             $ipAddress = $request->ip();
 
+            $confirmationNumber = $this->generateConfirmationNumber();
+
             $new = new Transaction;
-            $new->transaction_id = null;
+            $new->transaction_id = $confirmationNumber;
+            $new->ticket_qr_code = $this->generateTicketQrCode();
             $new->package_first_name = $request->input('reservation_first_name');
             $new->package_last_name = $request->input('reservation_last_name');
             $new->package_phone = $request->input('reservation_phone');
@@ -661,6 +660,7 @@ class TransactionController extends Controller
             $package_year = $request->input('reservation_year');
             $new->package_dob = ($package_year && $package_month && $package_day) ? (sprintf('%04d-%02d-%02d', $package_year, $package_month, $package_day)) : null;
             $new->package_note = $request->input('reservation_description');
+            $new->package_use_date = $request->input('package_use_date');
             $new->event_id = $request->input('event_id');
             $new->website_id = $event != null ? $event->website_id : $request->website_id;
             $new->total = 0; // No payment required for free reservations
@@ -671,50 +671,50 @@ class TransactionController extends Controller
             $this->applyReferralCommission($request, $new);
 
             try {
-                        //code...
-                        // Prepare all transaction data for the email body
                         $mailData = [
-                            'transaction_id' => $transaction_id,
-                            'package_first_name' => $request->input('package_first_name'),
-                            'package_last_name' => $request->input('package_last_name'),
-                            'package_phone' => $request->input('package_phone'),
-                            'package_email' => $request->input('package_email'),
-                            'package_dob' => $add->package_dob,
-                            'package_note' => $request->input('package_note'),
-                            'transportation_pickup_time' => $request->input('transportation_pickup_time'),
-                            'transportation_address' => $request->input('transportation_address'),
-                            'transportation_phone' => $request->input('transportation_phone'),
-                            'transportation_guest' => $request->input('transportation_guest'),
-                            'transportation_note' => $request->input('transportation_note'),
-                            'addons' => $request->input('addons'),
-                            'package_id' => $request->input('package_id'),
-                            'payment_first_name' => $request->input('payment_first_name'),
-                            'payment_last_name' => $request->input('payment_last_name'),
-                            'payment_phone' => $request->input('payment_phone'),
-                            'payment_email' => $request->input('payment_email'),
-                            'payment_address' => $request->input('payment_address'),
-                            'payment_city' => $request->input('payment_city'),
-                            'payment_state' => $request->input('payment_state'),
-                            'payment_country' => $request->input('payment_country'),
-                            'payment_dob' => $add->payment_dob,
-                            'payment_zip_code' => $request->input('payment_zip_code'),
-                            'event_id' => $event_id,
-                            'website_id' => $website_id,
-                            'total' => $request->input('total'),
-                            'type' => 'package',
+                            'transaction_id' => $confirmationNumber,
+                            'package_first_name' => $new->package_first_name,
+                            'package_last_name' => $new->package_last_name,
+                            'package_phone' => $new->package_phone,
+                            'package_email' => $new->package_email,
+                            'package_dob' => $new->package_dob,
+                            'package_note' => $new->package_note,
+                            'reservation_date' => $new->package_use_date,
+                            'package_use_date' => $new->package_use_date,
+                            'event_id' => $new->event_id,
+                            'website_id' => $new->website_id,
+                            'total' => 0,
+                            'type' => 'reservation',
+                            'ticket_qr_code' => $new->ticket_qr_code,
+                            'ticket_qr_image_url' => $this->buildTicketQrImageUrl($new->ticket_qr_code),
+                            'men' => (int) $new->men,
+                            'women' => (int) $new->women,
+                            'guest_count' => max(0, (int) $new->men) + max(0, (int) $new->women),
+                            'event_name' => optional($event)->name,
+                            'event_date' => optional($event)->date,
                         ];
-    
-                        $website = Website::findOrFail($request->website_id);
+
+                        $website = Website::findOrFail($new->website_id);
                         $mailData['club_name'] = $website->name;
                         $mailData['website_name'] = $website->name;
     
                         $this->applyWebsiteSmtpConfig($website);
     
-                        $send_mail = new \App\Mail\TransactionMail($mailData);
-                        $send_mail->subject('Package Purchase - ' . $transaction_id . ' - ' . ($website->name ?? 'Club'));
-                        // Send the email
-                        foreach ($website->emails as $key => $value) {
-                            \Illuminate\Support\Facades\Mail::to($value->email)->send($send_mail);
+                        $clubEmails = collect($website->emails ?? [])
+                            ->pluck('email')
+                            ->filter(fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
+                            ->unique()
+                            ->values();
+
+                        $managerMail = new \App\Mail\TransactionMail($mailData, $new, [], null, $website, false, 'manager');
+                        foreach ($clubEmails as $clubEmail) {
+                            \Illuminate\Support\Facades\Mail::to($clubEmail)->send(clone $managerMail);
+                        }
+
+                        $guestEmail = $new->package_email;
+                        if ($guestEmail && filter_var($guestEmail, FILTER_VALIDATE_EMAIL)) {
+                            $guestMail = new \App\Mail\TransactionMail($mailData, $new, [], null, $website, true, 'guest');
+                            \Illuminate\Support\Facades\Mail::to($guestEmail)->send($guestMail);
                         }
                     } catch (\Throwable $th) {
                         report($th);
@@ -725,9 +725,9 @@ class TransactionController extends Controller
 
             // Redirect to thank you page with transaction details
             return redirect()->route('thank-you')
-                ->with('transaction', $new)
+                ->with('transaction', $new->fresh())
                 ->with('website', $website)
-                ->with('paymentType', 'full')
+                ->with('paymentType', 'reservation')
                 ->with('success', 'Reservation successful!');
         
 
@@ -2009,6 +2009,15 @@ class TransactionController extends Controller
         } while (Transaction::where('ticket_qr_code', $ticketCode)->exists());
 
         return $ticketCode;
+    }
+
+    private function generateConfirmationNumber(): string
+    {
+        do {
+            $confirmationNumber = '8' . str_pad((string) random_int(0, 9999999999), 10, '0', STR_PAD_LEFT);
+        } while (Transaction::where('transaction_id', $confirmationNumber)->exists());
+
+        return $confirmationNumber;
     }
 
     private function buildTicketQrImageUrl(string $ticketCode): string

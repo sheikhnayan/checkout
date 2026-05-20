@@ -343,27 +343,44 @@ class FrontendController extends Controller
     private function buildPackageCategories(Website $website, ?int $eventId = null, bool $nullEventOnly = false)
     {
         $packagesQuery = Package::with('category')
-            ->where('website_id', $website->id)
+            ->where('packages.website_id', $website->id)
             ->clubVisible()
-            ->where('status', 1)
-                ->where('is_archieved', 0)
+            ->where('packages.status', 1)
+            ->where('packages.is_archieved', 0)
             ->when($nullEventOnly, function ($query) {
-                $query->whereNull('event_id');
+                $query->whereNull('packages.event_id');
             })
             ->when(!$nullEventOnly && $eventId !== null, function ($query) use ($eventId) {
-                $query->where('event_id', $eventId);
+                $query->where('packages.event_id', $eventId);
             });
 
-        if (Schema::hasColumn('packages', 'package_category_id')) {
-            $packagesQuery->orderBy('package_category_id');
+        if (
+            Schema::hasColumn('packages', 'package_category_id')
+            && Schema::hasTable('package_categories')
+            && Schema::hasColumn('package_categories', 'sort_order')
+        ) {
+            $packagesQuery
+                ->leftJoin('package_categories as pc', 'packages.package_category_id', '=', 'pc.id')
+                ->select('packages.*')
+                ->orderByRaw('CASE WHEN packages.package_category_id IS NULL THEN 1 ELSE 0 END')
+                ->orderBy('pc.sort_order')
+                ->orderBy('pc.name');
+        } elseif (Schema::hasColumn('packages', 'package_category_id')) {
+            $packagesQuery
+                ->orderByRaw('CASE WHEN packages.package_category_id IS NULL THEN 1 ELSE 0 END')
+                ->orderBy('packages.package_category_id');
+        }
+
+        if (Schema::hasColumn('packages', 'sort_order')) {
+            $packagesQuery->orderBy('packages.sort_order');
         }
 
         if (Schema::hasColumn('packages', 'is_most_popular')) {
-            $packagesQuery->orderByDesc('is_most_popular');
+            $packagesQuery->orderByDesc('packages.is_most_popular');
         }
 
         $packages = $packagesQuery
-            ->orderBy('name')
+            ->orderBy('packages.name')
             ->get();
 
         return $packages

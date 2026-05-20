@@ -4111,18 +4111,18 @@
             background: linear-gradient(90deg, transparent, #a774ff);
         }
         .cv-access-hint .cv-access-hint-dot {
-            width: 6px;
-            height: 6px;
+            width: 9px;
+            height: 9px;
             border-radius: 50%;
-            background: #a774ff;
-            box-shadow: 0 0 8px #a774ff;
-            margin-left: 4px;
+            background: radial-gradient(circle at 30% 30%, #fff4bf 0%, #ffd76a 30%, #ffbf00 72%, #e0a300 100%);
+            box-shadow: 0 0 0 2px rgba(255,191,0,0.22), 0 0 14px rgba(255,191,0,0.88), 0 0 22px rgba(255,215,106,0.48);
+            margin-left: 5px;
             display: inline-block;
-            animation: cvHintPulse 2s ease-in-out infinite;
+            animation: cvHintPulse 1.2s ease-in-out infinite;
         }
         @keyframes cvHintPulse {
             0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(0.7); }
+            50% { opacity: 0.68; transform: scale(0.78); }
         }
 
         .cv-access-card {
@@ -4659,7 +4659,7 @@
             position: absolute;
             top: 10px;
             left: 10px;
-            font-size: 10.5px;
+            font-size: 8px;
             font-weight: 800;
             letter-spacing: 0.06em;
             color: #fff !important;
@@ -4685,7 +4685,7 @@
         .vip-card.cv-exact-card .vip-card-main {
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             gap: 6px;
             min-width: 0;
         }
@@ -4874,9 +4874,9 @@
             .vip-card.cv-exact-card .cv-pkg-title-row { margin-top: 0; }
             .vip-card.cv-exact-card .cv-pkg-title { font-size: 22px !important; }
             .vip-card.cv-exact-card .cv-pkg-desc { font-size: 13px !important; line-height: 1.5; }
-            .vip-card.cv-exact-card .cv-pkg-features { gap: 10px 16px; margin-top: 50px; justify-content: space-between; flex-wrap: wrap; }
-            .vip-card.cv-exact-card .cv-pkg-feature { flex: 0 0 auto; font-size: 11px !important; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
-            .vip-card.cv-exact-card .cv-pkg-feature i { font-size: 16px !important; margin-bottom: 2px; }
+            .vip-card.cv-exact-card .cv-pkg-features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px 10px; margin-top: auto; padding-top: 14px; flex-wrap: wrap; }
+            .vip-card.cv-exact-card .cv-pkg-feature { flex: 0 0 auto; font-size: 10.5px !important; flex-direction: column; align-items: center; gap: 3px; text-align: center; }
+            .vip-card.cv-exact-card .cv-pkg-feature i { font-size: 15px !important; margin-bottom: 1px; }
             .vip-card.cv-exact-card .vip-card-side {
                 display: grid !important;
                 grid-template-columns: 1fr auto;
@@ -5419,6 +5419,9 @@
                                                         $pkgTierIcon = $pkgTierIcons[$pkgTierIdx - 1];
                                                         $pkgGuestCap = max(1, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 1));
                                                         $pkgTableCap = max(2, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 2));
+                                                        $pkgIsTicket = ($item->package_type ?? 'table') === 'ticket';
+                                                        $pkgTicketMax = max(1, (int) ($item->number_of_guest ?: 1));
+                                                        $pkgTableMax  = max(2, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 2));
                                                         $fallbackVisual = $data->logo ? asset('uploads/' . $data->logo) : asset('images/logo.png');
                                                         $packageVisual = !empty($item->image) ? asset('uploads/' . $item->image) : $fallbackVisual;
                                                         $packageMobileVisual = !empty($item->mobile_image) ? asset('uploads/' . $item->mobile_image) : $packageVisual;
@@ -5439,7 +5442,11 @@
                                                                 <i class="{{ $pkgTierIcon }} cv-pkg-title-icon"></i>
                                                                 <div class="cv-pkg-title">{{ $item->name }}</div>
                                                             </div>
-                                                            <span class="cv-pkg-sub"><i class="fas fa-user-friends"></i>Best for {{ $pkgGuestCap > 1 ? '2-' . $pkgGuestCap : '1' }} guests</span>
+                                                            @if($pkgIsTicket)
+                                                                <span class="cv-pkg-sub"><i class="fas fa-ticket-alt"></i>Up to {{ $pkgTicketMax }} {{ $pkgTicketMax === 1 ? 'ticket' : 'tickets' }}</span>
+                                                            @else
+                                                                <span class="cv-pkg-sub"><i class="fas fa-user-friends"></i>Best for 2&ndash;{{ $pkgTableMax }} guests</span>
+                                                            @endif
                                                             @if($item->description)
                                                                 <p class="cv-pkg-desc">{{ strip_tags($item->description) }}</p>
                                                             @endif
@@ -6650,18 +6657,23 @@
             // where the cart sidebar is below the fold).
             (function () {
                 var hideTimer = null;
-                window.showCartToast = function (packageName, guests) {
+                window.showToast = function (title, sub, iconClass) {
                     var toast = document.getElementById('cv-cart-toast');
                     if (!toast) return;
-                    var sub = document.getElementById('cv-cart-toast-sub');
-                    if (sub) {
-                        var qty = parseInt(guests, 10) || 1;
-                        var label = qty + (qty === 1 ? ' guest' : ' guests');
-                        sub.textContent = packageName ? (packageName + ' · ' + label) : label;
-                    }
+                    var titleEl = toast.querySelector('.cv-toast-title');
+                    var subEl = document.getElementById('cv-cart-toast-sub');
+                    var iconEl = toast.querySelector('.cv-toast-icon i');
+                    if (titleEl) titleEl.textContent = title || 'Notice';
+                    if (subEl) subEl.textContent = sub || '';
+                    if (iconEl) iconEl.className = iconClass || 'fas fa-check';
                     toast.classList.add('is-visible');
                     if (hideTimer) clearTimeout(hideTimer);
-                    hideTimer = setTimeout(function () { window.hideCartToast(); }, 3000);
+                    hideTimer = setTimeout(function () { window.hideCartToast(); }, 4000);
+                };
+                window.showCartToast = function (packageName, guests) {
+                    var qty = parseInt(guests, 10) || 1;
+                    var label = qty + (qty === 1 ? ' guest' : ' guests');
+                    window.showToast('Added to cart!', packageName ? (packageName + ' · ' + label) : label, 'fas fa-check');
                 };
                 window.hideCartToast = function () {
                     var toast = document.getElementById('cv-cart-toast');
@@ -6891,6 +6903,9 @@
                 }
 
                 showReservationDateError('Please select a reservation date above before continuing.');
+                if (typeof window.showToast === 'function') {
+                    window.showToast('Must Choose Date', 'Please select a reservation date to continue.', 'fas fa-calendar-alt');
+                }
                 const dateCard = document.querySelector('.hero-date-card');
                 if (dateCard && typeof dateCard.scrollIntoView === 'function') {
                     dateCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -9126,6 +9141,32 @@
                 });
             }
 
+            /* ===== Date Selection Notification ===== */
+            function initDateNotification() {
+                var dateInput = document.getElementById('package_use_date');
+                if (!dateInput) return;
+
+                dateInput.addEventListener('change', function() {
+                    if (this.value && this.value.trim() !== '') {
+                        var toast = document.getElementById('cv-cart-toast');
+                        var title = document.querySelector('#cv-cart-toast .cv-toast-title');
+                        var sub = document.getElementById('cv-cart-toast-sub');
+                        var icon = document.querySelector('#cv-cart-toast .cv-toast-icon i');
+                        
+                        if (toast && title && sub && icon) {
+                            title.textContent = 'Reservation date selected!';
+                            sub.textContent = 'Choose your package';
+                            icon.className = 'fas fa-calendar-check';
+                            toast.classList.add('is-visible');
+                            
+                            setTimeout(function() {
+                                toast.classList.remove('is-visible');
+                            }, 3500);
+                        }
+                    }
+                });
+            }
+
             document.addEventListener('DOMContentLoaded', function() {
                 initSidebar();
                 initSidebarDateSync();
@@ -9133,10 +9174,10 @@
                 initHamburger();
                 initVisualStepSync();
                 initCheckoutSteps();
+                initDateNotification();
             });
         })();
         </script>
 
-    </body>
 
     </html>

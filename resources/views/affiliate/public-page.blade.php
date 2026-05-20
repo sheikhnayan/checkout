@@ -455,8 +455,8 @@
             border:1px solid rgba(255,255,255,0.08);
             border-radius:18px;
             overflow:hidden;
-            min-height:220px;
-            margin:20px 0 24px;
+            min-height:380px;
+            margin:24px 0 32px;
             background:
                 linear-gradient(125deg, rgba(8,11,22,0.82), rgba(8,11,22,0.52)),
                 radial-gradient(circle at top right, rgba(255,255,255,0.08), transparent 35%),
@@ -465,12 +465,12 @@
         .aff-banner.has-image {
             background:
                 linear-gradient(125deg, rgba(8,11,22,0.84), rgba(8,11,22,0.48)),
-                url('{{ $affiliate->banner_image ? asset('uploads/' . $affiliate->banner_image) : '' }}') center/contain no-repeat,
+                url('{{ $affiliate->banner_image ? asset('uploads/' . $affiliate->banner_image) : '' }}') center/cover no-repeat,
                 #101522;
         }
-        .aff-banner-content { position:relative; z-index:1; padding:28px; }
-        .aff-kicker { font-size:11px; letter-spacing:1px; text-transform:uppercase; opacity:.64; font-weight:700; }
-        .aff-display-title { font-size:clamp(2rem, 5vw, 3.8rem); line-height:1; font-weight:800; max-width:unset; margin:10px 0 12px; }
+        .aff-banner-content { position:relative; z-index:1; padding:40px 36px; display:flex; flex-direction:column; justify-content:center; min-height:100%; }
+        .aff-kicker { font-size:11px; letter-spacing:1px; text-transform:uppercase; opacity:.68; font-weight:700; }
+        .aff-display-title { font-size:clamp(1.8rem, 6vw, 3.2rem); line-height:1.1; font-weight:800; max-width:unset; margin:12px 0 16px; letter-spacing:-.01em; }
         .aff-display-copy {
             max-width: 620px;
             font-size: 15px;
@@ -478,8 +478,43 @@
             max-width: 100%;
             overflow-wrap: anywhere;
             word-break: break-word;
+            line-height: 1.6;
         }
-        .aff-gallery { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; margin-top:18px; }
+        .aff-gallery { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:14px; margin-top:24px; }
+        .aff-gallery-item {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            padding: 0;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.16);
+            overflow: hidden;
+            background: rgba(255,255,255,0.04);
+            cursor: pointer;
+            position: relative;
+            transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease, filter .24s ease;
+        }
+        .aff-gallery-item::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14), inset 0 0 28px rgba(255,255,255,0.08);
+            pointer-events: none;
+        }
+        .aff-gallery-item:hover,
+        .aff-gallery-item:focus-visible {
+            transform: translateY(-3px);
+            border-color: rgba(167, 116, 255, 0.5);
+            box-shadow: 0 18px 34px rgba(0,0,0,0.28), 0 0 20px rgba(167, 116, 255, 0.2);
+            filter: brightness(1.05);
+            outline: none;
+        }
+        .aff-gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
         .aff-gallery-item {
             position: relative;
             width: 100%;

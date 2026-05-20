@@ -23,11 +23,12 @@ class TransactionMail extends Mailable
     public $priceBreakdown;
     public $website;
     public $includeQrInPdf;
+    public $recipientType;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($mailData, $transaction = null, $cartItems = null, $priceBreakdown = null, $website = null, bool $includeQrInPdf = true)
+    public function __construct($mailData, $transaction = null, $cartItems = null, $priceBreakdown = null, $website = null, bool $includeQrInPdf = true, string $recipientType = 'guest')
     {
         $this->mailData = $mailData;
         $this->transaction = $transaction;
@@ -35,6 +36,7 @@ class TransactionMail extends Mailable
         $this->priceBreakdown = $priceBreakdown;
         $this->website = $website;
         $this->includeQrInPdf = $includeQrInPdf;
+        $this->recipientType = $recipientType;
     }
 
     /**
@@ -42,8 +44,21 @@ class TransactionMail extends Mailable
      */
     public function envelope(): Envelope
     {
+        $clubName = $this->mailData['club_name']
+            ?? $this->mailData['website_name']
+            ?? optional($this->website)->name
+            ?? 'Venue';
+
+        $confirmationNumber = $this->mailData['transaction_id']
+            ?? optional($this->transaction)->transaction_id
+            ?? 'Pending';
+
+        $subject = $this->recipientType === 'manager'
+            ? $clubName . ' - BOOKING - Confirmation # ' . $confirmationNumber
+            : 'Booking Confirmed - ' . $clubName . ' - Confirmation # ' . $confirmationNumber;
+
         return new Envelope(
-            subject: 'Your CartVIP Booking Confirmation',
+            subject: $subject,
         );
     }
 
@@ -57,12 +72,25 @@ class TransactionMail extends Mailable
             ?? optional($this->website)->name
             ?? null;
 
+        $mailData = $this->mailData;
+        if (!array_key_exists('cart_items', $mailData) && $this->cartItems !== null) {
+            $mailData['cart_items'] = $this->cartItems;
+        }
+        if (!array_key_exists('price_breakdown', $mailData) && $this->priceBreakdown !== null) {
+            $mailData['price_breakdown'] = $this->priceBreakdown;
+        }
+        if (!array_key_exists('transaction_id', $mailData) && $this->transaction?->transaction_id) {
+            $mailData['transaction_id'] = $this->transaction->transaction_id;
+        }
+
         return new Content(
             view: 'emails.transaction',
             with: [
-                'mailData' => $this->mailData,
+                'mailData' => $mailData,
                 'clubName' => $clubName,
                 'transaction' => $this->transaction,
+                'recipientType' => $this->recipientType,
+                'isManagerCopy' => $this->recipientType === 'manager',
             ],
         );
     }

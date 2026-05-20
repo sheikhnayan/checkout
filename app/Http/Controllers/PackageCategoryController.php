@@ -18,10 +18,12 @@ class PackageCategoryController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:191',
+            'sort_order' => 'nullable|integer|min:0',
         ]);
 
         PackageCategory::firstOrCreate(
-            ['website_id' => $websiteId, 'name' => trim($request->name)]
+            ['website_id' => $websiteId, 'name' => trim($request->name)],
+            ['sort_order' => (int) $request->input('sort_order', 0)]
         );
 
         return redirect()->route('admin.package.show', $websiteId)
@@ -39,9 +41,13 @@ class PackageCategoryController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:191',
+            'sort_order' => 'nullable|integer|min:0',
         ]);
 
         $category->name = trim($request->name);
+        $category->sort_order = $request->has('sort_order')
+            ? (int) $request->input('sort_order', 0)
+            : (int) ($category->sort_order ?? 0);
         $category->save();
 
         return redirect()->route('admin.package.show', $category->website_id)

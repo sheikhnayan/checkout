@@ -227,16 +227,28 @@ class PackageController extends Controller
         $data = Package::with('category')
             ->clubVisible()
             ->where('website_id', $id)
+            ->orderByRaw('CASE WHEN package_category_id IS NULL THEN 1 ELSE 0 END')
+            ->orderBy('package_category_id')
+            ->orderBy('sort_order')
+            ->orderByDesc('is_most_popular')
+            ->orderBy('name')
             ->get();
 
         $targetedPackages = Package::with(['category', 'affiliate.user', 'entertainer.user'])
             ->where('website_id', $id)
             ->whereIn('audience', [Package::AUDIENCE_AFFILIATE, Package::AUDIENCE_ENTERTAINER])
+            ->orderByRaw('CASE WHEN package_category_id IS NULL THEN 1 ELSE 0 END')
+            ->orderBy('package_category_id')
+            ->orderBy('sort_order')
+            ->orderBy('name')
             ->get();
 
         $website_id = $id;
 
-        $categories = PackageCategory::where('website_id', $id)->orderBy('name')->get();
+        $categories = PackageCategory::where('website_id', $id)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
 
         return view('admin.package.show', compact('data', 'targetedPackages', 'website_id', 'categories'));
     }
@@ -427,6 +439,7 @@ class PackageController extends Controller
             ->get();
 
         $categories = PackageCategory::where('website_id', $websiteId)
+            ->orderBy('sort_order')
             ->orderBy('name')
             ->get();
 
@@ -458,6 +471,7 @@ class PackageController extends Controller
             'event_id' => $isTargeted ? 'prohibited' : 'nullable|integer',
             'category_id' => 'nullable|integer',
             'new_category_name' => 'nullable|string|max:255',
+            'sort_order' => 'nullable|integer|min:0',
         ];
 
         if ($isTargeted) {
@@ -478,6 +492,7 @@ class PackageController extends Controller
         ?int $entertainerId = null
     ): void {
         $package->name = $request->name;
+        $package->sort_order = (int) $request->input('sort_order', 0);
         $package->price = $request->price;
         $package->description = $request->description;
         $package->package_features = $this->normalizePackageFeatures(

@@ -139,6 +139,20 @@
 #viewTransactionModal #transaction-modal-content * {
     color: #f8fafc !important;
 }
+
+/* Prevent mobile admin menu toggle from covering modal close button */
+body.modal-open .admin-mobile-menu-toggle {
+    opacity: 0;
+    pointer-events: none;
+}
+
+@media (max-width: 1199.98px) {
+    #viewTransactionModal .modal-header .btn-close {
+        position: relative;
+        z-index: 2;
+        margin-right: 8px;
+    }
+}
 </style>
     <!-- Content wrapper -->
     <div class="content-wrapper">
@@ -618,6 +632,17 @@
                                         data-date="{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('Y-m-d h:i A T') }}"
                                         data-men="{{ $item->men ?? '' }}"
                                         data-women="{{ $item->women ?? '' }}"
+                                        data-affiliate_name="{{ !empty($item->affiliate_id) && !empty($item->affiliate) ? ($item->affiliate->display_name ?: optional($item->affiliate->user)->name ?: ('Affiliate #' . $item->affiliate_id)) : '' }}"
+                                        data-entertainer_name="{{ !empty($item->entertainer_id) && !empty($item->entertainer) ? ($item->entertainer->display_name ?: optional($item->entertainer->user)->name ?: ('Entertainer #' . $item->entertainer_id)) : '' }}"
+                                        data-affiliate_commission_percentage="{{ (float) ($item->affiliate_commission_percentage ?? 0) }}"
+                                        data-affiliate_commission_amount="{{ (float) ($item->affiliate_commission_amount ?? 0) }}"
+                                        data-affiliate_commission_status="{{ $item->affiliate_commission_status ?? '' }}"
+                                        data-affiliate_commission_hold_until="{{ optional($item->affiliate_commission_hold_until)->timezone('America/Los_Angeles')->format('M d, Y h:i A T') }}"
+                                        data-entertainer_commission_percentage="{{ (float) ($item->entertainer_commission_percentage ?? 0) }}"
+                                        data-entertainer_commission_amount="{{ (float) ($item->entertainer_commission_amount ?? 0) }}"
+                                        data-entertainer_commission_status="{{ $item->entertainer_commission_status ?? '' }}"
+                                        data-entertainer_commission_hold_until="{{ optional($item->entertainer_commission_hold_until)->timezone('America/Los_Angeles')->format('M d, Y h:i A T') }}"
+                                        data-total_commission="{{ (float) $commission }}"
                                         title="View Details">
                                         <i class="fas fa-eye"></i>
                                     </button>
@@ -727,6 +752,10 @@
                                         <li class="list-group-item"><strong>Non refundable deposit:</strong> <span id="modal-refundable"></span></li>
                                         <li class="list-group-item"><strong>Total Amount Paid:</strong> <span id="modal-total"></span></li>
                                         <li class="list-group-item"><strong>Total Due:</strong> <span id="modal-total_due"></span></li>
+                                        <li class="list-group-item"><strong>Total Commission:</strong> <span id="modal-total_commission"></span></li>
+                                        <li class="list-group-item"><strong>Commission Source:</strong> <span id="modal-commission_source"></span></li>
+                                        <li class="list-group-item" id="modal-affiliate-commission-row"><strong>Affiliate Commission:</strong> <span id="modal-affiliate_commission"></span></li>
+                                        <li class="list-group-item" id="modal-entertainer-commission-row"><strong>Entertainer Commission:</strong> <span id="modal-entertainer_commission"></span></li>
                                         <li class="list-group-item"><strong>Date (Pacific Time):</strong> <span id="modal-date"></span></li>
                                         <li class="list-group-item"><strong>Accepted Terms and Conditions:</strong> <span id="modal-terms">Yes</span></li>
                                         <li class="list-group-item"><strong>Accepted SMS:</strong> <span id="modal-sms">Yes</span></li>
@@ -1365,6 +1394,52 @@
                 $('#modal-total').text($(this).data('total'));
                 $('#modal-total_due').text($(this).data('due'));
                 $('#modal-date').text($(this).data('date'));
+
+                var affiliateName = String($(this).data('affiliate_name') || '').trim();
+                var entertainerName = String($(this).data('entertainer_name') || '').trim();
+                var affPct = parseFloat($(this).data('affiliate_commission_percentage')) || 0;
+                var affAmt = parseFloat($(this).data('affiliate_commission_amount')) || 0;
+                var affStatus = String($(this).data('affiliate_commission_status') || '').trim();
+                var affHold = String($(this).data('affiliate_commission_hold_until') || '').trim();
+                var entPct = parseFloat($(this).data('entertainer_commission_percentage')) || 0;
+                var entAmt = parseFloat($(this).data('entertainer_commission_amount')) || 0;
+                var entStatus = String($(this).data('entertainer_commission_status') || '').trim();
+                var entHold = String($(this).data('entertainer_commission_hold_until') || '').trim();
+                var totalCommission = parseFloat($(this).data('total_commission')) || 0;
+
+                var source = 'Direct';
+                if (affiliateName) {
+                    source = 'Affiliate - ' + affiliateName;
+                } else if (entertainerName) {
+                    source = 'Entertainer - ' + entertainerName;
+                }
+
+                $('#modal-total_commission').text('$' + totalCommission.toFixed(2));
+                $('#modal-commission_source').text(source);
+
+                if (affiliateName || affAmt > 0 || affPct > 0 || affStatus) {
+                    var affText = (affiliateName || 'N/A')
+                        + ' | ' + affPct.toFixed(2) + '%'
+                        + ' | $' + affAmt.toFixed(2)
+                        + (affStatus ? (' | ' + affStatus.toUpperCase()) : '')
+                        + (affHold ? (' | Hold Until: ' + affHold) : '');
+                    $('#modal-affiliate_commission').text(affText);
+                    $('#modal-affiliate-commission-row').show();
+                } else {
+                    $('#modal-affiliate-commission-row').hide();
+                }
+
+                if (entertainerName || entAmt > 0 || entPct > 0 || entStatus) {
+                    var entText = (entertainerName || 'N/A')
+                        + ' | ' + entPct.toFixed(2) + '%'
+                        + ' | $' + entAmt.toFixed(2)
+                        + (entStatus ? (' | ' + entStatus.toUpperCase()) : '')
+                        + (entHold ? (' | Hold Until: ' + entHold) : '');
+                    $('#modal-entertainer_commission').text(entText);
+                    $('#modal-entertainer-commission-row').show();
+                } else {
+                    $('#modal-entertainer-commission-row').hide();
+                }
             });
             </script>
 
