@@ -54,7 +54,33 @@ class AffiliatePublicController extends Controller
         $packageCategories = array_values($packageCategories);
 
         $setting = Setting::find(1);
-        $data = (object)['name' => 'CartVIP', 'logo' => null, 'location' => '', 'back_link' => null, 'back_text' => 'Back', 'reservation' => 0];
+
+        // Get the first affiliated website for fees and checkout info
+        $website = $affiliate->affiliateWebsites()
+            ->with('website')
+            ->where('is_active', true)
+            ->first()
+            ?->website;
+
+        // Use website data if available, otherwise create a default object
+        if ($website) {
+            $data = $website;
+        } else {
+            $data = (object)[
+                'name' => 'CartVIP',
+                'slug' => 'cartivp',
+                'logo' => null,
+                'location' => '',
+                'back_link' => null,
+                'back_text' => 'Back',
+                'reservation' => 0,
+                'gratuity_fee' => 0,
+                'refundable_fee' => 0,
+                'sales_tax_fee' => 10,
+                'service_charge_fee' => 10,
+                'sales_tax_name' => 'Tax'
+            ];
+        }
 
         return view('affiliate.public-page', compact('affiliate', 'packageMappings', 'packageCategories', 'clubGroups', 'data', 'setting'));
     }
