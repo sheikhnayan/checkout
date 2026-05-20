@@ -55,6 +55,14 @@ class AffiliatePublicController extends Controller
 
         $setting = Setting::find(1);
 
+        // Build unique clubs for location filter
+        $uniqueClubsForFilter = $clubGroups
+            ->map(function ($group) {
+                return $group->first()->package->website;
+            })
+            ->unique('id')
+            ->values();
+
         // Get the first affiliated website for fees and checkout info
         $website = $affiliate->affiliateWebsites()
             ->with('website')
@@ -82,7 +90,7 @@ class AffiliatePublicController extends Controller
             ];
         }
 
-        return view('affiliate.public-page', compact('affiliate', 'packageMappings', 'packageCategories', 'clubGroups', 'data', 'setting'));
+        return view('affiliate.public-page', compact('affiliate', 'packageMappings', 'packageCategories', 'clubGroups', 'data', 'setting', 'uniqueClubsForFilter'));
     }
 
     private function buildPackageCategoryGroups(Collection $packageMappings)

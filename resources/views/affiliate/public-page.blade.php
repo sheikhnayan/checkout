@@ -4560,195 +4560,16 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             <div class="cv-access-hint">Choose one to continue<span class="cv-access-hint-dot"></span></div>
                         @endif
                         <div class="cv-access-grid">
-                            @if ($data->reservation == 1)
-                                <button type="button" class="cv-access-card cv-access-tab is-active" data-name="guest">
-                                    <i class="fas fa-car-side"></i>
-                                    <div>
-                                        <strong>{{ $data->guest_list_button_text ?? 'Free Ride & Entry' }}</strong>
-                                        <span>Complimentary ride and general entry</span>
-                                    </div>
-                                </button>
-                                <button type="button" class="cv-access-card cv-access-tab" data-name="package">
-                                    <i class="fas fa-star"></i>
-                                    <div>
-                                        <strong>{{ $data->package_button_text ?? 'Packages' }}</strong>
-                                        <span>VIP table packages &amp; experiences</span>
-                                    </div>
-                                </button>
-                            @else
-                                <div class="cv-access-card is-active">
-                                    <i class="fas fa-star"></i>
-                                    <div>
-                                        <strong>{{ $data->package_button_text ?? 'Packages' }}</strong>
-                                        <span>VIP table packages &amp; experiences</span>
-                                    </div>
+                            <div class="cv-access-card is-active">
+                                <i class="fas fa-star"></i>
+                                <div>
+                                    <strong>{{ $data->package_button_text ?? 'Packages' }}</strong>
+                                    <span>VIP table packages &amp; experiences</span>
                                 </div>
-                            @endif
+                            </div>
                         </div>
                     </div>
 
-                @if ($data->reservation == 1)
-                    <div class="guest">
-                        <form action="{{ route('reservations.store', ['slug' => $data->slug]) }}" method="post">
-                            @csrf
-                            <input type="hidden" name="website_id" value="{{ $data->id }}">
-                            <input type="hidden" name="affiliate_slug" value="{{ $affiliateReferral->slug ?? '' }}">
-                            <section style="width: 100%">
-                                <h5 class="section-kicker-lg">Affiliate Booking</h5>
-                                <div class="">
-    
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <!-- Left: Form Fields -->
-                                            <div class="">
-    
-                                                <div class="form-row" style="margin-bottom: 1rem;">
-                                                    <div class="form-group" style="width: 50%;">
-                                                        <label for="firstName">First Name</label>
-                                                        <input type="text" name="reservation_first_name" id="firstName"
-                                                            placeholder="First Name" required />
-                                                    </div>
-                                                    <div class="form-group" style="width: 50%;">
-                                                        <label for="lastName">Last Name</label>
-                                                        <input type="text" name="reservation_last_name" id="lastName"
-                                                            placeholder="Last Name" required />
-                                                    </div>
-                                                </div>
-    
-                                                <div class="form-row" style="margin-bottom: 1rem;">
-                                                    <div class="form-group" style="width: 50%;">
-                                                        <label for="phone">Phone Number</label>
-                                                        <input type="tel" name="reservation_phone" id="phone"
-                                                            placeholder="Phone Number" required />
-                                                    </div>
-                                                    <div class="form-group" style="width: 50%;">
-                                                        <label for="email">Email <span style="font-size: 11px; font-weight: bold;">(Required)</span></label>
-                                                        <input type="email" name="reservation_email" id="email"
-                                                            placeholder="For Confirmation" required />
-                                                    </div>
-                                                </div>
-    
-                                                <div class="form-row" style="margin-bottom: 1rem;">
-                                                    <div class="form-group ddoobb" style="width: 50%;">
-                                                        <label for="dob-month">Date of Birth</label>
-                                                        <div class="form-row">
-                                                            <select id="dob-month" name="reservation_day" class="form-select"
-                                                                style="width: 32%; display: inline-block; margin-right: 2%; text-align: center !important; padding-left: 5px !important"
-                                                                required></select>
-                                                            <select id="dob-day" name="reservation_month" class="form-select"
-                                                                style="width: 32%; display: inline-block; margin-right: 2%;"
-                                                                required></select>
-                                                            <select id="dob-year" name="reservation_year" class="form-select"
-                                                                style="width: 32%; display: inline-block;" required></select>
-                                                        </div>
-                                                    </div>
-                                                </div>
-    
-                                                <div class="form-group" style="margin-bottom: 1rem;">
-                                                    <label for="note">Booking Note</label>
-                                                    <textarea id="note" name="reservation_description"
-                                                        placeholder="Your occasion or special request?"></textarea>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="host">Host Name</label>
-                                                    <input id="host" name="host_name"
-                                                        placeholder="Enter host name">
-                                                </div>
-                                            </div>
-    
-                                        </div>
-                                    </div>
-    
-                                </div>
-                            </section>
-    
-    
-                            <section class="guest-count">
-                                <div class="container">
-                                    <div class="row">
-                                        <div class="col-md-12 guest-list">
-                                            <h2>Total Guests</h2>
-                                            <div class="guest-gender-row">
-                                                <div class="guest-section guest-section--men" style="border-color: {{ $brandPrimary }} !important;">
-                                                    <span class="label">Men</span>
-                                                    <div class="counter">
-                                                        <span class="addon-qty-stepper guest-qty-stepper">
-                                                            <button class="addon-qty-btn guest-qty-btn" type="button"
-                                                                data-type="men" data-action="dec"
-                                                                onclick="decrements('men')">-</button>
-                                                            <span class="count addon-qty-val guest-qty-val" id="menCount">0</span>
-                                                            <button class="addon-qty-btn guest-qty-btn" type="button"
-                                                                data-type="men" data-action="inc"
-                                                                onclick="increments('men')">+</button>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div class="guest-section guest-section--women" style="border-color: {{ $brandPrimary }} !important;">
-                                                    <span class="label">Women</span>
-                                                    <div class="counter">
-                                                        <span class="addon-qty-stepper guest-qty-stepper">
-                                                            <button class="addon-qty-btn guest-qty-btn" type="button"
-                                                                data-type="women" data-action="dec"
-                                                                onclick="decrements('women')">-</button>
-                                                            <span class="count addon-qty-val guest-qty-val" id="womenCount">0</span>
-                                                            <button class="addon-qty-btn guest-qty-btn" type="button"
-                                                                data-type="women" data-action="inc"
-                                                                onclick="increments('women')">+</button>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div class="guest-section guest-section--total" style="border-color: {{ $brandPrimary }} !important;">
-                                                    <span class="label">Total Guests</span>
-                                                    <div class="counter">
-                                                        <span class="addon-qty-stepper guest-qty-stepper">
-                                                            <span class="count addon-qty-val guest-qty-val" id="totalCount">0</span>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <input type="hidden" name="men_count" id="men_count" value="0">
-                                            <input type="hidden" name="women_count" id="women_count" value="0">
-                                        </div>
-                                        <div class="col-md-12 mt-4">
-                                        </div>
-                                        <div class="col-md-12">
-                                            <div class="checkbox-container">
-                                                <label class="consent-label">
-                                                    <input type="checkbox" id="smsConsent_two" required />
-                                                    <span>I agree to receive SMS communications from {{ $data->name }} regarding my
-                                                    upcoming reservation. Message and data rates may apply. Messaging frequency
-                                                    may vary. Reply STOP to opt out at any time.</span>
-                                                </label>
-                                                <label class="consent-label driver-notification-consent-wrap" style="display:none;">
-                                                    <input type="checkbox" id="driverNotificationConsent_two" class="driver-notification-consent-input" />
-                                                    <span>I agree to receive notifications from the driver regarding my transportation pickup.</span>
-                                                </label>
-                                                <label class="consent-label">
-                                                    <input type="checkbox" id="termsConsent_two" required />
-                                                    <span>I understand that all sales are final. I agree to the <a target="_blank"
-                                                        href="{{ $data->terms }}">Terms of Service</a>, and acknowledge that CartVIP is the merchant of record for this purchase.</span>
-                                                </label>
-                                            </div>
-                                            <button class="submit-btn" type="submit" id="submitBtn_two">Create
-                                                Reservation</button>
-    
-                                        </div>
-                                        <div class="col-md-4"></div>
-                                    </div>
-                                </div>
-    
-                            </section>
-
-                            {{-- Location card removed (now lives in the hero .cv-hero-location panel) --}}
-    
-
-                            <input type="hidden" name="type" value="guest">
-    
-                        </form>
-                    </div>
-                @endif
-    
-    
                 <div class="package">
                     <section class="vip-pack">
                         <div class="">
@@ -4784,7 +4605,27 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         </div>
                                         @endif
                                     </div>
-    
+
+                                    <!-- Search & Location Filters for Affiliate -->
+                                    <div class="package-search-wrap" id="package-search-wrap" style="display: grid; grid-template-columns: 1.4fr minmax(220px, 0.9fr) auto; gap: 10px; align-items: end; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+                                        <div class="package-search-field" style="display: flex; flex-direction: column; gap: 4px;">
+                                            <label for="package-search-text" style="font-size: 11px; text-transform: uppercase; letter-spacing: .6px; opacity: .68; font-weight: 700; margin: 0;">Search</label>
+                                            <input type="text" id="package-search-text" placeholder="Search package, club, or location" style="width: 100%; margin: 0 !important; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.2) !important; border-radius: 10px !important; color: #fff !important; padding: 9px 11px !important; min-height: 40px;">
+                                        </div>
+                                        <div class="package-search-field" style="display: flex; flex-direction: column; gap: 4px;">
+                                            <label for="package-location-filter" style="font-size: 11px; text-transform: uppercase; letter-spacing: .6px; opacity: .68; font-weight: 700; margin: 0;">Filter by Location</label>
+                                            <select id="package-location-filter" style="width: 100%; margin: 0 !important; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.2) !important; border-radius: 10px !important; color: #fff !important; padding: 9px 11px !important; min-height: 40px;">
+                                                <option value="">All Locations</option>
+                                                @foreach($uniqueClubsForFilter as $clubOption)
+                                                    <option value="{{ $clubOption->id }}">{{ $clubOption->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <button type="button" id="package-search-clear" style="appearance: none; border: 1px solid rgba(255,255,255,0.22); background: rgba(255,255,255,0.08); color: #fff; border-radius: 10px; font-size: 12px; font-weight: 700; letter-spacing: .4px; min-height: 40px; padding: 0 14px; cursor: pointer; transition: border-color .2s ease, background .2s ease;">Clear</button>
+                                    </div>
+                                    <div id="package-search-empty" style="display: none; margin: 6px 2px 12px; font-size: 13px; opacity: .75;">No packages matched your filters.</div>
+
+
                                     @if(isset($packageCategories) && count($packageCategories))
                                         @php
                                             $sortedPackageCategories = collect($packageCategories)
@@ -8153,6 +7994,52 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 }
             }
 
+            function initPackageSearch() {
+                var searchInput = document.getElementById('package-search-text');
+                var locationFilter = document.getElementById('package-location-filter');
+                var clearBtn = document.getElementById('package-search-clear');
+                var emptyMsg = document.getElementById('package-search-empty');
+
+                if (!searchInput || !locationFilter) return;
+
+                function filterPackages() {
+                    var searchQuery = searchInput.value.toLowerCase().trim();
+                    var locationId = locationFilter.value;
+                    var hasResults = false;
+
+                    document.querySelectorAll('[id^="pkg-card-"]').forEach(function(card) {
+                        var packageName = (card.getAttribute('data-package-name') || '').toLowerCase();
+                        var clubName = (card.getAttribute('data-club-name') || '').toLowerCase();
+                        var location = (card.getAttribute('data-location') || '').toLowerCase();
+                        var clubId = card.getAttribute('data-club-id');
+
+                        var matchesSearch = !searchQuery || packageName.includes(searchQuery) || clubName.includes(searchQuery) || location.includes(searchQuery);
+                        var matchesLocation = !locationId || clubId == locationId;
+
+                        if (matchesSearch && matchesLocation) {
+                            card.style.display = '';
+                            hasResults = true;
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+
+                    if (emptyMsg) {
+                        emptyMsg.style.display = hasResults ? 'none' : 'block';
+                    }
+                }
+
+                searchInput.addEventListener('input', filterPackages);
+                locationFilter.addEventListener('change', filterPackages);
+                if (clearBtn) {
+                    clearBtn.addEventListener('click', function() {
+                        searchInput.value = '';
+                        locationFilter.value = '';
+                        filterPackages();
+                    });
+                }
+            }
+
             function initSidebarDateSync() {
                 var dateInput = document.getElementById('package_use_date');
                 var sidebarDate = document.getElementById('cv-sidebar-date');
@@ -8280,37 +8167,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     dateInput.addEventListener('input', updateCheckoutSteps);
                 }
 
-                document.querySelectorAll('.cv-access-tab').forEach(function(tab) {
-                    tab.addEventListener('click', function() {
-                        var tabName = this.getAttribute('data-name');
-
-                        // Remove is-active from all tabs
-                        document.querySelectorAll('.cv-access-tab').forEach(function(t) {
-                            t.classList.remove('is-active');
-                        });
-
-                        // Add is-active to clicked tab
-                        tab.classList.add('is-active');
-
-                        // Hide all sections
-                        var sections = document.querySelectorAll('.guest, .package');
-                        sections.forEach(function(section) {
-                            section.style.display = 'none';
-                        });
-
-                        // Show the corresponding section
-                        if (tabName === 'guest') {
-                            var guestSection = document.querySelector('.guest');
-                            if (guestSection) guestSection.style.display = 'block';
-                        } else if (tabName === 'package') {
-                            var packageSection = document.querySelector('.package');
-                            if (packageSection) packageSection.style.display = 'block';
-                        }
-
-                        setTimeout(updateCheckoutSteps, 0);
-                    });
-                });
-
                 var cartList = document.getElementById('cart-list');
                 if (cartList && window.MutationObserver) {
                     new MutationObserver(updateCheckoutSteps).observe(cartList, { childList: true });
@@ -8356,6 +8212,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
             document.addEventListener('DOMContentLoaded', function() {
                 initSidebar();
+                initPackageSearch();
                 initSidebarDateSync();
                 initSidebarCta();
                 initHamburger();
