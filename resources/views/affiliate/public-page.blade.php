@@ -8281,7 +8281,34 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 }
 
                 document.querySelectorAll('.cv-access-tab').forEach(function(tab) {
-                    tab.addEventListener('click', function() { setTimeout(updateCheckoutSteps, 0); });
+                    tab.addEventListener('click', function() {
+                        var tabName = this.getAttribute('data-name');
+
+                        // Remove is-active from all tabs
+                        document.querySelectorAll('.cv-access-tab').forEach(function(t) {
+                            t.classList.remove('is-active');
+                        });
+
+                        // Add is-active to clicked tab
+                        tab.classList.add('is-active');
+
+                        // Hide all sections
+                        var sections = document.querySelectorAll('.guest, .package');
+                        sections.forEach(function(section) {
+                            section.style.display = 'none';
+                        });
+
+                        // Show the corresponding section
+                        if (tabName === 'guest') {
+                            var guestSection = document.querySelector('.guest');
+                            if (guestSection) guestSection.style.display = 'block';
+                        } else if (tabName === 'package') {
+                            var packageSection = document.querySelector('.package');
+                            if (packageSection) packageSection.style.display = 'block';
+                        }
+
+                        setTimeout(updateCheckoutSteps, 0);
+                    });
                 });
 
                 var cartList = document.getElementById('cart-list');
