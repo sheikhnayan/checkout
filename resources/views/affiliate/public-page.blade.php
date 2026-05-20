@@ -39,10 +39,12 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --aff-accent: #ffcc00;
+            --aff-accent: #a774ff;
+            --aff-accent-dark: #7c3aed;
+            --aff-accent-darker: #5b21b6;
             --aff-bg: #0b0e1a;
             --aff-text: #e8eaf6;
-            --aff-theme: #1a75ff;
+            --aff-theme: #a774ff;
         }
         * { box-sizing: border-box; }
         body {
@@ -56,19 +58,21 @@
         a { color: var(--aff-accent); }
 
         .package-category-tile {
-            background: var(--aff-accent) !important;
-            color: #000 !important;
+            background: linear-gradient(135deg, #a774ff 0%, #7c3aed 50%, #5b21b6 100%) !important;
+            color: #fff !important;
             border: 1px solid var(--aff-accent) !important;
-            box-shadow: 0 12px 24px rgba(255, 204, 0, 0.12);
+            box-shadow: 0 12px 24px rgba(167, 116, 255, 0.25), 0 0 30px rgba(167, 116, 255, 0.15);
         }
         .package-category-tile:hover {
-            filter: brightness(1.03);
+            background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 50%, #4c1d95 100%) !important;
+            box-shadow: 0 12px 30px rgba(167, 116, 255, 0.4), 0 0 40px rgba(167, 116, 255, 0.2);
+            transform: translateY(-2px);
         }
         .package-category-tile.active {
-            background: #101725 !important;
-            color: var(--aff-accent) !important;
+            background: linear-gradient(135deg, var(--aff-accent) 0%, var(--aff-accent-dark) 100%) !important;
+            color: #fff !important;
             border-color: var(--aff-accent) !important;
-            box-shadow: none;
+            box-shadow: 0 12px 30px rgba(167, 116, 255, 0.4);
         }
 
         /* Hero */
@@ -88,8 +92,8 @@
             height: 74px;
             border-radius: 50%;
             padding: 3px;
-            background: linear-gradient(145deg, rgba(255, 204, 0, 0.95), rgba(255, 204, 0, 0.35));
-            box-shadow: 0 12px 26px rgba(0, 0, 0, 0.35);
+            background: linear-gradient(145deg, rgba(167, 116, 255, 0.95), rgba(167, 116, 255, 0.35));
+            box-shadow: 0 12px 26px rgba(167, 116, 255, 0.2);
             flex-shrink: 0;
         }
         .aff-avatar {
@@ -241,8 +245,8 @@
         }
 
         .aff-share-option:hover {
-            border-color: rgba(255, 204, 0, 0.5);
-            background: rgba(255, 204, 0, 0.16);
+            border-color: rgba(167, 116, 255, 0.5);
+            background: rgba(167, 116, 255, 0.16);
         }
 
         .aff-copy-toast {
@@ -326,7 +330,7 @@
         }
         .package-search-clear:hover {
             border-color: var(--aff-accent);
-            background: rgba(255, 204, 0, 0.14);
+            background: rgba(167, 116, 255, 0.14);
             color: #fff;
         }
         .package-search-empty {
@@ -398,18 +402,22 @@
             flex-shrink: 0;
         }
         .vip-btn {
-            background: var(--aff-accent);
-            color: #000;
+            background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%);
+            color: #fff;
             font-weight: 700;
             border: none;
             padding: 8px 20px;
             border-radius: 25px;
             cursor: pointer;
-            transition: opacity .2s, transform .15s;
+            transition: all .2s;
             white-space: nowrap;
             font-size: 14px;
+            box-shadow: 0 4px 12px rgba(167, 116, 255, 0.3);
         }
-        .vip-btn:hover { opacity:.85; transform:translateY(-1px); }
+        .vip-btn:hover {
+            box-shadow: 0 6px 16px rgba(167, 116, 255, 0.45);
+            transform: translateY(-2px);
+        }
         .club-detail-trigger {
             display:inline-flex;
             align-items:center;
@@ -628,37 +636,58 @@
         }
 
         /* Steps */
-        .checkout-steps { display:flex; justify-content:center; align-items:center; margin:1.5rem 0; padding:0; list-style:none; }
-        .step { flex:1; text-align:center; position:relative; padding:0 .5rem; }
-        .step-number { display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:50%; background:#444; color:#fff; font-weight:bold; margin-bottom:.4rem; border:2px solid #444; font-size:15px; }
-        .step.active .step-number { background:var(--aff-accent); border-color:var(--aff-accent); color:#000; }
-        .step.completed .step-number { background:#28a745; border-color:#28a745; color:#fff; }
-        .step-title { font-size:.8rem; color:#888; margin:0; }
-        .step.active .step-title, .step.completed .step-title { color:#ddd; font-weight:600; }
-        .step::after { content:''; position:absolute; top:19px; right:-50%; width:100%; height:2px; background:#444; z-index:-1; }
+        .checkout-steps { display:flex; justify-content:center; align-items:center; margin:2rem 0 1.5rem; padding:0; list-style:none; gap:8px; }
+        .step { flex:1; text-align:center; position:relative; padding:0 0.3rem; max-width:140px; }
+        .step-number { display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,0.08); color:#fff; font-weight:bold; margin-bottom:0.6rem; border:2px solid rgba(255,255,255,0.2); font-size:16px; transition:all .2s; }
+        .step.active .step-number { background:linear-gradient(135deg, #a774ff 0%, #7c3aed 100%); border-color:#a774ff; color:#fff; box-shadow:0 8px 20px rgba(167, 116, 255, 0.35); }
+        .step.completed .step-number { background:linear-gradient(135deg, #28a745 0%, #20c997 100%); border-color:#28a745; color:#fff; box-shadow:0 8px 20px rgba(40, 167, 69, 0.25); }
+        .step-title { font-size:13px; color:rgba(255,255,255,0.6); margin:0; font-weight:600; transition:all .2s; }
+        .step.active .step-title, .step.completed .step-title { color:#fff; font-weight:700; }
+        .step::after { content:''; position:absolute; top:22px; right:-50%; width:100%; height:2px; background:rgba(255,255,255,0.1); z-index:-1; transition:all .2s; }
         .step:last-child::after { display:none; }
-        .step.completed::after { background:#28a745; }
+        .step.completed::after { background:linear-gradient(135deg, #28a745 0%, #20c997 100%); }
         .checkout-section { display:none; }
         .checkout-section.active { display:block; }
+        .checkout-section h5 {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 1.2rem;
+            margin-top: 0;
+            color: #f8f9ff;
+            letter-spacing: -.01em;
+            padding-bottom: 10px;
+            border-bottom: 2px solid transparent;
+            background-image: linear-gradient(90deg, rgba(167, 116, 255, 0.3) 0%, transparent 50%);
+            background-size: 2px 2px;
+            background-position: 0 100%;
+            background-repeat: repeat-x;
+        }
 
         /* Forms */
-        .form-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:.9rem; }
-        .form-group { flex:1; min-width:130px; }
-        label { font-size:13px; margin-bottom:4px; display:block; opacity:.85; }
+        .form-row { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:1.1rem; }
+        .form-group { flex:1; min-width:140px; }
+        label { font-size:12px; margin-bottom:6px; display:block; opacity:.8; font-weight:600; text-transform:uppercase; letter-spacing:.4px; }
         input[type="text"], input[type="email"], input[type="tel"], input[type="number"], textarea, select.form-select {
-            background: rgba(255,255,255,0.07) !important;
-            border: 1px solid #9797a0 !important;
-            border-radius: 10px !important;
+            background: rgba(255,255,255,0.06) !important;
+            border: 1px solid rgba(255,255,255,0.18) !important;
+            border-radius: 12px !important;
             color: #fff !important;
-            padding: 10px 14px;
+            padding: 11px 14px;
             width: 100%;
             margin-bottom: 4px;
             font-size: 15px;
+            transition: all .2s;
         }
-        textarea { min-height:80px; resize:vertical; }
-        input::placeholder, textarea::placeholder { color:rgba(255,255,255,0.35) !important; }
-        select.form-select { -webkit-appearance:none !important; appearance:none !important; }
-        select option { background:#1a1d2e !important; color:#fff; }
+        input[type="text"]:focus, input[type="email"]:focus, input[type="tel"]:focus, input[type="number"]:focus, textarea:focus, select.form-select:focus {
+            background: rgba(255,255,255,0.08) !important;
+            border-color: rgba(167, 116, 255, 0.5) !important;
+            box-shadow: 0 0 0 3px rgba(167, 116, 255, 0.15) !important;
+            outline: none !important;
+        }
+        textarea { min-height:90px; resize:vertical; }
+        input::placeholder, textarea::placeholder { color:rgba(255,255,255,0.4) !important; }
+        select.form-select { -webkit-appearance:none !important; appearance:none !important; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23fff' d='M1 1l5 5 5-5'/%3E%3C/svg%3E") !important; background-repeat:no-repeat !important; background-position:right 10px center !important; padding-right:28px !important; }
+        select option { background:#0b0e1a !important; color:#fff; }
 
         #Pick-up-time,
         input[name="transportation_pickup_time"].flatpickr-time {
@@ -745,21 +774,21 @@
         }
 
         .flatpickr-calendar.aff-reservation-calendar .flatpickr-day:hover {
-            background: rgba(221, 183, 116, 0.28) !important;
-            border-color: rgba(201, 156, 77, 0.62) !important;
+            background: rgba(167, 116, 255, 0.28) !important;
+            border-color: rgba(167, 116, 255, 0.62) !important;
         }
 
         .flatpickr-calendar.aff-reservation-calendar .flatpickr-day.today {
-            border-color: #ffcc00 !important;
-            color: #ffde6b !important;
+            border-color: #a774ff !important;
+            color: #d8bff8 !important;
         }
 
         .flatpickr-calendar.aff-reservation-calendar .flatpickr-day.selected,
         .flatpickr-calendar.aff-reservation-calendar .flatpickr-day.startRange,
         .flatpickr-calendar.aff-reservation-calendar .flatpickr-day.endRange {
-            background: #ffcc00 !important;
-            border-color: #ffcc00 !important;
-            color: #1f1400 !important;
+            background: #a774ff !important;
+            border-color: #a774ff !important;
+            color: #f8f9ff !important;
         }
 
         .flatpickr-calendar.aff-reservation-calendar .flatpickr-current-month,
@@ -854,8 +883,8 @@
 
         /* Buttons */
         .btn-next, .submit-btn {
-            background: var(--aff-accent) !important;
-            color: #000 !important;
+            background: linear-gradient(135deg, #a774ff 0%, #7c3aed 50%, #5b21b6 100%) !important;
+            color: #fff !important;
             border: none;
             padding: 11px 28px;
             border-radius: 25px;
@@ -863,12 +892,45 @@
             cursor: pointer;
             font-size: 15px;
             min-width: 180px;
-            transition: opacity .2s, transform .15s;
+            transition: all .2s;
+            box-shadow: 0 6px 20px rgba(167, 116, 255, 0.4);
         }
-        .btn-prev { background:#555 !important; color:#fff !important; border:none; padding:11px 28px; border-radius:25px; font-weight:700; cursor:pointer; font-size:15px; min-width:140px; }
-        .btn-next:hover, .submit-btn:hover { opacity:.85; transform:translateY(-1px); }
+        .btn-next:hover, .submit-btn:hover {
+            box-shadow: 0 8px 28px rgba(167, 116, 255, 0.55);
+            transform: translateY(-2px);
+        }
+        .btn-prev {
+            background: #555 !important;
+            color: #fff !important;
+            border: none;
+            padding: 11px 28px;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 15px;
+            min-width: 140px;
+            transition: all .2s;
+        }
+        .btn-prev:hover { opacity: 0.9; transform: translateY(-2px); }
         .step-navigation { display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin:1.5rem 0; }
-        .same-as-info, .same-as-info-transport { background:var(--aff-accent) !important; color:#000 !important; border:none; padding:9px 20px; border-radius:25px; font-weight:700; margin-bottom:16px; cursor:pointer; font-size:13px; display:inline-block; }
+        .same-as-info, .same-as-info-transport {
+            background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%) !important;
+            color: #fff !important;
+            border: none;
+            padding: 9px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            cursor: pointer;
+            font-size: 13px;
+            display: inline-block;
+            box-shadow: 0 4px 12px rgba(167, 116, 255, 0.3);
+            transition: all .2s;
+        }
+        .same-as-info:hover, .same-as-info-transport:hover {
+            box-shadow: 0 6px 16px rgba(167, 116, 255, 0.45);
+            transform: translateY(-1px);
+        }
 
         /* Cart */
         #cart-section {
@@ -971,8 +1033,9 @@
         }
 
         /* Addons */
-        .addons-wrap { display:none; margin:12px 0 4px; }
-        .addon-item { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.07); }
+        .addons-wrap { display:none; margin:14px 0 12px; background:rgba(167, 116, 255, 0.06); border:1px solid rgba(167, 116, 255, 0.16); border-radius:12px; padding:14px 16px; }
+        .addons-wrap > div:first-child { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-weight:700; }
+        .addon-item { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.07); }
         .addon-item:last-child { border-bottom:none; }
         .addon-item input[type="checkbox"] {
             -webkit-appearance: none;
@@ -1072,8 +1135,8 @@
             transition: all .15s ease;
         }
         #addonSelectionModal .addon-qty-btn:hover {
-            background: var(--aff-accent, #f7e2b4);
-            color: #111;
+            background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%);
+            color: #fff;
             border-color: transparent;
         }
         #addonSelectionModal .addon-qty-val {
@@ -1110,20 +1173,41 @@
         }
 
         /* Price summary */
-        .price-summary { display:none; background:rgba(255,255,255,0.04); border-radius:10px; padding:14px 16px; margin-bottom:1rem; font-size:14px; }
+        .price-summary { display:none; background:linear-gradient(135deg, rgba(167, 116, 255, 0.08) 0%, rgba(167, 116, 255, 0.03) 100%); border:1px solid rgba(167, 116, 255, 0.18); border-radius:14px; padding:16px 18px; margin-bottom:1.2rem; font-size:14px; }
+        .price-summary > div:first-child { font-weight:800; margin-bottom:10px; color:#f8f9ff; font-size:15px; }
 
         /* Promo */
         #promo-section { display:none; margin-bottom:1rem; }
         .promo-row { display:flex; }
         #promo_code { border-top-right-radius:0 !important; border-bottom-right-radius:0 !important; margin-bottom:0; }
-        #applyPromoBtn { background:var(--aff-accent); color:#000; font-weight:700; border:none; border-top-right-radius:10px; border-bottom-right-radius:10px; padding:0 18px; cursor:pointer; white-space:nowrap; font-size:14px; }
+        #applyPromoBtn {
+            background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%);
+            color: #fff;
+            font-weight: 700;
+            border: none;
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+            padding: 0 18px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(167, 116, 255, 0.3);
+            transition: all .2s;
+        }
+        #applyPromoBtn:hover {
+            box-shadow: 0 6px 16px rgba(167, 116, 255, 0.45);
+            transform: translateY(-1px);
+        }
 
         /* StripeElement */
-        .StripeElement { padding:10px 14px; border:1px solid #9797a0; border-radius:10px; margin-bottom:8px; background:rgba(255,255,255,0.07); }
+        .StripeElement { padding:11px 14px; border:1px solid rgba(255,255,255,0.18); border-radius:12px; margin-bottom:8px; background:rgba(255,255,255,0.06); color:#fff; font-size:15px; transition:all .2s; }
+        .StripeElement:focus { background:rgba(255,255,255,0.08); border-color:rgba(167, 116, 255, 0.5); }
 
         /* Consent checkboxes */
-        .consent-label { display:flex; gap:10px; align-items:flex-start; cursor:pointer; margin-bottom:10px; font-size:13px; }
-        .consent-label span { flex:1; line-height:1.4; }
+        .consent-label { display:flex; gap:12px; align-items:flex-start; cursor:pointer; margin-bottom:12px; font-size:13px; line-height:1.5; }
+        .consent-label span { flex:1; line-height:1.5; color:rgba(232, 234, 246, 0.92); }
+        .consent-label a { color:var(--aff-accent); text-decoration:none; font-weight:600; }
+        .consent-label a:hover { text-decoration:underline; }
         .consent-label input {
             -webkit-appearance: none;
             appearance: none;
@@ -1131,13 +1215,13 @@
             height: 26px;
             border-radius: 999px;
             border: 1px solid rgba(255,255,255,0.28);
-            background: rgba(255,255,255,0.16);
+            background: rgba(255,255,255,0.12);
             position: relative;
-            margin-top: 0 !important;
+            margin-top: 2px !important;
             padding: 0 !important;
             flex-shrink: 0;
             cursor: pointer;
-            transition: background .2s ease, border-color .2s ease;
+            transition: all .2s ease;
         }
         .consent-label input::before {
             content: '';
@@ -1151,19 +1235,41 @@
             transition: transform .2s ease;
         }
         .consent-label input:checked {
-            background: var(--aff-accent);
-            border-color: var(--aff-accent);
+            background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%);
+            border-color: #a774ff;
         }
         .consent-label input:checked::before {
             transform: translateX(20px);
         }
         .consent-label input:focus-visible {
-            outline: 2px solid rgba(255,204,0,0.7);
+            outline: 2px solid rgba(167, 116, 255, 0.6);
             outline-offset: 2px;
         }
 
         /* Required field highlight */
         .required-field { border-color:#ff6b6b !important; }
+
+        /* Alerts */
+        .alert {
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            border: 1px solid;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .alert-success {
+            background: rgba(34, 197, 94, 0.14);
+            border-color: rgba(34, 197, 94, 0.4);
+            color: #22c55e;
+        }
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.14);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #ef4444;
+        }
 
         /* Footer */
         .aff-footer {
@@ -1218,23 +1324,61 @@
             text-underline-offset: 2px;
         }
         .cv-footer-legal a:hover { color: rgba(255,255,255,0.85); }
+        .cv-footer-tagline {
+            font-size: 11.5px;
+            color: rgba(255,255,255,0.42);
+            line-height: 1.5;
+            max-width: 200px;
+            margin: 0;
+        }
+        .cv-footer-legal-title {
+            font-size: 10px;
+            font-weight: 800;
+            color: rgba(167, 116, 255, 0.85);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin: 0 0 4px;
+        }
         .cv-footer-bar {
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
             flex-wrap: wrap;
             gap: 10px;
             padding: 14px 0 16px;
             font-size: 11px;
             color: rgba(255,255,255,0.35);
-            text-align: center;
+        }
+        .cv-footer-bar-copy { display: inline-flex; align-items: center; gap: 5px; }
+        .cv-footer-bar-copy strong { color: rgba(255,255,255,0.6); font-weight: 700; }
+        .cv-footer-bar-socials { display: inline-flex; gap: 8px; }
+        .cv-footer-bar-social {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: rgba(167, 116, 255, 0.1);
+            border: 1px solid rgba(167, 116, 255, 0.3);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(167, 116, 255, 0.7) !important;
+            text-decoration: none !important;
+            transition: all .15s;
+            font-size: 11px;
+        }
+        .cv-footer-bar-social:hover {
+            background: rgba(167, 116, 255, 0.14);
+            border-color: rgba(167, 116, 255, 0.5);
+            color: #a774ff !important;
+            transform: translateY(-2px);
         }
         @media (max-width: 600px) {
             .cv-footer-inner { align-items: flex-start; text-align: left; padding: 22px 0 8px; gap: 16px; }
             .cv-footer-brand { align-items: flex-start; min-width: 106px; }
             .cv-footer-logo { height: 30px; }
+            .cv-footer-tagline { max-width: 100%; }
             .cv-footer-legal { font-size: 10.5px; line-height: 1.75; }
-            .cv-footer-bar { justify-content: center; text-align: center; gap: 8px; padding: 12px 0 14px; }
+            .cv-footer-bar { justify-content: center; text-align: center; gap: 8px; padding: 12px 0 14px; flex-direction: column; align-items: center; }
         }
 
         /* Mobile */
@@ -1244,18 +1388,20 @@
                 padding-right: 2px;
             }
 
-            .step-title { font-size:.55rem !important; }
+            .step-title { font-size:.65rem !important; font-weight:700; }
+            .step-number { width:40px !important; height:40px !important; font-size:14px; }
             input, select, textarea { font-size:16px !important; }
             .vip-card { flex-direction:column; align-items:flex-start; }
             .package-search-wrap { grid-template-columns: 1fr; }
-            .aff-banner-content { padding:16px 12px; }
+            .aff-banner-content { padding:20px 14px; }
+            .aff-display-title { font-size:clamp(1.5rem, 4vw, 2.2rem) !important; }
             .aff-story,
             .aff-location-card,
             #cart-section,
             .checkout-section,
             .vip-pack {
-                padding-left: 10px;
-                padding-right: 10px;
+                padding-left: 12px;
+                padding-right: 12px;
             }
             .aff-gallery { grid-template-columns:repeat(2, minmax(0, 1fr)); }
             .aff-profile-head {
@@ -1267,7 +1413,8 @@
             .aff-location-shell { grid-template-columns: 1fr; }
             .aff-location-map,
             .aff-location-map iframe { min-height: 250px; }
-
+            .step-navigation { flex-direction: column; gap: 10px; }
+            .btn-next, .submit-btn, .btn-prev { width: 100%; min-width: unset; }
 
             #events-list .event-card {
                 padding-left: 0;
@@ -1387,7 +1534,7 @@ const clubConfigs = {
 
     <section class="aff-banner {{ $affiliate->banner_image ? 'has-image' : '' }}">
         <div class="aff-banner-content">
-            <div class="aff-kicker">Affiliate Booking Page</div>
+            <div class="aff-kicker">{{ $isEntertainerProfile ? 'Entertainer Booking Page' : 'Affiliate Booking Page' }}</div>
             <div class="aff-display-title">{{ $affiliate->hero_title ?: ($affiliate->display_name ?: $affiliate->user->name) }}</div>
             <div class="aff-display-copy">
                 {{ $affiliate->hero_subtitle ?: ($affiliate->description ?: 'Book premium experiences from multiple clubs in one curated flow.') }}
@@ -1423,7 +1570,7 @@ const clubConfigs = {
     @endphp
 
     {{-- ===== PACKAGES ===== --}}
-    <h5 class="mb-3" style="opacity:.6;font-size:.85rem;text-transform:uppercase;letter-spacing:.8px;font-weight:700;">Select a Package to Book</h5>
+    <h5 class="mb-3" style="opacity:.7;font-size:.9rem;text-transform:uppercase;letter-spacing:.8px;font-weight:700;color:#a774ff;">Select a Package to Book</h5>
 
     @if($packageCategoryGroups->count())
         @php
@@ -1615,7 +1762,7 @@ const clubConfigs = {
     </div>
 
     <div id="shareLinkContainer" style="margin-bottom:1rem;">
-        <button type="button" id="generateShareLink" style="background:var(--aff-accent);color:#000;font-weight:700;border:none;padding:8px 20px;border-radius:25px;cursor:pointer;font-size:14px;">&#128279; Share Cart Link</button>
+        <button type="button" id="generateShareLink" style="background:linear-gradient(135deg, #a774ff 0%, #7c3aed 100%);color:#fff;font-weight:700;border:none;padding:10px 24px;border-radius:25px;cursor:pointer;font-size:14px;box-shadow:0 4px 12px rgba(167, 116, 255, 0.3);transition:all .2s;">&#128279; Share Cart Link</button>
         <div style="position:relative;margin-top:8px;">
             <input type="text" id="shareableLink" readonly style="width:100%;display:none;padding-right:40px;">
             <div id="copyTooltip" style="display:none;position:absolute;top:-35px;right:0;background:#28a745;color:white;padding:8px 12px;border-radius:4px;font-size:12px;white-space:nowrap;z-index:1000;">Link copied!</div>
@@ -1734,7 +1881,7 @@ const clubConfigs = {
         {{-- Step 3: Payment --}}
         <section class="checkout-section" id="section-3">
             <h5 class="mb-3" style="font-weight:700;">Payment Information</h5>
-            <button type="button" class="same-as-info">Same as personal details</button>
+            <button type="button" class="same-as-info" style="margin-bottom:1rem;">Same as personal details</button>
             <div class="form-row">
                 <div class="form-group"><label>First Name</label><input name="payment_first_name" type="text" required></div>
                 <div class="form-group"><label>Last Name</label><input name="payment_last_name" type="text" required></div>
@@ -1862,6 +2009,79 @@ const clubConfigs = {
 </main>
 
 <style>
+    /* ===== Cart Toast Notification ===== */
+    #cv-cart-toast {
+        position: fixed;
+        top: 22px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-140%);
+        z-index: 10000;
+        background: linear-gradient(135deg, rgba(20,18,10,0.97) 0%, rgba(12,10,5,0.99) 100%);
+        color: #fff;
+        border: 1px solid rgba(255,204,0,0.45);
+        border-radius: 14px;
+        padding: 13px 20px 13px 16px;
+        font-size: 14px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 260px;
+        max-width: calc(100vw - 32px);
+        box-shadow: 0 14px 38px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,204,0,0.14), 0 5px 18px rgba(255,204,0,0.12);
+        transition: transform .32s cubic-bezier(.2,.9,.3,1.3), opacity .22s;
+        opacity: 0;
+        pointer-events: none;
+    }
+    #cv-cart-toast.is-visible {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+    #cv-cart-toast .cv-toast-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 14px;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(34,197,94,0.35);
+    }
+    #cv-cart-toast.is-remove .cv-toast-icon {
+        background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
+        box-shadow: 0 4px 12px rgba(239,68,68,0.3);
+    }
+    #cv-cart-toast .cv-toast-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    #cv-cart-toast .cv-toast-title { font-size: 14px; font-weight: 800; color: #fff; letter-spacing: -0.005em; }
+    #cv-cart-toast .cv-toast-sub { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.62); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+    #cv-cart-toast .cv-toast-close {
+        margin-left: auto;
+        background: rgba(255,255,255,0.07);
+        border: 1px solid rgba(255,255,255,0.12);
+        color: rgba(255,255,255,0.65);
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        font-size: 12px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all .15s;
+        flex-shrink: 0;
+    }
+    #cv-cart-toast .cv-toast-close:hover { background: rgba(255,255,255,0.14); color: #fff; }
+    @media (max-width: 600px) {
+        #cv-cart-toast { top: 12px; padding: 11px 14px 11px 13px; font-size: 13px; min-width: 0; width: calc(100vw - 24px); }
+        #cv-cart-toast .cv-toast-icon { width: 30px; height: 30px; font-size: 13px; }
+        #cv-cart-toast .cv-toast-title { font-size: 13px; }
+        #cv-cart-toast .cv-toast-sub { font-size: 11.5px; max-width: 140px; }
+    }
+
     #checkout-processing-overlay {
         position: fixed;
         inset: 0;
@@ -1916,6 +2136,14 @@ const clubConfigs = {
         to { transform: rotate(360deg); }
     }
 </style>
+<div id="cv-cart-toast" role="status" aria-live="polite" aria-atomic="true">
+    <span class="cv-toast-icon"><i class="fas fa-check"></i></span>
+    <span class="cv-toast-body">
+        <span class="cv-toast-title">Added to cart!</span>
+        <span class="cv-toast-sub" id="cv-cart-toast-sub"></span>
+    </span>
+    <button type="button" class="cv-toast-close" aria-label="Close" onclick="window.hideCartToast && window.hideCartToast();">&times;</button>
+</div>
 <div id="checkout-processing-overlay" aria-hidden="true" role="status" aria-live="polite">
     <div class="checkout-processing-card">
         <div class="checkout-processing-spinner" aria-hidden="true"></div>
@@ -1930,8 +2158,10 @@ const clubConfigs = {
             <div class="cv-footer-brand">
                 <img src="{{ asset('images/logo.png') }}" alt="CartVIP" class="cv-footer-logo">
                 <span class="cv-footer-powered">Powered by CartVIP</span>
+                <p class="cv-footer-tagline">Premium booking technology for unforgettable VIP experiences worldwide.</p>
             </div>
             <div class="cv-footer-legal">
+                <div class="cv-footer-legal-title">Legal &amp; Disclosures</div>
                 <p>Secure checkout and booking technology provided by <a href="https://cartvip.com" target="_blank" rel="noopener">CartVIP.com</a>.</p>
                 <p>Experiences, reservations, products, and services displayed on this website are offered and fulfilled by the participating venue or business. Pricing, availability, admission policies, refunds, and fulfillment terms are determined by the venue or merchant.</p>
                 <p>Payments are securely processed through authorized payment providers. CartVIP provides checkout infrastructure and payment support services only.</p>
@@ -1939,7 +2169,11 @@ const clubConfigs = {
             </div>
         </div>
         <div class="cv-footer-bar">
-            <span>&copy; {{ date('Y') }} CartVIP.com</span>
+            <span class="cv-footer-bar-copy">&copy; {{ date('Y') }} <strong>CartVIP.com</strong> &middot; All rights reserved</span>
+            <div class="cv-footer-bar-socials">
+                <a href="https://cartvip.com" target="_blank" rel="noopener" class="cv-footer-bar-social" aria-label="Website"><i class="fas fa-globe"></i></a>
+                <a href="mailto:hello@cartvip.com" class="cv-footer-bar-social" aria-label="Email"><i class="fas fa-envelope"></i></a>
+            </div>
         </div>
     </div>
 </footer>
@@ -2219,6 +2453,7 @@ window.addToCart = function(pkgId, pkgName, pkgPrice, guests, addons, transport,
 
         syncTransportStateFromCart();
         renderCart(); calcTotal();
+        if (typeof window.showCartToast === 'function') { window.showCartToast(pkgName, normalizedGuests); }
         refreshPackageAvailabilityForSelectedDate(false);
         return true;
     }).fail(function() {
@@ -2229,9 +2464,13 @@ window.addToCart = function(pkgId, pkgName, pkgPrice, guests, addons, transport,
 
 window.removeFromCart = function(pkgId) {
     ensureCart();
+    const removed = window.cart.find(p => p.pkgId == pkgId);
     window.cart = window.cart.filter(p => p.pkgId != pkgId);
     syncTransportStateFromCart();
     renderCart(); calcTotal();
+    if (removed && typeof window.showToast === 'function') {
+        window.showToast('Removed from cart', removed.pkgName || '', 'fas fa-times', 'remove');
+    }
 };
 
 function renderCart() {
@@ -2402,6 +2641,44 @@ function setSelectionsFromParams() {
     }
 }
 </script>
+
+<script>
+// ============================================================
+//  CART TOAST NOTIFICATIONS
+// ============================================================
+(function () {
+    var hideTimer = null;
+
+    window.showToast = function (title, sub, iconClass, type) {
+        var toast = document.getElementById('cv-cart-toast');
+        if (!toast) return;
+        var titleEl = toast.querySelector('.cv-toast-title');
+        var subEl   = document.getElementById('cv-cart-toast-sub');
+        var iconEl  = toast.querySelector('.cv-toast-icon i');
+        if (titleEl) titleEl.textContent = title || 'Notice';
+        if (subEl)   subEl.textContent   = sub   || '';
+        if (iconEl)  iconEl.className    = iconClass || 'fas fa-check';
+        toast.classList.toggle('is-remove', type === 'remove');
+        toast.classList.add('is-visible');
+        if (hideTimer) clearTimeout(hideTimer);
+        hideTimer = setTimeout(function () { window.hideCartToast(); }, 3800);
+    };
+
+    window.showCartToast = function (packageName, guests) {
+        var qty   = parseInt(guests, 10) || 1;
+        var label = qty + (qty === 1 ? ' guest' : ' guests');
+        window.showToast('Added to cart!', packageName ? (packageName + ' \u00B7 ' + label) : label, 'fas fa-check');
+    };
+
+    window.hideCartToast = function () {
+        var toast = document.getElementById('cv-cart-toast');
+        if (!toast) return;
+        toast.classList.remove('is-visible');
+        if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+    };
+})();
+</script>
+
 <div class="modal fade checkout-gallery-modal" id="checkoutGalleryModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
         <div class="modal-content">
