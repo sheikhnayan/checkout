@@ -209,10 +209,10 @@
 .ql-snow .ql-fill,.ql-snow .ql-stroke.ql-fill{fill:rgba(216,222,240,.6)}
 .ql-snow .ql-picker{color:rgba(216,222,240,.6)}
 .ql-snow .ql-picker-options{background:#1e2230;border-color:rgba(255,255,255,.12)}
-.ql-snow .ql-toolbar button.ql-active .ql-stroke,.ql-snow .ql-toolbar button:hover .ql-stroke{stroke:#ffcc00}
-.ql-snow .ql-toolbar button.ql-active .ql-fill,.ql-snow .ql-toolbar button:hover .ql-fill{fill:#ffcc00}
-.ql-snow .ql-toolbar button.ql-active,.ql-snow .ql-toolbar button:hover{color:#ffcc00}
-.ql-snow a{color:#ffcc00}
+.ql-snow .ql-toolbar button.ql-active .ql-stroke,.ql-snow .ql-toolbar button:hover .ql-stroke{stroke:#a774ff}
+.ql-snow .ql-toolbar button.ql-active .ql-fill,.ql-snow .ql-toolbar button:hover .ql-fill{fill:#a774ff}
+.ql-snow .ql-toolbar button.ql-active,.ql-snow .ql-toolbar button:hover{color:#a774ff}
+.ql-snow a{color:#a774ff}
 </style>
 @endpush
 

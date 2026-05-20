@@ -13,8 +13,7 @@
     <style>
         :root {
             --accent: #a774ff;
-            --accent-dark: #7c3aed;
-            --accent-darker: #5b21b6;
+            --brand-gradient: linear-gradient(135deg, #a774ff 0%, #7c3aed 52%, #5b21b6 100%);
             --bg-dark: #0b0e1a;
             --text-main: #e8eaf6;
             --text-muted: rgba(232, 234, 246, 0.72);
@@ -30,683 +29,812 @@
             min-height: 100vh;
         }
 
-        a { color: var(--accent); text-decoration: none; }
-
         /* Hero Section */
-        .aff-hero {
-            background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+        .cv-hero {
+            padding: 32px 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
             border-bottom: 1px solid rgba(255,255,255,0.08);
-            padding: 20px 0 18px;
         }
 
-        .aff-profile-head {
+        .cv-hero-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .cv-hero-head {
             display: flex;
             align-items: center;
-            gap: 12px;
-            min-width: 0;
+            gap: 20px;
+            margin-bottom: 24px;
         }
 
-        .aff-avatar-wrap {
-            width: 74px;
-            height: 74px;
+        .cv-hero-venue {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .cv-hero-venue-avatar, .cv-hero-venue-initial {
+            width: 72px;
+            height: 72px;
             border-radius: 50%;
-            padding: 3px;
-            background: linear-gradient(145deg, rgba(167, 116, 255, 0.95), rgba(167, 116, 255, 0.35));
-            box-shadow: 0 12px 26px rgba(167, 116, 255, 0.2);
+            object-fit: cover;
+            border: 2px solid var(--accent);
             flex-shrink: 0;
         }
 
-        .aff-avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid rgba(11, 14, 26, 0.85); display: block; }
-        .aff-initials { width: 100%; height: 100%; border-radius: 50%; border: 2px solid rgba(11, 14, 26, 0.85); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; }
-
-        .aff-profile-content { min-width: 0; max-width: min(760px, 100%); }
-        .aff-profile-name { margin: 0; font-size: clamp(1.1rem, 1.2vw, 1.35rem); font-weight: 800; line-height: 1.2; letter-spacing: .01em; color: #f8f9ff; }
-        .aff-profile-desc { margin: 6px 0 0; color: rgba(232, 234, 246, 0.78); font-size: 13px; line-height: 1.5; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-
-        .aff-socials { display: flex; align-items: center; gap: 10px; font-size: 16px; flex-wrap: wrap; }
-        .aff-socials a { width: 34px; height: 34px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.04); color: var(--text-main); display: inline-flex; align-items: center; justify-content: center; text-decoration: none; opacity: .92; transition: all .2s ease; }
-        .aff-socials a:hover { color: var(--accent); border-color: var(--accent); transform: translateY(-1px); }
-
-        .aff-share-btn { width: auto; height: 34px; padding: 0 12px; gap: 7px; font-weight: 700; font-size: 12px; border: 1px solid rgba(255,255,255,0.16); border-radius: 999px; background: rgba(255,255,255,0.04); color: var(--text-main); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s ease; }
-        .aff-share-btn:hover { color: var(--accent); border-color: var(--accent); transform: translateY(-1px); }
-
-        /* Banner Section */
-        .aff-banner {
-            position: relative;
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 18px;
-            overflow: hidden;
-            min-height: 220px;
-            margin: 20px 0 24px;
-            background: linear-gradient(125deg, rgba(8,11,22,0.82), rgba(8,11,22,0.52)), radial-gradient(circle at top right, rgba(255,255,255,0.08), transparent 35%), var(--accent-darker);
+        .cv-hero-venue-initial {
+            background: rgba(167,116,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 800;
         }
 
-        .aff-banner.has-image {
-            background: linear-gradient(125deg, rgba(8,11,22,0.84), rgba(8,11,22,0.48)), url('{{ $affiliate->banner_image ? asset('uploads/' . $affiliate->banner_image) : '' }}') center/contain no-repeat, #101522;
+        .cv-hero-venue-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin: 0;
         }
 
-        .aff-banner-content { position: relative; z-index: 1; padding: 28px; }
-        .aff-kicker { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; opacity: .64; font-weight: 700; }
-        .aff-display-title { font-size: clamp(2rem, 5vw, 3.8rem); line-height: 1; font-weight: 800; margin: 10px 0 12px; }
-        .aff-display-copy { max-width: 620px; font-size: 15px; opacity: .82; }
+        .cv-hero-venue-verified {
+            color: var(--accent);
+            margin-left: 4px;
+        }
 
-        /* Gallery */
-        .aff-gallery { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
-        .aff-gallery-item { position: relative; width: 100%; min-height: 125px; padding: 0; border: 1px solid rgba(167, 116, 255, 0.28); border-radius: 14px; overflow: hidden; background: rgba(255,255,255,0.04); cursor: pointer; transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease; }
-        .aff-gallery-item:hover { transform: translateY(-3px); border-color: rgba(167, 116, 255, 0.46); box-shadow: 0 18px 34px rgba(167, 116, 255, 0.25); }
-        .aff-gallery-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .cv-hero-venue-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin: 4px 0 0;
+        }
 
-        /* Package Search */
-        .package-search-wrap {
+        .cv-hero-bottom {
             display: grid;
-            grid-template-columns: 1.4fr minmax(220px, 0.9fr) auto;
-            gap: 10px;
-            align-items: end;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.1);
+            grid-template-columns: 1fr 420px;
+            gap: 24px;
+            align-items: stretch;
+        }
+
+        .cv-hero-content {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .aff-kicker {
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            opacity: .7;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .cv-hero-title {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            line-height: 1.1;
+            font-weight: 800;
+            margin: 0 0 12px;
+        }
+
+        .cv-hero-title-accent {
+            background: var(--brand-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .cv-hero-subtitle {
+            font-size: 15px;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .cv-hero-location {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .cv-hero-location-map {
+            width: 100%;
+            height: 240px;
             border-radius: 12px;
-            padding: 12px;
+            overflow: hidden;
             margin-bottom: 12px;
         }
 
-        .package-search-wrap input, .package-search-wrap select {
+        .cv-hero-location-map iframe {
             width: 100%;
-            margin: 0 !important;
-            background: rgba(255,255,255,0.08) !important;
-            border: 1px solid rgba(255,255,255,0.2) !important;
-            border-radius: 10px !important;
-            color: var(--text-main) !important;
-            padding: 9px 11px !important;
-            min-height: 40px;
+            height: 100%;
+            border: none;
         }
 
-        .package-search-wrap input::placeholder { color: rgba(255,255,255,0.5) !important; }
+        .cv-hero-location-contacts {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
 
-        .package-search-clear {
-            appearance: none;
-            border: 1px solid rgba(255,255,255,0.22);
-            background: rgba(255,255,255,0.08);
-            color: var(--text-main);
-            border-radius: 10px;
+        .cv-hero-location-contact {
             font-size: 12px;
-            font-weight: 700;
-            min-height: 40px;
-            padding: 0 14px;
-            cursor: pointer;
-            transition: all .2s;
+            color: var(--text-muted);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .package-search-clear:hover {
+        .cv-hero-location-contact:hover {
+            color: var(--accent);
+        }
+
+        /* Gallery */
+        .hero-gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin: 24px auto;
+            max-width: 1200px;
+            padding: 0 20px;
+        }
+
+        .hero-gallery-item {
+            width: 100%;
+            aspect-ratio: 4/3;
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            background: rgba(255,255,255,0.02);
+            padding: 0;
+            transition: all 0.2s ease;
+        }
+
+        .hero-gallery-item:hover {
             border-color: var(--accent);
-            background: rgba(167, 116, 255, 0.14);
+            transform: translateY(-2px);
+        }
+
+        .hero-gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Main Checkout */
+        .cv-checkout-body {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 420px;
+            gap: 28px;
+            align-items: start;
+            margin-top: 24px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 20px;
+        }
+
+        .section-kicker-lg {
+            font-size: 14px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: 700;
+            opacity: 0.8;
+            margin: 0 !important;
+        }
+
+        /* Package Categories */
+        .package-category-tiles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .package-category-tile {
+            flex: 0 1 auto;
+            padding: 10px 16px;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.04);
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .package-category-tile:hover {
+            border-color: rgba(255,255,255,0.28);
+            background: rgba(255,255,255,0.08);
+        }
+
+        .package-category-tile.active {
+            background: rgba(167,116,255,0.15);
+            border-color: var(--accent);
             color: #fff;
+        }
+
+        .package-category-indicator {
+            font-size: 14px;
+            font-weight: 800;
+            opacity: 0.6;
+        }
+
+        .package-category-tile.active .package-category-indicator {
+            opacity: 1;
+            transform: rotate(45deg);
         }
 
         /* Package Cards */
         .vip-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 14px;
-            padding: 16px 18px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 16px;
             margin-bottom: 12px;
             display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            gap: 14px;
-            transition: border-color .2s;
+            gap: 16px;
+            align-items: stretch;
+            transition: all 0.2s;
         }
 
-        .vip-card:hover { border-color: rgba(255,255,255,0.28); }
-        .vip-card.selected { border-color: var(--accent) !important; background: rgba(255,255,255,0.06); }
+        .vip-card:hover {
+            border-color: rgba(255,255,255,0.28);
+            background: rgba(255,255,255,0.04);
+        }
 
-        .vip-title { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
-        .vip-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .vip-card-main { flex: 1; min-width: 220px; }
-        .vip-card-side { width: 170px; min-width: 170px; display: flex; align-items: flex-start; justify-content: flex-end; gap: 18px; }
+        .cv-pkg-media-wrap {
+            position: relative;
+            width: 140px;
+            min-width: 140px;
+            height: 140px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.02);
+        }
 
-        .vip-price-tag { font-size: 18px; font-weight: 800; color: var(--accent); text-align: right; flex-shrink: 0; }
+        .cv-pkg-media {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .cv-popular-pill {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+        }
+
+        .vip-card-main {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .cv-pkg-title-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .cv-pkg-title-icon {
+            font-size: 16px;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .cv-pkg-title {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .cv-pkg-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .cv-pkg-desc {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+            margin: 8px 0 0;
+            line-height: 1.4;
+        }
+
+        .cv-pkg-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .cv-pkg-feature {
+            font-size: 11px;
+            background: rgba(167,116,255,0.08);
+            border: 1px solid rgba(167,116,255,0.2);
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .vip-card-side {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 8px;
+            min-width: 120px;
+        }
+
+        .vip-price-tag {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .cv-price-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
 
         .vip-btn {
-            background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%);
-            color: #fff;
-            font-weight: 700;
+            background: var(--brand-gradient);
+            color: white;
             border: none;
-            padding: 8px 20px;
-            border-radius: 25px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
             cursor: pointer;
-            transition: all .2s;
-            white-space: nowrap;
-            font-size: 14px;
-            box-shadow: 0 4px 12px rgba(167, 116, 255, 0.3);
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(167,116,255,0.2);
         }
 
         .vip-btn:hover {
-            box-shadow: 0 6px 16px rgba(167, 116, 255, 0.45);
-            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(167,116,255,0.4);
+            transform: translateY(-1px);
         }
 
-        /* Step Indicator */
-        .checkout-steps {
-            display: flex !important;
-            justify-content: center;
-            align-items: flex-start;
-            margin: 2rem 0;
-            padding: 0;
-            list-style: none;
-            gap: 0;
-            flex-wrap: nowrap !important;
+        /* Order Sidebar */
+        .cv-sidebar {
+            position: sticky;
+            top: 24px;
+            background: rgba(16,18,34,0.92);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 20px;
+            height: fit-content;
+        }
+
+        .cv-sidebar-header {
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .cv-sidebar-venue-image {
             width: 100%;
+            height: 100px;
+            border-radius: 10px;
+            object-fit: cover;
+            margin-bottom: 12px;
         }
 
-        .step {
-            flex: 1 1 0;
-            min-width: 0;
-            text-align: center;
-            position: relative;
-            padding: 0 0.5rem;
+        .cv-sidebar-venue-row {
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
         }
 
-        .step::after {
-            content: '';
-            position: absolute;
-            top: 20px;
-            left: calc(50% + 22px);
-            width: calc(100% - 44px);
-            height: 2px;
-            background: rgba(255,255,255,0.14);
-            z-index: 0;
+        .cv-sidebar-venue-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.9);
         }
 
-        .step:last-child::after { display: none; }
-        .step.completed::after, .step.active::after { background: linear-gradient(90deg, #a774ff, #7c3aed); }
-
-        .step-number {
+        .cv-sidebar-venue-date {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.06);
-            color: rgba(255,255,255,0.7);
-            line-height: 1;
-            font-weight: bold;
-            margin: 0 auto 0.5rem;
-            border: 2px solid rgba(255,255,255,0.18);
-            position: relative;
-            z-index: 1;
-            transition: all .2s;
+            gap: 4px;
         }
 
-        .step.active .step-number {
-            background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%);
-            border-color: #7c3aed;
-            color: #fff;
-            box-shadow: 0 0 0 4px rgba(167,116,255,0.18), 0 4px 12px rgba(124,58,237,0.4);
+        #cv-sidebar-body {
+            font-size: 13px;
+            margin-bottom: 16px;
+            min-height: 60px;
         }
 
-        .step.completed .step-number {
-            background: linear-gradient(135deg, #a774ff 0%, #5b21b6 100%);
-            border-color: #7c3aed;
-            color: #fff;
-        }
-
-        .step-title {
-            font-size: 0.875rem;
-            color: rgba(255,255,255,0.55);
-            margin: 0;
-            line-height: 1.25;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .step.active .step-title, .step.completed .step-title {
-            color: #fff;
-            font-weight: bold;
-        }
-
-        /* Forms */
-        .form-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: .9rem; }
-        .form-group { flex: 1; min-width: 130px; }
-        label { font-size: 13px; margin-bottom: 4px; display: block; opacity: .85; }
-
-        input[type="text"], input[type="email"], input[type="tel"], input[type="number"], textarea, select.form-select {
-            background: rgba(255,255,255,0.07) !important;
-            border: 1px solid #9797a0 !important;
-            border-radius: 10px !important;
-            color: #fff !important;
-            padding: 10px 14px;
-            width: 100%;
-            margin-bottom: 4px;
-            font-size: 15px;
-        }
-
-        textarea { min-height: 80px; resize: vertical; }
-        input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.35) !important; }
-        select.form-select { -webkit-appearance: none !important; appearance: none !important; }
-        select option { background: #1a1d2e !important; color: #fff; }
-
-        /* Buttons */
-        .btn-next, .submit-btn {
-            background: linear-gradient(135deg, #a774ff 0%, #7c3aed 50%, #5b21b6 100%) !important;
-            color: #fff !important;
-            border: none;
-            padding: 11px 28px;
-            border-radius: 25px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 15px;
-            min-width: 180px;
-            transition: all .2s;
-            box-shadow: 0 6px 20px rgba(167, 116, 255, 0.4);
-        }
-
-        .btn-next:hover, .submit-btn:hover {
-            box-shadow: 0 8px 28px rgba(167, 116, 255, 0.55);
-            transform: translateY(-2px);
-        }
-
-        .btn-prev {
-            background: #555 !important;
-            color: #fff !important;
-            border: none;
-            padding: 11px 28px;
-            border-radius: 25px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 15px;
-            min-width: 140px;
-            transition: all .2s;
-        }
-
-        .btn-prev:hover { opacity: 0.9; transform: translateY(-2px); }
-
-        /* Cart Section */
-        #cart-section {
-            background: linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03)), radial-gradient(circle at top right, color-mix(in srgb, var(--accent) 22%, transparent), transparent 48%), linear-gradient(135deg, rgba(10, 16, 32, 0.96), rgba(7, 11, 22, 0.94));
-            border: 1px solid color-mix(in srgb, var(--accent) 44%, rgba(255,255,255,0.12));
-            border-radius: 16px;
-            padding: 18px 20px;
-            margin-bottom: 1.2rem;
-            display: none;
-            box-shadow: 0 20px 42px rgba(0,0,0,0.24);
-            backdrop-filter: blur(10px);
-        }
-
-        /* Footer */
-        .aff-footer {
-            border-top: 1px solid rgba(255,255,255,0.08);
-            background: transparent;
-            padding: 28px 0 8px;
-        }
-
-        .cv-footer-inner {
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            display: flex;
-            gap: 28px;
-            align-items: flex-start;
-        }
-
-        .cv-footer-brand { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; flex-shrink: 0; min-width: 128px; }
-        .cv-footer-logo { height: 34px; width: auto; display: block; opacity: 0.82; }
-
-        .cv-footer-legal {
-            color: rgba(255,255,255,0.32);
+        .cart-heading {
             font-size: 11px;
-            line-height: 1.8;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            opacity: 0.7;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .cart-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            font-size: 12px;
+        }
+
+        .cart-line:last-child {
+            border-bottom: none;
+        }
+
+        .cart-item-name {
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .cart-item-price {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .cv-deposit-box {
+            background: rgba(167,116,255,0.08);
+            border: 1px solid rgba(167,116,255,0.2);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 16px 0;
+        }
+
+        .cv-deposit-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            opacity: 0.8;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .cv-deposit-main {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .cv-deposit-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .cv-trust-list {
             display: flex;
             flex-direction: column;
             gap: 8px;
-            flex: 1 1 auto;
+            margin: 16px 0;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.08);
         }
 
-        .cv-footer-legal a {
-            color: rgba(255,255,255,0.5);
-            text-decoration: underline;
-        }
-
-        .cv-footer-legal a:hover { color: rgba(255,255,255,0.85); }
-
-        .cv-footer-bar {
+        .cv-trust-item {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
             gap: 10px;
-            padding: 14px 0 16px;
-            font-size: 11px;
-            color: rgba(255,255,255,0.35);
-        }
-
-        .cv-footer-bar-socials { display: inline-flex; gap: 8px; }
-        .cv-footer-bar-social {
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
-            background: rgba(167, 116, 255, 0.1);
-            border: 1px solid rgba(167, 116, 255, 0.3);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: rgba(167, 116, 255, 0.7) !important;
-            text-decoration: none !important;
-            transition: all .15s;
             font-size: 11px;
         }
 
-        .cv-footer-bar-social:hover {
-            background: rgba(167, 116, 255, 0.25);
-            border-color: rgba(167, 116, 255, 0.6);
-            color: #a774ff !important;
-            transform: translateY(-2px);
+        .cv-trust-item i {
+            color: var(--accent);
+            font-size: 12px;
+            flex-shrink: 0;
+            margin-top: 2px;
         }
 
-        /* Modals */
-        .modal-content {
-            background: rgba(9, 13, 24, 0.96);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 20px;
-            overflow: hidden;
+        .cv-trust-item strong {
+            display: block;
+            margin-bottom: 2px;
+            color: rgba(255,255,255,0.8);
         }
 
-        .modal-header {
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-            padding: 12px 16px;
+        .cv-cta-terms {
+            font-size: 10px;
+            color: rgba(255,255,255,0.4);
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            margin-bottom: 0;
+            line-height: 1.4;
         }
 
-        .btn-close { filter: invert(1) grayscale(1); opacity: .9; }
-
-        /* Mobile Responsive */
-        @media (max-width: 991px) {
-            .aff-gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .vip-card-side { width: 100%; min-width: 100%; justify-content: space-between; margin-top: 8px; }
-            .package-search-wrap { grid-template-columns: 1fr; }
-            .step-number { width: 32px; height: 32px; font-size: 13px; }
-            .step-title { font-size: 0.72rem; }
-            .checkout-steps { margin: 1.25rem 0; }
+        .cv-cta-terms a {
+            color: var(--accent);
+            text-decoration: none;
         }
 
-        @media (max-width: 600px) {
-            .aff-gallery { grid-template-columns: 1fr; }
-            .cv-footer-inner { flex-direction: column; gap: 16px; }
-            .cv-footer-bar { justify-content: center; text-align: center; flex-direction: column; align-items: center; }
-            .step-number { width: 28px; height: 28px; font-size: 12px; }
-            .step-title { font-size: 0.65rem; }
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .hero-gallery-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+            .cv-hero-bottom {
+                grid-template-columns: 1fr;
+            }
+            .cv-checkout-body {
+                grid-template-columns: 1fr;
+            }
+            .cv-sidebar {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-gallery-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .vip-card {
+                flex-direction: column;
+            }
+            .cv-pkg-media-wrap {
+                width: 100%;
+                height: 200px;
+            }
+            .vip-card-side {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-gallery-grid {
+                grid-template-columns: 1fr;
+            }
+            .cv-hero-head {
+                flex-direction: column;
+                text-align: center;
+            }
+            .package-category-tiles {
+                gap: 8px;
+            }
+            .package-category-tile {
+                flex: 1 1 48%;
+                min-width: 120px;
+            }
         }
     </style>
 </head>
 <body>
 
-<section class="aff-hero">
-    <div class="container">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-            <div class="aff-profile-head">
-                <div class="aff-avatar-wrap">
-                    @if($affiliate->profile_image)
-                        <img src="{{ asset('uploads/' . $affiliate->profile_image) }}" alt="Profile" class="aff-avatar">
-                    @else
-                        <div class="aff-initials">{{ strtoupper(substr($affiliate->display_name ?: $affiliate->user->name, 0, 2)) }}</div>
-                    @endif
-                </div>
-                <div class="aff-profile-content">
-                    <h2 class="aff-profile-name">{{ $affiliate->display_name ?: $affiliate->user->name }}</h2>
+<!-- Hero Section -->
+<header class="cv-hero">
+    <div class="cv-hero-inner">
+        <div class="cv-hero-head">
+            <div class="cv-hero-venue">
+                @if($affiliate->profile_image)
+                    <img src="{{ asset('uploads/' . $affiliate->profile_image) }}" alt="Profile" class="cv-hero-venue-avatar">
+                @else
+                    <div class="cv-hero-venue-initial">{{ strtoupper(substr($affiliate->display_name ?: $affiliate->user->name, 0, 1)) }}</div>
+                @endif
+                <div>
+                    <p class="cv-hero-venue-title">{{ $affiliate->display_name ?: $affiliate->user->name }}<span class="cv-hero-venue-verified">✓</span></p>
                     @if($affiliate->description)
-                        <p class="aff-profile-desc">{{ $affiliate->description }}</p>
+                        <p class="cv-hero-venue-meta">{{ $affiliate->description }}</p>
                     @endif
                 </div>
             </div>
-            <div class="aff-socials">
-                @if($affiliate->facebook_url)<a href="{{ $affiliate->facebook_url }}" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>@endif
-                @if($affiliate->instagram_url)<a href="{{ $affiliate->instagram_url }}" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>@endif
-                @if($affiliate->tiktok_url)<a href="{{ $affiliate->tiktok_url }}" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>@endif
-                @if($affiliate->youtube_url)<a href="{{ $affiliate->youtube_url }}" target="_blank" aria-label="YouTube"><i class="fab fa-youtube"></i></a>@endif
-                <button type="button" class="aff-share-btn" id="aff-share-page-btn" aria-label="Share this page">
-                    <i class="fas fa-share-nodes"></i> Share
-                </button>
+        </div>
+
+        <div class="cv-hero-bottom">
+            <div class="cv-hero-content">
+                <div class="aff-kicker">{{ $isEntertainerProfile ? 'Entertainer' : 'Affiliate' }} Booking</div>
+                <h1 class="cv-hero-title">{{ $affiliate->hero_title ?: ($affiliate->display_name ?: $affiliate->user->name) }}</h1>
+                <p class="cv-hero-subtitle">{{ $affiliate->hero_subtitle ?: ($affiliate->description ?: 'Premium packages from our featured partner.') }}</p>
+            </div>
+
+            <div class="cv-hero-location">
+                <div style="margin-bottom: 12px;">
+                    <div style="font-size: 11px; text-transform: uppercase; opacity: 0.7; font-weight: 700; margin-bottom: 8px;">Find Us</div>
+                    <div style="font-size: 13px; font-weight: 600;">CartVIP</div>
+                </div>
+                <div class="cv-hero-location-contacts">
+                    <a href="tel:+1234567890" class="cv-hero-location-contact"><i class="fas fa-phone"></i><span>Contact Us</span></a>
+                    <a href="mailto:info@cartvip.com" class="cv-hero-location-contact"><i class="fas fa-envelope"></i><span>Email Support</span></a>
+                </div>
             </div>
         </div>
     </div>
-</section>
+</header>
 
+@if(!empty($affiliate->gallery_images))
+<div class="hero-gallery-grid">
+    @foreach($affiliate->gallery_images as $galleryImage)
+        <button type="button" class="hero-gallery-item">
+            <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery">
+        </button>
+    @endforeach
+</div>
+@endif
+
+<!-- Main Checkout Section -->
 <main>
-<div class="container py-4">
-    <section class="aff-banner {{ $affiliate->banner_image ? 'has-image' : '' }}">
-        <div class="aff-banner-content">
-            <div class="aff-kicker">{{ $isEntertainerProfile ? 'Entertainer' : 'Affiliate' }} Booking</div>
-            <div class="aff-display-title">{{ $affiliate->hero_title ?: ($affiliate->display_name ?: $affiliate->user->name) }}</div>
-            <div class="aff-display-copy">
-                {{ $affiliate->hero_subtitle ?: ($affiliate->description ?: 'Book premium experiences from our exclusive partners.') }}
-            </div>
-            @if(!empty($affiliate->gallery_images))
-                <div class="aff-gallery">
-                    @foreach($affiliate->gallery_images as $galleryImage)
-                        <div class="aff-gallery-item">
-                            <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery" data-bs-toggle="modal" data-bs-target="#checkoutGalleryModal" data-image="{{ asset('uploads/' . $galleryImage) }}">
-                        </div>
+    <div class="cv-checkout-body">
+        <div class="cv-main-col">
+            <!-- Package Selection -->
+            <div style="margin-bottom: 32px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2 class="section-kicker-lg">Select Your Package</h2>
+                </div>
+
+                <!-- Category Tabs -->
+                @php
+                    $categories = collect();
+                    foreach($clubGroups as $clubId => $mappings) {
+                        foreach($mappings->groupBy('package.package_category_id') as $categoryId => $categoryMappings) {
+                            $category = $categoryMappings->first()->package->category;
+                            $categoryName = $category?->name ?? 'Uncategorized';
+                            $categoryKey = $categoryId ?? 'uncategorized';
+
+                            if (!$categories->has($categoryKey)) {
+                                $categories->put($categoryKey, [
+                                    'id' => $categoryKey,
+                                    'name' => $categoryName,
+                                    'packages' => collect()
+                                ]);
+                            }
+
+                            foreach($categoryMappings as $mapping) {
+                                $categories[$categoryKey]['packages']->push($mapping);
+                            }
+                        }
+                    }
+                @endphp
+
+                <div class="package-category-tiles">
+                    @foreach($categories as $categoryKey => $categoryData)
+                        <button type="button" class="package-category-tile {{ $loop->first ? 'active' : '' }}" data-target="#category-{{ $categoryKey }}">
+                            <span class="package-category-name">{{ $categoryData['name'] }}</span>
+                            <span class="package-category-indicator">+</span>
+                        </button>
                     @endforeach
                 </div>
-            @endif
-        </div>
-    </section>
 
-    <!-- Package Search -->
-    <div class="package-search-wrap">
-        <div class="package-search-field">
-            <label>Search Package</label>
-            <input type="text" id="package-search-text" placeholder="Search package, club, or location">
-        </div>
-        <div class="package-search-field">
-            <label>Location</label>
-            <select id="package-location-filter">
-                <option value="">All Locations</option>
-                @foreach($uniqueClubsForFilter as $club)
-                    <option value="{{ $club->slug }}">{{ $club->name }}</option>
-                @endforeach
-            </select>
-        </div>
-        <button type="button" id="package-search-clear" class="package-search-clear">Clear</button>
-    </div>
-
-    <!-- Packages -->
-    <div class="package">
-        @foreach($clubGroups as $clubId => $mappings)
-            @php $club = $mappings->first()->package->website; @endphp
-            <div class="package-group" data-club-slug="{{ $club->slug }}">
-                @foreach($mappings->groupBy('package.package_category_id') as $categoryId => $categoryMappings)
-                    <div class="package-category-group">
-                        @php $category = $categoryMappings->first()->package->packageCategory; @endphp
-                        <h3 class="package-category-title">{{ $category->name }}</h3>
-                        @foreach($categoryMappings as $index => $mapping)
-                            @php $package = $mapping->package; @endphp
-                            <div class="vip-card" data-package-id="{{ $package->id }}" data-club-id="{{ $club->id }}">
-                                <div class="vip-card-main">
-                                    <div class="vip-title">{{ $package->name }}</div>
-                                    <div class="vip-meta">
-                                        <span>{{ $club->name }}</span>
-                                        <span>•</span>
-                                        <span>{{ $club->location }}</span>
-                                    </div>
+                <!-- Package Cards by Category -->
+                @foreach($categories as $categoryKey => $categoryData)
+                    <div id="category-{{ $categoryKey }}" class="package-category-group" style="display: {{ $loop->first ? 'block' : 'none' }};">
+                        @foreach($categoryData['packages'] as $mapping)
+                            @php
+                                $package = $mapping->package;
+                                $club = $package->website;
+                            @endphp
+                            <div class="vip-card" data-package-id="{{ $package->id }}">
+                                <div class="cv-pkg-media-wrap">
+                                    @if($package->image)
+                                        <img src="{{ asset('uploads/' . $package->image) }}" alt="{{ $package->name }}" class="cv-pkg-media">
+                                    @else
+                                        <div style="width: 100%; height: 100%; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.3); font-size: 12px;">No Image</div>
+                                    @endif
+                                    @if((int)($package->is_most_popular ?? 0) === 1)
+                                        <span class="cv-popular-pill">⭐ POPULAR</span>
+                                    @endif
                                 </div>
+
+                                <div class="vip-card-main">
+                                    <div class="cv-pkg-title-row">
+                                        <i class="fas fa-crown cv-pkg-title-icon"></i>
+                                        <div class="cv-pkg-title">{{ $package->name }}</div>
+                                    </div>
+                                    <div class="cv-pkg-sub"><i class="fas fa-building"></i>{{ $club->name }}</div>
+                                    @if($package->description)
+                                        <p class="cv-pkg-desc">{{ strip_tags($package->description) }}</p>
+                                    @endif
+                                    @if(!empty($package->package_features))
+                                        <div class="cv-pkg-features">
+                                            @foreach($package->package_features as $feature)
+                                                <span class="cv-pkg-feature"><i class="fas fa-check"></i>{{ $feature['text'] ?? $feature }}</span>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
+
                                 <div class="vip-card-side">
-                                    <div class="vip-price-tag">${{ number_format($package->price) }}</div>
-                                    <button type="button" class="vip-btn" data-package-id="{{ $package->id }}" data-club-id="{{ $club->id }}">Add to Cart</button>
+                                    <div class="vip-price-tag">${{ number_format($package->price, 2) }}</div>
+                                    <div class="cv-price-meta">Per Package</div>
+                                    <button type="button" class="vip-btn" data-package-id="{{ $package->id }}">Add to Cart</button>
                                 </div>
                             </div>
                         @endforeach
                     </div>
                 @endforeach
             </div>
-        @endforeach
+        </div>
+
+        <!-- Order Summary Sidebar -->
+        <aside class="cv-sidebar">
+            <div class="cv-sidebar-header">Order Summary</div>
+
+            @if($affiliate->profile_image)
+                <img src="{{ asset('uploads/' . $affiliate->profile_image) }}" alt="{{ $affiliate->display_name }}" class="cv-sidebar-venue-image">
+            @endif
+
+            <div class="cv-sidebar-venue-row">
+                <div>
+                    <div class="cv-sidebar-venue-name">{{ $affiliate->display_name ?: $affiliate->user->name }}</div>
+                    <div class="cv-sidebar-venue-date"><i class="fas fa-calendar-alt"></i>Select packages above</div>
+                </div>
+            </div>
+
+            <div id="cv-sidebar-body">
+                <div class="cart-heading">Cart Items</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.5); padding: 12px 0; text-align: center;">No items selected</div>
+            </div>
+
+            <div class="cv-deposit-box" style="display: none;" id="cv-deposit-box">
+                <div class="cv-deposit-label">Total Due</div>
+                <div class="cv-deposit-main" id="cv-deposit-display">$0.00</div>
+                <div class="cv-deposit-sub">Secure your order</div>
+            </div>
+
+            <div class="cv-trust-list">
+                <div class="cv-trust-item"><i class="fas fa-lock"></i><div><strong>Secure Payment</strong><span>Encrypted checkout</span></div></div>
+                <div class="cv-trust-item"><i class="fas fa-check-circle"></i><div><strong>Instant Confirmation</strong><span>Immediate booking</span></div></div>
+                <div class="cv-trust-item"><i class="fas fa-headset"></i><div><strong>24/7 Support</strong><span>Always available</span></div></div>
+            </div>
+
+            <p class="cv-cta-terms">By continuing, you agree to our Terms of Service and Privacy Policy.</p>
+        </aside>
     </div>
-
-    <!-- Cart Display -->
-    <div id="cart-section" style="display: none;">
-        <h4>Your Selections</h4>
-        <div id="cart-list"></div>
-        <div id="cart-total"></div>
-    </div>
-
-    <!-- Step Indicator -->
-    <ul class="checkout-steps" id="checkout-steps">
-        <li class="step active" id="step-1">
-            <div class="step-number">1</div>
-            <p class="step-title">Details</p>
-        </li>
-        <li class="step" id="step-2">
-            <div class="step-number">2</div>
-            <p class="step-title">Transportation</p>
-        </li>
-        <li class="step" id="step-3">
-            <div class="step-number">3</div>
-            <p class="step-title">Payment</p>
-        </li>
-    </ul>
-
-    <!-- Checkout Sections -->
-    <form id="payment-form" method="POST" action="{{ route('checkout.store') }}">
-        @csrf
-
-        <!-- Step 1: Personal Details -->
-        <section class="checkout-section active" id="section-1" style="display: block;">
-            <h2>Personal Details</h2>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>First Name</label>
-                    <input type="text" name="first_name" required>
-                </div>
-                <div class="form-group">
-                    <label>Last Name</label>
-                    <input type="text" name="last_name" required>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label>Phone</label>
-                    <input type="tel" name="phone" required>
-                </div>
-            </div>
-            <div class="form-row" style="margin-top: 20px;">
-                <button type="button" class="btn-next" onclick="nextStep(1)">Next</button>
-            </div>
-        </section>
-
-        <!-- Step 2: Transportation -->
-        <section class="checkout-section" id="section-2" style="display: none;">
-            <h2>Transportation</h2>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Pickup Time</label>
-                    <input type="time" name="pickup_time">
-                </div>
-            </div>
-            <div class="form-row" style="margin-top: 20px; gap: 10px; justify-content: center;">
-                <button type="button" class="btn-prev" onclick="prevStep(2)">← Previous</button>
-                <button type="button" class="btn-next" onclick="nextStep(2)">Next</button>
-            </div>
-        </section>
-
-        <!-- Step 3: Payment -->
-        <section class="checkout-section" id="section-3" style="display: none;">
-            <h2>Payment</h2>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Card Number</label>
-                    <input type="text" name="card_number" placeholder="•••• •••• •••• ••••">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Expiry</label>
-                    <input type="text" name="card_expiry" placeholder="MM/YY">
-                </div>
-                <div class="form-group">
-                    <label>CVV</label>
-                    <input type="text" name="card_cvv" placeholder="•••">
-                </div>
-            </div>
-            <div class="form-row" style="margin-top: 20px; gap: 10px; justify-content: center;">
-                <button type="button" class="btn-prev" onclick="prevStep(3)">← Previous</button>
-                <button type="submit" class="submit-btn">Complete Purchase</button>
-            </div>
-        </section>
-    </form>
-</div>
 </main>
 
-<!-- Footer -->
-<footer class="aff-footer">
-    <div class="container">
-        <div class="cv-footer-inner">
-            <div class="cv-footer-brand">
-                <img src="{{ asset('images/logo.png') }}" alt="CartVIP" class="cv-footer-logo">
-                <div class="cv-footer-powered">Powered by CartVIP</div>
-            </div>
-            <div class="cv-footer-legal">
-                <p>&copy; {{ date('Y') }} CartVIP. All rights reserved.</p>
-                <p><a href="#">Privacy Policy</a> • <a href="#">Terms of Service</a></p>
-            </div>
-        </div>
-        <div class="cv-footer-bar">
-            <div class="cv-footer-bar-copy">
-                <span>Follow us:</span>
-            </div>
-            <div class="cv-footer-bar-socials">
-                <a href="#" class="cv-footer-bar-social"><i class="fab fa-facebook"></i></a>
-                <a href="#" class="cv-footer-bar-social"><i class="fab fa-instagram"></i></a>
-                <a href="#" class="cv-footer-bar-social"><i class="fab fa-twitter"></i></a>
-            </div>
-        </div>
-    </div>
-</footer>
-
 <script>
-function nextStep(step) {
-    document.getElementById(`section-${step}`).style.display = 'none';
-    document.getElementById(`section-${step + 1}`).style.display = 'block';
-    document.getElementById(`step-${step}`).classList.remove('active');
-    document.getElementById(`step-${step}`).classList.add('completed');
-    document.getElementById(`step-${step + 1}`).classList.add('active');
-}
-
-function prevStep(step) {
-    document.getElementById(`section-${step}`).style.display = 'none';
-    document.getElementById(`section-${step - 1}`).style.display = 'block';
-    document.getElementById(`step-${step}`).classList.remove('active');
-    document.getElementById(`step-${step - 1}`).classList.add('active');
-}
-
-// Package search
-document.getElementById('package-search-text').addEventListener('input', filterPackages);
-document.getElementById('package-location-filter').addEventListener('change', filterPackages);
-document.getElementById('package-search-clear').addEventListener('click', () => {
-    document.getElementById('package-search-text').value = '';
-    document.getElementById('package-location-filter').value = '';
-    filterPackages();
-});
-
-function filterPackages() {
-    const text = document.getElementById('package-search-text').value.toLowerCase();
-    const location = document.getElementById('package-location-filter').value;
-    document.querySelectorAll('.vip-card').forEach(card => {
-        const title = card.querySelector('.vip-title').textContent.toLowerCase();
-        const club = card.querySelector('.vip-card-main').textContent.toLowerCase();
-        const cardLocation = card.getAttribute('data-club-slug');
-        const match = (text === '' || title.includes(text) || club.includes(text)) &&
-                      (location === '' || cardLocation === location);
-        card.style.display = match ? 'flex' : 'none';
-    });
-}
-
-// Cart functionality
-document.querySelectorAll('.vip-btn').forEach(btn => {
+// Category tab switching
+document.querySelectorAll('.package-category-tile').forEach(btn => {
     btn.addEventListener('click', function() {
-        alert('Added to cart!');
+        const target = this.dataset.target;
+
+        // Hide all categories
+        document.querySelectorAll('.package-category-group').forEach(group => {
+            group.style.display = 'none';
+        });
+
+        // Deactivate all tabs
+        document.querySelectorAll('.package-category-tile').forEach(tab => {
+            tab.classList.remove('active');
+        });
+
+        // Show selected category and activate tab
+        document.querySelector(target).style.display = 'block';
+        this.classList.add('active');
     });
 });
 </script>

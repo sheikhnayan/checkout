@@ -17,7 +17,7 @@ class EntertainerPublicController extends Controller
             ->firstOrFail();
 
         $packageMappings = $entertainer->entertainerPackages()
-            ->with(['package.website', 'package.addons', 'package.event', 'package.category'])
+            ->with(['package.website', 'package.category', 'package.addons', 'package.event'])
             ->where('is_active', true)
             ->latest()
             ->get()
@@ -41,10 +41,7 @@ class EntertainerPublicController extends Controller
 
         $setting = Setting::find(1);
 
-        // Reuse the affiliate public page template for pixel-identical entertainer pages.
-        $affiliate = $entertainer;
-
-        return view('affiliate.public-page', compact('affiliate', 'packageMappings', 'clubGroups', 'packageCategoryGroups', 'setting'));
+        return view('entertainer.public-page', compact('entertainer', 'packageMappings', 'clubGroups', 'packageCategoryGroups', 'setting'));
     }
 
     private function buildPackageCategoryGroups(Collection $packageMappings)

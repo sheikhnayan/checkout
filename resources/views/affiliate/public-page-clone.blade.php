@@ -4446,35 +4446,84 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 @endsession
 
                 @php
-                    $affiliateHeroImage = !empty($affiliate->banner_image) ? asset('uploads/' . $affiliate->banner_image) : asset('images/logo.png');
+                    $eventHeroImage = !empty($affiliate->image ?? null) ? asset('uploads/' . $affiliate->image) : ($data->logo ? asset('uploads/' . $data->logo) : asset('images/logo.png'));
                 @endphp
-                <section class="cv-hero-stage" style="background-image:url('{{ $affiliateHeroImage }}');">
+                <section class="cv-hero-stage" style="background-image:url('{{ $eventHeroImage }}');">
+                    @php
+                        $eventStartRaw = $affiliate->start_date ?? $affiliate->date;
+                        $eventEndRaw = $affiliate->end_date ?? $eventStartRaw;
+                        $eventStart = $eventStartRaw ? \Carbon\Carbon::parse($eventStartRaw) : null;
+                        $eventEnd = $eventEndRaw ? \Carbon\Carbon::parse($eventEndRaw) : null;
+                        $eventDateShort = $eventStart
+                            ? ($eventEnd && !$eventEnd->isSameDay($eventStart)
+                                ? $eventStart->format('l, F d') . ' - ' . $eventEnd->format('l, F d')
+                                : $eventStart->format('l, F d'))
+                            : '';
+                        $eventDateLong = $eventStart
+                            ? ($eventEnd && !$eventEnd->isSameDay($eventStart)
+                                ? $eventStart->format('l, F d, Y') . ' - ' . $eventEnd->format('l, F d, Y')
+                                : $eventStart->format('l, F d, Y'))
+                            : '';
+                        $packageOptions = [];
+                        if ($eventStart) {
+                            $dateCursor = $eventStart->copy()->startOfDay();
+                            $dateEnd = ($eventEnd ?: $eventStart)->copy()->startOfDay();
+                            while ($dateCursor->lte($dateEnd)) {
+                                $packageOptions[] = [
+                                    'value' => $dateCursor->format('Y-m-d'),
+                                    'label' => $dateCursor->format('l, F d, Y'),
+                                ];
+                                $dateCursor->addDay();
+                            }
+                        }
+
+                        // Default to the nearest valid event day: start day if upcoming, today if event is in progress.
+                        $today = now()->startOfDay();
+                        if ($eventStart) {
+                            $rangeStart = $eventStart->copy()->startOfDay();
+                            $rangeEnd = ($eventEnd ?: $eventStart)->copy()->startOfDay();
+
+                            if ($today->lt($rangeStart)) {
+                                $eventCheckoutDateValue = $rangeStart->format('Y-m-d');
+                            } elseif ($today->gt($rangeEnd)) {
+                                $eventCheckoutDateValue = $rangeEnd->format('Y-m-d');
+                            } else {
+                                $eventCheckoutDateValue = $today->format('Y-m-d');
+                            }
+                        } else {
+                            $eventCheckoutDateValue = $today->format('Y-m-d');
+                        }
+                        $packagesPageUrl = route('index', $data->slug);
+                        if (request()->filled('aff')) {
+                            $packagesPageUrl .= '?aff=' . urlencode((string) request()->input('aff'));
+                        }
+                    @endphp
                     <div class="cv-hero-inner">
                         <div class="cv-hero-head">
                             <div class="cv-hero-venue">
-                                @if ($affiliate->profile_image)
-                                    <img src="{{ asset('uploads/' . $affiliate->profile_image) }}" alt="{{ $affiliate->display_name }}" class="cv-hero-venue-avatar">
+                                @if ($data->logo)
+                                    <img src="{{ asset('uploads/' . $data->logo) }}" alt="{{ $data->name }}" class="cv-hero-venue-avatar">
                                 @else
-                                    <span class="cv-hero-venue-initial">{{ strtoupper(substr($affiliate->display_name ?: $affiliate->user->name, 0, 1)) }}</span>
+                                    <span class="cv-hero-venue-initial">{{ strtoupper(substr($data->name, 0, 1)) }}</span>
                                 @endif
                                 <div>
-                                    <p class="cv-hero-venue-title">{{ $affiliate->display_name ?: $affiliate->user->name }}<span class="cv-hero-venue-verified" title="Verified Partner">&check;</span></p>
-                                    <p class="cv-hero-venue-meta">Premium Packages</p>
+                                    <p class="cv-hero-venue-title">{{ $data->name }}<span class="cv-hero-venue-verified" title="Verified Venue">&check;</span></p>
+                                    <p class="cv-hero-venue-meta">{{ $data->location }}</p>
                                 </div>
                             </div>
                             <div class="cv-hero-badges">
                                 <div class="cv-hero-badge">
-                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-clock"></i>
                                     <div>
-                                        <span class="cv-hero-badge-label">Featured</span>
-                                        <span class="cv-hero-badge-sub">Premium Partner</span>
+                                        <span class="cv-hero-badge-label">Open Daily</span>
+                                        <span class="cv-hero-badge-sub">6PM - 7AM</span>
                                     </div>
                                 </div>
                                 <div class="cv-hero-badge">
                                     <i class="fas fa-award"></i>
                                     <div>
-                                        <span class="cv-hero-badge-label">Verified</span>
-                                        <span class="cv-hero-badge-sub">Trusted Source</span>
+                                        <span class="cv-hero-badge-label">Top Rated Club</span>
+                                        <span class="cv-hero-badge-sub">#1 in Las Vegas</span>
                                     </div>
                                 </div>
                             </div>
@@ -4482,9 +4531,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                         <div class="cv-hero-bottom">
                             <div class="cv-hero-content">
-                                <div class="aff-kicker">Affiliate Packages</div>
+                                <div class="aff-kicker">Venue Checkout</div>
                                 @php
-                                    $heroTitle = $affiliate->hero_title ?: ($affiliate->display_name ?: $affiliate->user->name);
+                                    $heroTitle = $affiliate->hero_title ?: $affiliate->name;
                                     $titleWords = preg_split('/\s+/', trim($heroTitle));
                                     $heroLastWord = '';
                                     if (count($titleWords) > 1) {
@@ -4495,26 +4544,49 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     }
                                 @endphp
                                 <h1 class="cv-hero-title">{{ $heroTitleLead }}@if($heroLastWord) <span class="cv-hero-title-accent">{{ $heroLastWord }}</span>@endif</h1>
-                                <p class="cv-hero-subtitle">{{ $affiliate->hero_subtitle ?: 'Browse our premium collection' }}</p>
-                                @if(!empty($affiliate->description))
+                                <p class="cv-hero-subtitle">{{ $affiliate->hero_subtitle ?: ($eventDateShort . ($affiliate->time ? ' - ' . $affiliate->time : '')) }}</p>
+                                @if(!empty($affiliate->time))
                                     <div class="aff-display-copy" style="margin-bottom:10px;">
-                                        {{ $affiliate->description }}
+                                        <i class="fas fa-clock me-1"></i>{{ $affiliate->time }}
                                     </div>
                                 @endif
+
+                                <div class="hero-date-card">
+                                    <label>Choose Your Reservation Date</label>
+                                    <div class="date-input-wrapper">
+                                        <select id="package_use_date" style="width: 100%;" required aria-required="true" aria-describedby="package_use_date_error">
+                                            <option value="" selected>Select Date</option>
+                                            @foreach($packageOptions as $dateOption)
+                                                <option value="{{ $dateOption['value'] }}">
+                                                    {{ $dateOption['label'] }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <span class="custom-calendar-icon" style="display:none;"></span>
+                                    </div>
+                                    <small id="package_use_date_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
+                                </div>
                             </div>
 
                             <aside class="cv-hero-location">
                                 <div class="cv-hero-location-header">
                                     <div class="cv-hero-location-titles">
-                                        <div class="cv-hero-location-label">About</div>
-                                        <div class="cv-hero-location-name">{{ $affiliate->display_name ?: $affiliate->user->name }}</div>
-                                        <div class="cv-hero-location-addr">Affiliate Partner</div>
+                                        <div class="cv-hero-location-label">Find Us</div>
+                                        <div class="cv-hero-location-name">{{ $data->name }}</div>
+                                        <div class="cv-hero-location-addr">{{ $data->location }}</div>
                                     </div>
+                                    {{-- <span class="cv-hero-location-badge"><i class="fas fa-map-marker-alt"></i>VIP Venue</span> --}}
                                 </div>
-                                <div style="padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 20px;">
-                                    <p style="font-size: 13px; color: rgba(255,255,255,0.7); margin: 0; line-height: 1.6;">
-                                        Browse premium packages from this featured affiliate partner. Select and purchase your preferred packages below.
-                                    </p>
+                                <div class="cv-hero-location-map">
+                                    <iframe src="https://www.google.com/maps?q={{ urlencode($data->location) }}&output=embed" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                </div>
+                                <div class="cv-hero-location-contacts">
+                                    @if($data->phone)
+                                        <a href="tel:{{ $data->phone }}" class="cv-hero-location-contact"><i class="fas fa-phone"></i><span>{{ $data->phone }}</span></a>
+                                    @endif
+                                    @if($data->email)
+                                        <a href="mailto:{{ $data->email }}" class="cv-hero-location-contact"><i class="fas fa-envelope"></i><span>{{ $data->email }}</span></a>
+                                    @endif
                                 </div>
                             </aside>
                         </div>
@@ -4537,6 +4609,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         <div class="story-copy story-copy-collapsible">{{ $affiliate->description }}</div>
                         <button type="button" class="story-copy-toggle" aria-expanded="false">See more</button>
                     </div>
+                    @if ($affiliate->secondary_description)
+                        <div class="story-divider"></div>
+                        <div class="story-copy-block is-collapsed" data-mobile-collapsible>
+                            <div class="story-copy story-copy-collapsible">{{ $affiliate->secondary_description }}</div>
+                            <button type="button" class="story-copy-toggle" aria-expanded="false">See more</button>
+                        </div>
+                    @endif
                 </section>
             </div>
         </header>
@@ -4594,7 +4673,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             <input type="hidden" name="website_id" value="{{ $data->id }}">
                             <input type="hidden" name="affiliate_slug" value="{{ $affiliateReferral->slug ?? '' }}">
                             <section style="width: 100%">
-                                <h5 class="section-kicker-lg">Affiliate Booking</h5>
+                                <h5 class="section-kicker-lg">Guest List Reservation</h5>
                                 <div class="">
     
                                     <div class="row">
@@ -4758,7 +4837,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                                     @php
                                         $mostPopularPackageName = '';
-                                        if (isset($packageCategories) && count($packageCategories)) {
+                                        if (isset($packageCategories) && $packageCategories->count()) {
                                             $mostPopularPackage = collect($packageCategories)
                                                 ->flatMap(function ($category) {
                                                     return is_array($category)
@@ -4785,7 +4864,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         @endif
                                     </div>
     
-                                    @if(isset($packageCategories) && count($packageCategories))
+                                    @if(isset($packageCategories) && $packageCategories->count())
                                         @php
                                             $sortedPackageCategories = collect($packageCategories)
                                                 ->sortBy(function ($category) {
@@ -4924,7 +5003,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 data-sales_tax="{{ $data->sales_tax_fee ?? 10}}"
                                                                 data-transportation="{{ $item->transportation }}"
                                                                 data-service_charge="{{ $data->service_charge_fee ?? 10}}"
-                                                                data-default-label="Add to Cart">{{ 'Add to Cart' }}</button>
+                                                                data-default-label="Add to Cart"
+                                                                @disabled(!empty($affiliate->is_sold_out))>{{ !empty($affiliate->is_sold_out) ? 'Sold Out' : 'Add to Cart' }}</button>
                                                             <small class="package-guest-error" style="display:none;color:#ff6b6b;font-size:11px;line-height:1.35;margin-top:4px;"></small>
                                                             <div class="package-soldout" style="display:none;color:#ff2b2b;font-size:12px;font-weight:700;line-height:1.35;margin-top:4px;">Sold Out!</div>
                                                         </div>
@@ -5514,7 +5594,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     </div>
 
                     @php
-                        $sidebarVenueImage = !empty($affiliate->banner_image ?? null) ? asset('uploads/' . $affiliate->banner_image) : ($data->logo ? asset('uploads/' . $data->logo) : null);
+                        $sidebarVenueImage = !empty($affiliate->image ?? null) ? asset('uploads/' . $affiliate->image) : ($data->logo ? asset('uploads/' . $data->logo) : null);
                     @endphp
                     @if($sidebarVenueImage)
                         <img src="{{ $sidebarVenueImage }}" class="cv-sidebar-venue-image" alt="{{ $data->name }}">
@@ -5567,6 +5647,57 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 </div>{{-- end cv-checkout-body --}}
 
                     {{-- Location info now lives in the hero (.cv-hero-location). Original section removed to avoid duplication. --}}
+
+                <section>
+                    <div class="container py-5 events-section-container">
+                        <div class="event-header">
+                            <h2>Upcoming Events</h2>
+                            <div class="event-filters">
+                                <button type="button" class="event-filter" data-filter="week">This Week</button>
+                                <button type="button" class="event-filter" data-filter="month">This Month</button>
+                                <button type="button" class="event-filter" data-filter="year">This Year</button>
+                            </div>
+                        </div>
+                        <div class="row g-4" id="events-list">
+                            @php
+                                $todayPacific = \Carbon\Carbon::now('America/Los_Angeles')->toDateString();
+                            @endphp
+                            @foreach ($data->events as $item)
+                                @php
+                                    $eventStartDate = $item->start_date ?? $item->date;
+                                    $eventEndDate = $item->end_date ?? $eventStartDate;
+                                @endphp
+                                  @if (!$item->is_archieved && $eventEndDate && \Carbon\Carbon::parse($eventEndDate)->toDateString() >= $todayPacific)
+                                    <div class="col-md-4 event-card-item"
+                                        data-date="{{ \Carbon\Carbon::parse($eventStartDate)->format('Y-m-d') }}">
+                                        <a href="/{{ $data->slug }}?event_name={{ $item->name }}" class="event-card">
+                                            <div class="card">
+                                                <img src="{{ asset('uploads/' . $item->image) }}" alt="{{ $item->name }}">
+                                                <div class="d-flex">
+                                                    <div class="event-day">{{ \Carbon\Carbon::parse($eventStartDate)->format('l') }}</div>
+                                                    <div class="event-dates">{{ \Carbon\Carbon::parse($eventStartDate)->format('M') }}<span>{{ \Carbon\Carbon::parse($eventStartDate)->format('d') }}</span></div>
+                                                </div>
+                                                <div class="event-location">{{ $item->name }}</div>
+                                                @if($eventEndDate && $eventStartDate !== $eventEndDate)
+                                                    <div class="event-location">
+                                                        {{ \Carbon\Carbon::parse($eventStartDate)->format('M d') }} - {{ \Carbon\Carbon::parse($eventEndDate)->format('M d') }}
+                                                    </div>
+                                                @endif
+                                                @if(!empty($item->time))
+                                                    <div class="event-location"><i class="fas fa-clock"></i>{{ $item->time }}</div>
+                                                @endif
+                                                <div class="event-location"><i class="fas fa-map-marker-alt"></i>{{ $data->location }}</div>
+                                                <div class="event-location">Reserve</div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                @endif
+                            @endforeach
+                        </div>
+                    </div>
+    
+    
+                </section>
     
                 <div class="modal" tabindex="-1">
                     <div class="modal-dialog">
@@ -6121,8 +6252,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             window.cart = [];
             window.cartCoupon = window.cartCoupon || null;
             window.eventCapacityState = {
-                limit: null,
-                remaining: null
+                limit: @json($affiliate->attendee_limit ?? null),
+                remaining: @json(isset($affiliate->remaining_attendee_capacity) ? (int) $affiliate->remaining_attendee_capacity : null)
             };
 
             // Ensure cart is always an array
@@ -6768,7 +6899,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         data: {
                             cart: JSON.stringify(selections.cart),
                             website_slug: '{{ $data->slug }}',
-                            event_name: @json($affiliate->display_name ?? $affiliate->user->name),
+                            event_name: @json($affiliate->name),
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },
                         success: function(res) {

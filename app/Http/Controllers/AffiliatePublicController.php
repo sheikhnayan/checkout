@@ -17,7 +17,7 @@ class AffiliatePublicController extends Controller
             ->firstOrFail();
 
         $packageMappings = $affiliate->affiliatePackages()
-            ->with(['package.website', 'package.addons', 'package.event', 'package.category'])
+            ->with(['package.website', 'package.category', 'package.addons'])
             ->where('is_active', true)
             ->latest()
             ->get()
@@ -31,16 +31,32 @@ class AffiliatePublicController extends Controller
             })
             ->values();
 
-        $clubGroups = $packageMappings
-            ->groupBy(function ($mapping) {
-                return $mapping->package->website->id;
-            });
+        $clubGroups = $packageMappings->groupBy(function ($mapping) {
+            return $mapping->package->website->id;
+        });
 
-        $packageCategoryGroups = $this->buildPackageCategoryGroups($packageMappings);
+        // Build package categories - handle null categories as "Uncategorized"
+        $packageCategories = [];
+        foreach ($packageMappings as $mapping) {
+            $package = $mapping->package;
+            $categoryId = $package->package_category_id ?: 'uncategorized';
+            $categoryName = $package->category?->name ?? 'Uncategorized';
+
+            if (!isset($packageCategories[$categoryId])) {
+                $packageCategories[$categoryId] = [
+                    'id' => $categoryId,
+                    'name' => $categoryName,
+                    'packages' => []
+                ];
+            }
+            $packageCategories[$categoryId]['packages'][] = $package;
+        }
+        $packageCategories = array_values($packageCategories);
 
         $setting = Setting::find(1);
+        $data = (object)['name' => 'CartVIP', 'logo' => null, 'location' => '', 'back_link' => null, 'back_text' => 'Back', 'reservation' => 0];
 
-        return view('affiliate.public-page', compact('affiliate', 'packageMappings', 'clubGroups', 'packageCategoryGroups', 'setting'));
+        return view('affiliate.public-page', compact('affiliate', 'packageMappings', 'packageCategories', 'clubGroups', 'data', 'setting'));
     }
 
     private function buildPackageCategoryGroups(Collection $packageMappings)
