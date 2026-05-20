@@ -4559,15 +4559,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         @if ($data->reservation == 1)
                             <div class="cv-access-hint">Choose one to continue<span class="cv-access-hint-dot"></span></div>
                         @endif
-                        <div class="cv-access-grid">
-                            <div class="cv-access-card is-active">
-                                <i class="fas fa-star"></i>
-                                <div>
-                                    <strong>{{ $data->package_button_text ?? 'Packages' }}</strong>
-                                    <span>VIP table packages &amp; experiences</span>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                 <div class="package">
@@ -4856,22 +4847,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                             </div>
                                         </div>
                                     </div>
-    
-                                    <div class="mt-3" id="shareLinkContainer">
-                                        <button type="button" id="generateShareLink">Generate Shareable Link</button>
-                                        <div style="position: relative;">
-                                            <input type="text" id="shareableLink" readonly style="width:100%;margin-top:8px;display:none;padding-right:40px;" />
-                                            <div id="copyTooltip" style="position: absolute; top: -35px; right: 0; background: #28a745; color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; display: none; white-space: nowrap; z-index: 1000;">
-                                                Link copied!
-                                            </div>
-                                        </div>
-                                                <div id="shareActions" style="display:none;gap:8px;flex-wrap:wrap;margin-top:8px;">
-                                                    <button type="button" class="checkout-share-btn" data-share="email" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">Email</button>
-                                                    <button type="button" class="checkout-share-btn" data-share="whatsapp" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">WhatsApp</button>
-                                                    <button type="button" class="checkout-share-btn" data-share="facebook" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">Facebook</button>
-                                                    <button type="button" class="checkout-share-btn" data-share="copy" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">Copy</button>
-                                                </div>
-                                    </div>
+
                                     <!-- Step Progress Indicator -->
                                     <ul class="checkout-steps" id="checkout-steps" style="display: none;">
                                         <li class="step active" id="step-1">
@@ -5364,13 +5340,27 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     <div class="cv-sidebar-venue-row" style="border-bottom:none; padding-bottom:0; margin-bottom:14px;">
                         <div style="flex:1; min-width:0;">
                             <div class="cv-sidebar-venue-name">{{ $data->name }}</div>
-                            <div class="cv-sidebar-venue-date" id="cv-sidebar-date">
-                                <i class="fas fa-calendar-alt" style="margin-right:4px;opacity:.6;"></i>Select a date above
-                            </div>
                         </div>
                     </div>
 
                     <div id="cv-sidebar-body"></div>
+
+                    <!-- Generate Shareable Link Section -->
+                    <div class="mt-3" id="shareLinkContainer" style="margin: 16px 0; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.08);">
+                        <button type="button" id="generateShareLink" style="width: 100%; background: linear-gradient(135deg, #a774ff 0%, #7c3aed 50%, #5b21b6 100%); color: #fff; border: none; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 8px;">Generate Shareable Link</button>
+                        <div style="position: relative;">
+                            <input type="text" id="shareableLink" readonly style="width:100%; margin-top:0; display:none; padding:8px 10px; padding-right:40px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; font-size: 12px;" />
+                            <div id="copyTooltip" style="position: absolute; top: -35px; right: 0; background: #28a745; color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; display: none; white-space: nowrap; z-index: 1000;">
+                                Link copied!
+                            </div>
+                        </div>
+                        <div id="shareActions" style="display:none; gap:6px; flex-wrap:wrap; margin-top:8px;">
+                            <button type="button" class="checkout-share-btn" data-share="email" style="background:rgba(255,255,255,0.08); color:#fff; border:1px solid rgba(255,255,255,0.2); padding:6px 10px; border-radius:6px; font-size:11px; flex: 1; cursor: pointer;">Email</button>
+                            <button type="button" class="checkout-share-btn" data-share="whatsapp" style="background:rgba(255,255,255,0.08); color:#fff; border:1px solid rgba(255,255,255,0.2); padding:6px 10px; border-radius:6px; font-size:11px; flex: 1; cursor: pointer;">WhatsApp</button>
+                            <button type="button" class="checkout-share-btn" data-share="facebook" style="background:rgba(255,255,255,0.08); color:#fff; border:1px solid rgba(255,255,255,0.2); padding:6px 10px; border-radius:6px; font-size:11px; flex: 1; cursor: pointer;">Facebook</button>
+                            <button type="button" class="checkout-share-btn" data-share="copy" style="background:rgba(255,255,255,0.08); color:#fff; border:1px solid rgba(255,255,255,0.2); padding:6px 10px; border-radius:6px; font-size:11px; flex: 1; cursor: pointer;">Copy</button>
+                        </div>
+                    </div>
 
                     @php
                         $refundablePct = (int) ($data->refundable_fee ?? 0);
@@ -8040,6 +8030,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 }
             }
 
+            function initDefaultOpenCategory() {
+                var firstCategoryTile = document.querySelector('.package-category-tile');
+                if (firstCategoryTile) {
+                    firstCategoryTile.click();
+                }
+            }
+
             function initSidebarDateSync() {
                 var dateInput = document.getElementById('package_use_date');
                 var sidebarDate = document.getElementById('cv-sidebar-date');
@@ -8213,11 +8210,18 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             document.addEventListener('DOMContentLoaded', function() {
                 initSidebar();
                 initPackageSearch();
+                initDefaultOpenCategory();
                 initSidebarDateSync();
                 initSidebarCta();
                 initHamburger();
                 initCheckoutSteps();
                 initDateNotification();
+
+                // Hide "Choose Date" step for affiliate (not needed)
+                var chooseDateStep = document.getElementById('cv-dstep-1');
+                if (chooseDateStep) {
+                    chooseDateStep.style.display = 'none';
+                }
             });
         })();
         </script>
