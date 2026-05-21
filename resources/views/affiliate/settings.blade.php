@@ -24,12 +24,28 @@
                         <label class="form-label">Hero Subtitle</label>
                         <input type="text" class="form-control" name="hero_subtitle" value="{{ old('hero_subtitle', $affiliate->hero_subtitle) }}" placeholder="Short supporting line under the headline">
                     </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Hero Badge 1 Label</label>
+                        <input type="text" class="form-control" name="hero_badge_1_label" value="{{ old('hero_badge_1_label', $affiliate->hero_badge_1_label) }}" placeholder="Featured">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Hero Badge 1 Subtext</label>
+                        <input type="text" class="form-control" name="hero_badge_1_sub" value="{{ old('hero_badge_1_sub', $affiliate->hero_badge_1_sub) }}" placeholder="Premium Partner">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Hero Badge 2 Label</label>
+                        <input type="text" class="form-control" name="hero_badge_2_label" value="{{ old('hero_badge_2_label', $affiliate->hero_badge_2_label) }}" placeholder="Verified">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Hero Badge 2 Subtext</label>
+                        <input type="text" class="form-control" name="hero_badge_2_sub" value="{{ old('hero_badge_2_sub', $affiliate->hero_badge_2_sub) }}" placeholder="Trusted Source">
+                    </div>
                     <div class="col-12">
                         <label class="form-label">Description</label>
                         <textarea class="form-control" rows="4" name="description">{{ old('description', $affiliate->description) }}</textarea>
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Secondary Description</label>
+                        <label class="form-label">Secondary Description (About Panel)</label>
                         <textarea class="form-control" rows="4" name="secondary_description">{{ old('secondary_description', $affiliate->secondary_description) }}</textarea>
                     </div>
 

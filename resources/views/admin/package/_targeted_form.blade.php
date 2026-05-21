@@ -384,6 +384,10 @@
                     @if(!empty(optional($formData)->image))
                         <small class="text-muted d-block mt-1">Current:</small>
                         <img src="{{ asset('uploads/' . $formData->image) }}" alt="Current package image" style="width:110px;height:70px;object-fit:cover;border-radius:8px;border:1px solid #d7dce4;">
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" name="remove_image" id="remove_image" value="1">
+                            <label class="form-check-label" for="remove_image">Remove current desktop image</label>
+                        </div>
                     @endif
                 </div>
             </div>
@@ -395,6 +399,10 @@
                     @if(!empty(optional($formData)->mobile_image))
                         <small class="text-muted d-block mt-1">Current:</small>
                         <img src="{{ asset('uploads/' . $formData->mobile_image) }}" alt="Current package mobile image" style="width:110px;height:70px;object-fit:cover;border-radius:8px;border:1px solid #d7dce4;">
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" name="remove_mobile_image" id="remove_mobile_image" value="1">
+                            <label class="form-check-label" for="remove_mobile_image">Remove current mobile image</label>
+                        </div>
                     @endif
                 </div>
             </div>

@@ -454,6 +454,8 @@ class PackageController extends Controller
             'description' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
             'mobile_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
+            'remove_image' => 'nullable|boolean',
+            'remove_mobile_image' => 'nullable|boolean',
             'package_feature_text' => 'nullable|array',
             'package_feature_text.*' => 'nullable|string|max:120',
             'package_feature_icon' => 'nullable|array',
@@ -499,6 +501,16 @@ class PackageController extends Controller
             (array) $request->input('package_feature_text', []),
             (array) $request->input('package_feature_icon', [])
         );
+
+        if ($request->boolean('remove_image')) {
+            $this->deleteUploadedPackageImage($package->image);
+            $package->image = null;
+        }
+
+        if ($request->boolean('remove_mobile_image')) {
+            $this->deleteUploadedPackageImage($package->mobile_image);
+            $package->mobile_image = null;
+        }
 
         if ($request->hasFile('image')) {
             $this->deleteUploadedPackageImage($package->image);

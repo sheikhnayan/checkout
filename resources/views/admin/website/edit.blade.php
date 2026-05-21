@@ -420,6 +420,34 @@
                                                     </div>
                                                 </div>
 
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="hero_badge_1_label" class="form-label">Hero Badge 1 Label <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Top line text for the first hero badge on checkout (e.g. Open Daily)."></i></label>
+                                                        <input type="text" name="hero_badge_1_label" class="form-control" id="hero_badge_1_label" value="{{ old('hero_badge_1_label', $data->hero_badge_1_label) }}" placeholder="Open Daily">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="hero_badge_1_sub" class="form-label">Hero Badge 1 Subtext <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Bottom line text for the first hero badge (e.g. 6PM - 7AM)."></i></label>
+                                                        <input type="text" name="hero_badge_1_sub" class="form-control" id="hero_badge_1_sub" value="{{ old('hero_badge_1_sub', $data->hero_badge_1_sub) }}" placeholder="6PM - 7AM">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="hero_badge_2_label" class="form-label">Hero Badge 2 Label <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Top line text for the second hero badge on checkout (e.g. Top Rated Club)."></i></label>
+                                                        <input type="text" name="hero_badge_2_label" class="form-control" id="hero_badge_2_label" value="{{ old('hero_badge_2_label', $data->hero_badge_2_label) }}" placeholder="Top Rated Club">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="hero_badge_2_sub" class="form-label">Hero Badge 2 Subtext <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Bottom line text for the second hero badge (e.g. #1 in Las Vegas)."></i></label>
+                                                        <input type="text" name="hero_badge_2_sub" class="form-control" id="hero_badge_2_sub" value="{{ old('hero_badge_2_sub', $data->hero_badge_2_sub) }}" placeholder="#1 in Las Vegas">
+                                                    </div>
+                                                </div>
+
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
                                                         <label class="form-label">Secondary Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional second content block displayed on the checkout page below the main description."></i></label>

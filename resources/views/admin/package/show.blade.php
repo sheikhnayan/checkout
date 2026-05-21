@@ -270,14 +270,20 @@
                                                         <td>
                                                             <form method="POST" action="{{ route('admin.package-category.update', $cat->id) }}" class="d-flex gap-2 align-items-center">
                                                                 @csrf
-                                                            <td>{{ (int) ($item->sort_order ?? 0) }}</td>
                                                                 <input type="text" name="name" value="{{ $cat->name }}" class="form-control form-control-sm" style="max-width:240px;" required>
                                                                 <button type="submit" class="btn btn-sm btn-outline-primary">Rename</button>
                                                             </form>
                                                         </td>
+                                                        <td>
+                                                            <form method="POST" action="{{ route('admin.package-category.update', $cat->id) }}" class="d-flex gap-2 align-items-center">
+                                                                @csrf
+                                                                <input type="hidden" name="name" value="{{ $cat->name }}">
+                                                                <input type="number" name="sort_order" value="{{ (int) ($cat->sort_order ?? 0) }}" class="form-control form-control-sm" min="0" step="1" style="max-width:110px;" required>
+                                                                <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
+                                                            </form>
+                                                        </td>
                                                         <td>{{ $cat->packages()->count() }}</td>
                                                         <td>
-                                                            <th>Sort</th>
                                                             <form method="POST" action="{{ route('admin.package-category.destroy', $cat->id) }}" onsubmit="return confirm('Delete this category? Packages will become Uncategorized.')">
                                                                 @csrf
                                                                 <button type="submit" class="btn btn-sm btn-danger">Delete</button>
@@ -286,7 +292,6 @@
                                                     </tr>
                                                     @endforeach
                                                 </tbody>
-                                                            <td>{{ (int) ($item->sort_order ?? 0) }}</td>
                                             </table>
                                         @endif
                                     </div>
