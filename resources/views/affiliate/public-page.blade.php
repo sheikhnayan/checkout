@@ -3372,7 +3372,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 /* Pick-up time — Flatpickr visual time picker (desktop) */
 .checkout-section[id^="section-"] .pickup-time-wrap {
     position: relative;
-    max-width: 260px;
+    width: 100%;
+    max-width: 100%;
 }
 .checkout-section[id^="section-"] .pickup-time-icon {
     position: absolute;
@@ -3395,7 +3396,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     font-size: 15px !important;
     min-height: 46px !important;
     width: 100% !important;
-    max-width: 260px !important;
+    max-width: 100% !important;
     height: auto !important;
     cursor: pointer;
     font-family: inherit;
@@ -3414,10 +3415,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     border: 1px solid rgba(167,116,255,0.4) !important;
     border-radius: 16px !important;
     box-shadow: 0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(167,116,255,0.12) !important;
-    padding: 22px 20px !important;
-    min-width: 220px !important;
+    padding: 18px 18px !important;
+    min-width: 288px !important;
     width: auto !important;
-    max-width: min(320px, calc(100vw - 32px)) !important;
+    max-width: min(340px, calc(100vw - 32px)) !important;
 }
 .flatpickr-calendar.hasTime.noCalendar .flatpickr-time {
     border-top: none !important;
@@ -3425,6 +3426,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     max-height: none !important;
     height: auto !important;
     line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
 }
 .flatpickr-time input.numInput,
 .flatpickr-time .flatpickr-am-pm {
@@ -3432,11 +3437,19 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     background: rgba(255,255,255,0.07) !important;
     border: 1px solid rgba(255,255,255,0.14) !important;
     border-radius: 10px !important;
-    font-size: 26px !important;
+    font-size: 20px !important;
     font-weight: 700 !important;
-    height: 56px !important;
-    line-height: 56px !important;
+    height: 48px !important;
+    line-height: 48px !important;
     text-align: center !important;
+}
+.flatpickr-time input.numInput {
+    min-width: 56px !important;
+}
+.flatpickr-time .flatpickr-am-pm {
+    min-width: 68px !important;
+    width: 68px !important;
+    padding: 0 8px !important;
 }
 .flatpickr-time input.numInput:focus,
 .flatpickr-time .flatpickr-am-pm:focus,
@@ -3449,7 +3462,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .flatpickr-time .numInputWrapper span.arrowUp:after { border-bottom-color: rgba(255,255,255,0.75) !important; }
 .flatpickr-time .numInputWrapper span.arrowDown:after { border-top-color: rgba(255,255,255,0.75) !important; }
 .flatpickr-time .numInputWrapper span:hover { background: rgba(167,116,255,0.2) !important; }
-.flatpickr-time .flatpickr-time-separator { color: rgba(255,255,255,0.6) !important; font-size: 26px !important; font-weight: 700 !important; }
+.flatpickr-time .flatpickr-time-separator { color: rgba(255,255,255,0.6) !important; font-size: 20px !important; font-weight: 700 !important; }
 @media (max-width: 767px) {
     .checkout-section[id^="section-"] .pickup-time-wrap,
     .checkout-section[id^="section-"] input[name="transportation_pickup_time"] {
