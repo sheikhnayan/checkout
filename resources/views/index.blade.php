@@ -3693,10 +3693,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-checkout-body.is-guest-mode { grid-template-columns: 1fr !important; }
 .cv-checkout-body.is-guest-mode .cv-sidebar { display: none !important; }
 .cv-checkout-body.is-guest-mode .cv-main-col { max-width: 100%; }
-/* Reservation section (section-1) active: hide sidebar, give full width to main content */
-#section-1.active ~ #cv-order-sidebar,
-#cv-checkout-layout:has(#section-1.active) .cv-sidebar { display: none !important; }
-#cv-checkout-layout:has(#section-1.active) { grid-template-columns: 1fr !important; }
 /* Compact spacing to fit without scroll */
 .cv-sidebar .cv-sidebar-venue-image { height: 80px; margin-bottom: 10px; padding: 6px; }
 @media (max-width: 991px) {
@@ -8414,7 +8410,18 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 }
 
                 document.querySelectorAll('.cv-access-tab').forEach(function(tab) {
-                    tab.addEventListener('click', function() { setTimeout(updateCheckoutSteps, 0); });
+                    tab.addEventListener('click', function() {
+                        // Toggle is-guest-mode class based on active tab
+                        var layout = document.getElementById('cv-checkout-layout');
+                        if (layout) {
+                            if (this.getAttribute('data-name') === 'guest') {
+                                layout.classList.add('is-guest-mode');
+                            } else {
+                                layout.classList.remove('is-guest-mode');
+                            }
+                        }
+                        setTimeout(updateCheckoutSteps, 0);
+                    });
                 });
 
                 var cartList = document.getElementById('cart-list');
