@@ -3450,11 +3450,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     align-items: center !important;
     justify-content: center !important;
     vertical-align: middle !important;
+    box-sizing: border-box !important;
 }
 .flatpickr-time input.numInput {
     min-width: 60px !important;
-    padding-top: 11px !important;
-    padding-bottom: 11px !important;
+    padding: 11px 8px !important;
 }
 .flatpickr-time .flatpickr-am-pm {
     min-width: 72px !important;
