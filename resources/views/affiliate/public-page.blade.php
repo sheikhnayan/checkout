@@ -8064,6 +8064,24 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 updateSidebarDate();
             }
 
+            function initReservationDatePicker() {
+                var dateInput = document.getElementById('package_use_date');
+                if (!dateInput) return;
+
+                flatpickr(dateInput, {
+                    mode: 'single',
+                    minDate: 'today',
+                    dateFormat: 'Y-m-d',
+                    enableTime: false,
+                    disableMobile: false,
+                    onChange: function(selectedDates, dateStr, instance) {
+                        // Trigger change event for sidebar sync
+                        var event = new Event('change', { bubbles: true });
+                        dateInput.dispatchEvent(event);
+                    }
+                });
+            }
+
             function initSidebarCta() {
                 var ctaBtn = document.getElementById('cv-sidebar-cta');
                 var cartList = document.getElementById('cart-list');
@@ -8223,6 +8241,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 initSidebar();
                 initPackageSearch();
                 initDefaultOpenCategory();
+                initReservationDatePicker();
                 initSidebarDateSync();
                 initSidebarCta();
                 initHamburger();
