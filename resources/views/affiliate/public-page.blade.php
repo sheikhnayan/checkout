@@ -3439,26 +3439,31 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     border-radius: 10px !important;
     font-size: 18px !important;
     font-weight: 700 !important;
-    height: auto !important;
+    height: 54px !important;
     min-height: 54px !important;
-    line-height: 1.15 !important;
-    padding: 10px 0 !important;
+    line-height: 54px !important;
+    padding: 0 8px !important;
     text-align: center !important;
     overflow: visible !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    vertical-align: middle !important;
     box-sizing: border-box !important;
+}
+.flatpickr-time .numInputWrapper {
+    height: 54px !important;
+    display: flex !important;
+    align-items: center !important;
 }
 .flatpickr-time input.numInput {
     min-width: 60px !important;
-    padding: 11px 8px !important;
+    width: 100% !important;
+    display: block !important;
+    appearance: textfield !important;
+    -moz-appearance: textfield !important;
+    padding: 0 8px 2px !important;
 }
 .flatpickr-time .flatpickr-am-pm {
     min-width: 72px !important;
     width: 72px !important;
-    padding: 11px 8px !important;
+    padding: 0 8px !important;
 }
 .flatpickr-time input.numInput:focus,
 .flatpickr-time .flatpickr-am-pm:focus,
