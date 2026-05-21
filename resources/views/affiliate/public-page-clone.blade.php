@@ -3416,7 +3416,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     border: 1px solid rgba(167,116,255,0.4) !important;
     border-radius: 16px !important;
     box-shadow: 0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(167,116,255,0.12) !important;
-    padding: 18px 18px !important;
+    padding: 22px 20px !important;
     min-width: 288px !important;
     width: auto !important;
     max-width: min(340px, calc(100vw - 32px)) !important;
@@ -3438,19 +3438,28 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     background: rgba(255,255,255,0.07) !important;
     border: 1px solid rgba(255,255,255,0.14) !important;
     border-radius: 10px !important;
-    font-size: 20px !important;
+    font-size: 18px !important;
     font-weight: 700 !important;
-    height: 48px !important;
-    line-height: 48px !important;
+    height: auto !important;
+    min-height: 54px !important;
+    line-height: 1.15 !important;
+    padding: 10px 0 !important;
     text-align: center !important;
+    overflow: visible !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
 }
 .flatpickr-time input.numInput {
-    min-width: 56px !important;
+    min-width: 60px !important;
+    padding-top: 11px !important;
+    padding-bottom: 11px !important;
 }
 .flatpickr-time .flatpickr-am-pm {
-    min-width: 68px !important;
-    width: 68px !important;
-    padding: 0 8px !important;
+    min-width: 72px !important;
+    width: 72px !important;
+    padding: 11px 8px !important;
 }
 .flatpickr-time input.numInput:focus,
 .flatpickr-time .flatpickr-am-pm:focus,
