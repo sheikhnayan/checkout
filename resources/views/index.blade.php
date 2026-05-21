@@ -1086,9 +1086,9 @@ input::placeholder, textarea::placeholder {
 }
 
 #cart-section .cart-remove-btn {
-    border: 1px solid rgba(255,255,255,0.28);
-    background: rgba(255,255,255,0.07);
-    color: #fff;
+    border: 1px solid #ef4444;
+    background: rgba(239, 68, 68, 0.15);
+    color: #ff6b6b;
     border-radius: 999px;
     padding: 4px 11px;
     font-size: 12px;
@@ -1097,8 +1097,8 @@ input::placeholder, textarea::placeholder {
 }
 
 #cart-section .cart-remove-btn:hover {
-    border-color: rgba(255,255,255,0.55);
-    background: rgba(255,255,255,0.14);
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.25);
 }
 
 #cart-section .cart-addons {
