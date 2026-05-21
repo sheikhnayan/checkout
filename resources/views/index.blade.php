@@ -2431,8 +2431,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
 /* ====== CartVIP Redesign UI 2025 ====== */
 .cv-top-nav {
-    position:sticky;
-    top:0;
     z-index:1000;
     background: linear-gradient(180deg, rgba(8,11,20,0.98) 0%, rgba(5,7,14,0.94) 100%);
     backdrop-filter:blur(14px);

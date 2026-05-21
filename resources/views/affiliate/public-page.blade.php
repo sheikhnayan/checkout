@@ -2431,8 +2431,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
 /* ====== CartVIP Redesign UI 2025 ====== */
 .cv-top-nav {
-    position:sticky;
-    top:0;
     z-index:1000;
     background: linear-gradient(180deg, rgba(8,11,20,0.98) 0%, rgba(5,7,14,0.94) 100%);
     backdrop-filter:blur(14px);
@@ -4414,26 +4412,12 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             <a href="/" class="cv-nav-brand">
                 <img src="{{ asset('images/logo.png') }}" alt="CartVIP" class="cv-nav-logo-img">
             </a>
-            @if ($data->back_link)
-            <a href="{{ $data->back_link }}" class="cv-nav-back">
-                <i class="fas fa-arrow-left"></i> {{ $data->back_text ?: 'Back to Home' }}
-            </a>
-            @endif
             <button class="cv-hamburger" id="cv-hamburger" aria-label="Open menu">
                 <span></span><span></span><span></span>
             </button>
         </nav>
 
         {{-- Duplicate venue header removed - club details are shown in the hero section --}}
-
-        @if ($data->back_link)
-            <div class="mobile-top-actions d-md-none">
-                <a href="{{ $data->back_link }}" class="mobile-back-home-btn">
-                    <i class="fas fa-arrow-left"></i>
-                    <span>{{ $data->back_text ?: 'Back To Home' }}</span>
-                </a>
-            </div>
-        @endif
 
         <header>
             <div class="container py-1">
