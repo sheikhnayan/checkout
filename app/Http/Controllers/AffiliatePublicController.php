@@ -63,6 +63,17 @@ class AffiliatePublicController extends Controller
             ->unique('id')
             ->values();
 
+        // Generate date options for next 30 days
+        $dateOptions = [];
+        $today = \Carbon\Carbon::today();
+        for ($i = 0; $i < 30; $i++) {
+            $date = $today->copy()->addDays($i);
+            $dateOptions[] = [
+                'value' => $date->format('Y-m-d'),
+                'label' => $date->format('M d, Y')
+            ];
+        }
+
         // Get the first affiliated website for fees and checkout info
         $website = $affiliate->affiliateWebsites()
             ->with('website')
@@ -90,7 +101,7 @@ class AffiliatePublicController extends Controller
             ];
         }
 
-        return view('affiliate.public-page', compact('affiliate', 'packageMappings', 'packageCategories', 'clubGroups', 'data', 'setting', 'uniqueClubsForFilter'));
+        return view('affiliate.public-page', compact('affiliate', 'packageMappings', 'packageCategories', 'clubGroups', 'data', 'setting', 'uniqueClubsForFilter', 'dateOptions'));
     }
 
     private function buildPackageCategoryGroups(Collection $packageMappings)

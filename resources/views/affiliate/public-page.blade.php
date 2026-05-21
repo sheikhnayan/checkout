@@ -4501,6 +4501,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         {{ $affiliate->description }}
                                     </div>
                                 @endif
+
+                                <!-- Reservation Date Selection -->
+                                <div class="hero-date-card" style="margin-top: 16px;">
+                                    <label>Choose Your Reservation Date</label>
+                                    <div class="date-input-wrapper">
+                                        <input type="date" id="package_use_date" style="width: 100%;" required aria-required="true" aria-describedby="package_use_date_error">
+                                    </div>
+                                    <small id="package_use_date_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
+                                </div>
                             </div>
 
                             <aside class="cv-hero-location">
@@ -5340,6 +5349,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     <div class="cv-sidebar-venue-row" style="border-bottom:none; padding-bottom:0; margin-bottom:14px;">
                         <div style="flex:1; min-width:0;">
                             <div class="cv-sidebar-venue-name">{{ $data->name }}</div>
+                            <div class="cv-sidebar-venue-date" id="cv-sidebar-date">
+                                <i class="fas fa-calendar-alt" style="margin-right:4px;opacity:.6;"></i>Select a date above
+                            </div>
                         </div>
                     </div>
 
@@ -8031,9 +8043,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             }
 
             function initDefaultOpenCategory() {
-                var firstCategoryTile = document.querySelector('.package-category-tile');
-                if (firstCategoryTile) {
-                    firstCategoryTile.click();
+                var $firstTile = $('.package-category-tile').first();
+                if ($firstTile.length) {
+                    $firstTile.trigger('click');
                 }
             }
 
@@ -8216,12 +8228,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 initHamburger();
                 initCheckoutSteps();
                 initDateNotification();
-
-                // Hide "Choose Date" step for affiliate (not needed)
-                var chooseDateStep = document.getElementById('cv-dstep-1');
-                if (chooseDateStep) {
-                    chooseDateStep.style.display = 'none';
-                }
             });
         })();
         </script>
