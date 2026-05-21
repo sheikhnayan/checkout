@@ -3693,6 +3693,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-checkout-body.is-guest-mode { grid-template-columns: 1fr !important; }
 .cv-checkout-body.is-guest-mode .cv-sidebar { display: none !important; }
 .cv-checkout-body.is-guest-mode .cv-main-col { max-width: 100%; }
+/* Reservation section (section-1) active: hide sidebar, give full width to main content */
+#section-1.active ~ #cv-order-sidebar,
+#cv-checkout-layout:has(#section-1.active) .cv-sidebar { display: none !important; }
+#cv-checkout-layout:has(#section-1.active) { grid-template-columns: 1fr !important; }
 /* Compact spacing to fit without scroll */
 .cv-sidebar .cv-sidebar-venue-image { height: 80px; margin-bottom: 10px; padding: 6px; }
 @media (max-width: 991px) {
@@ -4322,7 +4326,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .vip-card.cv-exact-card .cv-pkg-title-row { margin-top: 0; }
     .vip-card.cv-exact-card .cv-pkg-title { font-size: 22px !important; }
     .vip-card.cv-exact-card .cv-pkg-desc { font-size: 13px !important; line-height: 1.5; }
-    .vip-card.cv-exact-card .cv-pkg-features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px 10px; margin-top: auto; padding-top: 14px; flex-wrap: wrap; }
+    .vip-card.cv-exact-card .cv-pkg-features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px 10px; margin-top: auto; padding-top: 30px; flex-wrap: wrap; }
     .vip-card.cv-exact-card .cv-pkg-feature { flex: 0 0 auto; font-size: 10.5px !important; flex-direction: column; align-items: center; gap: 3px; text-align: center; }
     .vip-card.cv-exact-card .cv-pkg-feature i { font-size: 15px !important; margin-bottom: 1px; }
     .vip-card.cv-exact-card .vip-card-side {
