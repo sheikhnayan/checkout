@@ -3680,8 +3680,7 @@
             box-shadow: 0 0 0 3px rgba(167,116,255,0.16) !important;
         }
 
-        /* Pick-up time — Flatpickr visual time picker (text input + popup) */
-        /* Pick-up time — analog clock picker */
+        /* Pick-up time — Flatpickr visual time picker (desktop) */
         .checkout-section[id^="section-"] .pickup-time-wrap {
             position: relative;
             max-width: 260px;
@@ -3720,93 +3719,54 @@
             background: rgba(255,255,255,0.05) !important;
             box-shadow: 0 0 0 3px rgba(167,116,255,0.16) !important;
         }
-        /* Analog clock picker popup */
-        .cp-overlay {
-            display: none; position: fixed; inset: 0; z-index: 99999;
-            background: rgba(0,0,0,0.55);
-            align-items: center; justify-content: center; padding: 16px;
-            -webkit-tap-highlight-color: transparent;
+        /* Flatpickr time-only popup — desktop theme */
+        .flatpickr-calendar.hasTime.noCalendar {
+            background: #1a1d2e !important;
+            border: 1px solid rgba(167,116,255,0.4) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(167,116,255,0.12) !important;
+            padding: 22px 20px !important;
+            min-width: 220px !important;
+            width: auto !important;
+            max-width: min(320px, calc(100vw - 32px)) !important;
         }
-        .cp-overlay.cp-open { display: flex; }
-        .cp-popup {
-            background: #1a1d2e;
-            border: 1px solid rgba(167,116,255,0.35);
-            border-radius: 24px;
-            padding: 28px 24px 20px;
-            width: 300px;
-            max-width: calc(100vw - 32px);
-            box-shadow: 0 24px 64px rgba(0,0,0,0.7), 0 0 0 1px rgba(167,116,255,0.1);
-            user-select: none; -webkit-user-select: none;
+        .flatpickr-calendar.hasTime.noCalendar .flatpickr-time {
+            border-top: none !important;
+            background: transparent !important;
+            max-height: none !important;
+            height: auto !important;
+            line-height: 1 !important;
         }
-        .cp-header {
-            display: flex; align-items: center; justify-content: center;
-            gap: 4px; margin-bottom: 24px;
+        .flatpickr-time input.numInput,
+        .flatpickr-time .flatpickr-am-pm {
+            color: #fff !important;
+            background: rgba(255,255,255,0.07) !important;
+            border: 1px solid rgba(255,255,255,0.14) !important;
+            border-radius: 10px !important;
+            font-size: 26px !important;
+            font-weight: 700 !important;
+            height: 56px !important;
+            line-height: 56px !important;
+            text-align: center !important;
         }
-        .cp-hdisp, .cp-mdisp {
-            font-size: 52px; font-weight: 800;
-            color: rgba(255,255,255,0.35);
-            background: rgba(255,255,255,0.05);
-            border-radius: 12px; padding: 2px 14px; min-width: 82px;
-            text-align: center; cursor: pointer;
-            transition: color .15s, background .15s; line-height: 1.1;
+        .flatpickr-time input.numInput:focus,
+        .flatpickr-time .flatpickr-am-pm:focus,
+        .flatpickr-time .flatpickr-am-pm:hover {
+            background: rgba(167,116,255,0.18) !important;
+            border-color: #a774ff !important;
+            outline: none !important;
+            color: #fff !important;
         }
-        .cp-hdisp.cp-active, .cp-mdisp.cp-active {
-            color: #fff; background: rgba(167,116,255,0.22);
+        .flatpickr-time .numInputWrapper span.arrowUp:after { border-bottom-color: rgba(255,255,255,0.75) !important; }
+        .flatpickr-time .numInputWrapper span.arrowDown:after { border-top-color: rgba(255,255,255,0.75) !important; }
+        .flatpickr-time .numInputWrapper span:hover { background: rgba(167,116,255,0.2) !important; }
+        .flatpickr-time .flatpickr-time-separator { color: rgba(255,255,255,0.6) !important; font-size: 26px !important; font-weight: 700 !important; }
+        @media (max-width: 767px) {
+            .checkout-section[id^="section-"] .pickup-time-wrap,
+            .checkout-section[id^="section-"] input[name="transportation_pickup_time"] {
+                max-width: 100% !important;
+            }
         }
-        .cp-sep {
-            font-size: 52px; font-weight: 800;
-            color: rgba(255,255,255,0.5); line-height: 1.1;
-        }
-        .cp-ampm { display: flex; flex-direction: column; gap: 6px; margin-left: 10px; }
-        .cp-ampm button {
-            font-size: 13px; font-weight: 700; letter-spacing: .5px;
-            color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.06);
-            border: 1.5px solid rgba(255,255,255,0.12); border-radius: 8px;
-            padding: 5px 12px; cursor: pointer; transition: all .15s; line-height: 1.3;
-        }
-        .cp-ampm button.cp-ampm-active { color: #fff; background: rgba(167,116,255,0.3); border-color: #a774ff; }
-        .cp-face-wrap { display: flex; justify-content: center; margin-bottom: 20px; }
-        .cp-face {
-            position: relative; width: 240px; height: 240px; border-radius: 50%;
-            background: rgba(255,255,255,0.03); border: 1.5px solid rgba(255,255,255,0.08);
-            cursor: crosshair; touch-action: none;
-            -webkit-tap-highlight-color: transparent; box-sizing: border-box;
-        }
-        .cp-center-dot {
-            position: absolute; width: 8px; height: 8px; background: #a774ff;
-            border-radius: 50%; top: 50%; left: 50%;
-            transform: translate(-50%,-50%); z-index: 3; pointer-events: none;
-        }
-        .cp-hand {
-            position: absolute; width: 2px; height: 40%; background: #a774ff;
-            bottom: 50%; left: 50%; transform-origin: bottom center;
-            transform: translateX(-50%) rotate(0deg);
-            border-radius: 2px 2px 0 0; z-index: 2;
-            transition: transform 0.2s cubic-bezier(.34,1.56,.64,1); pointer-events: none;
-        }
-        .cp-hand-tip {
-            position: absolute; width: 32px; height: 32px; background: #a774ff;
-            border-radius: 50%; top: -16px; left: 50%; transform: translateX(-50%);
-            box-shadow: 0 0 12px rgba(167,116,255,0.5);
-        }
-        .cp-num {
-            position: absolute; width: 34px; height: 34px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.75);
-            cursor: pointer; transform: translate(-50%,-50%);
-            transition: background .15s, color .15s; -webkit-tap-highlight-color: transparent;
-        }
-        .cp-num:hover { background: rgba(167,116,255,0.25); color: #fff; }
-        .cp-num.cp-num-selected { background: #a774ff; color: #fff; box-shadow: 0 0 10px rgba(167,116,255,0.4); }
-        .cp-footer { display: flex; justify-content: flex-end; gap: 12px; }
-        .cp-footer button {
-            padding: 10px 22px; border-radius: 10px;
-            font-size: 14px; font-weight: 700; border: none; cursor: pointer; letter-spacing: .3px;
-        }
-        .cp-cancel { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.6); transition: background .15s,color .15s; }
-        .cp-cancel:hover { background: rgba(255,255,255,0.13); color: #fff; }
-        .cp-ok { background: linear-gradient(135deg,#a774ff 0%,#7c4dff 100%); color: #fff; box-shadow: 0 4px 18px rgba(167,116,255,0.4); transition: box-shadow .15s,opacity .15s; }
-        .cp-ok:hover { box-shadow: 0 4px 28px rgba(167,116,255,0.6); opacity: .9; }
 
         .checkout-section[id^="section-"] .checkbox-container .consent-label {
             color: rgba(255,255,255,0.78) !important;
@@ -8673,179 +8633,64 @@
             }
 
             // Flatpickr time picker for pick-up time — visual picker on all devices including iOS.
-            // Analog clock picker for pick-up time — works on all devices including iOS.
+            // Pick-up time picker: desktop uses Flatpickr, mobile uses the native time control.
             (function () {
                 var el = document.querySelector('input[name="transportation_pickup_time"]');
                 if (!el) return;
-
-                function to24hStr(t) {
+                function to24h(t) {
                     if (!t) return null;
                     var m = String(t).trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
                     if (!m) return null;
-                    var hh = parseInt(m[1], 10), mm = parseInt(m[2], 10);
-                    if (m[3]) { var p = m[3].toUpperCase(); if (p==='PM'&&hh<12) hh+=12; else if (p==='AM'&&hh===12) hh=0; }
-                    return String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0');
-                }
-                var minT = to24hStr(typeof transportationSchedule !== 'undefined' ? transportationSchedule.startTime : null);
-                var maxT = to24hStr(typeof transportationSchedule !== 'undefined' ? transportationSchedule.endTime : null);
-
-                var popup = document.createElement('div');
-                popup.className = 'cp-overlay';
-                popup.innerHTML =
-                    '<div class="cp-popup">' +
-                      '<div class="cp-header">' +
-                        '<span class="cp-hdisp cp-active">12</span>' +
-                        '<span class="cp-sep">:</span>' +
-                        '<span class="cp-mdisp">00</span>' +
-                        '<div class="cp-ampm">' +
-                          '<button class="cp-am cp-ampm-active" type="button">AM</button>' +
-                          '<button class="cp-pm" type="button">PM</button>' +
-                        '</div>' +
-                      '</div>' +
-                      '<div class="cp-face-wrap"><div class="cp-face" id="cpFace">' +
-                        '<div class="cp-center-dot"></div>' +
-                        '<div class="cp-hand" id="cpHand"><div class="cp-hand-tip"></div></div>' +
-                      '</div></div>' +
-                      '<div class="cp-footer">' +
-                        '<button class="cp-cancel" type="button">Cancel</button>' +
-                        '<button class="cp-ok" type="button">OK</button>' +
-                      '</div>' +
-                    '</div>';
-                document.body.appendChild(popup);
-
-                var face  = popup.querySelector('#cpFace');
-                var hand  = popup.querySelector('#cpHand');
-                var hDisp = popup.querySelector('.cp-hdisp');
-                var mDisp = popup.querySelector('.cp-mdisp');
-                var amBtn = popup.querySelector('.cp-am');
-                var pmBtn = popup.querySelector('.cp-pm');
-                var state = { mode: 'hour', h12: 12, m: 0, ampm: 'AM' };
-                var dragging = false;
-
-                function buildNums() {
-                    popup.querySelectorAll('.cp-num').forEach(function(n){ n.remove(); });
-                    var R = face.offsetWidth / 2;
-                    var r = R * 0.78;
-                    var items = state.mode === 'hour'
-                        ? [12,1,2,3,4,5,6,7,8,9,10,11]
-                        : [0,5,10,15,20,25,30,35,40,45,50,55];
-                    items.forEach(function(val, i) {
-                        var angle = (i / 12) * 2 * Math.PI - Math.PI / 2;
-                        var btn = document.createElement('div');
-                        btn.className = 'cp-num';
-                        btn.textContent = state.mode === 'hour' ? String(val) : String(val).padStart(2,'0');
-                        btn.style.left = (R + r * Math.cos(angle)) + 'px';
-                        btn.style.top  = (R + r * Math.sin(angle)) + 'px';
-                        var sel = state.mode === 'hour' ? val === state.h12 : val === state.m;
-                        if (sel) btn.classList.add('cp-num-selected');
-                        btn.addEventListener('click', function(e) {
-                            e.stopPropagation();
-                            if (state.mode === 'hour') {
-                                state.h12 = val; updateHand(); updateHeader();
-                                setTimeout(function(){ setMode('minute'); }, 180);
-                            } else {
-                                state.m = val; updateHand(); updateHeader();
-                            }
-                        });
-                        face.appendChild(btn);
-                    });
-                }
-
-                function updateHand() {
-                    var deg = state.mode === 'hour'
-                        ? (state.h12 / 12) * 360
-                        : (state.m / 60) * 360;
-                    hand.style.transition = dragging
-                        ? 'none'
-                        : 'transform 0.2s cubic-bezier(.34,1.56,.64,1)';
-                    hand.style.transform = 'translateX(-50%) rotate(' + deg + 'deg)';
-                    popup.querySelectorAll('.cp-num').forEach(function(n) {
-                        var v = parseInt(n.textContent, 10);
-                        n.classList.toggle('cp-num-selected',
-                            state.mode === 'hour' ? v === state.h12 : v === state.m);
-                    });
-                }
-
-                function updateHeader() {
-                    hDisp.textContent = String(state.h12);
-                    mDisp.textContent = String(state.m).padStart(2,'0');
-                    hDisp.classList.toggle('cp-active', state.mode === 'hour');
-                    mDisp.classList.toggle('cp-active', state.mode === 'minute');
-                    amBtn.classList.toggle('cp-ampm-active', state.ampm === 'AM');
-                    pmBtn.classList.toggle('cp-ampm-active', state.ampm === 'PM');
-                }
-
-                function setMode(m) {
-                    state.mode = m; buildNums(); updateHand(); updateHeader();
-                }
-
-                function angleFromEvent(e) {
-                    var rect = face.getBoundingClientRect();
-                    var cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
-                    var px = e.touches ? e.touches[0].clientX : e.clientX;
-                    var py = e.touches ? e.touches[0].clientY : e.clientY;
-                    var a = Math.atan2(py - cy, px - cx) * 180 / Math.PI + 90;
-                    return a < 0 ? a + 360 : a;
-                }
-
-                function applyAngle(e) {
-                    var angle = angleFromEvent(e);
-                    if (state.mode === 'hour') {
-                        var h = Math.round(angle / 30) % 12; if (h === 0) h = 12;
-                        state.h12 = h;
-                    } else {
-                        var raw = Math.round(angle / 6); if (raw === 60) raw = 0;
-                        state.m = Math.round(raw / 5) * 5 % 60;
+                    var hh = parseInt(m[1], 10);
+                    var mm = parseInt(m[2], 10);
+                    if (m[3]) {
+                        var mer = m[3].toUpperCase();
+                        if (mer === 'PM' && hh < 12) hh += 12;
+                        else if (mer === 'AM' && hh === 12) hh = 0;
                     }
-                    updateHand(); updateHeader();
+                    return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+                }
+                var minT = to24h(typeof transportationSchedule !== 'undefined' ? transportationSchedule.startTime : null);
+                var maxT = to24h(typeof transportationSchedule !== 'undefined' ? transportationSchedule.endTime : null);
+                var isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+                    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+                if (isMobileDevice) {
+                    el.type = 'time';
+                    el.removeAttribute('readonly');
+                    el.step = 900;
+                    if (minT) el.min = minT;
+                    if (maxT) el.max = maxT;
+                    el.addEventListener('input', function () {
+                        $(el).removeClass('required-field');
+                    });
+                    return;
                 }
 
-                face.addEventListener('mousedown', function(e){ dragging=true; applyAngle(e); });
-                document.addEventListener('mousemove', function(e){ if(dragging) applyAngle(e); });
-                document.addEventListener('mouseup', function(){
-                    if (!dragging) return; dragging=false;
-                    if (state.mode==='hour') setTimeout(function(){ setMode('minute'); }, 150);
+                el.type = 'text';
+                el.setAttribute('readonly', 'readonly');
+                if (typeof flatpickr === 'undefined') {
+                    el.type = 'time';
+                    el.removeAttribute('readonly');
+                    if (minT) el.min = minT;
+                    if (maxT) el.max = maxT;
+                    el.step = 900;
+                    return;
+                }
+
+                flatpickr(el, {
+                    enableTime: true,
+                    noCalendar: true,
+                    time_24hr: false,
+                    minuteIncrement: 15,
+                    dateFormat: 'H:i',
+                    allowInput: false,
+                    onChange: function () {
+                        $(el).removeClass('required-field');
+                    },
+                    minTime: minT || undefined,
+                    maxTime: maxT || undefined
                 });
-                face.addEventListener('touchstart', function(e){ e.preventDefault(); dragging=true; applyAngle(e); }, {passive:false});
-                face.addEventListener('touchmove',  function(e){ e.preventDefault(); if(dragging) applyAngle(e); }, {passive:false});
-                face.addEventListener('touchend',   function(e){ e.preventDefault(); dragging=false;
-                    if (state.mode==='hour') setTimeout(function(){ setMode('minute'); }, 150);
-                }, {passive:false});
-
-                amBtn.addEventListener('click', function(){ state.ampm='AM'; updateHeader(); });
-                pmBtn.addEventListener('click', function(){ state.ampm='PM'; updateHeader(); });
-                hDisp.addEventListener('click', function(){ setMode('hour'); });
-                mDisp.addEventListener('click', function(){ setMode('minute'); });
-
-                function openPicker() {
-                    var cur = el.value;
-                    if (/^\d{2}:\d{2}$/.test(cur)) {
-                        var h24 = parseInt(cur,10), mm = parseInt(cur.split(':')[1],10);
-                        state.ampm = h24 >= 12 ? 'PM' : 'AM';
-                        state.h12  = h24 % 12 || 12;
-                        state.m    = mm;
-                    } else { state.h12=12; state.m=0; state.ampm='AM'; }
-                    state.mode = 'hour';
-                    popup.classList.add('cp-open');
-                    setTimeout(function(){ buildNums(); updateHand(); updateHeader(); }, 10);
-                }
-
-                function closePicker() { popup.classList.remove('cp-open'); dragging=false; }
-
-                function confirmPicker() {
-                    var h24 = state.h12 % 12 + (state.ampm === 'PM' ? 12 : 0);
-                    var val = String(h24).padStart(2,'0') + ':' + String(state.m).padStart(2,'0');
-                    if (minT && val < minT) val = minT;
-                    if (maxT && val > maxT) val = maxT;
-                    el.value = val;
-                    if (typeof $ !== 'undefined') $(el).removeClass('required-field');
-                    closePicker();
-                }
-
-                el.addEventListener('click', openPicker);
-                popup.addEventListener('click', function(e){ if (e.target === popup) closePicker(); });
-                popup.querySelector('.cp-cancel').addEventListener('click', closePicker);
-                popup.querySelector('.cp-ok').addEventListener('click', confirmPicker);
             })();
 
             flatpickr("#package_use_date", {
