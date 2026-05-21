@@ -4661,7 +4661,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                         $tierIcons = [1 => 'fa-crown', 2 => 'fa-star', 3 => 'fa-gem', 4 => 'fa-fire'];
                                                         $tierIcon = $tierIcons[$tierIndex] ?? 'fa-crown';
                                                     @endphp
-                                                    <div class="vip-card cv-exact-card cv-tier-{{ $tierIndex }}" id="pkg-card-{{ $item->id }}">
+                                                    <div class="vip-card cv-exact-card cv-tier-{{ $tierIndex }}" id="pkg-card-{{ $item->id }}" data-package-name="{{ $item->name }}" data-club-name="{{ $item->website->name ?? '' }}" data-location="{{ $item->website->location ?? '' }}" data-club-id="{{ $item->website->id ?? '' }}">
                                                         <div class="cv-pkg-media-wrap">
                                                             <picture>
                                                                 <source media="(max-width: 767px)" srcset="{{ $packageMobileVisual }}">
@@ -4677,6 +4677,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 <i class="fas {{ $tierIcon }} cv-pkg-title-icon"></i>
                                                                 <div class="cv-pkg-title">{{ $item->name }}</div>
                                                             </div>
+                                                            @if($item->website && $item->website->name)
+                                                                <div style="font-size: 12px; color: rgba(255,255,255,0.65); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;"><i class="fas fa-map-marker-alt" style="opacity: 0.7;"></i>{{ $item->website->name }}</div>
+                                                            @endif
                                                             @if($pkgIsTicket)
                                                                 <span class="cv-pkg-sub"><i class="fas fa-ticket-alt"></i>Up to {{ $pkgTicketMax }} {{ $pkgTicketMax === 1 ? 'ticket' : 'tickets' }}</span>
                                                             @else

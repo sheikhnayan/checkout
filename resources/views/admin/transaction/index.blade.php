@@ -637,11 +637,11 @@ body.modal-open .admin-mobile-menu-toggle {
                                         data-affiliate_commission_percentage="{{ (float) ($item->affiliate_commission_percentage ?? 0) }}"
                                         data-affiliate_commission_amount="{{ (float) ($item->affiliate_commission_amount ?? 0) }}"
                                         data-affiliate_commission_status="{{ $item->affiliate_commission_status ?? '' }}"
-                                        data-affiliate_commission_hold_until="{{ optional($item->affiliate_commission_hold_until)->timezone('America/Los_Angeles')->format('M d, Y h:i A T') }}"
+                                        data-affiliate_commission_hold_until="{{ $item->affiliate_commission_hold_until ? optional($item->affiliate_commission_hold_until)->timezone('America/Los_Angeles')->format('M d, Y h:i A T') : '' }}"
                                         data-entertainer_commission_percentage="{{ (float) ($item->entertainer_commission_percentage ?? 0) }}"
                                         data-entertainer_commission_amount="{{ (float) ($item->entertainer_commission_amount ?? 0) }}"
                                         data-entertainer_commission_status="{{ $item->entertainer_commission_status ?? '' }}"
-                                        data-entertainer_commission_hold_until="{{ optional($item->entertainer_commission_hold_until)->timezone('America/Los_Angeles')->format('M d, Y h:i A T') }}"
+                                        data-entertainer_commission_hold_until="{{ $item->entertainer_commission_hold_until ? optional($item->entertainer_commission_hold_until)->timezone('America/Los_Angeles')->format('M d, Y h:i A T') : '' }}"
                                         data-total_commission="{{ (float) $commission }}"
                                         title="View Details">
                                         <i class="fas fa-eye"></i>
