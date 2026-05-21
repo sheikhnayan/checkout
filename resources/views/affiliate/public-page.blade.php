@@ -4506,7 +4506,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 <div class="hero-date-card" style="margin-top: 16px;">
                                     <label>Choose Your Reservation Date</label>
                                     <div class="date-input-wrapper">
-                                        <input type="date" id="package_use_date" style="width: 100%;" required aria-required="true" aria-describedby="package_use_date_error">
+                                        <input type="date" id="package_use_date" style="width: 100%;" required aria-required="true" aria-describedby="package_use_date_error" placeholder="{{ date('M d, Y') }}" value="{{ date('Y-m-d') }}">
                                     </div>
                                     <small id="package_use_date_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
                                 </div>
@@ -4678,7 +4678,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 <div class="cv-pkg-title">{{ $item->name }}</div>
                                                             </div>
                                                             @if($item->website && $item->website->name)
-                                                                <div style="font-size: 12px; color: rgba(255,255,255,0.65); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;"><i class="fas fa-map-marker-alt" style="opacity: 0.7;"></i>{{ $item->website->name }}</div>
+                                                                <div class="cv-club-name-badge" style="font-size: 12px; color: rgba(255,255,255,0.65); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="<strong>{{ $item->website->name }}</strong><br><small>{{ $item->website->location ?? 'Location not specified' }}</small>"><i class="fas fa-map-marker-alt" style="opacity: 0.7;"></i>{{ $item->website->name }}</div>
                                                             @endif
                                                             @if($pkgIsTicket)
                                                                 <span class="cv-pkg-sub"><i class="fas fa-ticket-alt"></i>Up to {{ $pkgTicketMax }} {{ $pkgTicketMax === 1 ? 'ticket' : 'tickets' }}</span>
@@ -8085,6 +8085,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 });
             }
 
+            function initClubTooltips() {
+                var tooltipElements = document.querySelectorAll('.cv-club-name-badge');
+                tooltipElements.forEach(function(element) {
+                    new bootstrap.Tooltip(element);
+                });
+            }
+
             function initSidebarCta() {
                 var ctaBtn = document.getElementById('cv-sidebar-cta');
                 var cartList = document.getElementById('cart-list');
@@ -8245,6 +8252,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 initPackageSearch();
                 initDefaultOpenCategory();
                 initReservationDatePicker();
+                initClubTooltips();
                 initSidebarDateSync();
                 initSidebarCta();
                 initHamburger();

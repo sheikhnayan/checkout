@@ -319,24 +319,13 @@
                                                     @foreach($targetedPackages as $index => $item)
                                                         @php
                                                             $owner = $item->audience === 'affiliate'
-                                                                <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
-                                                                    ? (optional($item->affiliate)->display_name ?: optional(optional($item->affiliate)->user)->name)
-                                                                    : 'All Affiliates')
-                                                        <td>
-                                                            <form method="POST" action="{{ route('admin.package-category.update', $cat->id) }}" class="d-flex gap-2 align-items-center">
-                                                                @csrf
-                                                                <input type="hidden" name="name" value="{{ $cat->name }}">
-                                                                <input type="number" name="sort_order" value="{{ (int) ($cat->sort_order ?? 0) }}" class="form-control form-control-sm" min="0" step="1" style="max-width:110px;" required>
-                                                                <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
-                                                            </form>
-                                                        </td>
-                                                                : ($item->entertainer_id
-                                                                    ? (optional($item->entertainer)->display_name ?: optional(optional($item->entertainer)->user)->name)
-                                                                    : 'All Entertainers');
+                                                                ? (optional($item->affiliate)->display_name ?: optional(optional($item->affiliate)->user)->name ?: 'All Affiliates')
+                                                                : (optional($item->entertainer)->display_name ?: optional(optional($item->entertainer)->user)->name ?: 'All Entertainers');
                                                         @endphp
                                                         <tr>
                                                             <td>{{ $index + 1 }}</td>
                                                             <td>{{ $item->name }}</td>
+                                                            <td>{{ (int) ($item->sort_order ?? 0) }}</td>
                                                             <td>{{ ucfirst($item->audience) }}</td>
                                                             <td>{{ $owner ?: 'Unknown' }}</td>
                                                             <td>{{ optional($item->category)->name ?: 'Uncategorized' }}</td>
@@ -350,7 +339,6 @@
                                                             </td>
                                                             <td>
                                                                 <form action="/admins/package/toggle-status/{{ $item->id }}" method="POST" style="display:inline;">
-                                                                <th>Sort</th>
                                                                     @csrf
                                                                     @if ($item->status == 1)
                                                                         <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Deactivate this package?');">Active</button>
@@ -360,19 +348,18 @@
                                                                 </form>
                                                             </td>
                                                             <td>
-                                                                <a href="{{ route('admin.package.edit-targeted', $item->id) }}" class="btn btn-primary">Edit</a>
+                                                                <a href="{{ route('admin.package.edit-targeted', $item->id) }}" class="btn btn-primary btn-sm">Edit</a>
                                                                 @if (empty($item->is_archieved) || $item->is_archieved == 0)
-                                                                <td>{{ (int) ($item->sort_order ?? 0) }}</td>
                                                                     <form action="/admins/package/archive/{{ $item->id }}" method="POST" style="display:inline;">
                                                                         @csrf
-                                                                        <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to archive this package?');">
+                                                                        <button type="submit" class="btn btn-warning btn-sm" onclick="return confirm('Are you sure you want to archive this package?');">
                                                                             Archive
                                                                         </button>
                                                                     </form>
                                                                 @else
                                                                     <form action="/admins/package/unarchive/{{ $item->id }}" method="POST" style="display:inline;">
                                                                         @csrf
-                                                                        <button type="submit" class="btn btn-success" onclick="return confirm('Unarchive this package?');">
+                                                                        <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Unarchive this package?');">
                                                                             Unarchive
                                                                         </button>
                                                                     </form>
