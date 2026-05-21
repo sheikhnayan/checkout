@@ -9146,6 +9146,15 @@
                     });
                 });
 
+                // Initialize is-guest-mode based on which tab is active on page load
+                var activeTab = document.querySelector('.cv-access-tab.is-active');
+                if (activeTab && activeTab.getAttribute('data-name') === 'guest') {
+                    var layout = document.getElementById('cv-checkout-layout');
+                    if (layout) {
+                        layout.classList.add('is-guest-mode');
+                    }
+                }
+
                 var cartList = document.getElementById('cart-list');
                 if (cartList && window.MutationObserver) {
                     new MutationObserver(updateCheckoutSteps).observe(cartList, { childList: true });
