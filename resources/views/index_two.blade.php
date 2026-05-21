@@ -4225,7 +4225,18 @@
         /* Guest tab active: hide sidebar, give full width to .guest content */
         .cv-checkout-body.is-guest-mode { grid-template-columns: 1fr !important; }
         .cv-checkout-body.is-guest-mode .cv-sidebar { display: none !important; }
-        .cv-checkout-body.is-guest-mode .cv-main-col { max-width: 100%; }
+        .cv-checkout-body.is-guest-mode .cv-main-col { max-width: 100% !important; width: 100%; }
+        .cv-checkout-body.is-guest-mode ~ * { width: 100%; }
+        .is-guest-mode {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        .is-guest-mode .container {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
         /* Compact spacing to fit without scroll */
         .cv-sidebar .cv-sidebar-venue-image { height: 80px; margin-bottom: 10px; padding: 6px; }
         @media (max-width: 991px) {
@@ -9121,7 +9132,18 @@
                 }
 
                 document.querySelectorAll('.cv-access-tab').forEach(function(tab) {
-                    tab.addEventListener('click', function() { setTimeout(updateCheckoutSteps, 0); });
+                    tab.addEventListener('click', function() {
+                        // Toggle is-guest-mode class based on active tab
+                        var layout = document.getElementById('cv-checkout-layout');
+                        if (layout) {
+                            if (this.getAttribute('data-name') === 'guest') {
+                                layout.classList.add('is-guest-mode');
+                            } else {
+                                layout.classList.remove('is-guest-mode');
+                            }
+                        }
+                        setTimeout(updateCheckoutSteps, 0);
+                    });
                 });
 
                 var cartList = document.getElementById('cart-list');
