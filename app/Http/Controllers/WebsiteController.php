@@ -200,7 +200,9 @@ class WebsiteController extends Controller
         $add->back_link = $request->back_link;
         $add->footer_text = $request->footer_text;
         $add->guest_list_button_text = $request->guest_list_button_text ?: 'Guest List';
+        $add->guest_tab_color = $request->guest_tab_color ?: null;
         $add->package_button_text = $request->package_button_text ?: 'Packages';
+        $add->package_tab_color = $request->package_tab_color ?: null;
         $add->transportation_confirmation_text = $request->transportation_confirmation_text;
         $add->operating_days = $this->normalizeOperatingDays($request->input('operating_days', []));
         $add->operating_start_time = $request->filled('operating_start_time') ? $request->operating_start_time : null;
@@ -467,7 +469,9 @@ class WebsiteController extends Controller
         $add->back_link = $request->back_link;
         $add->footer_text = $request->footer_text;
         $add->guest_list_button_text = $request->guest_list_button_text ?: 'Guest List';
+        $add->guest_tab_color = $request->guest_tab_color ?: null;
         $add->package_button_text = $request->package_button_text ?: 'Packages';
+        $add->package_tab_color = $request->package_tab_color ?: null;
         $add->transportation_confirmation_text = $request->transportation_confirmation_text;
         $add->operating_days = $this->normalizeOperatingDays($request->input('operating_days', []));
         $add->operating_start_time = $request->filled('operating_start_time') ? $request->operating_start_time : null;

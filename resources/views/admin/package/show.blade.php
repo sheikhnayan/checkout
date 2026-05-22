@@ -280,6 +280,10 @@
                                                 @endforeach
                                             </select>
                                             <input type="text" name="name" class="form-control" placeholder="Category name" required style="max-width:280px;">
+                                            <div class="d-flex align-items-center gap-1">
+                                                <input type="color" name="color" value="#a774ff" title="Category color" style="width:38px;height:34px;padding:2px;border-radius:6px;border:1px solid #d7dce4;cursor:pointer;">
+                                                <small class="text-muted" style="white-space:nowrap;">Color</small>
+                                            </div>
                                             <input type="number" name="sort_order" class="form-control" placeholder="Sort" value="0" min="0" step="1" style="max-width:90px;">
                                             <button type="submit" class="btn btn-primary">Add</button>
                                         </form>
@@ -318,6 +322,7 @@
                                                                     @endforeach
                                                                 </select>
                                                                 <input type="text" name="name" value="{{ $cat->name }}" class="form-control form-control-sm" style="max-width:200px;" required>
+                                                                <input type="color" name="color" value="{{ $cat->color ?? '#a774ff' }}" title="Category color" style="width:34px;height:31px;padding:2px;border-radius:6px;border:1px solid #d7dce4;cursor:pointer;flex-shrink:0;">
                                                                 <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
                                                             </form>
                                                         </td>

@@ -394,6 +394,7 @@ class FrontendController extends Controller
                     'id' => $key,
                     'name' => optional($firstPackage->category)->name ?: 'Uncategorized',
                     'icon' => optional($firstPackage->category)->icon ?: null,
+                    'color' => optional($firstPackage->category)->color ?: null,
                     'packages' => $group->values(),
                 ];
             })

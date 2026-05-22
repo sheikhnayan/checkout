@@ -470,14 +470,20 @@
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="guest_list_button_text" class="form-label">Guest List Button Text <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The label displayed on the guest list / reservation tab button on the checkout page."></i></label>
-                                                        <input type="text" name="guest_list_button_text" class="form-control" id="guest_list_button_text" value="{{ $data->guest_list_button_text ?? 'Guest List' }}" placeholder="Guest List Button Text">
+                                                        <div class="d-flex gap-2 align-items-center">
+                                                            <input type="text" name="guest_list_button_text" class="form-control" id="guest_list_button_text" value="{{ $data->guest_list_button_text ?? 'Guest List' }}" placeholder="Guest List Button Text">
+                                                            <input type="color" name="guest_tab_color" id="guest_tab_color" value="{{ $data->guest_tab_color ?? '#34d399' }}" title="Guest tab accent color" class="form-control form-control-color flex-shrink-0" style="width:42px;height:38px;padding:3px;cursor:pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Guest tab accent color">
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="package_button_text" class="form-label">Package Button Text <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The label displayed on the packages tab button on the checkout page."></i></label>
-                                                        <input type="text" name="package_button_text" class="form-control" id="package_button_text" value="{{ $data->package_button_text ?? 'Packages' }}" placeholder="Package Button Text">
+                                                        <div class="d-flex gap-2 align-items-center">
+                                                            <input type="text" name="package_button_text" class="form-control" id="package_button_text" value="{{ $data->package_button_text ?? 'Packages' }}" placeholder="Package Button Text">
+                                                            <input type="color" name="package_tab_color" id="package_tab_color" value="{{ $data->package_tab_color ?? '#e8be6a' }}" title="Package tab accent color" class="form-control form-control-color flex-shrink-0" style="width:42px;height:38px;padding:3px;cursor:pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Package tab accent color">
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 

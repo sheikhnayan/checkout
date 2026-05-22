@@ -47,6 +47,7 @@ class AffiliatePublicController extends Controller
                     'id' => $categoryId,
                     'name' => $categoryName,
                     'icon' => $package->category?->icon ?? null,
+                    'color' => $package->category?->color ?? null,
                     'packages' => []
                 ];
             }

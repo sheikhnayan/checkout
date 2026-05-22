@@ -20,6 +20,7 @@ class PackageCategoryController extends Controller
             'name' => 'required|string|max:191',
             'sort_order' => 'nullable|integer|min:0',
             'icon' => 'nullable|string|max:50',
+            'color' => 'nullable|string|max:20',
         ]);
 
         PackageCategory::firstOrCreate(
@@ -27,6 +28,7 @@ class PackageCategoryController extends Controller
             [
                 'sort_order' => (int) $request->input('sort_order', 0),
                 'icon' => $request->input('icon') ?: null,
+                'color' => $request->input('color') ?: null,
             ]
         );
 
@@ -47,6 +49,7 @@ class PackageCategoryController extends Controller
             'name' => 'required|string|max:191',
             'sort_order' => 'nullable|integer|min:0',
             'icon' => 'nullable|string|max:50',
+            'color' => 'nullable|string|max:20',
         ]);
 
         $category->name = trim($request->name);
@@ -55,6 +58,9 @@ class PackageCategoryController extends Controller
             : (int) ($category->sort_order ?? 0);
         if ($request->has('icon')) {
             $category->icon = $request->input('icon') ?: null;
+        }
+        if ($request->has('color')) {
+            $category->color = $request->input('color') ?: null;
         }
         $category->save();
 

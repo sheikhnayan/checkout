@@ -10,6 +10,7 @@ class PackageCategory extends Model
         'website_id',
         'name',
         'icon',
+        'color',
         'sort_order',
     ];
 

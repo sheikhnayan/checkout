@@ -2040,6 +2040,20 @@
             margin-right: 7px;
             flex-shrink: 0;
         }
+        /* Category color override when --cat-rgb is set */
+        .package-category-tile.has-cat-color {
+            background: rgba(var(--cat-rgb), 0.08) !important;
+            border-color: rgba(var(--cat-rgb), 0.35) !important;
+        }
+        .package-category-tile.has-cat-color:hover {
+            background: rgba(var(--cat-rgb), 0.16) !important;
+            border-color: rgba(var(--cat-rgb), 0.6) !important;
+        }
+        .package-category-tile.has-cat-color.active {
+            background: linear-gradient(135deg, rgba(var(--cat-rgb), 0.95) 0%, rgba(var(--cat-rgb), 0.75) 100%) !important;
+            border-color: rgba(var(--cat-rgb), 1) !important;
+            box-shadow: 0 4px 14px rgba(var(--cat-rgb), 0.4) !important;
+        }
         .package-category-group { margin-bottom: 16px; }
 
         @media (max-width: 767px) {
@@ -4263,17 +4277,15 @@
             width: 46px;
             height: 46px;
             border-radius: 13px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
             flex-shrink: 0;
+            position: relative;
             transition: all .35s cubic-bezier(.4,0,.2,1);
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1);
         }
         .cv-access-card[data-name="guest"] .cv-ac-icon-wrap { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.25); }
         .cv-access-card[data-name="package"] .cv-ac-icon-wrap { background: rgba(232,190,106,0.1); border-color: rgba(232,190,106,0.25); }
-        .cv-ac-icon-wrap i { transition: all .35s; flex-shrink: 0; }
+        .cv-ac-icon-wrap i { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); transition: color .35s, font-size .35s; line-height: 1; }
         .cv-access-card[data-name="guest"] .cv-ac-icon-wrap i { color: rgba(52,211,153,0.65) !important; font-size: 19px; }
         .cv-access-card[data-name="package"] .cv-ac-icon-wrap i { color: rgba(232,190,106,0.65) !important; font-size: 19px; }
         .cv-ac-body { min-width: 0; }
@@ -4295,48 +4307,55 @@
             margin-top: 4px;
             transition: color .3s;
         }
-        .cv-ac-vip-badge {
-            position: absolute;
-            top: 0; right: 0;
-            background: linear-gradient(135deg, #fde68a 0%, #e8a020 100%);
-            color: #000 !important;
-            font-size: 9px;
-            font-weight: 900;
-            letter-spacing: .1em;
-            padding: 5px 12px;
-            border-radius: 0 18px 0 14px;
-            opacity: 0;
-            transform: translate(4px, -4px);
-            transition: all .35s cubic-bezier(.4,0,.2,1);
-            z-index: 4;
-            line-height: 1;
-            text-transform: uppercase;
-        }
         .cv-access-card.is-active {
             flex: 1.42 1 0;
             min-height: 96px;
-            padding: 22px 18px 22px 54px;
+            padding: 20px 18px 20px 50px;
+            gap: 18px;
         }
         .cv-access-card[data-name="guest"].is-active {
             border-color: #34d399;
-            background: linear-gradient(145deg, rgba(16,185,129,0.15), rgba(4,36,20,0.22));
+            background:
+                radial-gradient(ellipse at 94% 50%, rgba(52,211,153,0.2) 0%, transparent 50%),
+                linear-gradient(145deg, rgba(16,185,129,0.14), rgba(4,36,20,0.22));
             box-shadow: 0 0 0 1px rgba(52,211,153,0.3), 0 8px 32px rgba(16,185,129,0.22), inset 0 1px 0 rgba(52,211,153,0.12);
         }
         .cv-access-card[data-name="package"].is-active {
             border-color: #e8be6a;
-            background: linear-gradient(145deg, rgba(232,190,106,0.15), rgba(50,35,5,0.22));
+            background:
+                radial-gradient(ellipse at 94% 50%, rgba(232,190,106,0.22) 0%, transparent 50%),
+                linear-gradient(145deg, rgba(232,190,106,0.14), rgba(50,35,5,0.22));
             box-shadow: 0 0 0 1px rgba(232,190,106,0.35), 0 8px 32px rgba(232,190,106,0.2), inset 0 1px 0 rgba(232,190,106,0.15);
         }
         .cv-access-card[data-name="guest"].is-active::before { border-color: #34d399; background: rgba(16,185,129,0.2); transform: translateY(-50%) scale(1.05); }
         .cv-access-card[data-name="package"].is-active::before { border-color: #e8be6a; background: rgba(232,190,106,0.2); transform: translateY(-50%) scale(1.05); }
         .cv-access-card.is-active::after { transform: translateY(-50%) scale(1); }
-        .cv-access-card[data-name="guest"].is-active .cv-ac-icon-wrap { background: rgba(16,185,129,0.22); border-color: rgba(52,211,153,0.55); transform: scale(1.1); box-shadow: 0 0 18px rgba(16,185,129,0.4); }
-        .cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap { background: rgba(232,190,106,0.22); border-color: rgba(232,190,106,0.6); transform: scale(1.1); box-shadow: 0 0 18px rgba(232,190,106,0.4); }
-        .cv-access-card[data-name="guest"].is-active .cv-ac-icon-wrap i { color: #34d399 !important; font-size: 22px; }
-        .cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap i { color: #e8be6a !important; font-size: 22px; }
+        .cv-access-card[data-name="guest"].is-active .cv-ac-icon-wrap { background: rgba(16,185,129,0.22); border-color: rgba(52,211,153,0.55); width: 60px; height: 60px; border-radius: 15px; box-shadow: 0 0 22px rgba(16,185,129,0.45); }
+        .cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap { background: rgba(232,190,106,0.22); border-color: rgba(232,190,106,0.6); width: 60px; height: 60px; border-radius: 15px; box-shadow: 0 0 22px rgba(232,190,106,0.45); }
+        .cv-access-card[data-name="guest"].is-active .cv-ac-icon-wrap i { color: #34d399 !important; font-size: 24px; }
+        .cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap i { color: #e8be6a !important; font-size: 24px; }
         .cv-access-card.is-active strong { color: #fff !important; font-size: 15px; }
         .cv-access-card.is-active span { color: rgba(255,255,255,0.58) !important; }
-        .cv-access-card[data-name="package"].is-active .cv-ac-vip-badge { opacity: 1; transform: translate(0, 0); }
+        /* Active card — fill space */
+        .cv-access-card.is-active .cv-ac-body { flex: 1; position: relative; }
+        .cv-access-card.is-active .cv-ac-body strong,
+        .cv-access-card.is-active .cv-ac-body > span { position: relative; z-index: 1; }
+        .cv-access-card[data-name="guest"].is-active .cv-ac-body::before {
+            font-family: 'Font Awesome 6 Free'; font-weight: 900; content: '\f1b9';
+            position: absolute; right: -6px; top: 50%; transform: translateY(-50%);
+            font-size: 66px; color: rgba(52,211,153,0.06); pointer-events: none; line-height: 1; z-index: 0;
+        }
+        .cv-access-card[data-name="package"].is-active .cv-ac-body::before {
+            font-family: 'Font Awesome 6 Free'; font-weight: 900; content: '\f005';
+            position: absolute; right: -6px; top: 50%; transform: translateY(-50%);
+            font-size: 66px; color: rgba(232,190,106,0.07); pointer-events: none; line-height: 1; z-index: 0;
+        }
+        .cv-access-card.is-active .cv-ac-body::after {
+            content: ''; display: block; height: 2px; width: 26px;
+            border-radius: 2px; margin-top: 10px; position: relative; z-index: 1;
+        }
+        .cv-access-card[data-name="guest"].is-active .cv-ac-body::after { background: linear-gradient(90deg, rgba(52,211,153,0.75), rgba(52,211,153,0)); }
+        .cv-access-card[data-name="package"].is-active .cv-ac-body::after { background: linear-gradient(90deg, rgba(232,190,106,0.75), rgba(232,190,106,0)); }
 
         /* Enhanced venue header */
         .aff-hero.cv-venue-header { padding:16px 0; background:rgba(255,255,255,.025); border-bottom:1px solid rgba(255,255,255,.07); }
@@ -5293,6 +5312,40 @@
                         @if ($data->reservation == 1)
                             <div class="cv-access-hint">Choose one to continue<span class="cv-access-hint-dot"></span></div>
                         @endif
+                        @php
+                            $cvGuestHex = ltrim($data->guest_tab_color ?? '#34d399', '#');
+                            $cvPkgHex   = ltrim($data->package_tab_color ?? '#e8be6a', '#');
+                            [$cvGr, $cvGg, $cvGb] = sscanf($cvGuestHex, '%02x%02x%02x');
+                            [$cvPr, $cvPg, $cvPb] = sscanf($cvPkgHex, '%02x%02x%02x');
+                            $cvGRgb = "$cvGr,$cvGg,$cvGb";
+                            $cvPRgb = "$cvPr,$cvPg,$cvPb";
+                        @endphp
+                        <style>
+.cv-access-card[data-name="guest"] { border-color: rgba({{ $cvGRgb }},0.22); background: rgba({{ $cvGRgb }},0.04); }
+.cv-access-card[data-name="guest"]::before { border-color: rgba({{ $cvGRgb }},0.42); }
+.cv-access-card[data-name="guest"]::after { background: radial-gradient(circle, #{{ $cvGuestHex }} 0%, rgba({{ $cvGRgb }},0.8) 100%); box-shadow: 0 0 10px rgba({{ $cvGRgb }},0.8); }
+.cv-access-card[data-name="guest"] .cv-ac-icon-wrap { background: rgba({{ $cvGRgb }},0.1); border-color: rgba({{ $cvGRgb }},0.25); }
+.cv-access-card[data-name="guest"] .cv-ac-icon-wrap i { color: rgba({{ $cvGRgb }},0.65) !important; }
+.cv-access-card[data-name="guest"].is-active { border-color: #{{ $cvGuestHex }}; background: radial-gradient(ellipse at 94% 50%, rgba({{ $cvGRgb }},0.2) 0%, transparent 50%), linear-gradient(145deg, rgba({{ $cvGRgb }},0.14), rgba(4,36,20,0.22)); box-shadow: 0 0 0 1px rgba({{ $cvGRgb }},0.3), 0 8px 32px rgba({{ $cvGRgb }},0.22), inset 0 1px 0 rgba({{ $cvGRgb }},0.12); }
+.cv-access-card[data-name="guest"].is-active::before { border-color: #{{ $cvGuestHex }}; background: rgba({{ $cvGRgb }},0.2); }
+.cv-access-card[data-name="guest"].is-active::after { background: radial-gradient(circle, #{{ $cvGuestHex }} 0%, rgba({{ $cvGRgb }},0.8) 100%); }
+.cv-access-card[data-name="guest"].is-active .cv-ac-icon-wrap { background: rgba({{ $cvGRgb }},0.22); border-color: rgba({{ $cvGRgb }},0.55); box-shadow: 0 0 22px rgba({{ $cvGRgb }},0.45); }
+.cv-access-card[data-name="guest"].is-active .cv-ac-icon-wrap i { color: #{{ $cvGuestHex }} !important; }
+.cv-access-card[data-name="guest"].is-active .cv-ac-body::before { color: rgba({{ $cvGRgb }},0.06); }
+.cv-access-card[data-name="guest"].is-active .cv-ac-body::after { background: linear-gradient(90deg, rgba({{ $cvGRgb }},0.75), rgba({{ $cvGRgb }},0)); }
+.cv-access-card[data-name="package"] { border-color: rgba({{ $cvPRgb }},0.22); background: rgba({{ $cvPRgb }},0.04); }
+.cv-access-card[data-name="package"]::before { border-color: rgba({{ $cvPRgb }},0.42); }
+.cv-access-card[data-name="package"]::after { background: radial-gradient(circle, #{{ $cvPkgHex }} 0%, rgba({{ $cvPRgb }},0.8) 100%); box-shadow: 0 0 10px rgba({{ $cvPRgb }},0.8); }
+.cv-access-card[data-name="package"] .cv-ac-icon-wrap { background: rgba({{ $cvPRgb }},0.1); border-color: rgba({{ $cvPRgb }},0.25); }
+.cv-access-card[data-name="package"] .cv-ac-icon-wrap i { color: rgba({{ $cvPRgb }},0.65) !important; }
+.cv-access-card[data-name="package"].is-active { border-color: #{{ $cvPkgHex }}; background: radial-gradient(ellipse at 94% 50%, rgba({{ $cvPRgb }},0.22) 0%, transparent 50%), linear-gradient(145deg, rgba({{ $cvPRgb }},0.14), rgba(50,35,5,0.22)); box-shadow: 0 0 0 1px rgba({{ $cvPRgb }},0.35), 0 8px 32px rgba({{ $cvPRgb }},0.2), inset 0 1px 0 rgba({{ $cvPRgb }},0.15); }
+.cv-access-card[data-name="package"].is-active::before { border-color: #{{ $cvPkgHex }}; background: rgba({{ $cvPRgb }},0.2); }
+.cv-access-card[data-name="package"].is-active::after { background: radial-gradient(circle, #{{ $cvPkgHex }} 0%, rgba({{ $cvPRgb }},0.8) 100%); }
+.cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap { background: rgba({{ $cvPRgb }},0.22); border-color: rgba({{ $cvPRgb }},0.6); box-shadow: 0 0 22px rgba({{ $cvPRgb }},0.45); }
+.cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap i { color: #{{ $cvPkgHex }} !important; }
+.cv-access-card[data-name="package"].is-active .cv-ac-body::before { color: rgba({{ $cvPRgb }},0.07); }
+.cv-access-card[data-name="package"].is-active .cv-ac-body::after { background: linear-gradient(90deg, rgba({{ $cvPRgb }},0.75), rgba({{ $cvPRgb }},0)); }
+                        </style>
                         <div class="cv-access-grid">
                             @if ($data->reservation == 1)
                                 <button type="button" class="cv-access-card cv-access-tab is-active" data-name="guest">
@@ -5303,7 +5356,6 @@
                                     </span>
                                 </button>
                                 <button type="button" class="cv-access-card cv-access-tab" data-name="package">
-                                    <span class="cv-ac-vip-badge">VIP</span>
                                     <span class="cv-ac-icon-wrap"><i class="fas fa-star"></i></span>
                                     <span class="cv-ac-body">
                                         <strong>{{ $data->package_button_text ?? 'VIP Packages' }}</strong>
@@ -5540,10 +5592,19 @@
                                         @endphp
                                         <div class="mb-3 package-category-tiles" style="width:100%;">
                                             @foreach ($sortedPackageCategories as $category)
+                                                @php
+                                                    $catRgbStr = null;
+                                                    if (!empty($category['color'])) {
+                                                        $ch = ltrim($category['color'], '#');
+                                                        [$cr, $cg, $cb] = sscanf($ch, '%02x%02x%02x');
+                                                        $catRgbStr = "$cr,$cg,$cb";
+                                                    }
+                                                @endphp
                                                 <button
                                                     type="button"
-                                                    class="package-category-tile {{ $loop->first ? 'active' : '' }}"
+                                                    class="package-category-tile {{ $loop->first ? 'active' : '' }}{{ $catRgbStr ? ' has-cat-color' : '' }}"
                                                     data-target="#category-group-{{ $category['id'] }}"
+                                                    @if($catRgbStr) style="--cat-rgb: {{ $catRgbStr }}" @endif
                                                 >
                                                     @if(!empty($category['icon']))
                                                         <i class="fas {{ $category['icon'] }} package-category-tile-icon"></i>
