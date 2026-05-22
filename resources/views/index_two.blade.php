@@ -4199,6 +4199,8 @@
         .cv-dstep.is-complete::before { background: linear-gradient(90deg, #a774ff, #7c3aed) !important; }
 
         .cv-access-grid { display: flex; gap: 14px; align-items: stretch; margin-top: 4px; }
+        .cv-access-card[data-name="package"] { flex: 1.65 1 0; }
+        .cv-access-card[data-name="guest"] { flex: 1 1 0; }
 
         /* Access tab selector */
         .cv-access-hint {
@@ -4271,8 +4273,29 @@
         .cv-access-card[data-name="package"] { border-color: rgba(232,190,106,0.22); background: rgba(232,190,106,0.04); }
         .cv-access-card[data-name="package"]::before { border-color: rgba(232,190,106,0.42); }
         .cv-access-card[data-name="package"]::after { background: radial-gradient(circle, #fde68a 0%, #e8be6a 100%); box-shadow: 0 0 10px rgba(232,190,106,0.8); }
-        .cv-access-card.cv-access-tab { cursor: pointer; }
-        .cv-access-card.cv-access-tab:hover:not(.is-active) { transform: translateY(-2px); opacity: 0.82; }
+        .cv-access-card.cv-access-tab { cursor: pointer; transition: opacity .28s ease, filter .28s ease; }
+        .cv-access-card.cv-access-tab:not(.is-active) { opacity: 0.72; }
+        .cv-access-card.cv-access-tab.is-active { opacity: 1; filter: none; }
+        .cv-access-grid:hover .cv-access-card.cv-access-tab { opacity: 0.35; filter: brightness(0.65); }
+        .cv-access-card.cv-access-tab:hover { opacity: 1 !important; filter: brightness(1.18) !important; }
+        .cv-ac-ribbon {
+            position: absolute;
+            top: 14px;
+            right: -24px;
+            width: 88px;
+            text-align: center;
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            padding: 4px 0;
+            transform: rotate(45deg);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            pointer-events: none;
+            z-index: 4;
+            background: linear-gradient(90deg, #f59e0b, #e8be6a);
+            color: #1c0e00;
+        }
         .cv-ac-icon-wrap {
             width: 46px;
             height: 46px;
@@ -5345,18 +5368,22 @@
 .cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap i { color: #{{ $cvPkgHex }} !important; }
 .cv-access-card[data-name="package"].is-active .cv-ac-body::before { color: rgba({{ $cvPRgb }},0.07); }
 .cv-access-card[data-name="package"].is-active .cv-ac-body::after { background: linear-gradient(90deg, rgba({{ $cvPRgb }},0.75), rgba({{ $cvPRgb }},0)); }
+.cv-ac-ribbon { background: linear-gradient(90deg, #{{ $cvPkgHex }}, rgba({{ $cvPRgb }},0.82)); color: #1c0e00; }
                         </style>
                         <div class="cv-access-grid">
                             @if ($data->reservation == 1)
                                 <button type="button" class="cv-access-card cv-access-tab is-active" data-name="guest">
-                                    <span class="cv-ac-icon-wrap"><i class="fas fa-car-side"></i></span>
+                                    <span class="cv-ac-icon-wrap"><i class="fas {{ $data->guest_tab_icon ?? 'fa-car-side' }}"></i></span>
                                     <span class="cv-ac-body">
                                         <strong>{{ $data->guest_list_button_text ?? 'Free Ride & Entry' }}</strong>
                                         <span>Complimentary ride and general entry</span>
                                     </span>
                                 </button>
                                 <button type="button" class="cv-access-card cv-access-tab" data-name="package">
-                                    <span class="cv-ac-icon-wrap"><i class="fas fa-star"></i></span>
+                                    @if(!empty($data->package_tab_ribbon))
+                                        <span class="cv-ac-ribbon">{{ $data->package_tab_ribbon }}</span>
+                                    @endif
+                                    <span class="cv-ac-icon-wrap"><i class="fas {{ $data->package_tab_icon ?? 'fa-star' }}"></i></span>
                                     <span class="cv-ac-body">
                                         <strong>{{ $data->package_button_text ?? 'VIP Packages' }}</strong>
                                         <span>VIP table packages &amp; experiences</span>
@@ -5364,7 +5391,10 @@
                                 </button>
                             @else
                                 <div class="cv-access-card is-active" data-name="package">
-                                    <span class="cv-ac-icon-wrap"><i class="fas fa-star"></i></span>
+                                    @if(!empty($data->package_tab_ribbon))
+                                        <span class="cv-ac-ribbon">{{ $data->package_tab_ribbon }}</span>
+                                    @endif
+                                    <span class="cv-ac-icon-wrap"><i class="fas {{ $data->package_tab_icon ?? 'fa-star' }}"></i></span>
                                     <span class="cv-ac-body">
                                         <strong>{{ $data->package_button_text ?? 'VIP Packages' }}</strong>
                                         <span>VIP table packages &amp; experiences</span>

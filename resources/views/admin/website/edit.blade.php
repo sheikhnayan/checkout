@@ -467,23 +467,71 @@
                                                     </div>
                                                 </div>
                                                 
+                                                @php
+                                                    $tabIconOptions = [
+                                                        'fa-car-side'     => 'Car (Side)',
+                                                        'fa-car'          => 'Car',
+                                                        'fa-star'         => 'Star',
+                                                        'fa-crown'        => 'Crown',
+                                                        'fa-gem'          => 'Gem',
+                                                        'fa-fire'         => 'Fire',
+                                                        'fa-bolt'         => 'Bolt',
+                                                        'fa-ticket-alt'   => 'Ticket',
+                                                        'fa-glass-cheers' => 'Cheers',
+                                                        'fa-cocktail'     => 'Cocktail',
+                                                        'fa-wine-glass'   => 'Wine Glass',
+                                                        'fa-wine-bottle'  => 'Wine Bottle',
+                                                        'fa-user-shield'  => 'VIP',
+                                                        'fa-shield-alt'   => 'Shield',
+                                                        'fa-music'        => 'Music',
+                                                        'fa-users'        => 'Group',
+                                                        'fa-id-card'      => 'ID Card',
+                                                        'fa-door-open'    => 'Door Open',
+                                                        'fa-list-ul'      => 'List',
+                                                        'fa-calendar-alt' => 'Calendar',
+                                                    ];
+                                                @endphp
+
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="guest_list_button_text" class="form-label">Guest List Button Text <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The label displayed on the guest list / reservation tab button on the checkout page."></i></label>
+                                                        <label for="guest_list_button_text" class="form-label">Guest Tab <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Icon, label text and accent color for the Guest List tab."></i></label>
                                                         <div class="d-flex gap-2 align-items-center">
-                                                            <input type="text" name="guest_list_button_text" class="form-control" id="guest_list_button_text" value="{{ $data->guest_list_button_text ?? 'Guest List' }}" placeholder="Guest List Button Text">
-                                                            <input type="color" name="guest_tab_color" id="guest_tab_color" value="{{ $data->guest_tab_color ?? '#34d399' }}" title="Guest tab accent color" class="form-control form-control-color flex-shrink-0" style="width:42px;height:38px;padding:3px;cursor:pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Guest tab accent color">
+                                                            <div class="tab-icon-preview flex-shrink-0" id="guest-tab-icon-preview" style="width:34px;height:34px;border-radius:8px;border:1px solid #d7dce4;display:flex;align-items:center;justify-content:center;background:#f5f6fa;font-size:16px;color:#5a6082;">
+                                                                <i class="fas {{ $data->guest_tab_icon ?? 'fa-car-side' }}"></i>
+                                                            </div>
+                                                            <select name="guest_tab_icon" id="guest_tab_icon" class="form-control form-control-sm tab-icon-select flex-shrink-0" style="max-width:130px;" data-preview="#guest-tab-icon-preview i">
+                                                                @foreach($tabIconOptions as $iconClass => $iconLabel)
+                                                                    <option value="{{ $iconClass }}" {{ ($data->guest_tab_icon ?? 'fa-car-side') === $iconClass ? 'selected' : '' }}>{{ $iconLabel }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                            <input type="text" name="guest_list_button_text" class="form-control" id="guest_list_button_text" value="{{ $data->guest_list_button_text ?? 'Guest List' }}" placeholder="Label text">
+                                                            <input type="color" name="guest_tab_color" id="guest_tab_color" value="{{ $data->guest_tab_color ?? '#34d399' }}" title="Guest tab accent color" class="form-control form-control-color flex-shrink-0" style="width:38px;height:34px;padding:2px;cursor:pointer;">
                                                         </div>
                                                     </div>
                                                 </div>
                                                 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="package_button_text" class="form-label">Package Button Text <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The label displayed on the packages tab button on the checkout page."></i></label>
+                                                        <label for="package_button_text" class="form-label">Package Tab <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Icon, label text and accent color for the VIP Packages tab."></i></label>
                                                         <div class="d-flex gap-2 align-items-center">
-                                                            <input type="text" name="package_button_text" class="form-control" id="package_button_text" value="{{ $data->package_button_text ?? 'Packages' }}" placeholder="Package Button Text">
-                                                            <input type="color" name="package_tab_color" id="package_tab_color" value="{{ $data->package_tab_color ?? '#e8be6a' }}" title="Package tab accent color" class="form-control form-control-color flex-shrink-0" style="width:42px;height:38px;padding:3px;cursor:pointer;" data-bs-toggle="tooltip" data-bs-placement="top" title="Package tab accent color">
+                                                            <div class="tab-icon-preview flex-shrink-0" id="package-tab-icon-preview" style="width:34px;height:34px;border-radius:8px;border:1px solid #d7dce4;display:flex;align-items:center;justify-content:center;background:#f5f6fa;font-size:16px;color:#5a6082;">
+                                                                <i class="fas {{ $data->package_tab_icon ?? 'fa-star' }}"></i>
+                                                            </div>
+                                                            <select name="package_tab_icon" id="package_tab_icon" class="form-control form-control-sm tab-icon-select flex-shrink-0" style="max-width:130px;" data-preview="#package-tab-icon-preview i">
+                                                                @foreach($tabIconOptions as $iconClass => $iconLabel)
+                                                                    <option value="{{ $iconClass }}" {{ ($data->package_tab_icon ?? 'fa-star') === $iconClass ? 'selected' : '' }}>{{ $iconLabel }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                            <input type="text" name="package_button_text" class="form-control" id="package_button_text" value="{{ $data->package_button_text ?? 'Packages' }}" placeholder="Label text">
+                                                            <input type="color" name="package_tab_color" id="package_tab_color" value="{{ $data->package_tab_color ?? '#e8be6a' }}" title="Package tab accent color" class="form-control form-control-color flex-shrink-0" style="width:38px;height:34px;padding:2px;cursor:pointer;">
                                                         </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="package_tab_ribbon" class="form-label">Package Tab Ribbon Text <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional corner ribbon on the VIP Packages tab (e.g. 'Best Value', 'Popular'). Leave blank to hide."></i></label>
+                                                        <input type="text" name="package_tab_ribbon" class="form-control" id="package_tab_ribbon" value="{{ $data->package_tab_ribbon ?? '' }}" placeholder="e.g. Best Value  (leave blank to hide)">
                                                     </div>
                                                 </div>
                                                 
@@ -844,6 +892,15 @@
                 syncFiles();
                 render();
             })();
+
+            // Tab icon picker live preview
+            $(document).on('change', '.tab-icon-select', function() {
+                var val = $(this).val();
+                var previewSel = $(this).data('preview');
+                if (previewSel) {
+                    $(previewSel).attr('class', 'fas ' + val);
+                }
+            });
             </script>
 @endsection
 
