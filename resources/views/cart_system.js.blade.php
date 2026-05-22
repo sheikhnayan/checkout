@@ -78,14 +78,6 @@ function calculateCartTotal() {
     $('.default-sales-tax span').text('$' + sales_tax_price.toFixed(2));
     $('.default-gratuity span').text('$' + gratuited_price.toFixed(2));
 
-    if ($('.default-gratuity').length) {
-        if ($('.default-service-charge').length) {
-            $('.default-gratuity').insertBefore('.default-service-charge');
-        } else if ($('.default-sales-tax').length) {
-            $('.default-gratuity').insertBefore('.default-sales-tax');
-        }
-    }
-    
     if (cartCoupon && promoDiscount > 0) {
         if ($('.default-promo-discount').length === 0) {
             $('.default-gratuity').after('<div style="font-size: 12px;" class="default-promo-discount">Promo Code Discount: <span>$0.00</span></div>');

@@ -9,6 +9,7 @@ class PackageCategory extends Model
     protected $fillable = [
         'website_id',
         'name',
+        'icon',
         'sort_order',
     ];
 

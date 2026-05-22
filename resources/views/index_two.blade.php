@@ -192,6 +192,18 @@
                 border-color: #ff6b6b !important;
             }
 
+            /* Red asterisk on required form field labels */
+            .form-group > label:has(~ input[required])::after,
+            .form-group > label:has(~ select[required])::after,
+            .form-group > label:has(~ textarea[required])::after,
+            .form-group > label:has(~ .form-row input[required])::after,
+            .form-group > label:has(~ .form-row select[required])::after,
+            .num-guest > label:has(~ input[required])::after {
+                content: " *";
+                color: #ef4444;
+                font-weight: 700;
+            }
+
             .reservation-date-error {
                 display: none;
                 margin-top: 6px;
@@ -2021,6 +2033,12 @@
         .package-category-tile.active .package-category-indicator {
             background: rgba(255,255,255,0.25);
             transform: rotate(45deg);
+        }
+        .package-category-tile-icon {
+            font-size: 13px;
+            opacity: 0.85;
+            margin-right: 7px;
+            flex-shrink: 0;
         }
         .package-category-group { margin-bottom: 16px; }
 
@@ -5307,8 +5325,7 @@
                                                             placeholder="Phone Number" required />
                                                     </div>
                                                     <div class="form-group" style="width: 50%;">
-                                                        <label for="email">Email <span
-                                                                style="font-size: 11px; font-weight: bold;">(Required)</span></label>
+                                                        <label for="email">Email</label>
                                                         <input type="email" name="reservation_email" id="email"
                                                             placeholder="For Confirmation" required />
                                                     </div>
@@ -5496,6 +5513,9 @@
                                                     class="package-category-tile {{ $loop->first ? 'active' : '' }}"
                                                     data-target="#category-group-{{ $category['id'] }}"
                                                 >
+                                                    @if(!empty($category['icon']))
+                                                        <i class="fas {{ $category['icon'] }} package-category-tile-icon"></i>
+                                                    @endif
                                                     <span class="package-category-name">{{ $category['name'] }}</span>
                                                     <span class="package-category-indicator">+</span>
                                                 </button>
@@ -5537,7 +5557,7 @@
                                                             @if($pkgIsTicket)
                                                                 <span class="cv-pkg-sub"><i class="fas fa-ticket-alt"></i>Up to {{ $pkgTicketMax }} {{ $pkgTicketMax === 1 ? 'ticket' : 'tickets' }}</span>
                                                             @else
-                                                                <span class="cv-pkg-sub"><i class="fas fa-user-friends"></i>Best for 2&ndash;{{ $pkgTableMax }} guests</span>
+                                                                <span class="cv-pkg-sub"><i class="fas fa-user-friends"></i>Up to {{ $pkgTableMax }} guests</span>
                                                             @endif
                                                             @if($item->description)
                                                                 <p class="cv-pkg-desc">{{ strip_tags($item->description) }}</p>
@@ -5589,19 +5609,20 @@
 
                                                             <div class="package-guest-input-wrap">
                                                                     @if ($item->package_type === 'ticket')
-                                                                        <input
-                                                                            type="number"
-                                                                            min="1"
-                                                                            step="1"
-                                                                            value="2"
-                                                                            max="{{ (int) ($item->number_of_guest ?? 2) }}"
+                                                                        @php $ticketInitMax = min(15, max(1, (int) ($item->number_of_guest ?? 1))); @endphp
+                                                                        <select
                                                                             data-package-type="{{ $item->package_type }}"
                                                                             data-guests-per-table="{{ (int) ($item->guests_per_table ?? 0) }}"
-                                                                            data-package-guest-limit="{{ (int) ($item->number_of_guest ?? 2) }}"
+                                                                            data-package-guest-limit="{{ (int) ($item->number_of_guest ?? 1) }}"
+                                                                            data-ticket-max="{{ (int) ($item->number_of_guest ?? 1) }}"
                                                                             data-multiple="{{ $item->multiple }}"
                                                                             data-id="{{ $item->id }}"
-                                                                            class="form-select package_number_of_guestss"
-                                                                        />
+                                                                            class="form-select package_number_of_guestss ticket-select-lazy"
+                                                                        >
+                                                                            @for ($i = 1; $i <= $ticketInitMax; $i++)
+                                                                                <option value="{{ $i }}" @selected($i == 1)>{{ $i }}</option>
+                                                                            @endfor
+                                                                        </select>
                                                                     @else
                                                                         <select
                                                                             data-package-type="{{ $item->package_type }}"
@@ -5668,20 +5689,20 @@
                                                 <div class="addonns"></div>
 
                                                 @if ($data->service_charge_name != 0)
-                                                    <div style="font-size: 16px;" class="default-service-charge" data-tip="Service Fee covers payment processing and platform costs.">
+                                                    <div style="font-size: 16px;" class="default-service-charge" data-tip="Covers reservation coordination, operational support, and service-related costs.">
                                                         <span>{{ $data->service_charge_name ?? 'Service Fee' }}</span>
                                                         <span>$0.00</span>
                                                     </div>
                                                 @endif
                                                 <div class="sales_tax"></div>
                                                 @if ($data->sales_tax_name != 0)
-                                                    <div style="font-size: 16px;" class="default-sales-tax" data-tip="Sales tax applied per local regulations.">
+                                                    <div style="font-size: 16px;" class="default-sales-tax" data-tip="Government-required sales tax based on local and state regulations.">
                                                         <span>{{ $data->sales_tax_name ?? 'Tax' }}</span> <span>$0.00</span>
                                                     </div>
                                                 @endif
 
                                                 @if ($data->gratuity_name != 0)
-                                                    <div style="font-size: 16px;" class="default-gratuity" data-tip="Gratuity for your VIP host and service staff at the venue.">
+                                                    <div style="font-size: 16px;" class="default-gratuity" data-tip="Supports venue staff and hospitality service for your experience.">
                                                         <span>{{ $data->gratuity_name ?? 'Gratuity Fee' }}</span>
                                                         <span>$0.00</span></div>
                                                 @else
@@ -5916,7 +5937,7 @@
 
                                                                 <div class="form-row">
                                                                     <div class="form-group" style="width: 100%;">
-                                                                        <label for="Pick-up-time">Pick-up Time *</label>
+                                                                        <label for="Pick-up-time">Pick-up Time</label>
                                                                         <div class="pickup-time-wrap">
                                                                             <i class="fas fa-clock pickup-time-icon"></i>
                                                                             <input name="transportation_pickup_time" type="text" readonly
@@ -7024,6 +7045,7 @@
                 const current = parseInt($field.val(), 10) || 1;
                 const safeMax = Math.max(0, parseInt(maxSelectable, 10) || 0);
                 const isTicketInput = $field.is('input[type="number"]');
+                const isTicketSelect = $field.hasClass('ticket-select-lazy');
                 const $control = $field.closest('.vip-guest-control');
                 const $inputWrap = $control.find('.package-guest-input-wrap');
                 const $soldOut = $control.find('.package-soldout');
@@ -7050,6 +7072,20 @@
                     return;
                 }
 
+                if (isTicketSelect) {
+                    const safeValue = Math.min(Math.max(current, 1), safeMax);
+                    const showMax = Math.min(15, safeMax);
+                    $field.data('ticket-max', safeMax).attr('data-ticket-max', safeMax);
+                    let ticketHtml = '';
+                    for (let i = 1; i <= showMax; i++) {
+                        ticketHtml += '<option value="' + i + '">' + i + '</option>';
+                    }
+                    $field.html(ticketHtml);
+                    $field.val(String(Math.min(safeValue, showMax)));
+                    $field.prop('disabled', false);
+                    return;
+                }
+
                 for (let i = 1; i <= safeMax; i++) {
                     html += '<option value="' + i + '">' + i + '</option>';
                 }
@@ -7058,6 +7094,34 @@
                 $field.val(String(Math.min(current, safeMax)));
                 $field.prop('disabled', false);
             }
+
+            // Ticket select lazy-load: append next 15 options when scrolled to bottom
+            $(document).on('scroll', '.ticket-select-lazy', function () {
+                var $sel = $(this);
+                var shownMax = $sel.find('option').length;
+                var totalMax = parseInt($sel.data('ticket-max'), 10) || shownMax;
+                if (shownMax >= totalMax) { return; }
+                var el = this;
+                if (el.scrollHeight - el.scrollTop - el.clientHeight < 40) {
+                    var nextMax = Math.min(shownMax + 15, totalMax);
+                    for (var i = shownMax + 1; i <= nextMax; i++) {
+                        $sel.append('<option value="' + i + '">' + i + '</option>');
+                    }
+                }
+            });
+            $(document).on('keydown', '.ticket-select-lazy', function (e) {
+                if (e.key !== 'ArrowDown') { return; }
+                var $sel = $(this);
+                var shownMax = $sel.find('option').length;
+                var totalMax = parseInt($sel.data('ticket-max'), 10) || shownMax;
+                if (shownMax >= totalMax) { return; }
+                if (parseInt($sel.val(), 10) >= shownMax) {
+                    var nextMax = Math.min(shownMax + 15, totalMax);
+                    for (var i = shownMax + 1; i <= nextMax; i++) {
+                        $sel.append('<option value="' + i + '">' + i + '</option>');
+                    }
+                }
+            });
 
             function refreshPackageAvailabilityForSelectedDate(showAlertWhenReduced) {
                 const useDate = getSelectedUseDate();
@@ -7131,14 +7195,16 @@
                         return false;
                     }
 
+                    const packageType = ($('.package_number_of_guestss[data-id="' + packageId + '"]').data('package-type') || 'table');
                     let existing = window.cart.find(p => p.packageId === packageId);
                     if (existing) {
                         existing.guests = normalizedGuests;
                         existing.addons = addons;
                         existing.transportation = transportation;
                         existing.isMultiple = parseMultipleFlag(isMultiple);
+                        existing.packageType = packageType;
                     } else {
-                        window.cart.push({ packageId, packageName, packagePrice, guests: normalizedGuests, addons, transportation, isMultiple: parseMultipleFlag(isMultiple) });
+                        window.cart.push({ packageId, packageName, packagePrice, guests: normalizedGuests, addons, transportation, isMultiple: parseMultipleFlag(isMultiple), packageType });
                     }
                     window.renderCart();
                     syncCheckoutCartFields();
@@ -7180,7 +7246,8 @@
                         ? (formatCurrency(unitPrice) + ' &times; ' + (parseInt(pkg.guests, 10) || 1) + ' = ' + formatCurrency(lineTotal))
                         : formatCurrency(lineTotal);
                     let guestQty = parseInt(pkg.guests, 10) || 1;
-                    let guestLabel = guestQty + (guestQty === 1 ? ' Guest' : ' Guests');
+                    const isTicketPkg = pkg.packageType === 'ticket';
+                    let guestLabel = guestQty + (isTicketPkg ? (guestQty === 1 ? ' Ticket' : ' Tickets') : (guestQty === 1 ? ' Guest' : ' Guests'));
                     html += `<div class="cart-line">`
                         + `<div class="cart-line-main"><div style="flex:1;min-width:0;"><div class="cart-item-name">${pkg.packageName}</div><div class="cart-line-guests">${guestLabel}</div></div>`
                         + `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;"><div class="cart-item-price">${priceLine}</div><button onclick='window.removePackageFromCart("${pkg.packageId}")' class="cart-remove-btn">Remove</button></div></div>`
@@ -7236,14 +7303,6 @@
                 $('.default-sales-tax > span:last-child').text(formatCurrency(sales_tax_price));
                 $('.default-gratuity > span:last-child').text(formatCurrency(gratuited_price));
 
-                if ($('.default-gratuity').length) {
-                    if ($('.default-service-charge').length) {
-                        $('.default-gratuity').insertBefore('.default-service-charge');
-                    } else if ($('.default-sales-tax').length) {
-                        $('.default-gratuity').insertBefore('.default-sales-tax');
-                    }
-                }
-                
                 if (window.cartCoupon && promoDiscount > 0) {
                     if ($('.default-promo-discount').length === 0) {
                         $('.default-package-price').after('<div style="font-size: inherit !important; color: #22c55e !important; font-weight: 700 !important;" class="default-promo-discount">Promo Code Discount: <span style="font-size: inherit !important; color: #22c55e !important; font-weight: 700 !important;">$0.00</span></div>');
@@ -7256,7 +7315,7 @@
 
                 if (processingFeeAmount > 0) {
                     if ($('.default-processing-fee').length === 0) {
-                        $('.default-gratuity').after('<div style="font-size: 12px;" class="default-processing-fee">Processing Fee: <span>$0.00</span></div>');
+                        $('.default-gratuity').after('<div style="font-size: 12px;" class="default-processing-fee" data-tip="Covers secure payment and transaction processing costs.">Processing Fee: <span>$0.00</span></div>');
                     }
                     $('.default-processing-fee span').text(formatCurrency(processingFeeAmount));
                 } else {
@@ -8021,6 +8080,16 @@
                         $('#transport-form').hide();
                         $('#transport-confirmation').show();
                     }
+                }
+
+                // On mobile, scroll to the top of the new step
+                if (window.innerWidth < 992) {
+                    setTimeout(function() {
+                        var el = document.getElementById('section-' + stepNumber);
+                        if (el) {
+                            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }, 50);
                 }
             }
 

@@ -90,6 +90,15 @@
         color: var(--admin-text) !important;
       }
 
+      .modal-content .list-group-item {
+        background: transparent !important;
+        color: #fff !important;
+        border-color: var(--admin-border) !important;
+      }
+      .modal-content .list-group-item .text-muted {
+        color: rgba(255,255,255,0.65) !important;
+      }
+
       .table,
       .table > :not(caption) > * > * {
         color: var(--admin-text) !important;

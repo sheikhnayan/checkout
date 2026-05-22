@@ -908,7 +908,7 @@
                 @endif
 
                 <div class="roll-models-head">
-                    <h2>Working Entertainers</h2>
+                    <h2>Entertainers</h2>
                     <span class="roll-count-chip">{{ $workingModels->count() }} On Shift</span>
                 </div>
 

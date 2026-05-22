@@ -23,6 +23,20 @@
 .forms-wizard li.done em {
   font-family: Linearicons-Free;
 }
+
+.cat-icon-preview {
+    width: 38px;
+    height: 34px;
+    border: 1px solid #d7dce4;
+    border-radius: 8px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    flex-shrink: 0;
+}
+.cat-icon-preview i { font-size: 15px; }
 </style>
     <!-- Content wrapper -->
     <div class="content-wrapper">
@@ -229,6 +243,26 @@
                             </div>
                             {{-- ===== CATEGORIES TAB ===== --}}
                             <div class="tab-pane fade" id="categoriesPanel" role="tabpanel" aria-labelledby="categories-tab">
+                                @php
+                                    $categoryIconOptions = [
+                                        ''                => '— No Icon —',
+                                        'fa-star'         => 'Star',
+                                        'fa-crown'        => 'Crown',
+                                        'fa-gem'          => 'Gem',
+                                        'fa-fire'         => 'Fire',
+                                        'fa-bolt'         => 'Bolt',
+                                        'fa-wine-bottle'  => 'Bottle',
+                                        'fa-chair'        => 'Table',
+                                        'fa-user-shield'  => 'VIP',
+                                        'fa-shield-alt'   => 'Entry',
+                                        'fa-music'        => 'Music',
+                                        'fa-cocktail'     => 'Cocktail',
+                                        'fa-ticket-alt'   => 'Ticket',
+                                        'fa-users'        => 'Group',
+                                        'fa-calendar-alt' => 'Calendar',
+                                        'fa-glass-cheers' => 'Cheers',
+                                    ];
+                                @endphp
                                 @if(session('success'))
                                     <div class="alert alert-success">{{ session('success') }}</div>
                                 @endif
@@ -237,10 +271,16 @@
                                 <div class="card mb-3">
                                     <div class="card-body">
                                         <h6 class="card-title fw-bold">Add New Category</h6>
-                                        <form method="POST" action="{{ route('admin.package-category.store', $website_id) }}" class="d-flex gap-2">
+                                        <form method="POST" action="{{ route('admin.package-category.store', $website_id) }}" class="d-flex gap-2 align-items-center flex-wrap">
                                             @csrf
-                                            <input type="text" name="name" class="form-control" placeholder="Category name" required style="max-width:320px;">
-                                            <input type="number" name="sort_order" class="form-control" placeholder="Sort" value="0" min="0" step="1" style="max-width:110px;">
+                                            <div class="package-feature-icon-preview cat-icon-preview" id="add-cat-icon-preview"><i class="fas fa-star"></i></div>
+                                            <select name="icon" class="form-control cat-icon-select" style="max-width:170px;" id="add-cat-icon-select">
+                                                @foreach($categoryIconOptions as $iconClass => $iconLabel)
+                                                    <option value="{{ $iconClass }}" {{ $iconClass === 'fa-star' ? 'selected' : '' }}>{{ $iconLabel }}</option>
+                                                @endforeach
+                                            </select>
+                                            <input type="text" name="name" class="form-control" placeholder="Category name" required style="max-width:280px;">
+                                            <input type="number" name="sort_order" class="form-control" placeholder="Sort" value="0" min="0" step="1" style="max-width:90px;">
                                             <button type="submit" class="btn btn-primary">Add</button>
                                         </form>
                                     </div>
@@ -257,7 +297,7 @@
                                                 <thead>
                                                     <tr>
                                                         <th>#</th>
-                                                        <th>Name</th>
+                                                        <th>Icon &amp; Name</th>
                                                         <th>Sort</th>
                                                         <th>Packages</th>
                                                         <th>Actions</th>
@@ -268,10 +308,17 @@
                                                     <tr>
                                                         <td>{{ $i + 1 }}</td>
                                                         <td>
-                                                            <form method="POST" action="{{ route('admin.package-category.update', $cat->id) }}" class="d-flex gap-2 align-items-center">
+                                                            <form method="POST" action="{{ route('admin.package-category.update', $cat->id) }}" class="d-flex gap-2 align-items-center flex-wrap">
                                                                 @csrf
-                                                                <input type="text" name="name" value="{{ $cat->name }}" class="form-control form-control-sm" style="max-width:240px;" required>
-                                                                <button type="submit" class="btn btn-sm btn-outline-primary">Rename</button>
+                                                                <input type="hidden" name="sort_order" value="{{ (int) ($cat->sort_order ?? 0) }}">
+                                                                <div class="package-feature-icon-preview cat-icon-preview"><i class="fas {{ $cat->icon ?: 'fa-star' }}"></i></div>
+                                                                <select name="icon" class="form-control form-control-sm cat-icon-select" style="max-width:155px;">
+                                                                    @foreach($categoryIconOptions as $iconClass => $iconLabel)
+                                                                        <option value="{{ $iconClass }}" {{ ($cat->icon ?? '') === $iconClass ? 'selected' : '' }}>{{ $iconLabel }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                                <input type="text" name="name" value="{{ $cat->name }}" class="form-control form-control-sm" style="max-width:200px;" required>
+                                                                <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
                                                             </form>
                                                         </td>
                                                         <td>
@@ -398,6 +445,17 @@
                     if ($('#targetedPackagesTable').length) {
                         let table3 = new DataTable('#targetedPackagesTable');
                     }
+
+                    // Live icon preview for category icon pickers
+                    $(document).on('change', '.cat-icon-select', function() {
+                        var val = $(this).val();
+                        var $preview = $(this).siblings('.cat-icon-preview').find('i');
+                        if (val) {
+                            $preview.attr('class', 'fas ' + val);
+                        } else {
+                            $preview.attr('class', 'fas fa-tag');
+                        }
+                    });
                 });
             </script>
         @endsection

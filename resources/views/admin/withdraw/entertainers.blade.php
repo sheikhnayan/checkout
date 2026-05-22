@@ -145,8 +145,8 @@
                                     <small class="text-muted d-block">({{ $snap['type'] ?? '' }})</small>
                                     @foreach($snap['details'] ?? [] as $k => $v)
                                         @if($v)
-                                            <small class="d-block text-muted">
-                                                <b>{{ ucwords(str_replace('_', ' ', $k)) }}:</b> {{ $v }}
+                                            <small class="d-block" style="color:#374151;font-weight:500">
+                                                <span style="color:#6b7280">{{ ucwords(str_replace('_', ' ', $k)) }}:</span> {{ $v }}
                                             </small>
                                         @endif
                                     @endforeach
@@ -204,15 +204,28 @@
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
-                                                <ul class="list-group">
+                                                <ul class="list-group list-group-flush">
                                                     <li class="list-group-item"><strong>ID:</strong> {{ $wr->id }}</li>
                                                     <li class="list-group-item"><strong>Entertainer:</strong> {{ $ent ? ($ent->display_name ?: ($ent->user->name ?? 'Entertainer #'.$wr->owner_id)) : 'Entertainer #'.$wr->owner_id }}</li>
                                                     <li class="list-group-item"><strong>Amount:</strong> ${{ number_format($wr->amount, 2) }}</li>
                                                     <li class="list-group-item"><strong>Fee:</strong> ${{ number_format($wr->fee_amount, 2) }}</li>
                                                     <li class="list-group-item"><strong>Net Payout:</strong> ${{ number_format($wr->net_amount, 2) }}</li>
-                                                    <li class="list-group-item"><strong>Payout Method:</strong> {{ $snap['label'] ?? '' }}</li>
-                                                    <li class="list-group-item"><strong>Status:</strong> {{ $wr->statusLabel() }}</li>
-                                                    <li class="list-group-item"><strong>Notes:</strong> {{ $wr->admin_notes ?? $wr->notes }}</li>
+                                                    <li class="list-group-item">
+                                                        <strong>Payout Method:</strong> {{ $snap['label'] ?? '—' }}
+                                                        @if(!empty($snap['type']))
+                                                            <span class="text-muted ms-1">({{ $snap['type'] }})</span>
+                                                        @endif
+                                                        @foreach($snap['details'] ?? [] as $k => $v)
+                                                            @if($v)
+                                                                <div class="mt-1" style="font-size:0.9rem">
+                                                                    <span class="text-muted">{{ ucwords(str_replace('_', ' ', $k)) }}:</span>
+                                                                    <strong>{{ $v }}</strong>
+                                                                </div>
+                                                            @endif
+                                                        @endforeach
+                                                    </li>
+                                                    <li class="list-group-item"><strong>Status:</strong> <span class="badge {{ $wr->statusBadgeClass() }}">{{ $wr->statusLabel() }}</span></li>
+                                                    <li class="list-group-item"><strong>Notes:</strong> {{ $wr->admin_notes ?? $wr->notes ?? '—' }}</li>
                                                 </ul>
                                             </div>
                                         </div>
