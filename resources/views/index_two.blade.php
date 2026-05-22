@@ -4184,129 +4184,159 @@
         .cv-dstep.is-complete .cv-dstep-num { background: linear-gradient(135deg, #a774ff 0%, #5b21b6 100%) !important; border-color: #7c3aed !important; color: #fff !important; }
         .cv-dstep.is-complete::before { background: linear-gradient(90deg, #a774ff, #7c3aed) !important; }
 
-        .cv-access-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
-            margin-top: 4px;
-        }
+        .cv-access-grid { display: flex; gap: 14px; align-items: stretch; margin-top: 4px; }
 
-        /* Access tab hint label */
+        /* Access tab selector */
         .cv-access-hint {
-            font-size: 11px;
+            font-size: 10.5px;
             font-weight: 800;
-            letter-spacing: 0.12em;
+            letter-spacing: 0.14em;
             text-transform: uppercase;
-            color: rgba(167,116,255,0.85);
-            margin: 18px 0 10px;
-            display: inline-flex;
+            color: rgba(255,255,255,0.42) !important;
+            margin: 18px 0 12px;
+            display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
-        .cv-access-hint::before {
+        .cv-access-hint::before,
+        .cv-access-hint::after {
             content: '';
-            width: 22px;
+            flex: 1;
             height: 1px;
-            background: linear-gradient(90deg, transparent, #a774ff);
+            background: rgba(255,255,255,0.1);
         }
-        .cv-access-hint .cv-access-hint-dot {
-            width: 9px;
-            height: 9px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #fff4bf 0%, #ffd76a 30%, #ffbf00 72%, #e0a300 100%);
-            box-shadow: 0 0 0 2px rgba(255,191,0,0.22), 0 0 14px rgba(255,191,0,0.88), 0 0 22px rgba(255,215,106,0.48);
-            margin-left: 5px;
-            display: inline-block;
-            animation: cvHintPulse 1.2s ease-in-out infinite;
-        }
-        @keyframes cvHintPulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.68; transform: scale(0.78); }
-        }
+        .cv-access-hint .cv-access-hint-dot { display: none; }
 
         .cv-access-card {
-            border: 1.5px solid rgba(167,116,255,0.18);
-            border-radius: 14px;
-            padding: 16px 18px 16px 56px;
-            background: rgba(167,116,255,0.04);
+            flex: 1 1 0;
+            position: relative;
+            border-radius: 18px;
+            padding: 18px 16px 18px 50px;
             display: flex;
             align-items: center;
             gap: 14px;
             cursor: default;
-            transition: all .2s;
+            transition: all .35s cubic-bezier(.4,0,.2,1);
             text-align: left;
-            width: 100%;
             font-family: inherit;
             color: inherit;
-            position: relative;
+            overflow: hidden;
+            border: 1.5px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.03);
+            min-height: 82px;
         }
         .cv-access-card::before {
             content: '';
             position: absolute;
-            left: 18px;
+            left: 17px;
             top: 50%;
             transform: translateY(-50%);
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
-            border: 2px solid rgba(167,116,255,0.45);
-            background: rgba(0,0,0,0.25);
-            transition: all .2s;
-            flex-shrink: 0;
+            border: 2px solid rgba(255,255,255,0.22);
+            background: rgba(0,0,0,0.28);
+            transition: all .3s;
+            z-index: 2;
         }
         .cv-access-card::after {
             content: '';
             position: absolute;
-            left: 24px;
+            left: 22px;
             top: 50%;
             transform: translateY(-50%) scale(0);
             width: 10px;
             height: 10px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%);
-            transition: transform .2s cubic-bezier(.2,.9,.3,1.4);
-            box-shadow: 0 0 10px rgba(167,116,255,0.6);
+            transition: transform .25s cubic-bezier(.2,.9,.3,1.4);
+            z-index: 3;
         }
-
+        .cv-access-card[data-name="guest"] { border-color: rgba(16,185,129,0.22); background: rgba(16,185,129,0.04); }
+        .cv-access-card[data-name="guest"]::before { border-color: rgba(16,185,129,0.42); }
+        .cv-access-card[data-name="guest"]::after { background: radial-gradient(circle, #34d399 0%, #10b981 100%); box-shadow: 0 0 10px rgba(16,185,129,0.8); }
+        .cv-access-card[data-name="package"] { border-color: rgba(232,190,106,0.22); background: rgba(232,190,106,0.04); }
+        .cv-access-card[data-name="package"]::before { border-color: rgba(232,190,106,0.42); }
+        .cv-access-card[data-name="package"]::after { background: radial-gradient(circle, #fde68a 0%, #e8be6a 100%); box-shadow: 0 0 10px rgba(232,190,106,0.8); }
         .cv-access-card.cv-access-tab { cursor: pointer; }
-        .cv-access-card.cv-access-tab:hover:not(.is-active) {
-            border-color: rgba(167,116,255,0.5);
-            background: rgba(167,116,255,0.08);
-            transform: translateY(-1px);
+        .cv-access-card.cv-access-tab:hover:not(.is-active) { transform: translateY(-2px); opacity: 0.82; }
+        .cv-ac-icon-wrap {
+            width: 46px;
+            height: 46px;
+            border-radius: 13px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all .35s cubic-bezier(.4,0,.2,1);
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        .cv-access-card.cv-access-tab:hover:not(.is-active)::before { border-color: rgba(167,116,255,0.7); }
-
-        .cv-access-card i { color: rgba(196,163,255,0.85) !important; font-size: 20px; flex-shrink: 0; }
-
+        .cv-access-card[data-name="guest"] .cv-ac-icon-wrap { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.25); }
+        .cv-access-card[data-name="package"] .cv-ac-icon-wrap { background: rgba(232,190,106,0.1); border-color: rgba(232,190,106,0.25); }
+        .cv-ac-icon-wrap i { transition: all .35s; flex-shrink: 0; }
+        .cv-access-card[data-name="guest"] .cv-ac-icon-wrap i { color: rgba(52,211,153,0.65) !important; font-size: 19px; }
+        .cv-access-card[data-name="package"] .cv-ac-icon-wrap i { color: rgba(232,190,106,0.65) !important; font-size: 19px; }
+        .cv-ac-body { min-width: 0; }
         .cv-access-card strong {
             display: block;
-            font-size: 15px;
+            font-size: 13.5px;
             line-height: 1.2;
-            color: #fff !important;
-            font-weight: 700;
+            color: rgba(255,255,255,0.65) !important;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            transition: color .3s;
         }
-
         .cv-access-card span {
             display: block;
-            font-size: 12px;
-            line-height: 1.3;
-            color: rgba(255,255,255,0.55) !important;
-            margin-top: 3px;
+            font-size: 11.5px;
+            line-height: 1.4;
+            color: rgba(255,255,255,0.35) !important;
+            margin-top: 4px;
+            transition: color .3s;
         }
-
+        .cv-ac-vip-badge {
+            position: absolute;
+            top: 0; right: 0;
+            background: linear-gradient(135deg, #fde68a 0%, #e8a020 100%);
+            color: #000 !important;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: .1em;
+            padding: 5px 12px;
+            border-radius: 0 18px 0 14px;
+            opacity: 0;
+            transform: translate(4px, -4px);
+            transition: all .35s cubic-bezier(.4,0,.2,1);
+            z-index: 4;
+            line-height: 1;
+            text-transform: uppercase;
+        }
         .cv-access-card.is-active {
-            border-color: #a774ff;
-            background: linear-gradient(135deg, rgba(167,116,255,0.18), rgba(124,58,237,0.12));
-            box-shadow: 0 0 0 1px rgba(167,116,255,0.4), 0 6px 22px rgba(124,58,237,0.28);
+            flex: 1.42 1 0;
+            min-height: 96px;
+            padding: 22px 18px 22px 54px;
         }
-        .cv-access-card.is-active::before {
-            border-color: #a774ff;
-            background: rgba(167,116,255,0.18);
+        .cv-access-card[data-name="guest"].is-active {
+            border-color: #34d399;
+            background: linear-gradient(145deg, rgba(16,185,129,0.15), rgba(4,36,20,0.22));
+            box-shadow: 0 0 0 1px rgba(52,211,153,0.3), 0 8px 32px rgba(16,185,129,0.22), inset 0 1px 0 rgba(52,211,153,0.12);
         }
-        .cv-access-card.is-active::after {
-            transform: translateY(-50%) scale(1);
+        .cv-access-card[data-name="package"].is-active {
+            border-color: #e8be6a;
+            background: linear-gradient(145deg, rgba(232,190,106,0.15), rgba(50,35,5,0.22));
+            box-shadow: 0 0 0 1px rgba(232,190,106,0.35), 0 8px 32px rgba(232,190,106,0.2), inset 0 1px 0 rgba(232,190,106,0.15);
         }
-        .cv-access-card.is-active i { color: #c4a3ff !important; }
+        .cv-access-card[data-name="guest"].is-active::before { border-color: #34d399; background: rgba(16,185,129,0.2); transform: translateY(-50%) scale(1.05); }
+        .cv-access-card[data-name="package"].is-active::before { border-color: #e8be6a; background: rgba(232,190,106,0.2); transform: translateY(-50%) scale(1.05); }
+        .cv-access-card.is-active::after { transform: translateY(-50%) scale(1); }
+        .cv-access-card[data-name="guest"].is-active .cv-ac-icon-wrap { background: rgba(16,185,129,0.22); border-color: rgba(52,211,153,0.55); transform: scale(1.1); box-shadow: 0 0 18px rgba(16,185,129,0.4); }
+        .cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap { background: rgba(232,190,106,0.22); border-color: rgba(232,190,106,0.6); transform: scale(1.1); box-shadow: 0 0 18px rgba(232,190,106,0.4); }
+        .cv-access-card[data-name="guest"].is-active .cv-ac-icon-wrap i { color: #34d399 !important; font-size: 22px; }
+        .cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap i { color: #e8be6a !important; font-size: 22px; }
+        .cv-access-card.is-active strong { color: #fff !important; font-size: 15px; }
+        .cv-access-card.is-active span { color: rgba(255,255,255,0.58) !important; }
+        .cv-access-card[data-name="package"].is-active .cv-ac-vip-badge { opacity: 1; transform: translate(0, 0); }
 
         /* Enhanced venue header */
         .aff-hero.cv-venue-header { padding:16px 0; background:rgba(255,255,255,.025); border-bottom:1px solid rgba(255,255,255,.07); }
@@ -5028,7 +5058,8 @@
                 margin-top: 4px;
             }
             .cv-popular-pill { top: 8px; left: 8px; font-size: 9px; padding: 4px 9px; }
-            .cv-access-grid { grid-template-columns: 1fr; }
+            .cv-access-grid { flex-direction: column; }
+            .cv-access-card.is-active { flex: none; }
         }
         @media (max-width: 767px) {
             .cv-top-nav { padding: 0 14px; height: 60px; }
@@ -5265,26 +5296,27 @@
                         <div class="cv-access-grid">
                             @if ($data->reservation == 1)
                                 <button type="button" class="cv-access-card cv-access-tab is-active" data-name="guest">
-                                    <i class="fas fa-car-side"></i>
-                                    <div>
+                                    <span class="cv-ac-icon-wrap"><i class="fas fa-car-side"></i></span>
+                                    <span class="cv-ac-body">
                                         <strong>{{ $data->guest_list_button_text ?? 'Free Ride & Entry' }}</strong>
                                         <span>Complimentary ride and general entry</span>
-                                    </div>
+                                    </span>
                                 </button>
                                 <button type="button" class="cv-access-card cv-access-tab" data-name="package">
-                                    <i class="fas fa-star"></i>
-                                    <div>
-                                        <strong>{{ $data->package_button_text ?? 'Packages' }}</strong>
+                                    <span class="cv-ac-vip-badge">VIP</span>
+                                    <span class="cv-ac-icon-wrap"><i class="fas fa-star"></i></span>
+                                    <span class="cv-ac-body">
+                                        <strong>{{ $data->package_button_text ?? 'VIP Packages' }}</strong>
                                         <span>VIP table packages &amp; experiences</span>
-                                    </div>
+                                    </span>
                                 </button>
                             @else
-                                <div class="cv-access-card is-active">
-                                    <i class="fas fa-star"></i>
-                                    <div>
-                                        <strong>{{ $data->package_button_text ?? 'Packages' }}</strong>
+                                <div class="cv-access-card is-active" data-name="package">
+                                    <span class="cv-ac-icon-wrap"><i class="fas fa-star"></i></span>
+                                    <span class="cv-ac-body">
+                                        <strong>{{ $data->package_button_text ?? 'VIP Packages' }}</strong>
                                         <span>VIP table packages &amp; experiences</span>
-                                    </div>
+                                    </span>
                                 </div>
                             @endif
                         </div>
