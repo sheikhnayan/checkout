@@ -4281,19 +4281,21 @@
         .cv-ac-ribbon {
             position: absolute;
             top: 14px;
-            right: -24px;
-            width: 88px;
+            right: -10px;
+            width: 64px;
             text-align: center;
+            padding: 4px 0;
             font-size: 8px;
             font-weight: 900;
-            letter-spacing: .12em;
+            letter-spacing: .1em;
             text-transform: uppercase;
-            padding: 4px 0;
+            white-space: nowrap;
+            line-height: 1;
             transform: rotate(45deg);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.55);
             pointer-events: none;
             z-index: 4;
-            background: linear-gradient(90deg, #f59e0b, #e8be6a);
+            background: linear-gradient(90deg, #f59e0b, #fde68a);
             color: #1c0e00;
         }
         .cv-ac-icon-wrap {
@@ -5368,7 +5370,7 @@
 .cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap i { color: #{{ $cvPkgHex }} !important; }
 .cv-access-card[data-name="package"].is-active .cv-ac-body::before { color: rgba({{ $cvPRgb }},0.07); }
 .cv-access-card[data-name="package"].is-active .cv-ac-body::after { background: linear-gradient(90deg, rgba({{ $cvPRgb }},0.75), rgba({{ $cvPRgb }},0)); }
-.cv-ac-ribbon { background: linear-gradient(90deg, #{{ $cvPkgHex }}, rgba({{ $cvPRgb }},0.82)); color: #1c0e00; }
+.cv-ac-ribbon { background: linear-gradient(90deg, #{{ $cvPkgHex }}, rgba({{ $cvPRgb }},0.9)) !important; color: #fff !important; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
                         </style>
                         <div class="cv-access-grid">
                             @if ($data->reservation == 1)
