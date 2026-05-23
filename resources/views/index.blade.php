@@ -4085,13 +4085,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-access-card[data-name="package"]::before { border-color: rgba(232,190,106,0.42); }
 .cv-access-card[data-name="package"]::after { background: radial-gradient(circle, #fde68a 0%, #e8be6a 100%); box-shadow: 0 0 10px rgba(232,190,106,0.8); }
 .cv-access-card.cv-access-tab { cursor: pointer; transition: opacity .28s ease, filter .28s ease; }
+.cv-access-card.cv-access-tab:not(.is-active) { opacity: 0.72; }
 .cv-access-card.cv-access-tab.is-active { opacity: 1; filter: none; }
-.cv-access-card.cv-access-tab:hover { opacity: 0.72; filter: brightness(0.82); }
+.cv-access-grid:hover .cv-access-card.cv-access-tab { opacity: 0.35; filter: brightness(0.65); }
+.cv-access-card.cv-access-tab:hover { opacity: 1 !important; filter: brightness(1.18) !important; }
 .cv-ac-ribbon {
     position: absolute;
     top: 10px;
-    right: -14px;
-    width: 70px;
+    right: -25px;
+    width: 100px;
     text-align: center;
     padding: 5px 0;
     font-size: 9px;
