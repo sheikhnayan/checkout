@@ -5253,7 +5253,7 @@
                                     <label>Choose Your Reservation Date</label>
                                     <div class="date-input-wrapper">
                                         <input id="package_use_date" type="text"
-                                            value="" placeholder="{{ \Carbon\Carbon::now()->format('M d, Y') }}" style="width: 100%;" readonly aria-describedby="package_use_date_error">
+                                            value="" placeholder="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('M d, Y') }}" style="width: 100%;" readonly aria-describedby="package_use_date_error">
                                         <span class="custom-calendar-icon"></span>
                                     </div>
                                     <small id="package_use_date_error" class="reservation-date-error">Please select a reservation date.</small>
@@ -6419,7 +6419,7 @@
 
                                                         <input type="hidden" class="package_use_date"
                                                             name="package_use_date"
-                                                            value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
+                                                            value="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('Y-m-d') }}">
                                                         <input type="hidden" class="promo_code" name="promo_code">
                                                         <input type="hidden" class="discounted_amount"
                                                             name="discounted_amount">

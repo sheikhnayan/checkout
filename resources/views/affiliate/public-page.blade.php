@@ -4660,7 +4660,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 <div class="hero-date-card" style="margin-top: 16px;">
                                     <label>Choose Your Reservation Date</label>
                                     <div class="date-input-wrapper">
-                                        <input type="date" id="package_use_date" style="width: 100%;" required aria-required="true" aria-describedby="package_use_date_error" placeholder="{{ date('M d, Y') }}">
+                                        <input type="date" id="package_use_date" style="width: 100%;" required aria-required="true" aria-describedby="package_use_date_error" placeholder="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('M d, Y') }}">
                                     </div>
                                     <small id="package_use_date_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
                                 </div>

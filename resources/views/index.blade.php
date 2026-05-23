@@ -4665,7 +4665,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         }
 
                         // Default to the nearest valid event day: start day if upcoming, today if event is in progress.
-                        $today = now()->startOfDay();
+                        $today = \Carbon\Carbon::now('America/Los_Angeles')->startOfDay();
                         if ($eventStart) {
                             $rangeStart = $eventStart->copy()->startOfDay();
                             $rangeEnd = ($eventEnd ?: $eventStart)->copy()->startOfDay();
