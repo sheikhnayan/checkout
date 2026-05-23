@@ -4424,6 +4424,20 @@
             border-radius: 2px; margin-top: 10px; position: relative; z-index: 1;
             background: linear-gradient(90deg, rgba(232,190,106,0.75), rgba(232,190,106,0));
         }
+        .cv-access-card[data-name="package"] {
+            filter: brightness(1.12) saturate(1.08);
+        }
+        .cv-access-card[data-name="package"]::before { border-color: #ffd54d; background: rgba(255,214,102,0.26); }
+        .cv-access-card[data-name="package"]::after { background: radial-gradient(circle, #fff2b3 0%, #ffd84d 58%, #ffbf00 100%); box-shadow: 0 0 14px rgba(255,201,40,0.95); }
+        .cv-access-card[data-name="package"] .cv-ac-icon-wrap { background: rgba(255,214,102,0.28); border-color: rgba(255,214,102,0.68); box-shadow: 0 0 20px rgba(255,201,40,0.45); }
+        .cv-access-card[data-name="package"] .cv-ac-icon-wrap i { color: #fff5b8 !important; font-size: 20px; }
+        .cv-access-card[data-name="package"] strong { color: #fff !important; }
+        .cv-access-card[data-name="package"] span { color: rgba(255,255,255,0.74) !important; }
+        .cv-access-card[data-name="package"] .cv-ac-body::before { color: rgba(255,214,102,0.16); }
+        .cv-access-card[data-name="package"] .cv-ac-body::after { background: linear-gradient(90deg, rgba(255,214,102,0.95), rgba(255,214,102,0)); }
+        .cv-access-card[data-name="package"] .cv-ac-shimmer { opacity: .92; }
+        .cv-access-card[data-name="package"] .cv-ac-shimmer::before { background: linear-gradient(115deg, transparent 0%, transparent 30%, rgba(255,255,255,.84) 47%, rgba(255,213,77,.42) 56%, transparent 70%, transparent 100%); }
+        .cv-access-card[data-name="package"] .cv-ac-ribbon { filter: saturate(1.45) brightness(1.28); }
         .cv-access-card.is-active .cv-ac-body::after {
             content: ''; display: block; height: 2px; width: 26px;
             border-radius: 2px; margin-top: 10px; position: relative; z-index: 1;
