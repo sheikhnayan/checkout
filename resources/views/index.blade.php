@@ -4092,8 +4092,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-ac-ribbon {
     position: absolute;
     top: 10px;
-    right: -14px;
-    width: 70px;
+    right: -25px;
+    width: 100px;
     text-align: center;
     padding: 5px 0;
     font-size: 9px;
