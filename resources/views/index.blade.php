@@ -4914,7 +4914,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-access-card[data-name="package"] .cv-ac-icon-wrap i { color: rgba({{ $cvPRgb }},0.88) !important; }
 .cv-access-card[data-name="package"].is-active { border-color: #{{ $cvPkgHex }}; background: radial-gradient(ellipse at 94% 50%, rgba({{ $cvPRgb }},0.22) 0%, transparent 50%), linear-gradient(145deg, rgba({{ $cvPRgb }},0.14), rgba(50,35,5,0.22)); box-shadow: 0 0 0 1px rgba({{ $cvPRgb }},0.35), 0 8px 32px rgba({{ $cvPRgb }},0.2), inset 0 1px 0 rgba({{ $cvPRgb }},0.15); }
 .cv-access-card[data-name="package"].is-active::before { border-color: #{{ $cvPkgHex }}; background: rgba({{ $cvPRgb }},0.2); }
-.cv-access-card[data-name="package"].is-active::after { background: radial-gradient(circle, #{{ $cvPkgHex }} 0%, rgba({{ $cvPRgb }},0.8) 100%); }
+.cv-access-card[data-name="package"].is-active::after { background: radial-gradient(circle, #{{ $cvPkgHex }} 0%, rgba({{ $cvPRgb }},0.8) 100%); transform: translateY(-50%) scale(1); }
 .cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap { background: rgba({{ $cvPRgb }},0.22); border-color: rgba({{ $cvPRgb }},0.6); box-shadow: 0 0 22px rgba({{ $cvPRgb }},0.45); }
 .cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap i { color: #{{ $cvPkgHex }} !important; }
 .cv-access-card[data-name="package"].is-active .cv-ac-body::before { color: rgba({{ $cvPRgb }},0.07); }
