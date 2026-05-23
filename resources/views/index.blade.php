@@ -4010,8 +4010,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-dstep.is-complete::before { background: linear-gradient(90deg, #a774ff, #7c3aed) !important; }
 
 .cv-access-grid { display: flex; gap: 14px; align-items: stretch; margin-top: 4px; }
-.cv-access-card[data-name="package"] { flex: 1.65 1 0; }
-.cv-access-card[data-name="guest"] { flex: 1 1 0; }
+.cv-access-card[data-name="package"] { flex: 1.95 1 0; }
+.cv-access-card[data-name="guest"] { flex: 0.85 1 0; }
 
 /* Access tab selector */
 .cv-access-hint {
@@ -4089,6 +4089,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-access-card.cv-access-tab.is-active { opacity: 1; filter: none; }
 .cv-access-grid:hover .cv-access-card.cv-access-tab { opacity: 0.35; filter: brightness(0.65); }
 .cv-access-card.cv-access-tab:hover { opacity: 1 !important; filter: brightness(1.18) !important; }
+.cv-access-grid:hover .cv-access-card[data-name="package"].cv-access-tab { opacity: 1; filter: none; }
+.cv-access-card[data-name="package"].cv-access-tab:hover { opacity: 0.96 !important; filter: brightness(0.94) !important; }
 .cv-ac-ribbon {
     position: absolute;
     top: 10px;
@@ -4187,6 +4189,19 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     font-family: 'Font Awesome 6 Free'; font-weight: 900; content: '\f005';
     position: absolute; right: -6px; top: 50%; transform: translateY(-50%);
     font-size: 66px; color: rgba(232,190,106,0.07); pointer-events: none; line-height: 1; z-index: 0;
+}
+.cv-access-card[data-name="package"] .cv-ac-body { flex: 1; position: relative; }
+.cv-access-card[data-name="package"] .cv-ac-body strong,
+.cv-access-card[data-name="package"] .cv-ac-body > span { position: relative; z-index: 1; }
+.cv-access-card[data-name="package"] .cv-ac-body::before {
+    font-family: 'Font Awesome 6 Free'; font-weight: 900; content: '\f005';
+    position: absolute; right: -6px; top: 50%; transform: translateY(-50%);
+    font-size: 66px; color: rgba(232,190,106,0.07); pointer-events: none; line-height: 1; z-index: 0;
+}
+.cv-access-card[data-name="package"] .cv-ac-body::after {
+    content: ''; display: block; height: 2px; width: 26px;
+    border-radius: 2px; margin-top: 10px; position: relative; z-index: 1;
+    background: linear-gradient(90deg, rgba(232,190,106,0.75), rgba(232,190,106,0));
 }
 .cv-access-card.is-active .cv-ac-body::after {
     content: ''; display: block; height: 2px; width: 26px;
@@ -4862,6 +4877,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-access-card[data-name="guest"].cv-access-tab:hover .cv-ac-icon-wrap i { color: #{{ $cvGuestHex }} !important; }
 .cv-access-card[data-name="package"].cv-access-tab:hover .cv-ac-icon-wrap { background: rgba({{ $cvPRgb }},0.22); border-color: rgba({{ $cvPRgb }},0.6); box-shadow: 0 0 22px rgba({{ $cvPRgb }},0.45); }
 .cv-access-card[data-name="package"].cv-access-tab:hover .cv-ac-icon-wrap i { color: #{{ $cvPkgHex }} !important; }
+.cv-access-card[data-name="package"] { border-color: #{{ $cvPkgHex }}; background: radial-gradient(ellipse at 94% 50%, rgba({{ $cvPRgb }},0.22) 0%, transparent 50%), linear-gradient(145deg, rgba({{ $cvPRgb }},0.14), rgba(50,35,5,0.22)); box-shadow: 0 0 0 1px rgba({{ $cvPRgb }},0.35), 0 8px 32px rgba({{ $cvPRgb }},0.2), inset 0 1px 0 rgba({{ $cvPRgb }},0.15); min-height: 96px; padding: 20px 18px 20px 50px; gap: 18px; }
+.cv-access-card[data-name="package"]::before { border-color: #{{ $cvPkgHex }}; background: rgba({{ $cvPRgb }},0.2); transform: translateY(-50%) scale(1.05); }
+.cv-access-card[data-name="package"]::after { transform: translateY(-50%) scale(1); }
+.cv-access-card[data-name="package"] .cv-ac-icon-wrap { background: rgba({{ $cvPRgb }},0.22); border-color: rgba({{ $cvPRgb }},0.6); width: 60px; height: 60px; border-radius: 15px; box-shadow: 0 0 22px rgba({{ $cvPRgb }},0.45); }
+.cv-access-card[data-name="package"] .cv-ac-icon-wrap i { color: #{{ $cvPkgHex }} !important; font-size: 24px; }
+.cv-access-card[data-name="package"] strong { color: #fff !important; font-size: 15px; }
+.cv-access-card[data-name="package"] span { color: rgba(255,255,255,0.58) !important; }
+.cv-access-card[data-name="package"] .cv-ac-body::before { color: rgba({{ $cvPRgb }},0.07); }
+.cv-access-card[data-name="package"] .cv-ac-body::after { background: linear-gradient(90deg, rgba({{ $cvPRgb }},0.75), rgba({{ $cvPRgb }},0)); }
 
                         </style>
                         <div class="cv-access-grid">
