@@ -4091,6 +4091,35 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-access-card.cv-access-tab:hover { opacity: 1 !important; filter: brightness(1.18) !important; }
 .cv-access-grid:hover .cv-access-card[data-name="package"].cv-access-tab { opacity: 1; filter: none; }
 .cv-access-card[data-name="package"].cv-access-tab:hover { opacity: 0.96 !important; filter: brightness(0.94) !important; }
+.cv-access-card[data-name="package"] { isolation: isolate; --cv-package-rgb: 232,190,106; }
+.cv-access-card[data-name="package"] .cv-ac-shimmer {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    border-radius: inherit;
+    overflow: hidden;
+    mix-blend-mode: screen;
+    opacity: .55;
+}
+.cv-access-card[data-name="package"] .cv-ac-shimmer::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(115deg,
+        transparent 0%,
+        transparent 34%,
+        rgba(255,255,255,.42) 48%,
+        rgba(var(--cv-package-rgb),.22) 56%,
+        transparent 68%,
+        transparent 100%);
+    transform: translateX(-130%);
+    animation: cvPackageShimmer 4s ease-in-out infinite;
+}
+@keyframes cvPackageShimmer {
+    0%, 16% { transform: translateX(-130%); }
+    44%, 100% { transform: translateX(130%); }
+}
 .cv-ac-ribbon {
     position: absolute;
     top: 10px;
@@ -4125,6 +4154,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 .cv-access-card[data-name="guest"] .cv-ac-icon-wrap { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.25); }
 .cv-access-card[data-name="package"] .cv-ac-icon-wrap { background: rgba(232,190,106,0.1); border-color: rgba(232,190,106,0.25); }
+.cv-access-card[data-name="package"] .cv-ac-icon-wrap,
+.cv-access-card[data-name="package"] .cv-ac-body { z-index: 2; }
 .cv-ac-icon-wrap i { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); transition: color .35s, font-size .35s; line-height: 1; }
 .cv-access-card[data-name="guest"] .cv-ac-icon-wrap i { color: rgba(52,211,153,0.65) !important; font-size: 19px; }
 .cv-access-card[data-name="package"] .cv-ac-icon-wrap i { color: rgba(232,190,106,0.65) !important; font-size: 19px; }
@@ -4886,6 +4917,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-access-card[data-name="package"] span { color: rgba(255,255,255,0.58) !important; }
 .cv-access-card[data-name="package"] .cv-ac-body::before { color: rgba({{ $cvPRgb }},0.07); }
 .cv-access-card[data-name="package"] .cv-ac-body::after { background: linear-gradient(90deg, rgba({{ $cvPRgb }},0.75), rgba({{ $cvPRgb }},0)); }
+.cv-access-card[data-name="package"] { --cv-package-rgb: {{ $cvPRgb }}; }
 
                         </style>
                         <div class="cv-access-grid">
@@ -4901,6 +4933,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     @if(!empty($data->package_tab_ribbon))
                                         <span class="cv-ac-ribbon">{{ $data->package_tab_ribbon }}</span>
                                     @endif
+                                    <span class="cv-ac-shimmer" aria-hidden="true"></span>
                                     <span class="cv-ac-icon-wrap"><i class="fas {{ $data->package_tab_icon ?? 'fa-star' }}"></i></span>
                                     <span class="cv-ac-body">
                                         <strong>{{ $data->package_button_text ?? 'VIP Packages' }}</strong>
@@ -4912,6 +4945,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     @if(!empty($data->package_tab_ribbon))
                                         <span class="cv-ac-ribbon">{{ $data->package_tab_ribbon }}</span>
                                     @endif
+                                    <span class="cv-ac-shimmer" aria-hidden="true"></span>
                                     <span class="cv-ac-icon-wrap"><i class="fas {{ $data->package_tab_icon ?? 'fa-star' }}"></i></span>
                                     <span class="cv-ac-body">
                                         <strong>{{ $data->package_button_text ?? 'VIP Packages' }}</strong>
