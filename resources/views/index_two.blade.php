@@ -5372,6 +5372,10 @@
 .cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap i { color: #{{ $cvPkgHex }} !important; }
 .cv-access-card[data-name="package"].is-active .cv-ac-body::before { color: rgba({{ $cvPRgb }},0.07); }
 .cv-access-card[data-name="package"].is-active .cv-ac-body::after { background: linear-gradient(90deg, rgba({{ $cvPRgb }},0.75), rgba({{ $cvPRgb }},0)); }
+.cv-access-card[data-name="guest"].cv-access-tab:hover .cv-ac-icon-wrap { background: rgba({{ $cvGRgb }},0.22); border-color: rgba({{ $cvGRgb }},0.55); box-shadow: 0 0 22px rgba({{ $cvGRgb }},0.45); }
+.cv-access-card[data-name="guest"].cv-access-tab:hover .cv-ac-icon-wrap i { color: #{{ $cvGuestHex }} !important; }
+.cv-access-card[data-name="package"].cv-access-tab:hover .cv-ac-icon-wrap { background: rgba({{ $cvPRgb }},0.22); border-color: rgba({{ $cvPRgb }},0.6); box-shadow: 0 0 22px rgba({{ $cvPRgb }},0.45); }
+.cv-access-card[data-name="package"].cv-access-tab:hover .cv-ac-icon-wrap i { color: #{{ $cvPkgHex }} !important; }
 
                         </style>
                         <div class="cv-access-grid">
