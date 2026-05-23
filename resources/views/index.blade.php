@@ -4932,7 +4932,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 </button>
                                 <button type="button" class="cv-access-card cv-access-tab" data-name="package">
                                     @if(!empty($data->package_tab_ribbon))
-                                        <span class="cv-ac-ribbon">{{ $data->package_tab_ribbon }}</span>
+                                        <span class="cv-ac-ribbon" style="color: rgb(255, 255, 255) !important;">{{ $data->package_tab_ribbon }}</span>
                                     @endif
                                     <span class="cv-ac-shimmer" aria-hidden="true"></span>
                                     <span class="cv-ac-icon-wrap"><i class="fas {{ $data->package_tab_icon ?? 'fa-star' }}"></i></span>
