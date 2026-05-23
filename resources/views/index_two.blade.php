@@ -5447,6 +5447,28 @@
 .cv-access-card[data-name="package"] .cv-ac-body::before { color: rgba({{ $cvPRgb }},0.05); }
 .cv-access-card[data-name="package"] .cv-ac-body::after { background: linear-gradient(90deg, rgba({{ $cvPRgb }},0.55), rgba({{ $cvPRgb }},0)); }
 .cv-access-card[data-name="package"] { --cv-package-rgb: {{ $cvPRgb }}; }
+.cv-access-card[data-name="package"],
+.cv-access-card[data-name="package"].is-active {
+    border-color: #{{ $cvPkgHex }};
+    background: radial-gradient(ellipse at 94% 50%, rgba({{ $cvPRgb }},0.28) 0%, transparent 50%), linear-gradient(145deg, rgba({{ $cvPRgb }},0.2), rgba(80,52,7,0.28));
+    box-shadow: 0 0 0 1px rgba({{ $cvPRgb }},0.46), 0 10px 34px rgba({{ $cvPRgb }},0.3), inset 0 1px 0 rgba({{ $cvPRgb }},0.22);
+}
+.cv-access-card[data-name="package"]::before,
+.cv-access-card[data-name="package"].is-active::before { border-color: #{{ $cvPkgHex }}; background: rgba({{ $cvPRgb }},0.24); }
+.cv-access-card[data-name="package"] .cv-ac-icon-wrap,
+.cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap { background: rgba({{ $cvPRgb }},0.3); border-color: rgba({{ $cvPRgb }},0.72); box-shadow: 0 0 24px rgba({{ $cvPRgb }},0.52); }
+.cv-access-card[data-name="package"] .cv-ac-icon-wrap i,
+.cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap i { color: #fff2b3 !important; font-size: 21px; }
+.cv-access-card[data-name="package"] strong,
+.cv-access-card[data-name="package"].is-active strong { color: #fff !important; font-size: 15px; }
+.cv-access-card[data-name="package"] span,
+.cv-access-card[data-name="package"].is-active span { color: rgba(255,255,255,0.74) !important; }
+.cv-access-card[data-name="package"] .cv-ac-body::before,
+.cv-access-card[data-name="package"].is-active .cv-ac-body::before { color: rgba({{ $cvPRgb }},0.16); }
+.cv-access-card[data-name="package"] .cv-ac-body::after,
+.cv-access-card[data-name="package"].is-active .cv-ac-body::after { background: linear-gradient(90deg, rgba({{ $cvPRgb }},0.95), rgba({{ $cvPRgb }},0)); }
+.cv-access-card[data-name="package"] .cv-ac-shimmer { opacity: .92; }
+.cv-access-card[data-name="package"] .cv-ac-shimmer::before { background: linear-gradient(115deg, transparent 0%, transparent 30%, rgba(255,255,255,.84) 47%, rgba(var(--cv-package-rgb),.42) 56%, transparent 70%, transparent 100%); }
 
                         </style>
                         <div class="cv-access-grid">
