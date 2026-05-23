@@ -4085,15 +4085,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-access-card[data-name="package"]::before { border-color: rgba(232,190,106,0.42); }
 .cv-access-card[data-name="package"]::after { background: radial-gradient(circle, #fde68a 0%, #e8be6a 100%); box-shadow: 0 0 10px rgba(232,190,106,0.8); }
 .cv-access-card.cv-access-tab { cursor: pointer; transition: opacity .28s ease, filter .28s ease; }
-.cv-access-card.cv-access-tab:not(.is-active) { opacity: 0.72; }
 .cv-access-card.cv-access-tab.is-active { opacity: 1; filter: none; }
-.cv-access-grid:hover .cv-access-card.cv-access-tab { opacity: 0.35; filter: brightness(0.65); }
-.cv-access-card.cv-access-tab:hover { opacity: 1 !important; filter: brightness(1.18) !important; }
+.cv-access-card.cv-access-tab:hover { opacity: 0.72; filter: brightness(0.82); }
 .cv-ac-ribbon {
     position: absolute;
     top: 10px;
-    right: -25px;
-    width: 100px;
+    right: -14px;
+    width: 70px;
     text-align: center;
     padding: 5px 0;
     font-size: 9px;
@@ -4858,7 +4856,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap i { color: #{{ $cvPkgHex }} !important; }
 .cv-access-card[data-name="package"].is-active .cv-ac-body::before { color: rgba({{ $cvPRgb }},0.07); }
 .cv-access-card[data-name="package"].is-active .cv-ac-body::after { background: linear-gradient(90deg, rgba({{ $cvPRgb }},0.75), rgba({{ $cvPRgb }},0)); }
-.cv-ac-ribbon { background: linear-gradient(90deg, #{{ $cvPkgHex }}, rgba({{ $cvPRgb }},0.85)) !important; color: #fff !important; text-shadow: 0 1px 3px rgba(0,0,0,0.55); }
+
                         </style>
                         <div class="cv-access-grid">
                             @if ($data->reservation == 1)
