@@ -129,7 +129,10 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
     Route::group(['prefix'=> 'package-category', 'as' => 'package-category.'], function () {
         Route::post('/store/{websiteId}', [PackageCategoryController::class, 'store'])->name('store');
         Route::post('/update/{id}', [PackageCategoryController::class, 'update'])->name('update');
+        Route::post('/archive/{id}', [PackageCategoryController::class, 'archive'])->name('archive');
+        Route::post('/unarchive/{id}', [PackageCategoryController::class, 'unarchive'])->name('unarchive');
         Route::post('/destroy/{id}', [PackageCategoryController::class, 'destroy'])->name('destroy');
+        Route::post('/reorder/{websiteId}', [PackageCategoryController::class, 'reorder'])->name('reorder');
     });
 
     Route::group(['prefix'=> 'package', 'as' => 'package.'], function () {
@@ -146,6 +149,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::get('/edit-targeted/{id}', [PackageController::class,'editTargeted'])->name('edit-targeted');
         Route::post('/update/{id}', [PackageController::class,'update'])->name('update');
         Route::post('/update-targeted/{id}', [PackageController::class,'updateTargeted'])->name('update-targeted');
+        Route::post('/reorder/{websiteId}', [PackageController::class,'reorder'])->name('reorder');
     });
 
     Route::group(['prefix'=> 'event', 'as' => 'event.'], function () {

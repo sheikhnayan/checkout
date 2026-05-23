@@ -22,11 +22,16 @@ class EntertainerPublicController extends Controller
             ->latest()
             ->get()
             ->filter(function ($mapping) {
-                return $mapping->package
-                    && $mapping->package->website
-                    && (int) $mapping->package->website_id === (int) $mapping->website_id
+                if (!$mapping->package || !$mapping->package->website) {
+                    return false;
+                }
+
+                $isCategoryArchived = (int) ($mapping->package->category->is_archieved ?? 0) === 1;
+
+                return (int) $mapping->package->website_id === (int) $mapping->website_id
                     && (int) $mapping->package->status === 1
                     && (int) ($mapping->package->is_archieved ?? 0) === 0
+                    && !$isCategoryArchived
                     && (int) ($mapping->package->website->status ?? 0) === 1
                     && (int) ($mapping->package->website->is_archieved ?? 0) === 0;
             })

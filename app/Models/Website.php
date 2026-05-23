@@ -26,6 +26,8 @@ class Website extends Model
         'package_tab_color',
         'package_tab_icon',
         'package_tab_ribbon',
+        'package_section_title',
+        'package_section_subtext',
         'transportation_confirmation_text',
         'operating_days',
         'operating_start_time',

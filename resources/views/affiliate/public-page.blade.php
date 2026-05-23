@@ -4780,8 +4780,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     @endphp
                                     <div class="cv-package-section-header" style="display:flex; justify-content:space-between; align-items:center; margin: 18px 0 12px; flex-wrap:wrap; gap:10px;">
                                         <div>
-                                            <h5 class="section-kicker-lg" style="margin:0 !important;">Select Your Package</h5>
-                                            <p style="margin: 4px 0 0; font-size: 12.5px; color: rgba(255,255,255,0.5);">All packages include free ride, club entry, and priority access.</p>
+                                            <h5 class="section-kicker-lg" style="margin:0 !important;">{{ $data->package_section_title ?: 'Select Your Package' }}</h5>
+                                            <p style="margin: 4px 0 0; font-size: 12.5px; color: rgba(255,255,255,0.5);">{{ $data->package_section_subtext ?: 'All packages include free ride, club entry, and priority access.' }}</p>
                                         </div>
                                         @if($mostPopularPackageName)
                                         <div class="cv-most-popular-tag" style="display:inline-flex; align-items:center; gap:10px; padding: 7px 14px; border-radius: 999px; background: rgba(167,116,255,0.08); border: 1px solid rgba(167,116,255,0.32); font-size: 12.5px; color: rgba(255,255,255,0.9); font-weight: 600;">
@@ -4812,15 +4812,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
 
                                     @if(isset($packageCategories) && count($packageCategories))
-                                        @php
-                                            $sortedPackageCategories = collect($packageCategories)
-                                                ->sortBy(function ($category) {
-                                                    return strtolower((string) ($category['name'] ?? $category->name ?? ''));
-                                                })
-                                                ->values();
-                                        @endphp
                                         <div class="mb-3 package-category-tiles" style="width:100%;">
-                                            @foreach ($sortedPackageCategories as $category)
+                                            @foreach ($packageCategories as $category)
                                                 @php
                                                     $catRgbStr = null;
                                                     if (!empty($category['color'])) {

@@ -136,6 +136,8 @@ class WebsiteController extends Controller
             'hero_badge_1_sub' => 'nullable|string|max:120',
             'hero_badge_2_label' => 'nullable|string|max:80',
             'hero_badge_2_sub' => 'nullable|string|max:120',
+            'package_section_title' => 'nullable|string|max:120',
+            'package_section_subtext' => 'nullable|string|max:255',
             'website_admin_name' => 'required|string|max:255',
             'website_admin_email' => 'required|email|max:255|unique:users,email',
             'website_admin_password' => 'required|string|min:8|confirmed',
@@ -179,6 +181,8 @@ class WebsiteController extends Controller
         $add->hero_badge_1_sub = $request->hero_badge_1_sub;
         $add->hero_badge_2_label = $request->hero_badge_2_label;
         $add->hero_badge_2_sub = $request->hero_badge_2_sub;
+        $add->package_section_title = $request->package_section_title;
+        $add->package_section_subtext = $request->package_section_subtext;
         $add->phone = $request->phone;
         $add->reservation = $request->reservation;
         $add->email = $request->email;
@@ -388,6 +392,8 @@ class WebsiteController extends Controller
             'hero_badge_1_sub' => 'nullable|string|max:120',
             'hero_badge_2_label' => 'nullable|string|max:80',
             'hero_badge_2_sub' => 'nullable|string|max:120',
+            'package_section_title' => 'nullable|string|max:120',
+            'package_section_subtext' => 'nullable|string|max:255',
             'payment_methods' => 'required|array|min:1',
             'payment_methods.*' => 'in:visa,mastercard,amex,google_pay,apple_pay',
             'operating_days' => 'nullable|array',
@@ -487,6 +493,12 @@ class WebsiteController extends Controller
         $add->description_label = $request->description_label;
         $add->hero_title = $request->hero_title;
         $add->hero_subtitle = $request->hero_subtitle;
+        $add->hero_badge_1_label = $request->hero_badge_1_label;
+        $add->hero_badge_1_sub = $request->hero_badge_1_sub;
+        $add->hero_badge_2_label = $request->hero_badge_2_label;
+        $add->hero_badge_2_sub = $request->hero_badge_2_sub;
+        $add->package_section_title = $request->package_section_title;
+        $add->package_section_subtext = $request->package_section_subtext;
 
         $image = $request->file('logo');
         if ($image) {

@@ -12,6 +12,11 @@ class PackageCategory extends Model
         'icon',
         'color',
         'sort_order',
+        'is_archieved',
+    ];
+
+    protected $casts = [
+        'is_archieved' => 'boolean',
     ];
 
     public function website()

@@ -933,6 +933,44 @@
                 color: #fff !important;
                 transform: translateY(-2px);
             }
+            @media (min-width: 769px) {
+                .cv-footer-inner {
+                    grid-template-columns: minmax(300px, 360px) 1fr;
+                    gap: 48px;
+                }
+                .cv-footer-brand {
+                    position: relative;
+                    padding: 20px 22px 18px;
+                    border-radius: 18px;
+                    background: linear-gradient(160deg, rgba(167,116,255,0.16), rgba(16,11,33,0.86));
+                    border: 1px solid rgba(167,116,255,0.3);
+                    box-shadow: 0 14px 34px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.08);
+                    overflow: hidden;
+                }
+                .cv-footer-brand::before {
+                    content: '';
+                    position: absolute;
+                    top: -40px;
+                    right: -40px;
+                    width: 130px;
+                    height: 130px;
+                    border-radius: 50%;
+                    background: radial-gradient(circle, rgba(167,116,255,0.35), rgba(167,116,255,0));
+                    pointer-events: none;
+                }
+                .cv-footer-logo {
+                    height: 66px;
+                    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.35));
+                }
+                .cv-footer-powered {
+                    color: rgba(231,206,255,0.92);
+                    letter-spacing: 0.14em;
+                }
+                .cv-footer-tagline {
+                    max-width: 290px;
+                    color: rgba(255,255,255,0.72);
+                }
+            }
             @media (max-width: 768px) {
                 .cv-footer-inner { grid-template-columns: 1fr; gap: 20px; padding: 24px 0 18px; text-align: center; }
                 .cv-footer-brand { align-items: center; text-align: center; }
@@ -2707,8 +2745,8 @@
 
         /* ====== CartVIP Redesign UI 2025 ====== */
         .cv-top-nav {
-            position:sticky;
-            top:0;
+            position: static !important;
+            top: auto;
             z-index:1000;
             background: linear-gradient(180deg, rgba(8,11,20,0.98) 0%, rgba(5,7,14,0.94) 100%);
             backdrop-filter:blur(14px);
@@ -4015,7 +4053,28 @@
             font-weight: 800;
             font-size: 18px;
         }
-        .guest .guest-section--total .addon-qty-stepper.guest-qty-stepper { padding: 0; background: transparent; border: none; }
+        .guest .guest-section--total .addon-qty-stepper.guest-qty-stepper {
+            padding: 4px 14px;
+            background: rgba(0,0,0,0.58);
+            border: 1px solid rgba(167,116,255,0.32);
+            border-radius: 999px;
+        }
+        .guest .guest-section--total .label {
+            width: 100%;
+            text-align: center;
+        }
+        .guest .guest-section--total .counter {
+            width: 100%;
+            justify-content: center !important;
+            margin-left: 0 !important;
+        }
+        .guest .guest-section--total .addon-qty-val.guest-qty-val {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1;
+        }
 
         /* Mobile responsive for guest counter */
         @media (max-width: 767px) {
@@ -4041,6 +4100,17 @@
             .guest .guest-section .counter {
                 flex: 0 0 auto;
                 margin-left: auto;
+            }
+            .guest .guest-section--total {
+                justify-content: center !important;
+                align-items: center !important;
+                text-align: center !important;
+                gap: 8px !important;
+            }
+            .guest .guest-section--total .counter {
+                width: 100%;
+                justify-content: center !important;
+                margin-left: 0 !important;
             }
             .guest .addon-qty-stepper.guest-qty-stepper {
                 gap: 8px;
@@ -4402,7 +4472,7 @@
         .cv-access-card.is-active .cv-ac-body strong,
         .cv-access-card.is-active .cv-ac-body > span { position: relative; z-index: 1; }
         .cv-access-card[data-name="guest"].is-active .cv-ac-body::before {
-            font-family: 'Font Awesome 6 Free'; font-weight: 900; content: '\f1b9';
+            font-family: 'Font Awesome 6 Free'; font-weight: 900; content: '\f0c0';
             position: absolute; right: -6px; top: 50%; transform: translateY(-50%);
             font-size: 66px; color: rgba(52,211,153,0.06); pointer-events: none; line-height: 1; z-index: 0;
         }
@@ -5627,7 +5697,7 @@
                                                     <span class="label">Total Guests</span>
                                                     <div class="counter">
                                                         <span class="addon-qty-stepper guest-qty-stepper">
-                                                            <span class="count addon-qty-val guest-qty-val" id="totalCount">0</span>
+                                                            <span class="count addon-qty-val guest-qty-val" id="totalCount" style="margin-right: 0px !important">0</span>
                                                         </span>
                                                     </div>
                                                 </div>
@@ -5704,8 +5774,8 @@
                                     @endphp
                                     <div class="cv-package-section-header" style="display:flex; justify-content:space-between; align-items:center; margin: 18px 0 12px; flex-wrap:wrap; gap:10px;">
                                         <div>
-                                            <h5 class="section-kicker-lg" style="margin:0 !important;">Select Your Package</h5>
-                                            <p style="margin: 4px 0 0; font-size: 12.5px; color: rgba(255,255,255,0.5);">All packages include free ride, club entry, and priority access.</p>
+                                            <h5 class="section-kicker-lg" style="margin:0 !important;">{{ $data->package_section_title ?: 'Select Your Package' }}</h5>
+                                            <p style="margin: 4px 0 0; font-size: 12.5px; color: rgba(255,255,255,0.5);">{{ $data->package_section_subtext ?: 'All packages include free ride, club entry, and priority access.' }}</p>
                                         </div>
                                         @if($mostPopularPackageName)
                                         <div class="cv-most-popular-tag" style="display:inline-flex; align-items:center; gap:10px; padding: 7px 14px; border-radius: 999px; background: rgba(167,116,255,0.08); border: 1px solid rgba(167,116,255,0.32); font-size: 12.5px; color: rgba(255,255,255,0.9); font-weight: 600;">
@@ -5716,15 +5786,8 @@
                                     </div>
 
                                     @if(isset($packageCategories) && $packageCategories->count())
-                                        @php
-                                            $sortedPackageCategories = collect($packageCategories)
-                                                ->sortBy(function ($category) {
-                                                    return strtolower((string) ($category['name'] ?? $category->name ?? ''));
-                                                })
-                                                ->values();
-                                        @endphp
                                         <div class="mb-3 package-category-tiles" style="width:100%;">
-                                            @foreach ($sortedPackageCategories as $category)
+                                            @foreach ($packageCategories as $category)
                                                 @php
                                                     $catRgbStr = null;
                                                     if (!empty($category['color'])) {
@@ -5748,7 +5811,7 @@
                                             @endforeach
                                         </div>
 
-                                        @foreach ($sortedPackageCategories as $category)
+                                        @foreach ($packageCategories as $category)
                                             <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: {{ $loop->first ? 'block' : 'none' }};">
                                                 @foreach ($category['packages'] as $item)
                                                     @php

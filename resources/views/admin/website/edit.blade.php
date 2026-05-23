@@ -534,6 +534,20 @@
                                                         <input type="text" name="package_tab_ribbon" class="form-control" id="package_tab_ribbon" value="{{ $data->package_tab_ribbon ?? '' }}" placeholder="e.g. Best Value  (leave blank to hide)">
                                                     </div>
                                                 </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="package_section_title" class="form-label">Package Section Title <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Heading shown above package cards on checkout and affiliate public pages."></i></label>
+                                                        <input type="text" name="package_section_title" class="form-control" id="package_section_title" value="{{ old('package_section_title', $data->package_section_title) }}" placeholder="Select Your Package">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="package_section_subtext" class="form-label">Package Section Subtext <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Supporting line shown under the package section title."></i></label>
+                                                        <input type="text" name="package_section_subtext" class="form-control" id="package_section_subtext" value="{{ old('package_section_subtext', $data->package_section_subtext) }}" placeholder="All packages include free ride, club entry, and priority access.">
+                                                    </div>
+                                                </div>
                                                 
                                                 <div class="col-md-12">
                                                     <div class="mb-3">

@@ -215,7 +215,7 @@ class PackageController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
         $user = auth()->user();
         
@@ -226,31 +226,62 @@ class PackageController extends Controller
         
         $data = Package::with('category')
             ->clubVisible()
-            ->where('website_id', $id)
-            ->orderByRaw('CASE WHEN package_category_id IS NULL THEN 1 ELSE 0 END')
-            ->orderBy('package_category_id')
-            ->orderBy('sort_order')
-            ->orderByDesc('is_most_popular')
-            ->orderBy('name')
+            ->where('packages.website_id', $id)
+            ->leftJoin('package_categories as pc', 'packages.package_category_id', '=', 'pc.id')
+            ->select('packages.*')
+            ->orderByRaw('CASE WHEN packages.package_category_id IS NULL THEN 1 ELSE 0 END')
+            ->orderBy('pc.sort_order')
+            ->orderBy('pc.name')
+            ->orderBy('packages.sort_order')
+            ->orderByDesc('packages.is_most_popular')
+            ->orderBy('packages.name')
             ->get();
 
         $targetedPackages = Package::with(['category', 'affiliate.user', 'entertainer.user'])
-            ->where('website_id', $id)
+            ->where('packages.website_id', $id)
             ->whereIn('audience', [Package::AUDIENCE_AFFILIATE, Package::AUDIENCE_ENTERTAINER])
-            ->orderByRaw('CASE WHEN package_category_id IS NULL THEN 1 ELSE 0 END')
-            ->orderBy('package_category_id')
-            ->orderBy('sort_order')
-            ->orderBy('name')
+            ->leftJoin('package_categories as pc', 'packages.package_category_id', '=', 'pc.id')
+            ->select('packages.*')
+            ->orderByRaw('CASE WHEN packages.package_category_id IS NULL THEN 1 ELSE 0 END')
+            ->orderBy('pc.sort_order')
+            ->orderBy('pc.name')
+            ->orderBy('packages.sort_order')
+            ->orderBy('packages.name')
             ->get();
 
         $website_id = $id;
 
         $categories = PackageCategory::where('website_id', $id)
+            ->orderBy('is_archieved')
             ->orderBy('sort_order')
             ->orderBy('name')
             ->get();
 
-        return view('admin.package.show', compact('data', 'targetedPackages', 'website_id', 'categories'));
+        $selectedCategoryKey = (string) $request->query('category_id', '');
+        $selectedCategory = null;
+
+        if ($selectedCategoryKey !== '' && $selectedCategoryKey !== 'uncategorized') {
+            $selectedCategory = $categories->firstWhere('id', (int) $selectedCategoryKey);
+            $selectedCategoryKey = $selectedCategory ? (string) $selectedCategory->id : '';
+        }
+
+        $categoryPackages = collect();
+        if ($selectedCategoryKey !== '') {
+            $categoryPackages = Package::with('category')
+                ->clubVisible()
+                ->where('website_id', $id)
+                ->when($selectedCategoryKey === 'uncategorized', function ($query) {
+                    $query->whereNull('package_category_id');
+                }, function ($query) use ($selectedCategoryKey) {
+                    $query->where('package_category_id', (int) $selectedCategoryKey);
+                })
+                ->orderBy('sort_order')
+                ->orderByDesc('is_most_popular')
+                ->orderBy('name')
+                ->get();
+        }
+
+        return view('admin.package.show', compact('data', 'targetedPackages', 'website_id', 'categories', 'selectedCategoryKey', 'selectedCategory', 'categoryPackages'));
     }
 
     /**
@@ -399,6 +430,57 @@ class PackageController extends Controller
         return redirect()->route('admin.package.show', $data->website_id);
     }
 
+    public function reorder(Request $request, string $websiteId)
+    {
+        $user = auth()->user();
+        $websiteIdInt = (int) $websiteId;
+
+        if ($user->isWebsiteUser() && $websiteIdInt !== (int) $user->website_id) {
+            abort(403, 'Access denied.');
+        }
+
+        $validated = $request->validate([
+            'ordered_ids' => 'required|array|min:1',
+            'ordered_ids.*' => 'integer',
+            'category_id' => 'nullable|string',
+        ]);
+
+        $orderedIds = collect($validated['ordered_ids'])
+            ->map(fn ($id) => (int) $id)
+            ->values();
+
+        $categoryKey = (string) ($validated['category_id'] ?? '');
+        $categoryId = ($categoryKey !== '' && $categoryKey !== 'uncategorized') ? (int) $categoryKey : null;
+
+        $query = Package::query()
+            ->clubVisible()
+            ->where('website_id', $websiteIdInt)
+            ->whereIn('id', $orderedIds);
+
+        if ($categoryKey === 'uncategorized') {
+            $query->whereNull('package_category_id');
+        } elseif ($categoryId !== null) {
+            $query->where('package_category_id', $categoryId);
+        }
+
+        $allowedIds = $query->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+        $allowedIdSet = array_flip($allowedIds);
+
+        foreach ($orderedIds as $index => $packageId) {
+            if (!isset($allowedIdSet[$packageId])) {
+                continue;
+            }
+
+            Package::where('id', $packageId)
+                ->where('website_id', $websiteIdInt)
+                ->update(['sort_order' => $index]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
     private function resolveCategoryId(Request $request, $websiteId)
     {
         $newCategoryName = trim((string) $request->input('new_category_name'));
@@ -439,6 +521,9 @@ class PackageController extends Controller
             ->get();
 
         $categories = PackageCategory::where('website_id', $websiteId)
+            ->where(function ($query) {
+                $query->whereNull('is_archieved')->orWhere('is_archieved', 0);
+            })
             ->orderBy('sort_order')
             ->orderBy('name')
             ->get();
@@ -493,8 +578,18 @@ class PackageController extends Controller
         ?int $affiliateId = null,
         ?int $entertainerId = null
     ): void {
+        $resolvedCategoryId = $this->resolveCategoryId($request, $websiteId);
+        $categoryChanged = $package->exists
+            && (int) ($package->package_category_id ?? 0) !== (int) ($resolvedCategoryId ?? 0);
+
         $package->name = $request->name;
-        $package->sort_order = (int) $request->input('sort_order', 0);
+        if ($request->filled('sort_order')) {
+            $package->sort_order = (int) $request->input('sort_order', 0);
+        } elseif (!$package->exists || $categoryChanged) {
+            $package->sort_order = $this->nextSortOrderForCategory($websiteId, $resolvedCategoryId, $audience, $package->id ?? null);
+        } else {
+            $package->sort_order = (int) ($package->sort_order ?? 0);
+        }
         $package->price = $request->price;
         $package->description = $request->description;
         $package->package_features = $this->normalizePackageFeatures(
@@ -542,10 +637,33 @@ class PackageController extends Controller
             $package->guests_per_table = null;
         }
 
-        $package->package_category_id = $this->resolveCategoryId($request, $websiteId);
+        $package->package_category_id = $resolvedCategoryId;
         $package->event_id = $audience === Package::AUDIENCE_CLUB
             ? $this->resolveEventId($request, $websiteId)
             : null;
+    }
+
+    private function nextSortOrderForCategory(int $websiteId, ?int $categoryId, string $audience, ?int $ignorePackageId = null): int
+    {
+        $query = Package::query()->where('website_id', $websiteId);
+
+        if ($audience === Package::AUDIENCE_CLUB) {
+            $query->clubVisible();
+        } else {
+            $query->where('audience', $audience);
+        }
+
+        if ($ignorePackageId) {
+            $query->where('id', '!=', $ignorePackageId);
+        }
+
+        if ($categoryId === null) {
+            $query->whereNull('package_category_id');
+        } else {
+            $query->where('package_category_id', $categoryId);
+        }
+
+        return ((int) $query->max('sort_order')) + 1;
     }
 
     private function syncPackageAddons(Package $package, string $addonList): void

@@ -354,6 +354,18 @@ class FrontendController extends Controller
                 $query->where('packages.event_id', $eventId);
             });
 
+        if (Schema::hasTable('package_categories') && Schema::hasColumn('package_categories', 'is_archieved')) {
+            $packagesQuery->where(function ($query) {
+                $query->whereNull('packages.package_category_id')
+                    ->orWhereHas('category', function ($categoryQuery) {
+                        $categoryQuery->where(function ($statusQuery) {
+                            $statusQuery->whereNull('is_archieved')
+                                ->orWhere('is_archieved', 0);
+                        });
+                    });
+            });
+        }
+
         if (
             Schema::hasColumn('packages', 'package_category_id')
             && Schema::hasTable('package_categories')

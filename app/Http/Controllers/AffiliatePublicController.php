@@ -19,15 +19,30 @@ class AffiliatePublicController extends Controller
         $packageMappings = $affiliate->affiliatePackages()
             ->with(['package.website', 'package.category', 'package.addons'])
             ->where('is_active', true)
-            ->latest()
             ->get()
             ->filter(function ($mapping) {
-                return $mapping->package
-                    && $mapping->package->website
-                    && (int) $mapping->package->status === 1
+                if (!$mapping->package || !$mapping->package->website) {
+                    return false;
+                }
+
+                $isCategoryArchived = (int) ($mapping->package->category->is_archieved ?? 0) === 1;
+
+                return (int) $mapping->package->status === 1
                     && (int) ($mapping->package->is_archieved ?? 0) === 0
+                    && !$isCategoryArchived
                     && (int) ($mapping->package->website->status ?? 0) === 1
                     && (int) ($mapping->package->website->is_archieved ?? 0) === 0;
+            })
+            ->sortBy(function ($mapping) {
+                $categorySort = $mapping->package->category?->sort_order;
+                $packageSort = $mapping->package->sort_order;
+
+                return [
+                    $categorySort === null ? 999999 : (int) $categorySort,
+                    $mapping->package->package_category_id ? 0 : 1,
+                    $packageSort === null ? 999999 : (int) $packageSort,
+                    strtolower((string) $mapping->package->name),
+                ];
             })
             ->values();
 

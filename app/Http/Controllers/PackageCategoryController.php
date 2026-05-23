@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\PackageCategory;
-use App\Models\Website;
 use Illuminate\Http\Request;
 
 class PackageCategoryController extends Controller
@@ -18,19 +17,30 @@ class PackageCategoryController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:191',
-            'sort_order' => 'nullable|integer|min:0',
             'icon' => 'nullable|string|max:50',
             'color' => 'nullable|string|max:20',
         ]);
 
-        PackageCategory::firstOrCreate(
-            ['website_id' => $websiteId, 'name' => trim($request->name)],
-            [
-                'sort_order' => (int) $request->input('sort_order', 0),
-                'icon' => $request->input('icon') ?: null,
-                'color' => $request->input('color') ?: null,
-            ]
-        );
+        $category = PackageCategory::firstOrNew([
+            'website_id' => $websiteId,
+            'name' => trim($request->name),
+        ]);
+
+        if (!$category->exists) {
+            $nextSortOrder = (int) PackageCategory::where('website_id', $websiteId)
+                ->max('sort_order');
+            $category->sort_order = $nextSortOrder + 1;
+        }
+
+        if ($request->has('icon')) {
+            $category->icon = $request->input('icon') ?: null;
+        }
+        if ($request->has('color')) {
+            $category->color = $request->input('color') ?: null;
+        }
+
+        $category->is_archieved = 0;
+        $category->save();
 
         return redirect()->route('admin.package.show', $websiteId)
             ->with('success', 'Category created successfully.');
@@ -68,6 +78,38 @@ class PackageCategoryController extends Controller
             ->with('success', 'Category updated successfully.');
     }
 
+    public function archive($id)
+    {
+        $category = PackageCategory::findOrFail($id);
+        $user = auth()->user();
+
+        if ($user->isWebsiteUser() && $category->website_id != $user->website_id) {
+            abort(403);
+        }
+
+        $category->is_archieved = 1;
+        $category->save();
+
+        return redirect()->route('admin.package.show', ['id' => $category->website_id, 'tab' => 'categories'])
+            ->with('success', 'Category archived successfully.');
+    }
+
+    public function unarchive($id)
+    {
+        $category = PackageCategory::findOrFail($id);
+        $user = auth()->user();
+
+        if ($user->isWebsiteUser() && $category->website_id != $user->website_id) {
+            abort(403);
+        }
+
+        $category->is_archieved = 0;
+        $category->save();
+
+        return redirect()->route('admin.package.show', ['id' => $category->website_id, 'tab' => 'categories'])
+            ->with('success', 'Category unarchived successfully.');
+    }
+
     public function destroy($id)
     {
         $category = PackageCategory::findOrFail($id);
@@ -82,5 +124,43 @@ class PackageCategoryController extends Controller
 
         return redirect()->route('admin.package.show', $websiteId)
             ->with('success', 'Category deleted.');
+    }
+
+    public function reorder(Request $request, $websiteId)
+    {
+        $user = auth()->user();
+
+        if ($user->isWebsiteUser() && (int) $websiteId !== (int) $user->website_id) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'ordered_ids' => 'required|array|min:1',
+            'ordered_ids.*' => 'integer',
+        ]);
+
+        $orderedIds = collect($validated['ordered_ids'])
+            ->map(fn ($id) => (int) $id)
+            ->values();
+
+        $categoryIds = PackageCategory::where('website_id', $websiteId)
+            ->whereIn('id', $orderedIds)
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        $allowedIdSet = array_flip($categoryIds);
+
+        foreach ($orderedIds as $index => $categoryId) {
+            if (!isset($allowedIdSet[$categoryId])) {
+                continue;
+            }
+
+            PackageCategory::where('id', $categoryId)
+                ->where('website_id', $websiteId)
+                ->update(['sort_order' => $index]);
+        }
+
+        return response()->json(['success' => true]);
     }
 }

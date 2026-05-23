@@ -37,6 +37,46 @@
     flex-shrink: 0;
 }
 .cat-icon-preview i { font-size: 15px; }
+
+.drag-handle {
+    cursor: grab;
+    color: #6b7280;
+    font-size: 16px;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+.sortable-ghost {
+    opacity: .4;
+}
+
+.category-open-btn {
+    min-width: 90px;
+}
+
+.category-open-btn,
+.uncategorized-open-btn {
+    background: #111827 !important;
+    border-color: #111827 !important;
+    color: #fff !important;
+    font-weight: 700;
+}
+
+.category-open-btn:hover,
+.uncategorized-open-btn:hover {
+    background: #1f2937 !important;
+    border-color: #1f2937 !important;
+    color: #fff !important;
+}
+
+.category-open-btn.is-selected,
+.uncategorized-open-btn.is-selected {
+    background: #2563eb !important;
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
 </style>
     <!-- Content wrapper -->
     <div class="content-wrapper">
@@ -98,31 +138,35 @@
                             </div>
                         </div>
 
+                        @php
+                            $activeTab = request('tab', 'categories');
+                        @endphp
+
                         <!-- Tabs for Active / Archived Packages + Categories -->
                         <ul class="nav nav-tabs mb-3" id="packageTabs" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#activePackages" type="button" role="tab" aria-controls="activePackages" aria-selected="true">
+                                <button class="nav-link {{ $activeTab === 'active' ? 'active' : '' }}" id="active-tab" data-bs-toggle="tab" data-bs-target="#activePackages" type="button" role="tab" aria-controls="activePackages" aria-selected="{{ $activeTab === 'active' ? 'true' : 'false' }}">
                                     Active Packages
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="archived-tab" data-bs-toggle="tab" data-bs-target="#archivedPackages" type="button" role="tab" aria-controls="archivedPackages" aria-selected="false">
+                                <button class="nav-link {{ $activeTab === 'archived' ? 'active' : '' }}" id="archived-tab" data-bs-toggle="tab" data-bs-target="#archivedPackages" type="button" role="tab" aria-controls="archivedPackages" aria-selected="{{ $activeTab === 'archived' ? 'true' : 'false' }}">
                                     Archived Packages
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categoriesPanel" type="button" role="tab" aria-controls="categoriesPanel" aria-selected="false">
+                                <button class="nav-link {{ $activeTab === 'categories' ? 'active' : '' }}" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categoriesPanel" type="button" role="tab" aria-controls="categoriesPanel" aria-selected="{{ $activeTab === 'categories' ? 'true' : 'false' }}">
                                     Categories
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="targeted-tab" data-bs-toggle="tab" data-bs-target="#targetedPackages" type="button" role="tab" aria-controls="targetedPackages" aria-selected="false">
+                                <button class="nav-link {{ $activeTab === 'targeted' ? 'active' : '' }}" id="targeted-tab" data-bs-toggle="tab" data-bs-target="#targetedPackages" type="button" role="tab" aria-controls="targetedPackages" aria-selected="{{ $activeTab === 'targeted' ? 'true' : 'false' }}">
                                     Targeted Packages
                                 </button>
                             </li>
                         </ul>
                         <div class="tab-content" id="packageTabsContent">
-                            <div class="tab-pane fade show active" id="activePackages" role="tabpanel" aria-labelledby="active-tab">
+                            <div class="tab-pane fade {{ $activeTab === 'active' ? 'show active' : '' }}" id="activePackages" role="tabpanel" aria-labelledby="active-tab">
                                 <div class="row">
                                     <div class="col-lg">
                                         <div class="card-shadow-primary card-border text-white mb-3 card bg-primary p-2">
@@ -182,7 +226,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="tab-pane fade" id="archivedPackages" role="tabpanel" aria-labelledby="archived-tab">
+                            <div class="tab-pane fade {{ $activeTab === 'archived' ? 'show active' : '' }}" id="archivedPackages" role="tabpanel" aria-labelledby="archived-tab">
                                 <div class="row">
                                     <div class="col-lg">
                                         <div class="card-shadow-primary card-border text-white mb-3 card bg-secondary p-2">
@@ -242,7 +286,7 @@
                                 </div>
                             </div>
                             {{-- ===== CATEGORIES TAB ===== --}}
-                            <div class="tab-pane fade" id="categoriesPanel" role="tabpanel" aria-labelledby="categories-tab">
+                            <div class="tab-pane fade {{ $activeTab === 'categories' ? 'show active' : '' }}" id="categoriesPanel" role="tabpanel" aria-labelledby="categories-tab">
                                 @php
                                     $categoryIconOptions = [
                                         ''                => '— No Icon —',
@@ -284,7 +328,6 @@
                                                 <input type="color" name="color" value="#a774ff" title="Category color" style="width:38px;height:34px;padding:2px;border-radius:6px;border:1px solid #d7dce4;cursor:pointer;">
                                                 <small class="text-muted" style="white-space:nowrap;">Color</small>
                                             </div>
-                                            <input type="number" name="sort_order" class="form-control" placeholder="Sort" value="0" min="0" step="1" style="max-width:90px;">
                                             <button type="submit" class="btn btn-primary">Add</button>
                                         </form>
                                     </div>
@@ -300,21 +343,22 @@
                                             <table class="table" id="categoriesTable">
                                                 <thead>
                                                     <tr>
+                                                        <th style="width:40px;"></th>
                                                         <th>#</th>
                                                         <th>Icon &amp; Name</th>
-                                                        <th>Sort</th>
+                                                        <th>State</th>
                                                         <th>Packages</th>
                                                         <th>Actions</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody>
+                                                <tbody id="categorySortableBody">
                                                     @foreach($categories as $i => $cat)
-                                                    <tr>
+                                                    <tr data-id="{{ $cat->id }}">
+                                                        <td class="text-center align-middle"><i class="fas fa-grip-vertical drag-handle" title="Drag to reorder"></i></td>
                                                         <td>{{ $i + 1 }}</td>
                                                         <td>
                                                             <form method="POST" action="{{ route('admin.package-category.update', $cat->id) }}" class="d-flex gap-2 align-items-center flex-wrap">
                                                                 @csrf
-                                                                <input type="hidden" name="sort_order" value="{{ (int) ($cat->sort_order ?? 0) }}">
                                                                 <div class="package-feature-icon-preview cat-icon-preview"><i class="fas {{ $cat->icon ?: 'fa-star' }}"></i></div>
                                                                 <select name="icon" class="form-control form-control-sm cat-icon-select" style="max-width:155px;">
                                                                     @foreach($categoryIconOptions as $iconClass => $iconLabel)
@@ -327,30 +371,105 @@
                                                             </form>
                                                         </td>
                                                         <td>
-                                                            <form method="POST" action="{{ route('admin.package-category.update', $cat->id) }}" class="d-flex gap-2 align-items-center">
-                                                                @csrf
-                                                                <input type="hidden" name="name" value="{{ $cat->name }}">
-                                                                <input type="number" name="sort_order" value="{{ (int) ($cat->sort_order ?? 0) }}" class="form-control form-control-sm" min="0" step="1" style="max-width:110px;" required>
-                                                                <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
-                                                            </form>
+                                                            @if((int) ($cat->is_archieved ?? 0) === 1)
+                                                                <span class="badge bg-warning text-dark">Archived</span>
+                                                            @else
+                                                                <span class="badge bg-success">Active</span>
+                                                            @endif
                                                         </td>
                                                         <td>{{ $cat->packages()->count() }}</td>
                                                         <td>
-                                                            <form method="POST" action="{{ route('admin.package-category.destroy', $cat->id) }}" onsubmit="return confirm('Delete this category? Packages will become Uncategorized.')">
-                                                                @csrf
-                                                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                                            </form>
+                                                            <div class="d-flex gap-2 align-items-center flex-wrap">
+                                                                <a href="{{ route('admin.package.show', ['id' => $website_id, 'tab' => 'categories', 'category_id' => $cat->id]) }}" class="btn btn-sm category-open-btn {{ (string) ($selectedCategoryKey ?? '') === (string) $cat->id ? 'is-selected' : '' }}">Open</a>
+                                                                @if((int) ($cat->is_archieved ?? 0) === 1)
+                                                                    <form method="POST" action="{{ route('admin.package-category.unarchive', $cat->id) }}" onsubmit="return confirm('Unarchive this category?')">
+                                                                        @csrf
+                                                                        <button type="submit" class="btn btn-sm btn-success">Unarchive</button>
+                                                                    </form>
+                                                                @else
+                                                                    <form method="POST" action="{{ route('admin.package-category.archive', $cat->id) }}" onsubmit="return confirm('Archive this category? It will be hidden on front-end checkout pages.')">
+                                                                        @csrf
+                                                                        <button type="submit" class="btn btn-sm btn-warning">Archive</button>
+                                                                    </form>
+                                                                @endif
+                                                                <form method="POST" action="{{ route('admin.package-category.destroy', $cat->id) }}" onsubmit="return confirm('Delete this category? Packages will become Uncategorized.')">
+                                                                    @csrf
+                                                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                                                </form>
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                     @endforeach
                                                 </tbody>
                                             </table>
+
+                                            <div class="mt-2">
+                                                <a href="{{ route('admin.package.show', ['id' => $website_id, 'tab' => 'categories', 'category_id' => 'uncategorized']) }}" class="btn btn-sm uncategorized-open-btn {{ ($selectedCategoryKey ?? '') === 'uncategorized' ? 'is-selected' : '' }}">Open Uncategorized</a>
+                                            </div>
                                         @endif
                                     </div>
                                 </div>
+
+                                @if(!empty($selectedCategoryKey))
+                                    <div class="card mt-3">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 class="card-title fw-bold mb-0">
+                                                    {{ $selectedCategoryKey === 'uncategorized' ? 'Uncategorized Packages' : 'Packages in ' . ($selectedCategory->name ?? 'Category') }}
+                                                </h6>
+                                                <small class="text-muted">Drag rows to reorder packages for this category.</small>
+                                            </div>
+
+                                            @if($categoryPackages->isEmpty())
+                                                <p class="text-muted mb-0">No packages found in this category.</p>
+                                            @else
+                                                <table class="table" id="categoryPackagesTable">
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="width:40px;"></th>
+                                                            <th>#</th>
+                                                            <th>Name</th>
+                                                            <th>Status</th>
+                                                            <th>Archive</th>
+                                                            <th>Price</th>
+                                                            <th>Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="packageSortableBody">
+                                                        @foreach($categoryPackages as $idx => $pkg)
+                                                            <tr data-id="{{ $pkg->id }}">
+                                                                <td class="text-center align-middle"><i class="fas fa-grip-vertical drag-handle" title="Drag to reorder"></i></td>
+                                                                <td>{{ $idx + 1 }}</td>
+                                                                <td>{{ $pkg->name }}</td>
+                                                                <td>
+                                                                    @if((int) ($pkg->status ?? 0) === 1)
+                                                                        <span class="badge bg-success">Active</span>
+                                                                    @else
+                                                                        <span class="badge bg-secondary">Inactive</span>
+                                                                    @endif
+                                                                </td>
+                                                                <td>
+                                                                    @if((int) ($pkg->is_archieved ?? 0) === 1)
+                                                                        <span class="badge bg-warning text-dark">Archived</span>
+                                                                    @else
+                                                                        <span class="badge bg-primary">Live</span>
+                                                                    @endif
+                                                                </td>
+                                                                <td>{{ $pkg->price }}</td>
+                                                                <td>
+                                                                    <a href="{{ route('admin.package.edit', $pkg->id) }}" class="btn btn-sm btn-primary">Edit</a>
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
 
-                            <div class="tab-pane fade" id="targetedPackages" role="tabpanel" aria-labelledby="targeted-tab">
+                            <div class="tab-pane fade {{ $activeTab === 'targeted' ? 'show active' : '' }}" id="targetedPackages" role="tabpanel" aria-labelledby="targeted-tab">
                                 <div class="card">
                                     <div class="card-body">
                                         <h6 class="card-title fw-bold">Affiliate and Entertainer Packages</h6>
@@ -438,10 +557,20 @@
         </div>
     </div>
 
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+        <div id="reorderToast" class="toast text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="reorderToastBody">Order updated successfully.</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
             <!-- Include DataTables and jQuery CDN (jQuery first, then DataTables, then Bootstrap) -->
             <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
             <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
             <script>
                 $(document).ready(function() {
@@ -461,6 +590,97 @@
                             $preview.attr('class', 'fas fa-tag');
                         }
                     });
+
+                    const csrfToken = '{{ csrf_token() }}';
+
+                    function showReorderToast(message, isError = false) {
+                        const toastEl = document.getElementById('reorderToast');
+                        const bodyEl = document.getElementById('reorderToastBody');
+
+                        if (!toastEl || !bodyEl || typeof bootstrap === 'undefined') {
+                            return;
+                        }
+
+                        bodyEl.textContent = message;
+                        toastEl.classList.remove('text-bg-success', 'text-bg-danger');
+                        toastEl.classList.add(isError ? 'text-bg-danger' : 'text-bg-success');
+
+                        const toast = bootstrap.Toast.getOrCreateInstance(toastEl, { delay: 2200 });
+                        toast.show();
+                    }
+
+                    function postReorder(url, payload) {
+                        return fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify(payload)
+                        }).then(function(response) {
+                            if (!response.ok) {
+                                throw new Error('Request failed');
+                            }
+
+                            return response;
+                        });
+                    }
+
+                    const categoryBody = document.getElementById('categorySortableBody');
+                    if (categoryBody) {
+                        Sortable.create(categoryBody, {
+                            handle: '.drag-handle',
+                            animation: 150,
+                            ghostClass: 'sortable-ghost',
+                            onEnd: function() {
+                                const orderedIds = Array.from(categoryBody.querySelectorAll('tr[data-id]')).map(function(row) {
+                                    return parseInt(row.getAttribute('data-id'), 10);
+                                }).filter(Number.isInteger);
+
+                                if (!orderedIds.length) {
+                                    return;
+                                }
+
+                                postReorder('{{ route('admin.package-category.reorder', $website_id) }}', { ordered_ids: orderedIds })
+                                    .then(function() {
+                                        showReorderToast('Category order saved.');
+                                    })
+                                    .catch(function() {
+                                        showReorderToast('Could not save category order. Please retry.', true);
+                                    });
+                            }
+                        });
+                    }
+
+                    const packageBody = document.getElementById('packageSortableBody');
+                    if (packageBody) {
+                        Sortable.create(packageBody, {
+                            handle: '.drag-handle',
+                            animation: 150,
+                            ghostClass: 'sortable-ghost',
+                            onEnd: function() {
+                                const orderedIds = Array.from(packageBody.querySelectorAll('tr[data-id]')).map(function(row) {
+                                    return parseInt(row.getAttribute('data-id'), 10);
+                                }).filter(Number.isInteger);
+
+                                if (!orderedIds.length) {
+                                    return;
+                                }
+
+                                postReorder('{{ route('admin.package.reorder', $website_id) }}', {
+                                    ordered_ids: orderedIds,
+                                    category_id: '{{ $selectedCategoryKey ?? '' }}'
+                                })
+                                    .then(function() {
+                                        showReorderToast('Package order saved.');
+                                    })
+                                    .catch(function() {
+                                        showReorderToast('Could not save package order. Please retry.', true);
+                                    });
+                            }
+                        });
+                    }
                 });
             </script>
         @endsection
