@@ -4516,33 +4516,38 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 
 /* ===== Mobile Gallery Carousel ===== */
-.aff-mobile-carousel { margin-top: 16px; margin-bottom: 16px; position: relative; }
-.aff-mc-track { display: flex; overflow-x: scroll; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; border-radius: 14px; overflow: hidden; }
+.aff-mobile-carousel { margin-top: 16px; margin-bottom: 16px; position: relative; user-select: none; }
+.aff-mc-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; border-radius: 14px; overflow: hidden; cursor: grab; transition: scroll-behavior 0.3s ease; }
 .aff-mc-track::-webkit-scrollbar { display: none; }
-.aff-mc-slide { flex: 0 0 100%; scroll-snap-align: start; width: 100%; aspect-ratio: 16 / 9; border: none; padding: 0; background: rgba(255,255,255,0.04); cursor: pointer; overflow: hidden; position: relative; }
-.aff-mc-slide img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; transition: transform .35s ease; }
-.aff-mc-slide:hover img { transform: scale(1.03); }
+.aff-mc-track.is-dragging { cursor: grabbing; scroll-behavior: auto; }
+.aff-mc-slide { flex: 0 0 100%; scroll-snap-align: start; width: 100%; aspect-ratio: 16 / 9; border: none; padding: 0; background: rgba(255,255,255,0.04); cursor: pointer; overflow: hidden; position: relative; transition: transform 0.3s ease; border-radius: 0; }
+.aff-mc-slide img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; transition: transform .35s ease; user-select: none; }
+.aff-mc-slide:hover img { transform: scale(1.08); }
 .aff-mc-dots { display: flex; justify-content: center; gap: 8px; padding: 12px 0 4px; }
 .aff-mc-dot { width: 8px; height: 8px; border-radius: 50%; border: none; background: rgba(255,255,255,0.25); cursor: pointer; transition: background .2s, width .25s, border-radius .25s; padding: 0; }
 .aff-mc-dot.is-active { background: #efbe6f; width: 22px; border-radius: 4px; }
 
-/* ===== Desktop Gallery ===== */
-.aff-desktop-gallery { display: none; margin-bottom: 28px; }
-.aff-dg-grid { display: grid; gap: 6px; border-radius: 18px; overflow: hidden; border: 1px solid rgba(239,190,111,0.15); box-shadow: 0 8px 40px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.04); }
-.aff-dg-count-1 { grid-template-columns: 1fr; grid-template-rows: 400px; }
-.aff-dg-count-2 { grid-template-columns: repeat(2, 1fr); grid-template-rows: 380px; }
-.aff-dg-count-3 { grid-template-columns: 1.6fr 1fr; grid-template-rows: 190px 190px; }
+/* ===== Desktop Gallery - Modern Masonry with Effects ===== */
+.aff-desktop-gallery { display: none; margin-bottom: 28px; perspective: 1000px; }
+.aff-dg-grid { display: grid; gap: 8px; border-radius: 20px; overflow: hidden; border: 1px solid rgba(239,190,111,0.2); box-shadow: 0 12px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06), inset 0 1px 1px rgba(255,255,255,0.08); background: linear-gradient(135deg, rgba(20,15,50,0.4) 0%, rgba(15,14,26,0.4) 100%); }
+.aff-dg-count-1 { grid-template-columns: 1fr; grid-template-rows: 450px; }
+.aff-dg-count-2 { grid-template-columns: repeat(2, 1fr); grid-template-rows: 400px; }
+.aff-dg-count-3 { grid-template-columns: 1.6fr 1fr; grid-template-rows: 210px 210px; }
 .aff-dg-count-3 .aff-dg-item:first-child { grid-row: span 2; }
-.aff-dg-count-4 { grid-template-columns: repeat(2, 1fr); grid-template-rows: 195px 195px; }
-.aff-dg-count-5 { grid-template-columns: 2fr 1fr 1fr; grid-template-rows: 190px 190px; }
+.aff-dg-count-4 { grid-template-columns: repeat(2, 1fr); grid-template-rows: 215px 215px; }
+.aff-dg-count-5 { grid-template-columns: 2fr 1fr 1fr; grid-template-rows: 210px 210px; }
 .aff-dg-count-5 .aff-dg-item:first-child { grid-row: span 2; }
-.aff-dg-item { position: relative; overflow: hidden; border: none; padding: 0; background: rgba(255,255,255,0.04); cursor: pointer; display: block; }
-.aff-dg-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s cubic-bezier(.25,.8,.25,1), filter .4s ease; }
-.aff-dg-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(167,116,255,0.22) 0%, rgba(239,190,111,0.12) 100%); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .3s ease; }
-.aff-dg-overlay i { color: #fff; font-size: 26px; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.7)); }
-.aff-dg-item:hover img, .aff-dg-item:focus-visible img { transform: scale(1.06); filter: brightness(0.82); }
-.aff-dg-item:hover .aff-dg-overlay, .aff-dg-item:focus-visible .aff-dg-overlay { opacity: 1; }
-.aff-dg-item:focus-visible { outline: 2px solid rgba(239,190,111,0.6); outline-offset: -2px; }
+.aff-dg-item { position: relative; overflow: hidden; border: 1px solid rgba(239,190,111,0.15); padding: 0; background: rgba(255,255,255,0.04); cursor: pointer; display: block; border-radius: 14px; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.4s ease; will-change: transform, box-shadow; }
+.aff-dg-item::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1) 0%, transparent 70%); pointer-events: none; z-index: 1; transition: opacity 0.3s ease; opacity: 0; }
+.aff-dg-item:hover::before { opacity: 1; }
+.aff-dg-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.4s ease, saturate 0.3s ease; filter: saturate(1.05); }
+.aff-dg-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(167,116,255,0.28) 0%, rgba(239,190,111,0.16) 100%); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .3s ease; z-index: 2; }
+.aff-dg-overlay i { color: #fff; font-size: 28px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.8)); transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.aff-dg-item:hover { border-color: rgba(239,190,111,0.4); box-shadow: 0 8px 32px rgba(167,116,255,0.2), inset 0 1px 1px rgba(255,255,255,0.1); transform: translateY(-4px); }
+.aff-dg-item:hover img { transform: scale(1.08) rotate(0.5deg); filter: brightness(0.85) saturate(1.2); }
+.aff-dg-item:hover .aff-dg-overlay { opacity: 1; }
+.aff-dg-item:hover .aff-dg-overlay i { transform: scale(1); }
+.aff-dg-item:focus-visible { outline: 2px solid rgba(239,190,111,0.8); outline-offset: 2px; border-color: rgba(239,190,111,0.6); }
 
 /* ===== Category tab club name ===== */
 .package-category-label-wrap { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -8583,6 +8588,106 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 });
             }
 
+            function initMobileCarousel() {
+                const track = document.getElementById('affMcTrack');
+                const dots = document.querySelectorAll('.aff-mc-dot');
+                if (!track || !dots.length) return;
+
+                let isDown = false;
+                let startX;
+                let scrollLeft;
+                let autoScrollInterval;
+
+                const slides = track.querySelectorAll('.aff-mc-slide');
+                let currentSlide = 0;
+
+                // Drag functionality
+                track.addEventListener('mousedown', (e) => {
+                    isDown = true;
+                    startX = e.pageX - track.offsetLeft;
+                    scrollLeft = track.scrollLeft;
+                    track.classList.add('is-dragging');
+                    clearInterval(autoScrollInterval);
+                });
+
+                track.addEventListener('mouseleave', () => {
+                    isDown = false;
+                    track.classList.remove('is-dragging');
+                    startAutoScroll();
+                });
+
+                track.addEventListener('mouseup', () => {
+                    isDown = false;
+                    track.classList.remove('is-dragging');
+                    startAutoScroll();
+                });
+
+                track.addEventListener('mousemove', (e) => {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    const x = e.pageX - track.offsetLeft;
+                    const walk = (x - startX) * 0.5;
+                    track.scrollLeft = scrollLeft - walk;
+                });
+
+                // Touch support
+                track.addEventListener('touchstart', (e) => {
+                    isDown = true;
+                    startX = e.touches[0].pageX - track.offsetLeft;
+                    scrollLeft = track.scrollLeft;
+                    clearInterval(autoScrollInterval);
+                }, { passive: true });
+
+                track.addEventListener('touchend', () => {
+                    isDown = false;
+                    startAutoScroll();
+                }, { passive: true });
+
+                track.addEventListener('touchmove', (e) => {
+                    if (!isDown) return;
+                    const x = e.touches[0].pageX - track.offsetLeft;
+                    const walk = (x - startX) * 1.5;
+                    track.scrollLeft = scrollLeft - walk;
+                }, { passive: true });
+
+                // Scroll snap update
+                track.addEventListener('scroll', () => {
+                    const scrollPos = track.scrollLeft;
+                    const itemWidth = track.offsetWidth;
+                    currentSlide = Math.round(scrollPos / itemWidth);
+                    updateDots();
+                });
+
+                // Dot navigation
+                dots.forEach((dot, index) => {
+                    dot.addEventListener('click', () => {
+                        currentSlide = index;
+                        track.scrollLeft = track.offsetWidth * index;
+                        updateDots();
+                        clearInterval(autoScrollInterval);
+                        startAutoScroll();
+                    });
+                });
+
+                function updateDots() {
+                    dots.forEach((dot, i) => {
+                        dot.classList.toggle('is-active', i === currentSlide);
+                    });
+                }
+
+                function startAutoScroll() {
+                    clearInterval(autoScrollInterval);
+                    autoScrollInterval = setInterval(() => {
+                        currentSlide = (currentSlide + 1) % slides.length;
+                        track.scrollLeft = track.offsetWidth * currentSlide;
+                        updateDots();
+                    }, 5000);
+                }
+
+                updateDots();
+                if (slides.length > 1) startAutoScroll();
+            }
+
             document.addEventListener('DOMContentLoaded', function() {
                 initSidebar();
                 initPackageSearch();
@@ -8594,6 +8699,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 initHamburger();
                 initCheckoutSteps();
                 initDateNotification();
+                initMobileCarousel();
             });
         })();
         </script>
