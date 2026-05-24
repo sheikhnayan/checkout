@@ -4708,21 +4708,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     <small id="package_use_date_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
                                 </div>
                             </div>
-
-                            <aside class="cv-hero-location">
-                                <div class="cv-hero-location-header">
-                                    <div class="cv-hero-location-titles">
-                                        <div class="cv-hero-location-label">About</div>
-                                        <div class="cv-hero-location-name">{{ $affiliate->display_name ?: $affiliate->user->name }}</div>
-                                        <div class="cv-hero-location-addr">Affiliate Partner</div>
-                                    </div>
-                                </div>
-                                <div style="padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 20px;">
-                                    <p style="font-size: 13px; color: rgba(255,255,255,0.7); margin: 0; line-height: 1.6;">
-                                        {{ $affiliate->secondary_description ?: 'Browse premium packages from this featured affiliate partner. Select and purchase your preferred packages below.' }}
-                                    </p>
-                                </div>
-                            </aside>
                         </div>
                     </div>
                 </section>
@@ -4749,6 +4734,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     </div>
                 @endif
 
+                <section class="aff-story">
+                    <h2>{{ $data->description_label ?? 'Description' }}</h2>
+                    <div class="story-copy-block is-collapsed" data-mobile-collapsible>
+                        <div class="story-copy story-copy-collapsible">{{ $affiliate->description }}</div>
+                        <button type="button" class="story-copy-toggle" aria-expanded="false">See more</button>
+                    </div>
+                </section>
             </div>
         </header>
         <main style="background: radial-gradient(circle at 18% 60px, rgba(232,190,106,.10), transparent 340px), radial-gradient(circle at 82% 180px, rgba(124,92,255,.10), transparent 360px), linear-gradient(180deg,#050507 0%,#06070a 100%);">
