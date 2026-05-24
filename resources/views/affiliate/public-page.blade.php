@@ -4590,6 +4590,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 /* ===== Location-Gated Categories ===== */
 .aff-location-gated { display: none; }
 .aff-location-gated.is-visible { display: block; }
+.package-category-tile.hidden-tab { display: none !important; }
+.package-category-tile.visible-tab { display: flex !important; }
 
 /* ===== Mobile Gallery Carousel (Horizontal) ===== */
 .aff-mobile-gallery-carousel { margin: 24px 0; }
@@ -8383,20 +8385,23 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                 if (!locationFilter) return;
 
-                // Hide all category tabs initially
+                // Hide all category tabs initially using class
                 document.querySelectorAll('.package-category-tile').forEach(function(tab) {
-                    tab.style.display = 'none';
+                    tab.classList.add('hidden-tab');
+                    tab.classList.remove('visible-tab');
                 });
 
                 function filterPackages() {
                     var locationId = locationFilter.value;
+                    console.log('Filter called with locationId:', locationId);
 
                     if (!locationId) {
                         // No location selected - hide everything
                         if (categoriesGate) categoriesGate.classList.remove('is-visible');
                         if (noLocationMsg) noLocationMsg.style.display = 'block';
                         document.querySelectorAll('.package-category-tile').forEach(function(tab) {
-                            tab.style.display = 'none';
+                            tab.classList.add('hidden-tab');
+                            tab.classList.remove('visible-tab');
                         });
                         return;
                     }
@@ -8413,7 +8418,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     // Show only packages from selected location
                     document.querySelectorAll('[id^="pkg-card-"]').forEach(function(card) {
                         var clubId = card.getAttribute('data-club-id');
-                        if (clubId == locationId) {
+                        if (clubId && clubId === locationId) {
                             card.style.display = '';
                         }
                     });
@@ -8434,16 +8439,24 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             var hasPackagesFromLocation = groupDiv ?
                                 Array.from(groupDiv.querySelectorAll('[id^="pkg-card-"]')).some(function(card) {
                                     var clubId = card.getAttribute('data-club-id');
-                                    return clubId == locationId;
+                                    return clubId && clubId === locationId;
                                 })
                                 : false;
 
-                            tab.style.display = hasPackagesFromLocation ? '' : 'none';
+                            if (hasPackagesFromLocation) {
+                                tab.classList.remove('hidden-tab');
+                                tab.classList.add('visible-tab');
+                            } else {
+                                tab.classList.add('hidden-tab');
+                                tab.classList.remove('visible-tab');
+                            }
                         }
                     });
                 }
 
                 locationFilter.addEventListener('change', filterPackages);
+                // Call filterPackages once on init to set initial state
+                filterPackages();
             }
 
             function initMobileGalleryCarousel() {
