@@ -4594,12 +4594,12 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .package-category-tile.visible-tab { display: flex !important; }
 
 /* ===== Mobile Gallery Carousel (Horizontal) ===== */
-.aff-mobile-gallery-carousel { margin: 24px 0; }
-.aff-mgc-track { display: flex; flex-direction: row; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; height: 400px; gap: 12px; padding: 0; user-select: none; cursor: grab; }
+.aff-mobile-gallery-carousel { margin: 24px 0; width: 100%; overflow: hidden; }
+.aff-mgc-track { display: flex; flex-direction: row; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; height: auto; gap: 0; padding: 0; user-select: none; cursor: grab; scroll-behavior: smooth; }
 .aff-mgc-track::-webkit-scrollbar { display: none; }
 .aff-mgc-track.is-dragging { cursor: grabbing; scroll-behavior: auto; }
-.aff-mgc-slide { flex: 0 0 280px; scroll-snap-align: start; width: 280px; height: 100%; border: none; padding: 0; background: transparent; cursor: pointer; overflow: hidden; border-radius: 12px; position: relative; transition: transform 0.3s ease; }
-.aff-mgc-slide img { width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; transition: transform .35s ease, filter .3s ease; }
+.aff-mgc-slide { flex: 0 0 100%; scroll-snap-align: start; width: 100%; height: auto; min-height: 400px; border: none; padding: 0; background: transparent; cursor: pointer; overflow: hidden; border-radius: 0; position: relative; transition: transform 0.3s ease; display: flex; align-items: center; justify-content: center; }
+.aff-mgc-slide img { width: 100%; height: auto; max-height: 500px; object-fit: contain; display: block; pointer-events: none; transition: transform .35s ease, filter .3s ease; }
 .aff-mgc-slide:hover img { transform: scale(1.08); filter: brightness(0.9); }
 .aff-mgc-dots { display: flex; justify-content: center; gap: 8px; padding: 12px 0; flex-wrap: wrap; }
 .aff-mgc-dot { width: 8px; height: 8px; border-radius: 50%; border: none; background: rgba(255,255,255,0.25); cursor: pointer; transition: background .2s, width .25s, border-radius .25s; padding: 0; }
@@ -4760,13 +4760,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 @if(!empty($affiliate->gallery_images))
                     <!-- Mobile Carousel Gallery (Horizontal) -->
                     <div class="aff-mobile-gallery-carousel" id="affMobileGalleryCarousel" style="display: none; margin: 24px 0;">
-                        <div class="aff-mgc-track" id="affMgcTrack" style="display: flex; flex-direction: row; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; height: 400px; gap: 12px; padding: 0;">
+                        <div class="aff-mgc-track" id="affMgcTrack" style="display: flex; flex-direction: row; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; height: auto; gap: 0; padding: 0; scroll-behavior: smooth;">
                             @foreach($affiliate->gallery_images as $galleryImage)
                                 <button type="button" class="aff-mgc-slide js-checkout-gallery-trigger"
                                         data-gallery-src="{{ asset('uploads/' . $galleryImage) }}"
                                         data-gallery-alt="Gallery image {{ $loop->iteration }}"
-                                        style="flex: 0 0 280px; scroll-snap-align: start; width: 280px; height: 100%; border: none; padding: 0; background: transparent; cursor: pointer; overflow: hidden; border-radius: 12px; position: relative;">
-                                    <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image" style="width: 100%; height: 100%; object-fit: contain;">
+                                        style="flex: 0 0 100%; scroll-snap-align: start; width: 100%; height: auto; min-height: 400px; border: none; padding: 0; background: transparent; cursor: pointer; overflow: hidden; border-radius: 0; position: relative; display: flex; align-items: center; justify-content: center;">
+                                    <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image" style="width: 100%; height: auto; max-height: 500px; object-fit: contain;">
                                 </button>
                             @endforeach
                         </div>
@@ -8480,7 +8480,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     clearInterval(autoScrollInterval);
                     autoScrollInterval = setInterval(function() {
                         currentSlide = (currentSlide + 1) % slides.length;
-                        var slideWidth = 280 + 12; // width + gap
+                        var slideWidth = track.offsetWidth; // Use actual track width
                         track.scrollLeft = slideWidth * currentSlide;
                         setDot(currentSlide);
                     }, 5000);
@@ -8542,7 +8542,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 // Scroll snap update
                 track.addEventListener('scroll', function() {
                     var scrollPos = track.scrollLeft;
-                    var slideWidth = 280 + 12; // width + gap
+                    var slideWidth = track.offsetWidth; // Use actual track width
                     currentSlide = Math.round(scrollPos / slideWidth);
                     setDot(Math.min(currentSlide, slides.length - 1));
                 });
@@ -8551,7 +8551,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 dots.forEach(function(dot, index) {
                     dot.addEventListener('click', function() {
                         currentSlide = index;
-                        var slideWidth = 280 + 12; // width + gap
+                        var slideWidth = track.offsetWidth; // Use actual track width
                         track.scrollLeft = slideWidth * index;
                         setDot(currentSlide);
                         stopAutoScroll();
