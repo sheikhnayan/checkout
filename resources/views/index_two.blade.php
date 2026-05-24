@@ -5921,7 +5921,9 @@
                                                         <div class="vip-card-side">
                                                             <div class="vip-price-tag price-{{ $item->id }}"
                                                                 data-price="{{ $item->price }}">${{ number_format((float) $item->price, 2) }}</div>
-                                                            <div class="cv-price-meta">Per Package</div>
+                                                            @if(!$pkgIsTicket)
+                                                                <div class="cv-price-meta">Per Package</div>
+                                                            @endif
 
                                                             <div class="package-guest-input-wrap">
                                                                     @if ($item->package_type === 'ticket')

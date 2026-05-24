@@ -778,6 +778,44 @@ nav .tab.active p {
     color: #fff !important;
     transform: translateY(-2px);
 }
+@media (min-width: 769px) {
+    .cv-footer-inner {
+        grid-template-columns: minmax(300px, 360px) 1fr;
+        gap: 48px;
+    }
+    .cv-footer-brand {
+        position: relative;
+        padding: 20px 22px 18px;
+        border-radius: 18px;
+        background: linear-gradient(160deg, rgba(167,116,255,0.16), rgba(16,11,33,0.86));
+        border: 1px solid rgba(167,116,255,0.3);
+        box-shadow: 0 14px 34px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.08);
+        overflow: hidden;
+    }
+    .cv-footer-brand::before {
+        content: '';
+        position: absolute;
+        top: -40px;
+        right: -40px;
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(167,116,255,0.35), rgba(167,116,255,0));
+        pointer-events: none;
+    }
+    .cv-footer-logo {
+        height: 66px;
+        filter: drop-shadow(0 4px 10px rgba(0,0,0,0.35));
+    }
+    .cv-footer-powered {
+        color: rgba(231,206,255,0.92);
+        letter-spacing: 0.14em;
+    }
+    .cv-footer-tagline {
+        max-width: 290px;
+        color: rgba(255,255,255,0.72);
+    }
+}
 @media (max-width: 768px) {
     .cv-footer-inner { grid-template-columns: 1fr; gap: 20px; padding: 24px 0 18px; text-align: center; }
     .cv-footer-brand { align-items: center; text-align: center; }
@@ -4931,7 +4969,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                                                         <div class="vip-card-side">
                                                             <div class="vip-price-tag price-{{ $item->id }}" data-price="{{ $item->price }}">${{ number_format((float) $item->price, 2) }}</div>
-                                                            <div class="cv-price-meta">Per Package</div>
+                                                            @if(!$pkgIsTicket)
+                                                                <div class="cv-price-meta">Per Package</div>
+                                                            @endif
                                                             <div class="package-guest-input-wrap">
                                                                 @if ($item->package_type === 'ticket')
                                                                     @php $ticketInitMax = min(15, max(1, (int) ($item->number_of_guest ?? 1))); @endphp
