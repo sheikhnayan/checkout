@@ -4591,15 +4591,37 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .aff-location-gated { display: none; }
 .aff-location-gated.is-visible { display: block; }
 
-/* ===== Vertical Gallery ===== */
-.aff-vertical-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; margin: 24px 0; max-width: 100%; }
-.aff-vg-item { position: relative; overflow: hidden; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.5); cursor: pointer; aspect-ratio: 16/9; padding: 0; transition: all 0.3s ease; }
-.aff-vg-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
-.aff-vg-item:hover img { transform: scale(1.08); }
-.aff-vg-item > div { position: absolute; inset: 0; background: rgba(0,0,0,0); display: flex; align-items: center; justify-content: center; transition: background 0.3s ease; }
-.aff-vg-item:hover > div { background: rgba(0,0,0,0.3); }
-.aff-vg-item:hover i { opacity: 1; }
-.aff-vg-item i { opacity: 0; transition: opacity 0.3s ease; }
+/* ===== Mobile Gallery Carousel ===== */
+.aff-mobile-gallery-carousel { margin: 24px 0; }
+.aff-mgc-track { display: flex; flex-direction: column; overflow-y: auto; scroll-snap-type: y mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; height: 600px; gap: 12px; padding: 0; user-select: none; cursor: grab; }
+.aff-mgc-track::-webkit-scrollbar { display: none; }
+.aff-mgc-track.is-dragging { cursor: grabbing; }
+.aff-mgc-slide { flex: 0 0 400px; scroll-snap-align: start; width: 100%; border: none; padding: 0; background: transparent; cursor: pointer; overflow: hidden; border-radius: 12px; position: relative; transition: transform 0.3s ease; }
+.aff-mgc-slide img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; transition: transform .35s ease, filter .3s ease; }
+.aff-mgc-slide:hover img { transform: scale(1.08); filter: brightness(0.9); }
+.aff-mgc-dots { display: flex; justify-content: center; gap: 8px; padding: 12px 0; flex-wrap: wrap; }
+.aff-mgc-dot { width: 8px; height: 8px; border-radius: 50%; border: none; background: rgba(255,255,255,0.25); cursor: pointer; transition: background .2s, width .25s, border-radius .25s; padding: 0; }
+.aff-mgc-dot.is-active { background: #efbe6f; width: 22px; border-radius: 4px; }
+
+/* ===== Desktop Gallery Grid ===== */
+.aff-desktop-gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin: 24px 0; }
+.aff-dgc-item { position: relative; overflow: hidden; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.5); cursor: pointer; aspect-ratio: 9/16; padding: 0; transition: all 0.3s ease; }
+.aff-dgc-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease, filter 0.3s ease; }
+.aff-dgc-item:hover img { transform: scale(1.08); filter: brightness(0.9); }
+.aff-dgc-item > div { position: absolute; inset: 0; background: rgba(0,0,0,0); display: flex; align-items: center; justify-content: center; transition: background 0.3s ease; }
+.aff-dgc-item:hover > div { background: rgba(0,0,0,0.3); }
+.aff-dgc-item:hover i { opacity: 1; }
+.aff-dgc-item i { opacity: 0; transition: opacity 0.3s ease; }
+
+/* ===== Gallery Responsive ===== */
+@media (max-width: 767px) {
+    .aff-mobile-gallery-carousel { display: block !important; }
+    .aff-desktop-gallery-grid { display: none !important; }
+}
+@media (min-width: 768px) {
+    .aff-mobile-gallery-carousel { display: none !important; }
+    .aff-desktop-gallery-grid { display: grid !important; }
+}
 
 /* ===== Category tab club name ===== */
 .package-category-label-wrap { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -4727,15 +4749,37 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 </section>
 
                 @if(!empty($affiliate->gallery_images))
-                    <div class="aff-vertical-gallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; margin: 24px 0; max-width: 100%;">
+                    <!-- Mobile Carousel Gallery -->
+                    <div class="aff-mobile-gallery-carousel" id="affMobileGalleryCarousel" style="display: none; margin: 24px 0;">
+                        <div class="aff-mgc-track" id="affMgcTrack" style="display: flex; flex-direction: column; overflow-y: auto; scroll-snap-type: y mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; height: 600px; gap: 12px; padding: 0;">
+                            @foreach($affiliate->gallery_images as $galleryImage)
+                                <button type="button" class="aff-mgc-slide js-checkout-gallery-trigger"
+                                        data-gallery-src="{{ asset('uploads/' . $galleryImage) }}"
+                                        data-gallery-alt="Gallery image {{ $loop->iteration }}"
+                                        style="flex: 0 0 400px; scroll-snap-align: start; width: 100%; border: none; padding: 0; background: transparent; cursor: pointer; overflow: hidden; border-radius: 12px; position: relative;">
+                                    <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image" style="width: 100%; height: 100%; object-fit: cover;">
+                                </button>
+                            @endforeach
+                        </div>
+                        @if(count($affiliate->gallery_images) > 1)
+                            <div class="aff-mgc-dots" id="affMgcDots" style="display: flex; justify-content: center; gap: 8px; padding: 12px 0; flex-wrap: wrap;">
+                                @foreach($affiliate->gallery_images as $galleryImage)
+                                    <button type="button" class="aff-mgc-dot{{ $loop->first ? ' is-active' : '' }}" data-slide="{{ $loop->index }}" style="width: 8px; height: 8px; border-radius: 50%; border: none; background: rgba(255,255,255,0.25); cursor: pointer; padding: 0; transition: background .2s, width .25s;"></button>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- Desktop Grid Gallery -->
+                    <div class="aff-desktop-gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin: 24px 0;">
                         @foreach($affiliate->gallery_images as $galleryImage)
-                            <button type="button" class="aff-vg-item js-checkout-gallery-trigger"
+                            <button type="button" class="aff-dgc-item js-checkout-gallery-trigger"
                                     data-gallery-src="{{ asset('uploads/' . $galleryImage) }}"
                                     data-gallery-alt="Gallery image {{ $loop->iteration }}"
-                                    style="position: relative; overflow: hidden; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.5); cursor: pointer; aspect-ratio: 16/9;">
+                                    style="position: relative; overflow: hidden; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.5); cursor: pointer; aspect-ratio: 9/16;">
                                 <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image" style="width: 100%; height: 100%; object-fit: cover;">
                                 <div style="position: absolute; inset: 0; background: rgba(0,0,0,0); display: flex; align-items: center; justify-content: center; transition: background 0.3s ease;">
-                                    <i class="fas fa-expand-alt" style="color: #fff; font-size: 24px; opacity: 0;"></i>
+                                    <i class="fas fa-expand-alt" style="color: #fff; font-size: 20px; opacity: 0;"></i>
                                 </div>
                             </button>
                         @endforeach
@@ -8356,7 +8400,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         }
                     });
 
-                    // Show/hide categories that have visible packages
+                    // Show/hide categories that have packages from selected location
                     document.querySelectorAll('.package-category-tile').forEach(function(tab) {
                         var targetId = tab.getAttribute('data-target');
                         var categoryId = null;
@@ -8369,16 +8413,121 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                         if (categoryId) {
                             var groupDiv = document.getElementById('category-group-' + categoryId);
-                            var hasVisiblePackages = groupDiv ?
-                                Array.from(groupDiv.querySelectorAll('[id^="pkg-card-"]')).some(card => card.style.display !== 'none')
+                            var hasPackagesFromLocation = groupDiv ?
+                                Array.from(groupDiv.querySelectorAll('[id^="pkg-card-"]')).some(function(card) {
+                                    var clubId = card.getAttribute('data-club-id');
+                                    return clubId == locationId;
+                                })
                                 : false;
 
-                            tab.style.display = hasVisiblePackages ? '' : 'none';
+                            tab.style.display = hasPackagesFromLocation ? '' : 'none';
                         }
                     });
                 }
 
                 locationFilter.addEventListener('change', filterPackages);
+            }
+
+            function initMobileGalleryCarousel() {
+                var track = document.getElementById('affMgcTrack');
+                var dotsWrap = document.getElementById('affMgcDots');
+                if (!track) return;
+
+                var dots = dotsWrap ? Array.from(dotsWrap.querySelectorAll('.aff-mgc-dot')) : [];
+                var slides = Array.from(track.querySelectorAll('.aff-mgc-slide'));
+                var autoScrollInterval = null;
+                var currentSlide = 0;
+                var isDown = false;
+                var startY;
+                var scrollTop;
+
+                function setDot(idx) {
+                    dots.forEach(function(d, i) { d.classList.toggle('is-active', i === idx); });
+                }
+
+                function startAutoScroll() {
+                    clearInterval(autoScrollInterval);
+                    autoScrollInterval = setInterval(function() {
+                        currentSlide = (currentSlide + 1) % slides.length;
+                        track.scrollTop = track.offsetHeight * 0.6 * currentSlide;
+                        setDot(currentSlide);
+                    }, 5000);
+                }
+
+                function stopAutoScroll() {
+                    clearInterval(autoScrollInterval);
+                }
+
+                // Drag functionality
+                track.addEventListener('mousedown', function(e) {
+                    isDown = true;
+                    startY = e.pageY - track.offsetTop;
+                    scrollTop = track.scrollTop;
+                    track.classList.add('is-dragging');
+                    stopAutoScroll();
+                });
+
+                track.addEventListener('mouseleave', function() {
+                    isDown = false;
+                    track.classList.remove('is-dragging');
+                    startAutoScroll();
+                });
+
+                track.addEventListener('mouseup', function() {
+                    isDown = false;
+                    track.classList.remove('is-dragging');
+                    startAutoScroll();
+                });
+
+                track.addEventListener('mousemove', function(e) {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    var y = e.pageY - track.offsetTop;
+                    var walk = (y - startY) * 0.5;
+                    track.scrollTop = scrollTop - walk;
+                });
+
+                // Touch support
+                track.addEventListener('touchstart', function(e) {
+                    isDown = true;
+                    startY = e.touches[0].pageY - track.offsetTop;
+                    scrollTop = track.scrollTop;
+                    stopAutoScroll();
+                }, { passive: true });
+
+                track.addEventListener('touchend', function() {
+                    isDown = false;
+                    startAutoScroll();
+                }, { passive: true });
+
+                track.addEventListener('touchmove', function(e) {
+                    if (!isDown) return;
+                    var y = e.touches[0].pageY - track.offsetTop;
+                    var walk = (y - startY) * 1.5;
+                    track.scrollTop = scrollTop - walk;
+                }, { passive: true });
+
+                // Scroll snap update
+                track.addEventListener('scroll', function() {
+                    var scrollPos = track.scrollTop;
+                    var itemHeight = track.offsetHeight * 0.6;
+                    currentSlide = Math.round(scrollPos / itemHeight);
+                    setDot(Math.min(currentSlide, slides.length - 1));
+                });
+
+                // Dot navigation
+                dots.forEach(function(dot, index) {
+                    dot.addEventListener('click', function() {
+                        currentSlide = index;
+                        track.scrollTop = track.offsetHeight * 0.6 * index;
+                        setDot(currentSlide);
+                        stopAutoScroll();
+                        startAutoScroll();
+                    });
+                });
+
+                setDot(0);
+                if (slides.length > 1) startAutoScroll();
             }
 
             function initDefaultOpenCategory() {
@@ -8587,6 +8736,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             document.addEventListener('DOMContentLoaded', function() {
                 initSidebar();
                 initPackageSearch();
+                initMobileGalleryCarousel();
                 initReservationDatePicker();
                 initClubTooltips();
                 initSidebarDateSync();
