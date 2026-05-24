@@ -7376,7 +7376,7 @@
                         ticketHtml += '<option value="' + i + '">' + i + ' ' + (i === 1 ? 'ticket' : 'tickets') + '</option>';
                     }
                     $field.html(ticketHtml);
-                    $field.val('');
+                    $field.val(String(safeValue));
                     $field.prop('disabled', false);
                     return;
                 }
@@ -7387,7 +7387,7 @@
                 }
 
                 $field.html(html);
-                $field.val('');
+                $field.val(String(Math.min(current, safeMax)));
                 $field.prop('disabled', false);
             }
 

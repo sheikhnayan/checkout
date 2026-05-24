@@ -15,7 +15,8 @@
       "Bash(sed -n '4943p' resources/views/affiliate/public-page.blade.php)",
       "Bash('<option\\\\|createElement.*option\" resources/views/index.blade.php | head -30)",
       "Bash(grep -n \"append.*option\\\\|\\\\\\\\$\\('<option\\\\|createElement.*option\" resources/views/index.blade.php | head -30)",
-      "Bash(cd \"c:/wamp64/www/checkout\" && rm -rf bootstrap/cache/*.php storage/framework/views/*.php && php artisan cache:clear && php artisan view:clear)"
+      "Bash(cd \"c:/wamp64/www/checkout\" && rm -rf bootstrap/cache/*.php storage/framework/views/*.php && php artisan cache:clear && php artisan view:clear)",
+      "Bash(grep -v \"//\")"
     ],
     "additionalDirectories": [
       "c:\\wamp64\\www\\checkout\\bootstrap\\cache",
