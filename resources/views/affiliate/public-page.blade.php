@@ -4587,6 +4587,20 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .aff-dg-item:hover .aff-dg-overlay i { transform: scale(1); }
 .aff-dg-item:focus-visible { outline: 2px solid rgba(239,190,111,0.8); outline-offset: 2px; border-color: rgba(239,190,111,0.6); }
 
+/* ===== Location-Gated Categories ===== */
+.aff-location-gated { display: none; }
+.aff-location-gated.is-visible { display: block; }
+
+/* ===== Vertical Gallery ===== */
+.aff-vertical-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; margin: 24px 0; max-width: 100%; }
+.aff-vg-item { position: relative; overflow: hidden; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.5); cursor: pointer; aspect-ratio: 16/9; padding: 0; transition: all 0.3s ease; }
+.aff-vg-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+.aff-vg-item:hover img { transform: scale(1.08); }
+.aff-vg-item > div { position: absolute; inset: 0; background: rgba(0,0,0,0); display: flex; align-items: center; justify-content: center; transition: background 0.3s ease; }
+.aff-vg-item:hover > div { background: rgba(0,0,0,0.3); }
+.aff-vg-item:hover i { opacity: 1; }
+.aff-vg-item i { opacity: 0; transition: opacity 0.3s ease; }
+
 /* ===== Category tab club name ===== */
 .package-category-label-wrap { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .package-category-club-name { font-size: 10.5px; font-weight: 500; opacity: 0.62; letter-spacing: .2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -4713,24 +4727,18 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 </section>
 
                 @if(!empty($affiliate->gallery_images))
-                    @php $mcImages = (array)$affiliate->gallery_images; @endphp
-                    <div class="aff-mobile-carousel">
-                        <div class="aff-mc-track" id="affMcTrack">
-                            @foreach($mcImages as $galleryImage)
-                                <button type="button" class="aff-mc-slide js-checkout-gallery-trigger"
+                    <div class="aff-vertical-gallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; margin: 24px 0; max-width: 100%;">
+                        @foreach($affiliate->gallery_images as $galleryImage)
+                            <button type="button" class="aff-vg-item js-checkout-gallery-trigger"
                                     data-gallery-src="{{ asset('uploads/' . $galleryImage) }}"
-                                    data-gallery-alt="Gallery image {{ $loop->iteration }}">
-                                    <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image {{ $loop->iteration }}">
-                                </button>
-                            @endforeach
-                        </div>
-                        @if(count($mcImages) > 1)
-                            <div class="aff-mc-dots" id="affMcDots">
-                                @foreach($mcImages as $galleryImage)
-                                    <button type="button" class="aff-mc-dot{{ $loop->first ? ' is-active' : '' }}" data-slide="{{ $loop->index }}" aria-label="Go to image {{ $loop->iteration }}"></button>
-                                @endforeach
-                            </div>
-                        @endif
+                                    data-gallery-alt="Gallery image {{ $loop->iteration }}"
+                                    style="position: relative; overflow: hidden; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.5); cursor: pointer; aspect-ratio: 16/9;">
+                                <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image" style="width: 100%; height: 100%; object-fit: cover;">
+                                <div style="position: absolute; inset: 0; background: rgba(0,0,0,0); display: flex; align-items: center; justify-content: center; transition: background 0.3s ease;">
+                                    <i class="fas fa-expand-alt" style="color: #fff; font-size: 24px; opacity: 0;"></i>
+                                </div>
+                            </button>
+                        @endforeach
                     </div>
                 @endif
 
@@ -4745,25 +4753,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         </header>
         <main style="background: radial-gradient(circle at 18% 60px, rgba(232,190,106,.10), transparent 340px), radial-gradient(circle at 82% 180px, rgba(124,92,255,.10), transparent 360px), linear-gradient(180deg,#050507 0%,#06070a 100%);">
             <div class="container mt-4">
-                @if(!empty($affiliate->gallery_images))
-                    @php
-                        $dgImages = (array)$affiliate->gallery_images;
-                        $dgCount = min(count($dgImages), 5);
-                    @endphp
-                    <div class="aff-desktop-gallery">
-                        <div class="aff-dg-grid aff-dg-count-{{ $dgCount }}">
-                            @foreach($dgImages as $dgIdx => $galleryImage)
-                                @if($dgIdx >= 5) @break @endif
-                                <button type="button" class="aff-dg-item js-checkout-gallery-trigger"
-                                    data-gallery-src="{{ asset('uploads/' . $galleryImage) }}"
-                                    data-gallery-alt="Gallery image {{ $dgIdx + 1 }}">
-                                    <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image {{ $dgIdx + 1 }}">
-                                    <div class="aff-dg-overlay"><i class="fas fa-expand-alt"></i></div>
-                                </button>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
                 <div class="cv-checkout-body" id="cv-checkout-layout">
                 <button type="button" class="cv-mobile-cart-toggle" id="cv-mobile-cart-toggle" style="display:none;">
                     <span><i class="fas fa-shopping-cart" style="margin-right:6px;"></i>View Order Summary</span>
@@ -4820,27 +4809,22 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     </div>
 
                                     <!-- Search & Location Filters for Affiliate -->
-                                    <div class="package-search-wrap" id="package-search-wrap" style="display: grid; grid-template-columns: 1.4fr minmax(220px, 0.9fr) auto; gap: 10px; align-items: end; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
-                                        <div class="package-search-field" style="display: flex; flex-direction: column; gap: 4px;">
-                                            <label for="package-search-text" style="font-size: 11px; text-transform: uppercase; letter-spacing: .6px; opacity: .68; font-weight: 700; margin: 0;">Search</label>
-                                            <input type="text" id="package-search-text" placeholder="Search package, club, or location" style="width: 100%; margin: 0 !important; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.2) !important; border-radius: 10px !important; color: #fff !important; padding: 9px 11px !important; min-height: 40px;">
-                                        </div>
-                                        <div class="package-search-field" style="display: flex; flex-direction: column; gap: 4px;">
-                                            <label for="package-location-filter" style="font-size: 11px; text-transform: uppercase; letter-spacing: .6px; opacity: .68; font-weight: 700; margin: 0;">Filter by Location</label>
-                                            <select id="package-location-filter" style="width: 100%; margin: 0 !important; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.2) !important; border-radius: 10px !important; color: #fff !important; padding: 9px 11px !important; min-height: 40px;">
-                                                <option value="">All Locations</option>
-                                                @foreach($uniqueClubsForFilter as $clubOption)
-                                                    <option value="{{ $clubOption->id }}">{{ $clubOption->name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <button type="button" id="package-search-clear" style="appearance: none; border: 1px solid rgba(255,255,255,0.22); background: rgba(255,255,255,0.08); color: #fff; border-radius: 10px; font-size: 12px; font-weight: 700; letter-spacing: .4px; min-height: 40px; padding: 0 14px; cursor: pointer; transition: border-color .2s ease, background .2s ease;">Clear</button>
+                                    <div class="aff-location-selector" style="margin-bottom: 24px;">
+                                        <label style="display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .6px; opacity: .68; font-weight: 700; margin: 0 0 8px 0;">Choose Your Location</label>
+                                        <select id="package-location-filter-main" style="width: 100%; min-height: 48px; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.2) !important; border-radius: 10px !important; color: #fff !important; padding: 12px 14px !important; font-size: 14px;">
+                                            <option value="">-- Select a Location --</option>
+                                            @foreach($uniqueClubsForFilter as $clubOption)
+                                                <option value="{{ $clubOption->id }}">{{ $clubOption->name }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
-                                    <div id="package-search-empty" style="display: none; margin: 6px 2px 12px; font-size: 13px; opacity: .75;">No packages matched your filters.</div>
+                                    <div id="package-no-location-message" style="display: block; text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.5); font-size: 14px;">
+                                        <p style="margin: 0;">👆 Select a location above to see available packages</p>
+                                    </div>
 
 
                                     @if(isset($packageCategories) && count($packageCategories))
-                                        <div class="mb-3 package-category-tiles" style="width:100%;">
+                                        <div class="aff-location-gated mb-3 package-category-tiles" style="width:100%;">
                                             @foreach ($packageCategories as $category)
                                                 @php
                                                     $catRgbStr = null;
@@ -8293,30 +8277,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         </div>
 
         <script>
-            // Mobile gallery carousel — dot sync
-            (function() {
-                const track = document.getElementById('affMcTrack');
-                const dotsWrap = document.getElementById('affMcDots');
-                if (!track) return;
-                const dots = dotsWrap ? Array.from(dotsWrap.querySelectorAll('.aff-mc-dot')) : [];
-                const slides = Array.from(track.querySelectorAll('.aff-mc-slide'));
-                function setDot(idx) {
-                    dots.forEach(function(d, i) { d.classList.toggle('is-active', i === idx); });
-                }
-                dots.forEach(function(dot, i) {
-                    dot.addEventListener('click', function() {
-                        if (slides[i]) { track.scrollTo({ left: slides[i].offsetLeft, behavior: 'smooth' }); }
-                    });
-                });
-                let t;
-                track.addEventListener('scroll', function() {
-                    clearTimeout(t);
-                    t = setTimeout(function() {
-                        const w = track.clientWidth || 1;
-                        setDot(Math.max(0, Math.min(Math.round(track.scrollLeft / w), slides.length - 1)));
-                    }, 60);
-                });
-            })();
         </script>
 
         <script>
@@ -8366,50 +8326,37 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             }
 
             function initPackageSearch() {
-                var searchInput = document.getElementById('package-search-text');
-                var locationFilter = document.getElementById('package-location-filter');
-                var clearBtn = document.getElementById('package-search-clear');
-                var emptyMsg = document.getElementById('package-search-empty');
+                var locationFilter = document.getElementById('package-location-filter-main');
+                var categoriesGate = document.querySelector('.aff-location-gated');
+                var noLocationMsg = document.getElementById('package-no-location-message');
 
-                if (!searchInput || !locationFilter) return;
+                if (!locationFilter) return;
 
                 function filterPackages() {
-                    var searchQuery = searchInput.value.toLowerCase().trim();
                     var locationId = locationFilter.value;
-                    var hasResults = false;
-                    var categoriesWithResults = new Set();
 
+                    if (!locationId) {
+                        // No location selected
+                        if (categoriesGate) categoriesGate.classList.remove('is-visible');
+                        if (noLocationMsg) noLocationMsg.style.display = 'block';
+                        return;
+                    }
+
+                    // Location selected - show categories
+                    if (categoriesGate) categoriesGate.classList.add('is-visible');
+                    if (noLocationMsg) noLocationMsg.style.display = 'none';
+
+                    // Filter packages by location only
                     document.querySelectorAll('[id^="pkg-card-"]').forEach(function(card) {
-                        var packageName = (card.getAttribute('data-package-name') || '').toLowerCase();
-                        var clubName = (card.getAttribute('data-club-name') || '').toLowerCase();
-                        var location = (card.getAttribute('data-location') || '').toLowerCase();
                         var clubId = card.getAttribute('data-club-id');
-
-                        // Find parent category group to get category ID
-                        var parentGroup = card.closest('[id^="category-group-"]');
-                        var categoryId = null;
-                        if (parentGroup) {
-                            var match = parentGroup.id.match(/category-group-(.+)/);
-                            if (match) {
-                                categoryId = match[1];
-                            }
-                        }
-
-                        var matchesSearch = !searchQuery || packageName.includes(searchQuery) || clubName.includes(searchQuery) || location.includes(searchQuery);
-                        var matchesLocation = !locationId || clubId == locationId;
-
-                        if (matchesSearch && matchesLocation) {
+                        if (clubId == locationId) {
                             card.style.display = '';
-                            hasResults = true;
-                            if (categoryId) {
-                                categoriesWithResults.add(categoryId);
-                            }
                         } else {
                             card.style.display = 'none';
                         }
                     });
 
-                    // Hide category tabs with no matching packages
+                    // Show/hide categories that have visible packages
                     document.querySelectorAll('.package-category-tile').forEach(function(tab) {
                         var targetId = tab.getAttribute('data-target');
                         var categoryId = null;
@@ -8419,27 +8366,19 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 categoryId = match[1];
                             }
                         }
-                        if (categoryId && categoriesWithResults.has(categoryId)) {
-                            tab.style.display = '';
-                        } else if (categoryId) {
-                            tab.style.display = 'none';
+
+                        if (categoryId) {
+                            var groupDiv = document.getElementById('category-group-' + categoryId);
+                            var hasVisiblePackages = groupDiv ?
+                                Array.from(groupDiv.querySelectorAll('[id^="pkg-card-"]')).some(card => card.style.display !== 'none')
+                                : false;
+
+                            tab.style.display = hasVisiblePackages ? '' : 'none';
                         }
                     });
-
-                    if (emptyMsg) {
-                        emptyMsg.style.display = hasResults ? 'none' : 'block';
-                    }
                 }
 
-                searchInput.addEventListener('input', filterPackages);
                 locationFilter.addEventListener('change', filterPackages);
-                if (clearBtn) {
-                    clearBtn.addEventListener('click', function() {
-                        searchInput.value = '';
-                        locationFilter.value = '';
-                        filterPackages();
-                    });
-                }
             }
 
             function initDefaultOpenCategory() {
@@ -8644,110 +8583,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 });
             }
 
-            function initMobileCarousel() {
-                const track = document.getElementById('affMcTrack');
-                const dots = document.querySelectorAll('.aff-mc-dot');
-                if (!track || !dots.length) return;
-
-                let isDown = false;
-                let startX;
-                let scrollLeft;
-                let autoScrollInterval;
-
-                const slides = track.querySelectorAll('.aff-mc-slide');
-                let currentSlide = 0;
-
-                // Drag functionality
-                track.addEventListener('mousedown', (e) => {
-                    isDown = true;
-                    startX = e.pageX - track.offsetLeft;
-                    scrollLeft = track.scrollLeft;
-                    track.classList.add('is-dragging');
-                    clearInterval(autoScrollInterval);
-                });
-
-                track.addEventListener('mouseleave', () => {
-                    isDown = false;
-                    track.classList.remove('is-dragging');
-                    startAutoScroll();
-                });
-
-                track.addEventListener('mouseup', () => {
-                    isDown = false;
-                    track.classList.remove('is-dragging');
-                    startAutoScroll();
-                });
-
-                track.addEventListener('mousemove', (e) => {
-                    if (!isDown) return;
-                    e.preventDefault();
-                    const x = e.pageX - track.offsetLeft;
-                    const walk = (x - startX) * 0.5;
-                    track.scrollLeft = scrollLeft - walk;
-                });
-
-                // Touch support
-                track.addEventListener('touchstart', (e) => {
-                    isDown = true;
-                    startX = e.touches[0].pageX - track.offsetLeft;
-                    scrollLeft = track.scrollLeft;
-                    clearInterval(autoScrollInterval);
-                }, { passive: true });
-
-                track.addEventListener('touchend', () => {
-                    isDown = false;
-                    startAutoScroll();
-                }, { passive: true });
-
-                track.addEventListener('touchmove', (e) => {
-                    if (!isDown) return;
-                    const x = e.touches[0].pageX - track.offsetLeft;
-                    const walk = (x - startX) * 1.5;
-                    track.scrollLeft = scrollLeft - walk;
-                }, { passive: true });
-
-                // Scroll snap update
-                track.addEventListener('scroll', () => {
-                    const scrollPos = track.scrollLeft;
-                    const itemWidth = track.offsetWidth;
-                    currentSlide = Math.round(scrollPos / itemWidth);
-                    updateDots();
-                });
-
-                // Dot navigation
-                dots.forEach((dot, index) => {
-                    dot.addEventListener('click', () => {
-                        currentSlide = index;
-                        track.scrollLeft = track.offsetWidth * index;
-                        updateDots();
-                        clearInterval(autoScrollInterval);
-                        startAutoScroll();
-                    });
-                });
-
-                function updateDots() {
-                    dots.forEach((dot, i) => {
-                        dot.classList.toggle('is-active', i === currentSlide);
-                    });
-                }
-
-                function startAutoScroll() {
-                    clearInterval(autoScrollInterval);
-                    autoScrollInterval = setInterval(() => {
-                        currentSlide = (currentSlide + 1) % slides.length;
-                        track.scrollLeft = track.offsetWidth * currentSlide;
-                        updateDots();
-                    }, 5000);
-                }
-
-                updateDots();
-                if (slides.length > 1) startAutoScroll();
-            }
 
             document.addEventListener('DOMContentLoaded', function() {
                 initSidebar();
                 initPackageSearch();
-                initDefaultOpenCategory();
                 initReservationDatePicker();
                 initClubTooltips();
                 initSidebarDateSync();
@@ -8755,7 +8594,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 initHamburger();
                 initCheckoutSteps();
                 initDateNotification();
-                initMobileCarousel();
             });
         })();
         </script>
