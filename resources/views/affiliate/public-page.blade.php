@@ -4758,7 +4758,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 </section>
             </div>
         </header>
-        <main>
+        <main style="background: radial-gradient(circle at 18% 60px, rgba(232,190,106,.10), transparent 340px), radial-gradient(circle at 82% 180px, rgba(124,92,255,.10), transparent 360px), linear-gradient(180deg,#050507 0%,#06070a 100%);">
             <div class="container mt-4">
                 @if(!empty($affiliate->gallery_images))
                     @php
