@@ -7337,7 +7337,9 @@
             }
 
             function updateGuestControlAvailability($field, maxSelectable, soldOutMessage) {
-                const current = parseInt($field.val(), 10) || 1;
+                const currentVal = $field.val();
+                const hasPlaceholder = !currentVal || currentVal === '';
+                const current = parseInt(currentVal, 10) || 1;
                 const safeMax = Math.max(0, parseInt(maxSelectable, 10) || 0);
                 const isTicketInput = $field.is('input[type="number"]');
                 const isTicketSelect = $field.hasClass('ticket-select-lazy');
@@ -7368,7 +7370,6 @@
                 }
 
                 if (isTicketSelect) {
-                    const safeValue = Math.min(Math.max(current, 1), safeMax);
                     const showMax = Math.min(15, safeMax);
                     $field.data('ticket-max', safeMax).attr('data-ticket-max', safeMax);
                     let ticketHtml = '<option value=""># of Tickets</option>';
@@ -7376,7 +7377,12 @@
                         ticketHtml += '<option value="' + i + '">' + i + ' ' + (i === 1 ? 'ticket' : 'tickets') + '</option>';
                     }
                     $field.html(ticketHtml);
-                    $field.val(String(safeValue));
+                    if (hasPlaceholder) {
+                        $field.val('');
+                    } else {
+                        const safeValue = Math.min(Math.max(current, 1), safeMax);
+                        $field.val(String(safeValue));
+                    }
                     $field.prop('disabled', false);
                     return;
                 }
@@ -7387,7 +7393,11 @@
                 }
 
                 $field.html(html);
-                $field.val(String(Math.min(current, safeMax)));
+                if (hasPlaceholder) {
+                    $field.val('');
+                } else {
+                    $field.val(String(Math.min(current, safeMax)));
+                }
                 $field.prop('disabled', false);
             }
 

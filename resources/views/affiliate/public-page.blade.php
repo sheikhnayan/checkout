@@ -6352,7 +6352,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             }
 
             function updateGuestSelectOptions($field, maxSelectable, soldOutMessage) {
-                var current = parseInt($field.val(), 10) || 1;
+                var currentVal = $field.val();
+                var hasPlaceholder = !currentVal || currentVal === '';
+                var current = parseInt(currentVal, 10) || 1;
                 var safeMax = Math.max(0, parseInt(maxSelectable, 10) || 0);
                 var isTicketInput = $field.is('input[type="number"]');
                 var isTicketSelect = $field.hasClass('ticket-select-lazy');
@@ -6384,7 +6386,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 }
 
                 if (isTicketSelect) {
-                    var safeValue = Math.min(Math.max(current, 1), safeMax);
                     var showMax = Math.min(15, safeMax);
                     $field.data('ticket-max', safeMax).attr('data-ticket-max', safeMax);
                     var ticketHtml = '<option value=""># of Tickets</option>';
@@ -6392,7 +6393,12 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         ticketHtml += '<option value="' + i + '">' + i + ' ' + (i === 1 ? 'ticket' : 'tickets') + '</option>';
                     }
                     $field.html(ticketHtml);
-                    $field.val(String(safeValue));
+                    if (hasPlaceholder) {
+                        $field.val('');
+                    } else {
+                        var safeValue = Math.min(Math.max(current, 1), safeMax);
+                        $field.val(String(safeValue));
+                    }
                     $field.prop('disabled', false);
                     return;
                 }
@@ -6403,7 +6409,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 }
 
                 $field.html(html);
-                $field.val(String(Math.min(current, safeMax)));
+                if (hasPlaceholder) {
+                    $field.val('');
+                } else {
+                    $field.val(String(Math.min(current, safeMax)));
+                }
                 $field.prop('disabled', false);
             }
 
