@@ -4742,7 +4742,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
         {{-- New CartVIP Navbar --}}
         <nav class="cv-top-nav">
-            <a href="/" class="cv-nav-brand">
+            <a href="https://cartvip.com" target="_blank" class="cv-nav-brand">
                 <img src="{{ asset('images/logo.png') }}" alt="CartVIP" class="cv-nav-logo-img">
             </a>
             @if ($data->back_link)
