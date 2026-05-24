@@ -1791,7 +1791,7 @@ nav .tab:hover {
     flex-wrap: wrap;
     margin-bottom: 18px;
 }
-.package-category-wrap { flex: 1 1 auto; min-width: 0; }
+.package-category-wrap { flex: 1 1 auto; min-width: 0; margin-bottom: 12px; }
 .package-category-tile {
     width: 100%;
     background: rgba(167,116,255,0.08) !important;
