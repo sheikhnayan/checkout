@@ -3187,6 +3187,30 @@
             .cv-hero-location-map { min-height: 200px; }
         }
 
+        .cv-hero-location-map-btn {
+            display: none;
+            width: 100%;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #fb7185, #34d399);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 12px;
+        }
+        .cv-hero-location-map-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(251, 113, 133, 0.3);
+        }
+
+        @media (max-width: 767px) {
+            .cv-hero-location-map { display: none; }
+            .cv-hero-location-map-btn { display: block; }
+        }
+
         /* Upcoming Events section - dark theme matching the page */
         .events-section-container { padding: 48px 0 !important; }
         .events-section-container .event-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 28px; padding-bottom: 0; border-bottom: none; }
@@ -5405,6 +5429,7 @@
                                 <div class="cv-hero-location-map">
                                     <iframe src="https://www.google.com/maps?q={{ urlencode($data->location) }}&output=embed" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                                 </div>
+                                <button type="button" class="cv-hero-location-map-btn" data-location="{{ $data->location }}">Open in Map</button>
                                 <div class="cv-hero-location-contacts">
                                     @if($data->phone)
                                         <a href="tel:{{ $data->phone }}" class="cv-hero-location-contact"><i class="fas fa-phone"></i><span>{{ $data->phone }}</span></a>
@@ -9676,6 +9701,19 @@
                 });
             }
 
+            /* ===== Map Button Handler ===== */
+            function initMapButton() {
+                var mapBtn = document.querySelector('.cv-hero-location-map-btn');
+                if (!mapBtn) return;
+
+                mapBtn.addEventListener('click', function() {
+                    var location = this.getAttribute('data-location');
+                    if (location) {
+                        window.open('https://www.google.com/maps/search/' + encodeURIComponent(location), '_blank');
+                    }
+                });
+            }
+
             /* ===== Date Selection Notification ===== */
             function initDateNotification() {
                 var dateInput = document.getElementById('package_use_date');
@@ -9710,6 +9748,7 @@
                 initVisualStepSync();
                 initCheckoutSteps();
                 initDateNotification();
+                initMapButton();
             });
         })();
         </script>

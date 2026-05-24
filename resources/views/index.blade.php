@@ -2813,6 +2813,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 .cv-hero-location-map iframe { width: 100%; height: 100%; min-height: 230px; border: 0; display: block; filter: brightness(0.85) contrast(1.08) saturate(0.95); }
 
+.cv-hero-location-map-btn { display: none; width: 100%; padding: 16px 20px; margin-bottom: 18px; background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%); color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 14px rgba(124,58,237,0.4); }
+.cv-hero-location-map-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(124,58,237,0.6); }
+.cv-hero-location-map-btn i { margin-right: 8px; }
+
 .cv-hero-location-contacts { display: flex; flex-direction: column; gap: 8px; }
 .cv-hero-location-contact {
     display: inline-flex;
@@ -2865,6 +2869,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .cv-hero-bottom { flex-direction: column; align-items: stretch; gap: 18px; }
     .cv-hero-location { flex: 0 0 auto; }
     .cv-hero-location-map { min-height: 200px; }
+}
+
+@media (max-width: 767px) {
+    .cv-hero-location-map { display: none !important; }
+    .cv-hero-location-map-btn { display: block; }
 }
 
 /* Upcoming Events section - dark theme matching the page */
@@ -4899,6 +4908,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     </div>
                                     {{-- <span class="cv-hero-location-badge"><i class="fas fa-map-marker-alt"></i>VIP Venue</span> --}}
                                 </div>
+                                <button type="button" class="cv-hero-location-map-btn" data-location="{{ urlencode($data->location) }}">
+                                    <i class="fas fa-map-location-dot"></i>Open in Map
+                                </button>
                                 <div class="cv-hero-location-map">
                                     <iframe src="https://www.google.com/maps?q={{ urlencode($data->location) }}&output=embed" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                                 </div>
@@ -8774,6 +8786,16 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 if (modalImage) {
                     modalImage.src = '';
                     modalImage.alt = '';
+                }
+            });
+
+            document.addEventListener('click', function(event) {
+                const mapBtn = event.target.closest('.cv-hero-location-map-btn');
+                if (!mapBtn) return;
+
+                const location = mapBtn.getAttribute('data-location');
+                if (location) {
+                    window.open('https://www.google.com/maps/search/' + location, '_blank');
                 }
             });
         </script>
