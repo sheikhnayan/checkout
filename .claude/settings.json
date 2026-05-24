@@ -8,7 +8,14 @@
       "Bash(git stash *)",
       "Bash(node -e ' *)",
       "Bash(grep -n 'ticket-select-lazy\\\\|@selected\\($i == 2\\)' resources/views/index_two.blade.php)",
-      "Bash(grep -n '@selected\\($i == 2\\)\\\\|ticket-select-lazy' resources/views/affiliate/public-page.blade.php)"
+      "Bash(grep -n '@selected\\($i == 2\\)\\\\|ticket-select-lazy' resources/views/affiliate/public-page.blade.php)",
+      "Bash(cd \"c:/wamp64/www/checkout\" && rm -rf bootstrap/cache/*.php && php artisan view:clear && php artisan cache:clear)",
+      "Bash(sed -n '5383p' resources/views/index.blade.php)",
+      "Bash(sed -n '5913p' resources/views/index_two.blade.php)",
+      "Bash(sed -n '4943p' resources/views/affiliate/public-page.blade.php)"
+    ],
+    "additionalDirectories": [
+      "c:\\wamp64\\www\\checkout\\bootstrap\\cache"
     ]
   }
 }
