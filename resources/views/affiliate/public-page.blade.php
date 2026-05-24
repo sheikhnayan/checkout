@@ -1820,7 +1820,7 @@ nav .tab:hover {
     border-color: rgba(var(--cat-rgb), 1) !important;
     box-shadow: 0 4px 14px rgba(var(--cat-rgb), 0.4) !important;
 }
-.package-category-group { margin-bottom: 16px; }
+.package-category-group { margin-bottom: 16px; margin-top: 16px;}
 
 @media (max-width: 767px) {
     .package-category-tiles { flex-direction: column; }
