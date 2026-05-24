@@ -4599,7 +4599,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .aff-mgc-track::-webkit-scrollbar { display: none; }
 .aff-mgc-track.is-dragging { cursor: grabbing; scroll-behavior: auto; }
 .aff-mgc-slide { flex: 0 0 280px; scroll-snap-align: start; width: 280px; height: 100%; border: none; padding: 0; background: transparent; cursor: pointer; overflow: hidden; border-radius: 12px; position: relative; transition: transform 0.3s ease; }
-.aff-mgc-slide img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; transition: transform .35s ease, filter .3s ease; }
+.aff-mgc-slide img { width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; transition: transform .35s ease, filter .3s ease; }
 .aff-mgc-slide:hover img { transform: scale(1.08); filter: brightness(0.9); }
 .aff-mgc-dots { display: flex; justify-content: center; gap: 8px; padding: 12px 0; flex-wrap: wrap; }
 .aff-mgc-dot { width: 8px; height: 8px; border-radius: 50%; border: none; background: rgba(255,255,255,0.25); cursor: pointer; transition: background .2s, width .25s, border-radius .25s; padding: 0; }
@@ -4608,7 +4608,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 /* ===== Desktop Gallery Grid (4 columns, square) ===== */
 .aff-desktop-gallery-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 24px 0; }
 .aff-dgc-item { position: relative; overflow: hidden; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.5); cursor: pointer; aspect-ratio: 1/1; padding: 0; transition: all 0.3s ease; }
-.aff-dgc-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease, filter 0.3s ease; }
+.aff-dgc-item img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.3s ease, filter 0.3s ease; }
 .aff-dgc-item:hover img { transform: scale(1.08); filter: brightness(0.9); }
 .aff-dgc-item > div { position: absolute; inset: 0; background: rgba(0,0,0,0); display: flex; align-items: center; justify-content: center; transition: background 0.3s ease; }
 .aff-dgc-item:hover > div { background: rgba(0,0,0,0.3); }
@@ -4766,7 +4766,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         data-gallery-src="{{ asset('uploads/' . $galleryImage) }}"
                                         data-gallery-alt="Gallery image {{ $loop->iteration }}"
                                         style="flex: 0 0 280px; scroll-snap-align: start; width: 280px; height: 100%; border: none; padding: 0; background: transparent; cursor: pointer; overflow: hidden; border-radius: 12px; position: relative;">
-                                    <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image" style="width: 100%; height: 100%; object-fit: cover;">
+                                    <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image" style="width: 100%; height: 100%; object-fit: contain;">
                                 </button>
                             @endforeach
                         </div>
@@ -4786,7 +4786,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     data-gallery-src="{{ asset('uploads/' . $galleryImage) }}"
                                     data-gallery-alt="Gallery image {{ $loop->iteration }}"
                                     style="position: relative; overflow: hidden; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.5); cursor: pointer; aspect-ratio: 1/1;">
-                                <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image" style="width: 100%; height: 100%; object-fit: cover;">
+                                <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image" style="width: 100%; height: 100%; object-fit: contain;">
                                 <div style="position: absolute; inset: 0; background: rgba(0,0,0,0); display: flex; align-items: center; justify-content: center; transition: background 0.3s ease;">
                                     <i class="fas fa-expand-alt" style="color: #fff; font-size: 20px; opacity: 0;"></i>
                                 </div>
