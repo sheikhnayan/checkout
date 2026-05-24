@@ -8392,6 +8392,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     var searchQuery = searchInput.value.toLowerCase().trim();
                     var locationId = locationFilter.value;
                     var hasResults = false;
+                    var categoriesWithResults = new Set();
 
                     document.querySelectorAll('[id^="pkg-card-"]').forEach(function(card) {
                         var packageName = (card.getAttribute('data-package-name') || '').toLowerCase();
@@ -8399,14 +8400,44 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         var location = (card.getAttribute('data-location') || '').toLowerCase();
                         var clubId = card.getAttribute('data-club-id');
 
+                        // Find parent category group to get category ID
+                        var parentGroup = card.closest('[id^="category-group-"]');
+                        var categoryId = null;
+                        if (parentGroup) {
+                            var match = parentGroup.id.match(/category-group-(.+)/);
+                            if (match) {
+                                categoryId = match[1];
+                            }
+                        }
+
                         var matchesSearch = !searchQuery || packageName.includes(searchQuery) || clubName.includes(searchQuery) || location.includes(searchQuery);
                         var matchesLocation = !locationId || clubId == locationId;
 
                         if (matchesSearch && matchesLocation) {
                             card.style.display = '';
                             hasResults = true;
+                            if (categoryId) {
+                                categoriesWithResults.add(categoryId);
+                            }
                         } else {
                             card.style.display = 'none';
+                        }
+                    });
+
+                    // Hide category tabs with no matching packages
+                    document.querySelectorAll('.package-category-tile').forEach(function(tab) {
+                        var targetId = tab.getAttribute('data-target');
+                        var categoryId = null;
+                        if (targetId) {
+                            var match = targetId.match(/category-group-(.+)/);
+                            if (match) {
+                                categoryId = match[1];
+                            }
+                        }
+                        if (categoryId && categoriesWithResults.has(categoryId)) {
+                            tab.style.display = '';
+                        } else if (categoryId) {
+                            tab.style.display = 'none';
                         }
                     });
 
