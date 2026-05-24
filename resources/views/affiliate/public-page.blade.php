@@ -641,7 +641,7 @@ nav .tab.active p {
 }
 
 .aff-footer {
-    margin-top: 32px;
+    margin-top: 0px;
     position: relative;
     background: linear-gradient(180deg, rgba(11,8,22,0.92), rgba(5,3,12,0.98));
     border-top: 1px solid rgba(167,116,255,0.18);
@@ -1847,7 +1847,7 @@ nav .tab:hover {
 /* Category color override when --cat-rgb is set */
 .package-category-tile.has-cat-color {
     background: rgba(var(--cat-rgb), 0.08) !important;
-    border-color: rgba(var(--cat-rgb), 0.35) !important;
+    border-color: rgba(var(--cat-rgb), 0.95) !important;
 }
 .package-category-tile.has-cat-color:hover {
     background: rgba(var(--cat-rgb), 0.16) !important;
