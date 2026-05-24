@@ -1806,6 +1806,20 @@ nav .tab:hover {
     margin-right: 7px;
     flex-shrink: 0;
 }
+/* Category color override when --cat-rgb is set */
+.package-category-tile.has-cat-color {
+    background: rgba(var(--cat-rgb), 0.08) !important;
+    border-color: rgba(var(--cat-rgb), 0.35) !important;
+}
+.package-category-tile.has-cat-color:hover {
+    background: rgba(var(--cat-rgb), 0.16) !important;
+    border-color: rgba(var(--cat-rgb), 0.6) !important;
+}
+.package-category-tile.has-cat-color.active {
+    background: linear-gradient(135deg, rgba(var(--cat-rgb), 0.95) 0%, rgba(var(--cat-rgb), 0.75) 100%) !important;
+    border-color: rgba(var(--cat-rgb), 1) !important;
+    box-shadow: 0 4px 14px rgba(var(--cat-rgb), 0.4) !important;
+}
 .package-category-group { margin-bottom: 16px; }
 
 @media (max-width: 767px) {
@@ -4973,13 +4987,20 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         @endphp
                                         <div class="mb-3 package-category-tiles" style="width:100%;">
                                             @foreach ($sortedPackageCategories as $category)
-                                                <div class="package-category-wrap">
-                                                    <button
-                                                        type="button"
-                                                        class="package-category-tile"
-                                                        data-target="#category-group-{{ $category['id'] }}"
-                                                    >
-                                                        @if(!empty($category['icon']))
+                                @php
+                                    $catRgbStr = null;
+                                    if (!empty($category['color'])) {
+                                        $ch = ltrim($category['color'], '#');
+                                        [$cr, $cg, $cb] = sscanf($ch, '%02x%02x%02x');
+                                        $catRgbStr = "$cr,$cg,$cb";
+                                    }
+                                @endphp
+                                <div class="package-category-wrap">
+                                    <button
+                                        type="button"
+                                        class="package-category-tile{{ $catRgbStr ? ' has-cat-color' : '' }}"
+                                        data-target="#category-group-{{ $category['id'] }}"
+                                        @if($catRgbStr) style="--cat-rgb: {{ $catRgbStr }}" @endif
                                                             <i class="fas {{ $category['icon'] }} package-category-tile-icon"></i>
                                                         @endif
                                                         <span class="package-category-name">{{ $category['name'] }}</span>
