@@ -509,6 +509,12 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="guest_tab_subtitle" class="form-label">Guest Tab Subtitle <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional subtitle shown below the guest tab title on the checkout page."></i></label>
+                                                        <input type="text" name="guest_tab_subtitle" class="form-control" id="guest_tab_subtitle" value="{{ old('guest_tab_subtitle', $data->guest_tab_subtitle) }}" placeholder="Guest Tab Subtitle">
+                                                    </div>
+                                                </div>
                                                 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
@@ -525,6 +531,12 @@
                                                             <input type="text" name="package_button_text" class="form-control" id="package_button_text" value="{{ $data->package_button_text ?? 'Packages' }}" placeholder="Label text">
                                                             <input type="color" name="package_tab_color" id="package_tab_color" value="{{ $data->package_tab_color ?? '#e8be6a' }}" title="Package tab accent color" class="form-control form-control-color flex-shrink-0" style="width:38px;height:34px;padding:2px;cursor:pointer;">
                                                         </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="package_tab_subtitle" class="form-label">Package Tab Subtitle <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional subtitle shown below the package tab title on the checkout page."></i></label>
+                                                        <input type="text" name="package_tab_subtitle" class="form-control" id="package_tab_subtitle" value="{{ old('package_tab_subtitle', $data->package_tab_subtitle) }}" placeholder="Package Tab Subtitle">
                                                     </div>
                                                 </div>
 

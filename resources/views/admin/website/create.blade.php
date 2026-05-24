@@ -399,11 +399,23 @@ label{
                                                         <input type="text" name="guest_list_button_text" class="form-control" id="guest_list_button_text" value="Guest List" placeholder="Guest List Button Text">
                                                     </div>
                                                 </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="guest_tab_subtitle" class="form-label">Guest Tab Subtitle <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional subtitle shown below the guest tab title on the checkout page."></i></label>
+                                                        <input type="text" name="guest_tab_subtitle" class="form-control" id="guest_tab_subtitle" value="{{ old('guest_tab_subtitle', 'Complimentary ride and general entry') }}" placeholder="Guest Tab Subtitle">
+                                                    </div>
+                                                </div>
                                                 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="package_button_text" class="form-label">Package Button Text <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The label displayed on the packages tab button on the checkout page."></i></label>
                                                         <input type="text" name="package_button_text" class="form-control" id="package_button_text" value="Packages" placeholder="Package Button Text">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="package_tab_subtitle" class="form-label">Package Tab Subtitle <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional subtitle shown below the package tab title on the checkout page."></i></label>
+                                                        <input type="text" name="package_tab_subtitle" class="form-control" id="package_tab_subtitle" value="{{ old('package_tab_subtitle', 'VIP table packages &amp; experiences') }}" placeholder="Package Tab Subtitle">
                                                     </div>
                                                 </div>
                                                 

@@ -6681,12 +6681,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 var gratuited_price = ("{{ $data->gratuity_name }}" != "0") ? (discountedSubtotal / 100) * gratuity : 0;
                 var sales_tax_price = ("{{ $data->sales_tax_name }}" != "0") ? ((discountedSubtotal + service_charge_price + gratuited_price) / 100) * sales_tax : 0;
 
-                var amountAfterCoupon = discountedSubtotal + service_charge_price + sales_tax_price + gratuited_price;
+                var processingFeeBase = discountedSubtotal + service_charge_price;
+                var amountAfterCoupon = processingFeeBase + sales_tax_price + gratuited_price;
                 var processingFee = parseFloat($('#processing_fee').val()) || 0;
                 var processingFeeType = ($('#processing_fee_type').val() || 'percentage').toLowerCase();
                 var processingFeeAmount = processingFeeType === 'flat'
                     ? processingFee
-                    : (amountAfterCoupon / 100) * processingFee;
+                    : (processingFeeBase / 100) * processingFee;
                 var grandTotal = amountAfterCoupon + processingFeeAmount;
                 var refundableRate = parseFloat($('#refundable').val()) || 0;
                 var refundableAmount = (grandTotal / 100) * refundableRate;

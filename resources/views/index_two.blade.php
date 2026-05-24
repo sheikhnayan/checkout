@@ -4346,10 +4346,12 @@
         .cv-access-card.cv-access-tab { cursor: pointer; transition: opacity .28s ease, filter .28s ease; }
         .cv-access-card.cv-access-tab:not(.is-active) { opacity: 0.90; }
         .cv-access-card.cv-access-tab.is-active { opacity: 1; filter: none; }
-        .cv-access-grid:hover .cv-access-card.cv-access-tab { opacity: 0.35; filter: brightness(0.65); }
-        .cv-access-card.cv-access-tab:hover { opacity: 1 !important; filter: brightness(1.18) !important; }
-        .cv-access-grid:hover .cv-access-card[data-name="package"].cv-access-tab { opacity: 1; filter: none; }
-        .cv-access-card[data-name="package"].cv-access-tab:hover { opacity: 0.96 !important; filter: brightness(0.94) !important; }
+        @media (hover: hover) and (pointer: fine) {
+            .cv-access-grid:hover .cv-access-card.cv-access-tab { opacity: 0.35; filter: brightness(0.65); }
+            .cv-access-card.cv-access-tab:hover { opacity: 1 !important; filter: brightness(1.18) !important; }
+            .cv-access-grid:hover .cv-access-card[data-name="package"].cv-access-tab { opacity: 1; filter: none; }
+            .cv-access-card[data-name="package"].cv-access-tab:hover { opacity: 0.96 !important; filter: brightness(0.94) !important; }
+        }
         .cv-access-card[data-name="package"] { isolation: isolate; --cv-package-rgb: 232,190,106; }
         .cv-access-card[data-name="package"] .cv-ac-shimmer {
             position: absolute;
@@ -5547,7 +5549,7 @@
                                     <span class="cv-ac-icon-wrap"><i class="fas {{ $data->guest_tab_icon ?? 'fa-car-side' }}"></i></span>
                                     <span class="cv-ac-body">
                                         <strong>{{ $data->guest_list_button_text ?? 'Free Ride & Entry' }}</strong>
-                                        <span>Complimentary ride and general entry</span>
+                                        <span>{{ $data->guest_tab_subtitle ?? 'Complimentary ride and general entry' }}</span>
                                     </span>
                                 </button>
                                 <button type="button" class="cv-access-card cv-access-tab" data-name="package">
@@ -5558,7 +5560,7 @@
                                     <span class="cv-ac-icon-wrap"><i class="fas {{ $data->package_tab_icon ?? 'fa-star' }}"></i></span>
                                     <span class="cv-ac-body">
                                         <strong>{{ $data->package_button_text ?? 'VIP Packages' }}</strong>
-                                        <span>VIP table packages &amp; experiences</span>
+                                        <span>{{ $data->package_tab_subtitle ?? 'VIP table packages &amp; experiences' }}</span>
                                     </span>
                                 </button>
                             @else
@@ -5570,7 +5572,7 @@
                                     <span class="cv-ac-icon-wrap"><i class="fas {{ $data->package_tab_icon ?? 'fa-star' }}"></i></span>
                                     <span class="cv-ac-body">
                                         <strong>{{ $data->package_button_text ?? 'VIP Packages' }}</strong>
-                                        <span>VIP table packages &amp; experiences</span>
+                                        <span>{{ $data->package_tab_subtitle ?? 'VIP table packages &amp; experiences' }}</span>
                                     </span>
                                 </div>
                             @endif
@@ -5844,7 +5846,7 @@
                                                                 <div class="cv-pkg-title">{{ $item->name }}</div>
                                                             </div>
                                                             @if($pkgIsTicket)
-                                                                <span class="cv-pkg-sub"><i class="fas fa-ticket-alt"></i>Up to {{ $pkgTicketMax }} {{ $pkgTicketMax === 1 ? 'ticket' : 'tickets' }}</span>
+                                                                <span class="cv-pkg-sub"><i class="fas fa-ticket-alt"></i>1 ticket per person</span>
                                                             @else
                                                                 <span class="cv-pkg-sub"><i class="fas fa-user-friends"></i>Up to {{ $pkgTableMax }} guests</span>
                                                             @endif
@@ -5909,7 +5911,7 @@
                                                                             class="form-select package_number_of_guestss ticket-select-lazy"
                                                                         >
                                                                             @for ($i = 1; $i <= $ticketInitMax; $i++)
-                                                                                <option value="{{ $i }}" @selected($i == 1)>{{ $i }}</option>
+                                                                                <option value="{{ $i }}" @selected($i == 1)>{{ $i }} {{ $i === 1 ? 'ticket' : 'tickets' }}</option>
                                                                             @endfor
                                                                         </select>
                                                                     @else
@@ -5922,7 +5924,7 @@
                                                                             class="form-select package_number_of_guestss"
                                                                         >
                                                                             @for ($i = 1; $i <= $pkgTableCap; $i++)
-                                                                                <option value="{{ $i }}" @selected($i == 2)>{{ $i }}</option>
+                                                                                <option value="{{ $i }}" @selected($i == 2)>{{ $i }} {{ $i === 1 ? 'guest' : 'guests' }}</option>
                                                                             @endfor
                                                                         </select>
                                                                     @endif
@@ -7367,7 +7369,7 @@
                     $field.data('ticket-max', safeMax).attr('data-ticket-max', safeMax);
                     let ticketHtml = '';
                     for (let i = 1; i <= showMax; i++) {
-                        ticketHtml += '<option value="' + i + '">' + i + '</option>';
+                        ticketHtml += '<option value="' + i + '">' + i + ' ' + (i === 1 ? 'ticket' : 'tickets') + '</option>';
                     }
                     $field.html(ticketHtml);
                     $field.val(String(Math.min(safeValue, showMax)));
@@ -7376,7 +7378,7 @@
                 }
 
                 for (let i = 1; i <= safeMax; i++) {
-                    html += '<option value="' + i + '">' + i + '</option>';
+                    html += '<option value="' + i + '">' + i + ' ' + (i === 1 ? 'guest' : 'guests') + '</option>';
                 }
 
                 $field.html(html);
@@ -7394,7 +7396,7 @@
                 if (el.scrollHeight - el.scrollTop - el.clientHeight < 40) {
                     var nextMax = Math.min(shownMax + 15, totalMax);
                     for (var i = shownMax + 1; i <= nextMax; i++) {
-                        $sel.append('<option value="' + i + '">' + i + '</option>');
+                        $sel.append('<option value="' + i + '">' + i + ' ' + (i === 1 ? 'ticket' : 'tickets') + '</option>');
                     }
                 }
             });
@@ -7407,7 +7409,7 @@
                 if (parseInt($sel.val(), 10) >= shownMax) {
                     var nextMax = Math.min(shownMax + 15, totalMax);
                     for (var i = shownMax + 1; i <= nextMax; i++) {
-                        $sel.append('<option value="' + i + '">' + i + '</option>');
+                        $sel.append('<option value="' + i + '">' + i + ' ' + (i === 1 ? 'ticket' : 'tickets') + '</option>');
                     }
                 }
             });
@@ -7576,12 +7578,13 @@
                 let gratuited_price = ("{{ $data->gratuity_name }}" != "0") ? (discountedSubtotal / 100) * gratuity : 0;
                 let sales_tax_price = ("{{ $data->sales_tax_name }}" != "0") ? ((discountedSubtotal + service_charge_price + gratuited_price) / 100) * sales_tax : 0;
 
-                let amountAfterCoupon = discountedSubtotal + service_charge_price + sales_tax_price + gratuited_price;
+                let processingFeeBase = discountedSubtotal + service_charge_price;
+                let amountAfterCoupon = processingFeeBase + sales_tax_price + gratuited_price;
                 let processingFee = parseFloat($('#processing_fee').val()) || 0;
                 let processingFeeType = ($('#processing_fee_type').val() || 'percentage').toLowerCase();
                 let processingFeeAmount = processingFeeType === 'flat'
                     ? processingFee
-                    : (amountAfterCoupon / 100) * processingFee;
+                    : (processingFeeBase / 100) * processingFee;
                 let grandTotal = amountAfterCoupon + processingFeeAmount;
                 
                 let refundable_price = (grandTotal / 100) * refundable;

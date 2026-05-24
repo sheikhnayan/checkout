@@ -1915,6 +1915,7 @@ class TransactionController extends Controller
         $salesTaxAmount = $salesTaxEnabled ? ($salesTaxBase * $salesTaxRate / 100) : 0;
 
         $afterDiscountTotal = $discountedItemsSubtotal + $serviceChargeAmount + $gratuityAmount + $salesTaxAmount;
+        $processingFeeBase = $discountedItemsSubtotal + $serviceChargeAmount;
 
         $processingFeeRate = (float) ($website->processing_fee ?? 0);
         $processingFeeType = strtolower((string) ($website->processing_fee_type ?? 'percentage'));
@@ -1926,7 +1927,7 @@ class TransactionController extends Controller
         if ($processingFeeRate > 0) {
             $processingFeeAmount = $processingFeeType === 'flat'
                 ? $processingFeeRate
-                : ($afterDiscountTotal * $processingFeeRate / 100);
+                : ($processingFeeBase * $processingFeeRate / 100);
         }
 
         $calculatedGrandTotal = $afterDiscountTotal + $processingFeeAmount;

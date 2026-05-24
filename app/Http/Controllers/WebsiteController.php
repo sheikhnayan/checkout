@@ -138,6 +138,8 @@ class WebsiteController extends Controller
             'hero_badge_2_sub' => 'nullable|string|max:120',
             'package_section_title' => 'nullable|string|max:120',
             'package_section_subtext' => 'nullable|string|max:255',
+            'guest_tab_subtitle' => 'nullable|string|max:120',
+            'package_tab_subtitle' => 'nullable|string|max:120',
             'website_admin_name' => 'required|string|max:255',
             'website_admin_email' => 'required|email|max:255|unique:users,email',
             'website_admin_password' => 'required|string|min:8|confirmed',
@@ -204,9 +206,11 @@ class WebsiteController extends Controller
         $add->back_link = $request->back_link;
         $add->footer_text = $request->footer_text;
         $add->guest_list_button_text = $request->guest_list_button_text ?: 'Guest List';
+        $add->guest_tab_subtitle = $request->guest_tab_subtitle ?: null;
         $add->guest_tab_color = $request->guest_tab_color ?: null;
         $add->guest_tab_icon = $request->guest_tab_icon ?: null;
         $add->package_button_text = $request->package_button_text ?: 'Packages';
+        $add->package_tab_subtitle = $request->package_tab_subtitle ?: null;
         $add->package_tab_color = $request->package_tab_color ?: null;
         $add->package_tab_icon = $request->package_tab_icon ?: null;
         $add->package_tab_ribbon = $request->package_tab_ribbon ?: null;
@@ -394,6 +398,8 @@ class WebsiteController extends Controller
             'hero_badge_2_sub' => 'nullable|string|max:120',
             'package_section_title' => 'nullable|string|max:120',
             'package_section_subtext' => 'nullable|string|max:255',
+            'guest_tab_subtitle' => 'nullable|string|max:120',
+            'package_tab_subtitle' => 'nullable|string|max:120',
             'payment_methods' => 'required|array|min:1',
             'payment_methods.*' => 'in:visa,mastercard,amex,google_pay,apple_pay',
             'operating_days' => 'nullable|array',
@@ -478,9 +484,11 @@ class WebsiteController extends Controller
         $add->back_link = $request->back_link;
         $add->footer_text = $request->footer_text;
         $add->guest_list_button_text = $request->guest_list_button_text ?: 'Guest List';
+        $add->guest_tab_subtitle = $request->guest_tab_subtitle ?: null;
         $add->guest_tab_color = $request->guest_tab_color ?: null;
         $add->guest_tab_icon = $request->guest_tab_icon ?: null;
         $add->package_button_text = $request->package_button_text ?: 'Packages';
+        $add->package_tab_subtitle = $request->package_tab_subtitle ?: null;
         $add->package_tab_color = $request->package_tab_color ?: null;
         $add->package_tab_icon = $request->package_tab_icon ?: null;
         $add->package_tab_ribbon = $request->package_tab_ribbon ?: null;

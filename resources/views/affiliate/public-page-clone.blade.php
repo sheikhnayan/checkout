@@ -4743,14 +4743,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     <i class="fas fa-car-side"></i>
                                     <div>
                                         <strong>{{ $data->guest_list_button_text ?? 'Free Ride & Entry' }}</strong>
-                                        <span>Complimentary ride and general entry</span>
+                                        <span>{{ $data->guest_tab_subtitle ?? 'Complimentary ride and general entry' }}</span>
                                     </div>
                                 </button>
                                 <button type="button" class="cv-access-card cv-access-tab" data-name="package">
                                     <i class="fas fa-star"></i>
                                     <div>
                                         <strong>{{ $data->package_button_text ?? 'Packages' }}</strong>
-                                        <span>VIP table packages &amp; experiences</span>
+                                        <span>{{ $data->package_tab_subtitle ?? 'VIP table packages &amp; experiences' }}</span>
                                     </div>
                                 </button>
                             @else
@@ -4758,7 +4758,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     <i class="fas fa-star"></i>
                                     <div>
                                         <strong>{{ $data->package_button_text ?? 'Packages' }}</strong>
-                                        <span>VIP table packages &amp; experiences</span>
+                                        <span>{{ $data->package_tab_subtitle ?? 'VIP table packages &amp; experiences' }}</span>
                                     </div>
                                 </div>
                             @endif
@@ -6872,12 +6872,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 var gratuited_price = ("{{ $data->gratuity_name }}" != "0") ? (discountedSubtotal / 100) * gratuity : 0;
                 var sales_tax_price = ("{{ $data->sales_tax_name }}" != "0") ? ((discountedSubtotal + service_charge_price + gratuited_price) / 100) * sales_tax : 0;
 
-                var amountAfterCoupon = discountedSubtotal + service_charge_price + sales_tax_price + gratuited_price;
+                var processingFeeBase = discountedSubtotal + service_charge_price;
+                var amountAfterCoupon = processingFeeBase + sales_tax_price + gratuited_price;
                 var processingFee = parseFloat($('#processing_fee').val()) || 0;
                 var processingFeeType = ($('#processing_fee_type').val() || 'percentage').toLowerCase();
                 var processingFeeAmount = processingFeeType === 'flat'
                     ? processingFee
-                    : (amountAfterCoupon / 100) * processingFee;
+                    : (processingFeeBase / 100) * processingFee;
                 var grandTotal = amountAfterCoupon + processingFeeAmount;
                 var refundableRate = parseFloat($('#refundable').val()) || 0;
                 var refundableAmount = (grandTotal / 100) * refundableRate;
