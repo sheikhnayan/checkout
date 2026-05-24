@@ -4476,7 +4476,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
     .vip-card.cv-exact-card .package-guest-input-wrap {
         grid-area: guests;
-        width: 70px;
+        width: 100%;
     }
     .vip-card.cv-exact-card .package_number_of_guestss { margin-top: 0 !important; min-height: 38px !important; padding-top: 0px !important; padding-bottom: 0px !important;}
     .vip-card.cv-exact-card .vip-btn {
