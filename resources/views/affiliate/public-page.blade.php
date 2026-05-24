@@ -4877,7 +4877,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 <div class="cv-club-name-badge" style="font-size: 12px; color: rgba(255,255,255,0.65); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="<strong>{{ $item->website->name }}</strong><br><small>{{ $item->website->location ?? 'Location not specified' }}</small>"><i class="fas fa-map-marker-alt" style="opacity: 0.7;"></i>{{ $item->website->name }}</div>
                                                             @endif
                                                             @if($pkgIsTicket)
-                                                                <span class="cv-pkg-sub"><i class="fas fa-ticket-alt"></i>Up to {{ $pkgTicketMax }} {{ $pkgTicketMax === 1 ? 'ticket' : 'tickets' }}</span>
+                                                                <span class="cv-pkg-sub"><i class="fas fa-ticket-alt"></i>1 ticket per person</span>
                                                             @else
                                                                 <span class="cv-pkg-sub"><i class="fas fa-user-friends"></i>Up to {{ $pkgTableMax }} guests</span>
                                                             @endif
@@ -4940,7 +4940,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                         class="form-select package_number_of_guestss ticket-select-lazy"
                                                                     >
                                                                         @for ($i = 1; $i <= $ticketInitMax; $i++)
-                                                                            <option value="{{ $i }}" @selected($i == 1)>{{ $i }}</option>
+                                                                            <option value="{{ $i }}" @selected($i == 1)>{{ $i }} {{ $i === 1 ? 'ticket' : 'tickets' }}</option>
                                                                         @endfor
                                                                     </select>
                                                                 @else
@@ -4953,7 +4953,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                         class="form-select package_number_of_guestss"
                                                                     >
                                                                         @for ($i = 1; $i <= $tableCap; $i++)
-                                                                            <option value="{{ $i }}" @selected($i == 2)>{{ $i }}</option>
+                                                                            <option value="{{ $i }}" @selected($i == 2)>{{ $i }} {{ $i === 1 ? 'guest' : 'guests' }}</option>
                                                                         @endfor
                                                                     </select>
                                                                 @endif

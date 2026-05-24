@@ -60,11 +60,12 @@ class EntertainerPublicController extends Controller
             ->map(function ($group, $key) {
                 $firstMapping = $group->first();
                 $package = $firstMapping->package;
+                $categoryColor = optional($package->category)->color ?: '#a774ff';
 
                 return [
                     'id' => 'category-' . $key,
                     'name' => optional($package->category)->name ?: 'Uncategorized',
-                    'color' => optional($package->category)->color,
+                    'color' => $categoryColor,
                     'icon' => optional($package->category)->icon,
                     'club' => $package->website,
                     'mappings' => $group->values(),
