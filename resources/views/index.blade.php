@@ -6877,22 +6877,23 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     var safeValue = Math.min(Math.max(current, 1), safeMax);
                     var showMax = Math.min(15, safeMax);
                     $field.data('ticket-max', safeMax).attr('data-ticket-max', safeMax);
-                    var ticketHtml = '';
+                    var ticketHtml = '<option value=""># of Tickets</option>';
                     for (var i = 1; i <= showMax; i++) {
                         ticketHtml += '<option value="' + i + '">' + i + ' ' + (i === 1 ? 'ticket' : 'tickets') + '</option>';
                     }
                     $field.html(ticketHtml);
-                    $field.val(String(Math.min(safeValue, showMax)));
+                    $field.val('');
                     $field.prop('disabled', false);
                     return;
                 }
 
+                html += '<option value=""># of Guests</option>';
                 for (var i = 1; i <= safeMax; i++) {
                     html += '<option value="' + i + '">' + i + ' ' + (i === 1 ? 'guest' : 'guests') + '</option>';
                 }
 
                 $field.html(html);
-                $field.val(String(Math.min(current, safeMax)));
+                $field.val('');
                 $field.prop('disabled', false);
             }
 
