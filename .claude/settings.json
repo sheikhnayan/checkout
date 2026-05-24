@@ -6,7 +6,9 @@
       "Bash(php artisan *)",
       "Bash(php -r ' *)",
       "Bash(git stash *)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(grep -n 'ticket-select-lazy\\\\|@selected\\($i == 2\\)' resources/views/index_two.blade.php)",
+      "Bash(grep -n '@selected\\($i == 2\\)\\\\|ticket-select-lazy' resources/views/affiliate/public-page.blade.php)"
     ]
   }
 }

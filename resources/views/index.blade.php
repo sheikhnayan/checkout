@@ -5378,9 +5378,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                         data-multiple="{{ $item->multiple }}"
                                                                         data-id="{{ $item->id }}"
                                                                         class="form-select package_number_of_guestss ticket-select-lazy"
+                                                                        required
                                                                     >
+                                                                        <option value=""># of Tickets</option>
                                                                         @for ($i = 1; $i <= $ticketInitMax; $i++)
-                                                                            <option value="{{ $i }}" @selected($i == 1)>{{ $i }} {{ $i === 1 ? 'ticket' : 'tickets' }}</option>
+                                                                            <option value="{{ $i }}">{{ $i }} {{ $i === 1 ? 'ticket' : 'tickets' }}</option>
                                                                         @endfor
                                                                     </select>
                                                                 @else
@@ -5391,9 +5393,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                         data-multiple="{{ $item->multiple }}"
                                                                         data-id="{{ $item->id }}"
                                                                         class="form-select package_number_of_guestss"
+                                                                        required
                                                                     >
+                                                                        <option value=""># of Guests</option>
                                                                         @for ($i = 1; $i <= $tableCap; $i++)
-                                                                            <option value="{{ $i }}" @selected($i == 2)>{{ $i }} {{ $i === 1 ? 'guest' : 'guests' }}</option>
+                                                                            <option value="{{ $i }}">{{ $i }} {{ $i === 1 ? 'guest' : 'guests' }}</option>
                                                                         @endfor
                                                                     </select>
                                                                 @endif
@@ -7647,12 +7651,20 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     var packageName = $btn.data('name');
                     var packagePrice = parseFloat($btn.data('price'));
                     var $guestSelect = $('.package_number_of_guestss[data-id="' + packageId + '"]');
-                    var guests = parseInt($guestSelect.val()) || 1;
+                    var guestValue = $guestSelect.val();
                     var isMultiple = parseMultipleFlag($guestSelect.data('multiple'));
 
                     if (!ensureReservationDateSelected()) {
                         return;
                     }
+
+                    if (!guestValue) {
+                        var fieldLabel = $guestSelect.find('option:first').text();
+                        alert('Please select ' + fieldLabel);
+                        return;
+                    }
+
+                    var guests = parseInt(guestValue) || 1;
 
                     $('.vip-card').removeClass('selected');
                     $btn.closest('.vip-card').addClass('selected');

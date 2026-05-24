@@ -5909,9 +5909,11 @@
                                                                             data-multiple="{{ $item->multiple }}"
                                                                             data-id="{{ $item->id }}"
                                                                             class="form-select package_number_of_guestss ticket-select-lazy"
+                                                                            required
                                                                         >
+                                                                            <option value=""># of Tickets</option>
                                                                             @for ($i = 1; $i <= $ticketInitMax; $i++)
-                                                                                <option value="{{ $i }}" @selected($i == 1)>{{ $i }} {{ $i === 1 ? 'ticket' : 'tickets' }}</option>
+                                                                                <option value="{{ $i }}">{{ $i }} {{ $i === 1 ? 'ticket' : 'tickets' }}</option>
                                                                             @endfor
                                                                         </select>
                                                                     @else
@@ -5922,9 +5924,11 @@
                                                                             data-multiple="{{ $item->multiple }}"
                                                                             data-id="{{ $item->id }}"
                                                                             class="form-select package_number_of_guestss"
+                                                                            required
                                                                         >
+                                                                            <option value=""># of Guests</option>
                                                                             @for ($i = 1; $i <= $pkgTableCap; $i++)
-                                                                                <option value="{{ $i }}" @selected($i == 2)>{{ $i }} {{ $i === 1 ? 'guest' : 'guests' }}</option>
+                                                                                <option value="{{ $i }}">{{ $i }} {{ $i === 1 ? 'guest' : 'guests' }}</option>
                                                                             @endfor
                                                                         </select>
                                                                     @endif
@@ -8252,13 +8256,21 @@
                     let packageName = $btn.data('name');
                     let packagePrice = parseFloat($btn.data('price'));
                     let $guestSelect = $('.package_number_of_guestss[data-id="' + packageId + '"]');
-                    let guests = parseInt($guestSelect.val()) || 1;
+                    let guestValue = $guestSelect.val();
                     let isMultiple = parseMultipleFlag($guestSelect.data('multiple'));
                     let transportation = $btn.data('transportation');
 
                     if (!ensureReservationDateSelected()) {
                         return;
                     }
+
+                    if (!guestValue) {
+                        let fieldLabel = $guestSelect.find('option:first').text();
+                        alert('Please select ' + fieldLabel);
+                        return;
+                    }
+
+                    let guests = parseInt(guestValue) || 1;
 
                     $('.vip-card').removeClass('selected');
                     $btn.closest('.vip-card').addClass('selected');
