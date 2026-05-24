@@ -64,6 +64,8 @@ class EntertainerPublicController extends Controller
                 return [
                     'id' => 'category-' . $key,
                     'name' => optional($package->category)->name ?: 'Uncategorized',
+                    'color' => optional($package->category)->color,
+                    'icon' => optional($package->category)->icon,
                     'club' => $package->website,
                     'mappings' => $group->values(),
                 ];
