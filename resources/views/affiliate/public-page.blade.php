@@ -4895,15 +4895,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         @endif
                                     </div>
                                 @endif
-
-                                <!-- Reservation Date Selection -->
-                                <div class="hero-date-card" style="margin-top: 16px;">
-                                    <label>Choose Your Reservation Date</label>
-                                    <div class="date-input-wrapper">
-                                        <input type="text" id="package_use_date" style="width: 100%;" required aria-required="true" aria-describedby="package_use_date_error" placeholder="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('M d, Y') }}">
-                                    </div>
-                                    <small id="package_use_date_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -4970,6 +4961,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             <div class="cv-dstep" id="cv-dstep-2" data-step="2"><span class="cv-dstep-num">2</span><span>Choose Access</span></div>
                             <div class="cv-dstep" id="cv-dstep-3" data-step="3"><span class="cv-dstep-num">3</span><span>Select Package</span></div>
                             <div class="cv-dstep" id="cv-dstep-4" data-step="4"><span class="cv-dstep-num">4</span><span>Review &amp; Pay</span></div>
+                        </div>
+
+                        <!-- Reservation Date Selection -->
+                        <div class="hero-date-card" style="margin-top: 24px; margin-bottom: 20px;">
+                            <label>Choose Your Reservation Date</label>
+                            <div class="date-input-wrapper">
+                                <input type="text" id="package_use_date" style="width: 100%;" required aria-required="true" aria-describedby="package_use_date_error" placeholder="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('M d, Y') }}">
+                            </div>
+                            <small id="package_use_date_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
                         </div>
 
                         @if ($data->reservation == 1)
