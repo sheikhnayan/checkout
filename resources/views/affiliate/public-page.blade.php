@@ -4875,8 +4875,24 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 <h1 class="cv-hero-title">{{ $heroTitleLead }}@if($heroLastWord) <span class="cv-hero-title-accent">{{ $heroLastWord }}</span>@endif</h1>
                                 <p class="cv-hero-subtitle">{{ $affiliate->hero_subtitle ?: 'Browse our premium collection' }}</p>
                                 @if(!empty($affiliate->description))
-                                    <div class="aff-display-copy" style="margin-bottom:10px;">
+                                    <div class="aff-display-copy" style="margin-bottom:16px;">
                                         {{ $affiliate->description }}
+                                    </div>
+                                @endif
+
+                                <!-- Social Links -->
+                                @if($affiliate->facebook_url || $affiliate->instagram_url)
+                                    <div class="aff-social-links" style="display: flex; gap: 12px; margin-bottom: 24px;">
+                                        @if($affiliate->facebook_url)
+                                            <a href="{{ $affiliate->facebook_url }}" target="_blank" rel="noopener noreferrer" class="aff-social-link" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; text-decoration: none; transition: all 0.2s ease;" title="Facebook">
+                                                <i class="fab fa-facebook-f" style="font-size: 16px;"></i>
+                                            </a>
+                                        @endif
+                                        @if($affiliate->instagram_url)
+                                            <a href="{{ $affiliate->instagram_url }}" target="_blank" rel="noopener noreferrer" class="aff-social-link" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; text-decoration: none; transition: all 0.2s ease;" title="Instagram">
+                                                <i class="fab fa-instagram" style="font-size: 16px;"></i>
+                                            </a>
+                                        @endif
                                     </div>
                                 @endif
 
