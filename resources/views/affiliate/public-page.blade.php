@@ -4627,6 +4627,25 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .aff-dgc-item:hover i { opacity: 1; }
 .aff-dgc-item i { opacity: 0; transition: opacity 0.3s ease; }
 
+/* ===== Date Input iOS Fix ===== */
+.aff-date-input {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+}
+.aff-date-input::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+    opacity: 1 !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.5) !important;
+}
+.aff-date-input::-webkit-input-placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+    opacity: 1 !important;
+}
+.aff-date-input::-moz-placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+    opacity: 1 !important;
+}
+
 /* ===== Profile Story Indicator (Instagram-style) ===== */
 .aff-profile-story-btn {
     border: none;
@@ -4967,7 +4986,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         <div class="hero-date-card" style="margin-top: 24px; margin-bottom: 20px;">
                             <label>Choose Your Reservation Date</label>
                             <div class="date-input-wrapper">
-                                <input type="text" id="package_use_date" style="width: 100%;" required aria-required="true" aria-describedby="package_use_date_error" placeholder="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('M d, Y') }}">
+                                <input type="text" id="package_use_date" class="aff-date-input" style="width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; font-size: 16px; font-weight: 500;" required aria-required="true" aria-describedby="package_use_date_error" placeholder="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('M d, Y') }}">
                             </div>
                             <small id="package_use_date_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
                         </div>
@@ -8856,6 +8875,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             function initReservationDatePicker() {
                 var dateInput = document.getElementById('package_use_date');
                 if (!dateInput) return;
+
+                // Destroy existing flatpickr instance if it exists
+                if (dateInput._flatpickr) {
+                    dateInput._flatpickr.destroy();
+                }
 
                 flatpickr(dateInput, {
                     mode: 'single',
