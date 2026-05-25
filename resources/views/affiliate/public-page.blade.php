@@ -2656,7 +2656,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     min-height: 460px;
     background-size: cover;
     background-position: center;
-    padding: 28px 34px 32px;
+    padding: 28px 34px 18px;
     margin-bottom: 0;
 }
 
@@ -4982,18 +4982,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             <div class="cv-dstep" id="cv-dstep-4" data-step="4"><span class="cv-dstep-num">4</span><span>Review &amp; Pay</span></div>
                         </div>
 
-                        <!-- Reservation Date Selection -->
-                        <div class="hero-date-card" style="margin-top: 24px; margin-bottom: 20px;">
-                            <label>Choose Your Reservation Date</label>
-                            <div class="date-input-wrapper">
-                                <input type="text" id="package_use_date" class="aff-date-input" style="width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; font-size: 16px; font-weight: 500;" required aria-required="true" aria-describedby="package_use_date_error" placeholder="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('M d, Y') }}">
-                            </div>
-                            <small id="package_use_date_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
-                        </div>
-
-                        @if ($data->reservation == 1)
-                            <div class="cv-access-hint">Choose one to continue<span class="cv-access-hint-dot"></span></div>
-                        @endif
                     </div>
 
                 <div class="package">
@@ -5019,6 +5007,16 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                             $mostPopularPackageName = $mostPopularPackage->name ?? '';
                                         }
                                     @endphp
+
+                                    <!-- Reservation Date Selection -->
+                                    <div class="hero-date-card" style="margin-bottom: 24px;">
+                                        <label>Choose Your Reservation Date</label>
+                                        <div class="date-input-wrapper">
+                                            <input type="text" id="package_use_date" class="aff-date-input" style="width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; font-size: 16px; font-weight: 500;" required aria-required="true" aria-describedby="package_use_date_error" placeholder="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('M d, Y') }}">
+                                        </div>
+                                        <small id="package_use_date_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
+                                    </div>
+
                                     <div class="cv-package-section-header" style="display:flex; justify-content:space-between; align-items:center; margin: 18px 0 12px; flex-wrap:wrap; gap:10px;">
                                         <div>
                                             <h5 class="section-kicker-lg" style="margin:0 !important;">{{ $data->package_section_title ?: 'Select Your Package' }}</h5>
