@@ -4211,14 +4211,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     font-size: 9px;
     color: #fff;
 }
-.vip-card.cv-exact-card .vip-card-main { display: flex; flex-direction: column; justify-content: flex-start; gap: 6px; min-width: 0; }
+.vip-card.cv-exact-card .vip-card-main { display: flex; flex-direction: column; justify-content: flex-start; gap: 6px; min-width: 0; height: 100%; }
 .cv-pkg-title-row { display: flex; align-items: center; gap: 10px; }
 .cv-pkg-title-icon { font-size: 22px; flex-shrink: 0; color: var(--tier-accent, #fff) !important; }
 .cv-pkg-title { font-size: 26px; font-weight: 700; line-height: 1.2; color: var(--tier-accent, #fff) !important; letter-spacing: -0.01em; }
 .cv-pkg-sub { font-size: 12.5px; color: rgba(255,255,255,0.62) !important; display: inline-flex; align-items: center; gap: 6px; }
 .cv-pkg-sub i { font-size: 12px; opacity: .7; }
-.cv-pkg-desc { font-size: 13px; color: rgba(255,255,255,0.62) !important; line-height: 1.5; margin: 0; }
-.cv-pkg-features { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 6px; }
+.cv-pkg-desc { font-size: 13px; color: rgba(255,255,255,0.62) !important; line-height: 1.5; margin: 0; flex-grow: 1; }
+.cv-pkg-features { display: flex; flex-wrap: wrap; gap: 14px; margin-top: auto; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08); }
 .cv-pkg-feature { font-size: 11.5px; color: rgba(255,255,255,0.65) !important; display: inline-flex; align-items: center; gap: 5px; }
 .cv-pkg-feature i { color: var(--tier-accent, rgba(255,255,255,0.76)) !important; font-size: 11px; opacity: .9; }
 .vip-card.cv-exact-card .vip-card-side { display: flex; flex-direction: column; justify-content: space-between; align-items: stretch; gap: 6px; grid-template-columns: none !important; flex: initial; text-align: right; }
