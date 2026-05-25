@@ -4218,7 +4218,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-pkg-sub { font-size: 12.5px; color: rgba(255,255,255,0.62) !important; display: inline-flex; align-items: center; gap: 6px; }
 .cv-pkg-sub i { font-size: 12px; opacity: .7; }
 .cv-pkg-desc { font-size: 13px; color: rgba(255,255,255,0.62) !important; line-height: 1.5; margin: 0; }
-.cv-pkg-features { display: flex !important; flex-wrap: wrap; gap: 14px; padding-top: 12px !important; margin-top: auto !important; border-top: 1px solid rgba(255,255,255,0.08); }
+.cv-pkg-features { display: flex !important; flex-wrap: wrap; gap: 14px; padding-top: 12px !important; margin-top: 4rem !important; margin-left: auto !important; margin-right: auto !important; border-top: 1px solid rgba(255,255,255,0.08); }
 .cv-pkg-feature { font-size: 11.5px; color: rgba(255,255,255,0.65) !important; display: inline-flex; align-items: center; gap: 5px; }
 .cv-pkg-feature i { color: var(--tier-accent, rgba(255,255,255,0.76)) !important; font-size: 11px; opacity: .9; }
 .vip-card.cv-exact-card .vip-card-side { display: flex; flex-direction: column; justify-content: space-between; align-items: stretch; gap: 6px; grid-template-columns: none !important; flex: initial; text-align: right; }
@@ -5846,7 +5846,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             </div>
                             <div class="modal-body" id="addonSelectionModalBody"></div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No add-ons</button>
                                 <button type="button" class="btn" id="addonModalConfirmBtn" style="background:var(--aff-accent);color:#000;font-weight:700;">Confirm & Add to Cart</button>
                             </div>
                         </div>
