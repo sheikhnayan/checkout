@@ -4634,7 +4634,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     padding: 0;
     cursor: pointer;
     position: relative;
-    border-radius: 50%;
+    border-radius: 12px;
     transition: transform 0.2s ease;
 }
 .aff-profile-story-btn:hover {
@@ -4643,8 +4643,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .aff-profile-story-btn::before {
     content: '';
     position: absolute;
-    inset: -4px;
-    border-radius: 50%;
+    inset: -3px;
+    border-radius: 12px;
     background: linear-gradient(135deg, #efbe6f 0%, #a774ff 50%, #efbe6f 100%);
     z-index: 0;
 }
@@ -4652,6 +4652,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .aff-profile-story-btn span {
     position: relative;
     z-index: 1;
+    border-radius: 10px;
 }
 
 /* ===== Gallery Modal ===== */
@@ -4661,6 +4662,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 .aff-gallery-modal-body {
     padding: 20px !important;
+    max-height: 80vh;
+    overflow-y: auto;
 }
 .aff-gallery-carousel-container {
     position: relative;
@@ -4669,7 +4672,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .aff-gallery-carousel {
     display: flex;
     width: 100%;
-    height: 500px;
+    height: auto;
 }
 .aff-gallery-carousel-item {
     flex: 0 0 100%;
@@ -4679,11 +4682,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     background: rgba(0, 0, 0, 0.3);
     border-radius: 12px;
     overflow: hidden;
+    min-height: auto;
 }
 .aff-gallery-carousel-item img {
     width: 100%;
-    height: 100%;
+    height: auto;
     object-fit: contain;
+    max-width: 100%;
 }
 .aff-gallery-carousel-nav {
     position: absolute;
@@ -4739,9 +4744,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
     .aff-location-selector {
         margin-bottom: 28px !important;
-    }
-    .aff-gallery-carousel {
-        height: 300px;
     }
 }
 
