@@ -4627,6 +4627,107 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .aff-dgc-item:hover i { opacity: 1; }
 .aff-dgc-item i { opacity: 0; transition: opacity 0.3s ease; }
 
+/* ===== Profile Story Indicator (Instagram-style) ===== */
+.aff-profile-story-btn {
+    border: none;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    position: relative;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+}
+.aff-profile-story-btn:hover {
+    transform: scale(1.05);
+}
+.aff-profile-story-btn::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #efbe6f 0%, #a774ff 50%, #efbe6f 100%);
+    z-index: 0;
+}
+.aff-profile-story-btn img,
+.aff-profile-story-btn span {
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== Gallery Modal ===== */
+.aff-gallery-modal-content {
+    background: rgba(5, 7, 14, 0.98) !important;
+    border: 1px solid rgba(167, 116, 255, 0.2) !important;
+}
+.aff-gallery-modal-body {
+    padding: 20px !important;
+}
+.aff-gallery-carousel-container {
+    position: relative;
+    margin: 0 auto;
+}
+.aff-gallery-carousel {
+    display: flex;
+    width: 100%;
+    height: 500px;
+}
+.aff-gallery-carousel-item {
+    flex: 0 0 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    overflow: hidden;
+}
+.aff-gallery-carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.aff-gallery-carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.4);
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    padding: 12px 16px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.2s;
+    z-index: 10;
+}
+.aff-gallery-carousel-nav:hover {
+    background: rgba(0, 0, 0, 0.6);
+}
+.aff-gallery-carousel-prev {
+    left: 10px;
+}
+.aff-gallery-carousel-next {
+    right: 10px;
+}
+.aff-gallery-carousel-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+.aff-gallery-carousel-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.aff-gallery-carousel-indicator.active {
+    background: #efbe6f;
+}
+
 /* ===== Location Selector Mobile & iOS Fixes ===== */
 @media (max-width: 767px) {
     .aff-location-mobile-select {
@@ -4638,6 +4739,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
     .aff-location-selector {
         margin-bottom: 28px !important;
+    }
+    .aff-gallery-carousel {
+        height: 300px;
     }
 }
 
@@ -4730,10 +4834,20 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     <div class="cv-hero-inner">
                         <div class="cv-hero-head">
                             <div class="cv-hero-venue">
-                                @if ($affiliate->profile_image)
-                                    <img src="{{ asset('uploads/' . $affiliate->profile_image) }}" alt="{{ $affiliate->display_name }}" class="cv-hero-venue-avatar">
+                                @if (!empty($affiliate->gallery_images))
+                                    <button type="button" id="affProfileStoryBtn" class="aff-profile-story-btn" title="Click to view gallery">
+                                        @if ($affiliate->profile_image)
+                                            <img src="{{ asset('uploads/' . $affiliate->profile_image) }}" alt="{{ $affiliate->display_name }}" class="cv-hero-venue-avatar">
+                                        @else
+                                            <span class="cv-hero-venue-initial">{{ strtoupper(substr($affiliate->display_name ?: $affiliate->user->name, 0, 1)) }}</span>
+                                        @endif
+                                    </button>
                                 @else
-                                    <span class="cv-hero-venue-initial">{{ strtoupper(substr($affiliate->display_name ?: $affiliate->user->name, 0, 1)) }}</span>
+                                    @if ($affiliate->profile_image)
+                                        <img src="{{ asset('uploads/' . $affiliate->profile_image) }}" alt="{{ $affiliate->display_name }}" class="cv-hero-venue-avatar">
+                                    @else
+                                        <span class="cv-hero-venue-initial">{{ strtoupper(substr($affiliate->display_name ?: $affiliate->user->name, 0, 1)) }}</span>
+                                    @endif
                                 @endif
                                 <div>
                                     <p class="cv-hero-venue-title">{{ $affiliate->display_name ?: $affiliate->user->name }}<span class="cv-hero-venue-verified" title="Verified Partner">&check;</span></p>
@@ -4778,8 +4892,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 </section>
 
                 @if(!empty($affiliate->gallery_images))
-                    <!-- Mobile Carousel Gallery (Horizontal) -->
-                    <div class="aff-mobile-gallery-carousel" id="affMobileGalleryCarousel" style="display: none; margin: 24px 0;">
+                    <!-- Mobile Carousel Gallery (Horizontal) - Hidden, shown in modal -->
+                    <div class="aff-mobile-gallery-carousel" id="affMobileGalleryCarousel" style="display: none !important; margin: 24px 0;">
                         <div class="aff-mgc-track" id="affMgcTrack" style="display: flex; flex-direction: row; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; height: auto; gap: 0; padding: 0; scroll-behavior: smooth;">
                             @foreach($affiliate->gallery_images as $galleryImage)
                                 <button type="button" class="aff-mgc-slide js-checkout-gallery-trigger"
@@ -4799,8 +4913,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         @endif
                     </div>
 
-                    <!-- Desktop Grid Gallery (4 columns) -->
-                    <div class="aff-desktop-gallery-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 24px 0;">
+                    <!-- Desktop Grid Gallery (4 columns) - Hidden, shown in modal -->
+                    <div class="aff-desktop-gallery-grid" style="display: none !important; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 24px 0;">
                         @foreach($affiliate->gallery_images as $galleryImage)
                             <button type="button" class="aff-dgc-item js-checkout-gallery-trigger"
                                     data-gallery-src="{{ asset('uploads/' . $galleryImage) }}"
@@ -8335,6 +8449,84 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             });
         </script>
 
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Gallery Modal Carousel
+                function initGalleryCarousel() {
+                    var currentSlide = 0;
+                    var slides = Array.from(document.querySelectorAll('#affGalleryCarousel .aff-gallery-carousel-item'));
+                    var indicators = Array.from(document.querySelectorAll('#affGalleryIndicators .aff-gallery-carousel-indicator'));
+                    var prevBtn = document.getElementById('affGalleryPrev');
+                    var nextBtn = document.getElementById('affGalleryNext');
+
+                    if (slides.length === 0) return;
+
+                    function showSlide(index) {
+                        slides.forEach(slide => slide.style.display = 'none');
+                        indicators.forEach(ind => ind.classList.remove('active'));
+
+                        if (index < 0) currentSlide = slides.length - 1;
+                        if (index >= slides.length) currentSlide = 0;
+
+                        slides[currentSlide].style.display = 'flex';
+                        if (indicators[currentSlide]) {
+                            indicators[currentSlide].classList.add('active');
+                        }
+                    }
+
+                    if (prevBtn) {
+                        prevBtn.addEventListener('click', function() {
+                            currentSlide--;
+                            showSlide(currentSlide);
+                        });
+                    }
+
+                    if (nextBtn) {
+                        nextBtn.addEventListener('click', function() {
+                            currentSlide++;
+                            showSlide(currentSlide);
+                        });
+                    }
+
+                    indicators.forEach(function(indicator) {
+                        indicator.addEventListener('click', function() {
+                            currentSlide = parseInt(this.getAttribute('data-index'));
+                            showSlide(currentSlide);
+                        });
+                    });
+
+                    // Show first slide
+                    showSlide(0);
+
+                    // Keyboard navigation
+                    document.addEventListener('keydown', function(e) {
+                        var modal = document.getElementById('affGalleryModal');
+                        if (modal && modal.classList.contains('show')) {
+                            if (e.key === 'ArrowLeft') {
+                                currentSlide--;
+                                showSlide(currentSlide);
+                            } else if (e.key === 'ArrowRight') {
+                                currentSlide++;
+                                showSlide(currentSlide);
+                            }
+                        }
+                    });
+                }
+
+                // Profile picture click to open gallery
+                var profileBtn = document.getElementById('affProfileStoryBtn');
+                if (profileBtn) {
+                    profileBtn.addEventListener('click', function() {
+                        var modal = document.getElementById('affGalleryModal');
+                        if (modal) {
+                            bootstrap.Modal.getOrCreateInstance(modal).show();
+                            initGalleryCarousel();
+                        }
+                    });
+                }
+            });
+        </script>
+
         <div class="modal fade checkout-gallery-modal" id="checkoutGalleryModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
                 <div class="modal-content">
@@ -8344,6 +8536,44 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     </div>
                     <div class="modal-body">
                         <img src="" alt="" id="checkoutGalleryModalImage" class="checkout-gallery-modal-image">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Affiliate Gallery Carousel Modal -->
+        <div class="modal fade" id="affGalleryModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content aff-gallery-modal-content">
+                    <div class="modal-header" style="border-bottom: 1px solid rgba(167,116,255,0.2);">
+                        <h5 class="modal-title" style="color: #fff;">Gallery</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body aff-gallery-modal-body">
+                        <div class="aff-gallery-carousel-container">
+                            <div class="aff-gallery-carousel" id="affGalleryCarousel">
+                                @foreach($affiliate->gallery_images as $galleryImage)
+                                    <div class="aff-gallery-carousel-item" style="display: none;">
+                                        <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image" data-index="{{ $loop->index }}">
+                                    </div>
+                                @endforeach
+                            </div>
+                            @if(count($affiliate->gallery_images) > 1)
+                                <button type="button" class="aff-gallery-carousel-nav aff-gallery-carousel-prev" id="affGalleryPrev" aria-label="Previous image">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <button type="button" class="aff-gallery-carousel-nav aff-gallery-carousel-next" id="affGalleryNext" aria-label="Next image">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            @endif
+                        </div>
+                        @if(count($affiliate->gallery_images) > 1)
+                            <div class="aff-gallery-carousel-indicators" id="affGalleryIndicators">
+                                @foreach($affiliate->gallery_images as $galleryImage)
+                                    <button type="button" class="aff-gallery-carousel-indicator{{ $loop->first ? ' active' : '' }}" data-index="{{ $loop->index }}" aria-label="Go to image {{ $loop->iteration }}"></button>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
