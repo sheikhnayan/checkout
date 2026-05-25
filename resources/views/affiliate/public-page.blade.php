@@ -2511,6 +2511,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     justify-content: space-between !important;
     padding: 0 clamp(20px, 1vw, 48px);
     height:72px;
+    gap: 12px;
+}
+.aff-nav-badges {
+    display: flex !important;
+    gap: 16px !important;
+    align-items: center !important;
+    margin: 0 auto 0 0;
+}
     width: 100%;
     box-sizing: border-box;
 }
@@ -4540,6 +4548,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .cv-hamburger { display: none !important; }
     .mobile-top-actions { display: none !important; }
     .aff-hero.cv-venue-header .aff-hero-badges { order: 3; width: 100%; margin-top: 8px; }
+    .aff-nav-badges { gap: 8px !important; }
+    .aff-nav-badge { font-size: 10px !important; }
+    .aff-nav-badge i { font-size: 14px !important; }
+    .aff-nav-badge span { font-size: 10px !important; }
 }
 @media (max-width: 420px) {
     .cv-nav-back { padding: 6px 10px !important; font-size: 11.5px !important; }
@@ -4615,6 +4627,20 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .aff-dgc-item:hover i { opacity: 1; }
 .aff-dgc-item i { opacity: 0; transition: opacity 0.3s ease; }
 
+/* ===== Location Selector Mobile & iOS Fixes ===== */
+@media (max-width: 767px) {
+    .aff-location-mobile-select {
+        padding: 16px 18px !important;
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        min-height: 56px !important;
+        letter-spacing: 0.5px;
+    }
+    .aff-location-selector {
+        margin-bottom: 28px !important;
+    }
+}
+
 /* ===== Gallery Responsive ===== */
 @media (max-width: 767px) {
     .aff-mobile-gallery-carousel { display: block !important; }
@@ -4670,6 +4696,22 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             <a href="https://cartvip.com" target="_blank" class="cv-nav-brand">
                 <img src="{{ asset('images/logo.png') }}" alt="CartVIP" class="cv-nav-logo-img">
             </a>
+            <div class="aff-nav-badges" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                <div class="aff-nav-badge" style="display: flex; align-items: center; gap: 8px; font-size: 12px;">
+                    <i class="fas fa-star" style="color: #efbe6f; font-size: 16px;"></i>
+                    <div style="display: flex; flex-direction: column; gap: 0;">
+                        <span style="font-weight: 700; color: #fff; line-height: 1;">{{ $affiliate->hero_badge_1_label ?: 'Featured' }}</span>
+                        <span style="font-size: 11px; color: rgba(255,255,255,0.65); line-height: 1;">{{ $affiliate->hero_badge_1_sub ?: 'Premium Partner' }}</span>
+                    </div>
+                </div>
+                <div class="aff-nav-badge" style="display: flex; align-items: center; gap: 8px; font-size: 12px;">
+                    <i class="fas fa-award" style="color: #efbe6f; font-size: 16px;"></i>
+                    <div style="display: flex; flex-direction: column; gap: 0;">
+                        <span style="font-weight: 700; color: #fff; line-height: 1;">{{ $affiliate->hero_badge_2_label ?: 'Verified' }}</span>
+                        <span style="font-size: 11px; color: rgba(255,255,255,0.65); line-height: 1;">{{ $affiliate->hero_badge_2_sub ?: 'Trusted Source' }}</span>
+                    </div>
+                </div>
+            </div>
             <button class="cv-hamburger" id="cv-hamburger" aria-label="Open menu">
                 <span></span><span></span><span></span>
             </button>
@@ -4702,22 +4744,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 <div>
                                     <p class="cv-hero-venue-title">{{ $affiliate->display_name ?: $affiliate->user->name }}<span class="cv-hero-venue-verified" title="Verified Partner">&check;</span></p>
                                     <p class="cv-hero-venue-meta">Premium Packages</p>
-                                </div>
-                            </div>
-                            <div class="cv-hero-badges">
-                                <div class="cv-hero-badge">
-                                    <i class="fas fa-star"></i>
-                                    <div>
-                                        <span class="cv-hero-badge-label">{{ $affiliate->hero_badge_1_label ?: 'Featured' }}</span>
-                                        <span class="cv-hero-badge-sub">{{ $affiliate->hero_badge_1_sub ?: 'Premium Partner' }}</span>
-                                    </div>
-                                </div>
-                                <div class="cv-hero-badge">
-                                    <i class="fas fa-award"></i>
-                                    <div>
-                                        <span class="cv-hero-badge-label">{{ $affiliate->hero_badge_2_label ?: 'Verified' }}</span>
-                                        <span class="cv-hero-badge-sub">{{ $affiliate->hero_badge_2_sub ?: 'Trusted Source' }}</span>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -4864,7 +4890,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     <!-- Search & Location Filters for Affiliate -->
                                     <div class="aff-location-selector" style="margin-bottom: 24px;">
                                         <label style="display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .6px; opacity: .68; font-weight: 700; margin: 0 0 8px 0;">Choose Your Location</label>
-                                        <select id="package-location-filter-main" style="width: 100%; min-height: 48px; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.2) !important; border-radius: 10px !important; color: #fff !important; padding: 12px 14px !important; font-size: 14px;">
+                                        <select id="package-location-filter-main" class="aff-location-mobile-select" style="width: 100%; min-height: 48px; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.2) !important; border-radius: 10px !important; color: #fff !important; padding: 12px 14px !important; font-size: 14px; font-weight: 600; -webkit-appearance: none; -moz-appearance: none; appearance: none;">
                                             <option value="">-- Select a Location --</option>
                                             @foreach($uniqueClubsForFilter as $clubOption)
                                                 <option value="{{ $clubOption->id }}">{{ $clubOption->name }}</option>
