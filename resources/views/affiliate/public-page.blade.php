@@ -2510,12 +2510,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     align-items:center;
     justify-content: space-between !important;
     padding: 0 clamp(20px, 1vw, 48px);
-    height:72px;
+    height:auto;
+    min-height: 72px;
     gap: 12px;
 }
 .aff-nav-badges {
     display: flex !important;
-    gap: 16px !important;
+    gap: 24px !important;
     align-items: center !important;
     margin: 0 auto 0 0;
 }
@@ -4541,17 +4542,16 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 
 @media (max-width: 767px) {
-    .cv-top-nav { padding: 0 14px; height: 60px; }
-    .cv-nav-logo-img { height: 32px; max-width: 130px; }
+    .cv-top-nav { padding: 0 12px; min-height: 60px; }
+    .cv-nav-logo-img { height: 32px; max-width: 120px; }
     .cv-nav-back { display: flex !important; padding: 7px 12px !important; font-size: 12px !important; gap: 6px !important; }
     .cv-nav-back span { display: inline; }
     .cv-hamburger { display: none !important; }
     .mobile-top-actions { display: none !important; }
     .aff-hero.cv-venue-header .aff-hero-badges { order: 3; width: 100%; margin-top: 8px; }
-    .aff-nav-badges { gap: 8px !important; }
-    .aff-nav-badge { font-size: 10px !important; }
-    .aff-nav-badge i { font-size: 14px !important; }
-    .aff-nav-badge span { font-size: 10px !important; }
+    .aff-nav-badges { gap: 12px !important; flex-wrap: wrap; }
+    .aff-nav-badge { font-size: 11px !important; white-space: normal; }
+    .aff-nav-badge i { font-size: 13px !important; }
 }
 @media (max-width: 420px) {
     .cv-nav-back { padding: 6px 10px !important; font-size: 11.5px !important; }
@@ -4696,20 +4696,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             <a href="https://cartvip.com" target="_blank" class="cv-nav-brand">
                 <img src="{{ asset('images/logo.png') }}" alt="CartVIP" class="cv-nav-logo-img">
             </a>
-            <div class="aff-nav-badges" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-                <div class="aff-nav-badge" style="display: flex; align-items: center; gap: 8px; font-size: 12px;">
-                    <i class="fas fa-star" style="color: #efbe6f; font-size: 16px;"></i>
-                    <div style="display: flex; flex-direction: column; gap: 0;">
-                        <span style="font-weight: 700; color: #fff; line-height: 1;">{{ $affiliate->hero_badge_1_label ?: 'Featured' }}</span>
-                        <span style="font-size: 11px; color: rgba(255,255,255,0.65); line-height: 1;">{{ $affiliate->hero_badge_1_sub ?: 'Premium Partner' }}</span>
-                    </div>
+            <div class="aff-nav-badges" style="display: flex; gap: 24px; align-items: center; flex-wrap: nowrap;">
+                <div class="aff-nav-badge" style="display: flex; align-items: center; gap: 8px; font-size: 12px; white-space: nowrap;">
+                    <i class="fas fa-star" style="color: #efbe6f; font-size: 16px; flex-shrink: 0;"></i>
+                    <span style="font-weight: 700; color: #fff;">{{ $affiliate->hero_badge_1_label ?: 'Featured' }} <span style="color: rgba(255,255,255,0.65); font-weight: 400;">{{ $affiliate->hero_badge_1_sub ?: 'Premium Partner' }}</span></span>
                 </div>
-                <div class="aff-nav-badge" style="display: flex; align-items: center; gap: 8px; font-size: 12px;">
-                    <i class="fas fa-award" style="color: #efbe6f; font-size: 16px;"></i>
-                    <div style="display: flex; flex-direction: column; gap: 0;">
-                        <span style="font-weight: 700; color: #fff; line-height: 1;">{{ $affiliate->hero_badge_2_label ?: 'Verified' }}</span>
-                        <span style="font-size: 11px; color: rgba(255,255,255,0.65); line-height: 1;">{{ $affiliate->hero_badge_2_sub ?: 'Trusted Source' }}</span>
-                    </div>
+                <div class="aff-nav-badge" style="display: flex; align-items: center; gap: 8px; font-size: 12px; white-space: nowrap;">
+                    <i class="fas fa-award" style="color: #efbe6f; font-size: 16px; flex-shrink: 0;"></i>
+                    <span style="font-weight: 700; color: #fff;">{{ $affiliate->hero_badge_2_label ?: 'Verified' }} <span style="color: rgba(255,255,255,0.65); font-weight: 400;">{{ $affiliate->hero_badge_2_sub ?: 'Trusted Source' }}</span></span>
                 </div>
             </div>
             <button class="cv-hamburger" id="cv-hamburger" aria-label="Open menu">
