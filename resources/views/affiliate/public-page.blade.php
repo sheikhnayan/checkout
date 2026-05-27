@@ -4843,6 +4843,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         display: none !important;
     }
 
+    /* Hide Most Popular indicators on public affiliate page */
+    .cv-popular-pill {
+        display: none !important;
+    }
+
     /* Featured Package Card Styling */
     .package-category-group {
         display: none !important;
@@ -5572,19 +5577,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         <small id="package_use_date_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
                                     </div>
 
-                                    <div class="cv-package-section-header" style="display:flex; justify-content:space-between; align-items:center; margin: 18px 0 12px; flex-wrap:wrap; gap:10px;">
-                                        <div>
-                                            <h5 class="section-kicker-lg" style="margin:0 !important;">{{ $data->package_section_title ?: 'Select Your Package' }}</h5>
-                                            <p style="margin: 4px 0 0; font-size: 12.5px; color: rgba(255,255,255,0.5);">{{ $data->package_section_subtext ?: 'All packages include free ride, club entry, and priority access.' }}</p>
-                                        </div>
-                                        @if($mostPopularPackageName)
-                                        <div class="cv-most-popular-tag" style="display:inline-flex; align-items:center; gap:10px; padding: 7px 14px; border-radius: 999px; background: rgba(167,116,255,0.08); border: 1px solid rgba(167,116,255,0.32); font-size: 12.5px; color: rgba(255,255,255,0.9); font-weight: 600;">
-                                            <span style="background: linear-gradient(135deg, #a774ff 0%, #7c3aed 50%, #5b21b6 100%); color: #fff; padding: 3px 9px; border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: .06em; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(124,58,237,0.35), inset 0 1px 0 rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.18); text-transform: uppercase;"><i class="fas fa-fire" style="font-size:9px;"></i>MOST POPULAR</span>
-                                            <span>{{ $mostPopularPackageName }}</span>
-                                        </div>
-                                        @endif
-                                    </div>
-
                                     <!-- Search & Location Filters for Affiliate -->
                                     <div class="aff-location-selector" style="margin-bottom: 24px;">
                                         <label style="display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .6px; opacity: .68; font-weight: 700; margin: 0 0 8px 0;">Choose Your Location</label>
@@ -5597,6 +5589,20 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     </div>
                                     <div id="package-no-location-message" style="display: block; text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.5); font-size: 14px;">
                                         <p style="margin: 0;">👆 Select a location above to see available packages</p>
+                                    </div>
+
+                                    <!-- Select Your Package Header - Show only when location selected -->
+                                    <div class="cv-package-section-header aff-package-header-gated" style="display:none; justify-content:space-between; align-items:center; margin: 18px 0 12px; flex-wrap:wrap; gap:10px;">
+                                        <div>
+                                            <h5 class="section-kicker-lg" style="margin:0 !important;">{{ $data->package_section_title ?: 'Select Your Package' }}</h5>
+                                            <p style="margin: 4px 0 0; font-size: 12.5px; color: rgba(255,255,255,0.5);">{{ $data->package_section_subtext ?: 'All packages include free ride, club entry, and priority access.' }}</p>
+                                        </div>
+                                        @if($mostPopularPackageName)
+                                        <div class="cv-most-popular-tag" style="display:inline-flex; align-items:center; gap:10px; padding: 7px 14px; border-radius: 999px; background: rgba(167,116,255,0.08); border: 1px solid rgba(167,116,255,0.32); font-size: 12.5px; color: rgba(255,255,255,0.9); font-weight: 600;">
+                                            <span style="background: linear-gradient(135deg, #a774ff 0%, #7c3aed 50%, #5b21b6 100%); color: #fff; padding: 3px 9px; border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: .06em; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(124,58,237,0.35), inset 0 1px 0 rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.18); text-transform: uppercase;"><i class="fas fa-fire" style="font-size:9px;"></i>MOST POPULAR</span>
+                                            <span>{{ $mostPopularPackageName }}</span>
+                                        </div>
+                                        @endif
                                     </div>
 
 
@@ -9271,11 +9277,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 function filterPackages() {
                     var locationId = locationFilter.value;
                     console.log('Filter called with locationId:', locationId);
+                    var packageHeader = document.querySelector('.aff-package-header-gated');
 
                     if (!locationId) {
                         // No location selected - hide everything
                         if (categoriesGate) categoriesGate.classList.remove('is-visible');
                         if (noLocationMsg) noLocationMsg.style.display = 'block';
+                        if (packageHeader) packageHeader.style.display = 'none';
                         document.querySelectorAll('.package-category-tile').forEach(function(tab) {
                             tab.classList.add('hidden-tab');
                             tab.classList.remove('visible-tab');
@@ -9283,9 +9291,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         return;
                     }
 
-                    // Location selected - show categories gate
+                    // Location selected - show categories gate and package header
                     if (categoriesGate) categoriesGate.classList.add('is-visible');
                     if (noLocationMsg) noLocationMsg.style.display = 'none';
+                    if (packageHeader) packageHeader.style.display = 'flex';
 
                     // Hide all packages first
                     document.querySelectorAll('[id^="pkg-card-"]').forEach(function(card) {
