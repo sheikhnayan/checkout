@@ -4582,31 +4582,43 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
 @media (max-width: 767px) {
     .cv-top-nav {
-        padding: 8px 12px !important;
-        min-height: auto !important;
-        flex-direction: column;
-        align-items: stretch !important;
-        justify-content: flex-start !important;
+        padding: 0 12px !important;
+        min-height: 56px !important;
         gap: 8px !important;
     }
-    .cv-nav-logo-img { height: 32px; max-width: 120px; }
+    .cv-nav-logo-img { height: 28px; max-width: 100px; }
     .cv-nav-back { display: flex !important; padding: 7px 12px !important; font-size: 12px !important; gap: 6px !important; }
     .cv-nav-back span { display: inline; }
     .cv-hamburger { display: none !important; }
     .mobile-top-actions { display: none !important; }
     .aff-hero.cv-venue-header .aff-hero-badges { order: 3; width: 100%; margin-top: 8px; }
     .aff-nav-badges {
-        gap: 12px !important;
-        flex-wrap: wrap !important;
-        width: 100% !important;
-        margin: 0 !important;
+        gap: 10px !important;
+        flex-wrap: nowrap !important;
+        width: auto !important;
+        margin: 0 auto 0 0 !important;
+        overflow: hidden;
     }
     .aff-nav-badge {
-        font-size: 11px !important;
+        font-size: 9px !important;
         white-space: nowrap !important;
-        flex: 0 1 auto !important;
+        flex: 0 0 auto !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 5px !important;
     }
-    .aff-nav-badge i { font-size: 13px !important; }
+    .aff-nav-badge i {
+        font-size: 11px !important;
+        flex-shrink: 0;
+    }
+    .aff-nav-badge span {
+        display: flex !important;
+        align-items: center !important;
+        gap: 3px !important;
+    }
+    .aff-nav-badge span span {
+        display: none !important;
+    }
 
     /* Mobile Hero Section - Vibrant CartVIP Design */
     .cv-hero-stage {
