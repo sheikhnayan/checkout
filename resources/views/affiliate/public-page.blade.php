@@ -8534,6 +8534,21 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
         <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
         <script>
+            // Initialize Flatpickr for reservation date as soon as it's loaded
+            document.addEventListener('DOMContentLoaded', function() {
+                var dateInput = document.getElementById('package_use_date');
+                if (dateInput && typeof flatpickr !== 'undefined') {
+                    flatpickr(dateInput, {
+                        mode: 'single',
+                        minDate: 'today',
+                        dateFormat: 'Y-m-d',
+                        enableTime: false,
+                        disableMobile: false
+                    });
+                }
+            });
+        </script>
+        <script>
             function prepareCheckoutCartPayload(form) {
                 syncCheckoutCartFields();
             }
@@ -9650,13 +9665,17 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 initSidebar();
                 initPackageSearch();
                 initMobileGalleryCarousel();
-                initReservationDatePicker();
                 initClubTooltips();
                 initSidebarDateSync();
                 initSidebarCta();
                 initHamburger();
                 initCheckoutSteps();
                 initDateNotification();
+
+                // Initialize date picker with delay to ensure Flatpickr is loaded
+                setTimeout(function() {
+                    initReservationDatePicker();
+                }, 100);
             });
         })();
         </script>
