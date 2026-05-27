@@ -8533,7 +8533,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         </script>
 
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-        <script src="https://cdn.jsdelivr.net/npm/flatpickr" onload="initFlatpickrWhenReady()"></script>
         <script>
             function initFlatpickrWhenReady() {
                 function doInit() {
@@ -8565,6 +8564,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 }
             }
         </script>
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr" onload="initFlatpickrWhenReady()"></script>
         <script>
             function prepareCheckoutCartPayload(form) {
                 syncCheckoutCartFields();
