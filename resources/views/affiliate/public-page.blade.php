@@ -9458,6 +9458,12 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 var dateInput = document.getElementById('package_use_date');
                 if (!dateInput) return;
 
+                // Check if flatpickr is available
+                if (typeof flatpickr === 'undefined') {
+                    console.warn('Flatpickr not loaded, date picker will use browser default');
+                    return;
+                }
+
                 // Destroy existing flatpickr instance if it exists
                 if (dateInput._flatpickr) {
                     dateInput._flatpickr.destroy();
