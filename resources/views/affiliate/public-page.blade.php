@@ -4601,23 +4601,27 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
     .aff-nav-badge {
         font-size: 9px !important;
-        white-space: nowrap !important;
-        flex: 0 0 auto !important;
+        white-space: normal !important;
+        flex: 0 1 auto !important;
         display: inline-flex !important;
         align-items: center !important;
         gap: 5px !important;
+        line-height: 1.1 !important;
     }
     .aff-nav-badge i {
-        font-size: 11px !important;
+        font-size: 12px !important;
         flex-shrink: 0;
     }
     .aff-nav-badge span {
         display: flex !important;
-        align-items: center !important;
-        gap: 3px !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0 !important;
     }
     .aff-nav-badge span span {
-        display: none !important;
+        display: block !important;
+        font-weight: 400 !important;
+        font-size: 8px !important;
     }
 
     /* Mobile Hero Section - Vibrant CartVIP Design */
