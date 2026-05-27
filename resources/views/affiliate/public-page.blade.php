@@ -2677,6 +2677,45 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     height: 100%;
 }
 
+@media (min-width: 1200px) {
+    .cv-hero-inner {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        grid-template-rows: auto 1fr;
+        gap: 12px 20px;
+        height: 100%;
+    }
+    .cv-hero-head {
+        grid-column: 1 / -1;
+        grid-row: 1;
+    }
+    .cv-hero-bottom {
+        grid-column: 1;
+        grid-row: 2;
+        gap: 12px !important;
+        margin: 0 !important;
+    }
+    .aff-hero-gallery-carousel {
+        display: flex !important;
+        grid-column: 2;
+        grid-row: 1 / -1;
+    }
+}
+
+/* ===== Hero Gallery Carousel ===== */
+.aff-hero-gallery-carousel {
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    overflow: hidden;
+}
+.aff-hero-carousel-item img {
+    background: rgba(0,0,0,0.5);
+}
+.aff-hero-carousel-prev:hover,
+.aff-hero-carousel-next:hover {
+    background: rgba(0,0,0,0.6) !important;
+}
+
 .cv-hero-head { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
 .cv-hero-venue { display:flex; align-items:center; gap:14px; min-width:0; }
 .cv-hero-venue-avatar { width:80px; height:80px; border-radius:12px; object-fit:cover; border:none; flex-shrink:0; }
@@ -4552,6 +4591,413 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .aff-nav-badges { gap: 12px !important; flex-wrap: wrap; }
     .aff-nav-badge { font-size: 11px !important; white-space: normal; }
     .aff-nav-badge i { font-size: 13px !important; }
+
+    /* Mobile Hero Section - Vibrant CartVIP Design */
+    .cv-hero-stage {
+        min-height: auto;
+        padding: 18px !important;
+        background-size: cover;
+        background-position: center;
+        border-radius: 18px !important;
+        border: 1px solid rgba(251,113,133,0.25) !important;
+        overflow: hidden;
+        background: linear-gradient(135deg, rgba(251,113,133,0.08) 0%, rgba(167,116,255,0.05) 100%), linear-gradient(to bottom, rgba(255,255,255,0.02) 0%, rgba(0,0,0,0.3) 100%) !important;
+    }
+
+    .cv-hero-stage::before {
+        display: none !important;
+    }
+
+    .cv-hero-inner {
+        flex-direction: column;
+        gap: 0;
+        padding: 0;
+    }
+
+    /* Profile Photo Section with Vibrant Border */
+    .cv-hero-head {
+        flex-direction: row;
+        gap: 12px;
+        align-items: flex-start;
+        padding: 0 0 12px 0;
+        border-bottom: 1px solid rgba(251,113,133,0.15);
+    }
+
+    .cv-hero-venue {
+        flex: 0 0 auto;
+        gap: 0;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .aff-profile-story-btn {
+        width: 110px !important;
+        height: 110px !important;
+        flex-shrink: 0;
+    }
+
+    .cv-hero-venue-avatar,
+    .cv-hero-venue-initial {
+        width: 110px !important;
+        height: 110px !important;
+        border-radius: 14px !important;
+        flex-shrink: 0;
+    }
+
+    /* Name and Subtitle Section */
+    .cv-hero-venue > div {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 2px;
+        flex: 1;
+        padding-top: 0;
+    }
+
+    .cv-hero-venue-title {
+        font-size: 38px !important;
+        font-weight: 900;
+        line-height: 1;
+        color: #fff !important;
+        margin: 0 !important;
+        letter-spacing: -0.03em;
+    }
+
+    .cv-hero-venue-verified {
+        display: none;
+    }
+
+    .cv-hero-venue-meta {
+        font-size: 11px !important;
+        margin: 3px 0 0 0 !important;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        font-weight: 800;
+        color: var(--accent) !important;
+    }
+
+    /* Social Links moved below subtitle */
+    .cv-hero-venue > div .aff-social-links {
+        margin-top: 6px !important;
+    }
+
+    /* Bio Section - Separated and Styled */
+    .cv-hero-bottom {
+        flex-direction: column;
+        gap: 0;
+        align-items: stretch;
+        padding: 10px 0 0 0;
+        border: none;
+    }
+
+    .cv-hero-content {
+        max-width: 100%;
+    }
+
+    .aff-kicker {
+        display: none;
+    }
+
+    .cv-hero-title {
+        display: none;
+    }
+
+    .cv-hero-subtitle {
+        font-size: 12px;
+        line-height: 1.5;
+        margin: 0 0 6px 0 !important;
+        color: rgba(255,255,255,0.7) !important;
+    }
+
+    .aff-display-copy {
+        font-size: 12px !important;
+        line-height: 1.5;
+        margin-bottom: 6px !important;
+        color: rgba(255,255,255,0.8) !important;
+    }
+
+    /* Social Links (beside profile picture) */
+    .cv-hero-venue .aff-social-links {
+        margin: 0 !important;
+        gap: 8px !important;
+        display: flex !important;
+    }
+
+    .aff-social-links {
+        margin: 0 !important;
+        gap: 8px !important;
+        display: flex;
+    }
+
+    .aff-social-link {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 15px !important;
+        background: rgba(255,255,255,0.08) !important;
+        border: 1px solid rgba(251,113,133,0.3) !important;
+        border-radius: 8px !important;
+        transition: all 0.3s ease;
+        padding: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .aff-social-link:hover {
+        background: linear-gradient(135deg, rgba(251,113,133,0.2), rgba(167,116,255,0.2)) !important;
+        border-color: rgba(251,113,133,0.6) !important;
+    }
+
+    .cv-hero-location {
+        display: none !important;
+    }
+
+    .aff-hero-gallery-carousel {
+        display: none !important;
+    }
+
+    /* Show Features and Tagline on Mobile */
+    .aff-hero-features {
+        display: grid !important;
+    }
+
+    .aff-hero-tagline {
+        display: flex !important;
+    }
+
+    /* AFFILIATE PACKAGES Section Header */
+    .section-kicker-lg {
+        font-size: 13px !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.15em !important;
+        text-transform: uppercase !important;
+        color: var(--accent) !important;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 8px;
+    }
+
+    .section-kicker-lg::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 40px;
+        height: 1px;
+        background: var(--accent);
+    }
+
+    .cv-package-section-header {
+        margin: 0 0 16px 0 !important;
+        padding: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0 !important;
+    }
+
+    .cv-package-section-header > div {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 4px !important;
+    }
+
+    .cv-package-section-header p {
+        display: none !important;
+    }
+
+    .cv-most-popular-tag {
+        display: none !important;
+    }
+
+    /* Featured Package Card Styling */
+    .package-category-group {
+        display: none !important;
+    }
+
+    .package-category-group.is-active {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    /* First Package Card - Featured Style */
+    .vip-card.cv-exact-card {
+        background: linear-gradient(135deg, rgba(139,92,246,0.2) 0%, rgba(236,72,153,0.15) 100%) !important;
+        border: 1px solid rgba(139,92,246,0.3) !important;
+        border-radius: 14px !important;
+        padding: 14px !important;
+        display: grid !important;
+        grid-template-columns: 100px 1fr !important;
+        gap: 14px !important;
+        align-items: flex-start;
+    }
+
+    .vip-card.cv-exact-card:first-of-type {
+        background: linear-gradient(135deg, rgba(139,92,246,0.25) 0%, rgba(236,72,153,0.2) 100%) !important;
+        border: 1px solid rgba(251,113,133,0.4) !important;
+    }
+
+    .vip-card.cv-exact-card .cv-pkg-media-wrap {
+        grid-column: 1 !important;
+        grid-row: 1 / -1 !important;
+        min-height: 100px !important;
+        height: 100px !important;
+        border-radius: 10px !important;
+        overflow: hidden !important;
+        border: 1.5px solid rgba(251,113,133,0.5) !important;
+        background: rgba(0,0,0,0.3) !important;
+    }
+
+    .vip-card.cv-exact-card .vip-card-main {
+        grid-column: 2 !important;
+        padding: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 4px !important;
+    }
+
+    .vip-card.cv-exact-card .cv-pkg-title-row {
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+    }
+
+    .vip-card.cv-exact-card .cv-pkg-title-icon {
+        display: none !important;
+    }
+
+    .vip-card.cv-exact-card .cv-pkg-title {
+        font-size: 24px !important;
+        font-weight: 900 !important;
+        color: #fff !important;
+        margin: 0 !important;
+    }
+
+    .vip-card.cv-exact-card .cv-pkg-sub {
+        font-size: 12px !important;
+        color: var(--accent) !important;
+        font-weight: 700 !important;
+    }
+
+    .vip-card.cv-exact-card .cv-pkg-desc {
+        font-size: 13px !important;
+        color: rgba(255,255,255,0.8) !important;
+        margin: 0 !important;
+        line-height: 1.4 !important;
+    }
+
+    .vip-card.cv-exact-card .cv-pkg-features,
+    .vip-card.cv-exact-card .vip-card-side,
+    .vip-card.cv-exact-card .cv-club-name-badge {
+        display: none !important;
+    }
+
+    .vip-card.cv-exact-card .cv-popular-pill {
+        display: none !important;
+    }
+
+    /* Features Grid Section */
+    .aff-hero-features {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(251,113,133,0.15);
+    }
+
+    .aff-hero-feature {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 6px;
+        text-align: center;
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        transition: all 0.3s ease;
+    }
+
+    .aff-hero-feature:hover {
+        background: transparent;
+        border-color: transparent;
+    }
+
+    .aff-hero-feature-icon {
+        font-size: 24px;
+        color: var(--accent);
+        width: auto;
+        height: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border-radius: 0;
+    }
+
+    .aff-hero-feature-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.8);
+        line-height: 1.2;
+    }
+
+    /* Hide Category Tabs on Mobile */
+    .package-category-tiles {
+        display: none !important;
+    }
+
+    .package-category-wrap {
+        display: none !important;
+    }
+
+    .aff-location-gated {
+        display: block !important;
+    }
+
+    /* Final Tagline Box */
+    .aff-hero-tagline {
+        padding: 10px 12px;
+        border: 1.5px solid;
+        border-image: linear-gradient(135deg, rgba(251,113,133,0.7) 0%, rgba(167,116,255,0.7) 100%) 1;
+        border-radius: 10px;
+        background: linear-gradient(135deg, rgba(251,113,133,0.06), rgba(167,116,255,0.06));
+        text-align: center;
+        margin: 8px 0 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .aff-hero-tagline i {
+        color: var(--accent);
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    .aff-hero-tagline-text {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1px;
+        text-align: left;
+    }
+
+    .aff-hero-tagline-main {
+        font-size: 12px;
+        font-weight: 800;
+        color: #fff;
+    }
+
+    .aff-hero-tagline-sub {
+        font-size: 10px;
+        color: rgba(255,255,255,0.65);
+    }
 }
 @media (max-width: 420px) {
     .cv-nav-back { padding: 6px 10px !important; font-size: 11.5px !important; }
@@ -4647,6 +5093,21 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 
 /* ===== Profile Story Indicator (Instagram-style) ===== */
+@keyframes aff-story-border-glow {
+    0% {
+        opacity: 0.6;
+        box-shadow: 0 0 8px rgba(239, 190, 111, 0.5), 0 0 16px rgba(167, 116, 255, 0.3);
+    }
+    50% {
+        opacity: 1;
+        box-shadow: 0 0 16px rgba(239, 190, 111, 0.8), 0 0 24px rgba(167, 116, 255, 0.5);
+    }
+    100% {
+        opacity: 0.6;
+        box-shadow: 0 0 8px rgba(239, 190, 111, 0.5), 0 0 16px rgba(167, 116, 255, 0.3);
+    }
+}
+
 .aff-profile-story-btn {
     border: none;
     background: none;
@@ -4656,9 +5117,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     border-radius: 12px;
     transition: transform 0.2s ease;
 }
-.aff-profile-story-btn:hover {
-    transform: scale(1.05);
-}
 .aff-profile-story-btn::before {
     content: '';
     position: absolute;
@@ -4666,6 +5124,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     border-radius: 12px;
     background: linear-gradient(135deg, #efbe6f 0%, #a774ff 50%, #efbe6f 100%);
     z-index: 0;
+    animation: aff-story-border-glow 2s ease-in-out infinite;
+}
+.aff-profile-story-btn:hover {
+    transform: scale(1.05);
+}
+.aff-profile-story-btn:hover::before {
+    animation: none;
 }
 .aff-profile-story-btn img,
 .aff-profile-story-btn span {
@@ -4873,6 +5338,21 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 <div>
                                     <p class="cv-hero-venue-title">{{ $affiliate->display_name ?: $affiliate->user->name }}<span class="cv-hero-venue-verified" title="Verified Partner">&check;</span></p>
                                     <p class="cv-hero-venue-meta">Premium Packages</p>
+                                    <!-- Social Links beside profile -->
+                                    @if($affiliate->facebook_url || $affiliate->instagram_url)
+                                        <div class="aff-social-links" style="display: flex; gap: 8px; margin-top: 6px;">
+                                            @if($affiliate->facebook_url)
+                                                <a href="{{ $affiliate->facebook_url }}" target="_blank" rel="noopener noreferrer" class="aff-social-link" style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; text-decoration: none; transition: all 0.2s ease;" title="Facebook">
+                                                    <i class="fab fa-facebook-f" style="font-size: 15px;"></i>
+                                                </a>
+                                            @endif
+                                            @if($affiliate->instagram_url)
+                                                <a href="{{ $affiliate->instagram_url }}" target="_blank" rel="noopener noreferrer" class="aff-social-link" style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; text-decoration: none; transition: all 0.2s ease;" title="Instagram">
+                                                    <i class="fab fa-instagram" style="font-size: 15px;"></i>
+                                                </a>
+                                            @endif
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -4898,24 +5378,66 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         {{ $affiliate->description }}
                                     </div>
                                 @endif
-
-                                <!-- Social Links -->
-                                @if($affiliate->facebook_url || $affiliate->instagram_url)
-                                    <div class="aff-social-links" style="display: flex; gap: 12px; margin-bottom: 24px;">
-                                        @if($affiliate->facebook_url)
-                                            <a href="{{ $affiliate->facebook_url }}" target="_blank" rel="noopener noreferrer" class="aff-social-link" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; text-decoration: none; transition: all 0.2s ease;" title="Facebook">
-                                                <i class="fab fa-facebook-f" style="font-size: 16px;"></i>
-                                            </a>
-                                        @endif
-                                        @if($affiliate->instagram_url)
-                                            <a href="{{ $affiliate->instagram_url }}" target="_blank" rel="noopener noreferrer" class="aff-social-link" style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; text-decoration: none; transition: all 0.2s ease;" title="Instagram">
-                                                <i class="fab fa-instagram" style="font-size: 16px;"></i>
-                                            </a>
-                                        @endif
-                                    </div>
-                                @endif
                             </div>
                         </div>
+
+                        <!-- Features Section - Mobile Only -->
+                        <div class="aff-hero-features" style="display: none;">
+                            <div class="aff-hero-feature">
+                                <div class="aff-hero-feature-icon">
+                                    <i class="fas fa-crown"></i>
+                                </div>
+                                <div class="aff-hero-feature-label">Premium<br>Quality</div>
+                            </div>
+                            <div class="aff-hero-feature">
+                                <div class="aff-hero-feature-icon">
+                                    <i class="fas fa-bolt"></i>
+                                </div>
+                                <div class="aff-hero-feature-label">Fast<br>Delivery</div>
+                            </div>
+                            <div class="aff-hero-feature">
+                                <div class="aff-hero-feature-icon">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                                <div class="aff-hero-feature-label">Secure<br>Payments</div>
+                            </div>
+                            <div class="aff-hero-feature">
+                                <div class="aff-hero-feature-icon">
+                                    <i class="fas fa-headset"></i>
+                                </div>
+                                <div class="aff-hero-feature-label">Dedicated<br>Support</div>
+                            </div>
+                        </div>
+
+                        <!-- Final Tagline Box - Mobile Only -->
+                        <div class="aff-hero-tagline" style="display: none;">
+                            <i class="fas fa-shield-alt"></i>
+                            <div class="aff-hero-tagline-text">
+                                <div class="aff-hero-tagline-main">Trusted. Verified. Premium.</div>
+                                <div class="aff-hero-tagline-sub">Partner with confidence.</div>
+                            </div>
+                        </div>
+
+                        <!-- Desktop Gallery Carousel (Right side) -->
+                        @if(!empty($affiliate->gallery_images))
+                            <div class="aff-hero-gallery-carousel" style="display: none; flex: 0 0 auto; width: 340px; height: 100%; position: relative;">
+                                <div class="aff-hero-carousel-track" id="affHeroCarouselTrack" style="display: flex; flex-direction: column; height: 100%; position: relative; overflow: hidden; border-radius: 12px;">
+                                    @foreach($affiliate->gallery_images as $galleryImage)
+                                        <div class="aff-hero-carousel-item" style="display: none; width: 100%; height: 100%; flex: 0 0 100%;">
+                                            <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image" style="width: 100%; height: 100%; object-fit: contain; background: rgba(0,0,0,0.5);">
+                                        </div>
+                                    @endforeach
+                                </div>
+                                @if(count($affiliate->gallery_images) > 1)
+                                    <button class="aff-hero-carousel-prev" id="affHeroCarouselPrev" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); border: none; color: #fff; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: background 0.2s;">
+                                        <i class="fas fa-chevron-up" style="font-size: 16px;"></i>
+                                    </button>
+                                    <button class="aff-hero-carousel-next" id="affHeroCarouselNext" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); border: none; color: #fff; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: background 0.2s;">
+                                        <i class="fas fa-chevron-down" style="font-size: 16px;"></i>
+                                    </button>
+                                @endif
+                            </div>
+                        @endif
                     </div>
                 </section>
 
@@ -8547,6 +9069,43 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         }
                     });
                 }
+
+                // Hero Gallery Carousel (Desktop only)
+                function initHeroCarousel() {
+                    var track = document.getElementById('affHeroCarouselTrack');
+                    var prevBtn = document.getElementById('affHeroCarouselPrev');
+                    var nextBtn = document.getElementById('affHeroCarouselNext');
+                    if (!track) return;
+
+                    var items = Array.from(track.querySelectorAll('.aff-hero-carousel-item'));
+                    var currentIndex = 0;
+
+                    if (items.length === 0) return;
+
+                    function showItem(index) {
+                        items.forEach(item => item.style.display = 'none');
+                        items[index].style.display = 'flex';
+                    }
+
+                    if (prevBtn) {
+                        prevBtn.addEventListener('click', function() {
+                            currentIndex = (currentIndex - 1 + items.length) % items.length;
+                            showItem(currentIndex);
+                        });
+                    }
+
+                    if (nextBtn) {
+                        nextBtn.addEventListener('click', function() {
+                            currentIndex = (currentIndex + 1) % items.length;
+                            showItem(currentIndex);
+                        });
+                    }
+
+                    // Show first item
+                    showItem(0);
+                }
+
+                initHeroCarousel();
 
                 // Profile picture click to open gallery
                 var profileBtn = document.getElementById('affProfileStoryBtn');
