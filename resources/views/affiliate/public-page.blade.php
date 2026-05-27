@@ -8533,21 +8533,37 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         </script>
 
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr" onload="initFlatpickrWhenReady()"></script>
         <script>
-            // Initialize Flatpickr for reservation date as soon as it's loaded
-            document.addEventListener('DOMContentLoaded', function() {
-                var dateInput = document.getElementById('package_use_date');
-                if (dateInput && typeof flatpickr !== 'undefined') {
-                    flatpickr(dateInput, {
-                        mode: 'single',
-                        minDate: 'today',
-                        dateFormat: 'Y-m-d',
-                        enableTime: false,
-                        disableMobile: false
-                    });
+            function initFlatpickrWhenReady() {
+                function doInit() {
+                    if (typeof flatpickr === 'undefined') {
+                        setTimeout(doInit, 50);
+                        return;
+                    }
+
+                    var dateInput = document.getElementById('package_use_date');
+                    if (dateInput && !dateInput._flatpickr) {
+                        try {
+                            flatpickr(dateInput, {
+                                mode: 'single',
+                                minDate: 'today',
+                                dateFormat: 'Y-m-d',
+                                enableTime: false,
+                                disableMobile: false
+                            });
+                        } catch(e) {
+                            console.error('Flatpickr init error:', e);
+                        }
+                    }
                 }
-            });
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', doInit);
+                } else {
+                    doInit();
+                }
+            }
         </script>
         <script>
             function prepareCheckoutCartPayload(form) {
