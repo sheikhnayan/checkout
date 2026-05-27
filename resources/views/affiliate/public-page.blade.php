@@ -4596,7 +4596,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         gap: 10px !important;
         flex-wrap: nowrap !important;
         width: auto !important;
-        margin: 0 auto 0 0 !important;
+        margin-left: auto !important;
+        margin-right: 0 !important;
         overflow: hidden;
     }
     .aff-nav-badge {
