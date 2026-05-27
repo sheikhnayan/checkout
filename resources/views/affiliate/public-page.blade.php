@@ -4839,14 +4839,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         display: none !important;
     }
 
-    .cv-most-popular-tag {
-        display: none !important;
-    }
-
-    /* Hide Most Popular indicators on public affiliate page */
-    .cv-popular-pill {
-        display: none !important;
-    }
 
     /* Featured Package Card Styling */
     .package-category-group {
@@ -5597,12 +5589,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                             <h5 class="section-kicker-lg" style="margin:0 !important;">{{ $data->package_section_title ?: 'Select Your Package' }}</h5>
                                             <p style="margin: 4px 0 0; font-size: 12.5px; color: rgba(255,255,255,0.5);">{{ $data->package_section_subtext ?: 'All packages include free ride, club entry, and priority access.' }}</p>
                                         </div>
-                                        @if($mostPopularPackageName)
-                                        <div class="cv-most-popular-tag" style="display:inline-flex; align-items:center; gap:10px; padding: 7px 14px; border-radius: 999px; background: rgba(167,116,255,0.08); border: 1px solid rgba(167,116,255,0.32); font-size: 12.5px; color: rgba(255,255,255,0.9); font-weight: 600;">
-                                            <span style="background: linear-gradient(135deg, #a774ff 0%, #7c3aed 50%, #5b21b6 100%); color: #fff; padding: 3px 9px; border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: .06em; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(124,58,237,0.35), inset 0 1px 0 rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.18); text-transform: uppercase;"><i class="fas fa-fire" style="font-size:9px;"></i>MOST POPULAR</span>
-                                            <span>{{ $mostPopularPackageName }}</span>
-                                        </div>
-                                        @endif
                                     </div>
 
 
@@ -5658,9 +5644,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 <source media="(max-width: 767px)" srcset="{{ $packageMobileVisual }}">
                                                                 <img src="{{ $packageVisual }}" alt="{{ $item->name }}" class="cv-pkg-media">
                                                             </picture>
-                                                            @if ((int) ($item->is_most_popular ?? 0) === 1)
-                                                                <span class="cv-popular-pill">MOST POPULAR</span>
-                                                            @endif
                                                         </div>
 
                                                         <div class="vip-card-main">
