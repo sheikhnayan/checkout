@@ -4926,6 +4926,22 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         border-color: var(--accent) !important;
     }
 
+    /* Ensure placeholder shows even when value is empty string */
+    #package_use_date:not([value=""]) {
+        /* Allow custom styling when value is not empty */
+    }
+
+    /* Force placeholder visibility in all states */
+    #package_use_date.flatpickr-input::placeholder {
+        color: rgba(255,255,255,0.5) !important;
+        opacity: 1 !important;
+    }
+
+    #package_use_date.flatpickr-input::-webkit-input-placeholder {
+        color: rgba(255,255,255,0.5) !important;
+        opacity: 1 !important;
+    }
+
 
     /* Featured Package Card Styling */
     .package-category-group {
@@ -8738,6 +8754,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 minDate: "today",
                 allowInput: false,
                 clickOpens: true,
+                onReady: function(selectedDates, dateStr, instance) {
+                    // Clear any default value to keep placeholder visible
+                    instance.input.value = '';
+                },
                 onChange: function(selectedDates, dateStr) {
                     document.getElementById('package_use_date').value = dateStr;
                 }
