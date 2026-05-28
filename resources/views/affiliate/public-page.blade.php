@@ -5777,7 +5777,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     <div class="hero-date-card" style="margin-bottom: 24px;">
                                         <label>Choose Your Reservation Date</label>
                                         <div class="date-input-wrapper">
-                                            <input type="text" id="package_use_date" class="aff-date-input" style="width: 100%;" readonly aria-required="true" aria-describedby="package_use_date_error" placeholder="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('M d, Y') }}">
+                                            <input id="package_use_date" type="text" value="" placeholder="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('M d, Y') }}" style="width: 100%;" readonly aria-describedby="package_use_date_error">
                                         </div>
                                         <small id="package_use_date_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
                                     </div>
@@ -8755,13 +8755,23 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 allowInput: false,
                 clickOpens: true,
                 onReady: function(selectedDates, dateStr, instance) {
-                    // Clear any default value to keep placeholder visible
-                    instance.input.value = '';
+                    $('.package_use_date').val(dateStr || instance.input.value);
+                    clearReservationDateError();
                 },
                 onChange: function(selectedDates, dateStr) {
-                    document.getElementById('package_use_date').value = dateStr;
+                    $('.package_use_date').val(dateStr);
+                    clearReservationDateError();
                 }
             });
+
+            $('.custom-calendar-icon').on('click', function() {
+                const picker = document.getElementById('package_use_date')._flatpickr;
+                if (picker) {
+                    picker.open();
+                }
+            });
+
+            $('.package_use_date').val('');
         </script>
         <script>
             function prepareCheckoutCartPayload(form) {
