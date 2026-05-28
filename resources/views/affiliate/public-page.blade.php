@@ -4857,10 +4857,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         border: 1px solid rgba(139,92,246,0.3) !important;
         border-radius: 14px !important;
         padding: 14px !important;
-        display: grid !important;
-        grid-template-columns: 100px 1fr !important;
-        gap: 14px !important;
-        align-items: flex-start;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+        align-items: stretch;
     }
 
     .vip-card.cv-exact-card:first-of-type {
@@ -4869,10 +4869,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
 
     .vip-card.cv-exact-card .cv-pkg-media-wrap {
-        grid-column: 1 !important;
-        grid-row: 1 / -1 !important;
-        min-height: 100px !important;
-        height: 100px !important;
+        min-height: 140px !important;
+        height: auto !important;
         border-radius: 10px !important;
         overflow: hidden !important;
         border: 1.5px solid rgba(251,113,133,0.5) !important;
@@ -4880,8 +4878,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
 
     .vip-card.cv-exact-card .vip-card-main {
-        grid-column: 2 !important;
-        padding: 0 !important;
         display: flex !important;
         flex-direction: column !important;
         gap: 4px !important;
@@ -4892,6 +4888,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         display: flex !important;
         align-items: center !important;
         gap: 6px !important;
+        width: 100%;
     }
 
     .vip-card.cv-exact-card .cv-pkg-title-icon {
@@ -4899,10 +4896,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
 
     .vip-card.cv-exact-card .cv-pkg-title {
-        font-size: 24px !important;
+        font-size: 18px !important;
         font-weight: 900 !important;
         color: #fff !important;
         margin: 0 !important;
+        word-break: break-word;
     }
 
     .vip-card.cv-exact-card .cv-pkg-sub {
