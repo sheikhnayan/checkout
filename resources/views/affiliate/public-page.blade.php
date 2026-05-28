@@ -4874,27 +4874,50 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
 
     #package_use_date {
-        width: 100% !important;
-        padding: 12px 14px !important;
-        font-size: 14px !important;
+        position: relative !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
         background: rgba(255,255,255,0.08) !important;
         border: 1px solid rgba(255,255,255,0.2) !important;
         border-radius: 8px !important;
+        padding: 12px 14px !important;
         color: #fff !important;
-        font-weight: 500 !important;
+        -webkit-text-fill-color: #fff !important;
+        font-size: 16px !important;
+        min-height: 45px !important;
+        width: 100% !important;
         box-sizing: border-box !important;
+        font-weight: 500 !important;
     }
 
-    #package_use_date::placeholder,
-    #package_use_date::-webkit-input-placeholder,
-    #package_use_date::-moz-placeholder {
-        color: rgba(255, 255, 255, 0.6) !important;
+    #package_use_date[readonly],
+    #package_use_date.flatpickr-input[readonly] {
+        color: #fff !important;
+        -webkit-text-fill-color: #fff !important;
         opacity: 1 !important;
-        -webkit-text-fill-color: rgba(255, 255, 255, 0.6) !important;
+        cursor: pointer !important;
+    }
+
+    #package_use_date::placeholder {
+        color: rgba(255,255,255,0.5) !important;
+        -webkit-text-fill-color: rgba(255,255,255,0.5) !important;
+        opacity: 1 !important;
+    }
+
+    #package_use_date::-webkit-input-placeholder {
+        color: rgba(255,255,255,0.5) !important;
+        opacity: 1 !important;
     }
 
     #package_use_date::-moz-placeholder {
+        color: rgba(255,255,255,0.5) !important;
         opacity: 1 !important;
+    }
+
+    #package_use_date:focus {
+        outline: none !important;
+        border-color: var(--accent) !important;
     }
 
 
@@ -5732,7 +5755,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     <div class="hero-date-card" style="margin-bottom: 24px;">
                                         <label>Choose Your Reservation Date</label>
                                         <div class="date-input-wrapper">
-                                            <input type="text" id="package_use_date" class="aff-date-input" style="width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; font-size: 16px; font-weight: 500;" required aria-required="true" aria-describedby="package_use_date_error" placeholder="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('M d, Y') }}">
+                                            <input type="text" id="package_use_date" class="aff-date-input" style="width: 100%;" readonly aria-required="true" aria-describedby="package_use_date_error" placeholder="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('M d, Y') }}">
                                         </div>
                                         <small id="package_use_date_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
                                     </div>
