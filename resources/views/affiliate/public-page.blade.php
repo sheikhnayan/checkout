@@ -5720,7 +5720,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         <div class="date-input-wrapper">
                                             <input id="package_use_date" type="text" value="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('M d, Y') }}" style="width: 100%;" readonly aria-describedby="package_use_date_error">
                                         </div>
-                                        <small id="package_use_date_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
+                                        <div id="aff-mobile-date-display" style="display: none; margin-top: 8px; padding: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; font-size: 14px; text-align: center; font-weight: 500;">
+                                            <span id="aff-date-display-text">{{ \Carbon\Carbon::now('America/Los_Angeles')->format('M d, Y') }}</span>
+                                        </div>
+                                        <small id="package_use_date_error" class="reservation-date-reason" style="display:none;">Please select a reservation date.</small>
                                     </div>
 
                                     <!-- Search & Location Filters for Affiliate -->
@@ -8712,6 +8715,37 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     picker.open();
                 }
             });
+
+            // Mobile date display for affiliate page only
+            function initAffMobileDateDisplay() {
+                var dateInput = document.getElementById('package_use_date');
+                var mobileDisplay = document.getElementById('aff-mobile-date-display');
+                var displayText = document.getElementById('aff-date-display-text');
+
+                if (!dateInput || !mobileDisplay || !displayText) return;
+
+                function updateMobileDisplay() {
+                    var isMobile = window.innerWidth <= 767;
+                    if (isMobile) {
+                        mobileDisplay.style.display = 'block';
+                        displayText.textContent = dateInput.value || dateInput.getAttribute('value');
+                    } else {
+                        mobileDisplay.style.display = 'none';
+                    }
+                }
+
+                // Update on page load
+                setTimeout(updateMobileDisplay, 100);
+
+                // Update on window resize
+                window.addEventListener('resize', updateMobileDisplay);
+
+                // Update when date changes
+                dateInput.addEventListener('change', updateMobileDisplay);
+                dateInput.addEventListener('input', updateMobileDisplay);
+            }
+
+            initAffMobileDateDisplay();
 
             $('.package_use_date').val('');
         </script>
