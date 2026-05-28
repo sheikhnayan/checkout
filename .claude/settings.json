@@ -19,7 +19,8 @@
       "Bash(grep -v \"//\")",
       "Bash(grep -n \"function initMobileCarousel\\\\|function initSidebar\\\\|^\\\\s*};\\\\s*$\\\\|^\\\\s*}\\\\s*$\" \"c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\affiliate\\\\public-page.blade.php\")",
       "Bash(curl -s \"http://localhost/affiliate/james\")",
-      "Bash(awk '/^@media \\\\\\(max-width: 767px\\\\\\) \\\\{/,/^}/' \"c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\affiliate\\\\public-page.blade.php\")"
+      "Bash(awk '/^@media \\\\\\(max-width: 767px\\\\\\) \\\\{/,/^}/' \"c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\affiliate\\\\public-page.blade.php\")",
+      "Bash(awk 'NR>=4583 && NR<=5100' \"c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\affiliate\\\\public-page.blade.php\")"
     ],
     "additionalDirectories": [
       "c:\\wamp64\\www\\checkout\\bootstrap\\cache",

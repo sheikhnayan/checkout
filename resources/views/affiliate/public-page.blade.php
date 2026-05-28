@@ -4857,6 +4857,46 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         display: none !important;
     }
 
+    /* Mobile Date Input Styling */
+    .hero-date-card {
+        max-width: 100% !important;
+        padding: 12px 14px !important;
+    }
+
+    .hero-date-card label {
+        font-size: 11px !important;
+        margin-bottom: 8px !important;
+    }
+
+    .date-input-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    #package_use_date {
+        width: 100% !important;
+        padding: 12px 14px !important;
+        font-size: 14px !important;
+        background: rgba(255,255,255,0.08) !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
+        border-radius: 8px !important;
+        color: #fff !important;
+        font-weight: 500 !important;
+        box-sizing: border-box !important;
+    }
+
+    #package_use_date::placeholder,
+    #package_use_date::-webkit-input-placeholder,
+    #package_use_date::-moz-placeholder {
+        color: rgba(255, 255, 255, 0.6) !important;
+        opacity: 1 !important;
+        -webkit-text-fill-color: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    #package_use_date::-moz-placeholder {
+        opacity: 1 !important;
+    }
+
 
     /* Featured Package Card Styling */
     .package-category-group {
