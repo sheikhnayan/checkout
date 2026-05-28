@@ -9323,7 +9323,12 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             var hasPackagesFromLocation = groupDiv ?
                                 Array.from(groupDiv.querySelectorAll('[id^="pkg-card-"]')).some(function(card) {
                                     var clubId = card.getAttribute('data-club-id');
-                                        if (clubId) clubId = clubId.trim();
+                                    if (clubId) clubId = clubId.trim();
+                                    return clubId && clubId === locationId;
+                                })
+                                : false;
+
+                            if (hasPackagesFromLocation) {
                                 tab.classList.remove('hidden-tab');
                                 tab.classList.add('visible-tab');
                                 if (!firstVisibleTab) {
