@@ -4667,15 +4667,19 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 <div class="hero-date-card">
                                     <label>Choose Your Reservation Date</label>
                                     <div class="date-input-wrapper">
-                                        <select id="package_use_date" style="width: 100%;" required aria-required="true" aria-describedby="package_use_date_error">
-                                            <option value="" selected>Select Date</option>
-                                            @foreach($packageOptions as $dateOption)
-                                                <option value="{{ $dateOption['value'] }}">
-                                                    {{ $dateOption['label'] }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        <span class="custom-calendar-icon" style="display:none;"></span>
+                                        <input
+                                            type="text"
+                                            id="package_use_date"
+                                            class="aff-date-input"
+                                            style="width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; font-size: 16px; font-weight: 500;"
+                                            required
+                                            aria-required="true"
+                                            aria-describedby="package_use_date_error"
+                                            placeholder="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('M d, Y') }}"
+                                            autocomplete="off"
+                                            readonly
+                                        />
+                                        <span class="custom-calendar-icon"></span>
                                     </div>
                                     <small id="package_use_date_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
                                 </div>
@@ -6306,8 +6310,12 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     }, 700);
                         // Keep selected date synced to hidden checkout field.
                         var desiredDate = params.use_date || '';
-                        if ($('#package_use_date option[value="' + desiredDate + '"]').length) {
-                            $('#package_use_date').val(desiredDate);
+                        if (desiredDate) {
+                            if (window.packageUseDatePicker && typeof window.packageUseDatePicker.setDate === 'function') {
+                                window.packageUseDatePicker.setDate(desiredDate, true);
+                            } else {
+                                $('#package_use_date').val(desiredDate);
+                            }
                         } else {
                             $('#package_use_date').val('');
                         }
@@ -7942,6 +7950,29 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
         <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <script>
+            (function() {
+                var availableDates = @json(array_column($packageOptions, 'value'));
+                if (typeof flatpickr === 'undefined') return;
+                window.packageUseDatePicker = flatpickr("#package_use_date", {
+                    dateFormat: "Y-m-d",
+                    defaultDate: null,
+                    minDate: "today",
+                    allowInput: false,
+                    clickOpens: true,
+                    enable: availableDates,
+                    onChange: function(selectedDates, dateStr) {
+                        var input = document.getElementById('package_use_date');
+                        if (input) input.value = dateStr;
+                        if (typeof window.syncUseDateField === 'function') {
+                            window.syncUseDateField();
+                        } else {
+                            $('.package_use_date').val(String($('#package_use_date').val() || '').trim());
+                        }
+                    }
+                });
+            })();
+        </script>
         <script>
             function prepareCheckoutCartPayload(form) {
                 syncCheckoutCartFields();

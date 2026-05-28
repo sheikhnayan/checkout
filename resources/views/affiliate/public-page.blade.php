@@ -9271,7 +9271,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 });
 
                 function filterPackages() {
-                    var locationId = locationFilter.value;
+                    var locationId = String(locationFilter.value || '').trim();
                     console.log('Filter called with locationId:', locationId);
                     var packageHeader = document.querySelector('.aff-package-header-gated');
 
@@ -9300,12 +9300,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     // Show only packages from selected location
                     document.querySelectorAll('[id^="pkg-card-"]').forEach(function(card) {
                         var clubId = card.getAttribute('data-club-id');
+                        if (clubId) clubId = clubId.trim();
                         if (clubId && clubId === locationId) {
                             card.style.display = '';
                         }
                     });
 
                     // Show only categories that have packages from selected location
+                    var firstVisibleTab = null;
                     document.querySelectorAll('.package-category-tile').forEach(function(tab) {
                         var targetId = tab.getAttribute('data-target');
                         var categoryId = null;
@@ -9321,19 +9323,32 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             var hasPackagesFromLocation = groupDiv ?
                                 Array.from(groupDiv.querySelectorAll('[id^="pkg-card-"]')).some(function(card) {
                                     var clubId = card.getAttribute('data-club-id');
-                                    return clubId && clubId === locationId;
-                                })
-                                : false;
-
-                            if (hasPackagesFromLocation) {
+                                        if (clubId) clubId = clubId.trim();
                                 tab.classList.remove('hidden-tab');
                                 tab.classList.add('visible-tab');
+                                if (!firstVisibleTab) {
+                                    firstVisibleTab = tab;
+                                }
                             } else {
                                 tab.classList.add('hidden-tab');
                                 tab.classList.remove('visible-tab');
                             }
                         }
                     });
+
+                    // Auto-open the first visible category so selected packages are actually shown.
+                    document.querySelectorAll('.package-category-group').forEach(function(group) {
+                        var groupHasVisibleCard = Array.from(group.querySelectorAll('[id^="pkg-card-"]')).some(function(card) {
+                            return card.style.display !== 'none';
+                        });
+                        group.style.display = groupHasVisibleCard ? '' : 'none';
+                    });
+
+                    if (firstVisibleTab) {
+                        document.querySelectorAll('.package-category-tile').forEach(function(tab) {
+                            tab.classList.toggle('active', tab === firstVisibleTab);
+                        });
+                    }
                 }
 
                 locationFilter.addEventListener('change', filterPackages);
