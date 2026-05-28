@@ -4912,17 +4912,18 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .vip-card.cv-exact-card .cv-pkg-desc {
         font-size: 13px !important;
         color: rgba(255,255,255,0.8) !important;
-        margin: 0 !important;
+        margin: 0 0 12px !important;
         line-height: 1.4 !important;
     }
 
     .vip-card.cv-exact-card .cv-pkg-features {
-        display: flex !important;
-        flex-wrap: wrap !important;
-        gap: 10px !important;
-        padding-top: 12px !important;
-        margin-top: 12px !important;
+        display: grid !important;
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        gap: 6px 10px !important;
+        margin-top: auto !important;
+        padding-top: 30px !important;
         border-top: 1px solid rgba(255,255,255,0.08) !important;
+        width: 100% !important;
     }
 
     .vip-card.cv-exact-card .cv-club-name-badge {
@@ -4935,41 +4936,61 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
 
     .vip-card.cv-exact-card .cv-pkg-feature {
-        display: inline-flex !important;
+        flex: 0 0 auto !important;
+        font-size: 10.5px !important;
+        flex-direction: column !important;
         align-items: center !important;
-        gap: 6px !important;
-        font-size: 11px !important;
-        color: rgba(255,255,255,0.85) !important;
+        gap: 3px !important;
+        text-align: center !important;
+        display: inline-flex !important;
     }
 
     .vip-card.cv-exact-card .vip-card-side {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 10px !important;
-        margin-top: 12px !important;
-        padding-top: 12px !important;
+        display: grid !important;
+        grid-template-columns: 1fr auto !important;
+        grid-template-areas:
+            "price guests"
+            "meta button";
+        gap: 8px 12px !important;
+        align-items: center !important;
+        margin-top: 14px !important;
+        padding-top: 14px !important;
         border-top: 1px solid rgba(255,255,255,0.08) !important;
+        text-align: left !important;
         width: 100% !important;
     }
 
     .vip-card.cv-exact-card .vip-price-tag {
-        font-size: 26px !important;
+        grid-area: price !important;
         text-align: left !important;
+        font-size: 28px !important;
         line-height: 1.1 !important;
     }
 
     .vip-card.cv-exact-card .cv-price-meta {
-        font-size: 12px !important;
+        grid-area: meta !important;
         text-align: left !important;
-        margin-top: -2px !important;
+        font-size: 11.5px !important;
+        margin-top: -4px !important;
     }
 
     .vip-card.cv-exact-card .package-guest-input-wrap {
-        display: flex !important;
+        grid-area: guests !important;
         width: 100% !important;
     }
 
-    .vip-card.cv-exact-card .package-guest-input-wrap select {
+    .vip-card.cv-exact-card .package_number_of_guestss {
+        margin-top: 0 !important;
+        min-height: 38px !important;
+        padding-top: 0px !important;
+        padding-bottom: 0px !important;
+    }
+
+    .vip-card.cv-exact-card .vip-btn {
+        grid-area: button !important;
+        margin: 0 !important;
+        min-width: 150px !important;
+        padding: 10px 20px !important;
         width: 100% !important;
     }
 
