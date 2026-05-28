@@ -4917,9 +4917,42 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
 
     .vip-card.cv-exact-card .cv-pkg-features,
-    .vip-card.cv-exact-card .vip-card-side,
     .vip-card.cv-exact-card .cv-club-name-badge {
         display: none !important;
+    }
+
+    .vip-card.cv-exact-card .vip-card-side {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        margin-top: 12px !important;
+        padding-top: 12px !important;
+        border-top: 1px solid rgba(255,255,255,0.08) !important;
+    }
+
+    .vip-card.cv-exact-card .vip-price-tag {
+        font-size: 24px !important;
+        text-align: left !important;
+    }
+
+    .vip-card.cv-exact-card .cv-price-meta {
+        font-size: 11px !important;
+        text-align: left !important;
+    }
+
+    .vip-card.cv-exact-card .package-guest-input-wrap {
+        display: flex !important;
+        width: 100% !important;
+    }
+
+    .vip-card.cv-exact-card .package-guest-input-wrap select {
+        width: 100% !important;
+    }
+
+    .vip-card.cv-exact-card .vip-btn {
+        width: 100% !important;
+        padding: 10px !important;
+        font-size: 14px !important;
     }
 
     .vip-card.cv-exact-card .cv-popular-pill {
