@@ -1514,26 +1514,57 @@ body {
     color: #ffb4b4;
 }
 
+/* Specific styling for package_use_date - EXACT COPY FROM INDEX_TWO */
 #package_use_date {
-    color: #f5f8ff !important;
-    -webkit-text-fill-color: #f5f8ff !important;
-    font-weight: 600;
-    opacity: 1 !important;
+    position: relative !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    background: transparent !important;
+    border: 1px solid #9797a0 !important;
+    border-radius: 10px !important;
+    padding: 12px 45px 12px 15px !important;
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+    font-size: 16px !important;
+    min-height: 45px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
-#package_use_date::placeholder,
-#package_use_date::-webkit-input-placeholder,
-#package_use_date::-moz-placeholder {
-    color: rgba(255,255,255,0.5) !important;
-    -webkit-text-fill-color: rgba(255,255,255,0.5) !important;
+#package_use_date:disabled,
+#package_use_date:read-only {
     opacity: 1 !important;
+    -webkit-text-fill-color: #fff !important;
+    color: #fff !important;
+    text-shadow: none !important;
 }
 
 #package_use_date[readonly],
 #package_use_date.flatpickr-input[readonly] {
-    color: #f5f8ff !important;
-    -webkit-text-fill-color: #f5f8ff !important;
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
     opacity: 1 !important;
+    text-shadow: none !important;
+    cursor: pointer;
+}
+
+#package_use_date::placeholder {
+    color: rgba(255,255,255,0.45) !important;
+    -webkit-text-fill-color: rgba(255,255,255,0.45) !important;
+    opacity: 1 !important;
+}
+
+#package_use_date:focus {
+    outline: none !important;
+    border-color: var(--accent) !important;
+}
+
+#package_use_date::-webkit-calendar-picker-indicator {
+    display: none !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 .flatpickr-calendar {
@@ -4863,83 +4894,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         display: none !important;
     }
 
-    /* Mobile Date Input Styling */
-    .hero-date-card {
-        max-width: 100% !important;
-        padding: 12px 14px !important;
-    }
-
-    .hero-date-card label {
-        font-size: 11px !important;
-        margin-bottom: 8px !important;
-    }
-
-    .date-input-wrapper {
-        position: relative;
-        width: 100%;
-    }
-
+    /* Mobile responsive date input fixes - EXACT COPY FROM INDEX_TWO */
     #package_use_date {
-        position: relative !important;
-        -webkit-appearance: none !important;
-        -moz-appearance: none !important;
-        appearance: none !important;
-        background: rgba(255,255,255,0.08) !important;
-        border: 1px solid rgba(255,255,255,0.2) !important;
-        border-radius: 8px !important;
-        padding: 12px 14px !important;
-        color: #fff !important;
-        -webkit-text-fill-color: #fff !important;
         font-size: 16px !important;
+        padding: 12px 40px 12px 15px !important;
         min-height: 45px !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-        font-weight: 500 !important;
-    }
-
-    #package_use_date[readonly],
-    #package_use_date.flatpickr-input[readonly] {
-        color: #fff !important;
-        -webkit-text-fill-color: #fff !important;
-        opacity: 1 !important;
-        cursor: pointer !important;
-    }
-
-    #package_use_date::placeholder {
-        color: rgba(255,255,255,0.5) !important;
-        -webkit-text-fill-color: rgba(255,255,255,0.5) !important;
-        opacity: 1 !important;
-    }
-
-    #package_use_date::-webkit-input-placeholder {
-        color: rgba(255,255,255,0.5) !important;
-        opacity: 1 !important;
-    }
-
-    #package_use_date::-moz-placeholder {
-        color: rgba(255,255,255,0.5) !important;
-        opacity: 1 !important;
-    }
-
-    #package_use_date:focus {
-        outline: none !important;
-        border-color: var(--accent) !important;
-    }
-
-    /* Ensure placeholder shows even when value is empty string */
-    #package_use_date:not([value=""]) {
-        /* Allow custom styling when value is not empty */
-    }
-
-    /* Force placeholder visibility in all states */
-    #package_use_date.flatpickr-input::placeholder {
-        color: rgba(255,255,255,0.5) !important;
-        opacity: 1 !important;
-    }
-
-    #package_use_date.flatpickr-input::-webkit-input-placeholder {
-        color: rgba(255,255,255,0.5) !important;
-        opacity: 1 !important;
     }
 
 
@@ -5317,24 +5276,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .aff-dgc-item i { opacity: 0; transition: opacity 0.3s ease; }
 
 /* ===== Date Input iOS Fix ===== */
-.aff-date-input {
-    -webkit-appearance: none !important;
-    appearance: none !important;
-}
-.aff-date-input::placeholder {
-    color: rgba(255, 255, 255, 0.5) !important;
-    opacity: 1 !important;
-    -webkit-text-fill-color: rgba(255, 255, 255, 0.5) !important;
-}
-.aff-date-input::-webkit-input-placeholder {
-    color: rgba(255, 255, 255, 0.5) !important;
-    opacity: 1 !important;
-}
-.aff-date-input::-moz-placeholder {
-    color: rgba(255, 255, 255, 0.5) !important;
-    opacity: 1 !important;
-}
-
 /* ===== Profile Story Indicator (Instagram-style) ===== */
 @keyframes aff-story-border-glow {
     0% {
