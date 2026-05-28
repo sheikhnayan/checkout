@@ -4800,6 +4800,23 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         display: flex !important;
     }
 
+    /* Date input placeholder styling for mobile */
+    #package_use_date::placeholder {
+        color: rgba(255, 255, 255, 0.5) !important;
+        opacity: 1 !important;
+        -webkit-text-fill-color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    #package_use_date::-webkit-input-placeholder {
+        color: rgba(255, 255, 255, 0.5) !important;
+        opacity: 1 !important;
+    }
+
+    #package_use_date::-moz-placeholder {
+        color: rgba(255, 255, 255, 0.5) !important;
+        opacity: 1 !important;
+    }
+
     /* AFFILIATE PACKAGES Section Header */
     .section-kicker-lg {
         font-size: 13px !important;

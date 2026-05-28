@@ -18,7 +18,8 @@
       "Bash(cd \"c:/wamp64/www/checkout\" && rm -rf bootstrap/cache/*.php storage/framework/views/*.php && php artisan cache:clear && php artisan view:clear)",
       "Bash(grep -v \"//\")",
       "Bash(grep -n \"function initMobileCarousel\\\\|function initSidebar\\\\|^\\\\s*};\\\\s*$\\\\|^\\\\s*}\\\\s*$\" \"c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\affiliate\\\\public-page.blade.php\")",
-      "Bash(curl -s \"http://localhost/affiliate/james\")"
+      "Bash(curl -s \"http://localhost/affiliate/james\")",
+      "Bash(awk '/^@media \\\\\\(max-width: 767px\\\\\\) \\\\{/,/^}/' \"c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\affiliate\\\\public-page.blade.php\")"
     ],
     "additionalDirectories": [
       "c:\\wamp64\\www\\checkout\\bootstrap\\cache",
