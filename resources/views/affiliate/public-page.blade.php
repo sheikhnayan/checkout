@@ -8753,6 +8753,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 defaultDate: null,
                 minDate: "today",
                 allowInput: false,
+                placeholder: "Select a date..",
                 clickOpens: true,
                 onReady: function(selectedDates, dateStr, instance) {
                     $('.package_use_date').val(dateStr || instance.input.value);
