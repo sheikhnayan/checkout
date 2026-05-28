@@ -4978,15 +4978,49 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
     /* Hide Category Tabs on Mobile */
     .package-category-tiles {
-        display: none !important;
+        display: flex !important;
+        flex-wrap: wrap;
+        gap: 8px;
     }
 
     .package-category-wrap {
-        display: none !important;
+        display: flex !important;
+        flex-wrap: wrap;
+        flex: 0 1 auto;
     }
 
     .aff-location-gated {
         display: block !important;
+    }
+
+    /* Ensure visible tabs show on mobile after location selection */
+    .package-category-tile.visible-tab {
+        display: flex !important;
+    }
+
+    .package-category-tile.hidden-tab {
+        display: none !important;
+    }
+
+    .package-category-group {
+        display: block !important;
+    }
+
+    .package-category-group[style*="display: none"] {
+        display: none !important;
+    }
+
+    /* Ensure packages display inside groups on mobile */
+    .package-category-group .vip-card {
+        display: grid !important;
+    }
+
+    .package-category-group [id^="pkg-card-"] {
+        display: grid !important;
+    }
+
+    .package-category-group [id^="pkg-card-"][style*="display: none"] {
+        display: none !important;
     }
 
     /* Final Tagline Box */
