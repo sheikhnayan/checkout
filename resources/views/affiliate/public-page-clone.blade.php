@@ -4922,7 +4922,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                 <label class="consent-label">
                                                     <input type="checkbox" id="termsConsent_two" required />
                                                     <span>I understand that all sales are final. I agree to the <a target="_blank"
-                                                        href="{{ $data->terms }}">Terms of Service</a>, and acknowledge that CartVIP is the merchant of record for this purchase.</span>
+                                                        href="{{ $data->terms }}">Terms of Service</a> and acknowledge that this reservation is fulfilled by the venue or experience provider, while CartVIP provides the checkout and reservation platform.</span>
                                                 </label>
                                             </div>
                                             <button class="submit-btn" type="submit" id="submitBtn_two">Create
@@ -5670,7 +5670,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                     <input type="checkbox" id="termsConsent" required />
                                                                     <span>I understand that all sales are final. I agree to the <a
                                                                         target="_blank" href="{{ $data->terms }}">Terms of
-                                                                        Service</a>, and acknowledge that CartVIP is the merchant of record for this purchase.</span>
+                                                                        Service</a> and acknowledge that this reservation is fulfilled by the venue or experience provider, while CartVIP provides the checkout and reservation platform.</span>
                                                                 </label>
 
                                                                 <p style="margin: 12px 0 0; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);">

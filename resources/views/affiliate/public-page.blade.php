@@ -390,7 +390,7 @@ input[type="date"]:focus {
         appearance: none;
         background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center;
         background-size: 20px;
-        padding: 12px 30px 12px 15px !important;
+        padding: 8px 30px 8px 15px !important;
         border: 1px solid #9797a0;
         border-radius: 10px;
         color: #fff;
@@ -6426,7 +6426,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                     <input type="checkbox" id="termsConsent" required />
                                                                     <span>I understand that all sales are final. I agree to the <a
                                                                         target="_blank" href="{{ $data->terms }}">Terms of
-                                                                        Service</a>, and acknowledge that CartVIP is the merchant of record for this purchase.</span>
+                                                                        Service</a> and acknowledge that this reservation is fulfilled by the venue or experience provider, while CartVIP provides the checkout and reservation platform.</span>
                                                                 </label>
 
                                                                 <p style="margin: 12px 0 0; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);">
