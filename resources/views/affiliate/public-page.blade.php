@@ -9341,18 +9341,33 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         }
                     });
 
-                    // Auto-open the first visible category so selected packages are actually shown.
+                    // Hide all category groups first, then open only the first visible category (if any).
                     document.querySelectorAll('.package-category-group').forEach(function(group) {
-                        var groupHasVisibleCard = Array.from(group.querySelectorAll('[id^="pkg-card-"]')).some(function(card) {
-                            return card.style.display !== 'none';
-                        });
-                        group.style.display = groupHasVisibleCard ? '' : 'none';
+                        group.style.display = 'none';
                     });
 
                     if (firstVisibleTab) {
-                        document.querySelectorAll('.package-category-tile').forEach(function(tab) {
-                            tab.classList.toggle('active', tab === firstVisibleTab);
-                        });
+                        try {
+                            // Prefer triggering the existing click handler so slideDown/active logic runs.
+                            if (typeof jQuery !== 'undefined') {
+                                jQuery(firstVisibleTab).trigger('click');
+                            } else if (firstVisibleTab.click) {
+                                firstVisibleTab.click();
+                            } else {
+                                var evt = document.createEvent('MouseEvents');
+                                evt.initEvent('click', true, true);
+                                firstVisibleTab.dispatchEvent(evt);
+                            }
+                        } catch (e) {
+                            // Fallback: directly mark active and show its group
+                            firstVisibleTab.classList.add('active');
+                            var tgt = firstVisibleTab.getAttribute('data-target') || '';
+                            if (tgt) {
+                                var gid = tgt.replace(/^#/, '');
+                                var g = document.getElementById(gid);
+                                if (g) g.style.display = '';
+                            }
+                        }
                     }
                 }
 
