@@ -1519,7 +1519,14 @@ body {
     -webkit-text-fill-color: #f5f8ff !important;
     font-weight: 600;
     opacity: 1 !important;
-    text-shadow: 0 0 0 #f5f8ff;
+}
+
+#package_use_date::placeholder,
+#package_use_date::-webkit-input-placeholder,
+#package_use_date::-moz-placeholder {
+    color: rgba(255,255,255,0.5) !important;
+    -webkit-text-fill-color: rgba(255,255,255,0.5) !important;
+    opacity: 1 !important;
 }
 
 #package_use_date[readonly],
@@ -1527,7 +1534,6 @@ body {
     color: #f5f8ff !important;
     -webkit-text-fill-color: #f5f8ff !important;
     opacity: 1 !important;
-    text-shadow: 0 0 0 #f5f8ff;
 }
 
 .flatpickr-calendar {
