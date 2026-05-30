@@ -7969,11 +7969,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     }
 
                     $('.package-category-tile').removeClass('active');
-                    $('.package-category-group').stop(true, true).slideUp(180);
+                    $('.package-category-group').removeClass('is-active');
 
                     if (!isOpen && $target.length) {
                         $tile.addClass('active');
-                        $target.stop(true, true).slideDown(180);
+                        $target.addClass('is-active');
                     }
                 });
 
