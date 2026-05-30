@@ -9353,9 +9353,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         if (clubId) clubId = clubId.trim();
                                 tab.classList.remove('hidden-tab');
                                 tab.classList.add('visible-tab');
-                                if (!firstVisibleTab) {
-                                    firstVisibleTab = tab;
-                                }
+                                // if (!firstVisibleTab) {
+                                //     firstVisibleTab = tab;
+                                // }
+                                    return clubId && clubId === locationId && card.style.display !== 'none';
+                                }) : false;
                             } else {
                                 tab.classList.add('hidden-tab');
                                 tab.classList.remove('visible-tab');
