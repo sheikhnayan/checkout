@@ -5165,6 +5165,34 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
     /* Final Tagline Box - Mobile */
     /* (Global styles applied above, mobile can override if needed) */
+
+    /* Date Input Placeholder - Mobile */
+    #package_use_date {
+        font-size: 16px !important;
+        padding: 12px 14px !important;
+    }
+
+    #package_use_date::placeholder {
+        color: rgba(255, 255, 255, 0.7) !important;
+        -webkit-text-fill-color: rgba(255, 255, 255, 0.7) !important;
+        opacity: 1 !important;
+    }
+
+    #package_use_date::-webkit-input-placeholder {
+        color: rgba(255, 255, 255, 0.7) !important;
+        -webkit-text-fill-color: rgba(255, 255, 255, 0.7) !important;
+        opacity: 1 !important;
+    }
+
+    #package_use_date::-moz-placeholder {
+        color: rgba(255, 255, 255, 0.7) !important;
+        opacity: 1 !important;
+    }
+
+    #package_use_date:-ms-input-placeholder {
+        color: rgba(255, 255, 255, 0.7) !important;
+        opacity: 1 !important;
+    }
 }
 @media (max-width: 420px) {
     .cv-nav-back { padding: 6px 10px !important; font-size: 11.5px !important; }
