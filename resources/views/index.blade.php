@@ -5067,7 +5067,7 @@ input[type="checkbox"],
                                     <span class="cv-ac-icon-wrap"><i class="fas {{ $data->guest_tab_icon ?? 'fa-car-side' }}"></i></span>
                                     <span class="cv-ac-body">
                                         <strong>{{ $data->guest_list_button_text ?? 'Free Ride & Entry' }}</strong>
-                                        <span>{{ $data->guest_tab_subtitle ?? 'Complimentary ride and general entry' }}</span>
+                                        <span style="color: #fff !important;">{{ $data->guest_tab_subtitle ?? 'Complimentary ride and general entry' }}</span>
                                     </span>
                                 </button>
                                 <button type="button" class="cv-access-card cv-access-tab" data-name="package">
@@ -5078,7 +5078,7 @@ input[type="checkbox"],
                                     <span class="cv-ac-icon-wrap"><i class="fas {{ $data->package_tab_icon ?? 'fa-star' }}"></i></span>
                                     <span class="cv-ac-body">
                                         <strong>{{ $data->package_button_text ?? 'VIP Packages' }}</strong>
-                                        <span>{{ $data->package_tab_subtitle ?? 'VIP table packages &amp; experiences' }}</span>
+                                        <span style="color: #fff !important;">{{ $data->package_tab_subtitle ?? 'VIP table packages &amp; experiences' }}</span>
                                     </span>
                                 </button>
                             @else
@@ -5090,7 +5090,7 @@ input[type="checkbox"],
                                     <span class="cv-ac-icon-wrap"><i class="fas {{ $data->package_tab_icon ?? 'fa-star' }}"></i></span>
                                     <span class="cv-ac-body">
                                         <strong>{{ $data->package_button_text ?? 'VIP Packages' }}</strong>
-                                        <span>{{ $data->package_tab_subtitle ?? 'VIP table packages &amp; experiences' }}</span>
+                                        <span style="color: #fff !important;">{{ $data->package_tab_subtitle ?? 'VIP table packages &amp; experiences' }}</span>
                                     </span>
                                 </div>
                             @endif
