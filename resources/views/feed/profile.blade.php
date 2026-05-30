@@ -996,10 +996,17 @@
                     @if($profileSubtitle)
                         <div class="profile-copy">{!! $profileSubtitle !!}</div>
                     @endif
-                    <a href="#packages" class="profile-packages-link" aria-label="View packages">
-                        <i class="fas fa-ticket-alt"></i>
-                        See my packages
-                    </a>
+                    @if($profileType === 'model')
+                        <a href="{{ $packagesUrl }}" class="profile-packages-link" aria-label="View packages" target="_blank">
+                            <i class="fas fa-ticket-alt"></i>
+                            See my packages
+                        </a>
+                    @elseif($profileType === 'club')
+                        <a href="{{ route('checkout', $club->slug) }}" class="profile-packages-link" aria-label="View packages">
+                            <i class="fas fa-ticket-alt"></i>
+                            See our packages
+                        </a>
+                    @endif
 
                     @if($profileType === 'model' && $performanceDates->isNotEmpty())
                         <div class="profile-appearances" aria-label="Upcoming performance dates">
