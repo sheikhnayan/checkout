@@ -9347,17 +9347,22 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                         if (categoryId) {
                             var groupDiv = document.getElementById('category-group-' + categoryId);
-                            var hasPackagesFromLocation = groupDiv ?
-                                Array.from(groupDiv.querySelectorAll('[id^="pkg-card-"]')).some(function(card) {
-                                    var clubId = card.getAttribute('data-club-id');
-                                        if (clubId) clubId = clubId.trim();
+                            var hasPackagesFromLocation = false;
+                            if (groupDiv) {
+                                hasPackagesFromLocation = Array.from(groupDiv.querySelectorAll('[id^="pkg-card-"]'))
+                                    .some(function(card) {
+                                        var clubId = card.getAttribute('data-club-id');
+                                        if (clubId) clubId = String(clubId).trim();
+                                        return !!(clubId && clubId === locationId);
+                                    });
+                            }
+
+                            if (hasPackagesFromLocation) {
                                 tab.classList.remove('hidden-tab');
                                 tab.classList.add('visible-tab');
-                                // if (!firstVisibleTab) {
-                                //     firstVisibleTab = tab;
-                                // }
-                                    return clubId && clubId === locationId && card.style.display !== 'none';
-                                }) : false;
+                                if (!firstVisibleTab) {
+                                    firstVisibleTab = tab;
+                                }
                             } else {
                                 tab.classList.add('hidden-tab');
                                 tab.classList.remove('visible-tab');
