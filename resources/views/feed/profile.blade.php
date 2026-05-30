@@ -1002,7 +1002,7 @@
                             See my packages
                         </a>
                     @elseif($profileType === 'club')
-                        <a href="{{ route('checkout', $club->slug) }}" class="profile-packages-link" aria-label="View packages">
+                        <a href="{{ route('index', $club->slug) }}" class="profile-packages-link" aria-label="View packages">
                             <i class="fas fa-ticket-alt"></i>
                             See our packages
                         </a>
