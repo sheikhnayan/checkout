@@ -2796,9 +2796,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         grid-column: 1 / -1;
         grid-row: 1;
     }
-    .cv-hero-bottom {
+    .aff-hero-left-column {
         grid-column: 1;
         grid-row: 2;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .cv-hero-bottom {
         gap: 12px !important;
         margin: 0 !important;
     }
@@ -2806,6 +2811,16 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         display: flex !important;
         grid-column: 2;
         grid-row: 1 / -1;
+        flex: 0 0 auto;
+        width: 340px;
+        height: 100%;
+        position: relative;
+    }
+}
+
+@media (max-width: 1199px) {
+    .aff-hero-gallery-carousel {
+        display: none !important;
     }
 }
 
@@ -4865,6 +4880,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         padding: 0;
     }
 
+    .aff-hero-left-column {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+    }
+
     /* Profile Photo Section with Vibrant Border */
     .cv-hero-head {
         flex-direction: row;
@@ -5507,92 +5529,95 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             </div>
                         </div>
 
-                        <div class="cv-hero-bottom">
-                            <div class="cv-hero-content">
-                                <div class="aff-kicker">Affiliate Packages</div>
-                                @php
-                                    $heroTitle = $affiliate->hero_title ?: ($affiliate->display_name ?: $affiliate->user->name);
-                                    $titleWords = preg_split('/\s+/', trim($heroTitle));
-                                    $heroLastWord = '';
-                                    if (count($titleWords) > 1) {
-                                        $heroLastWord = array_pop($titleWords);
-                                        $heroTitleLead = implode(' ', $titleWords);
-                                    } else {
-                                        $heroTitleLead = $heroTitle;
-                                    }
-                                @endphp
+                        <!-- Left Column: Content, Features, Tagline -->
+                        <div class="aff-hero-left-column">
+                            <div class="cv-hero-bottom">
+                                <div class="cv-hero-content">
+                                    <div class="aff-kicker">Affiliate Packages</div>
+                                    @php
+                                        $heroTitle = $affiliate->hero_title ?: ($affiliate->display_name ?: $affiliate->user->name);
+                                        $titleWords = preg_split('/\s+/', trim($heroTitle));
+                                        $heroLastWord = '';
+                                        if (count($titleWords) > 1) {
+                                            $heroLastWord = array_pop($titleWords);
+                                            $heroTitleLead = implode(' ', $titleWords);
+                                        } else {
+                                            $heroTitleLead = $heroTitle;
+                                        }
+                                    @endphp
 
-                                <!-- Featured Affiliate Card -->
-                                @if($affiliate->hero_title || $affiliate->hero_subtitle || $affiliate->description)
-                                <div class="aff-featured-card" style="display: grid; grid-template-columns: 100px 1fr; gap: 24px; align-items: flex-start; padding: 28px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.1); background: linear-gradient(135deg, rgba(167,116,255,0.2) 0%, rgba(236,72,153,0.15) 100%); margin: 0 0 20px 0; position: relative; overflow: hidden;">
-                                    <!-- Gradient overlay -->
-                                    <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 45%; background: radial-gradient(ellipse at right center, rgba(255,255,255,0.05), transparent 70%); pointer-events: none;"></div>
+                                    <!-- Featured Affiliate Card -->
+                                    @if($affiliate->hero_title || $affiliate->hero_subtitle || $affiliate->description)
+                                    <div class="aff-featured-card" style="display: grid; grid-template-columns: 100px 1fr; gap: 24px; align-items: flex-start; padding: 28px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.1); background: linear-gradient(135deg, rgba(167,116,255,0.2) 0%, rgba(236,72,153,0.15) 100%); margin: 0 0 20px 0; position: relative; overflow: hidden;">
+                                        <!-- Gradient overlay -->
+                                        <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 45%; background: radial-gradient(ellipse at right center, rgba(255,255,255,0.05), transparent 70%); pointer-events: none;"></div>
 
-                                    <!-- Icon -->
-                                    <div style="display: flex; align-items: center; justify-content: center; width: 100px; height: 100px; background: rgba(255,255,255,0.06); border-radius: 12px; border: 1.5px solid rgba(167,116,255,0.6); position: relative; z-index: 1; flex-shrink: 0;">
-                                        @php
-                                            $featuredIcon = $affiliate->featured_icon ?? 'fa-star';
-                                        @endphp
-                                        <i class="fas {{ $featuredIcon }}" style="font-size: 48px; background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                                        <!-- Icon -->
+                                        <div style="display: flex; align-items: center; justify-content: center; width: 100px; height: 100px; background: rgba(255,255,255,0.06); border-radius: 12px; border: 1.5px solid rgba(167,116,255,0.6); position: relative; z-index: 1; flex-shrink: 0;">
+                                            @php
+                                                $featuredIcon = $affiliate->featured_icon ?? 'fa-star';
+                                            @endphp
+                                            <i class="fas {{ $featuredIcon }}" style="font-size: 48px; background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                                        </div>
+
+                                        <!-- Content -->
+                                        <div style="position: relative; z-index: 1; padding-top: 4px;">
+                                            @if($affiliate->hero_title)
+                                                <h2 style="font-size: 36px; font-weight: 700; color: #fff; margin: 0 0 8px 0; letter-spacing: -0.01em;">{{ $affiliate->hero_title }}</h2>
+                                            @endif
+                                            @if($affiliate->hero_subtitle)
+                                                <p style="font-size: 14px; color: #a774ff; margin: 0 0 12px 0; font-weight: 500; padding-bottom: 12px; border-bottom: 1px solid rgba(167,116,255,0.3);">{{ $affiliate->hero_subtitle }}</p>
+                                            @endif
+                                            @if($affiliate->description)
+                                                <p style="font-size: 15px; color: rgba(255,255,255,0.8); margin: 0; line-height: 1.6;">{{ $affiliate->description }}</p>
+                                            @endif
+                                        </div>
                                     </div>
+                                    @endif
+                                </div>
+                            </div>
 
-                                    <!-- Content -->
-                                    <div style="position: relative; z-index: 1; padding-top: 4px;">
-                                        @if($affiliate->hero_title)
-                                            <h2 style="font-size: 36px; font-weight: 700; color: #fff; margin: 0 0 8px 0; letter-spacing: -0.01em;">{{ $affiliate->hero_title }}</h2>
-                                        @endif
-                                        @if($affiliate->hero_subtitle)
-                                            <p style="font-size: 14px; color: #a774ff; margin: 0 0 12px 0; font-weight: 500; padding-bottom: 12px; border-bottom: 1px solid rgba(167,116,255,0.3);">{{ $affiliate->hero_subtitle }}</p>
-                                        @endif
-                                        @if($affiliate->description)
-                                            <p style="font-size: 15px; color: rgba(255,255,255,0.8); margin: 0; line-height: 1.6;">{{ $affiliate->description }}</p>
-                                        @endif
+                            <!-- Features Section -->
+                            <div class="aff-hero-features">
+                                <div class="aff-hero-feature">
+                                    <div class="aff-hero-feature-icon">
+                                        <i class="fas fa-crown"></i>
                                     </div>
+                                    <div class="aff-hero-feature-label">Premium<br>Quality</div>
                                 </div>
-                                @endif
+                                <div class="aff-hero-feature">
+                                    <div class="aff-hero-feature-icon">
+                                        <i class="fas fa-bolt"></i>
+                                    </div>
+                                    <div class="aff-hero-feature-label">Fast<br>Delivery</div>
+                                </div>
+                                <div class="aff-hero-feature">
+                                    <div class="aff-hero-feature-icon">
+                                        <i class="fas fa-lock"></i>
+                                    </div>
+                                    <div class="aff-hero-feature-label">Secure<br>Payments</div>
+                                </div>
+                                <div class="aff-hero-feature">
+                                    <div class="aff-hero-feature-icon">
+                                        <i class="fas fa-headset"></i>
+                                    </div>
+                                    <div class="aff-hero-feature-label">Dedicated<br>Support</div>
+                                </div>
+                            </div>
+
+                            <!-- Final Tagline Box -->
+                            <div class="aff-hero-tagline">
+                                <i class="fas fa-shield-alt"></i>
+                                <div class="aff-hero-tagline-text">
+                                    <div class="aff-hero-tagline-main">Trusted. Verified. Premium.</div>
+                                    <div class="aff-hero-tagline-sub">Partner with confidence.</div>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Features Section -->
-                        <div class="aff-hero-features">
-                            <div class="aff-hero-feature">
-                                <div class="aff-hero-feature-icon">
-                                    <i class="fas fa-crown"></i>
-                                </div>
-                                <div class="aff-hero-feature-label">Premium<br>Quality</div>
-                            </div>
-                            <div class="aff-hero-feature">
-                                <div class="aff-hero-feature-icon">
-                                    <i class="fas fa-bolt"></i>
-                                </div>
-                                <div class="aff-hero-feature-label">Fast<br>Delivery</div>
-                            </div>
-                            <div class="aff-hero-feature">
-                                <div class="aff-hero-feature-icon">
-                                    <i class="fas fa-lock"></i>
-                                </div>
-                                <div class="aff-hero-feature-label">Secure<br>Payments</div>
-                            </div>
-                            <div class="aff-hero-feature">
-                                <div class="aff-hero-feature-icon">
-                                    <i class="fas fa-headset"></i>
-                                </div>
-                                <div class="aff-hero-feature-label">Dedicated<br>Support</div>
-                            </div>
-                        </div>
-
-                        <!-- Final Tagline Box -->
-                        <div class="aff-hero-tagline">
-                            <i class="fas fa-shield-alt"></i>
-                            <div class="aff-hero-tagline-text">
-                                <div class="aff-hero-tagline-main">Trusted. Verified. Premium.</div>
-                                <div class="aff-hero-tagline-sub">Partner with confidence.</div>
-                            </div>
-                        </div>
-
-                        <!-- Desktop Gallery Carousel (Right side) -->
+                        <!-- Right Column: Gallery (Desktop Only) -->
                         @if(!empty($affiliate->gallery_images))
-                            <div class="aff-hero-gallery-carousel" style="display: none; flex: 0 0 auto; width: 340px; height: 100%; position: relative;">
+                            <div class="aff-hero-gallery-carousel">
                                 <div class="aff-hero-carousel-track" id="affHeroCarouselTrack" style="display: flex; flex-direction: column; height: 100%; position: relative; overflow: hidden; border-radius: 12px;">
                                     @foreach($affiliate->gallery_images as $galleryImage)
                                         <div class="aff-hero-carousel-item" style="display: none; width: 100%; height: 100%; flex: 0 0 100%;">
