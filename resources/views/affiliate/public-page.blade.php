@@ -9355,7 +9355,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 tab.classList.add('visible-tab');
                                 if (!firstVisibleTab) {
                                     firstVisibleTab = tab;
-                                }
+                                
                             } else {
                                 tab.classList.add('hidden-tab');
                                 tab.classList.remove('visible-tab');
