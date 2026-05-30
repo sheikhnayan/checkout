@@ -3220,7 +3220,7 @@
             display: none;
             width: 100%;
             padding: 12px 16px;
-            background: linear-gradient(135deg, #fb7185, #34d399);
+            background: #475569;
             color: white;
             border: none;
             border-radius: 12px;
@@ -3229,10 +3229,12 @@
             cursor: pointer;
             transition: all 0.3s ease;
             margin-top: 12px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25);
         }
         .cv-hero-location-map-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(251, 113, 133, 0.3);
+            background: #334155;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.32);
         }
 
         @media (max-width: 767px) {
