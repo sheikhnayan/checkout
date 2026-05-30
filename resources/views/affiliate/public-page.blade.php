@@ -6252,7 +6252,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                                         <input type="hidden" name="website_id" value="{{ $data->id }}">
 
-                                        <input type="hidden" name="affiliate_slug" value="{{ $affiliateReferral->slug ?? '' }}">
+                                        <input type="hidden" name="affiliate_slug" value="{{ $affiliate->slug }}">
     
                                         <input type="hidden" name="package_number_of_guest" class="package_number_of_guest" value="2">
     
