@@ -15,8 +15,10 @@
 
     <meta name="description" content="" />
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+    <!-- Admin favicon: prefer SVG + Safari mask, fallback to ICO -->
+    <link rel="icon" type="image/svg+xml" href="{{ asset('user/assets/img/favicon/favicon.svg') }}" />
+    <link rel="mask-icon" href="{{ asset('user/assets/img/favicon/safari-mask.svg') }}" color="#ffcc00" />
+    <link rel="shortcut icon" href="{{ asset('user/assets/img/favicon/favicon.ico') }}" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
