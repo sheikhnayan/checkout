@@ -5531,7 +5531,7 @@
 .cv-access-card[data-name="guest"] .cv-ac-icon-wrap i { color: rgba({{ $cvGRgb }},0.85) !important; }
 .cv-access-card[data-name="guest"].is-active { border-color: #{{ $cvGuestHex }}; background: radial-gradient(ellipse at 94% 50%, rgba({{ $cvGRgb }},0.2) 0%, transparent 50%), linear-gradient(145deg, rgba({{ $cvGRgb }},0.14), rgba(4,36,20,0.22)); box-shadow: 0 0 0 1px rgba({{ $cvGRgb }},0.3), 0 8px 32px rgba({{ $cvGRgb }},0.22), inset 0 1px 0 rgba({{ $cvGRgb }},0.12); }
 .cv-access-card[data-name="guest"].is-active::before { border-color: #{{ $cvGuestHex }}; background: rgba({{ $cvGRgb }},0.2); }
-.cv-access-card[data-name="guest"].is-active::after { background: radial-gradient(circle, #{{ $cvGuestHex }} 0%, rgba({{ $cvGRgb }},0.8) 100%); }
+.cv-access-card[data-name="guest"].is-active::after { background: radial-gradient(circle, #fff300 0%, rgba({{ $cvGRgb }},0.8) 100%); }
 .cv-access-card[data-name="guest"].is-active .cv-ac-icon-wrap { background: rgba({{ $cvGRgb }},0.22); border-color: rgba({{ $cvGRgb }},0.55); box-shadow: 0 0 22px rgba({{ $cvGRgb }},0.45); }
 .cv-access-card[data-name="guest"].is-active .cv-ac-icon-wrap i { color: #{{ $cvGuestHex }} !important; }
 .cv-access-card[data-name="guest"].is-active .cv-ac-body::before { color: rgba({{ $cvGRgb }},0.06); }
@@ -5543,7 +5543,7 @@
 .cv-access-card[data-name="package"] .cv-ac-icon-wrap i { color: rgba({{ $cvPRgb }},0.88) !important; }
 .cv-access-card[data-name="package"].is-active { border-color: #{{ $cvPkgHex }}; background: radial-gradient(ellipse at 94% 50%, rgba({{ $cvPRgb }},0.22) 0%, transparent 50%), linear-gradient(145deg, rgba({{ $cvPRgb }},0.14), rgba(50,35,5,0.22)); box-shadow: 0 0 0 1px rgba({{ $cvPRgb }},0.35), 0 8px 32px rgba({{ $cvPRgb }},0.2), inset 0 1px 0 rgba({{ $cvPRgb }},0.15); }
 .cv-access-card[data-name="package"].is-active::before { border-color: #{{ $cvPkgHex }}; background: rgba({{ $cvPRgb }},0.2); }
-.cv-access-card[data-name="package"].is-active::after { background: radial-gradient(circle, #{{ $cvPkgHex }} 0%, rgba({{ $cvPRgb }},0.8) 100%); transform: translateY(-50%) scale(1); }
+.cv-access-card[data-name="package"].is-active::after { background: radial-gradient(circle, #fff300 0%, rgba({{ $cvPRgb }},0.8) 100%); transform: translateY(-50%) scale(1); }
 .cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap { background: rgba({{ $cvPRgb }},0.22); border-color: rgba({{ $cvPRgb }},0.6); box-shadow: 0 0 22px rgba({{ $cvPRgb }},0.45); }
 .cv-access-card[data-name="package"].is-active .cv-ac-icon-wrap i { color: #{{ $cvPkgHex }} !important; }
 .cv-access-card[data-name="package"].is-active .cv-ac-body::before { color: rgba({{ $cvPRgb }},0.07); }
@@ -5577,7 +5577,7 @@
 .cv-access-card[data-name="package"] strong,
 .cv-access-card[data-name="package"].is-active strong { color: #fff !important; font-size: 15px; }
 .cv-access-card[data-name="package"] span,
-.cv-access-card[data-name="package"].is-active span { color: rgba(255,255,255,0.74) !important; }
+.cv-access-card[data-name="package"].is-active span { color: #000 !important; }
 .cv-access-card[data-name="package"] .cv-ac-body::before,
 .cv-access-card[data-name="package"].is-active .cv-ac-body::before { color: rgba({{ $cvPRgb }},0.16); }
 .cv-access-card[data-name="package"] .cv-ac-body::after,
