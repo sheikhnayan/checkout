@@ -1530,6 +1530,22 @@ body {
     text-shadow: 0 0 0 #f5f8ff;
 }
 
+#package_use_date::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.5) !important;
+    opacity: 1 !important;
+}
+
+#package_use_date::-webkit-input-placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+    opacity: 1 !important;
+}
+
+#package_use_date::-moz-placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+    opacity: 1 !important;
+}
+
 .flatpickr-calendar {
     background: #0f172a !important;
     border: 1px solid rgba(148, 163, 184, 0.35) !important;
