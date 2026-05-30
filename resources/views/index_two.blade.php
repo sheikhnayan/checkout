@@ -1104,19 +1104,10 @@
         .consent-label input:checked {
             background: #ffcc00;
             border-color: #ffcc00;
-            box-shadow: inset 0 0 0 3px #0f172a;
         }
         .consent-label input:checked::before {
-            content: '';
-            width: 8px;
-            height: 8px;
             background: #ffcc00;
-            border-radius: 50%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 0 8px #ffcc00;
+            box-shadow: 0 0 0 3px #ffcc00;
         }
         .consent-label input:focus-visible {
             outline: 2px solid rgba(255,204,0,0.7);
@@ -1170,19 +1161,10 @@
         #payment-consent-group .consent-label input[type="checkbox"]:checked {
             background: #ffcc00 !important;
             border-color: #ffcc00 !important;
-            box-shadow: inset 0 0 0 3px #0f172a !important;
         }
         #payment-consent-group .consent-label input[type="checkbox"]:checked::before {
-            content: '' !important;
-            width: 8px !important;
-            height: 8px !important;
             background: #ffcc00 !important;
-            border-radius: 50% !important;
-            position: absolute !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            box-shadow: 0 0 0 8px #ffcc00 !important;
+            box-shadow: 0 0 0 3px #ffcc00 !important;
         }
         #payment-consent-group .consent-label input[type="checkbox"]:focus-visible {
             outline: 2px solid rgba(255,204,0,0.7) !important;
@@ -1234,19 +1216,9 @@
         .checkbox-container input[type="checkbox"]:checked {
             background: #ffcc00;
             border-color: #ffcc00;
-            box-shadow: inset 0 0 0 3px #0f172a;
         }
         .checkbox-container input[type="checkbox"]:checked::before {
-            content: '';
-            width: 8px;
-            height: 8px;
             background: #ffcc00;
-            border-radius: 50%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 0 8px #ffcc00;
         }
         .checkbox-container input[type="checkbox"]:focus-visible {
             outline: 2px solid rgba(255,204,0,0.7);
