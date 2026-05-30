@@ -4284,7 +4284,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-pkg-sub { font-size: 12.5px; color: rgba(255,255,255,0.62) !important; display: inline-flex; align-items: center; gap: 6px; }
 .cv-pkg-sub i { font-size: 12px; opacity: .7; }
 .cv-pkg-desc { font-size: 13px; color: rgba(255,255,255,0.62) !important; line-height: 1.5; margin: 0; }
-.cv-pkg-features { display: flex !important; flex-wrap: wrap; gap: 14px; padding-top: 12px !important; margin-top: 4rem !important; margin-left: auto !important; margin-right: auto !important; border-top: 1px solid rgba(255,255,255,0.08); }
+.cv-pkg-features { display: flex !important; flex-wrap: wrap; gap: 14px; padding-top: 12px !important; margin-left: auto !important; margin-right: auto !important; border-top: 1px solid rgba(255,255,255,0.08); }
 .cv-pkg-feature { font-size: 11.5px; color: rgba(255,255,255,0.65) !important; display: inline-flex; align-items: center; gap: 5px; }
 .cv-pkg-feature i { color: var(--tier-accent, rgba(255,255,255,0.76)) !important; font-size: 11px; opacity: .9; }
 .vip-card.cv-exact-card .vip-card-side { display: flex; flex-direction: column; justify-content: space-between; align-items: stretch; gap: 6px; grid-template-columns: none !important; flex: initial; text-align: right; }
@@ -4879,80 +4879,54 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
 
     /* First Package Card - Featured Style */
-    .vip-card.cv-exact-card {
-        background: linear-gradient(135deg, rgba(139,92,246,0.2) 0%, rgba(236,72,153,0.15) 100%) !important;
-        border: 1px solid rgba(139,92,246,0.3) !important;
-        border-radius: 14px !important;
-        padding: 14px !important;
+    .vip-card.cv-exact-card { grid-template-columns: 1fr; gap: 14px; padding: 14px !important; }
+    .vip-card.cv-exact-card .cv-pkg-media-wrap { min-height: 80px; height: 80px; border-radius: 10px; overflow: hidden; }
+    .vip-card.cv-exact-card .cv-pkg-media { width: 100%; height: 100%; object-fit: cover; }
+    .vip-card.cv-exact-card .cv-pkg-title-row { margin-top: 0; }
+    .vip-card.cv-exact-card .cv-pkg-title { font-size: 22px !important; }
+    .vip-card.cv-exact-card .cv-pkg-desc { font-size: 13px !important; line-height: 1.5; }
+    .vip-card.cv-exact-card .cv-pkg-features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px 10px; margin-top: auto; padding-top: 14px; flex-wrap: wrap; }
+    .vip-card.cv-exact-card .cv-pkg-feature { flex: 0 0 auto; font-size: 10.5px !important; flex-direction: column; align-items: center; gap: 3px; text-align: center; }
+    .vip-card.cv-exact-card .cv-pkg-feature i { font-size: 15px !important; margin-bottom: 1px; }
+    .vip-card.cv-exact-card .vip-card-side {
         display: grid !important;
-        grid-template-columns: 100px 1fr !important;
-        gap: 14px !important;
-        align-items: flex-start;
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+            "price guests"
+            "meta button";
+        gap: 8px 12px;
+        align-items: center;
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid rgba(255,255,255,0.08);
+        text-align: left;
     }
-
-    .vip-card.cv-exact-card:first-of-type {
-        background: linear-gradient(135deg, rgba(139,92,246,0.25) 0%, rgba(236,72,153,0.2) 100%) !important;
-        border: 1px solid rgba(251,113,133,0.4) !important;
+    .vip-card.cv-exact-card .vip-price-tag {
+        grid-area: price;
+        text-align: left !important;
+        font-size: 28px !important;
     }
-
-    .vip-card.cv-exact-card .cv-pkg-media-wrap {
-        grid-column: 1 !important;
-        grid-row: 1 / -1 !important;
-        min-height: 100px !important;
-        height: 100px !important;
-        border-radius: 10px !important;
-        overflow: hidden !important;
-        border: 1.5px solid rgba(251,113,133,0.5) !important;
-        background: rgba(0,0,0,0.3) !important;
+    .vip-card.cv-exact-card .cv-price-meta {
+        grid-area: meta;
+        text-align: left !important;
+        font-size: 11.5px !important;
+        margin-top: -4px !important;
     }
-
-    .vip-card.cv-exact-card .vip-card-main {
-        grid-column: 2 !important;
-        padding: 0 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 4px !important;
+    .vip-card.cv-exact-card .package-guest-input-wrap {
+        grid-area: guests;
+        width: 100%;
     }
-
-    .vip-card.cv-exact-card .cv-pkg-title-row {
+    .vip-card.cv-exact-card .package_number_of_guestss { margin-top: 0 !important; min-height: 38px !important; padding-top: 0px !important; padding-bottom: 0px !important;}
+    .vip-card.cv-exact-card .vip-btn {
+        grid-area: button;
         margin: 0 !important;
-        display: flex !important;
-        align-items: center !important;
-        gap: 6px !important;
+        min-width: 150px;
+        padding: 10px 20px !important;
     }
-
-    .vip-card.cv-exact-card .cv-pkg-title-icon {
-        display: none !important;
-    }
-
-    .vip-card.cv-exact-card .cv-pkg-title {
-        font-size: 24px !important;
-        font-weight: 900 !important;
-        color: #fff !important;
-        margin: 0 !important;
-    }
-
-    .vip-card.cv-exact-card .cv-pkg-sub {
-        font-size: 12px !important;
-        color: var(--accent) !important;
-        font-weight: 700 !important;
-    }
-
-    .vip-card.cv-exact-card .cv-pkg-desc {
-        font-size: 13px !important;
-        color: rgba(255,255,255,0.8) !important;
-        margin: 0 !important;
-        line-height: 1.4 !important;
-    }
-
-    .vip-card.cv-exact-card .cv-pkg-features,
-    .vip-card.cv-exact-card .vip-card-side,
-    .vip-card.cv-exact-card .cv-club-name-badge {
-        display: none !important;
-    }
-
-    .vip-card.cv-exact-card .cv-popular-pill {
-        display: none !important;
+    .vip-card.cv-exact-card .package-guest-error,
+    .vip-card.cv-exact-card .package-soldout {
+        grid-column: 1 / -1;
+        margin-top: 4px;
     }
 
     /* Features Grid Section */
@@ -7969,14 +7943,12 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         $target = targetId ? $('#' + targetId) : $();
                     }
 
-                    // Remove active/is-active from all tiles and groups
                     $('.package-category-tile').removeClass('active');
-                    $('.package-category-group').removeClass('is-active');
+                    $('.package-category-group').stop(true, true).slideUp(180).removeClass('is-active');
 
-                    // If not already open, show the target group
                     if (!isOpen && $target.length) {
                         $tile.addClass('active');
-                        $target.addClass('is-active');
+                        $target.stop(true, true).slideDown(180).addClass('is-active');
                     }
                 });
 
