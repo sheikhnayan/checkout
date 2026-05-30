@@ -30,7 +30,9 @@
       "Bash(git -C \"c:\\\\wamp64\\\\www\\\\checkout\" diff HEAD~1 HEAD -- resources/views/affiliate/public-page.blade.php)",
       "Bash(php -l resources/views/affiliate/public-page.blade.php)",
       "Bash(php -l resources/views/affiliate/settings.blade.php resources/views/affiliate/public-page.blade.php)",
-      "Bash(php -l app/Http/Controllers/AffiliatePortalController.php)"
+      "Bash(php -l app/Http/Controllers/AffiliatePortalController.php)",
+      "Bash(awk '/^@media.*max-width.*767px.*\\\\{/,/^@media/ {print NR\": \"$0}' \"c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\affiliate\\\\public-page.blade.php\")",
+      "Bash(curl -s http://127.0.0.1:8000)"
     ],
     "additionalDirectories": [
       "c:\\wamp64\\www\\checkout\\bootstrap\\cache",

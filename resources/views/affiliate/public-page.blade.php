@@ -1515,11 +1515,15 @@ body {
 }
 
 #package_use_date {
+    position: relative !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
     color: #f5f8ff !important;
     -webkit-text-fill-color: #f5f8ff !important;
     font-weight: 600;
     opacity: 1 !important;
-    text-shadow: 0 0 0 #f5f8ff;
+    text-shadow: none !important;
 }
 
 #package_use_date[readonly],
@@ -1531,19 +1535,79 @@ body {
 }
 
 #package_use_date::placeholder {
-    color: rgba(255, 255, 255, 0.5) !important;
-    -webkit-text-fill-color: rgba(255, 255, 255, 0.5) !important;
+    color: rgba(255, 255, 255, 0.45) !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.45) !important;
     opacity: 1 !important;
 }
 
 #package_use_date::-webkit-input-placeholder {
-    color: rgba(255, 255, 255, 0.5) !important;
+    color: rgba(255, 255, 255, 0.45) !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.45) !important;
     opacity: 1 !important;
 }
 
 #package_use_date::-moz-placeholder {
-    color: rgba(255, 255, 255, 0.5) !important;
+    color: rgba(255, 255, 255, 0.45) !important;
     opacity: 1 !important;
+}
+
+#package_use_date:-ms-input-placeholder {
+    color: rgba(255, 255, 255, 0.45) !important;
+    opacity: 1 !important;
+}
+
+#package_use_date:focus {
+    outline: none !important;
+    border-color: #a774ff !important;
+}
+
+#package_use_date::-webkit-calendar-picker-indicator {
+    display: none !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* Mobile responsive date input fixes */
+@media (max-width: 768px) {
+    #package_use_date {
+        font-size: 16px !important;
+        padding: 12px 40px 12px 15px !important;
+        min-height: 45px !important;
+        -webkit-appearance: none !important;
+        -webkit-text-fill-color: #f5f8ff !important;
+    }
+}
+
+/* iOS Safari specific date input fixes */
+@supports (-webkit-touch-callout: none) {
+    #package_use_date {
+        -webkit-appearance: none !important;
+        -webkit-text-fill-color: #f5f8ff !important;
+        color: #f5f8ff !important;
+        font-size: 16px !important;
+        padding: 12px 40px 12px 15px !important;
+        min-height: 45px !important;
+    }
+
+    #package_use_date::placeholder {
+        color: rgba(255, 255, 255, 0.45) !important;
+        -webkit-text-fill-color: rgba(255, 255, 255, 0.45) !important;
+        opacity: 1 !important;
+    }
+
+    #package_use_date::-webkit-input-placeholder {
+        color: rgba(255, 255, 255, 0.45) !important;
+        -webkit-text-fill-color: rgba(255, 255, 255, 0.45) !important;
+        opacity: 1 !important;
+    }
+
+    #package_use_date::-webkit-calendar-picker-indicator {
+        display: none !important;
+        opacity: 0 !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
 }
 
 .flatpickr-calendar {
@@ -5483,8 +5547,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             </div>
                         </div>
 
-                        <!-- Features Section - Mobile Only -->
-                        <div class="aff-hero-features" style="display: none;">
+                        <!-- Features Section -->
+                        <div class="aff-hero-features">
                             <div class="aff-hero-feature">
                                 <div class="aff-hero-feature-icon">
                                     <i class="fas fa-crown"></i>
@@ -5511,8 +5575,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             </div>
                         </div>
 
-                        <!-- Final Tagline Box - Mobile Only -->
-                        <div class="aff-hero-tagline" style="display: none;">
+                        <!-- Final Tagline Box -->
+                        <div class="aff-hero-tagline">
                             <i class="fas fa-shield-alt"></i>
                             <div class="aff-hero-tagline-text">
                                 <div class="aff-hero-tagline-main">Trusted. Verified. Premium.</div>
