@@ -5872,7 +5872,7 @@
                                                 @endphp
                                                 <button
                                                     type="button"
-                                                    class="package-category-tile {{ $loop->first ? 'active' : '' }}{{ $catRgbStr ? ' has-cat-color' : '' }}"
+                                                    class="package-category-tile{{ $catRgbStr ? ' has-cat-color' : '' }}"
                                                     data-target="#category-group-{{ $category['id'] }}"
                                                     @if($catRgbStr) style="--cat-rgb: {{ $catRgbStr }}" @endif
                                                 >
@@ -5886,7 +5886,7 @@
                                         </div>
 
                                         @foreach ($packageCategories as $category)
-                                            <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: {{ $loop->first ? 'block' : 'none' }};">
+                                            <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: none;">
                                                 @foreach ($category['packages'] as $item)
                                                     @php
                                                         $pkgTierIdx = ($loop->index % 5) + 1;

@@ -9369,12 +9369,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         }
                     });
 
-                    // Show/hide package groups based on whether they have visible cards.
+                    // Hide all package groups until the user opens a category manually.
                     document.querySelectorAll('.package-category-group').forEach(function(group) {
-                        var groupHasVisibleCard = Array.from(group.querySelectorAll('[id^="pkg-card-"]')).some(function(card) {
-                            return card.style.display !== 'none';
-                        });
-                        group.classList.toggle('is-active', groupHasVisibleCard);
+                        group.classList.remove('is-active');
                     });
                 }
 
