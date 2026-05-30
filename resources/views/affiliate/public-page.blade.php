@@ -4618,6 +4618,94 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 #cv-order-sidebar .pricing-shell .default-promo-discount span { margin-left: auto; }
 
+/* Features Grid and Tagline Box - Desktop & Mobile */
+.aff-hero-features {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(251,113,133,0.15);
+    width: 100%;
+}
+
+.aff-hero-feature {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 6px;
+    text-align: center;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    transition: all 0.3s ease;
+}
+
+.aff-hero-feature:hover {
+    background: transparent;
+    border-color: transparent;
+}
+
+.aff-hero-feature-icon {
+    font-size: 24px;
+    color: var(--accent);
+    width: auto;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border-radius: 0;
+}
+
+.aff-hero-feature-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.2;
+}
+
+.aff-hero-tagline {
+    padding: 10px 12px;
+    border: 1.5px solid;
+    border-image: linear-gradient(135deg, rgba(251,113,133,0.7) 0%, rgba(167,116,255,0.7) 100%) 1;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(251,113,133,0.06), rgba(167,116,255,0.06));
+    text-align: center;
+    margin: 8px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.aff-hero-tagline i {
+    color: var(--accent);
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.aff-hero-tagline-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+    text-align: left;
+}
+
+.aff-hero-tagline-main {
+    font-size: 12px;
+    font-weight: 800;
+    color: #fff;
+}
+
+.aff-hero-tagline-sub {
+    font-size: 10px;
+    color: rgba(255,255,255,0.65);
+}
+
 @media (min-width: 992px) {
     .cv-main-col #cart-section,
     .cv-main-col .pricing-shell { display: none !important; }
@@ -5032,53 +5120,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         margin-top: 4px;
     }
 
-    /* Features Grid Section */
-    .aff-hero-features {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 10px;
-        padding: 12px 0;
-        border-bottom: 1px solid rgba(251,113,133,0.15);
-    }
-
-    .aff-hero-feature {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 6px;
-        padding: 10px 6px;
-        text-align: center;
-        background: transparent;
-        border: none;
-        border-radius: 0;
-        transition: all 0.3s ease;
-    }
-
-    .aff-hero-feature:hover {
-        background: transparent;
-        border-color: transparent;
-    }
-
-    .aff-hero-feature-icon {
-        font-size: 24px;
-        color: var(--accent);
-        width: auto;
-        height: auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: transparent;
-        border-radius: 0;
-    }
-
-    .aff-hero-feature-label {
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: rgba(255,255,255,0.8);
-        line-height: 1.2;
-    }
+    /* Features Grid Section - Mobile */
+    /* (Global styles applied above, mobile can override if needed) */
 
     /* Show Category Tabs and groups on Mobile */
     .package-category-tiles {
@@ -5096,45 +5139,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         display: block !important;
     }
 
-    /* Final Tagline Box */
-    .aff-hero-tagline {
-        padding: 10px 12px;
-        border: 1.5px solid;
-        border-image: linear-gradient(135deg, rgba(251,113,133,0.7) 0%, rgba(167,116,255,0.7) 100%) 1;
-        border-radius: 10px;
-        background: linear-gradient(135deg, rgba(251,113,133,0.06), rgba(167,116,255,0.06));
-        text-align: center;
-        margin: 8px 0 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-    }
-
-    .aff-hero-tagline i {
-        color: var(--accent);
-        font-size: 16px;
-        flex-shrink: 0;
-    }
-
-    .aff-hero-tagline-text {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1px;
-        text-align: left;
-    }
-
-    .aff-hero-tagline-main {
-        font-size: 12px;
-        font-weight: 800;
-        color: #fff;
-    }
-
-    .aff-hero-tagline-sub {
-        font-size: 10px;
-        color: rgba(255,255,255,0.65);
-    }
+    /* Final Tagline Box - Mobile */
+    /* (Global styles applied above, mobile can override if needed) */
 }
 @media (max-width: 420px) {
     .cv-nav-back { padding: 6px 10px !important; font-size: 11.5px !important; }
