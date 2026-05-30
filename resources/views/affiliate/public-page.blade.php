@@ -2852,6 +2852,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-hero-badge i { color: var(--accent) !important; font-size: 17px; margin-top: 1px; width: 22px; height: 22px; border-radius: 50%; background: rgba(255,204,0,0.1); display: inline-flex; align-items: center; justify-content: center; font-size: 11px; }
 .cv-hero-badge-label { display:block; font-size:13px; color:rgba(255,255,255,0.78) !important; font-weight:600; line-height:1.25; }
 .cv-hero-badge-sub { display:block; font-size:13px; color:rgba(255,255,255,0.95) !important; margin-top:2px; line-height:1.2; font-weight: 700; }
+@media (min-width: 992px) {
+    .cv-hero-venue-avatar { width: 140px; height: 140px; }
+    .cv-hero-venue-initial { width: 140px; height: 140px; font-size: 48px; }
+}
+
 @media (max-width: 991px) {
     .cv-hero-head { flex-direction: column; gap: 14px; }
     .cv-hero-badges { width: 100%; gap: 18px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 4px; padding-top: 14px; }
@@ -5581,7 +5586,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             <div class="aff-hero-features">
                                 <div class="aff-hero-feature">
                                     <div class="aff-hero-feature-icon">
-                                        <i class="fas fa-crown"></i>
+                                        <i class="fas fa-gem"></i>
                                     </div>
                                     <div class="aff-hero-feature-label">Premium<br>Quality</div>
                                 </div>
@@ -5593,7 +5598,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 </div>
                                 <div class="aff-hero-feature">
                                     <div class="aff-hero-feature-icon">
-                                        <i class="fas fa-lock"></i>
+                                        <i class="fas fa-shield"></i>
                                     </div>
                                     <div class="aff-hero-feature-label">Secure<br>Payments</div>
                                 </div>
