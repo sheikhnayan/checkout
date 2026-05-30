@@ -228,6 +228,12 @@ input[name="transportation_pickup_time"]::placeholder {
     font-size: 15px;
     min-width: 180px;
     text-align: center;
+    -webkit-appearance: none;
+    appearance: none;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    pointer-events: auto !important;
 }
 
 .btn-next:hover, .submit-btn:hover {
@@ -7010,6 +7016,17 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         }
                     }, 0);
                 });
+
+                // Mobile touch event support for submit button
+                var submitBtn = document.getElementById('submitBtn');
+                if (submitBtn) {
+                    submitBtn.addEventListener('touchstart', function() {
+                        this.style.opacity = '0.85';
+                    });
+                    submitBtn.addEventListener('touchend', function() {
+                        this.style.opacity = '1';
+                    });
+                }
             });
         </script>
 
