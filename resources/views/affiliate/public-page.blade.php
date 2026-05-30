@@ -5652,12 +5652,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                         </span>
                                                         <span class="package-category-indicator">+</span>
                                                     </button>
-                                                </div>
-                                            @endforeach
-                                        </div>
 
-                                        @foreach ($packageCategories as $category)
-                                            <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: none;">
+                                                    <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: none;">
                                                 @foreach ($category['packages'] as $item)
                                                     @php
                                                         $pkgGuestCap = max(1, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 1));
@@ -5791,7 +5787,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                 @endforeach
                                                     </div>
                                                 </div>
-                                        @endforeach
+                                            @endforeach
+                                        </div>
                                     @else
                                         <p style="opacity:.6;">No packages are available yet.</p>
                                     @endif
