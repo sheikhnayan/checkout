@@ -390,7 +390,7 @@ input[type="date"]:focus {
         appearance: none;
         background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center;
         background-size: 20px;
-        padding: 8px 30px 8px 15px !important;
+        padding: 12px 30px 12px 15px !important;
         border: 1px solid #9797a0;
         border-radius: 10px;
         color: #fff;
@@ -1514,57 +1514,20 @@ body {
     color: #ffb4b4;
 }
 
-/* Specific styling for package_use_date - EXACT COPY FROM INDEX_TWO */
 #package_use_date {
-    position: relative !important;
-    -webkit-appearance: none !important;
-    -moz-appearance: none !important;
-    appearance: none !important;
-    background: transparent !important;
-    border: 1px solid #9797a0 !important;
-    border-radius: 10px !important;
-    padding: 12px 45px 12px 15px !important;
-    color: #fff !important;
-    -webkit-text-fill-color: #fff !important;
-    font-size: 16px !important;
-    min-height: 45px !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-}
-
-#package_use_date:disabled,
-#package_use_date:read-only {
+    color: #f5f8ff !important;
+    -webkit-text-fill-color: #f5f8ff !important;
+    font-weight: 600;
     opacity: 1 !important;
-    -webkit-text-fill-color: #fff !important;
-    color: #fff !important;
-    text-shadow: none !important;
+    text-shadow: 0 0 0 #f5f8ff;
 }
 
 #package_use_date[readonly],
 #package_use_date.flatpickr-input[readonly] {
-    color: #fff !important;
-    -webkit-text-fill-color: #fff !important;
+    color: #f5f8ff !important;
+    -webkit-text-fill-color: #f5f8ff !important;
     opacity: 1 !important;
-    text-shadow: none !important;
-    cursor: pointer;
-}
-
-#package_use_date::placeholder {
-    color: rgba(255,255,255,0.45) !important;
-    -webkit-text-fill-color: rgba(255,255,255,0.45) !important;
-    opacity: 1 !important;
-}
-
-#package_use_date:focus {
-    outline: none !important;
-    border-color: var(--accent) !important;
-}
-
-#package_use_date::-webkit-calendar-picker-indicator {
-    display: none !important;
-    opacity: 0 !important;
-    width: 0 !important;
-    height: 0 !important;
+    text-shadow: 0 0 0 #f5f8ff;
 }
 
 .flatpickr-calendar {
@@ -4830,28 +4793,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     /* Show Features and Tagline on Mobile */
     .aff-hero-features {
         display: grid !important;
-        margin-top: 100px !important;
     }
 
     .aff-hero-tagline {
         display: flex !important;
-    }
-
-    /* Date input placeholder styling for mobile */
-    #package_use_date::placeholder {
-        color: rgba(255, 255, 255, 0.5) !important;
-        opacity: 1 !important;
-        -webkit-text-fill-color: rgba(255, 255, 255, 0.5) !important;
-    }
-
-    #package_use_date::-webkit-input-placeholder {
-        color: rgba(255, 255, 255, 0.5) !important;
-        opacity: 1 !important;
-    }
-
-    #package_use_date::-moz-placeholder {
-        color: rgba(255, 255, 255, 0.5) !important;
-        opacity: 1 !important;
     }
 
     /* AFFILIATE PACKAGES Section Header */
@@ -4894,13 +4839,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         display: none !important;
     }
 
-    /* Mobile responsive date input fixes - EXACT COPY FROM INDEX_TWO */
-    #package_use_date {
-        font-size: 16px !important;
-        padding: 12px 40px 12px 15px !important;
-        min-height: 45px !important;
-    }
-
 
     /* Featured Package Card Styling */
     .package-category-group {
@@ -4923,6 +4861,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         flex-direction: column !important;
         gap: 12px !important;
         align-items: stretch;
+    }
+
+    /* Ensure feature row starts well below long descriptions on mobile */
+    .vip-card.cv-exact-card .cv-pkg-features {
+        margin-top: 100px !important;
     }
 
     .vip-card.cv-exact-card:first-of-type {
@@ -4982,7 +4925,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         display: grid !important;
         grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
         gap: 6px 10px !important;
-        margin-top: 0px !important;
+        margin-top: auto !important;
         padding-top: 30px !important;
         border-top: 1px solid rgba(255,255,255,0.08) !important;
         width: 100% !important;
@@ -5276,6 +5219,24 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .aff-dgc-item i { opacity: 0; transition: opacity 0.3s ease; }
 
 /* ===== Date Input iOS Fix ===== */
+.aff-date-input {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+}
+.aff-date-input::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+    opacity: 1 !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.5) !important;
+}
+.aff-date-input::-webkit-input-placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+    opacity: 1 !important;
+}
+.aff-date-input::-moz-placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+    opacity: 1 !important;
+}
+
 /* ===== Profile Story Indicator (Instagram-style) ===== */
 @keyframes aff-story-border-glow {
     0% {
@@ -5718,7 +5679,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     <div class="hero-date-card" style="margin-bottom: 24px;">
                                         <label>Choose Your Reservation Date</label>
                                         <div class="date-input-wrapper">
-                                            <input id="package_use_date" type="text" value="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('M d, Y') }}" style="width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; font-size: 16px; min-height: 45px; box-sizing: border-box;" readonly aria-describedby="package_use_date_error">
+                                            <input type="text" id="package_use_date" class="aff-date-input" style="width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; font-size: 16px; font-weight: 500;" required aria-required="true" aria-describedby="package_use_date_error" placeholder="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('M d, Y') }}">
                                         </div>
                                         <small id="package_use_date_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
                                     </div>
@@ -6426,7 +6387,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                     <input type="checkbox" id="termsConsent" required />
                                                                     <span>I understand that all sales are final. I agree to the <a
                                                                         target="_blank" href="{{ $data->terms }}">Terms of
-                                                                        Service</a> and acknowledge that this reservation is fulfilled by the venue or experience provider, while CartVIP provides the checkout and reservation platform.</span>
+                                                                        Service</a>, and acknowledge that CartVIP is the merchant of record for this purchase.</span>
                                                                 </label>
 
                                                                 <p style="margin: 12px 0 0; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);">
@@ -8694,26 +8655,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 defaultDate: null,
                 minDate: "today",
                 allowInput: false,
-                placeholder: "Select a date..",
                 clickOpens: true,
-                onReady: function(selectedDates, dateStr, instance) {
-                    $('.package_use_date').val(dateStr || instance.input.value);
-                    clearReservationDateError();
-                },
                 onChange: function(selectedDates, dateStr) {
-                    $('.package_use_date').val(dateStr);
-                    clearReservationDateError();
+                    document.getElementById('package_use_date').value = dateStr;
                 }
             });
-
-            $('.custom-calendar-icon').on('click', function() {
-                const picker = document.getElementById('package_use_date')._flatpickr;
-                if (picker) {
-                    picker.open();
-                }
-            });
-
-            $('.package_use_date').val('');
         </script>
         <script>
             function prepareCheckoutCartPayload(form) {

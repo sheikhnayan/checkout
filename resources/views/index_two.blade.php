@@ -5027,6 +5027,22 @@
             color: #fff;
         }
 
+        /* Tier-specific: make badge text dark on gold tier (VIP) */
+        .vip-card.cv-exact-card.cv-tier-1 .cv-popular-pill {
+            color: #000 !important;
+            border-color: rgba(0,0,0,0.12) !important;
+        }
+        .vip-card.cv-exact-card.cv-tier-1 .cv-popular-pill::before {
+            color: #000 !important;
+        }
+
+        /* Use the tier accent color to tint native checkboxes */
+        input[type="checkbox"],
+        .package-checkbox input[type="checkbox"],
+        .vip-card input[type="checkbox"] {
+            accent-color: var(--tier-accent, #ffcc00) !important;
+        }
+
         .vip-card.cv-exact-card .vip-card-main {
             display: flex;
             flex-direction: column;
