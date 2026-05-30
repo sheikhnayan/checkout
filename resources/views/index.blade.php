@@ -1063,11 +1063,21 @@ input::placeholder, textarea::placeholder {
     transition: transform .2s ease;
 }
 .checkbox-container input[type="checkbox"]:checked {
-    background: var(--accent);
-    border-color: var(--accent);
+    background: #ffcc00;
+    border-color: #ffcc00;
+    box-shadow: inset 0 0 0 3px #0f172a;
 }
 .checkbox-container input[type="checkbox"]:checked::before {
-    transform: translateX(20px);
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #ffcc00;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 0 8px #ffcc00;
 }
 .checkbox-container input[type="checkbox"]:focus-visible {
     outline: 2px solid rgba(255,204,0,0.7);
@@ -5054,7 +5064,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 </button>
                                 <button type="button" class="cv-access-card cv-access-tab" data-name="package">
                                     @if(!empty($data->package_tab_ribbon))
-                                        <span class="cv-ac-ribbon" style="color: rgb(255, 255, 255) !important;">{{ $data->package_tab_ribbon }}</span>
+                                        <span class="cv-ac-ribbon">{{ $data->package_tab_ribbon }}</span>
                                     @endif
                                     <span class="cv-ac-shimmer" aria-hidden="true"></span>
                                     <span class="cv-ac-icon-wrap"><i class="fas {{ $data->package_tab_icon ?? 'fa-star' }}"></i></span>
@@ -5066,7 +5076,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             @else
                                 <div class="cv-access-card is-active" data-name="package">
                                     @if(!empty($data->package_tab_ribbon))
-                                        <span class="cv-ac-ribbon" style="color: rgb(255, 255, 255) !important;">{{ $data->package_tab_ribbon }}</span>
+                                        <span class="cv-ac-ribbon">{{ $data->package_tab_ribbon }}</span>
                                     @endif
                                     <span class="cv-ac-shimmer" aria-hidden="true"></span>
                                     <span class="cv-ac-icon-wrap"><i class="fas {{ $data->package_tab_icon ?? 'fa-star' }}"></i></span>
