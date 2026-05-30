@@ -3220,9 +3220,9 @@
             display: none;
             width: 100%;
             padding: 12px 16px;
-            background: #475569;
+            background: #111827;
             color: white;
-            border: none;
+            border: 1px solid rgba(255,255,255,0.12);
             border-radius: 12px;
             font-weight: 600;
             font-size: 14px;
@@ -3233,7 +3233,7 @@
         }
         .cv-hero-location-map-btn:hover {
             transform: translateY(-2px);
-            background: #334155;
+            background: #0f172a;
             box-shadow: 0 6px 18px rgba(15, 23, 42, 0.32);
         }
 
