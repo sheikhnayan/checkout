@@ -1846,6 +1846,34 @@ nav .tab:hover {
     margin-right: 7px;
     flex-shrink: 0;
 }
+/* Rectangle background behind category icon (dynamic by --cat-rgb) */
+.package-category-tile-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 32px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.03);
+    box-shadow: none;
+    transition: all .18s;
+}
+.package-category-tile.has-cat-color .package-category-tile-icon {
+    background: rgba(var(--cat-rgb), 0.12) !important;
+    border: 1px solid rgba(var(--cat-rgb), 0.18) !important;
+    color: rgba(var(--cat-rgb), 1) !important;
+}
+.package-category-tile.has-cat-color.active .package-category-tile-icon {
+    background: linear-gradient(135deg, rgba(var(--cat-rgb), 0.95) 0%, rgba(var(--cat-rgb), 0.75) 100%) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 12px rgba(var(--cat-rgb), 0.18) !important;
+}
+/* Special-case: gold (255,204,0) should use dark icon color for readability */
+.package-category-tile[style*="255,204,0"] .package-category-tile-icon,
+.package-category-tile.has-cat-color[style*="255,204,0"] .package-category-tile-icon {
+    color: #000 !important;
+}
 /* Category color override when --cat-rgb is set */
 .package-category-tile.has-cat-color {
     background: rgba(var(--cat-rgb), 0.08) !important;

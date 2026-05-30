@@ -1844,6 +1844,33 @@ nav .tab:hover {
     margin-right: 7px;
     flex-shrink: 0;
 }
+/* Rectangle background behind category icon (dynamic by --cat-rgb) */
+.package-category-tile-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 32px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.03);
+    box-shadow: none;
+    transition: all .18s;
+}
+.package-category-tile.has-cat-color .package-category-tile-icon {
+    background: rgba(var(--cat-rgb), 0.12) !important;
+    border: 1px solid rgba(var(--cat-rgb), 0.18) !important;
+    color: rgba(var(--cat-rgb), 1) !important;
+}
+.package-category-tile.has-cat-color.active .package-category-tile-icon {
+    background: linear-gradient(135deg, rgba(var(--cat-rgb), 0.95) 0%, rgba(var(--cat-rgb), 0.75) 100%) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 12px rgba(var(--cat-rgb), 0.18) !important;
+}
+.package-category-tile[style*="255,204,0"] .package-category-tile-icon,
+.package-category-tile.has-cat-color[style*="255,204,0"] .package-category-tile-icon {
+    color: #000 !important;
+}
 /* Category color override when --cat-rgb is set */
 .package-category-tile.has-cat-color {
     background: rgba(var(--cat-rgb), 0.95) !important;
@@ -4857,15 +4884,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         border: 1px solid rgba(139,92,246,0.3) !important;
         border-radius: 14px !important;
         padding: 14px !important;
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 12px !important;
-        align-items: stretch;
-    }
-
-    /* Ensure feature row starts well below long descriptions on mobile */
-    .vip-card.cv-exact-card .cv-pkg-features {
-        margin-top: 100px !important;
+        display: grid !important;
+        grid-template-columns: 100px 1fr !important;
+        gap: 14px !important;
+        align-items: flex-start;
     }
 
     .vip-card.cv-exact-card:first-of-type {
@@ -4874,8 +4896,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
 
     .vip-card.cv-exact-card .cv-pkg-media-wrap {
-        min-height: 140px !important;
-        height: auto !important;
+        grid-column: 1 !important;
+        grid-row: 1 / -1 !important;
+        min-height: 100px !important;
+        height: 100px !important;
         border-radius: 10px !important;
         overflow: hidden !important;
         border: 1.5px solid rgba(251,113,133,0.5) !important;
@@ -4883,6 +4907,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
 
     .vip-card.cv-exact-card .vip-card-main {
+        grid-column: 2 !important;
+        padding: 0 !important;
         display: flex !important;
         flex-direction: column !important;
         gap: 4px !important;
@@ -4893,7 +4919,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         display: flex !important;
         align-items: center !important;
         gap: 6px !important;
-        width: 100%;
     }
 
     .vip-card.cv-exact-card .cv-pkg-title-icon {
@@ -4901,11 +4926,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
 
     .vip-card.cv-exact-card .cv-pkg-title {
-        font-size: 18px !important;
+        font-size: 24px !important;
         font-weight: 900 !important;
         color: #fff !important;
         margin: 0 !important;
-        word-break: break-word;
     }
 
     .vip-card.cv-exact-card .cv-pkg-sub {
@@ -4917,92 +4941,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .vip-card.cv-exact-card .cv-pkg-desc {
         font-size: 13px !important;
         color: rgba(255,255,255,0.8) !important;
-        margin: 0 0 12px !important;
+        margin: 0 !important;
         line-height: 1.4 !important;
     }
 
-    .vip-card.cv-exact-card .cv-pkg-features {
-        display: grid !important;
-        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-        gap: 6px 10px !important;
-        margin-top: auto !important;
-        padding-top: 30px !important;
-        border-top: 1px solid rgba(255,255,255,0.08) !important;
-        width: 100% !important;
-    }
-
+    .vip-card.cv-exact-card .cv-pkg-features,
+    .vip-card.cv-exact-card .vip-card-side,
     .vip-card.cv-exact-card .cv-club-name-badge {
-        display: flex !important;
-        align-items: center !important;
-        gap: 6px !important;
-        font-size: 12px !important;
-        color: rgba(255,255,255,0.75) !important;
-        margin-top: 4px !important;
-    }
-
-    .vip-card.cv-exact-card .cv-pkg-feature {
-        flex: 0 0 auto !important;
-        font-size: 10.5px !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        gap: 3px !important;
-        text-align: center !important;
-        display: inline-flex !important;
-    }
-
-    .vip-card.cv-exact-card .vip-card-side {
-        display: grid !important;
-        grid-template-columns: 1fr auto !important;
-        grid-template-areas:
-            "price guests"
-            "meta button";
-        gap: 8px 12px !important;
-        align-items: center !important;
-        margin-top: 14px !important;
-        padding-top: 14px !important;
-        border-top: 1px solid rgba(255,255,255,0.08) !important;
-        text-align: left !important;
-        width: 100% !important;
-    }
-
-    .vip-card.cv-exact-card .vip-price-tag {
-        grid-area: price !important;
-        text-align: left !important;
-        font-size: 28px !important;
-        line-height: 1.1 !important;
-    }
-
-    .vip-card.cv-exact-card .cv-price-meta {
-        grid-area: meta !important;
-        text-align: left !important;
-        font-size: 11.5px !important;
-        margin-top: -4px !important;
-    }
-
-    .vip-card.cv-exact-card .package-guest-input-wrap {
-        grid-area: guests !important;
-        width: 100% !important;
-    }
-
-    .vip-card.cv-exact-card .package_number_of_guestss {
-        margin-top: 0 !important;
-        min-height: 38px !important;
-        padding-top: 0px !important;
-        padding-bottom: 0px !important;
-    }
-
-    .vip-card.cv-exact-card .vip-btn {
-        grid-area: button !important;
-        margin: 0 !important;
-        min-width: 150px !important;
-        padding: 10px 20px !important;
-        width: 100% !important;
-    }
-
-    .vip-card.cv-exact-card .vip-btn {
-        width: 100% !important;
-        padding: 11px 14px !important;
-        font-size: 14px !important;
+        display: none !important;
     }
 
     .vip-card.cv-exact-card .cv-popular-pill {
@@ -5059,49 +5005,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
     /* Hide Category Tabs on Mobile */
     .package-category-tiles {
-        display: flex !important;
-        flex-wrap: wrap;
-        gap: 8px;
+        display: none !important;
     }
 
     .package-category-wrap {
-        display: flex !important;
-        flex-wrap: wrap;
-        flex: 0 1 auto;
+        display: none !important;
     }
 
     .aff-location-gated {
         display: block !important;
-    }
-
-    /* Ensure visible tabs show on mobile after location selection */
-    .package-category-tile.visible-tab {
-        display: flex !important;
-    }
-
-    .package-category-tile.hidden-tab {
-        display: none !important;
-    }
-
-    .package-category-group {
-        display: block !important;
-    }
-
-    .package-category-group[style*="display: none"] {
-        display: none !important;
-    }
-
-    /* Ensure packages display inside groups on mobile */
-    .package-category-group .vip-card {
-        display: grid !important;
-    }
-
-    .package-category-group [id^="pkg-card-"] {
-        display: grid !important;
-    }
-
-    .package-category-group [id^="pkg-card-"][style*="display: none"] {
-        display: none !important;
     }
 
     /* Final Tagline Box */
@@ -9438,12 +9350,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             var hasPackagesFromLocation = groupDiv ?
                                 Array.from(groupDiv.querySelectorAll('[id^="pkg-card-"]')).some(function(card) {
                                     var clubId = card.getAttribute('data-club-id');
-                                    if (clubId) clubId = clubId.trim();
-                                    return clubId && clubId === locationId;
-                                })
-                                : false;
-
-                            if (hasPackagesFromLocation) {
+                                        if (clubId) clubId = clubId.trim();
                                 tab.classList.remove('hidden-tab');
                                 tab.classList.add('visible-tab');
                                 if (!firstVisibleTab) {
@@ -9456,33 +9363,18 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         }
                     });
 
-                    // Hide all category groups first, then open only the first visible category (if any).
+                    // Auto-open the first visible category so selected packages are actually shown.
                     document.querySelectorAll('.package-category-group').forEach(function(group) {
-                        group.style.display = 'none';
+                        var groupHasVisibleCard = Array.from(group.querySelectorAll('[id^="pkg-card-"]')).some(function(card) {
+                            return card.style.display !== 'none';
+                        });
+                        group.style.display = groupHasVisibleCard ? '' : 'none';
                     });
 
                     if (firstVisibleTab) {
-                        try {
-                            // Prefer triggering the existing click handler so slideDown/active logic runs.
-                            if (typeof jQuery !== 'undefined') {
-                                jQuery(firstVisibleTab).trigger('click');
-                            } else if (firstVisibleTab.click) {
-                                firstVisibleTab.click();
-                            } else {
-                                var evt = document.createEvent('MouseEvents');
-                                evt.initEvent('click', true, true);
-                                firstVisibleTab.dispatchEvent(evt);
-                            }
-                        } catch (e) {
-                            // Fallback: directly mark active and show its group
-                            firstVisibleTab.classList.add('active');
-                            var tgt = firstVisibleTab.getAttribute('data-target') || '';
-                            if (tgt) {
-                                var gid = tgt.replace(/^#/, '');
-                                var g = document.getElementById(gid);
-                                if (g) g.style.display = '';
-                            }
-                        }
+                        document.querySelectorAll('.package-category-tile').forEach(function(tab) {
+                            tab.classList.toggle('active', tab === firstVisibleTab);
+                        });
                     }
                 }
 
