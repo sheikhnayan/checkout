@@ -8740,6 +8740,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 minDate: "today",
                 allowInput: false,
                 clickOpens: true,
+                disableMobile: true,
                 onChange: function(selectedDates, dateStr) {
                     document.getElementById('package_use_date').value = dateStr;
                 }
