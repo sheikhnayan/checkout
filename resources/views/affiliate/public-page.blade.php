@@ -1520,7 +1520,6 @@ body {
     -moz-appearance: none !important;
     appearance: none !important;
     color: #f5f8ff !important;
-    -webkit-text-fill-color: #f5f8ff !important;
     font-weight: 600;
     opacity: 1 !important;
     text-shadow: none !important;
@@ -1575,7 +1574,6 @@ body {
         padding: 12px 40px 12px 15px !important;
         min-height: 45px !important;
         -webkit-appearance: none !important;
-        -webkit-text-fill-color: #f5f8ff !important;
     }
 }
 
@@ -1583,7 +1581,6 @@ body {
 @supports (-webkit-touch-callout: none) {
     #package_use_date {
         -webkit-appearance: none !important;
-        -webkit-text-fill-color: #f5f8ff !important;
         color: #f5f8ff !important;
         font-size: 16px !important;
         padding: 12px 40px 12px 15px !important;
