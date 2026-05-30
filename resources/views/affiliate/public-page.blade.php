@@ -5330,7 +5330,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
                 gtag('js', new Date());
-                gtag('config', '{{ $gaMeasurementId }}');
+                gtag('config', @json($gaMeasurementId));
             </script>
         @endif
     </head>
@@ -7264,7 +7264,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     var packageId = $field.data('id');
                     var previous = parseInt($field.val(), 10) || 1;
 
-                    $.get('/{{ $data->slug }}/package/' + packageId + '/capacity', { use_date: useDate })
+                    $.get('/' + @json($data->slug) + '/package/' + packageId + '/capacity', { use_date: useDate })
                         .done(function(response) {
                             var endpointMax = parseInt(response.max_select, 10);
                             if (!Number.isFinite(endpointMax)) {
@@ -7361,7 +7361,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 }
 
                 // Check daily limits for this package
-                return $.get('/{{ $data->slug }}/package/' + packageId + '/capacity', { use_date: useDate, requested_quantity: normalizedGuests })
+                return $.get('/' + @json($data->slug) + '/package/' + packageId + '/capacity', { use_date: useDate, requested_quantity: normalizedGuests })
                     .then(function(response) {
                         if (!response.available) {
                             alert(response.message || 'This package is currently unavailable for the selected date.');
@@ -7499,9 +7499,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 couponDiscount = Math.min(Math.max(couponDiscount, 0), subtotal);
 
                 var discountedSubtotal = subtotal - couponDiscount;
-                var service_charge_price = ("{{ $data->service_charge_name }}" != "0") ? (discountedSubtotal / 100) * service_charge : 0;
-                var gratuited_price = ("{{ $data->gratuity_name }}" != "0") ? (discountedSubtotal / 100) * gratuity : 0;
-                var sales_tax_price = ("{{ $data->sales_tax_name }}" != "0") ? ((discountedSubtotal + service_charge_price + gratuited_price) / 100) * sales_tax : 0;
+                var service_charge_price = (@json($data->service_charge_name) != "0") ? (discountedSubtotal / 100) * service_charge : 0;
+                var gratuited_price = (@json($data->gratuity_name) != "0") ? (discountedSubtotal / 100) * gratuity : 0;
+                var sales_tax_price = (@json($data->sales_tax_name) != "0") ? ((discountedSubtotal + service_charge_price + gratuited_price) / 100) * sales_tax : 0;
 
                 var processingFeeBase = discountedSubtotal + service_charge_price;
                 var amountAfterCoupon = processingFeeBase + sales_tax_price + gratuited_price;
@@ -7674,7 +7674,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         type: 'POST',
                         data: {
                             cart: JSON.stringify(selections.cart),
-                            website_slug: '{{ $data->slug }}',
+                            website_slug: @json($data->slug),
                             event_name: @json($affiliate->display_name ?? $affiliate->user->name),
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },
@@ -8344,7 +8344,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     ? window.getSelectedUseDate()
                     : String($('#package_use_date').val() || $('.package_use_date').val() || '').trim();
 
-                $.get('/{{ $data->slug }}/package/' + packageId + '/capacity', {
+                $.get('/' + @json($data->slug) + '/package/' + packageId + '/capacity', {
                     use_date: useDate,
                     requested_quantity: selectedValue
                 }).done(function(response) {
@@ -8410,8 +8410,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 let code = $('#promo_code').val().trim();
                 if (!code) return;
 
-                var promoSource = '{{ !empty($affiliateReferral) ? 'affiliate' : 'club' }}';
-                var ownerSlug = '{{ !empty($affiliateReferral) ? $affiliateReferral->slug : '' }}';
+                var promoSource = @json(!empty($affiliateReferral) ? 'affiliate' : 'club');
+                var ownerSlug = @json(!empty($affiliateReferral) ? $affiliateReferral->slug : '');
                 var cartItems = Array.isArray(window.cart) ? window.cart : [];
                 var packageIds = [];
                 var subtotal = 0;
@@ -8430,7 +8430,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     totalQty += guests;
                 });
 
-                $.get('/{{ $data->slug }}/check/' + encodeURIComponent(code), {
+                $.get('/' + @json($data->slug) + '/check/' + encodeURIComponent(code), {
                     source: promoSource,
                     owner_slug: ownerSlug,
                     package_ids: packageIds.join(','),
@@ -8501,9 +8501,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 var _origCalcCartTotal = window.calculateCartTotal;
                 var _autoDiscountTimer = null;
 
-                var promoSource = '{{ !empty($affiliateReferral) ? 'affiliate' : 'club' }}';
-                var ownerSlug = '{{ !empty($affiliateReferral) ? $affiliateReferral->slug : '' }}';
-                var siteSlug = '{{ $data->slug }}';
+                var promoSource = @json(!empty($affiliateReferral) ? 'affiliate' : 'club');
+                var ownerSlug = @json(!empty($affiliateReferral) ? $affiliateReferral->slug : '');
+                var siteSlug = @json($data->slug);
 
                 function fetchAutoDiscount() {
                     var cartItems = Array.isArray(window.cart) ? window.cart : [];
@@ -8862,7 +8862,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             @endphp
 
             <script>
-                    const stripe = Stripe("{{ $setting->stripe_key }}");
+                    const stripe = Stripe(@json($setting->stripe_key));
                     const elements = stripe.elements();
 
                     const style = {
