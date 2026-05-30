@@ -1534,24 +1534,24 @@ body {
 }
 
 #package_use_date::placeholder {
-    color: rgba(255, 255, 255, 0.45) !important;
-    -webkit-text-fill-color: rgba(255, 255, 255, 0.45) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.7) !important;
     opacity: 1 !important;
 }
 
 #package_use_date::-webkit-input-placeholder {
-    color: rgba(255, 255, 255, 0.45) !important;
-    -webkit-text-fill-color: rgba(255, 255, 255, 0.45) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.7) !important;
     opacity: 1 !important;
 }
 
 #package_use_date::-moz-placeholder {
-    color: rgba(255, 255, 255, 0.45) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
     opacity: 1 !important;
 }
 
 #package_use_date:-ms-input-placeholder {
-    color: rgba(255, 255, 255, 0.45) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
     opacity: 1 !important;
 }
 
@@ -1588,14 +1588,14 @@ body {
     }
 
     #package_use_date::placeholder {
-        color: rgba(255, 255, 255, 0.45) !important;
-        -webkit-text-fill-color: rgba(255, 255, 255, 0.45) !important;
+        color: rgba(255, 255, 255, 0.7) !important;
+        -webkit-text-fill-color: rgba(255, 255, 255, 0.7) !important;
         opacity: 1 !important;
     }
 
     #package_use_date::-webkit-input-placeholder {
-        color: rgba(255, 255, 255, 0.45) !important;
-        -webkit-text-fill-color: rgba(255, 255, 255, 0.45) !important;
+        color: rgba(255, 255, 255, 0.7) !important;
+        -webkit-text-fill-color: rgba(255, 255, 255, 0.7) !important;
         opacity: 1 !important;
     }
 
@@ -5246,16 +5246,17 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     appearance: none !important;
 }
 .aff-date-input::placeholder {
-    color: rgba(255, 255, 255, 0.5) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
     opacity: 1 !important;
-    -webkit-text-fill-color: rgba(255, 255, 255, 0.5) !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.7) !important;
 }
 .aff-date-input::-webkit-input-placeholder {
-    color: rgba(255, 255, 255, 0.5) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.7) !important;
     opacity: 1 !important;
 }
 .aff-date-input::-moz-placeholder {
-    color: rgba(255, 255, 255, 0.5) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
     opacity: 1 !important;
 }
 
