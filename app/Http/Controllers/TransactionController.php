@@ -1424,7 +1424,7 @@ class TransactionController extends Controller
                 'transaction_id' => $transaction->id,
                 'type' => 'commission',
                 'status' => 'pending',
-                'amount' => 0,
+                'amount' => $commissionAmount,
                 'balance_after' => (float) $affiliate->wallet_balance,
                 'description' => 'Commission pending hold period for purchase #' . $transaction->id,
                 'meta' => [
