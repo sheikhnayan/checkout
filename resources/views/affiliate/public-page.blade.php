@@ -4895,54 +4895,92 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         border: 1px solid rgba(251,113,133,0.4) !important;
     }
 
-    .vip-card.cv-exact-card .cv-pkg-media-wrap {
-        grid-column: 1 !important;
-        grid-row: 1 / -1 !important;
-        min-height: 100px !important;
-        height: 100px !important;
-        border-radius: 10px !important;
+    .vip-card.cv-exact-card {
+        display: grid !important;
+        grid-template-columns: 130px 1fr 200px !important;
+        gap: 16px !important;
+        align-items: stretch !important;
+        border-radius: 16px !important;
+        padding: 12px !important;
+        border: 1px solid rgba(255,255,255,0.12) !important;
+        background: linear-gradient(180deg, rgba(18,22,42,0.76), rgba(10,12,26,0.88)) !important;
+        margin-bottom: 14px !important;
+        position: relative !important;
         overflow: hidden !important;
-        border: 1.5px solid rgba(251,113,133,0.5) !important;
-        background: rgba(0,0,0,0.3) !important;
+    }
+
+    .vip-card.cv-exact-card::before {
+        content: '';
+        position: absolute;
+        right: 0; top: 0; bottom: 0;
+        width: 45%;
+        background: radial-gradient(ellipse at right center, rgba(255,255,255,0.04), transparent 70%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .vip-card.cv-exact-card > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .vip-card.cv-exact-card .cv-pkg-media-wrap {
+        position: relative !important;
+        border-radius: 12px !important;
+        overflow: hidden !important;
+        min-height: 130px !important;
+        background: rgba(255,255,255,0.06) !important;
+    }
+
+    .vip-card.cv-exact-card .cv-pkg-media {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        display: block !important;
     }
 
     .vip-card.cv-exact-card .vip-card-main {
-        grid-column: 2 !important;
-        padding: 0 !important;
         display: flex !important;
         flex-direction: column !important;
-        gap: 4px !important;
+        justify-content: flex-start !important;
+        gap: 6px !important;
+        min-width: 0 !important;
     }
 
     .vip-card.cv-exact-card .cv-pkg-title-row {
-        margin: 0 !important;
         display: flex !important;
         align-items: center !important;
-        gap: 6px !important;
+        gap: 10px !important;
     }
 
     .vip-card.cv-exact-card .cv-pkg-title-icon {
-        display: none !important;
+        font-size: 22px !important;
+        flex-shrink: 0 !important;
+        color: var(--tier-accent, #fff) !important;
     }
 
     .vip-card.cv-exact-card .cv-pkg-title {
-        font-size: 24px !important;
-        font-weight: 900 !important;
-        color: #fff !important;
-        margin: 0 !important;
+        font-size: 26px !important;
+        font-weight: 700 !important;
+        line-height: 1.2 !important;
+        color: var(--tier-accent, #fff) !important;
+        letter-spacing: -0.01em !important;
     }
 
     .vip-card.cv-exact-card .cv-pkg-sub {
         font-size: 12px !important;
-        color: var(--accent) !important;
-        font-weight: 700 !important;
+        color: rgba(255,255,255,0.6) !important;
+        font-weight: 500 !important;
     }
 
     .vip-card.cv-exact-card .cv-pkg-desc {
         font-size: 13px !important;
-        color: rgba(255,255,255,0.8) !important;
-        margin: 0 !important;
         line-height: 1.4 !important;
+        color: rgba(255,255,255,0.75) !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
     }
 
     .vip-card.cv-exact-card .cv-pkg-features,
