@@ -5003,13 +5003,16 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         line-height: 1.2;
     }
 
-    /* Hide Category Tabs on Mobile */
+    /* Show Category Tabs and groups on Mobile */
     .package-category-tiles {
-        display: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
     }
 
     .package-category-wrap {
-        display: none !important;
+        display: block !important;
+        width: 100% !important;
     }
 
     .aff-location-gated {
