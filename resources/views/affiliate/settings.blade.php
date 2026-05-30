@@ -44,6 +44,49 @@
                         <label class="form-label">Description</label>
                         <textarea class="form-control" rows="4" name="description">{{ old('description', $affiliate->description) }}</textarea>
                     </div>
+
+                    <!-- Featured Card Icon Picker -->
+                    <div class="col-12">
+                        <label class="form-label">Featured Card Icon</label>
+                        <small class="d-block text-muted mb-2">Choose an icon for your featured affiliate card</small>
+                        <div class="icon-picker-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 10px; margin-bottom: 12px;">
+                            @php
+                                $iconOptions = [
+                                    'fa-music' => 'Music',
+                                    'fa-compact-disc' => 'Disc',
+                                    'fa-record-vinyl' => 'Vinyl',
+                                    'fa-microphone' => 'Microphone',
+                                    'fa-guitar' => 'Guitar',
+                                    'fa-headphones' => 'Headphones',
+                                    'fa-dumbbell' => 'Fitness',
+                                    'fa-fire' => 'Fire',
+                                    'fa-star' => 'Star',
+                                    'fa-gem' => 'Gem',
+                                    'fa-crown' => 'Crown',
+                                    'fa-sparkles' => 'Sparkles',
+                                    'fa-heart' => 'Heart',
+                                    'fa-martini-glass' => 'Cocktail',
+                                    'fa-champagne-glasses' => 'Celebration',
+                                    'fa-party-horn' => 'Party',
+                                    'fa-camera' => 'Camera',
+                                    'fa-film' => 'Film',
+                                    'fa-theater-masks' => 'Theater',
+                                    'fa-palette' => 'Art',
+                                ];
+                            @endphp
+                            @foreach($iconOptions as $icon => $label)
+                                @php $isSelected = old('featured_icon', $affiliate->featured_icon ?? '') === $icon; @endphp
+                                <div class="icon-option" style="text-align: center; cursor: pointer;">
+                                    <input type="radio" name="featured_icon" value="{{ $icon }}" id="icon-{{ $icon }}" class="d-none" {{ $isSelected ? 'checked' : '' }}>
+                                    <label for="icon-{{ $icon }}" style="display: flex; flex-direction: column; align-items: center; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; cursor: pointer; transition: all 0.2s; {{ $isSelected ? 'border-color: #a774ff; background: rgba(167,116,255,0.1);' : '' }}" class="icon-label">
+                                        <i class="fas {{ $icon }}" style="font-size: 24px; margin-bottom: 4px; color: {{ $isSelected ? '#a774ff' : '#999' }};"></i>
+                                        <small style="font-size: 11px; color: #666;">{{ $label }}</small>
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
                     <div class="col-12">
                         <label class="form-label">Secondary Description (About Panel)</label>
                         <textarea class="form-control" rows="4" name="secondary_description">{{ old('secondary_description', $affiliate->secondary_description) }}</textarea>
@@ -219,5 +262,27 @@
         syncFiles();
         render();
     })();
+
+    // Icon picker functionality
+    document.querySelectorAll('.icon-label').forEach(label => {
+        const radio = label.querySelector('input[type="radio"]');
+        const icon = label.querySelector('i');
+
+        radio.addEventListener('change', function() {
+            // Remove selected state from all
+            document.querySelectorAll('.icon-label').forEach(l => {
+                l.style.borderColor = '#e0e0e0';
+                l.style.background = 'transparent';
+                l.querySelector('i').style.color = '#999';
+            });
+
+            // Add selected state to this one
+            if (this.checked) {
+                label.style.borderColor = '#a774ff';
+                label.style.background = 'rgba(167,116,255,0.1)';
+                icon.style.color = '#a774ff';
+            }
+        });
+    });
 </script>
 @endsection

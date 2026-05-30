@@ -4608,6 +4608,19 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 
 @media (max-width: 767px) {
+    /* Featured Affiliate Card - Mobile */
+    .aff-featured-card {
+        grid-template-columns: 100px 1fr !important;
+        gap: 16px !important;
+        padding: 16px !important;
+    }
+    .aff-featured-card h3 {
+        font-size: 22px !important;
+    }
+    .aff-featured-card p {
+        font-size: 13px !important;
+    }
+
     .cv-top-nav {
         padding: 0 12px !important;
         min-height: 56px !important;
@@ -5586,6 +5599,35 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     <div id="package-no-location-message" style="display: block; text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.5); font-size: 14px;">
                                         <p style="margin: 0;">👆 Select a location above to see available packages</p>
                                     </div>
+
+                                    <!-- Featured Affiliate Card -->
+                                    @if($affiliate->hero_title || $affiliate->hero_subtitle || $affiliate->description)
+                                    <div class="aff-featured-card" style="display: grid; grid-template-columns: 120px 1fr; gap: 20px; align-items: center; padding: 24px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); background: linear-gradient(135deg, rgba(167,116,255,0.15) 0%, rgba(236,72,153,0.1) 100%); margin-bottom: 28px; position: relative; overflow: hidden;">
+                                        <!-- Gradient overlay -->
+                                        <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 40%; background: radial-gradient(ellipse at right center, rgba(255,255,255,0.04), transparent 70%); pointer-events: none;"></div>
+
+                                        <!-- Icon -->
+                                        <div style="display: flex; align-items: center; justify-content: center; min-height: 120px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); position: relative; z-index: 1;">
+                                            @php
+                                                $featuredIcon = $affiliate->featured_icon ?? 'fa-star';
+                                            @endphp
+                                            <i class="fas {{ $featuredIcon }}" style="font-size: 48px; background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
+                                        </div>
+
+                                        <!-- Content -->
+                                        <div style="position: relative; z-index: 1;">
+                                            @if($affiliate->hero_title)
+                                                <h3 style="font-size: 28px; font-weight: 700; color: #fff; margin: 0 0 4px 0; letter-spacing: -0.01em;">{{ $affiliate->hero_title }}</h3>
+                                            @endif
+                                            @if($affiliate->hero_subtitle)
+                                                <p style="font-size: 13px; color: rgba(255,255,255,0.65); margin: 0 0 12px 0; font-weight: 500;">{{ $affiliate->hero_subtitle }}</p>
+                                            @endif
+                                            @if($affiliate->description)
+                                                <p style="font-size: 14px; color: rgba(255,255,255,0.8); margin: 0; line-height: 1.5;">{{ $affiliate->description }}</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    @endif
 
                                     <!-- Select Your Package Header - Show only when location selected -->
                                     <div class="cv-package-section-header aff-package-header-gated" style="display:none; justify-content:space-between; align-items:center; margin: 18px 0 12px; flex-wrap:wrap; gap:10px;">

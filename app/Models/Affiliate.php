@@ -21,6 +21,7 @@ class Affiliate extends Model
         'description',
         'secondary_description',
         'show_location_section',
+        'featured_icon',
         'profile_image',
         'banner_image',
         'gallery_images',
