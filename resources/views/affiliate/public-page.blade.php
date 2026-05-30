@@ -5652,8 +5652,12 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                         </span>
                                                         <span class="package-category-indicator">+</span>
                                                     </button>
+                                                </div>
+                                            @endforeach
+                                        </div>
 
-                                                    <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: none;">
+                                        @foreach ($packageCategories as $category)
+                                            <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: none;">
                                                 @foreach ($category['packages'] as $item)
                                                     @php
                                                         $pkgGuestCap = max(1, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 1));
@@ -7969,11 +7973,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     }
 
                     $('.package-category-tile').removeClass('active');
-                    $('.package-category-group').removeClass('is-active');
+                    $('.package-category-group').stop(true, true).slideUp(180);
 
                     if (!isOpen && $target.length) {
                         $tile.addClass('active');
-                        $target.addClass('is-active');
+                        $target.stop(true, true).slideDown(180);
                     }
                 });
 
