@@ -2764,7 +2764,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .cv-hero-badge-label, .cv-hero-badge-sub { font-size: 12px; }
 }
 .cv-hero-content { max-width:680px; flex: 1; min-width: 0; }
-.aff-kicker { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.16em; color: var(--accent) !important; text-transform: uppercase; margin-bottom: 12px; }
+.aff-kicker { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.16em; color: var(--accent) !important; text-transform: uppercase; margin-bottom: 4px; }
 .cv-hero-title { font-size:clamp(36px, 4vw, 60px); line-height:1.08; letter-spacing:-0.02em; color:#fff !important; font-weight:800; margin:0 0 14px; }
 .cv-hero-title-accent { color: var(--accent) !important; }
 .cv-hero-subtitle { max-width:560px; font-size:15px; line-height:1.55; color:rgba(255,255,255,0.72) !important; margin-bottom:18px; }
@@ -4612,13 +4612,23 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .aff-featured-card {
         grid-template-columns: 100px 1fr !important;
         gap: 16px !important;
-        padding: 16px !important;
+        margin: 0 0 16px 0 !important;
+        padding: 18px !important;
     }
-    .aff-featured-card h3 {
-        font-size: 22px !important;
+    .aff-featured-card h2 {
+        font-size: 26px !important;
+        margin: 0 0 8px 0 !important;
     }
     .aff-featured-card p {
         font-size: 13px !important;
+        margin: 0 !important;
+    }
+    .aff-featured-card > div:first-child {
+        width: 100px !important;
+        height: 100px !important;
+    }
+    .aff-featured-card i {
+        font-size: 42px !important;
     }
 
     .cv-top-nav {
@@ -5418,12 +5428,34 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         $heroTitleLead = $heroTitle;
                                     }
                                 @endphp
-                                <h1 class="cv-hero-title">{{ $heroTitleLead }}@if($heroLastWord) <span class="cv-hero-title-accent">{{ $heroLastWord }}</span>@endif</h1>
-                                <p class="cv-hero-subtitle">{{ $affiliate->hero_subtitle ?: 'Browse our premium collection' }}</p>
-                                @if(!empty($affiliate->description))
-                                    <div class="aff-display-copy" style="margin-bottom:16px;">
-                                        {{ $affiliate->description }}
+
+                                <!-- Featured Affiliate Card -->
+                                @if($affiliate->hero_title || $affiliate->hero_subtitle || $affiliate->description)
+                                <div class="aff-featured-card" style="display: grid; grid-template-columns: 100px 1fr; gap: 24px; align-items: flex-start; padding: 28px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.1); background: linear-gradient(135deg, rgba(167,116,255,0.2) 0%, rgba(236,72,153,0.15) 100%); margin: 0 0 20px 0; position: relative; overflow: hidden;">
+                                    <!-- Gradient overlay -->
+                                    <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 45%; background: radial-gradient(ellipse at right center, rgba(255,255,255,0.05), transparent 70%); pointer-events: none;"></div>
+
+                                    <!-- Icon -->
+                                    <div style="display: flex; align-items: center; justify-content: center; width: 100px; height: 100px; background: rgba(255,255,255,0.06); border-radius: 12px; border: 1.5px solid rgba(167,116,255,0.6); position: relative; z-index: 1; flex-shrink: 0;">
+                                        @php
+                                            $featuredIcon = $affiliate->featured_icon ?? 'fa-star';
+                                        @endphp
+                                        <i class="fas {{ $featuredIcon }}" style="font-size: 48px; background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
                                     </div>
+
+                                    <!-- Content -->
+                                    <div style="position: relative; z-index: 1; padding-top: 4px;">
+                                        @if($affiliate->hero_title)
+                                            <h2 style="font-size: 36px; font-weight: 700; color: #fff; margin: 0 0 8px 0; letter-spacing: -0.01em;">{{ $affiliate->hero_title }}</h2>
+                                        @endif
+                                        @if($affiliate->hero_subtitle)
+                                            <p style="font-size: 14px; color: #a774ff; margin: 0 0 12px 0; font-weight: 500; padding-bottom: 12px; border-bottom: 1px solid rgba(167,116,255,0.3);">{{ $affiliate->hero_subtitle }}</p>
+                                        @endif
+                                        @if($affiliate->description)
+                                            <p style="font-size: 15px; color: rgba(255,255,255,0.8); margin: 0; line-height: 1.6;">{{ $affiliate->description }}</p>
+                                        @endif
+                                    </div>
+                                </div>
                                 @endif
                             </div>
                         </div>
@@ -5599,35 +5631,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     <div id="package-no-location-message" style="display: block; text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.5); font-size: 14px;">
                                         <p style="margin: 0;">👆 Select a location above to see available packages</p>
                                     </div>
-
-                                    <!-- Featured Affiliate Card -->
-                                    @if($affiliate->hero_title || $affiliate->hero_subtitle || $affiliate->description)
-                                    <div class="aff-featured-card" style="display: grid; grid-template-columns: 120px 1fr; gap: 20px; align-items: center; padding: 24px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); background: linear-gradient(135deg, rgba(167,116,255,0.15) 0%, rgba(236,72,153,0.1) 100%); margin-bottom: 28px; position: relative; overflow: hidden;">
-                                        <!-- Gradient overlay -->
-                                        <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 40%; background: radial-gradient(ellipse at right center, rgba(255,255,255,0.04), transparent 70%); pointer-events: none;"></div>
-
-                                        <!-- Icon -->
-                                        <div style="display: flex; align-items: center; justify-content: center; min-height: 120px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); position: relative; z-index: 1;">
-                                            @php
-                                                $featuredIcon = $affiliate->featured_icon ?? 'fa-star';
-                                            @endphp
-                                            <i class="fas {{ $featuredIcon }}" style="font-size: 48px; background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
-                                        </div>
-
-                                        <!-- Content -->
-                                        <div style="position: relative; z-index: 1;">
-                                            @if($affiliate->hero_title)
-                                                <h3 style="font-size: 28px; font-weight: 700; color: #fff; margin: 0 0 4px 0; letter-spacing: -0.01em;">{{ $affiliate->hero_title }}</h3>
-                                            @endif
-                                            @if($affiliate->hero_subtitle)
-                                                <p style="font-size: 13px; color: rgba(255,255,255,0.65); margin: 0 0 12px 0; font-weight: 500;">{{ $affiliate->hero_subtitle }}</p>
-                                            @endif
-                                            @if($affiliate->description)
-                                                <p style="font-size: 14px; color: rgba(255,255,255,0.8); margin: 0; line-height: 1.5;">{{ $affiliate->description }}</p>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    @endif
 
                                     <!-- Select Your Package Header - Show only when location selected -->
                                     <div class="cv-package-section-header aff-package-header-gated" style="display:none; justify-content:space-between; align-items:center; margin: 18px 0 12px; flex-wrap:wrap; gap:10px;">
