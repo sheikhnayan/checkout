@@ -5196,6 +5196,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     border-radius: 10px;
 }
 
+/* Hide glow border in desktop view */
+@media (min-width: 992px) {
+    .aff-profile-story-btn::before {
+        display: none !important;
+    }
+}
+
 /* ===== Gallery Modal ===== */
 .aff-gallery-modal-content {
     background: rgba(5, 7, 14, 0.98) !important;
