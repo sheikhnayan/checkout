@@ -996,7 +996,10 @@
                     @if($profileSubtitle)
                         <div class="profile-copy">{!! $profileSubtitle !!}</div>
                     @endif
-                    {{-- Hidden: packages link --}}
+                    <a href="#packages" class="profile-packages-link" aria-label="View packages">
+                        <i class="fas fa-ticket-alt"></i>
+                        See my packages
+                    </a>
 
                     @if($profileType === 'model' && $performanceDates->isNotEmpty())
                         <div class="profile-appearances" aria-label="Upcoming performance dates">
