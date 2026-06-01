@@ -383,10 +383,34 @@ function exportReport(format) {
     const url = new URL(window.location.href);
     const params = new URLSearchParams(url.search);
     params.set('export', format);
-    
-    window.location.href = '{{ route("admin.reports.export", $report) }}?' + params.toString();
+
+    const form = document.getElementById('exportReportForm');
+    const exportInput = document.getElementById('exportFormat');
+    exportInput.value = format;
+
+    // Remove existing dynamic inputs
+    document.querySelectorAll('#exportReportForm input.dynamic-param').forEach(el => el.remove());
+
+    params.forEach((value, key) => {
+        if (key === 'export') {
+            return;
+        }
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = value;
+        input.classList.add('dynamic-param');
+        form.appendChild(input);
+    });
+
+    form.submit();
 }
 </script>
+
+<form id="exportReportForm" method="POST" action="{{ route('admin.reports.export', $report) }}" style="display:none;">
+    @csrf
+    <input type="hidden" name="export" id="exportFormat" value="" />
+</form>
 
 <style>
 .hover-lift {
