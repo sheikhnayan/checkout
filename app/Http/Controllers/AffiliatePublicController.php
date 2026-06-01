@@ -16,17 +16,6 @@ class AffiliatePublicController extends Controller
             ->where('is_active', true)
             ->firstOrFail();
 
-        // Check affiliate profile completeness
-        // Only require fields that don't have fallback handling in the template
-        // Fields with fallbacks are ignored: hero_title, hero_subtitle, description, gallery_images, profile_image
-        if (empty($affiliate->display_name) && empty($affiliate->user?->name)) {
-            return view('affiliate.incomplete-page', [
-                'affiliate' => $affiliate,
-                'missingFields' => ['Affiliate Name'],
-                'type' => 'affiliate'
-            ]);
-        }
-
         $packageMappings = $affiliate->affiliatePackages()
             ->with(['package.website', 'package.category', 'package.addons'])
             ->where('is_active', true)
@@ -56,15 +45,6 @@ class AffiliatePublicController extends Controller
                 ];
             })
             ->values();
-
-        // Check if there are any active packages
-        if ($packageMappings->isEmpty()) {
-            return view('affiliate.incomplete-page', [
-                'affiliate' => $affiliate,
-                'missingFields' => ['Active Packages'],
-                'type' => 'packages'
-            ]);
-        }
 
         $clubGroups = $packageMappings->groupBy(function ($mapping) {
             return $mapping->package->website->id;
@@ -117,30 +97,6 @@ class AffiliatePublicController extends Controller
             ->where('is_active', true)
             ->first()
             ?->website;
-
-        // Check website data completeness - only if website exists
-        // Note: If no website is linked, default object is created with all values, so we skip this check
-        if ($website) {
-            $websiteRequiredFields = [
-                'package_section_title' => 'Package Section Title',
-                'package_section_subtext' => 'Package Section Subtitle'
-            ];
-
-            $missingWebsiteFields = [];
-            foreach ($websiteRequiredFields as $field => $label) {
-                if (empty($website->$field)) {
-                    $missingWebsiteFields[] = $label;
-                }
-            }
-
-            if (!empty($missingWebsiteFields)) {
-                return view('affiliate.incomplete-page', [
-                    'affiliate' => $affiliate,
-                    'missingFields' => $missingWebsiteFields,
-                    'type' => 'website'
-                ]);
-            }
-        }
 
         // Use website data if available, otherwise create a default object
         if ($website) {
