@@ -29,7 +29,7 @@ return new class extends Migration
         // User-saved reports and preferences
         Schema::create('user_report_preferences', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('user_id')->index();
             $table->foreignId('report_id')->constrained('reports')->onDelete('cascade');
             $table->string('name'); // Custom name for saved report
             $table->json('filters'); // Saved filter values
@@ -43,7 +43,7 @@ return new class extends Migration
         // Report exports/scheduled exports
         Schema::create('report_exports', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('user_id')->index();
             $table->foreignId('report_id')->constrained('reports')->onDelete('cascade');
             $table->string('format'); // 'csv', 'pdf', 'excel'
             $table->json('filters');
