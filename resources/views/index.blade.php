@@ -4697,6 +4697,7 @@ input[type="checkbox"],
     .vip-card.cv-exact-card { grid-template-columns: 1fr; gap: 14px; padding: 14px !important; }
     .vip-card.cv-exact-card .cv-pkg-media-wrap { min-height: 80px; height: 80px; border-radius: 10px; overflow: hidden; }
     .vip-card.cv-exact-card .cv-pkg-media { width: 100%; height: 100%; object-fit: cover; }
+    .vip-card.cv-exact-card .vip-card-main { display: flex; flex-direction: column; justify-content: flex-start; }
     .vip-card.cv-exact-card .cv-pkg-title-row { margin-top: 0; }
     .vip-card.cv-exact-card .cv-pkg-title { font-size: 22px !important; }
     .vip-card.cv-exact-card .cv-pkg-desc { font-size: 13px !important; line-height: 1.5; }
