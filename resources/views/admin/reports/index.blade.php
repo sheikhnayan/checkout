@@ -33,7 +33,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div>
-                                <h5 class="card-title mb-1">{{ $report->name }}</h5>
+                                <h5 class="card-title mb-1" style="color: #fff">{{ $report->name }}</h5>
                                 <span class="badge bg-info">{{ $report->category }}</span>
                             </div>
                             <span class="badge bg-secondary">{{ $report->type }}</span>
