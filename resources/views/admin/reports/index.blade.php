@@ -4,7 +4,7 @@
 <div class="container-fluid px-4 py-6">
     <div class="d-flex align-items-center justify-content-between mb-6">
         <div>
-            <h1 class="h2 mb-2">Reports & Analytics</h1>
+            <h1 class="h2 mb-2" style="color: #fff">Reports & Analytics</h1>
             <p class="text-muted mb-0">View detailed insights and analytics for your business</p>
         </div>
     </div>
