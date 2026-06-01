@@ -337,24 +337,46 @@ function renderTable(data) {
 function renderMetrics(data) {
     const container = document.getElementById('reportContainer');
     let html = '<div class="row">';
-    
-    if (data.metrics) {
-        data.metrics.forEach(metric => {
-            html += `
-                <div class="col-md-4 mb-4">
-                    <div class="card border-0 bg-light">
-                        <div class="card-body text-center">
-                            <small class="text-muted">${metric.label}</small>
-                            <h3 class="mb-0 mt-2">${metric.value}</h3>
-                        </div>
+    let metrics = data.metrics;
+
+    if (!metrics) {
+        container.innerHTML = '<div class="alert alert-info">No metric data available.</div>';
+        return;
+    }
+
+    if (!Array.isArray(metrics)) {
+        metrics = Object.entries(metrics).map(([key, value]) => ({
+            label: humanizeMetricLabel(key),
+            value,
+        }));
+    }
+
+    if (metrics.length === 0) {
+        container.innerHTML = '<div class="alert alert-info">No metric data available.</div>';
+        return;
+    }
+
+    metrics.forEach(metric => {
+        html += `
+            <div class="col-md-4 mb-4">
+                <div class="card border-0 bg-light">
+                    <div class="card-body text-center">
+                        <small class="text-muted">${metric.label}</small>
+                        <h3 class="mb-0 mt-2">${metric.value}</h3>
                     </div>
                 </div>
-            `;
-        });
-    }
+            </div>
+        `;
+    });
     
     html += '</div>';
     container.innerHTML = html;
+}
+
+function humanizeMetricLabel(key) {
+    return key
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, char => char.toUpperCase());
 }
 
 function exportReport(format) {
