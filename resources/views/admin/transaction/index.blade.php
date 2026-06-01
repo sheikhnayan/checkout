@@ -510,7 +510,14 @@ body.modal-open .admin-mobile-menu-toggle {
                                 }
 
                                 $quantity = max(1, (int) ($ci['guests'] ?? $ci['quantity'] ?? 1));
-                                return $name . ($quantity > 1 ? ' x' . $quantity : '');
+                                $packageType = strtolower(trim((string) ($ci['package_type'] ?? $ci['type'] ?? $ci['packageType'] ?? '')));
+                                $isTicketPkg = $packageType === 'ticket';
+
+                                if ($isTicketPkg) {
+                                    return $name . ($quantity > 1 ? ' x' . $quantity : '');
+                                }
+
+                                return $name . ' ' . $quantity . ' ' . ($quantity === 1 ? 'guest' : 'guests');
                             })->filter()->values();
 
                             $packageDetailsText = $packageDetails->isNotEmpty()
