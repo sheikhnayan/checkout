@@ -1877,9 +1877,9 @@ nav .tab:hover {
 .package-category-wrap { flex: 1 1 auto; min-width: 0; margin-bottom: 12px; }
 .package-category-tile {
     width: 100%;
-    background: rgba(167,116,255,0.08) !important;
-    color: rgba(255,255,255,0.88) !important;
-    border: 1px solid rgba(167,116,255,0.35) !important;
+    background: rgba(167,116,255,0.16) !important;
+    color: #fff !important;
+    border: 1px solid rgba(167,116,255,0.6) !important;
     border-radius: 12px !important;
     padding: 13px 18px !important;
     font-size: 14px !important;
@@ -1892,8 +1892,8 @@ nav .tab:hover {
     text-align: left !important;
 }
 .package-category-tile:hover {
-    background: rgba(167,116,255,0.16) !important;
-    border-color: rgba(167,116,255,0.6) !important;
+    background: rgba(167,116,255,0.22) !important;
+    border-color: rgba(167,116,255,0.75) !important;
     color: #fff !important;
     transform: translateY(-1px);
 }
