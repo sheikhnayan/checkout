@@ -9,6 +9,7 @@ use App\Services\ReportGenerationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReportController extends Controller
 {
@@ -238,9 +239,18 @@ class ReportController extends Controller
      */
     private function exportToPdf(Report $report, array $data, ReportExport $export)
     {
-        // This would use a library like dompdf
-        // For now, return JSON with error
-        return response()->json(['message' => 'PDF export coming soon'], 202);
+        $timestamp = now()->format('Y-m-d_H-i-s');
+        $filename = "{$report->slug}_{$timestamp}.pdf";
+
+        $pdf = Pdf::loadView('admin.reports.pdf', [
+            'report' => $report,
+            'data' => $data,
+        ])->setPaper('a4', 'landscape');
+
+        // Update export record
+        $export->update(['status' => 'completed', 'exported_at' => now()]);
+
+        return $pdf->download($filename);
     }
 
     /**
