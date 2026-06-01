@@ -34,7 +34,11 @@ class AffiliatePublicController extends Controller
         }
 
         if (!empty($missingAffiliateFields)) {
-            return redirect()->route('login')->with('error', 'This affiliate page is not yet fully customized. Missing: ' . implode(', ', $missingAffiliateFields) . '. Please ask the affiliate to complete their page customization in the settings.');
+            return view('affiliate.incomplete-page', [
+                'affiliate' => $affiliate,
+                'missingFields' => $missingAffiliateFields,
+                'type' => 'affiliate'
+            ]);
         }
 
         $packageMappings = $affiliate->affiliatePackages()
@@ -69,7 +73,11 @@ class AffiliatePublicController extends Controller
 
         // Check if there are any active packages
         if ($packageMappings->isEmpty()) {
-            return redirect()->route('login')->with('error', 'This affiliate page has no active packages. Please ask the affiliate to add packages in their settings.');
+            return view('affiliate.incomplete-page', [
+                'affiliate' => $affiliate,
+                'missingFields' => ['Active Packages'],
+                'type' => 'packages'
+            ]);
         }
 
         $clubGroups = $packageMappings->groupBy(function ($mapping) {
@@ -144,7 +152,11 @@ class AffiliatePublicController extends Controller
         }
 
         if (!empty($missingWebsiteFields)) {
-            return redirect()->route('login')->with('error', 'The venue page configuration is incomplete. Missing: ' . implode(', ', $missingWebsiteFields) . '. Please ask the venue administrator to complete the page setup.');
+            return view('affiliate.incomplete-page', [
+                'affiliate' => $affiliate,
+                'missingFields' => $missingWebsiteFields,
+                'type' => 'website'
+            ]);
         }
 
         // Use website data if available, otherwise create a default object
