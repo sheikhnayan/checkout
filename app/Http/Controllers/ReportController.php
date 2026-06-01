@@ -58,6 +58,15 @@ class ReportController extends Controller
         // Get filters from request
         $filters = $request->only(array_keys($report->available_filters ?? []));
 
+        // Handle custom date range
+        if ($request->get('date_range') === 'custom') {
+            $filters['date_range'] = 'custom';
+            $filters['start_date'] = $request->get('custom_from');
+            $filters['end_date'] = $request->get('custom_to');
+        } else {
+            $filters['date_range'] = $request->get('date_range', 'last_30_days');
+        }
+
         // Generate report data
         $service = new ReportGenerationService($user, $filters);
         $data = $service->generate($report);

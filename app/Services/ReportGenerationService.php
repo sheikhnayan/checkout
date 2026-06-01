@@ -93,8 +93,8 @@ class ReportGenerationService
             'last_month' => [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()],
             'this_year' => [now()->startOfYear(), $endDate],
             'custom' => [
-                Carbon::parse($this->filters['start_date'] ?? now()),
-                Carbon::parse($this->filters['end_date'] ?? now()),
+                !empty($this->filters['start_date']) ? Carbon::parse($this->filters['start_date'])->startOfDay() : now()->startOfDay(),
+                !empty($this->filters['end_date']) ? Carbon::parse($this->filters['end_date'])->endOfDay() : $endDate,
             ],
             default => [now()->subDays(30), $endDate],
         };
