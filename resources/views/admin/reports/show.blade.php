@@ -220,7 +220,14 @@ function loadReportData() {
     })
         .then(response => response.json())
         .then(data => {
-            renderReport(data);
+            if (!data.success) {
+                document.getElementById('reportContainer').innerHTML =
+                    '<div class="alert alert-danger">Error loading report: ' + (data.error || 'Unknown response') + '</div>';
+                return;
+            }
+
+            const payload = data.report ? { ...data.report, ...data.data } : data;
+            renderReport(payload);
         })
         .catch(error => {
             document.getElementById('reportContainer').innerHTML = 
@@ -230,6 +237,11 @@ function loadReportData() {
 
 function renderReport(data) {
     const container = document.getElementById('reportContainer');
+
+    if (!data || !data.type) {
+        container.innerHTML = '<div class="alert alert-danger">Unable to load report data.</div>';
+        return;
+    }
     
     if (data.type === 'line_chart' || data.type === 'bar_chart' || data.type === 'stacked_bar') {
         renderChart(data);
@@ -239,6 +251,8 @@ function renderReport(data) {
         renderTable(data);
     } else if (data.type === 'metric') {
         renderMetrics(data);
+    } else {
+        container.innerHTML = '<div class="alert alert-danger">Unsupported report type: ' + data.type + '</div>';
     }
 }
 
