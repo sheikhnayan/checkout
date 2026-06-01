@@ -1,11 +1,20 @@
 @extends('admin.main')
 
 @section('content')
+<style>
+.text-readable {
+    color: #d4d9e8 !important;
+}
+.card-text-readable {
+    color: #c0c7d6 !important;
+}
+</style>
+
 <div class="container-fluid px-4 py-6">
     <div class="d-flex align-items-center justify-content-between mb-6">
         <div>
             <h1 class="h2 mb-2">Reports & Analytics</h1>
-            <p class="text-muted mb-0">View detailed insights and analytics for your business</p>
+            <p class="text-readable mb-0">View detailed insights and analytics for your business</p>
         </div>
     </div>
 
@@ -38,7 +47,7 @@
                             </div>
                             <span class="badge bg-secondary">{{ $report->type }}</span>
                         </div>
-                        <p class="card-text text-muted small">{{ $report->description }}</p>
+                        <p class="card-text card-text-readable small">{{ $report->description }}</p>
                     </div>
                     <div class="card-footer bg-transparent border-top">
                         <a href="{{ route('admin.reports.show', $report) }}" class="btn btn-sm btn-primary w-100">

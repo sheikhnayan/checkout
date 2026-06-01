@@ -1,6 +1,18 @@
 @extends('admin.main')
 
 @section('content')
+<style>
+.text-readable {
+    color: #d4d9e8 !important;
+}
+.card-text-readable {
+    color: #c0c7d6 !important;
+}
+.small-readable {
+    color: #c0c7d6 !important;
+}
+</style>
+
 <div class="container-fluid px-4 py-6">
     <!-- Header -->
     <div class="d-flex align-items-center justify-content-between mb-6">
@@ -9,7 +21,7 @@
                 <i class="fas fa-arrow-left me-2"></i>Back to Reports
             </a>
             <h1 class="h2 mb-2">{{ $report->name }}</h1>
-            <p class="text-muted mb-0">{{ $report->description }}</p>
+            <p class="text-readable mb-0">{{ $report->description }}</p>
         </div>
     </div>
 
@@ -135,11 +147,11 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <small class="text-muted">Category</small>
+                            <small class="small-readable">Category</small>
                             <p class="mb-0">{{ $report->category }}</p>
                         </div>
                         <div class="col-md-6">
-                            <small class="text-muted">Type</small>
+                            <small class="small-readable">Type</small>
                             <p class="mb-0">{{ $report->type }}</p>
                         </div>
                     </div>
@@ -361,7 +373,7 @@ function renderMetrics(data) {
             <div class="col-md-4 mb-4">
                 <div class="card border-0 bg-light">
                     <div class="card-body text-center">
-                        <small class="text-muted">${metric.label}</small>
+                        <small class="small-readable">${metric.label}</small>
                         <h3 class="mb-0 mt-2">${metric.value}</h3>
                     </div>
                 </div>
