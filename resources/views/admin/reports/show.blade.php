@@ -382,7 +382,7 @@ function humanizeMetricLabel(key) {
 function exportReport(format) {
     const url = new URL(window.location.href);
     const params = new URLSearchParams(url.search);
-    params.set('export', format);
+    params.set('format', format);
 
     const form = document.getElementById('exportReportForm');
     const exportInput = document.getElementById('exportFormat');
@@ -392,7 +392,7 @@ function exportReport(format) {
     document.querySelectorAll('#exportReportForm input.dynamic-param').forEach(el => el.remove());
 
     params.forEach((value, key) => {
-        if (key === 'export') {
+        if (key === 'format') {
             return;
         }
         const input = document.createElement('input');
@@ -409,7 +409,7 @@ function exportReport(format) {
 
 <form id="exportReportForm" method="POST" action="{{ route('admin.reports.export', $report) }}" style="display:none;">
     @csrf
-    <input type="hidden" name="export" id="exportFormat" value="" />
+    <input type="hidden" name="format" id="exportFormat" value="" />
 </form>
 
 <style>
