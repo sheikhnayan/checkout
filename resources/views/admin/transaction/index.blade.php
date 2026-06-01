@@ -511,8 +511,12 @@ body.modal-open .admin-mobile-menu-toggle {
 
                                 $quantity = max(1, (int) ($ci['guests'] ?? $ci['quantity'] ?? 1));
                                 $packageType = strtolower(trim((string) ($ci['package_type'] ?? $ci['type'] ?? $ci['packageType'] ?? '')));
-                                $isTicketPkg = $packageType === 'ticket';
+                                if ($packageType === '' && !empty($ci['package_id'])) {
+                                    $package = \App\Models\Package::find((int) $ci['package_id']);
+                                    $packageType = $package ? strtolower(trim((string) ($package->package_type ?? ''))) : '';
+                                }
 
+                                $isTicketPkg = $packageType === 'ticket';
                                 if ($isTicketPkg) {
                                     return $name . ($quantity > 1 ? ' x' . $quantity : '');
                                 }
