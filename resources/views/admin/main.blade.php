@@ -65,7 +65,7 @@
         --admin-surface-2: #171d2f;
         --admin-border: rgba(255, 255, 255, 0.1);
         --admin-text: #e8eaf6;
-        --admin-text-muted: #b9bfd5;
+        --admin-text-muted: #d4d9e8;
         --admin-accent: #ffcc00;
         --admin-section-start: #41d1ff;
         --admin-section-end: #4ade80;
@@ -98,7 +98,7 @@
         border-color: var(--admin-border) !important;
       }
       .modal-content .list-group-item .text-muted {
-        color: rgba(255,255,255,0.65) !important;
+        color: #d4d9e8 !important;
       }
 
       .table,
