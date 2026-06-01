@@ -127,23 +127,40 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $data = Transaction::query()
+        $rawData = Transaction::query()
             ->where('status', 1) // Completed only
             ->whereBetween('created_at', [$startDate, $endDate])
             ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(total) as revenue'), DB::raw('COUNT(*) as transactions'))
             ->groupBy('date')
             ->orderBy('date')
-            ->get()
-            ->map(fn ($row) => [
-                'date' => $row->date,
-                'revenue' => (float) $row->revenue,
-                'transactions' => (int) $row->transactions,
-            ]);
+            ->get();
+
+        $data = $rawData->map(fn ($row) => [
+            'date' => $row->date,
+            'revenue' => (float) $row->revenue,
+            'transactions' => (int) $row->transactions,
+        ]);
+
+        // Format for Chart.js
+        $chartData = [
+            'labels' => $rawData->pluck('date')->toArray(),
+            'datasets' => [
+                [
+                    'label' => 'Revenue',
+                    'data' => $rawData->pluck('revenue')->map(fn($v) => (float)$v)->toArray(),
+                    'borderColor' => 'rgb(75, 192, 192)',
+                    'backgroundColor' => 'rgba(75, 192, 192, 0.1)',
+                    'tension' => 0.1,
+                    'fill' => true,
+                ]
+            ]
+        ];
 
         return [
             'type' => 'line_chart',
             'title' => 'Revenue Over Time',
-            'data' => $data->toArray(),
+            'data' => $chartData,
+            'raw_data' => $data->toArray(),
             'metrics' => [
                 'total_revenue' => $data->sum('revenue'),
                 'total_transactions' => $data->sum('transactions'),
@@ -266,7 +283,7 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $data = Transaction::query()
+        $rawData = Transaction::query()
             ->whereBetween('created_at', [$startDate, $endDate])
             ->select(
                 DB::raw('DATE(created_at) as date'),
@@ -276,18 +293,45 @@ class ReportGenerationService
             )
             ->groupBy('date')
             ->orderBy('date')
-            ->get()
-            ->map(fn ($row) => [
-                'date' => $row->date,
-                'completed' => (int) $row->completed,
-                'canceled' => (int) $row->canceled,
-                'refunded' => (int) $row->refunded,
-            ]);
+            ->get();
+
+        $data = $rawData->map(fn ($row) => [
+            'date' => $row->date,
+            'completed' => (int) $row->completed,
+            'canceled' => (int) $row->canceled,
+            'refunded' => (int) $row->refunded,
+        ]);
+
+        // Format for Chart.js
+        $chartData = [
+            'labels' => $rawData->pluck('date')->toArray(),
+            'datasets' => [
+                [
+                    'label' => 'Completed',
+                    'data' => $rawData->pluck('completed')->map(fn($v) => (int)$v)->toArray(),
+                    'backgroundColor' => 'rgba(75, 192, 75, 0.6)',
+                    'borderColor' => 'rgb(75, 192, 75)',
+                ],
+                [
+                    'label' => 'Canceled',
+                    'data' => $rawData->pluck('canceled')->map(fn($v) => (int)$v)->toArray(),
+                    'backgroundColor' => 'rgba(255, 99, 99, 0.6)',
+                    'borderColor' => 'rgb(255, 99, 99)',
+                ],
+                [
+                    'label' => 'Refunded',
+                    'data' => $rawData->pluck('refunded')->map(fn($v) => (int)$v)->toArray(),
+                    'backgroundColor' => 'rgba(255, 193, 7, 0.6)',
+                    'borderColor' => 'rgb(255, 193, 7)',
+                ]
+            ]
+        ];
 
         return [
             'type' => 'stacked_bar',
             'title' => 'Orders Over Time',
-            'data' => $data->toArray(),
+            'data' => $chartData,
+            'raw_data' => $data->toArray(),
         ];
     }
 
@@ -295,25 +339,42 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $data = [
-            [
-                'status' => 'Completed',
-                'count' => Transaction::where('status', 1)->whereBetween('created_at', [$startDate, $endDate])->count(),
-            ],
-            [
-                'status' => 'Canceled',
-                'count' => Transaction::where('status', 0)->whereBetween('created_at', [$startDate, $endDate])->count(),
-            ],
-            [
-                'status' => 'Refunded',
-                'count' => Transaction::where('status', 2)->whereBetween('created_at', [$startDate, $endDate])->count(),
-            ],
+        $completed = Transaction::where('status', 1)->whereBetween('created_at', [$startDate, $endDate])->count();
+        $canceled = Transaction::where('status', 0)->whereBetween('created_at', [$startDate, $endDate])->count();
+        $refunded = Transaction::where('status', 2)->whereBetween('created_at', [$startDate, $endDate])->count();
+
+        $rawData = [
+            ['status' => 'Completed', 'count' => $completed],
+            ['status' => 'Canceled', 'count' => $canceled],
+            ['status' => 'Refunded', 'count' => $refunded],
+        ];
+
+        // Format for Chart.js
+        $chartData = [
+            'labels' => ['Completed', 'Canceled', 'Refunded'],
+            'datasets' => [
+                [
+                    'data' => [(int)$completed, (int)$canceled, (int)$refunded],
+                    'backgroundColor' => [
+                        'rgba(75, 192, 75, 0.8)',
+                        'rgba(255, 99, 132, 0.8)',
+                        'rgba(255, 193, 7, 0.8)',
+                    ],
+                    'borderColor' => [
+                        'rgb(75, 192, 75)',
+                        'rgb(255, 99, 132)',
+                        'rgb(255, 193, 7)',
+                    ],
+                    'borderWidth' => 1,
+                ]
+            ]
         ];
 
         return [
             'type' => 'pie_chart',
             'title' => 'Orders by Status',
-            'data' => $data,
+            'data' => $chartData,
+            'raw_data' => $rawData,
         ];
     }
 
@@ -385,21 +446,38 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $data = Affiliate::query()
+        $rawData = Affiliate::query()
             ->whereBetween('created_at', [$startDate, $endDate])
             ->select(DB::raw('DATE(created_at) as date'), DB::raw('COUNT(*) as count'))
             ->groupBy('date')
             ->orderBy('date')
-            ->get()
-            ->map(fn ($row) => [
-                'date' => $row->date,
-                'count' => (int) $row->count,
-            ]);
+            ->get();
+
+        $data = $rawData->map(fn ($row) => [
+            'date' => $row->date,
+            'count' => (int) $row->count,
+        ]);
+
+        // Format for Chart.js
+        $chartData = [
+            'labels' => $rawData->pluck('date')->toArray(),
+            'datasets' => [
+                [
+                    'label' => 'New Affiliates',
+                    'data' => $rawData->pluck('count')->map(fn($v) => (int)$v)->toArray(),
+                    'borderColor' => 'rgb(75, 192, 192)',
+                    'backgroundColor' => 'rgba(75, 192, 192, 0.1)',
+                    'tension' => 0.1,
+                    'fill' => true,
+                ]
+            ]
+        ];
 
         return [
             'type' => 'line_chart',
             'title' => 'New Affiliates Over Time',
-            'data' => $data->toArray(),
+            'data' => $chartData,
+            'raw_data' => $data->toArray(),
         ];
     }
 
@@ -607,25 +685,41 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $data = Transaction::query()
+        $rawData = Transaction::query()
             ->whereBetween('created_at', [$startDate, $endDate])
-            ->distinct()
             ->select(
                 DB::raw('DATE(created_at) as date'),
                 DB::raw('COUNT(DISTINCT package_email) as new_customers')
             )
             ->groupBy('date')
             ->orderBy('date')
-            ->get()
-            ->map(fn ($row) => [
-                'date' => $row->date,
-                'count' => (int) $row->new_customers,
-            ]);
+            ->get();
+
+        $data = $rawData->map(fn ($row) => [
+            'date' => $row->date,
+            'count' => (int) $row->new_customers,
+        ]);
+
+        // Format for Chart.js
+        $chartData = [
+            'labels' => $rawData->pluck('date')->toArray(),
+            'datasets' => [
+                [
+                    'label' => 'New Customers',
+                    'data' => $rawData->pluck('new_customers')->map(fn($v) => (int)$v)->toArray(),
+                    'borderColor' => 'rgb(153, 102, 255)',
+                    'backgroundColor' => 'rgba(153, 102, 255, 0.1)',
+                    'tension' => 0.1,
+                    'fill' => true,
+                ]
+            ]
+        ];
 
         return [
             'type' => 'line_chart',
             'title' => 'New Customers Over Time',
-            'data' => $data->toArray(),
+            'data' => $chartData,
+            'raw_data' => $data->toArray(),
         ];
     }
 
@@ -644,13 +738,34 @@ class ReportGenerationService
             ->count();
 
         $total = Transaction::whereBetween('created_at', [$startDate, $endDate])->count();
+        $repeat = $total - $firstTime;
+
+        // Format for Chart.js
+        $chartData = [
+            'labels' => ['First-Time', 'Repeat'],
+            'datasets' => [
+                [
+                    'data' => [(int)$firstTime, (int)$repeat],
+                    'backgroundColor' => [
+                        'rgba(75, 192, 192, 0.8)',
+                        'rgba(255, 99, 132, 0.8)',
+                    ],
+                    'borderColor' => [
+                        'rgb(75, 192, 192)',
+                        'rgb(255, 99, 132)',
+                    ],
+                    'borderWidth' => 1,
+                ]
+            ]
+        ];
 
         return [
             'type' => 'pie_chart',
             'title' => 'Repeat vs First-Time Customers',
-            'data' => [
+            'data' => $chartData,
+            'raw_data' => [
                 ['label' => 'First-Time', 'value' => $firstTime],
-                ['label' => 'Repeat', 'value' => $total - $firstTime],
+                ['label' => 'Repeat', 'value' => $repeat],
             ],
         ];
     }
