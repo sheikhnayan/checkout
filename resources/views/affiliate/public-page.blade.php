@@ -1923,12 +1923,9 @@ nav .tab:hover {
 }
 .package-category-tile-icon {
     font-size: 13px;
-    opacity: 0.85;
+    opacity: 1;
     margin-right: 7px;
     flex-shrink: 0;
-}
-/* Rectangle background behind category icon (dynamic by --cat-rgb) */
-.package-category-tile-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1936,8 +1933,8 @@ nav .tab:hover {
     height: 32px;
     padding: 4px 8px;
     border-radius: 8px;
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.25);
+    border: 1px solid rgba(255,255,255,0.35);
     box-shadow: none;
     transition: all .18s;
 }
