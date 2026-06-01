@@ -124,6 +124,23 @@
         border-color: var(--admin-border) !important;
       }
 
+      .form-select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23e8eaf6' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+        background-position: right 0.75rem center !important;
+        background-size: 16px 12px !important;
+        padding-right: 2.5rem !important;
+      }
+
+      .form-select option {
+        background: var(--admin-surface-2) !important;
+        color: var(--admin-text) !important;
+      }
+
+      .form-select option:checked {
+        background: #4f46e5 !important;
+        color: #fff !important;
+      }
+
       .form-control:focus,
       .form-select:focus,
       textarea:focus,

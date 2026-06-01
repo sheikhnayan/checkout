@@ -520,14 +520,14 @@ class ReportGenerationService
             ->whereNotNull('transactions.affiliate_id')
             ->whereBetween('transactions.created_at', [$startDate, $endDate])
             ->select(
-                'affiliate_id',
-                DB::raw("COALESCE(affiliates.display_name, users.name, CONCAT('Affiliate #', affiliate_id)) as affiliate_name"),
+                'transactions.affiliate_id',
+                DB::raw("COALESCE(affiliates.display_name, users.name, CONCAT('Affiliate #', transactions.affiliate_id)) as affiliate_name"),
                 DB::raw('SUM(COALESCE(affiliate_commission_amount, 0)) as total_commission'),
                 DB::raw('SUM(transactions.total) as revenue')
             )
             ->join('affiliates', 'transactions.affiliate_id', '=', 'affiliates.id')
             ->leftJoin('users', 'affiliates.user_id', '=', 'users.id')
-            ->groupBy('affiliate_id')
+            ->groupBy('transactions.affiliate_id')
             ->orderByDesc('total_commission')
             ->get()
             ->map(fn ($row) => [
@@ -585,14 +585,14 @@ class ReportGenerationService
             ->whereNotNull('transactions.entertainer_id')
             ->whereBetween('transactions.created_at', [$startDate, $endDate])
             ->select(
-                'entertainer_id',
-                DB::raw("COALESCE(entertainers.display_name, users.name, CONCAT('Entertainer #', entertainer_id)) as name"),
+                'transactions.entertainer_id',
+                DB::raw("COALESCE(entertainers.display_name, users.name, CONCAT('Entertainer #', transactions.entertainer_id)) as name"),
                 DB::raw('SUM(transactions.total) as revenue'),
                 DB::raw('SUM(COALESCE(entertainer_commission_amount, 0)) as commission')
             )
             ->join('entertainers', 'transactions.entertainer_id', '=', 'entertainers.id')
             ->leftJoin('users', 'entertainers.user_id', '=', 'users.id')
-            ->groupBy('entertainer_id')
+            ->groupBy('transactions.entertainer_id')
             ->orderByDesc('commission')
             ->limit(15)
             ->get()

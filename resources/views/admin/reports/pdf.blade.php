@@ -133,19 +133,19 @@
             </div>
         @elseif(in_array($data['type'], ['line_chart', 'bar_chart', 'pie_chart', 'stacked_bar']))
             <p style="text-align: center; color: #999;">
-                Chart data ({{ count($data['data']) }} records)
+                Chart data ({{ count($data['raw_data'] ?? []) }} records)
             </p>
-            @if(!empty($data['data']))
+            @if(!empty($data['raw_data']))
                 <table>
                     <thead>
                         <tr>
-                            @foreach(array_keys($data['data'][0]) as $column)
+                            @foreach(array_keys($data['raw_data'][0]) as $column)
                                 <th>{{ ucfirst(str_replace('_', ' ', $column)) }}</th>
                             @endforeach
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($data['data'] as $row)
+                        @foreach($data['raw_data'] as $row)
                             <tr>
                                 @foreach($row as $value)
                                     <td>
