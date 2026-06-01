@@ -1954,8 +1954,8 @@ nav .tab:hover {
 }
 /* Category color override when --cat-rgb is set */
 .package-category-tile.has-cat-color {
-    background: rgba(var(--cat-rgb), 0.95) !important;
-    border-color: rgba(var(--cat-rgb), 0.95) !important;
+    background: rgba(var(--cat-rgb), 0.16) !important;
+    border-color: rgba(var(--cat-rgb), 0.6) !important;
 }
 .package-category-tile.has-cat-color:hover {
     background: rgba(var(--cat-rgb), 0.16) !important;
