@@ -72,7 +72,7 @@ class ReportController extends Controller
             ->orderByDesc('last_run_at')
             ->get();
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() || $request->boolean('ajax')) {
             return response()->json([
                 'success' => true,
                 'report' => $report,

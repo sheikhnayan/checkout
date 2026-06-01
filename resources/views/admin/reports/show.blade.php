@@ -213,7 +213,11 @@ function loadReportData() {
     const url = new URL(window.location.href);
     const params = new URLSearchParams(url.search);
     
-    fetch('{{ route("admin.reports.show", $report) }}?ajax=1&' + params.toString())
+    fetch('{{ route("admin.reports.show", $report) }}?ajax=1&' + params.toString(), {
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
         .then(response => response.json())
         .then(data => {
             renderReport(data);
