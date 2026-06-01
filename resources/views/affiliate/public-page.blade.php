@@ -1936,7 +1936,8 @@ nav .tab:hover {
     height: 32px;
     padding: 4px 8px;
     border-radius: 8px;
-    background: rgba(255,255,255,0.03);
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.2);
     box-shadow: none;
     transition: all .18s;
 }

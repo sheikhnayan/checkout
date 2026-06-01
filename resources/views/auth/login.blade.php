@@ -516,6 +516,7 @@
                 </button>
             </form>
 
+            <!-- Hidden: Alternative signup links
             <div class="divider">or join as</div>
 
             <div class="alt-links">
@@ -526,6 +527,7 @@
                     <i class="fas fa-star"></i> Entertainer
                 </a>
             </div>
+            -->
         </div>
     </div>
 
