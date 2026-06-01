@@ -476,6 +476,8 @@
           display: inline-flex !important;
           left: auto;
           right: 1rem;
+          cursor: pointer;
+          pointer-events: auto;
         }
 
         .layout-page {
@@ -488,6 +490,37 @@
 
         #layout-menu .menu-inner {
           padding-bottom: 0.5rem !important;
+        }
+
+        #layout-menu {
+          position: fixed;
+          left: -100%;
+          top: 0;
+          height: 100vh;
+          width: 80%;
+          max-width: 320px;
+          transition: left 0.3s ease;
+          z-index: 1099;
+        }
+
+        .layout-wrapper.layout-menu-expanded #layout-menu {
+          left: 0;
+        }
+
+        .layout-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.5);
+          z-index: 1098;
+          display: none;
+          cursor: pointer;
+        }
+
+        .layout-wrapper.layout-menu-expanded .layout-overlay {
+          display: block;
         }
 
         .content-wrapper,
@@ -1058,18 +1091,25 @@
             $__prev = url()->previous();
             $__curr = url()->current();
             $__adminRoot = url('/admins');
+            $__currPath = rtrim(parse_url($__curr, PHP_URL_PATH), '/');
+
             // Use previous URL only if it's a different admin page
             if ($__prev && $__prev !== $__curr && str_starts_with($__prev, $__adminRoot)) {
               $__backUrl = $__prev;
             } else {
-              // Derive parent by stripping the last path segment
-              $__path = rtrim(parse_url($__curr, PHP_URL_PATH), '/');
-              $__parts = array_values(array_filter(explode('/', $__path)));
-              if (count($__parts) > 1) {
-                array_pop($__parts);
-                $__backUrl = '/' . implode('/', $__parts);
+              // Special cases for portal pages
+              if (str_ends_with($__currPath, '/wallet')) {
+                // For affiliate/entertainer wallet pages, go to dashboard
+                $__backUrl = preg_replace('/\/wallet$/', '/dashboard', $__currPath);
               } else {
-                $__backUrl = '/admins';
+                // Derive parent by stripping the last path segment
+                $__parts = array_values(array_filter(explode('/', $__currPath)));
+                if (count($__parts) > 1) {
+                  array_pop($__parts);
+                  $__backUrl = '/' . implode('/', $__parts);
+                } else {
+                  $__backUrl = '/admins';
+                }
               }
             }
           @endphp

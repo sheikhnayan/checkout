@@ -499,6 +499,24 @@ body.modal-open .admin-mobile-menu-toggle {
                             $venueName   = $item->website->name ?? ($item->event->name ?? 'N/A');
 
                             $cartItems = is_array($item->cart_items ?? null) ? $item->cart_items : json_decode($item->cart_items ?? '[]', true);
+                            $packageDetails = collect($cartItems)->map(function ($ci) {
+                                if (!is_array($ci)) {
+                                    return null;
+                                }
+
+                                $name = trim((string) ($ci['package_name'] ?? $ci['packageName'] ?? $ci['pkgName'] ?? ''));
+                                if ($name === '') {
+                                    return null;
+                                }
+
+                                $quantity = max(1, (int) ($ci['guests'] ?? $ci['quantity'] ?? 1));
+                                return $name . ($quantity > 1 ? ' x' . $quantity : '');
+                            })->filter()->values();
+
+                            $packageDetailsText = $packageDetails->isNotEmpty()
+                                ? ($packageDetails->count() > 1 ? $packageDetails->implode(', ') : $packageDetails->first())
+                                : $packageName;
+
                             $addons = collect($cartItems)->flatMap(fn($ci) => $ci['addons'] ?? [])->pluck('name')->filter()->implode(', ');
                             if ($addons === '') {
                                 foreach (explode(',', (string)$item->addons) as $av) {
@@ -520,7 +538,13 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td class="txn-order-id">#{{ str_pad($item->id, 3, '0', STR_PAD_LEFT) }}</td>
                             <td>
                                 <div class="txn-venue">{{ $venueName }}</div>
-                                <div class="txn-pkg-type">{{ $packageName }}</div>
+                                <div class="txn-pkg-type">
+                                    @if($packageDetails->count() > 1)
+                                        Multiple packages: {{ $packageDetailsText }}
+                                    @else
+                                        {{ $packageDetailsText }}
+                                    @endif
+                                </div>
                             </td>
                             <td>
                                 <div class="txn-customer-name">{{ $item->package_first_name }} {{ $item->package_last_name }}</div>
@@ -588,7 +612,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                     <button type="button" class="txn-action-eye view-btn"
                                         data-bs-toggle="modal" data-bs-target="#viewTransactionModal"
                                         data-transaction_id="{{ $item->transaction_id ?? 'Free' }}"
-                                        data-package_id="{{ $item->package_table_label }}"
+                                        data-package_id="{{ $packageDetailsText }}"
                                         data-package_first_name="{{ $item->package_first_name }}"
                                         data-package_last_name="{{ $item->package_last_name }}"
                                         data-package_phone="{{ $item->package_phone }}"
