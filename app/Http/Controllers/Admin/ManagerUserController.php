@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AdminCreatedUserMail;
 use App\Models\Permission;
 use App\Models\User;
 use App\Models\Website;
 use App\Models\WebsiteRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class ManagerUserController extends Controller
 {
@@ -86,6 +88,8 @@ class ManagerUserController extends Controller
         $manager->managedWebsites()->sync(
             collect($request->website_ids)->map(fn ($id) => (int) $id)->unique()->all()
         );
+
+        Mail::to($manager->email)->send(new AdminCreatedUserMail($manager, $request->password));
 
         return redirect()->route('admin.manager-users.index')
             ->with('success', 'Manager user created successfully.');

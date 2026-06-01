@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Mail\AdminCreatedUserMail;
 use App\Models\Permission;
 use App\Models\User;
 use App\Models\Website;
 use App\Models\WebsiteRole;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class WebsiteUserController extends Controller
 {
@@ -72,7 +74,7 @@ class WebsiteUserController extends Controller
             ]);
         }
 
-        User::create([
+        $newUser = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
@@ -80,6 +82,8 @@ class WebsiteUserController extends Controller
             'website_role_id' => $request->website_role_id,
             'user_type' => $request->user_type,
         ]);
+
+        Mail::to($newUser->email)->send(new AdminCreatedUserMail($newUser, $request->password));
 
         return redirect()->route('admin.website-users.index')
                         ->with('success', 'Website user created successfully.');

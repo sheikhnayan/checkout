@@ -16,6 +16,27 @@ class AffiliatePublicController extends Controller
             ->where('is_active', true)
             ->firstOrFail();
 
+        // Check affiliate profile completeness
+        $affiliateRequiredFields = [
+            'display_name' => 'Affiliate Name',
+            'hero_title' => 'Hero Title',
+            'hero_subtitle' => 'Hero Subtitle',
+            'description' => 'Description',
+            'gallery_images' => 'Gallery Images',
+            'profile_image' => 'Profile Image'
+        ];
+
+        $missingAffiliateFields = [];
+        foreach ($affiliateRequiredFields as $field => $label) {
+            if (empty($affiliate->$field)) {
+                $missingAffiliateFields[] = $label;
+            }
+        }
+
+        if (!empty($missingAffiliateFields)) {
+            return redirect()->route('login')->with('error', 'This affiliate page is not yet fully customized. Missing: ' . implode(', ', $missingAffiliateFields) . '. Please ask the affiliate to complete their page customization in the settings.');
+        }
+
         $packageMappings = $affiliate->affiliatePackages()
             ->with(['package.website', 'package.category', 'package.addons'])
             ->where('is_active', true)
@@ -45,6 +66,11 @@ class AffiliatePublicController extends Controller
                 ];
             })
             ->values();
+
+        // Check if there are any active packages
+        if ($packageMappings->isEmpty()) {
+            return redirect()->route('login')->with('error', 'This affiliate page has no active packages. Please ask the affiliate to add packages in their settings.');
+        }
 
         $clubGroups = $packageMappings->groupBy(function ($mapping) {
             return $mapping->package->website->id;
@@ -98,6 +124,29 @@ class AffiliatePublicController extends Controller
             ->first()
             ?->website;
 
+        // Check website data completeness
+        $websiteRequiredFields = [
+            'package_section_title' => 'Package Section Title',
+            'package_section_subtext' => 'Package Section Subtitle',
+            'color' => 'Primary Color',
+            'secondary_color' => 'Secondary Color',
+            'background_color' => 'Background Color',
+            'font_color' => 'Font Color'
+        ];
+
+        $missingWebsiteFields = [];
+        if ($website) {
+            foreach ($websiteRequiredFields as $field => $label) {
+                if (empty($website->$field)) {
+                    $missingWebsiteFields[] = $label;
+                }
+            }
+        }
+
+        if (!empty($missingWebsiteFields)) {
+            return redirect()->route('login')->with('error', 'The venue page configuration is incomplete. Missing: ' . implode(', ', $missingWebsiteFields) . '. Please ask the venue administrator to complete the page setup.');
+        }
+
         // Use website data if available, otherwise create a default object
         if ($website) {
             $data = $website;
@@ -114,7 +163,20 @@ class AffiliatePublicController extends Controller
                 'refundable_fee' => 0,
                 'sales_tax_fee' => 10,
                 'service_charge_fee' => 10,
-                'sales_tax_name' => 'Tax'
+                'sales_tax_name' => 'Tax',
+                'service_charge_name' => 'Service Charge',
+                'gratuity_name' => 'Gratuity',
+                'gratuity_fee' => 0,
+                'processing_fee' => 0,
+                'processing_fee_type' => 'percentage',
+                'refundable_fee' => 0,
+                'refundable_name' => 'Non Refundable Processing Fees',
+                'package_section_title' => 'Select Your Package',
+                'package_section_subtext' => 'All packages include free ride, club entry, and priority access.',
+                'color' => 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                'secondary_color' => '#764ba2',
+                'background_color' => '#06090f',
+                'font_color' => '#e8edf8'
             ];
         }
 

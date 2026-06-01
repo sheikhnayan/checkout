@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\AffiliateApprovedMail;
+use App\Mail\AdminApplicationNotificationMail;
 use App\Models\Affiliate;
 use App\Models\AffiliatePackage;
 use App\Models\AffiliateWebsite;
@@ -108,6 +109,13 @@ class AffiliateAdminController extends Controller
         try {
             $this->applyGlobalSmtp();
             Mail::to($affiliate->user->email)->send(new AffiliateApprovedMail($affiliate));
+            Mail::to('hello@cartvip.com')->send(new AdminApplicationNotificationMail(
+                'Affiliate',
+                'approved',
+                $affiliate->user->name,
+                $affiliate->user->email,
+                $affiliate->affiliateWebsites->first()?->website->name ?? '',
+            ));
         } catch (\Throwable $th) {
             // Keep approval successful even if mail fails.
         }
@@ -126,6 +134,20 @@ class AffiliateAdminController extends Controller
         $affiliate->rejection_reason = $request->rejection_reason;
         $affiliate->is_active = false;
         $affiliate->save();
+
+        try {
+            $this->applyGlobalSmtp();
+            Mail::to('hello@cartvip.com')->send(new AdminApplicationNotificationMail(
+                'Affiliate',
+                'rejected',
+                $affiliate->user->name,
+                $affiliate->user->email,
+                $affiliate->affiliateWebsites->first()?->website->name ?? '',
+                $affiliate->rejection_reason
+            ));
+        } catch (\Throwable $th) {
+            // Keep rejection successful even if mail fails.
+        }
 
         return redirect()->back()->with('success', 'Affiliate application rejected.');
     }

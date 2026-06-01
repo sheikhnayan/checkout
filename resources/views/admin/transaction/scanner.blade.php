@@ -52,7 +52,7 @@
                                         <form method="POST" action="{{ route('admin.transaction.scan.check-in') }}" id="checkInForm" class="d-flex flex-wrap gap-2">
                                             @csrf
                                             <input type="hidden" name="ticket_qr_code" id="checkInCode">
-                                            <button type="submit" id="checkInBtn" class="btn btn-success px-4">Checked In</button>
+                                            <button type="submit" id="checkInBtn" class="btn btn-success px-4">Check In</button>
                                             <button type="button" id="cancelBtn" class="btn btn-outline-secondary px-4">Cancel</button>
                                         </form>
                                     </div>

@@ -4380,7 +4380,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     font-size: 9px;
     color: #fff;
 }
-.vip-card.cv-exact-card .vip-card-main { display: flex !important; flex-direction: column !important; justify-content: space-between !important; gap: 6px; min-width: 0; height: 100% !important; padding: 0 !important; }
+.vip-card.cv-exact-card .vip-card-main { display: flex !important; flex-direction: column !important; justify-content: flex-start !important; gap: 6px; min-width: 0; height: 100% !important; padding: 0 !important; }
 .cv-pkg-title-row { display: flex; align-items: center; gap: 10px; }
 .cv-pkg-title-icon { font-size: 22px; flex-shrink: 0; color: var(--tier-accent, #fff) !important; }
 .cv-pkg-title { font-size: 26px; font-weight: 700; line-height: 1.2; color: var(--tier-accent, #fff) !important; letter-spacing: -0.01em; }
@@ -4751,7 +4751,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .vip-card.cv-exact-card .cv-pkg-title-row { margin-top: 0; }
     .vip-card.cv-exact-card .cv-pkg-title { font-size: 22px !important; }
     .vip-card.cv-exact-card .cv-pkg-desc { font-size: 13px !important; line-height: 1.5; }
-    .vip-card.cv-exact-card .cv-pkg-features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px 10px; margin-top: auto; padding-top: 14px; flex-wrap: wrap; }
+    .vip-card.cv-exact-card .cv-pkg-features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px 10px; margin-top: auto; padding-top: 30px; flex-wrap: wrap; }
     .vip-card.cv-exact-card .cv-pkg-feature { flex: 0 0 auto; font-size: 10.5px !important; flex-direction: column; align-items: center; gap: 3px; text-align: center; }
     .vip-card.cv-exact-card .cv-pkg-feature i { font-size: 15px !important; margin-bottom: 1px; }
     .vip-card.cv-exact-card .vip-card-side {
@@ -5106,7 +5106,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .vip-card.cv-exact-card .cv-pkg-title-row { margin-top: 0; }
     .vip-card.cv-exact-card .cv-pkg-title { font-size: 22px !important; }
     .vip-card.cv-exact-card .cv-pkg-desc { font-size: 13px !important; line-height: 1.5; }
-    .vip-card.cv-exact-card .cv-pkg-features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px 10px; margin-top: auto; padding-top: 14px; flex-wrap: wrap; }
+    .vip-card.cv-exact-card .cv-pkg-features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px 10px; margin-top: auto; padding-top: 30px; flex-wrap: wrap; }
     .vip-card.cv-exact-card .cv-pkg-feature { flex: 0 0 auto; font-size: 10.5px !important; flex-direction: column; align-items: center; gap: 3px; text-align: center; }
     .vip-card.cv-exact-card .cv-pkg-feature i { font-size: 15px !important; margin-bottom: 1px; }
     .vip-card.cv-exact-card .vip-card-side {
@@ -7692,8 +7692,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 var gratuited_price = (@json($data->gratuity_name) != "0") ? (discountedSubtotal / 100) * gratuity : 0;
                 var sales_tax_price = (@json($data->sales_tax_name) != "0") ? ((discountedSubtotal + service_charge_price + gratuited_price) / 100) * sales_tax : 0;
 
-                var processingFeeBase = discountedSubtotal + service_charge_price;
-                var amountAfterCoupon = processingFeeBase + sales_tax_price + gratuited_price;
+                var processingFeeBase = discountedSubtotal;
+                var amountAfterCoupon = discountedSubtotal + service_charge_price + sales_tax_price + gratuited_price;
                 var processingFee = parseFloat($('#processing_fee').val()) || 0;
                 var processingFeeType = ($('#processing_fee_type').val() || 'percentage').toLowerCase();
                 var processingFeeAmount = processingFeeType === 'flat'

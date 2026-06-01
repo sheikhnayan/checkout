@@ -256,7 +256,51 @@
                 </tr>
             </thead>
             <tbody>
-                @if(!empty($cartItems))
+                @if(!empty($priceBreakdown) && !empty($priceBreakdown['items']))
+                    @php
+                        $totalItemQty = 0;
+                        $totalAddonQty = 0;
+                    @endphp
+                    @foreach($priceBreakdown['items'] as $item)
+                        @php
+                            $totalItemQty += 1;
+                            $totalAddonQty += count($item['addons'] ?? []);
+                        @endphp
+                        <tr>
+                            <td>{{ $item['package_name'] ?? 'Package' }}</td>
+                            <td class="text-right">{{ $item['guests'] }}</td>
+                            <td class="text-right">${{ number_format($item['unit_price'], 2) }}</td>
+                            <td class="text-right">${{ number_format($item['package_subtotal'], 2) }}</td>
+                        </tr>
+                        @if(!empty($item['is_multiple']) && $item['guests'] > 1)
+                        <tr class="addon-row">
+                            <td colspan="4"><span class="addons-label">${{ number_format($item['unit_price'], 2) }} x {{ $item['guests'] }} guests</span></td>
+                        </tr>
+                        @endif
+                        @foreach($item['addons'] ?? [] as $addon)
+                            @if(!empty($addon['name']))
+                            <tr class="addon-row">
+                                <td>+ {{ $addon['name'] }} x{{ $addon['qty'] }}</td>
+                                <td class="text-right">{{ $addon['qty'] }}</td>
+                                <td class="text-right">
+                                    @if($addon['price'] > 0)
+                                        ${{ number_format($addon['unit_price'], 2) }}
+                                    @else
+                                        <span class="addons-label">Included</span>
+                                    @endif
+                                </td>
+                                <td class="text-right">
+                                    @if($addon['price'] > 0)
+                                        ${{ number_format($addon['price'], 2) }}
+                                    @else
+                                        <span class="addons-label">—</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endif
+                        @endforeach
+                    @endforeach
+                @elseif(!empty($cartItems))
                     @php
                         $grandTotal = 0;
                         $totalAddonQty = 0;

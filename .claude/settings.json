@@ -34,7 +34,8 @@
       "Bash(awk '/^@media.*max-width.*767px.*\\\\{/,/^@media/ {print NR\": \"$0}' \"c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\affiliate\\\\public-page.blade.php\")",
       "Bash(curl -s http://127.0.0.1:8000)",
       "Bash(awk '/^@media.*max-width.*67[0-9]px.*\\\\{/,/^@media|^}/ {print NR\": \"$0}' \"c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\affiliate\\\\public-page.blade.php\")",
-      "Bash(grep -n 'profileType\\\\|profile.*type\\\\|$entertainer\\\\|$club\\\\|$affiliate' 'c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\feed\\\\profile.blade.php')"
+      "Bash(grep -n 'profileType\\\\|profile.*type\\\\|$entertainer\\\\|$club\\\\|$affiliate' 'c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\feed\\\\profile.blade.php')",
+      "Bash(grep -o '\\\\$affiliate->[a-zA-Z_]*\\\\|\\\\$data->[a-zA-Z_]*' 'c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\affiliate\\\\public-page.blade.php')"
     ],
     "additionalDirectories": [
       "c:\\wamp64\\www\\checkout\\bootstrap\\cache",

@@ -7667,8 +7667,8 @@
                 let gratuited_price = ("{{ $data->gratuity_name }}" != "0") ? (discountedSubtotal / 100) * gratuity : 0;
                 let sales_tax_price = ("{{ $data->sales_tax_name }}" != "0") ? ((discountedSubtotal + service_charge_price + gratuited_price) / 100) * sales_tax : 0;
 
-                let processingFeeBase = discountedSubtotal + service_charge_price;
-                let amountAfterCoupon = processingFeeBase + sales_tax_price + gratuited_price;
+                let processingFeeBase = discountedSubtotal;
+                let amountAfterCoupon = discountedSubtotal + service_charge_price + sales_tax_price + gratuited_price;
                 let processingFee = parseFloat($('#processing_fee').val()) || 0;
                 let processingFeeType = ($('#processing_fee_type').val() || 'percentage').toLowerCase();
                 let processingFeeAmount = processingFeeType === 'flat'

@@ -1915,7 +1915,7 @@ class TransactionController extends Controller
         $salesTaxAmount = $salesTaxEnabled ? ($salesTaxBase * $salesTaxRate / 100) : 0;
 
         $afterDiscountTotal = $discountedItemsSubtotal + $serviceChargeAmount + $gratuityAmount + $salesTaxAmount;
-        $processingFeeBase = $discountedItemsSubtotal + $serviceChargeAmount;
+        $processingFeeBase = $discountedItemsSubtotal;
 
         $processingFeeRate = (float) ($website->processing_fee ?? 0);
         $processingFeeType = strtolower((string) ($website->processing_fee_type ?? 'percentage'));

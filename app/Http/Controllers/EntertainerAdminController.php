@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\EntertainerApprovedMail;
+use App\Mail\AdminApplicationNotificationMail;
 use App\Models\Entertainer;
 use App\Models\FeedModel;
 use App\Models\SMTP;
@@ -153,6 +154,13 @@ class EntertainerAdminController extends Controller
         try {
             $this->applyGlobalSmtp();
             Mail::to($entertainer->user->email)->send(new EntertainerApprovedMail($entertainer));
+            Mail::to('hello@cartvip.com')->send(new AdminApplicationNotificationMail(
+                'Entertainer',
+                'approved',
+                $entertainer->user->name,
+                $entertainer->user->email,
+                $entertainer->website->name ?? ''
+            ));
         } catch (\Throwable $th) {
             // Keep approval successful even if mail fails.
         }
@@ -191,6 +199,20 @@ class EntertainerAdminController extends Controller
             FeedModel::where('id', $entertainer->feed_model_id)->update([
                 'is_active' => false,
             ]);
+        }
+
+        try {
+            $this->applyGlobalSmtp();
+            Mail::to('hello@cartvip.com')->send(new AdminApplicationNotificationMail(
+                'Entertainer',
+                'rejected',
+                $entertainer->user->name,
+                $entertainer->user->email,
+                $entertainer->website->name ?? '',
+                $entertainer->rejection_reason
+            ));
+        } catch (\Throwable $th) {
+            // Keep rejection successful even if mail fails.
         }
 
         return redirect()->back()->with('success', 'Entertainer application rejected.');

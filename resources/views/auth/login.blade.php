@@ -70,7 +70,7 @@
             z-index: 2;
         }
         .brand-logo img {
-            height: 100px;
+            height: 55px;
             width: auto;
             object-fit: contain;
             filter: drop-shadow(0 2px 8px rgba(244,180,0,0.3));
@@ -393,6 +393,7 @@
         }
         @media (max-width: 560px) {
             .auth-left { padding: 28px 20px; }
+            .brand-logo img { height: 45px; }
             .feature-list { display: none; }
             .auth-right { padding: 28px 20px 44px; }
             .left-hero p { display: none; }
