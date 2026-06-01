@@ -1,6 +1,34 @@
 @extends('admin.main')
 
 @section('content')
+<style>
+.icon-label {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.icon-label.selected {
+  border-color: #a774ff;
+  background: rgba(167, 116, 255, 0.1);
+}
+
+.icon-label i {
+  font-size: 24px;
+  margin-bottom: 4px;
+  color: #999;
+  transition: color 0.2s;
+}
+
+.icon-label.selected i {
+  color: #a774ff;
+}
+</style>
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
         @if(session('success'))
@@ -78,8 +106,8 @@
                                 @php $isSelected = old('featured_icon', $affiliate->featured_icon ?? '') === $icon; @endphp
                                 <div class="icon-option" style="text-align: center; cursor: pointer;">
                                     <input type="radio" name="featured_icon" value="{{ $icon }}" id="icon-{{ $icon }}" class="d-none" {{ $isSelected ? 'checked' : '' }}>
-                                    <label for="icon-{{ $icon }}" style="display: flex; flex-direction: column; align-items: center; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; cursor: pointer; transition: all 0.2s; {{ $isSelected ? 'border-color: #a774ff; background: rgba(167,116,255,0.1);' : '' }}" class="icon-label">
-                                        <i class="fas {{ $icon }}" style="font-size: 24px; margin-bottom: 4px; color: {{ $isSelected ? '#a774ff' : '#999' }};"></i>
+                                    <label for="icon-{{ $icon }}" class="icon-label{{ $isSelected ? ' selected' : '' }}">
+                                        <i class="fas {{ $icon }}"></i>
                                         <small style="font-size: 11px; color: #666;">{{ $label }}</small>
                                     </label>
                                 </div>
@@ -264,25 +292,29 @@
     })();
 
     // Icon picker functionality
-    document.querySelectorAll('.icon-label').forEach(label => {
-        const radio = label.querySelector('input[type="radio"]');
-        const icon = label.querySelector('i');
-
+    document.querySelectorAll('input[name="featured_icon"]').forEach(radio => {
         radio.addEventListener('change', function() {
-            // Remove selected state from all
-            document.querySelectorAll('.icon-label').forEach(l => {
-                l.style.borderColor = '#e0e0e0';
-                l.style.background = 'transparent';
-                l.querySelector('i').style.color = '#999';
+            // Remove selected class from all labels
+            document.querySelectorAll('.icon-label').forEach(label => {
+                label.classList.remove('selected');
             });
 
-            // Add selected state to this one
+            // Add selected class to the checked radio's label
             if (this.checked) {
-                label.style.borderColor = '#a774ff';
-                label.style.background = 'rgba(167,116,255,0.1)';
-                icon.style.color = '#a774ff';
+                const label = document.querySelector('label[for="' + this.id + '"]');
+                if (label) {
+                    label.classList.add('selected');
+                }
             }
         });
+
+        // Trigger change event on page load for already-checked radio
+        if (radio.checked) {
+            const label = document.querySelector('label[for="' + radio.id + '"]');
+            if (label) {
+                label.classList.add('selected');
+            }
+        }
     });
 </script>
 @endsection
