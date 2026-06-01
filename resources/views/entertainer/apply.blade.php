@@ -429,6 +429,10 @@
             }
         }
 
+        .social-signup-wrap {
+            display: none !important;
+        }
+
         @media (max-width: 560px) {
             .auth-left {
                 padding: 28px 20px;
