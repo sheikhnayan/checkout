@@ -24,7 +24,7 @@
                     <form id="filterForm" method="GET">
                         <!-- Date Range -->
                         <div class="mb-4">
-                            <label class="form-label fw-bold">Date Range</label>
+                            <label class="form-label fw-bold" style="color: #fff">Date Range</label>
                             <select name="date_range" class="form-select form-select-sm" id="dateRange">
                                 <option value="today" {{ request('date_range') === 'today' ? 'selected' : '' }}>Today</option>
                                 <option value="yesterday" {{ request('date_range') === 'yesterday' ? 'selected' : '' }}>Yesterday</option>
