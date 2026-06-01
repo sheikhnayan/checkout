@@ -35,6 +35,7 @@ use App\Http\Controllers\JobMarketplaceController;
 use App\Http\Controllers\Admin\JobMarketplaceController as AdminJobMarketplaceController;
 use App\Http\Controllers\Admin\WebsiteRoleController;
 use App\Http\Controllers\WithdrawController;
+use App\Http\Controllers\ReportController;
 
 
 // Authentication Routes
@@ -328,6 +329,18 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::get('/entertainers', [WithdrawController::class, 'adminEntertainers'])->name('entertainers');
         Route::post('/entertainers/{id}/status', [WithdrawController::class, 'adminEntertainerStatus'])->name('entertainers.status');
         Route::post('/entertainers/charge', [WithdrawController::class, 'adminEntertainerCharge'])->name('entertainers.charge');
+    });
+
+    // Reports (Analytics & Reporting)
+    Route::group(['prefix' => 'reports', 'as' => 'reports.'], function () {
+        Route::get('/', [ReportController::class, 'index'])->name('index');
+        Route::get('/category/{category}', [ReportController::class, 'byCategory'])->name('category');
+        Route::get('/{report}', [ReportController::class, 'show'])->name('show');
+        Route::get('/{report}/metadata', [ReportController::class, 'metadata'])->name('metadata');
+        Route::post('/{report}/preferences', [ReportController::class, 'savePreference'])->name('preferences.save');
+        Route::get('/saved-reports', [ReportController::class, 'getSavedReports'])->name('saved');
+        Route::delete('/preferences/{preference}', [ReportController::class, 'deletePreference'])->name('preferences.delete');
+        Route::post('/{report}/export', [ReportController::class, 'export'])->name('export');
     });
 });
 

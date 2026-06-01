@@ -889,6 +889,32 @@
   @endif
   @endif
 
+  <li class="menu-header small text-uppercase">
+    <span class="menu-header-text">Analytics</span>
+  </li>
+
+  @if($authUser && ($canAccessRoute('admin.reports.index') || $authUser->isAdmin()))
+  <li class="menu-item {{ request()->is('admins/reports*') ? 'active' : '' }}">
+    <a href="{{ route('admin.reports.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons fas fa-chart-line"></i>
+      <div class="text-truncate">Reports & Analytics</div>
+    </a>
+  </li>
+  @endif
+
+  @if($authUser && ($canAccessRoute('admin.transaction.index') || $authUser->isAdmin()))
+  <li class="menu-item {{ request()->is('admins/transaction') ? 'active' : '' }}">
+    <a href="{{ route('admin.transaction.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons fas fa-exchange-alt"></i>
+      <div class="text-truncate">Transactions</div>
+    </a>
+  </li>
+  @endif
+
+  <li class="menu-header small text-uppercase">
+    <span class="menu-header-text">Users</span>
+  </li>
+
   @if(auth()->check() && auth()->user()->isAdmin())
   <li class="menu-item {{ request()->is('admins/affiliate*') ? 'active' : '' }}">
     <a href="{{ route('admin.affiliate.index') }}" class="menu-link">
