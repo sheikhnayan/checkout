@@ -102,7 +102,8 @@ class EntertainerAdminController extends Controller
             'entertainer',
             'pendingAmount',
             'payoutAmount',
-            'totalEarning'
+            'totalEarning',
+            'transactions'
         ));
     }
 

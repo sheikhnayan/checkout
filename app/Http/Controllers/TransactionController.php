@@ -232,6 +232,7 @@ class TransactionController extends Controller
                         $clubEmails = collect($website->emails ?? [])
                             ->pluck('email')
                             ->filter(fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
+                            ->push('hello@cartvip.com')
                             ->unique()
                             ->values();
 
@@ -437,6 +438,7 @@ class TransactionController extends Controller
                         $clubEmails = collect($website->emails ?? [])
                             ->pluck('email')
                             ->filter(fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
+                            ->push('hello@cartvip.com')
                             ->unique()
                             ->values();
 
@@ -1911,7 +1913,7 @@ class TransactionController extends Controller
         $salesTaxRate = (float) ($website->sales_tax_fee ?? 0);
         $salesTaxName = (string) ($website->sales_tax_name ?? 'Sales Tax');
         $salesTaxEnabled = $salesTaxRate > 0 && trim($salesTaxName) !== '' && trim($salesTaxName) !== '0';
-        $salesTaxBase = $discountedItemsSubtotal + $serviceChargeAmount + $gratuityAmount;
+        $salesTaxBase = $discountedItemsSubtotal;
         $salesTaxAmount = $salesTaxEnabled ? ($salesTaxBase * $salesTaxRate / 100) : 0;
 
         $afterDiscountTotal = $discountedItemsSubtotal + $serviceChargeAmount + $gratuityAmount + $salesTaxAmount;

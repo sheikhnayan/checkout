@@ -85,7 +85,8 @@ class AffiliateAdminController extends Controller
             'selectedWebsiteIds',
             'pendingAmount',
             'payoutAmount',
-            'totalEarning'
+            'totalEarning',
+            'transactions'
         ));
     }
 

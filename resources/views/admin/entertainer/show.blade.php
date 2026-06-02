@@ -76,6 +76,50 @@
                 </form>
             @endif
         </div>
+
+        <div class="card p-4">
+            <h5 class="mb-3">Transactions</h5>
+            @if(!empty($transactions) && count($transactions) > 0)
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Confirmation #</th>
+                                <th>Venue</th>
+                                <th>Guest Name</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Commission Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($transactions as $transaction)
+                                <tr>
+                                    <td><strong>{{ $transaction->transaction_id }}</strong></td>
+                                    <td>{{ optional($transaction->website)->name ?? 'N/A' }}</td>
+                                    <td>{{ $transaction->package_first_name }} {{ $transaction->package_last_name }}</td>
+                                    <td>{{ optional($transaction->created_at)->format('M d, Y') }}</td>
+                                    <td>${{ number_format((float) ($transaction->actual_total ?? 0), 2) }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ $transaction->entertainer_commission_status === 'paid' ? 'success' : ($transaction->entertainer_commission_status === 'pending' ? 'warning' : 'secondary') }}">
+                                            {{ ucfirst($transaction->entertainer_commission_status ?? 'pending') }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('admin.transaction.index', ['search' => $transaction->transaction_id]) }}" class="btn btn-sm btn-outline-primary" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <p class="text-muted">No transactions found for this entertainer.</p>
+            @endif
+        </div>
     </div>
 </div>
 @endsection

@@ -86,9 +86,27 @@
                         <th>{{ html_entity_decode($item['package_name'] ?? ('Package #' . ($item['package_id'] ?? '')), ENT_QUOTES | ENT_HTML5, 'UTF-8') }}</th>
                         <td>
                             Guests: {{ max(1, (int) ($item['guests'] ?? 1)) }}<br>
-                            Unit Price: ${{ number_format((float) ($item['unit_price'] ?? 0), 2) }}
+                            Unit Price: ${{ number_format((float) ($item['unit_price'] ?? 0), 2) }}<br>
+                            <strong>Total: ${{ number_format((float) ($item['line_total'] ?? ($item['unit_price'] ?? 0)), 2) }}</strong>
                         </td>
                     </tr>
+                    @if(!empty($item['addons']))
+                        @foreach($item['addons'] as $addon)
+                            @if(!empty($addon['name']))
+                            <tr style="background: #f8fbff;">
+                                <td style="padding-left: 24px;"><strong>+</strong> {{ $addon['name'] }} x{{ $addon['qty'] }}</td>
+                                <td>
+                                    @if((float) ($addon['price'] ?? 0) > 0)
+                                        ${{ number_format((float) ($addon['unit_price'] ?? 0), 2) }} each<br>
+                                        <strong>${{ number_format((float) ($addon['price'] ?? 0), 2) }}</strong>
+                                    @else
+                                        <em>Included</em>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endif
+                        @endforeach
+                    @endif
                 @endforeach
             </table>
         @endif
@@ -145,9 +163,27 @@
                         <th>{{ html_entity_decode($item['package_name'] ?? ('Package #' . ($item['package_id'] ?? '')), ENT_QUOTES | ENT_HTML5, 'UTF-8') }}</th>
                         <td>
                             Guests: {{ max(1, (int) ($item['guests'] ?? 1)) }}<br>
-                            Total: ${{ number_format((float) ($item['line_total'] ?? ($item['unit_price'] ?? 0)), 2) }}
+                            Unit Price: ${{ number_format((float) ($item['unit_price'] ?? 0), 2) }}<br>
+                            <strong>Total: ${{ number_format((float) ($item['line_total'] ?? ($item['unit_price'] ?? 0)), 2) }}</strong>
                         </td>
                     </tr>
+                    @if(!empty($item['addons']))
+                        @foreach($item['addons'] as $addon)
+                            @if(!empty($addon['name']))
+                            <tr style="background: #f8fbff;">
+                                <td style="padding-left: 24px;"><strong>+</strong> {{ $addon['name'] }} x{{ $addon['qty'] }}</td>
+                                <td>
+                                    @if((float) ($addon['price'] ?? 0) > 0)
+                                        ${{ number_format((float) ($addon['unit_price'] ?? 0), 2) }} each<br>
+                                        <strong>${{ number_format((float) ($addon['price'] ?? 0), 2) }}</strong>
+                                    @else
+                                        <em>Included</em>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endif
+                        @endforeach
+                    @endif
                 @endforeach
                 @if(!empty($mailPriceBreakdown))
                     <tr><th>Amount Paid Now</th><td>${{ number_format((float) ($mailPriceBreakdown['amount_paid_now'] ?? ($mailData['total'] ?? 0)), 2) }}</td></tr>
