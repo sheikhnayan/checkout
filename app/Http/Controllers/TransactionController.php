@@ -889,7 +889,7 @@ class TransactionController extends Controller
                     </div>
                 </div>';
 
-        return response()->html($html);
+        return response($html, 200, ['Content-Type' => 'text/html']);
     }
 
     public function update($id, $status)
