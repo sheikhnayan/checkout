@@ -171,8 +171,9 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
-function loadTransactionDetails(transactionId) {
+window.loadTransactionDetails = function(transactionId) {
     const modalBody = document.getElementById('transactionModalBody');
     modalBody.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
 
@@ -185,7 +186,8 @@ function loadTransactionDetails(transactionId) {
             modalBody.innerHTML = '<div class="alert alert-danger">Error loading transaction details</div>';
             console.error('Error:', error);
         });
-}
-    </div>
+};
+</script>
+@endpush    </div>
 </div>
 @endsection
