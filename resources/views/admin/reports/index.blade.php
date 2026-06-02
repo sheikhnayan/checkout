@@ -12,7 +12,7 @@
     <!-- Category Filters -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="btn-group" role="group">
+            <div class="btn-group flex-wrap" role="group" id="categoryFilters">
                 <a href="{{ route('admin.reports.index') }}" class="btn btn-sm {{ empty($selectedCategory) ? 'btn-primary' : 'btn-outline-primary' }}">
                     All Reports
                 </a>
@@ -65,6 +65,45 @@
 .hover-lift:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 16px rgba(0,0,0,0.1) !important;
+}
+
+/* Make button group responsive */
+#categoryFilters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+#categoryFilters .btn {
+    flex: 1 1 auto;
+    min-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 767px) {
+    #categoryFilters {
+        gap: 6px;
+    }
+
+    #categoryFilters .btn {
+        min-width: 80px;
+        font-size: 0.75rem;
+        padding: 0.35rem 0.5rem !important;
+    }
+}
+
+@media (max-width: 576px) {
+    #categoryFilters {
+        gap: 4px;
+    }
+
+    #categoryFilters .btn {
+        min-width: 70px;
+        font-size: 0.7rem;
+        padding: 0.3rem 0.4rem !important;
+    }
 }
 </style>
 @endsection
