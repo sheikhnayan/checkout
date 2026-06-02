@@ -1,5 +1,30 @@
 @extends('admin.main')
 
+@push('styles')
+<style>
+#transactionModal .modal-header { background: #0f172a; border-bottom: 1px solid #1e293b; }
+#transactionModal .modal-content,
+#transactionModal .modal-body { background: #0f172a; }
+#transactionModal .modal-footer { background: #0f172a; border-top: 1px solid #1e293b; }
+#transactionModal .modal-title { color: #f8fafc !important; }
+#transactionModal .btn-close { filter: invert(1) grayscale(100%); }
+#transactionModal .list-group-item {
+    background: #0f172a;
+    border-color: #1e293b;
+    color: #f8fafc !important;
+}
+#transactionModal .list-group-item strong,
+#transactionModal .list-group-item span,
+#transactionModal .list-group-item a {
+    color: #f8fafc !important;
+}
+#transactionModalBody {
+    max-height: 600px;
+    overflow-y: auto;
+}
+</style>
+@endpush
+
 @section('content')
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
@@ -106,6 +131,7 @@
                                 <th>Guest Name</th>
                                 <th>Date</th>
                                 <th>Amount</th>
+                                <th>Commission Amount</th>
                                 <th>Commission Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -118,15 +144,18 @@
                                     <td>{{ $transaction->package_first_name }} {{ $transaction->package_last_name }}</td>
                                     <td>{{ optional($transaction->created_at)->format('M d, Y') }}</td>
                                     <td>${{ number_format((float) ($transaction->actual_total ?? 0), 2) }}</td>
+                                    <td>${{ number_format((float) ($transaction->affiliate_commission_amount ?? 0), 2) }}</td>
                                     <td>
-                                        <span class="badge bg-{{ $transaction->affiliate_commission_status === 'paid' ? 'success' : ($transaction->affiliate_commission_status === 'pending' ? 'warning' : 'secondary') }}">
-                                            {{ ucfirst($transaction->affiliate_commission_status ?? 'pending') }}
-                                        </span>
+                                        @php
+                                            $status = $transaction->affiliate_commission_status ?? 'pending';
+                                            $badgeColor = $status === 'paid' ? 'success' : ($status === 'pending' ? 'warning' : ($status === 'reversed' ? 'danger' : 'secondary'));
+                                        @endphp
+                                        <span class="badge bg-{{ $badgeColor }}">{{ ucfirst($status) }}</span>
                                     </td>
                                     <td>
-                                        <a href="{{ route('admin.transaction.index', ['search' => $transaction->transaction_id]) }}" class="btn btn-sm btn-outline-primary" title="View Details">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" title="View Details" data-bs-toggle="modal" data-bs-target="#transactionModal" onclick="loadTransactionDetails({{ $transaction->id }})">
                                             <i class="fas fa-eye"></i>
-                                        </a>
+                                        </button>
                                     </td>
                                 </tr>
                             @endforeach
@@ -137,6 +166,43 @@
                 <p class="text-muted">No transactions found for this affiliate.</p>
             @endif
         </div>
+    </div>
+</div>
+
+<!-- Transaction Details Modal -->
+<div class="modal fade" id="transactionModal" tabindex="-1" aria-labelledby="transactionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="transactionModalLabel">Transaction Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="transactionModalBody">
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function loadTransactionDetails(transactionId) {
+    const modalBody = document.getElementById('transactionModalBody');
+    modalBody.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+
+    fetch('/admins/transaction/' + transactionId + '/details')
+        .then(response => response.text())
+        .then(html => {
+            modalBody.innerHTML = html;
+        })
+        .catch(error => {
+            modalBody.innerHTML = '<div class="alert alert-danger">Error loading transaction details</div>';
+            console.error('Error:', error);
+        });
+}
     </div>
 </div>
 @endsection
