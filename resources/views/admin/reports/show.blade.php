@@ -130,7 +130,7 @@
             <!-- Report Info -->
             <div class="card shadow-sm mt-4">
                 <div class="card-header bg-light">
-                    <h6 class="mb-0">Report Details</h6>
+                    <h6 class="mb-0" style="color: #fff !important">Report Details</h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
