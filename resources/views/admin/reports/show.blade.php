@@ -8,7 +8,7 @@
             <a href="{{ route('admin.reports.index') }}" class="btn btn-sm btn-outline-secondary mb-3">
                 <i class="fas fa-arrow-left me-2"></i>Back to Reports
             </a>
-            <h1 class="h2 mb-2">{{ $report->name }}</h1>
+            <h1 class="h2 mb-2" style="color: #fff !important">{{ $report->name }}</h1>
             <p class="text-muted mb-0">{{ $report->description }}</p>
         </div>
     </div>
@@ -18,7 +18,7 @@
         <div class="col-md-3 mb-4">
             <div class="card shadow-sm">
                 <div class="card-header bg-light">
-                    <h5 class="mb-0">Filters</h5>
+                    <h5 class="mb-0" style="color: #fff !important">Filters</h5>
                 </div>
                 <div class="card-body">
                     <form id="filterForm" method="GET">
