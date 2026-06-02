@@ -419,5 +419,35 @@ function exportReport(format) {
 .hover-lift:hover {
     transform: translateY(-2px);
 }
+
+/* Fix select field appearance */
+select.form-select,
+select.form-select-sm {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23%23f1f5f9' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 16px;
+    padding-right: 28px !important;
+}
+
+select.form-select-sm {
+    padding-right: 24px !important;
+    background-position: right 6px center;
+    background-size: 14px;
+}
+
+#dateRange,
+.form-select {
+    color: #fff !important;
+}
+
+#dateRange option,
+.form-select option {
+    background-color: #1e293b;
+    color: #fff;
+}
 </style>
 @endsection
