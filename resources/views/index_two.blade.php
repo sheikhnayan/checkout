@@ -6074,7 +6074,7 @@
                                                 @endif
 
                                                 @if ($data->gratuity_name != 0)
-                                                    <div style="font-size: 16px;" class="default-gratuity" data-tip="Supports venue staff and hospitality service for your experience.">
+                                                    <div style="font-size: 16px;" class="default-gratuity" data-tip="Supports venue staff and hospitality service. Calculated based on subtotal.">
                                                         <span>{{ $data->gratuity_name ?? 'Gratuity Fee' }}</span>
                                                         <span>$0.00</span></div>
                                                 @else
