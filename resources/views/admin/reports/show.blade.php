@@ -420,34 +420,39 @@ function exportReport(format) {
     transform: translateY(-2px);
 }
 
-/* Fix select field appearance */
-select.form-select,
-select.form-select-sm {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23%23f1f5f9' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 8px center;
-    background-size: 16px;
-    padding-right: 28px !important;
-}
-
-select.form-select-sm {
-    padding-right: 24px !important;
-    background-position: right 6px center;
-    background-size: 14px;
-}
-
-#dateRange,
-.form-select {
+/* Fix select field appearance - override Bootstrap */
+#dateRange {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23f1f5f9' d='M8 11L3 6h10z'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 8px center !important;
+    background-size: 18px !important;
+    padding-right: 40px !important;
     color: #fff !important;
+    background-color: rgba(255,255,255,0.1) !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
 }
 
-#dateRange option,
-.form-select option {
+#dateRange:hover {
+    background-color: rgba(255,255,255,0.15) !important;
+}
+
+#dateRange:focus {
+    background-color: rgba(255,255,255,0.15) !important;
+    border-color: rgba(124,58,237,0.5) !important;
+    box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25) !important;
+}
+
+#dateRange option {
     background-color: #1e293b;
     color: #fff;
+}
+
+/* Generic form-select fix */
+select.form-select {
+    padding-right: 40px !important;
 }
 </style>
 @endsection
