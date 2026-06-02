@@ -6666,13 +6666,6 @@ input[type="checkbox"],
             // --- End Shareable Link Logic ---
 
                 // --- End Shareable Link Refinement ---
-            $('#businessExpenseCheckbox').on('change', function () {
-                if ($(this).is(':checked')) {
-                    $('#businessFields').slideDown();
-                } else {
-                    $('#businessFields').slideUp();
-                }
-            });
         </script>
 
         <script>
@@ -8022,6 +8015,15 @@ input[type="checkbox"],
                 // Remove required field styling on input
                 $(document).on('input change', 'input, select, textarea', function() {
                     $(this).removeClass('required-field');
+                });
+
+                // Business expense checkbox - show/hide business fields
+                $('#businessExpenseCheckbox').on('change', function() {
+                    if ($(this).is(':checked')) {
+                        $('#businessFields').slideDown();
+                    } else {
+                        $('#businessFields').slideUp();
+                    }
                 });
             });
             
