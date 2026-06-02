@@ -7247,7 +7247,7 @@ input[type="checkbox"],
                 var discountedSubtotal = subtotal - couponDiscount;
                 var service_charge_price = ("{{ $data->service_charge_name }}" != "0") ? (discountedSubtotal / 100) * service_charge : 0;
                 var gratuited_price = ("{{ $data->gratuity_name }}" != "0") ? (discountedSubtotal / 100) * gratuity : 0;
-                var sales_tax_price = ("{{ $data->sales_tax_name }}" != "0") ? ((discountedSubtotal + service_charge_price + gratuited_price) / 100) * sales_tax : 0;
+                var sales_tax_price = ("{{ $data->sales_tax_name }}" != "0") ? (discountedSubtotal / 100) * sales_tax : 0;
 
                 var processingFeeBase = discountedSubtotal;
                 var amountAfterCoupon = discountedSubtotal + service_charge_price + sales_tax_price + gratuited_price;
