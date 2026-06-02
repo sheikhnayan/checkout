@@ -603,7 +603,7 @@
             <a href="#" class="app-brand-link">
               <span class="app-brand-logo demo">
                 <span class="text-primary">
-                  <svg
+                  {{-- <svg
                     width="25"
                     viewBox="0 0 25 42"
                     version="1.1"
@@ -649,10 +649,11 @@
                         </g>
                       </g>
                     </g>
-                  </svg>
+                  </svg> --}}
+                  <img src="{{ asset('images/logo.png') }}" alt="">
                 </span>
               </span>
-              <span class="app-brand-text demo menu-text fw-bold ms-2" style="font-size: 1rem;">CartVIP by James</span>
+              <span class="app-brand-text demo menu-text fw-bold ms-2" style="font-size: 1rem;">CartVIP by James and Sheikh</span>
             </a>
 
             <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">

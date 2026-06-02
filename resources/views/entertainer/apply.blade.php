@@ -74,7 +74,7 @@
         }
 
         .brand-logo img {
-            height: 100px;
+            height: 60px;
             width: auto;
             object-fit: contain;
             filter: drop-shadow(0 2px 8px rgba(244,180,0,0.3));
