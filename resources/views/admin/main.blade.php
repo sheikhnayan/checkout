@@ -859,33 +859,6 @@
   @endif
 
   @if($authUser && $canAccessRoute('admin.transaction.index'))
-  <li class="menu-item {{ request()->is('admins/transaction') ? 'active' : '' }}">
-    <a href="/admins/transaction" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-package"></i>
-      <div class="text-truncate">Transactions</div>
-    </a>
-  </li>
-  @endif
-
-  @if($authUser && $canAccessRoute('admin.transaction.affiliate'))
-  <li class="menu-item {{ request()->is('admins/transaction/affiliate') ? 'active' : '' }}">
-    <a href="{{ route('admin.transaction.affiliate') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-user-check"></i>
-      <div class="text-truncate">Affiliate Transactions</div>
-    </a>
-  </li>
-  @endif
-
-  @if($authUser && $canAccessRoute('admin.transaction.entertainer'))
-  <li class="menu-item {{ request()->is('admins/transaction/entertainer') ? 'active' : '' }}">
-    <a href="{{ route('admin.transaction.entertainer') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-microphone"></i>
-      <div class="text-truncate">Entertainer Transactions</div>
-    </a>
-  </li>
-  @endif
-
-  @if($authUser && $canAccessRoute('admin.transaction.index'))
   @if($canAccessRoute('admin.transaction.scan'))
   <li class="menu-item {{ request()->is('admins/transaction/scan*') ? 'active' : '' }}">
     <a href="{{ route('admin.transaction.scan') }}" class="menu-link">
@@ -925,6 +898,24 @@
     <a href="{{ route('admin.transaction.index') }}" class="menu-link">
       <i class="menu-icon tf-icons fas fa-exchange-alt"></i>
       <div class="text-truncate">Transactions</div>
+    </a>
+  </li>
+  @endif
+
+  @if($authUser && $canAccessRoute('admin.transaction.affiliate'))
+  <li class="menu-item {{ request()->is('admins/transaction/affiliate') ? 'active' : '' }}">
+    <a href="{{ route('admin.transaction.affiliate') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-user-check"></i>
+      <div class="text-truncate">Affiliate Transactions</div>
+    </a>
+  </li>
+  @endif
+
+  @if($authUser && $canAccessRoute('admin.transaction.entertainer'))
+  <li class="menu-item {{ request()->is('admins/transaction/entertainer') ? 'active' : '' }}">
+    <a href="{{ route('admin.transaction.entertainer') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-microphone"></i>
+      <div class="text-truncate">Entertainer Transactions</div>
     </a>
   </li>
   @endif
