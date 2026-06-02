@@ -650,10 +650,11 @@
                       </g>
                     </g>
                   </svg> --}}
-                  <img src="{{ asset('images/logo.png') }}" alt="">
+                  <img src="{{ asset('images/logo.png') }}" width="90px" alt="CartVIP Logo" />
                 </span>
               </span>
-              <span class="app-brand-text demo menu-text fw-bold ms-2" style="font-size: 1rem;">CartVIP by James and Sheikh</span>
+              <br>
+              <span class="app-brand-text demo menu-text fw-bold ms-2" style="font-size: 1rem; color: #fff;">CartVIP by James and Sheikh</span>
             </a>
 
             <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
