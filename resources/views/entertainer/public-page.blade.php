@@ -7111,6 +7111,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             // --- End Shareable Link Logic ---
 
                 // --- End Shareable Link Refinement ---
+            $('#businessExpenseCheckbox').on('change', function () {
+                if ($(this).is(':checked')) {
+                    $('#businessFields').slideDown();
+                } else {
+                    $('#businessFields').slideUp();
+                }
+            });
         </script>
 
         <script>
@@ -8461,15 +8468,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 // Remove required field styling on input
                 $(document).on('input change', 'input, select, textarea', function() {
                     $(this).removeClass('required-field');
-                });
-
-                // Business expense checkbox - show/hide business fields
-                $('#businessExpenseCheckbox').on('change', function() {
-                    if ($(this).is(':checked')) {
-                        $('#businessFields').slideDown();
-                    } else {
-                        $('#businessFields').slideUp();
-                    }
                 });
             });
             

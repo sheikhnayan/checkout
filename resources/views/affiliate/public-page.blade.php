@@ -6003,7 +6003,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                 @endif
 
                                                 @if ($data->gratuity_name != 0)
-                                                    <div style="font-size: 16px;" class="default-gratuity" data-tip="Supports venue staff and hospitality service for your experience.">
+                                                    <div style="font-size: 16px;" class="default-gratuity" data-tip="Supports venue staff and hospitality service. Calculated based on subtotal.">
                                                         <span>{{ $data->gratuity_name ?? 'Gratuity Fee' }}</span> <span>$0.00</span></div>
                                                 @else
                                                     <div class="default-gratuity"></div>
@@ -7111,6 +7111,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             // --- End Shareable Link Logic ---
 
                 // --- End Shareable Link Refinement ---
+            $('#businessExpenseCheckbox').on('change', function () {
+                if ($(this).is(':checked')) {
+                    $('#businessFields').slideDown();
+                } else {
+                    $('#businessFields').slideUp();
+                }
+            });
         </script>
 
         <script>
@@ -8461,15 +8468,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 // Remove required field styling on input
                 $(document).on('input change', 'input, select, textarea', function() {
                     $(this).removeClass('required-field');
-                });
-
-                // Business expense checkbox - show/hide business fields
-                $('#businessExpenseCheckbox').on('change', function() {
-                    if ($(this).is(':checked')) {
-                        $('#businessFields').slideDown();
-                    } else {
-                        $('#businessFields').slideUp();
-                    }
                 });
             });
             

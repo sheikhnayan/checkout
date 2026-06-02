@@ -1106,8 +1106,9 @@
             border-color: #ffcc00;
         }
         .consent-label input:checked::before {
-            background: #ffcc00;
-            box-shadow: 0 0 0 3px #ffcc00;
+            background: #fff;
+            transform: translateX(20px);
+            box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
         }
         .consent-label input:focus-visible {
             outline: 2px solid rgba(255,204,0,0.7);
@@ -1163,8 +1164,9 @@
             border-color: #ffcc00 !important;
         }
         #payment-consent-group .consent-label input[type="checkbox"]:checked::before {
-            background: #ffcc00 !important;
-            box-shadow: 0 0 0 3px #ffcc00 !important;
+            background: #fff !important;
+            transform: translateX(20px) !important;
+            box-shadow: 0 0 0 3px rgba(0,0,0,0.1) !important;
         }
         #payment-consent-group .consent-label input[type="checkbox"]:focus-visible {
             outline: 2px solid rgba(255,204,0,0.7) !important;

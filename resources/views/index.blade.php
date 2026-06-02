@@ -957,8 +957,9 @@ input::placeholder, textarea::placeholder {
     border-color: #ffcc00;
 }
 .consent-label input:checked::before {
-    background: #ffcc00;
-    box-shadow: 0 0 0 3px #ffcc00;
+    background: #fff;
+    transform: translateX(20px);
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
 }
 .consent-label input:focus-visible {
     outline: 2px solid rgba(255,204,0,0.7);
@@ -1014,8 +1015,9 @@ input::placeholder, textarea::placeholder {
     border-color: #ffcc00 !important;
 }
 #payment-consent-group .consent-label input[type="checkbox"]:checked::before {
-    background: #ffcc00 !important;
-    box-shadow: 0 0 0 3px #ffcc00 !important;
+    background: #fff !important;
+    transform: translateX(20px) !important;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.1) !important;
 }
 #payment-consent-group .consent-label input[type="checkbox"]:focus-visible {
     outline: 2px solid rgba(255,204,0,0.7) !important;
@@ -6666,6 +6668,13 @@ input[type="checkbox"],
             // --- End Shareable Link Logic ---
 
                 // --- End Shareable Link Refinement ---
+            $('#businessExpenseCheckbox').on('change', function () {
+                if ($(this).is(':checked')) {
+                    $('#businessFields').slideDown();
+                } else {
+                    $('#businessFields').slideUp();
+                }
+            });
         </script>
 
         <script>
@@ -8015,15 +8024,6 @@ input[type="checkbox"],
                 // Remove required field styling on input
                 $(document).on('input change', 'input, select, textarea', function() {
                     $(this).removeClass('required-field');
-                });
-
-                // Business expense checkbox - show/hide business fields
-                $('#businessExpenseCheckbox').on('change', function() {
-                    if ($(this).is(':checked')) {
-                        $('#businessFields').slideDown();
-                    } else {
-                        $('#businessFields').slideUp();
-                    }
                 });
             });
             
