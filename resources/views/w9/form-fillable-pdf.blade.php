@@ -99,6 +99,36 @@
             letter-spacing: 0.5px;
         }
 
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 12px;
+            color: #333;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: Arial, sans-serif;
+            background: white;
+            cursor: pointer;
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: #0066cc;
+            background: #f9f9ff;
+        }
+
         .file-upload {
             position: relative;
             margin-bottom: 15px;
@@ -288,7 +318,19 @@
             <div class="sidebar-card">
                 <div class="error-box" id="errorBox"></div>
 
-                <div class="sidebar-title">📸 Government ID Upload</div>
+                <div class="sidebar-title">📸 Government ID Verification</div>
+
+                <div class="form-group">
+                    <label>Type of ID <span class="required">*</span></label>
+                    <select id="idDocumentType" name="id_document_type" required>
+                        <option value="">-- Select ID Type --</option>
+                        <option value="driver_license">Driver's License</option>
+                        <option value="passport">Passport</option>
+                        <option value="state_id">State ID Card</option>
+                        <option value="other">Other Government ID</option>
+                    </select>
+                    <span class="error-message" id="idTypeError"></span>
+                </div>
 
                 <div class="info-box">
                     ⚠️ Upload clear images of BOTH sides of your government-issued ID
@@ -415,6 +457,7 @@
                 return;
             }
 
+            const idDocumentType = document.getElementById('idDocumentType').value;
             const idFront = document.getElementById('idFront').files[0];
             const idBack = document.getElementById('idBack').files[0];
             const certification = document.getElementById('certification').checked;
@@ -427,6 +470,7 @@
             // Validation
             const errors = [];
 
+            if (!idDocumentType) errors.push('✗ ID Type is required');
             if (!idFront) errors.push('✗ Front of ID is required');
             if (!idBack) errors.push('✗ Back of ID is required');
             if (!certification) errors.push('✗ You must certify the information');
@@ -444,6 +488,7 @@
 
             // Prepare form data
             const formData = new FormData();
+            formData.append('id_document_type', idDocumentType);
             formData.append('id_front_image', idFront);
             formData.append('id_back_image', idBack);
             formData.append('certification_signed', true);
