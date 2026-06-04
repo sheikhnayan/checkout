@@ -30,15 +30,15 @@ class W9FormController extends Controller
                 $affiliate = Affiliate::findOrFail($id);
                 $w9Form = W9Form::where('affiliate_id', $id)->first();
 
-                // TESTING: Temporarily allow multiple submissions
-                // if ($w9Form && $w9Form->status === 'submitted') {
-                //     return view('w9.already-submitted', [
-                //         'type' => 'affiliate',
-                //         'name' => $affiliate->display_name ?: $affiliate->user->name,
-                //     ]);
-                // }
+                // Check if already submitted
+                if ($w9Form && $w9Form->status === 'submitted') {
+                    return view('w9.already-submitted', [
+                        'type' => 'affiliate',
+                        'name' => $affiliate->display_name ?: $affiliate->user->name,
+                    ]);
+                }
 
-                return view('w9.form-fillable-pdf', [
+                return view('w9.form-html', [
                     'type' => 'affiliate',
                     'id' => $id,
                     'name' => $affiliate->display_name ?: $affiliate->user->name,
@@ -49,15 +49,15 @@ class W9FormController extends Controller
                 $entertainer = Entertainer::findOrFail($id);
                 $w9Form = W9Form::where('entertainer_id', $id)->first();
 
-                // TESTING: Temporarily allow multiple submissions
-                // if ($w9Form && $w9Form->status === 'submitted') {
-                //     return view('w9.already-submitted', [
-                //         'type' => 'entertainer',
-                //         'name' => $entertainer->display_name ?: $entertainer->user->name,
-                //     ]);
-                // }
+                // Check if already submitted
+                if ($w9Form && $w9Form->status === 'submitted') {
+                    return view('w9.already-submitted', [
+                        'type' => 'entertainer',
+                        'name' => $entertainer->display_name ?: $entertainer->user->name,
+                    ]);
+                }
 
-                return view('w9.form-fillable-pdf', [
+                return view('w9.form-html', [
                     'type' => 'entertainer',
                     'id' => $id,
                     'name' => $entertainer->display_name ?: $entertainer->user->name,
