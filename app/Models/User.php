@@ -71,7 +71,7 @@ class User extends Authenticatable
 
     public function promoter()
     {
-        return $this->hasOne(Promoter::class);
+        return $this->hasOne(Affiliate::class);
     }
 
     public function entertainer()

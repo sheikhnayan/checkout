@@ -34,10 +34,10 @@ class AffiliateRegistrationController extends Controller
             'user_type' => 'promoter',
         ]);
 
-        $promoter = Promoter::create([
+        $promoter = Affiliate::create([
             'user_id' => $user->id,
             'status' => 'pending',
-            'slug' => Promoter::generateUniqueSlug($request->name),
+            'slug' => Affiliate::generateUniqueSlug($request->name),
             'display_name' => $request->name,
             'description' => $request->experience,
         ]);

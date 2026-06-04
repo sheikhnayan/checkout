@@ -31,7 +31,7 @@ class FrontendController extends Controller
         }
 
         if ($request->filled('aff')) {
-            $promoter = Promoter::where('slug', $request->input('aff'))
+            $promoter = Affiliate::where('slug', $request->input('aff'))
                 ->where('status', 'approved')
                 ->where('is_active', true)
                 ->whereHas('affiliateWebsites', function ($query) use ($data) {
@@ -51,7 +51,7 @@ class FrontendController extends Controller
 
         $affiliateReferral = null;
         if (session()->has('affiliate_referral_id')) {
-            $affiliateReferral = Promoter::where('id', session('affiliate_referral_id'))
+            $affiliateReferral = Affiliate::where('id', session('affiliate_referral_id'))
                 ->where('status', 'approved')
                 ->where('is_active', true)
                 ->whereHas('affiliateWebsites', function ($query) use ($data) {
@@ -135,7 +135,7 @@ class FrontendController extends Controller
             ->where('audience', $source);
 
         if ($source === PromoCode::AUDIENCE_AFFILIATE) {
-            $promoter = Promoter::where('slug', $ownerSlug)
+            $promoter = Affiliate::where('slug', $ownerSlug)
                 ->where('status', 'approved')
                 ->where('is_active', true)
                 ->whereHas('affiliateWebsites', function ($q) use ($website) {
@@ -239,7 +239,7 @@ class FrontendController extends Controller
             ->whereRaw('LOWER(promo_code) = ?', [strtolower($normalizedCode)]);
 
         if ($source === PromoCode::AUDIENCE_AFFILIATE) {
-            $promoter = Promoter::where('slug', $ownerSlug)
+            $promoter = Affiliate::where('slug', $ownerSlug)
                 ->where('status', 'approved')
                 ->where('is_active', true)
                 ->whereHas('affiliateWebsites', function ($query) use ($website) {

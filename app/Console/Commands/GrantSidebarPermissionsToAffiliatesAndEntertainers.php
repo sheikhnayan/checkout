@@ -21,16 +21,16 @@ class GrantSidebarPermissionsToAffiliatesAndEntertainers extends Command
             'entertainer.portal.packages',
             'entertainer.portal.settings',
             'entertainer.portal.wallet',
-            // Promoter sidebar
-            'promoter.portal.dashboard',
-            'promoter.portal.packages',
-            'promoter.portal.settings',
-            'promoter.portal.wallet',
+            // Affiliate sidebar
+            'affiliate.portal.dashboard',
+            'affiliate.portal.packages',
+            'affiliate.portal.settings',
+            'affiliate.portal.wallet',
             // Profile page (common)
             'admin.profile.edit',
         ];
 
-        $roles = WebsiteRole::whereIn('slug', ['promoter', 'entertainer'])->get();
+        $roles = WebsiteRole::whereIn('slug', ['affiliate', 'entertainer'])->get();
         $permissions = Permission::whereIn('key', $sidebarRouteKeys)->get();
 
         foreach ($roles as $role) {
@@ -38,6 +38,6 @@ class GrantSidebarPermissionsToAffiliatesAndEntertainers extends Command
             $this->info("Granted sidebar permissions to role: {$role->name}");
         }
 
-        $this->info('Sidebar permissions granted to promoter and entertainer roles.');
+        $this->info('Sidebar permissions granted to affiliate and entertainer roles.');
     }
 }

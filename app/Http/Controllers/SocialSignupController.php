@@ -164,11 +164,11 @@ class SocialSignupController extends Controller
         }
 
         if ($role === 'promoter') {
-            $promoter = Promoter::firstOrCreate(
+            $promoter = Affiliate::firstOrCreate(
                 ['user_id' => $user->id],
                 [
                     'status' => 'pending',
-                    'slug' => Promoter::generateUniqueSlug($user->name),
+                    'slug' => Affiliate::generateUniqueSlug($user->name),
                     'display_name' => $user->name,
                 ]
             );

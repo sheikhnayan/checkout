@@ -446,7 +446,7 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $rawData = Promoter::query()
+        $rawData = Affiliate::query()
             ->whereBetween('created_at', [$startDate, $endDate])
             ->select(DB::raw('DATE(created_at) as date'), DB::raw('COUNT(*) as count'))
             ->groupBy('date')
@@ -485,7 +485,7 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $data = Promoter::query()
+        $data = Affiliate::query()
             ->select(
                 'promoters.id',
                 DB::raw("COALESCE(promoters.display_name, users.name, CONCAT('Promoter #', promoters.id)) as name"),

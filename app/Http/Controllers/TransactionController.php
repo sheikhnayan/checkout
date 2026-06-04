@@ -1841,7 +1841,7 @@ class TransactionController extends Controller
             return false;
         }
 
-        $promoter = Promoter::find($transaction->affiliate_id);
+        $promoter = Affiliate::find($transaction->affiliate_id);
         if (!$promoter) {
             return false;
         }
@@ -1941,7 +1941,7 @@ class TransactionController extends Controller
             return;
         }
 
-        $promoter = Promoter::find($transaction->affiliate_id);
+        $promoter = Affiliate::find($transaction->affiliate_id);
         if (!$promoter) {
             return;
         }
@@ -2306,7 +2306,7 @@ class TransactionController extends Controller
         $websiteId = (int) $request->input('website_id');
 
         if ($request->filled('affiliate_slug')) {
-            $promoter = Promoter::where('slug', $request->input('affiliate_slug'))
+            $promoter = Affiliate::where('slug', $request->input('affiliate_slug'))
                 ->where('status', 'approved')
                 ->where('is_active', true)
                 ->first();
@@ -2319,7 +2319,7 @@ class TransactionController extends Controller
         }
 
         if (session()->has('affiliate_referral_id')) {
-            $promoter = Promoter::where('id', session('affiliate_referral_id'))
+            $promoter = Affiliate::where('id', session('affiliate_referral_id'))
                 ->where('status', 'approved')
                 ->where('is_active', true)
                 ->first();

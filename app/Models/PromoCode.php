@@ -47,7 +47,7 @@ class PromoCode extends Model
 
     public function promoter()
     {
-        return $this->belongsTo(Promoter::class);
+        return $this->belongsTo(Affiliate::class);
     }
 
     public function entertainer()

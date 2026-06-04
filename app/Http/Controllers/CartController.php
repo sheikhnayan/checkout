@@ -87,7 +87,7 @@ class CartController extends Controller
 
         // Redirect to promoter page if this is an promoter cart
         if ($sharedCart->affiliate_slug) {
-            $affiliateExists = Promoter::where('slug', $sharedCart->affiliate_slug)
+            $affiliateExists = Affiliate::where('slug', $sharedCart->affiliate_slug)
                 ->where('status', 'approved')
                 ->where('is_active', true)
                 ->exists();

@@ -426,7 +426,7 @@ class PromoCodeController extends Controller
 
     private function promoTargetOptions(?int $websiteId = null): array
     {
-        $promoters = Promoter::with('user')
+        $promoters = Affiliate::with('user')
             ->where('status', 'approved')
             ->where('is_active', true)
             ->when($websiteId, function ($query) use ($websiteId) {
@@ -478,7 +478,7 @@ class PromoCodeController extends Controller
                 ]);
             }
 
-            $validAffiliate = Promoter::where('id', $affiliateId)
+            $validAffiliate = Affiliate::where('id', $affiliateId)
                 ->where('status', 'approved')
                 ->where('is_active', true)
                 ->exists();

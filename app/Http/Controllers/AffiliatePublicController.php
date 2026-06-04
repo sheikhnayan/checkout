@@ -10,7 +10,7 @@ class AffiliatePublicController extends Controller
 {
     public function show($slug)
     {
-        $promoter = Promoter::with(['user', 'affiliatePackages.package.website'])
+        $promoter = Affiliate::with(['user', 'affiliatePackages.package.website'])
             ->where('slug', $slug)
             ->where('status', 'approved')
             ->where('is_active', true)

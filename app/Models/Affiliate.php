@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class Promoter extends Model
+class Affiliate extends Model
 {
     protected $fillable = [
         'user_id',

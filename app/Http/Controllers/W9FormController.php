@@ -27,7 +27,7 @@ class W9FormController extends Controller
             $id = $data['id'];
 
             if ($type === 'promoter') {
-                $promoter = Promoter::findOrFail($id);
+                $promoter = Affiliate::findOrFail($id);
                 $w9Form = W9Form::where('affiliate_id', $id)->first();
 
                 // TESTING: Allow re-submission for testing

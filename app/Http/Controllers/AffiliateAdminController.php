@@ -29,14 +29,14 @@ class AffiliateAdminController extends Controller
         $this->ensureAdmin();
         $status = $request->input('status', 'pending');
 
-        $query = Promoter::with('user');
+        $query = Affiliate::with('user');
         if (in_array($status, ['pending', 'approved', 'rejected'], true)) {
             $query->where('status', $status);
         }
 
         $promoters = $query->latest()->get();
 
-        return view('admin.promoter.index', compact('promoters', 'status'));
+        return view('admin.affiliate.index', compact('promoters', 'status'));
     }
 
     public function show(Promoter $promoter)
@@ -103,7 +103,7 @@ class AffiliateAdminController extends Controller
         $promoter->approved_by = auth()->id();
         $promoter->default_commission_percentage = $request->default_commission_percentage;
         if (empty($promoter->slug)) {
-            $promoter->slug = Promoter::generateUniqueSlug($promoter->display_name ?: $promoter->user->name);
+            $promoter->slug = Affiliate::generateUniqueSlug($promoter->display_name ?: $promoter->user->name);
         }
         $promoter->save();
 

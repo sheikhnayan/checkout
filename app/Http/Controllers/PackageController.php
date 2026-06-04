@@ -789,7 +789,7 @@ class PackageController extends Controller
 
     private function packageTargetOptions(?int $websiteId = null): array
     {
-        $promoters = Promoter::with('user')
+        $promoters = Affiliate::with('user')
             ->where('status', 'approved')
             ->where('is_active', true)
             ->when($websiteId, function ($query) use ($websiteId) {
@@ -857,7 +857,7 @@ class PackageController extends Controller
                     ]);
                 }
 
-                $hasAffiliates = Promoter::where('status', 'approved')
+                $hasAffiliates = Affiliate::where('status', 'approved')
                     ->where('is_active', true)
                     ->whereHas('affiliateWebsites', function ($query) use ($websiteId) {
                         $query->where('website_id', $websiteId)
@@ -886,7 +886,7 @@ class PackageController extends Controller
                 ]);
             }
 
-            $validAffiliate = Promoter::where('id', $affiliateId)
+            $validAffiliate = Affiliate::where('id', $affiliateId)
                 ->where('status', 'approved')
                 ->where('is_active', true)
                 ->whereHas('affiliateWebsites', function ($query) use ($websiteId) {
@@ -976,7 +976,7 @@ class PackageController extends Controller
         $this->clearTargetedMappings($package);
 
         if ($package->audience === Package::AUDIENCE_AFFILIATE && $package->affiliate_id) {
-            $promoter = Promoter::find($package->affiliate_id);
+            $promoter = Affiliate::find($package->affiliate_id);
             AffiliatePackage::updateOrCreate(
                 [
                     'affiliate_id' => $package->affiliate_id,
@@ -989,7 +989,7 @@ class PackageController extends Controller
                 ]
             );
         } elseif ($package->audience === Package::AUDIENCE_AFFILIATE) {
-            $promoters = Promoter::where('status', 'approved')
+            $promoters = Affiliate::where('status', 'approved')
                 ->where('is_active', true)
                 ->whereHas('affiliateWebsites', function ($query) use ($package) {
                     $query->where('website_id', $package->website_id)
