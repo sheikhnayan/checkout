@@ -25,7 +25,7 @@
                         </div>
 
                         <div class="col-md-3">
-                            <label class="form-label">Job Type <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The category of job (e.g. security, bartender, affiliate, hostess)."></i></label>
+                            <label class="form-label">Job Type <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The category of job (e.g. security, bartender, promoter, hostess)."></i></label>
                             <select name="job_type" class="form-select" required>
                                 <option value="entertainer" {{ old('job_type') === 'entertainer' ? 'selected' : '' }}>Entertainer</option>
                                 <option value="employee" {{ old('job_type') === 'employee' ? 'selected' : '' }}>Employee</option>

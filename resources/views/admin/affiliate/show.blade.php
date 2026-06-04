@@ -255,6 +255,10 @@ window.loadW9Form = function(formId) {
         });
 };
 
+window.downloadW9PDF = function(formId) {
+    window.location.href = '/admin/w9/' + formId + '/download-pdf';
+};
+
 window.loadTransactionDetails = function(transactionId) {
     const modalBody = document.getElementById('transactionModalBody');
     modalBody.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';

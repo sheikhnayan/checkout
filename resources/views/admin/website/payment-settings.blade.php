@@ -283,7 +283,7 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <h6 class="mb-3">Processing Fee</h6>
-                                        <p class="text-muted small mb-3">Fee applied to all transactions. affiliate commissions are calculated on the amount BEFORE this fee.</p>
+                                        <p class="text-muted small mb-3">Fee applied to all transactions. promoter commissions are calculated on the amount BEFORE this fee.</p>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -460,7 +460,7 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <h6 class="mb-3">Commission Hold Period</h6>
-                                        <p class="small mb-3" style="color: #6c757d;">Number of days after a transaction before affiliate/entertainer commissions are released. Leave blank to use the system default.</p>
+                                        <p class="small mb-3" style="color: #6c757d;">Number of days after a transaction before promoter commissions are released. Leave blank to use the system default.</p>
                                     </div>
                                 </div>
                                 <div class="row">

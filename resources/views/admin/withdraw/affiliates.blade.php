@@ -18,14 +18,14 @@
         @endif
 
         <div class="d-flex align-items-center justify-content-between mb-3">
-            <h4 class="mb-0">affiliate Withdrawal Requests</h4>
+            <h4 class="mb-0">Promoter Withdrawal Requests</h4>
         </div>
 
         <div class="row g-3 mb-4">
             {{-- Global Charge Setting --}}
             <div class="col-md-4">
                 <div class="card p-4">
-                    <h6 class="mb-2">Global affiliate Withdraw Charge</h6>
+                    <h6 class="mb-2">Global Promoter Withdraw Charge</h6>
                     <form method="POST" action="{{ route('admin.withdraw.affiliates.charge') }}" class="d-flex gap-2 align-items-center">
                         @csrf
                         <div class="input-group">
@@ -79,7 +79,7 @@
                         <tr>
                             <th>#</th>
                             <th>Date</th>
-                            <th>affiliate</th>
+                            <th>Promoter</th>
                             <th>Amount</th>
                             <th>Fee</th>
                             <th>Net Payout</th>
@@ -101,7 +101,7 @@
                                         {{ $aff->display_name ?: $aff->user->name ?? 'affiliate #'.$wr->owner_id }}
                                     </a>
                                 @else
-                                    affiliate #{{ $wr->owner_id }}
+                                    Promoter #{{ $wr->owner_id }}
                                 @endif
                             </td>
                             <td>${{ number_format($wr->amount, 2) }}</td>
@@ -219,7 +219,7 @@
                                                 </div>
                                                 <div class="modal-body">
                                                     <div class="mb-3">
-                                                        <label class="form-label">Status <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Update the withdrawal status. 'Done' confirms payment was sent. 'Rejected' automatically refunds the amount to the affiliate's wallet."></i></label>
+                                                        <label class="form-label">Status <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Update the withdrawal status. 'Done' confirms payment was sent. 'Rejected' automatically refunds the amount to the promoter's wallet."></i></label>
                                                         <select class="form-select" name="status" required>
                                                             <option value="pending"  {{ $wr->status==='pending'  ? 'selected':'' }}>Pending</option>
                                                             <option value="done"     {{ $wr->status==='done'     ? 'selected':'' }}>Done</option>
@@ -227,12 +227,12 @@
                                                         </select>
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label class="form-label">Admin Notes <small class="text-muted">(optional)</small> <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Internal notes visible to the affiliate. Use to explain a rejection or confirm payment details."></i></label>
+                                                        <label class="form-label">Admin Notes <small class="text-muted">(optional)</small> <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Internal notes visible to the promoter. Use to explain a rejection or confirm payment details."></i></label>
                                                         <textarea class="form-control" name="admin_notes" rows="3"
-                                                                  placeholder="Notes visible to the affiliate…">{{ $wr->admin_notes }}</textarea>
+                                                                  placeholder="Notes visible to the promoter…">{{ $wr->admin_notes }}</textarea>
                                                     </div>
                                                     <div class="alert alert-info mb-0" style="font-size:0.85rem;">
-                                                        Rejecting a <strong>pending</strong> request will automatically refund ${{ number_format($wr->amount, 2) }} to the affiliate's wallet.
+                                                        Rejecting a <strong>pending</strong> request will automatically refund ${{ number_format($wr->amount, 2) }} to the promoter's wallet.
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">

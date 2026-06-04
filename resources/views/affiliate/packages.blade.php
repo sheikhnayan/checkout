@@ -95,7 +95,7 @@
                 @csrf
                 @if($websites->isEmpty())
                     <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                        No clubs are assigned to your affiliate account yet. Please contact super admin.
+                        No clubs are assigned to your promoter account yet. Please contact super admin.
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 @endif

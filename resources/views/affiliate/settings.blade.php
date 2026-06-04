@@ -36,7 +36,7 @@
         @endif
 
         <div class="card p-4">
-            <h4 class="mb-3">affiliate Page Customization</h4>
+            <h4 class="mb-3">Promoter Page Customization</h4>
             <form method="POST" action="{{ route('affiliate.portal.settings.update') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="row g-3">
@@ -46,7 +46,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Hero Title</label>
-                        <input type="text" class="form-control" name="hero_title" value="{{ old('hero_title', $affiliate->hero_title) }}" placeholder="Main headline on your affiliate page">
+                        <input type="text" class="form-control" name="hero_title" value="{{ old('hero_title', $affiliate->hero_title) }}" placeholder="Main headline on your promoter page">
                     </div>
                     <div class="col-12">
                         <label class="form-label">Hero Subtitle</label>

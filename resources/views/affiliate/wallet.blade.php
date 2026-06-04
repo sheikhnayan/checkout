@@ -4,7 +4,7 @@
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="card p-4">
-            <h4 class="mb-2">affiliate Wallet</h4>
+            <h4 class="mb-2">Promoter Wallet</h4>
             <p><strong>Current Balance:</strong> ${{ number_format($affiliate->wallet_balance, 2) }}</p>
 
             <table class="table table-bordered">

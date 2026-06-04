@@ -79,7 +79,7 @@
                                 <div class="card-shadow-primary card-border text-white mb-3 card bg-primary p-2">
                                     @if(auth()->user() && auth()->user()->isAdmin())
                                         <div class="d-flex gap-2 justify-content-end mb-3">
-                                            <a href="{{ route('admin.promo_code.create-targeted', 'affiliate') }}" class="btn btn-warning">Create affiliate Promo</a>
+                                            <a href="{{ route('admin.promo_code.create-targeted', 'affiliate') }}" class="btn btn-warning">Create Promoter Promo</a>
                                             <a href="{{ route('admin.promo_code.create-targeted', 'entertainer') }}" class="btn btn-info">Create Entertainer Promo</a>
                                         </div>
                                     @elseif(auth()->user() && auth()->user()->isWebsiteUser())

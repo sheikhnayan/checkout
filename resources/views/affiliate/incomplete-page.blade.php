@@ -156,11 +156,11 @@
         <div class="action-text">
             <strong>What's next?</strong><br>
             @if($type === 'affiliate')
-                The affiliate owner needs to complete their profile customization in their account settings. Once all required information is filled in, this page will be live and accessible to the public.
+                The promoter owner needs to complete their profile customization in their account settings. Once all required information is filled in, this page will be live and accessible to the public.
             @elseif($type === 'website')
                 The venue administrator needs to complete the page configuration in their settings. Once all required information is set up, this page will be ready to display.
             @else
-                Please contact the affiliate or venue administrator to complete the page setup.
+                Please contact the promoter or venue administrator to complete the page setup.
             @endif
         </div>
 

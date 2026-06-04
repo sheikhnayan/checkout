@@ -2,17 +2,17 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>affiliate Application Received</title>
+    <title>Promoter Application Received</title>
 </head>
 <body style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.6;">
-    <h2 style="margin-bottom: 8px;">Thank you for applying to CartVIP affiliate Program</h2>
+    <h2 style="margin-bottom: 8px;">Thank you for applying to CartVIP Promoter Program</h2>
     <p>Hello {{ $affiliate->display_name ?? $affiliate->user->name }},</p>
-    <p>We received your affiliate application successfully. Our team will review your submission shortly and notify you once a decision is made.</p>
+    <p>We received your promoter application successfully. Our team will review your submission shortly and notify you once a decision is made.</p>
     <p>What happens next:</p>
     <ul>
         <li>We review your profile and intended promotion strategy.</li>
         <li>If approved, you will receive an email confirmation.</li>
-        <li>You can then log in and start building your own affiliate page.</li>
+        <li>You can then log in and start building your own promoter page.</li>
     </ul>
     <p>We appreciate your interest and look forward to working together.</p>
     <p>Best regards,<br>CartVIP Team</p>
