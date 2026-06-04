@@ -106,7 +106,7 @@ class W9FormController extends Controller
 
         try {
             if ($type === 'promoter') {
-                $w9Form = W9Form::firstOrCreate(['affiliate_id' => $id], ['type' => 'promoter']);
+                $w9Form = W9Form::firstOrCreate(['affiliate_id' => $id], ['type' => 'affiliate']);
             } else {
                 $w9Form = W9Form::firstOrCreate(['entertainer_id' => $id], ['type' => 'entertainer']);
             }

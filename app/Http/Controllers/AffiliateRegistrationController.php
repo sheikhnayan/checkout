@@ -31,7 +31,7 @@ class AffiliateRegistrationController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'user_type' => 'promoter',
+            'user_type' => 'affiliate',
         ]);
 
         $promoter = Affiliate::create([
@@ -45,7 +45,7 @@ class AffiliateRegistrationController extends Controller
         // Create W9Form record
         $w9Form = \App\Models\W9Form::create([
             'affiliate_id' => $promoter->id,
-            'type' => 'promoter',
+            'type' => 'affiliate',
             'full_name' => $user->name,
             'status' => 'pending',
         ]);
