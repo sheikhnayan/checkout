@@ -1,8 +1,8 @@
 <div style="max-height: 600px; overflow-y: auto;">
     <div style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; gap: 10px; justify-content: flex-end;">
-        <a href="{{ route('w9.download', $w9Form->id) }}" class="btn btn-primary" style="display: inline-block; padding: 8px 16px; background: #0066cc; color: white; text-decoration: none; border-radius: 4px; font-size: 13px; border: 1px solid #0066cc;">
-            <i class="fas fa-download"></i> Download PDF
-        </a>
+        <button type="button" class="btn btn-primary" style="display: inline-block; padding: 8px 16px; background: #0066cc; color: white; text-decoration: none; border-radius: 4px; font-size: 13px; border: 1px solid #0066cc; cursor: pointer;" onclick="openPdfViewer()">
+            <i class="fas fa-file-pdf"></i> View & Download PDF
+        </button>
     </div>
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px;">
         <!-- Left Column -->
@@ -122,3 +122,38 @@
         </div>
     </div>
 </div>
+
+<!-- PDF Viewer Modal -->
+<div id="pdfViewerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; padding: 20px;">
+    <div style="position: relative; width: 100%; height: 100%; display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #222; border-radius: 4px 4px 0 0;">
+            <h5 style="margin: 0; color: white; font-size: 16px;">Form W-9 - {{ $w9Form->id_document_type ? ucwords(str_replace('_', ' ', $w9Form->id_document_type)) : 'Submitted' }}</h5>
+            <button type="button" onclick="closePdfViewer()" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 0; width: 30px; height: 30px;">×</button>
+        </div>
+        <iframe id="pdfViewerFrame" src="{{ asset('fw9.pdf') }}" style="flex: 1; border: none; border-radius: 0 0 4px 4px;"></iframe>
+    </div>
+</div>
+
+<script>
+function openPdfViewer() {
+    document.getElementById('pdfViewerModal').style.display = 'block';
+}
+
+function closePdfViewer() {
+    document.getElementById('pdfViewerModal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+document.getElementById('pdfViewerModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closePdfViewer();
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closePdfViewer();
+    }
+});
+</script>
