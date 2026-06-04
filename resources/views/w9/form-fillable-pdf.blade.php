@@ -316,7 +316,7 @@
         <div class="content">
             <!-- PDF Viewer -->
             <div class="pdf-container">
-                <embed id="pdfViewer" type="application/pdf" src="{{ asset('storage/w9-template/fw9_template.pdf') }}" />
+                <embed id="pdfViewer" type="application/pdf" src="{{ asset('fw9.pdf') }}" />
             </div>
 
             <!-- Sidebar Form -->
