@@ -115,21 +115,49 @@ class W9FormController extends Controller
             $pdfData = $pdfData ?? [];
             $dataToSave = [];
 
-            // Map common PDF field names to database columns
-            $fieldMappings = [
-                'f1_01' => 'full_name', // Name line
-                'f1_05' => 'tax_id_number', // SSN/EIN
-                'f1_06' => 'street_address', // Address
-                'f1_07' => 'city_state_zip', // City, state, ZIP
-                'name' => 'full_name',
-                'ssn' => 'tax_id_number',
-                'ein' => 'tax_id_number',
-            ];
+            // Try to find name and tax ID fields (case-insensitive, flexible matching)
+            $fullName = '';
+            $taxId = '';
 
-            foreach ($fieldMappings as $pdfField => $dbColumn) {
-                if (!empty($pdfData[$pdfField])) {
-                    $dataToSave[$dbColumn] = $pdfData[$pdfField];
+            // Search through all PDF fields for name and tax ID
+            foreach ($pdfData as $fieldName => $fieldValue) {
+                if (empty($fieldValue)) continue;
+
+                $fieldLower = strtolower($fieldName);
+                $valueTrimmed = trim($fieldValue);
+
+                // Look for name field (line 1)
+                if (empty($fullName) && (
+                    strpos($fieldLower, 'name') !== false ||
+                    strpos($fieldLower, 'f1_01') !== false ||
+                    strpos($fieldLower, 'line1') !== false ||
+                    strpos($fieldLower, 'entity') !== false
+                )) {
+                    $fullName = $valueTrimmed;
                 }
+
+                // Look for tax ID field (SSN or EIN)
+                if (empty($taxId) && (
+                    strpos($fieldLower, 'ssn') !== false ||
+                    strpos($fieldLower, 'ein') !== false ||
+                    strpos($fieldLower, 'tax') !== false ||
+                    strpos($fieldLower, 'f1_05') !== false ||
+                    strpos($fieldLower, 'identification') !== false
+                )) {
+                    // Extract only numbers from tax ID
+                    $numbersOnly = preg_replace('/[^0-9-]/', '', $valueTrimmed);
+                    if (strlen($numbersOnly) >= 5) { // At least 5 digits for valid SSN/EIN
+                        $taxId = $numbersOnly;
+                    }
+                }
+            }
+
+            // Store all extracted data
+            if (!empty($fullName)) {
+                $dataToSave['full_name'] = $fullName;
+            }
+            if (!empty($taxId)) {
+                $dataToSave['tax_id_number'] = $taxId;
             }
 
             // Store raw PDF data for reference
@@ -149,8 +177,14 @@ class W9FormController extends Controller
 
             // Validate we have extracted name and tax ID
             if (empty($dataToSave['full_name']) || empty($dataToSave['tax_id_number'])) {
+                // Return what we found for debugging
+                $debugInfo = "Found: Name='" . ($dataToSave['full_name'] ?? 'EMPTY') . "', TaxID='" . ($dataToSave['tax_id_number'] ?? 'EMPTY') . "'\n";
+                $debugInfo .= "All PDF fields:\n" . json_encode($pdfData, JSON_PRETTY_PRINT);
+
+                \Log::warning('W9 PDF extraction failed', ['debug' => $debugInfo]);
+
                 return response()->json([
-                    'errors' => ['pdf_form_data' => 'Could not extract name and tax ID from PDF. Please ensure you filled these fields.']
+                    'errors' => ['pdf_form_data' => 'Could not extract name and tax ID from PDF. Please ensure you filled these fields. Check browser console for field names.']
                 ], 422);
             }
 

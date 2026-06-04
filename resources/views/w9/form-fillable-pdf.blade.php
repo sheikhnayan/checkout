@@ -494,16 +494,34 @@
                 const page = await pdf.getPage(1);
                 const annotations = await page.getAnnotations();
 
-                console.log('PDF Annotations found:', annotations.length);
+                console.log('=== PDF EXTRACTION DEBUG ===');
+                console.log('Total Annotations:', annotations.length);
+
                 for (const annotation of annotations) {
-                    if (annotation.subtype === 'Widget' && annotation.fieldName) {
-                        pdfFormData[annotation.fieldName] = annotation.fieldValue || '';
-                        console.log(annotation.fieldName + ':', annotation.fieldValue);
+                    if (annotation.subtype === 'Widget') {
+                        const fieldName = annotation.fieldName || 'UNNAMED';
+                        const fieldValue = annotation.fieldValue || '';
+                        pdfFormData[fieldName] = fieldValue;
+                        console.log('Field:', fieldName, '| Value:', fieldValue);
                     }
                 }
+
+                console.log('All extracted data:', pdfFormData);
+                console.log('=== END DEBUG ===');
+
+                // Show extracted data in alert for verification
+                const fieldList = Object.entries(pdfFormData)
+                    .filter(([k, v]) => v)
+                    .map(([k, v]) => `${k}: ${v}`)
+                    .join('\n');
+
+                if (fieldList) {
+                    console.log('Filled fields:\n' + fieldList);
+                }
+
             } catch (error) {
                 console.error('Error extracting PDF:', error);
-                alert('Could not extract PDF data. Please ensure you filled the form correctly.');
+                alert('Could not extract PDF data. Check browser console for field names.');
                 document.getElementById('submitBtn').disabled = false;
                 document.getElementById('loader').style.display = 'none';
                 return;
