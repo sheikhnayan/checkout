@@ -40,14 +40,14 @@ class AuthController extends Controller
 
             $user = Auth::user();
             if ($user && $user->isAffiliate()) {
-                $promoter = $user->promoter;
-                if (!$promoter || $promoter->status !== 'approved' || !$promoter->is_active) {
+                $affiliate = $user->affiliate;
+                if (!$affiliate || $affiliate->status !== 'approved' || !$affiliate->is_active) {
                     Auth::logout();
                     $request->session()->invalidate();
                     $request->session()->regenerateToken();
 
                     return back()->withErrors([
-                        'email' => 'Your promoter application is still under review. We will notify you once approved.',
+                        'email' => 'Your affiliate application is still under review. We will notify you once approved.',
                     ])->onlyInput('email');
                 }
             }
@@ -158,7 +158,7 @@ class AuthController extends Controller
     private function redirectByUserType(User $user)
     {
         if ($user->isAffiliate()) {
-            return redirect()->route('promoter.portal.dashboard');
+            return redirect()->route('affiliate.portal.dashboard');
         }
 
         if ($user->isEntertainer()) {

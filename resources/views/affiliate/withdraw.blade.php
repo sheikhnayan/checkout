@@ -53,7 +53,7 @@
                             You must add at least one payout method before requesting a withdrawal.
                         </div>
                     @else
-                        <form method="POST" action="{{ route('promoter.portal.withdraw.request') }}">
+                        <form method="POST" action="{{ route('affiliate.portal.withdraw.request') }}">
                             @csrf
                             <div class="mb-3">
                                 <label class="form-label">Amount ($)</label>
@@ -98,7 +98,7 @@
                 {{-- Add Payout Method --}}
                 <div class="card p-4">
                     <h5 class="mb-3">Add Payout Method</h5>
-                    <form method="POST" action="{{ route('promoter.portal.withdraw.methods.store') }}">
+                    <form method="POST" action="{{ route('affiliate.portal.withdraw.methods.store') }}">
                         @csrf
                         <div class="mb-3">
                             <label class="form-label">Label</label>
@@ -167,14 +167,14 @@
                                         @if($m->is_default)
                                             <span class="badge bg-warning text-dark">Default</span>
                                         @else
-                                            <form method="POST" action="{{ route('promoter.portal.withdraw.methods.default', $m->id) }}">
+                                            <form method="POST" action="{{ route('affiliate.portal.withdraw.methods.default', $m->id) }}">
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm btn-outline-secondary">Set Default</button>
                                             </form>
                                         @endif
                                     </td>
                                     <td>
-                                        <form method="POST" action="{{ route('promoter.portal.withdraw.methods.destroy', $m->id) }}"
+                                        <form method="POST" action="{{ route('affiliate.portal.withdraw.methods.destroy', $m->id) }}"
                                               onsubmit="return confirm('Remove this payout method?')">
                                             @csrf
                                             <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>

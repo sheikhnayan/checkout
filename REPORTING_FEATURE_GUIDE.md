@@ -1,7 +1,7 @@
 # Reporting & Analytics Feature - Implementation Guide
 
 ## Overview
-A complete, enterprise-grade reporting system inspired by Shopify's analytics dashboard, tailored to the checkout platform's unique domain (packages, events, promoters, entertainers).
+A complete, enterprise-grade reporting system inspired by Shopify's analytics dashboard, tailored to the checkout platform's unique domain (packages, events, affiliates, entertainers).
 
 ## ✅ What's Been Completed
 
@@ -38,7 +38,7 @@ Implements 35 distinct reports across 8 categories:
 #### Sales Reports (6)
 - Revenue Over Time - line chart tracking revenue trends
 - Revenue by Package - table breaking down revenue by package
-- Revenue by Promoter - table tracking promoter-generated revenue
+- Revenue by affiliate - table tracking affiliate-generated revenue
 - Revenue by Payment Method - pie chart of payment method breakdown
 - Refund Analysis - metrics showing refunds and cancellations
 - Promo Code Effectiveness - table of promo code usage
@@ -51,9 +51,9 @@ Implements 35 distinct reports across 8 categories:
 - Average Order Value - metric tracking AOV trends
 
 #### Acquisition Reports (3)
-- New Promoters Over Time - line chart of signups
-- Promoter Performance Ranking - top promoters by revenue
-- Promoter Commission Tracking - commission owed per promoter
+- New affiliates Over Time - line chart of signups
+- affiliate Performance Ranking - top affiliates by revenue
+- affiliate Commission Tracking - commission owed per affiliate
 
 #### Entertainer Reports (3)
 - Events Per Entertainer - table of event counts per entertainer
@@ -115,7 +115,7 @@ Runs with: `php artisan app:seed-reports`
 - Sets default permissions per user type:
   - **Admin**: All reports
   - **Bouncer/Manager**: Sales, Orders, Product, Customers, Events
-  - **Promoter**: Acquisition reports (own data only)
+  - **affiliate**: Acquisition reports (own data only)
   - **Entertainer**: Entertainer reports (own data only)
 
 ### 7. Blade Views
@@ -187,7 +187,7 @@ admin.reports.export           POST     /admins/reports/{report}/export
 - [ ] Login as Admin → Navigate to `/admins/reports` → Should see all 35 reports
 - [ ] Login as Bouncer → Should only see 5 categories (Sales, Orders, Product, Customers, Events)
 - [ ] Login as Manager → Should only see 5 categories (Sales, Orders, Product, Customers, Events)
-- [ ] Login as Promoter → Should only see Acquisition reports, filtered by own affiliate_id
+- [ ] Login as affiliate → Should only see Acquisition reports, filtered by own affiliate_id
 - [ ] Login as Entertainer → Should only see Entertainer reports, filtered by own entertainer_id
 - [ ] Logged out user → Should be redirected to login
 
@@ -215,27 +215,27 @@ admin.reports.export           POST     /admins/reports/{report}/export
 ### Data Accuracy
 After seeding, verify data matches expected patterns:
 - **Revenue Over Time**: Should show daily revenue trends
-- **Promoter Performance**: Should list promoters ranked by commission amount
+- **affiliate Performance**: Should list affiliates ranked by commission amount
 - **Event Revenue**: Should sum revenue by event
 - **Commission Tracking**: Should calculate total commission owed
 
 ## 🔐 RBAC Integration Details
 
 ### How Authorization Works
-1. User logs in → User has `user_type` (admin/bouncer/manager/promoter/entertainer)
+1. User logs in → User has `user_type` (admin/bouncer/manager/affiliate/entertainer)
 2. User navigates to `/admins/reports` → `ReportController@index` loads
 3. Controller calls `Report::accessibleBy($user)`
 4. `accessibleBy()` queries `report_permissions` table:
    - If admin: Returns all reports
    - If bouncer/manager: Returns reports with their user_type in permissions
-   - If promoter: Returns reports their user_type, filtered by affiliate_id
+   - If affiliate: Returns reports their user_type, filtered by affiliate_id
    - If entertainer: Returns reports their user_type, filtered by entertainer_id
 
 ### Data Scoping
 When displaying report data, `applyUserScope()` restricts query results:
 - **Admin**: Sees all data (no scope)
 - **Bouncer/Manager**: Sees data for their assigned website(s)
-- **Promoter**: Sees only their own promoter data
+- **affiliate**: Sees only their own affiliate data
 - **Entertainer**: Sees only their own entertainer data
 
 Example:
@@ -359,7 +359,7 @@ routes/
 
 ✅ **35 Pre-built Reports** across 8 business categories
 ✅ **Role-Based Access Control** - reports filtered by user type
-✅ **Dynamic Data Scoping** - promoters see own data only
+✅ **Dynamic Data Scoping** - affiliates see own data only
 ✅ **Multiple Visualizations** - charts, tables, metrics
 ✅ **Flexible Date Ranges** - today to custom ranges
 ✅ **Save & Reuse** - user-saved report configurations

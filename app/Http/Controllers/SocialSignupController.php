@@ -17,7 +17,7 @@ use Laravel\Socialite\Facades\Socialite;
 
 class SocialSignupController extends Controller
 {
-    private const ALLOWED_ROLES = ['promoter', 'entertainer'];
+    private const ALLOWED_ROLES = ['affiliate', 'entertainer'];
     private const ALLOWED_PROVIDERS = ['google'];
 
     public function redirect(Request $request, string $role, string $provider)
@@ -73,20 +73,20 @@ class SocialSignupController extends Controller
         $sessionProvider = (string) session('social_signup.provider');
 
         if ($sessionRole !== $role || $sessionProvider !== $provider) {
-            return redirect()->route($role === 'promoter' ? 'promoter.apply' : 'entertainer.apply')
+            return redirect()->route($role === 'affiliate' ? 'affiliate.apply' : 'entertainer.apply')
                 ->withErrors(['email' => 'Social signup session expired. Please try again.']);
         }
 
         try {
             $socialUser = Socialite::driver($provider)->stateless()->user();
         } catch (\Throwable $e) {
-            return redirect()->route($role === 'promoter' ? 'promoter.apply' : 'entertainer.apply')
+            return redirect()->route($role === 'affiliate' ? 'affiliate.apply' : 'entertainer.apply')
                 ->withErrors(['email' => 'Unable to authenticate with ' . ucfirst($provider) . '. Please try again.']);
         }
 
         $email = strtolower(trim((string) $socialUser->getEmail()));
         if ($email === '') {
-            return redirect()->route($role === 'promoter' ? 'promoter.apply' : 'entertainer.apply')
+            return redirect()->route($role === 'affiliate' ? 'affiliate.apply' : 'entertainer.apply')
                 ->withErrors(['email' => 'Your social account does not provide an email address.']);
         }
 
@@ -163,8 +163,8 @@ class SocialSignupController extends Controller
             }
         }
 
-        if ($role === 'promoter') {
-            $promoter = Affiliate::firstOrCreate(
+        if ($role === 'affiliate') {
+            $affiliate = Affiliate::firstOrCreate(
                 ['user_id' => $user->id],
                 [
                     'status' => 'pending',
@@ -173,13 +173,13 @@ class SocialSignupController extends Controller
                 ]
             );
 
-            if ($promoter->wasRecentlyCreated) {
-                $this->notifyAffiliateApplication($promoter, $user);
+            if ($affiliate->wasRecentlyCreated) {
+                $this->notifyAffiliateApplication($affiliate, $user);
             }
 
             $this->clearSession();
 
-            return redirect()->route('login')->with('success', 'Promoter application submitted via ' . ucfirst($provider) . '. We will notify you once approved.');
+            return redirect()->route('login')->with('success', 'affiliate application submitted via ' . ucfirst($provider) . '. We will notify you once approved.');
         }
 
         $club = Website::where('id', $selectedWebsiteId)->where('status', 1)->where('is_archieved', 0)->first();
@@ -210,18 +210,18 @@ class SocialSignupController extends Controller
         return redirect()->route('login')->with('success', 'Entertainer application submitted via ' . ucfirst($provider) . '. We will notify you once approved.');
     }
 
-    private function notifyAffiliateApplication(Promoter $promoter, User $user): void
+    private function notifyAffiliateApplication(affiliate $affiliate, User $user): void
     {
         try {
             $this->applyGlobalSmtp();
-            Mail::to($user->email)->send(new AffiliateApplicationReceivedMail($promoter));
+            Mail::to($user->email)->send(new AffiliateApplicationReceivedMail($affiliate));
 
             $adminEmails = User::where('user_type', 'admin')->pluck('email')->filter()->toArray();
             foreach ($adminEmails as $adminEmail) {
                 Mail::raw(
-                    'New promoter application received from ' . $user->name . ' (' . $user->email . ').',
+                    'New affiliate application received from ' . $user->name . ' (' . $user->email . ').',
                     function ($message) use ($adminEmail) {
-                        $message->to($adminEmail)->subject('New Promoter Application - CartVIP');
+                        $message->to($adminEmail)->subject('New affiliate Application - CartVIP');
                     }
                 );
             }

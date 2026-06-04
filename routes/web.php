@@ -129,12 +129,12 @@ Route::get('/debug/pdf/{id}', function($id) {
     }
 });
 
-// Promoter public routes (must stay before slug route)
-Route::get('/promoter/apply', [AffiliateRegistrationController::class, 'showForm'])->name('promoter.apply');
-Route::post('/promoter/apply', [AffiliateRegistrationController::class, 'submit'])->name('promoter.apply.submit');
+// affiliate public routes (must stay before slug route)
+Route::get('/affiliate/apply', [AffiliateRegistrationController::class, 'showForm'])->name('affiliate.apply');
+Route::post('/affiliate/apply', [AffiliateRegistrationController::class, 'submit'])->name('affiliate.apply.submit');
 Route::get('/signup/{role}/{provider}/redirect', [SocialSignupController::class, 'redirect'])->name('social.signup.redirect');
 Route::get('/signup/{role}/{provider}/callback', [SocialSignupController::class, 'callback'])->name('social.signup.callback');
-Route::get('/promoter/{slug}', [AffiliatePublicController::class, 'show'])->name('promoter.public');
+Route::get('/affiliate/{slug}', [AffiliatePublicController::class, 'show'])->name('affiliate.public');
 Route::get('/entertainer/apply', [EntertainerRegistrationController::class, 'showForm'])->name('entertainer.apply');
 Route::post('/entertainer/apply', [EntertainerRegistrationController::class, 'submit'])->name('entertainer.apply.submit');
 Route::get('/entertainer/{slug}', [EntertainerPublicController::class, 'show'])->name('entertainer.public');
@@ -277,7 +277,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
 
     Route::group(['prefix'=> 'transaction', 'as' => 'transaction.'], function () {
         Route::get('/', [TransactionController::class,'index'])->name('index');
-        Route::get('/promoter', [TransactionController::class,'affiliateIndex'])->name('promoter');
+        Route::get('/affiliate', [TransactionController::class,'affiliateIndex'])->name('affiliate');
         Route::get('/entertainer', [TransactionController::class,'entertainerIndex'])->name('entertainer');
         Route::get('/show/{id}', [TransactionController::class,'show'])->name('show');
         Route::get('/{id}/details', [TransactionController::class,'details'])->name('details');
@@ -330,8 +330,8 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::delete('/{customInvoice}', [CustomInvoiceController::class,'destroy'])->name('destroy');
     });
 
-    // Promoter admin routes
-    Route::group(['prefix'=> 'promoter', 'as' => 'promoter.'], function () {
+    // affiliate admin routes
+    Route::group(['prefix'=> 'affiliate', 'as' => 'affiliate.'], function () {
         Route::get('/', [AffiliateAdminController::class, 'index'])->name('index');
         Route::get('/{affiliate}', [AffiliateAdminController::class, 'show'])->name('show');
         Route::post('/{affiliate}/approve', [AffiliateAdminController::class, 'approve'])->name('approve');
@@ -388,9 +388,9 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
 
     // Withdraw management (admin side)
     Route::group(['prefix' => 'withdraw', 'as' => 'withdraw.'], function () {
-        Route::get('/promoters', [WithdrawController::class, 'adminAffiliates'])->name('promoters');
-        Route::post('/promoters/{id}/status', [WithdrawController::class, 'adminAffiliateStatus'])->name('promoters.status');
-        Route::post('/promoters/charge', [WithdrawController::class, 'adminAffiliateCharge'])->name('promoters.charge');
+        Route::get('/affiliates', [WithdrawController::class, 'adminAffiliates'])->name('affiliates');
+        Route::post('/affiliates/{id}/status', [WithdrawController::class, 'adminAffiliateStatus'])->name('affiliates.status');
+        Route::post('/affiliates/charge', [WithdrawController::class, 'adminAffiliateCharge'])->name('affiliates.charge');
         Route::get('/entertainers', [WithdrawController::class, 'adminEntertainers'])->name('entertainers');
         Route::post('/entertainers/{id}/status', [WithdrawController::class, 'adminEntertainerStatus'])->name('entertainers.status');
         Route::post('/entertainers/charge', [WithdrawController::class, 'adminEntertainerCharge'])->name('entertainers.charge');
@@ -409,7 +409,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
     });
 });
 
-Route::group(['prefix'=> 'promoter-portal', 'as' => 'promoter.portal.', 'middleware' => ['auth', 'image.upload.guard']], function () {
+Route::group(['prefix'=> 'affiliate-portal', 'as' => 'affiliate.portal.', 'middleware' => ['auth', 'image.upload.guard']], function () {
     Route::get('/dashboard', [AffiliatePortalController::class, 'dashboard'])->name('dashboard');
     Route::get('/packages', [AffiliatePortalController::class, 'packages'])->name('packages');
     Route::post('/packages', [AffiliatePortalController::class, 'savePackages'])->name('packages.save');

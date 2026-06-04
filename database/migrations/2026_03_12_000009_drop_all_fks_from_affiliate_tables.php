@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     private array $fks = [
-        'promoters'                    => ['affiliates_user_id_foreign', 'affiliates_approved_by_foreign'],
+        'affiliates'                    => ['affiliates_user_id_foreign', 'affiliates_approved_by_foreign'],
         'affiliate_packages'            => ['affiliate_packages_affiliate_id_foreign', 'affiliate_packages_website_id_foreign', 'affiliate_packages_package_id_foreign'],
         'affiliate_wallet_transactions' => ['affiliate_wallet_transactions_affiliate_id_foreign', 'affiliate_wallet_transactions_transaction_id_foreign'],
         'transactions'                  => ['transactions_affiliate_id_foreign'],

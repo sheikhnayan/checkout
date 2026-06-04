@@ -9,7 +9,7 @@ use App\Models\Permission;
 class GrantSidebarPermissionsToAffiliatesAndEntertainers extends Command
 {
     protected $signature = 'rbac:grant-sidebar-permissions';
-    protected $description = 'Grant all sidebar-linked permissions to promoter and entertainer roles';
+    protected $description = 'Grant all sidebar-linked permissions to affiliate and entertainer roles';
 
     public function handle()
     {

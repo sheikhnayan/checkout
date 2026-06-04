@@ -20,7 +20,7 @@ return new class extends Migration
                 $table->text('description')->nullable();
                 $table->string('category'); // 'Sales', 'Orders', 'Acquisition', 'Entertainer', 'Package', 'Customer', 'Event', 'Financial'
                 $table->string('type'); // 'chart', 'table', 'metric'
-                $table->json('available_filters')->nullable(); // date_range, status, website, promoter, entertainer, event, package, etc.
+                $table->json('available_filters')->nullable(); // date_range, status, website, affiliate, entertainer, event, package, etc.
                 $table->json('default_date_range')->nullable(); // ['period' => 'last_30_days']
                 $table->boolean('is_active')->default(true);
                 $table->integer('display_order')->default(0);
@@ -69,7 +69,7 @@ return new class extends Migration
                 $table->foreignId('report_id')->constrained('reports')->onDelete('cascade');
                 $table->string('user_type')->nullable(); // 'admin', 'bouncer', 'manager', null for all
                 $table->foreignId('website_role_id')->nullable()->constrained('website_roles')->onDelete('cascade');
-                $table->foreignId('affiliate_id')->nullable()->constrained('promoters')->onDelete('cascade');
+                $table->foreignId('affiliate_id')->nullable()->constrained('affiliates')->onDelete('cascade');
                 $table->foreignId('entertainer_id')->nullable()->constrained('entertainers')->onDelete('cascade');
                 $table->timestamps();
                 $table->unique(['report_id', 'user_type', 'website_role_id', 'affiliate_id', 'entertainer_id'], 'rpt_perm_idx');

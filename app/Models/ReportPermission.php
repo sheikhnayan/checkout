@@ -27,7 +27,7 @@ class ReportPermission extends Model
         return $this->belongsTo(WebsiteRole::class);
     }
 
-    public function promoter()
+    public function affiliate()
     {
         return $this->belongsTo(Affiliate::class);
     }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Promoter Registration - CartVIP</title>
+    <title>affiliate Registration - CartVIP</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -445,7 +445,7 @@
         </div>
 
         <div class="left-hero">
-            <h1>Join as an <em>Promoter</em><br>and build recurring<br>commission income.</h1>
+            <h1>Join as an <em>affiliate</em><br>and build recurring<br>commission income.</h1>
             <p>Get approved, access your referral tools, and start driving tracked bookings from your own audience.</p>
 
             <div class="feature-list">
@@ -467,7 +467,7 @@
                     <div class="feature-icon"><i class="fas fa-hand-holding-dollar"></i></div>
                     <div class="feature-text">
                         <strong>Reliable Payout Workflow</strong>
-                        <span>Monitor pending and completed earnings from your promoter dashboard.</span>
+                        <span>Monitor pending and completed earnings from your affiliate dashboard.</span>
                     </div>
                 </div>
             </div>
@@ -478,8 +478,8 @@
 
     <div class="auth-right">
         <div class="auth-form-wrap">
-            <div class="form-title">Promoter registration</div>
-            <div class="form-subtitle">Complete your details to submit your promoter application.</div>
+            <div class="form-title">affiliate registration</div>
+            <div class="form-subtitle">Complete your details to submit your affiliate application.</div>
 
             @if($errors->any())
                 <div class="alert-auth">
@@ -492,13 +492,13 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('promoter.apply.submit') }}">
+            <form method="POST" action="{{ route('affiliate.apply.submit') }}">
                 @csrf
 
                 <div class="social-signup-wrap">
                     <div class="fw-semibold">Quick Sign Up</div>
-                    <div class="muted">Use Google to continue and submit the same promoter application.</div>
-                    <a class="btn-social" href="{{ route('social.signup.redirect', ['role' => 'promoter', 'provider' => 'google']) }}">
+                    <div class="muted">Use Google to continue and submit the same affiliate application.</div>
+                    <a class="btn-social" href="{{ route('social.signup.redirect', ['role' => 'affiliate', 'provider' => 'google']) }}">
                         <i class="fab fa-google"></i>
                         Sign up with Google
                     </a>

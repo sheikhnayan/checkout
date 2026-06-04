@@ -85,7 +85,7 @@ class CartController extends Controller
         $cartJson = json_encode($sharedCart->cart_data);
         $cartParam = urlencode($cartJson);
 
-        // Redirect to promoter page if this is an promoter cart
+        // Redirect to affiliate page if this is an affiliate cart
         if ($sharedCart->affiliate_slug) {
             $affiliateExists = Affiliate::where('slug', $sharedCart->affiliate_slug)
                 ->where('status', 'approved')
@@ -103,7 +103,7 @@ class CartController extends Controller
             }
 
             if ($affiliateExists) {
-                return redirect()->route('promoter.public', array_merge(
+                return redirect()->route('affiliate.public', array_merge(
                     ['slug' => $sharedCart->affiliate_slug],
                     $params
                 ));

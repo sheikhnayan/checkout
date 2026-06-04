@@ -412,7 +412,7 @@
 
         <div class="left-hero">
             <h1>Your <em>Command Center</em><br>for Sales, Bookings, <br>and Growth.</h1>
-            <p>Manage packages, promoters, and transactions in one streamlined dashboard — built to maximize revenue and simplify operations.</p>
+            <p>Manage packages, affiliates, and transactions in one streamlined dashboard — built to maximize revenue and simplify operations.</p>
 
             <div class="feature-list">
                 <div class="feature-item">
@@ -432,7 +432,7 @@
                 <div class="feature-item">
                     <div class="feature-icon"><i class="fas fa-link"></i></div>
                     <div class="feature-text">
-                        <strong>Promoter Engine</strong>
+                        <strong>affiliate Engine</strong>
                         <span>Turn partners into a sales force. Track referrals, commissions, and performance automatically.</span>
                     </div>
                 </div>
@@ -519,8 +519,8 @@
             <div class="divider">or join as</div>
 
             <div class="alt-links">
-                <a href="{{ route('promoter.apply') }}" class="alt-link">
-                    <i class="fas fa-bullhorn"></i> Promoter
+                <a href="{{ route('affiliate.apply') }}" class="alt-link">
+                    <i class="fas fa-bullhorn"></i> affiliate
                 </a>
                 <a href="{{ route('entertainer.apply') }}" class="alt-link">
                     <i class="fas fa-star"></i> Entertainer

@@ -1,5 +1,5 @@
 @php
-    $isEntertainerProfile = $promoter instanceof \App\Models\Entertainer;
+    $isEntertainerProfile = $affiliate instanceof \App\Models\Entertainer;
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $promoter->display_name ?: $promoter->user->name }} - CartVIP</title>
+    <title>{{ $affiliate->display_name ?: $affiliate->user->name }} - CartVIP</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -641,15 +641,15 @@
     <div class="cv-hero-inner">
         <div class="cv-hero-head">
             <div class="cv-hero-venue">
-                @if($promoter->profile_image)
-                    <img src="{{ asset('uploads/' . $promoter->profile_image) }}" alt="Profile" class="cv-hero-venue-avatar">
+                @if($affiliate->profile_image)
+                    <img src="{{ asset('uploads/' . $affiliate->profile_image) }}" alt="Profile" class="cv-hero-venue-avatar">
                 @else
-                    <div class="cv-hero-venue-initial">{{ strtoupper(substr($promoter->display_name ?: $promoter->user->name, 0, 1)) }}</div>
+                    <div class="cv-hero-venue-initial">{{ strtoupper(substr($affiliate->display_name ?: $affiliate->user->name, 0, 1)) }}</div>
                 @endif
                 <div>
-                    <p class="cv-hero-venue-title">{{ $promoter->display_name ?: $promoter->user->name }}<span class="cv-hero-venue-verified">✓</span></p>
-                    @if($promoter->description)
-                        <p class="cv-hero-venue-meta">{{ $promoter->description }}</p>
+                    <p class="cv-hero-venue-title">{{ $affiliate->display_name ?: $affiliate->user->name }}<span class="cv-hero-venue-verified">✓</span></p>
+                    @if($affiliate->description)
+                        <p class="cv-hero-venue-meta">{{ $affiliate->description }}</p>
                     @endif
                 </div>
             </div>
@@ -657,9 +657,9 @@
 
         <div class="cv-hero-bottom">
             <div class="cv-hero-content">
-                <div class="aff-kicker">{{ $isEntertainerProfile ? 'Entertainer' : 'Promoter' }} Booking</div>
-                <h1 class="cv-hero-title">{{ $promoter->hero_title ?: ($promoter->display_name ?: $promoter->user->name) }}</h1>
-                <p class="cv-hero-subtitle">{{ $promoter->hero_subtitle ?: ($promoter->description ?: 'Premium packages from our featured partner.') }}</p>
+                <div class="aff-kicker">{{ $isEntertainerProfile ? 'Entertainer' : 'affiliate' }} Booking</div>
+                <h1 class="cv-hero-title">{{ $affiliate->hero_title ?: ($affiliate->display_name ?: $affiliate->user->name) }}</h1>
+                <p class="cv-hero-subtitle">{{ $affiliate->hero_subtitle ?: ($affiliate->description ?: 'Premium packages from our featured partner.') }}</p>
             </div>
 
             <div class="cv-hero-location">
@@ -676,9 +676,9 @@
     </div>
 </header>
 
-@if(!empty($promoter->gallery_images))
+@if(!empty($affiliate->gallery_images))
 <div class="hero-gallery-grid">
-    @foreach($promoter->gallery_images as $galleryImage)
+    @foreach($affiliate->gallery_images as $galleryImage)
         <button type="button" class="hero-gallery-item">
             <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery">
         </button>
@@ -783,13 +783,13 @@
         <aside class="cv-sidebar">
             <div class="cv-sidebar-header">Order Summary</div>
 
-            @if($promoter->profile_image)
-                <img src="{{ asset('uploads/' . $promoter->profile_image) }}" alt="{{ $promoter->display_name }}" class="cv-sidebar-venue-image">
+            @if($affiliate->profile_image)
+                <img src="{{ asset('uploads/' . $affiliate->profile_image) }}" alt="{{ $affiliate->display_name }}" class="cv-sidebar-venue-image">
             @endif
 
             <div class="cv-sidebar-venue-row">
                 <div>
-                    <div class="cv-sidebar-venue-name">{{ $promoter->display_name ?: $promoter->user->name }}</div>
+                    <div class="cv-sidebar-venue-name">{{ $affiliate->display_name ?: $affiliate->user->name }}</div>
                     <div class="cv-sidebar-venue-date"><i class="fas fa-calendar-alt"></i>Select packages above</div>
                 </div>
             </div>

@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::table('settings', function (Blueprint $table) {
             $table->decimal('affiliate_withdraw_charge', 5, 2)->default(0)
                 ->after('payment_method')
-                ->comment('Global withdrawal fee percentage charged to promoters (set by super admin)');
+                ->comment('Global withdrawal fee percentage charged to affiliates (set by super admin)');
         });
     }
 

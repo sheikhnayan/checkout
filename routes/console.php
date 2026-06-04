@@ -14,6 +14,6 @@ Artisan::command('commissions:approve-matured', function () {
 
     $this->info('Matured commission approval completed.');
     $this->line('Transactions scanned: ' . ($result['transactions_scanned'] ?? 0));
-    $this->line('Promoter commissions approved: ' . ($result['affiliate_approved'] ?? 0));
+    $this->line('affiliate commissions approved: ' . ($result['affiliate_approved'] ?? 0));
     $this->line('Entertainer commissions approved: ' . ($result['entertainer_approved'] ?? 0));
-})->purpose('Approve held promoter/entertainer commissions after hold period');
+})->purpose('Approve held affiliate/entertainer commissions after hold period');

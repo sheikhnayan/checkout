@@ -61,7 +61,7 @@ class Report extends Model
             // By website role
             $q->orWhere('website_role_id', $user->website_role_id);
         })->when($user->affiliate_id, function ($q) use ($user) {
-            // For promoters - their own reports
+            // For affiliates - their own reports
             $q->orWhere('affiliate_id', $user->affiliate_id);
         })->when($user->entertainer_id, function ($q) use ($user) {
             // For entertainers - their own reports
@@ -113,7 +113,7 @@ class Report extends Model
             $query->where('website_id', $user->website_id);
         }
 
-        // Promoters see only their own data
+        // affiliates see only their own data
         if ($user->affiliate_id) {
             $query->where('affiliate_id', $user->affiliate_id);
         }

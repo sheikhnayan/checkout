@@ -23,7 +23,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->unique(['affiliate_id', 'package_id']);
-            $table->foreign('affiliate_id')->references('id')->on('promoters')->onDelete('cascade');
+            $table->foreign('affiliate_id')->references('id')->on('affiliates')->onDelete('cascade');
             $table->foreign('package_id')->references('id')->on('packages')->onDelete('cascade');
         });
 

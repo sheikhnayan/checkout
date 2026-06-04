@@ -1,5 +1,5 @@
 const fs = require('fs');
-const path = 'c:/wamp64/www/checkout/resources/views/promoter/public-page.blade.php';
+const path = 'c:/wamp64/www/checkout/resources/views/affiliate/public-page.blade.php';
 let text = fs.readFileSync(path, 'utf8');
 let scripts = [];
 let re = /<script[^>]*>([\s\S]*?)<\/script>/gi;

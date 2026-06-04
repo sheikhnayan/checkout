@@ -60,44 +60,44 @@
             <p class="mb-1"><strong>Default Commission:</strong> {{ number_format((float) ($affiliate->default_commission_percentage ?? 0), 2) }}%</p>
             <p class="mb-3"><strong>Public Page:</strong>
                 @if($affiliate->slug)
-                    <a href="{{ route('promoter.public', $affiliate->slug) }}" target="_blank">{{ route('promoter.public', $affiliate->slug) }}</a>
+                    <a href="{{ route('affiliate.public', $affiliate->slug) }}" target="_blank">{{ route('affiliate.public', $affiliate->slug) }}</a>
                 @else
                     <span class="text-muted">Not yet generated</span>
                 @endif
             </p>
 
             @if($affiliate->status !== 'approved')
-                <form method="POST" action="{{ route('admin.promoter.approve', $affiliate->id) }}" class="d-flex gap-2 align-items-end mb-3">
+                <form method="POST" action="{{ route('admin.affiliate.approve', $affiliate->id) }}" class="d-flex gap-2 align-items-end mb-3">
                     @csrf
                     <div>
-                        <label class="form-label">Default Commission % <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The commission percentage this promoter earns from referred bookings. Set when approving."></i></label>
+                        <label class="form-label">Default Commission % <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The commission percentage this affiliate earns from referred bookings. Set when approving."></i></label>
                         <input type="number" min="0" max="100" step="0.01" name="default_commission_percentage" class="form-control" value="{{ old('default_commission_percentage', $affiliate->default_commission_percentage) }}" required>
                     </div>
                     <button type="submit" class="btn btn-success">Approve</button>
                 </form>
             @endif
 
-            <form method="POST" action="{{ route('admin.promoter.commission.update', $affiliate->id) }}" class="d-flex gap-2 align-items-end mb-3">
+            <form method="POST" action="{{ route('admin.affiliate.commission.update', $affiliate->id) }}" class="d-flex gap-2 align-items-end mb-3">
                 @csrf
                 <div>
-                    <label class="form-label">Change Commission (%) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Update the commission percentage this promoter earns from referred bookings."></i></label>
+                    <label class="form-label">Change Commission (%) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Update the commission percentage this affiliate earns from referred bookings."></i></label>
                     <input type="number" min="0" max="100" step="0.01" name="default_commission_percentage" class="form-control" value="{{ old('default_commission_percentage', $affiliate->default_commission_percentage) }}" required>
                 </div>
                 <button type="submit" class="btn btn-outline-primary">Update Commission</button>
             </form>
 
             @if($affiliate->status === 'approved')
-                <form method="POST" action="{{ route('admin.promoter.unapprove', $affiliate->id) }}" class="mb-3" onsubmit="return confirm('Unapprove this promoter? They will lose access until approved again.');">
+                <form method="POST" action="{{ route('admin.affiliate.unapprove', $affiliate->id) }}" class="mb-3" onsubmit="return confirm('Unapprove this affiliate? They will lose access until approved again.');">
                     @csrf
                     <button type="submit" class="btn btn-warning">Unapprove</button>
                 </form>
             @endif
 
             @if($affiliate->status !== 'rejected')
-                <form method="POST" action="{{ route('admin.promoter.reject', $affiliate->id) }}" class="mb-2">
+                <form method="POST" action="{{ route('admin.affiliate.reject', $affiliate->id) }}" class="mb-2">
                     @csrf
                     <div class="mb-2">
-                        <label class="form-label">Rejection Reason (optional) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional note explaining why this promoter application was rejected. Visible to the promoter."></i></label>
+                        <label class="form-label">Rejection Reason (optional) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional note explaining why this affiliate application was rejected. Visible to the affiliate."></i></label>
                         <textarea name="rejection_reason" rows="2" class="form-control"></textarea>
                     </div>
                     <button type="submit" class="btn btn-danger">Reject</button>
@@ -132,7 +132,7 @@
 
         <div class="card p-4 mb-4">
             <h5 class="mb-3">Assign Clubs / Websites</h5>
-            <form method="POST" action="{{ route('admin.promoter.packages.update', $affiliate->id) }}">
+            <form method="POST" action="{{ route('admin.affiliate.packages.update', $affiliate->id) }}">
                 @csrf
                 @foreach($websites as $website)
                     <div class="border rounded p-3 mb-3">
@@ -194,7 +194,7 @@
                     </table>
                 </div>
             @else
-                <p class="text-muted">No transactions found for this promoter.</p>
+                <p class="text-muted">No transactions found for this affiliate.</p>
             @endif
         </div>
     </div>

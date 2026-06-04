@@ -48,34 +48,34 @@ class AffiliatePortalController extends Controller
         return $flattened;
     }
 
-    private function getAffiliateOrAbort(): Promoter
+    private function getAffiliateOrAbort(): affiliate
     {
         $user = auth()->user();
 
-        if (!$user || !$user->isAffiliate() || !$user->promoter || $user->promoter->status !== 'approved' || !$user->promoter->is_active) {
-            abort(403, 'Promoter access denied.');
+        if (!$user || !$user->isAffiliate() || !$user->affiliate || $user->affiliate->status !== 'approved' || !$user->affiliate->is_active) {
+            abort(403, 'affiliate access denied.');
         }
 
-        return $user->promoter;
+        return $user->affiliate;
     }
 
     public function dashboard()
     {
         app(CommissionLifecycleRunner::class)->runSafely();
 
-        $promoter = $this->getAffiliateOrAbort();
-        $promoter->loadCount('affiliatePackages');
+        $affiliate = $this->getAffiliateOrAbort();
+        $affiliate->loadCount('affiliatePackages');
 
-        $commissions = $promoter->walletTransactions()->where('type', 'commission')->sum('amount');
+        $commissions = $affiliate->walletTransactions()->where('type', 'commission')->sum('amount');
 
-        return view('affiliate.dashboard', compact('promoter', 'commissions'));
+        return view('affiliate.dashboard', compact('affiliate', 'commissions'));
     }
 
     public function packages()
     {
-        $promoter = $this->getAffiliateOrAbort();
+        $affiliate = $this->getAffiliateOrAbort();
 
-        $allowedWebsiteIds = AffiliateWebsite::where('affiliate_id', $promoter->id)
+        $allowedWebsiteIds = AffiliateWebsite::where('affiliate_id', $affiliate->id)
             ->where('is_active', true)
             ->pluck('website_id')
             ->toArray();
@@ -88,30 +88,30 @@ class AffiliatePortalController extends Controller
             }])
             ->get();
 
-        $selected = AffiliatePackage::where('affiliate_id', $promoter->id)
+        $selected = AffiliatePackage::where('affiliate_id', $affiliate->id)
             ->whereIn('website_id', $allowedWebsiteIds)
             ->pluck('package_id')
             ->toArray();
 
-        return view('affiliate.packages', compact('promoter', 'websites', 'selected'));
+        return view('affiliate.packages', compact('affiliate', 'websites', 'selected'));
     }
 
     public function savePackages(Request $request)
     {
-        $promoter = $this->getAffiliateOrAbort();
+        $affiliate = $this->getAffiliateOrAbort();
 
         $request->validate([
             'package_ids' => 'nullable|array',
             'package_ids.*' => 'integer|exists:packages,id',
         ]);
 
-        $allowedWebsiteIds = AffiliateWebsite::where('affiliate_id', $promoter->id)
+        $allowedWebsiteIds = AffiliateWebsite::where('affiliate_id', $affiliate->id)
             ->where('is_active', true)
             ->pluck('website_id')
             ->toArray();
 
         if (empty($allowedWebsiteIds)) {
-            AffiliatePackage::where('affiliate_id', $promoter->id)->delete();
+            AffiliatePackage::where('affiliate_id', $affiliate->id)->delete();
             return redirect()->back()->with('success', 'No clubs assigned yet. Package selection cleared.');
         }
 
@@ -131,7 +131,7 @@ class AffiliatePortalController extends Controller
             ->pluck('id')
             ->values();
 
-        AffiliatePackage::where('affiliate_id', $promoter->id)
+        AffiliatePackage::where('affiliate_id', $affiliate->id)
             ->whereIn('website_id', $allowedWebsiteIds)
             ->whereIn('package_id', $clubPackageIds->all())
             ->whereNotIn('package_id', $packageIds->all())
@@ -145,12 +145,12 @@ class AffiliatePortalController extends Controller
 
             AffiliatePackage::updateOrCreate(
                 [
-                    'affiliate_id' => $promoter->id,
+                    'affiliate_id' => $affiliate->id,
                     'package_id' => $packageId,
                 ],
                 [
                     'website_id' => $package->website_id,
-                    'commission_percentage' => $promoter->default_commission_percentage,
+                    'commission_percentage' => $affiliate->default_commission_percentage,
                     'is_active' => true,
                 ]
             );
@@ -161,13 +161,13 @@ class AffiliatePortalController extends Controller
 
     public function settings()
     {
-        $promoter = $this->getAffiliateOrAbort();
-        return view('affiliate.settings', compact('promoter'));
+        $affiliate = $this->getAffiliateOrAbort();
+        return view('affiliate.settings', compact('affiliate'));
     }
 
     public function updateSettings(Request $request)
     {
-        $promoter = $this->getAffiliateOrAbort();
+        $affiliate = $this->getAffiliateOrAbort();
 
         $request->validate([
             'display_name' => 'required|string|max:255',
@@ -195,7 +195,7 @@ class AffiliatePortalController extends Controller
             'remove_gallery_images.*' => 'nullable|integer|min:0',
         ]);
 
-        $promoter->fill($request->only([
+        $affiliate->fill($request->only([
             'display_name',
             'hero_title',
             'hero_subtitle',
@@ -213,21 +213,21 @@ class AffiliatePortalController extends Controller
             'font_family',
         ]));
 
-        $promoter->show_location_section = $request->boolean('show_location_section');
+        $affiliate->show_location_section = $request->boolean('show_location_section');
 
         if ($request->hasFile('profile_image')) {
-            $name = 'affiliate_profile_' . $promoter->id . '_' . time() . '.' . $request->file('profile_image')->getClientOriginalExtension();
+            $name = 'affiliate_profile_' . $affiliate->id . '_' . time() . '.' . $request->file('profile_image')->getClientOriginalExtension();
             $request->file('profile_image')->move(public_path('uploads'), $name);
-            $promoter->profile_image = $name;
+            $affiliate->profile_image = $name;
         }
 
         if ($request->hasFile('banner_image')) {
-            $name = 'affiliate_banner_' . $promoter->id . '_' . time() . '.' . $request->file('banner_image')->getClientOriginalExtension();
+            $name = 'affiliate_banner_' . $affiliate->id . '_' . time() . '.' . $request->file('banner_image')->getClientOriginalExtension();
             $request->file('banner_image')->move(public_path('uploads'), $name);
-            $promoter->banner_image = $name;
+            $affiliate->banner_image = $name;
         }
 
-        $currentGalleryImages = array_values(array_filter((array) $promoter->gallery_images));
+        $currentGalleryImages = array_values(array_filter((array) $affiliate->gallery_images));
         $existingGalleryImages = $this->decodeGalleryImages($request->input('existing_gallery_images'));
 
         if (!empty($existingGalleryImages)) {
@@ -255,25 +255,25 @@ class AffiliatePortalController extends Controller
                     ->withInput();
             }
 
-            $name = 'affiliate_gallery_' . $promoter->id . '_' . time() . '_' . $index . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $name = 'affiliate_gallery_' . $affiliate->id . '_' . time() . '_' . $index . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
             $image->move(public_path('uploads'), $name);
             $galleryImages->push($name);
         }
 
-        $promoter->gallery_images = $galleryImages->values()->all();
+        $affiliate->gallery_images = $galleryImages->values()->all();
 
-        $promoter->save();
+        $affiliate->save();
 
-        return redirect()->back()->with('success', 'Promoter page settings updated successfully.');
+        return redirect()->back()->with('success', 'affiliate page settings updated successfully.');
     }
 
     public function wallet()
     {
         app(CommissionLifecycleRunner::class)->runSafely();
 
-        $promoter = $this->getAffiliateOrAbort();
-        $transactions = $promoter->walletTransactions()->latest()->paginate(20);
+        $affiliate = $this->getAffiliateOrAbort();
+        $transactions = $affiliate->walletTransactions()->latest()->paginate(20);
 
-        return view('affiliate.wallet', compact('promoter', 'transactions'));
+        return view('affiliate.wallet', compact('affiliate', 'transactions'));
     }
 }

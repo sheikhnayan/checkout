@@ -21,7 +21,7 @@ class AffiliateAdminController extends Controller
     {
         $user = auth()->user();
         if (!$user || !$user->isAdmin()) {
-            abort(403, 'Only super admin can manage promoters.');
+            abort(403, 'Only super admin can manage affiliates.');
         }
     }
 
@@ -35,9 +35,9 @@ class AffiliateAdminController extends Controller
             $query->where('status', $status);
         }
 
-        $promoters = $query->latest()->get();
+        $affiliates = $query->latest()->get();
 
-        return view('admin.affiliate.index', compact('promoters', 'status'));
+        return view('admin.affiliate.index', compact('affiliates', 'status'));
     }
 
     public function show(Affiliate $affiliate)
@@ -130,14 +130,14 @@ class AffiliateAdminController extends Controller
         try {
             $this->applyGlobalSmtp();
 
-            // Send approval email to promoter
+            // Send approval email to affiliate
             if ($affiliate->user && $affiliate->user->email) {
                 Mail::to($affiliate->user->email)->send(new AffiliateApprovedMail($affiliate));
             }
 
             // Send notification to admin
             Mail::to('hello@cartvip.com')->send(new AdminApplicationNotificationMail(
-                'Promoter',
+                'affiliate',
                 'approved',
                 $affiliate->user->name ?? 'Unknown',
                 $affiliate->user->email ?? 'unknown@cartvip.com',
@@ -151,7 +151,7 @@ class AffiliateAdminController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('success', 'Promoter approved successfully.');
+        return redirect()->back()->with('success', 'affiliate approved successfully.');
     }
 
     public function reject(Request $request, Affiliate $affiliate)
@@ -177,7 +177,7 @@ class AffiliateAdminController extends Controller
         try {
             $this->applyGlobalSmtp();
             Mail::to('hello@cartvip.com')->send(new AdminApplicationNotificationMail(
-                'Promoter',
+                'affiliate',
                 'rejected',
                 $affiliate->user->name ?? 'Unknown',
                 $affiliate->user->email ?? 'unknown@cartvip.com',
@@ -188,7 +188,7 @@ class AffiliateAdminController extends Controller
             // Keep rejection successful even if mail fails.
         }
 
-        return redirect()->back()->with('success', 'Promoter application rejected.');
+        return redirect()->back()->with('success', 'affiliate application rejected.');
     }
 
     public function unapprove(Affiliate $affiliate)
@@ -202,7 +202,7 @@ class AffiliateAdminController extends Controller
         $affiliate->rejection_reason = null;
         $affiliate->save();
 
-        return redirect()->back()->with('success', 'Promoter has been unapproved and moved back to pending review.');
+        return redirect()->back()->with('success', 'affiliate has been unapproved and moved back to pending review.');
     }
 
     public function updatePackages(Request $request, Affiliate $affiliate)
@@ -236,7 +236,7 @@ class AffiliateAdminController extends Controller
             ->whereNotIn('website_id', $websiteIds->all())
             ->delete();
 
-        return redirect()->back()->with('success', 'Promoter club access updated successfully.');
+        return redirect()->back()->with('success', 'affiliate club access updated successfully.');
     }
 
     public function updateCommission(Request $request, Affiliate $affiliate)
@@ -250,7 +250,7 @@ class AffiliateAdminController extends Controller
         $affiliate->default_commission_percentage = $request->default_commission_percentage;
         $affiliate->save();
 
-        return redirect()->back()->with('success', 'Promoter commission updated successfully.');
+        return redirect()->back()->with('success', 'affiliate commission updated successfully.');
     }
 
     private function applyGlobalSmtp(): void

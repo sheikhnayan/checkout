@@ -6,7 +6,7 @@ Complete W-9 form collection system using the actual IRS fillable PDF form.
 ## Features
 
 ### 1. User Flow
-- Promoters/Entertainers register
+- affiliates/Entertainers register
 - Automatic email sent with secure W-9 form link
 - User opens form with secure token
 - Form displays actual IRS W-9 PDF in sidebar for reference

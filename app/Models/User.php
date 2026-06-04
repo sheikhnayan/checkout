@@ -69,7 +69,7 @@ class User extends Authenticatable
         return $this->belongsTo(WebsiteRole::class, 'website_role_id');
     }
 
-    public function promoter()
+    public function affiliate()
     {
         return $this->hasOne(Affiliate::class);
     }
@@ -122,7 +122,7 @@ class User extends Authenticatable
 
     public function isAffiliate()
     {
-        return $this->user_type === 'promoter';
+        return $this->user_type === 'affiliate';
     }
 
     public function isEntertainer()
@@ -180,7 +180,7 @@ class User extends Authenticatable
         $priorityRoutes = [
             'admin.index',
             'admin.transaction.index',
-            'admin.transaction.promoter',
+            'admin.transaction.affiliate',
             'admin.transaction.entertainer',
             'admin.transaction.scan',
             'admin.event.index',

@@ -19,7 +19,7 @@ class AffiliatePackage extends Model
         'is_active' => 'boolean',
     ];
 
-    public function promoter()
+    public function affiliate()
     {
         return $this->belongsTo(Affiliate::class);
     }

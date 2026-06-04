@@ -25,7 +25,7 @@ class Transaction extends Model
         'entertainer_commission_reversed_at' => 'datetime',
     ];
 
-    public function promoter()
+    public function affiliate()
     {
         return $this->belongsTo(Affiliate::class);
     }

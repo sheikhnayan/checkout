@@ -14,7 +14,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <title>{{ $promoter->display_name }} - CartVIP</title>
+        <title>{{ $affiliate->display_name }} - CartVIP</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css"
             integrity="sha512-fw7f+TcMjTb7bpbLJZlP8g2Y4XcCyFZW8uy8HsRZsH/SwbMw0plKHFHr99DN3l04VsYNwvzicUX/6qurvIxbxw=="
             crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -833,7 +833,7 @@ a {
 }
 
 /* ===================================================
-   PROMOTER PAGE DESIGN SYSTEM
+   affiliate PAGE DESIGN SYSTEM
    =================================================== */
 :root {
     --accent:    {{ $brandPrimary }};
@@ -926,7 +926,7 @@ input::placeholder, textarea::placeholder {
     outline-offset: 2px;
 }
 
-/* Payment agreement toggles: exact promoter parity, locked with stronger selectors */
+/* Payment agreement toggles: exact affiliate parity, locked with stronger selectors */
 #payment-consent-group .consent-label {
     display: flex !important;
     gap: 10px !important;
@@ -1242,7 +1242,7 @@ input::placeholder, textarea::placeholder {
     font-weight: 700;
 }
 
-/* Exact promoter-page layout surfaces */
+/* Exact affiliate-page layout surfaces */
 body {
     background:
         radial-gradient(circle at top right, rgba(255, 255, 255, 0.06), transparent 34%),
@@ -4585,12 +4585,12 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 @endsession
 
                 @php
-                    $eventHeroImage = !empty($promoter->image ?? null) ? asset('uploads/' . $promoter->image) : ($data->logo ? asset('uploads/' . $data->logo) : asset('images/logo.png'));
+                    $eventHeroImage = !empty($affiliate->image ?? null) ? asset('uploads/' . $affiliate->image) : ($data->logo ? asset('uploads/' . $data->logo) : asset('images/logo.png'));
                 @endphp
                 <section class="cv-hero-stage" style="background-image:url('{{ $eventHeroImage }}');">
                     @php
-                        $eventStartRaw = $promoter->start_date ?? $promoter->date;
-                        $eventEndRaw = $promoter->end_date ?? $eventStartRaw;
+                        $eventStartRaw = $affiliate->start_date ?? $affiliate->date;
+                        $eventEndRaw = $affiliate->end_date ?? $eventStartRaw;
                         $eventStart = $eventStartRaw ? \Carbon\Carbon::parse($eventStartRaw) : null;
                         $eventEnd = $eventEndRaw ? \Carbon\Carbon::parse($eventEndRaw) : null;
                         $eventDateShort = $eventStart
@@ -4672,7 +4672,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             <div class="cv-hero-content">
                                 <div class="aff-kicker">Venue Checkout</div>
                                 @php
-                                    $heroTitle = $promoter->hero_title ?: $promoter->name;
+                                    $heroTitle = $affiliate->hero_title ?: $affiliate->name;
                                     $titleWords = preg_split('/\s+/', trim($heroTitle));
                                     $heroLastWord = '';
                                     if (count($titleWords) > 1) {
@@ -4683,10 +4683,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     }
                                 @endphp
                                 <h1 class="cv-hero-title">{{ $heroTitleLead }}@if($heroLastWord) <span class="cv-hero-title-accent">{{ $heroLastWord }}</span>@endif</h1>
-                                <p class="cv-hero-subtitle">{{ $promoter->hero_subtitle ?: ($eventDateShort . ($promoter->time ? ' - ' . $promoter->time : '')) }}</p>
-                                @if(!empty($promoter->time))
+                                <p class="cv-hero-subtitle">{{ $affiliate->hero_subtitle ?: ($eventDateShort . ($affiliate->time ? ' - ' . $affiliate->time : '')) }}</p>
+                                @if(!empty($affiliate->time))
                                     <div class="aff-display-copy" style="margin-bottom:10px;">
-                                        <i class="fas fa-clock me-1"></i>{{ $promoter->time }}
+                                        <i class="fas fa-clock me-1"></i>{{ $affiliate->time }}
                                     </div>
                                 @endif
 
@@ -4736,9 +4736,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     </div>
                 </section>
 
-                @if(!empty($promoter->gallery_images))
+                @if(!empty($affiliate->gallery_images))
                     <div class="hero-gallery-grid">
-                        @foreach((array) $promoter->gallery_images as $galleryImage)
+                        @foreach((array) $affiliate->gallery_images as $galleryImage)
                             <button type="button" class="hero-gallery-item js-checkout-gallery-trigger" data-gallery-src="{{ asset('uploads/' . $galleryImage) }}" data-gallery-alt="Gallery image {{ $loop->iteration }}">
                                 <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image {{ $loop->iteration }}">
                             </button>
@@ -4749,13 +4749,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 <section class="aff-story">
                     <h2>{{ $data->description_label ?? 'Description' }}</h2>
                     <div class="story-copy-block is-collapsed" data-mobile-collapsible>
-                        <div class="story-copy story-copy-collapsible">{{ $promoter->description }}</div>
+                        <div class="story-copy story-copy-collapsible">{{ $affiliate->description }}</div>
                         <button type="button" class="story-copy-toggle" aria-expanded="false">See more</button>
                     </div>
-                    @if ($promoter->secondary_description)
+                    @if ($affiliate->secondary_description)
                         <div class="story-divider"></div>
                         <div class="story-copy-block is-collapsed" data-mobile-collapsible>
-                            <div class="story-copy story-copy-collapsible">{{ $promoter->secondary_description }}</div>
+                            <div class="story-copy story-copy-collapsible">{{ $affiliate->secondary_description }}</div>
                             <button type="button" class="story-copy-toggle" aria-expanded="false">See more</button>
                         </div>
                     @endif
@@ -5158,7 +5158,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 data-transportation="{{ $item->transportation }}"
                                                                 data-service_charge="{{ $data->service_charge_fee ?? 10}}"
                                                                 data-default-label="Add to Cart"
-                                                                @disabled(!empty($promoter->is_sold_out))>{{ !empty($promoter->is_sold_out) ? 'Sold Out' : 'Add to Cart' }}</button>
+                                                                @disabled(!empty($affiliate->is_sold_out))>{{ !empty($affiliate->is_sold_out) ? 'Sold Out' : 'Add to Cart' }}</button>
                                                             <small class="package-guest-error" style="display:none;color:#ff6b6b;font-size:11px;line-height:1.35;margin-top:4px;"></small>
                                                             <div class="package-soldout" style="display:none;color:#ff2b2b;font-size:12px;font-weight:700;line-height:1.35;margin-top:4px;">Sold Out!</div>
                                                         </div>
@@ -5747,7 +5747,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     </div>
 
                     @php
-                        $sidebarVenueImage = !empty($promoter->image ?? null) ? asset('uploads/' . $promoter->image) : ($data->logo ? asset('uploads/' . $data->logo) : null);
+                        $sidebarVenueImage = !empty($affiliate->image ?? null) ? asset('uploads/' . $affiliate->image) : ($data->logo ? asset('uploads/' . $data->logo) : null);
                     @endphp
                     @if($sidebarVenueImage)
                         <img src="{{ $sidebarVenueImage }}" class="cv-sidebar-venue-image" alt="{{ $data->name }}">
@@ -6062,7 +6062,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     <div class="cv-footer-brand">
                         <img src="{{ asset('images/logo.png') }}" alt="CartVIP" class="cv-footer-logo">
                         <span class="cv-footer-powered">Powered by CartVIP</span>
-                        <p class="cv-footer-tagline">Modern commerce infrastructure for products, services, reservations, and promoter sales.</p>
+                        <p class="cv-footer-tagline">Modern commerce infrastructure for products, services, reservations, and affiliate sales.</p>
                     </div>
                     <div class="cv-footer-legal">
                         <div class="cv-footer-legal-title">Legal &amp; Disclosures</div>
@@ -6409,8 +6409,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             window.cart = [];
             window.cartCoupon = window.cartCoupon || null;
             window.eventCapacityState = {
-                limit: @json($promoter->attendee_limit ?? null),
-                remaining: @json(isset($promoter->remaining_attendee_capacity) ? (int) $promoter->remaining_attendee_capacity : null)
+                limit: @json($affiliate->attendee_limit ?? null),
+                remaining: @json(isset($affiliate->remaining_attendee_capacity) ? (int) $affiliate->remaining_attendee_capacity : null)
             };
 
             // Ensure cart is always an array
@@ -7096,7 +7096,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         data: {
                             cart: JSON.stringify(selections.cart),
                             website_slug: '{{ $data->slug }}',
-                            event_name: @json($promoter->name),
+                            event_name: @json($affiliate->name),
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },
                         success: function(res) {
@@ -7822,7 +7822,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 let code = $('#promo_code').val().trim();
                 if (!code) return;
 
-                var promoSource = '{{ !empty($affiliateReferral) ? 'promoter' : 'club' }}';
+                var promoSource = '{{ !empty($affiliateReferral) ? 'affiliate' : 'club' }}';
                 var ownerSlug = '{{ !empty($affiliateReferral) ? $affiliateReferral->slug : '' }}';
                 var cartItems = Array.isArray(window.cart) ? window.cart : [];
                 var packageIds = [];
@@ -7913,7 +7913,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 var _origCalcCartTotal = window.calculateCartTotal;
                 var _autoDiscountTimer = null;
 
-                var promoSource = '{{ !empty($affiliateReferral) ? 'promoter' : 'club' }}';
+                var promoSource = '{{ !empty($affiliateReferral) ? 'affiliate' : 'club' }}';
                 var ownerSlug = '{{ !empty($affiliateReferral) ? $affiliateReferral->slug : '' }}';
                 var siteSlug = '{{ $data->slug }}';
 

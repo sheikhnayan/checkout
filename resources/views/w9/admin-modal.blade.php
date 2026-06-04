@@ -550,8 +550,8 @@
         <div>
             <h2 style="margin: 0 0 8px 0; font-size: 16px;">W-9 Form Submission - Admin View</h2>
             <p style="margin: 0; color: #666; font-size: 12px;">
-                @if($w9Form->type === 'promoter')
-                    Promoter: {{ $w9Form->promoter?->user->name ?? 'Unknown' }}
+                @if($w9Form->type === 'affiliate')
+                    affiliate: {{ $w9Form->affiliate?->user->name ?? 'Unknown' }}
                 @else
                     Entertainer: {{ $w9Form->entertainer?->user->name ?? 'Unknown' }}
                 @endif

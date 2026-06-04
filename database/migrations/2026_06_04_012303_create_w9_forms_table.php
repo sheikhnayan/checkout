@@ -17,7 +17,7 @@ return new class extends Migration
             // Relationship
             $table->unsignedBigInteger('affiliate_id')->nullable();
             $table->unsignedBigInteger('entertainer_id')->nullable();
-            $table->enum('type', ['promoter', 'entertainer']); // To track which type
+            $table->enum('type', ['affiliate', 'entertainer']); // To track which type
 
             // W-9 Form Fields (Official IRS)
             $table->string('full_name'); // Name (as shown on your income tax return)

@@ -23,7 +23,7 @@ class PromoCodeController extends Controller
         
         if ($user->isAdmin()) {
             $data = Website::where('is_archieved',0)->get();
-            $targetedPromos = PromoCode::with(['promoter.user', 'entertainer.user'])
+            $targetedPromos = PromoCode::with(['affiliate.user', 'entertainer.user'])
                 ->whereIn('audience', [PromoCode::AUDIENCE_AFFILIATE, PromoCode::AUDIENCE_ENTERTAINER])
                 ->orderByDesc('id')
                 ->get();
@@ -103,7 +103,7 @@ class PromoCodeController extends Controller
         $promoAudience = $audience;
         $id = null;
         $title = $audience === PromoCode::AUDIENCE_AFFILIATE
-            ? 'Promoter Promo Code'
+            ? 'affiliate Promo Code'
             : 'Entertainer Promo Code';
         $user = auth()->user();
         $websiteOptions = collect();
@@ -163,7 +163,7 @@ class PromoCodeController extends Controller
             'website_id' => [Rule::requiredIf(in_array($audience, [PromoCode::AUDIENCE_CLUB, PromoCode::AUDIENCE_ENTERTAINER], true)), 'nullable', 'integer', 'exists:websites,id'],
             'name' => 'nullable|string|max:255',
             'audience' => ['required', Rule::in(PromoCode::ALLOWED_AUDIENCES)],
-            'affiliate_id' => 'nullable|integer|exists:promoters,id',
+            'affiliate_id' => 'nullable|integer|exists:affiliates,id',
             'entertainer_id' => 'nullable|integer|exists:entertainers,id',
                 'promo_code' => [
                     Rule::requiredIf($request->input('discount_method') !== PromoCode::DISCOUNT_METHOD_AUTOMATIC),
@@ -255,7 +255,7 @@ class PromoCodeController extends Controller
         }
         
         $data = PromoCode::where('website_id', $id)
-        ->with(['promoter.user', 'entertainer.user'])
+        ->with(['affiliate.user', 'entertainer.user'])
         ->get();
 
         $website_id = $id;
@@ -280,7 +280,7 @@ class PromoCodeController extends Controller
 
         $promoAudience = $data->audience ?? PromoCode::AUDIENCE_CLUB;
         $title = match ($promoAudience) {
-            PromoCode::AUDIENCE_AFFILIATE => 'Promoter Promo Code',
+            PromoCode::AUDIENCE_AFFILIATE => 'affiliate Promo Code',
             PromoCode::AUDIENCE_ENTERTAINER => 'Entertainer Promo Code',
             default => 'Club Promo Code',
         };
@@ -308,7 +308,7 @@ class PromoCodeController extends Controller
 
         $request->validate([
             'name' => 'nullable|string|max:255',
-            'affiliate_id' => 'nullable|integer|exists:promoters,id',
+            'affiliate_id' => 'nullable|integer|exists:affiliates,id',
             'entertainer_id' => 'nullable|integer|exists:entertainers,id',
                 'promo_code' => [
                     Rule::requiredIf($request->input('discount_method') !== PromoCode::DISCOUNT_METHOD_AUTOMATIC),
@@ -404,7 +404,7 @@ class PromoCodeController extends Controller
         }
 
         if ($resolvedAudience === PromoCode::AUDIENCE_AFFILIATE && (!$user || !$user->isAdmin())) {
-            abort(403, 'Only super admin can create or manage promoter-specific promo codes.');
+            abort(403, 'Only super admin can create or manage affiliate-specific promo codes.');
         }
 
         if ($resolvedAudience === PromoCode::AUDIENCE_ENTERTAINER) {
@@ -426,7 +426,7 @@ class PromoCodeController extends Controller
 
     private function promoTargetOptions(?int $websiteId = null): array
     {
-        $promoters = Affiliate::with('user')
+        $affiliates = Affiliate::with('user')
             ->where('status', 'approved')
             ->where('is_active', true)
             ->when($websiteId, function ($query) use ($websiteId) {
@@ -448,7 +448,7 @@ class PromoCodeController extends Controller
             ->get();
 
         return [
-            'promoters' => $promoters,
+            'affiliates' => $affiliates,
             'entertainers' => $entertainers,
         ];
     }
@@ -474,7 +474,7 @@ class PromoCodeController extends Controller
         if ($audience === PromoCode::AUDIENCE_AFFILIATE) {
             if (!$affiliateId) {
                 throw ValidationException::withMessages([
-                    'affiliate_id' => 'Select the promoter this promo code belongs to.',
+                    'affiliate_id' => 'Select the affiliate this promo code belongs to.',
                 ]);
             }
 
@@ -485,7 +485,7 @@ class PromoCodeController extends Controller
 
             if (!$validAffiliate) {
                 throw ValidationException::withMessages([
-                    'affiliate_id' => 'Selected promoter is not active for this club.',
+                    'affiliate_id' => 'Selected affiliate is not active for this club.',
                 ]);
             }
 

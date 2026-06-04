@@ -128,9 +128,9 @@
 
         <h1>Page Not Ready</h1>
 
-        @if($type === 'promoter')
+        @if($type === 'affiliate')
             <p class="subtitle">
-                This promoter page is not yet fully customized and is not accessible to the public.
+                This affiliate page is not yet fully customized and is not accessible to the public.
             </p>
         @elseif($type === 'website')
             <p class="subtitle">
@@ -155,12 +155,12 @@
 
         <div class="action-text">
             <strong>What's next?</strong><br>
-            @if($type === 'promoter')
-                The promoter owner needs to complete their profile customization in their account settings. Once all required information is filled in, this page will be live and accessible to the public.
+            @if($type === 'affiliate')
+                The affiliate owner needs to complete their profile customization in their account settings. Once all required information is filled in, this page will be live and accessible to the public.
             @elseif($type === 'website')
                 The venue administrator needs to complete the page configuration in their settings. Once all required information is set up, this page will be ready to display.
             @else
-                Please contact the promoter or venue administrator to complete the page setup.
+                Please contact the affiliate or venue administrator to complete the page setup.
             @endif
         </div>
 

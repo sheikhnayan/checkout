@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class PromoCode extends Model
 {
     public const AUDIENCE_CLUB = 'club';
-    public const AUDIENCE_AFFILIATE = 'promoter';
+    public const AUDIENCE_AFFILIATE = 'affiliate';
     public const AUDIENCE_ENTERTAINER = 'entertainer';
 
     public const ALLOWED_AUDIENCES = [
@@ -45,7 +45,7 @@ class PromoCode extends Model
         'ends_at' => 'datetime',
     ];
 
-    public function promoter()
+    public function affiliate()
     {
         return $this->belongsTo(Affiliate::class);
     }
@@ -57,8 +57,8 @@ class PromoCode extends Model
 
     public function getTargetNameAttribute(): ?string
     {
-        if ($this->audience === self::AUDIENCE_AFFILIATE && $this->promoter) {
-            return $this->promoter->display_name ?: optional($this->promoter->user)->name;
+        if ($this->audience === self::AUDIENCE_AFFILIATE && $this->affiliate) {
+            return $this->affiliate->display_name ?: optional($this->affiliate->user)->name;
         }
 
         if ($this->audience === self::AUDIENCE_ENTERTAINER && $this->entertainer) {

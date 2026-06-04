@@ -1020,7 +1020,7 @@
             }
 
         /* ===================================================
-           PROMOTER PAGE DESIGN SYSTEM
+           affiliate PAGE DESIGN SYSTEM
            =================================================== */
         :root {
             --accent:    {{ $brandPrimary }};
@@ -1115,7 +1115,7 @@
             outline-offset: 2px;
         }
 
-        /* Payment agreement toggles: exact promoter parity, locked with stronger selectors */
+        /* Payment agreement toggles: exact affiliate parity, locked with stronger selectors */
         #payment-consent-group .consent-label {
             display: flex !important;
             gap: 10px !important;
@@ -1580,7 +1580,7 @@
             color: #1f1400 !important;
         }
 
-        /* Exact promoter-page layout surfaces */
+        /* Exact affiliate-page layout surfaces */
         body {
             background:
                 radial-gradient(circle at top right, rgba(255, 255, 255, 0.06), transparent 34%),
@@ -7052,7 +7052,7 @@
                     <div class="cv-footer-brand">
                         <img src="{{ asset('images/logo.png') }}" alt="CartVIP" class="cv-footer-logo">
                         <span class="cv-footer-powered">Powered by CartVIP</span>
-                        <p class="cv-footer-tagline">Modern commerce infrastructure for products, services, reservations, and promoter sales.</p>
+                        <p class="cv-footer-tagline">Modern commerce infrastructure for products, services, reservations, and affiliate sales.</p>
                     </div>
                     <div class="cv-footer-legal">
                         <div class="cv-footer-legal-title">Legal &amp; Disclosures</div>
@@ -8710,7 +8710,7 @@
                 let code = $('#promo_code').val().trim();
                 if (!code) return;
 
-                var promoSource = '{{ !empty($affiliateReferral) ? 'promoter' : 'club' }}';
+                var promoSource = '{{ !empty($affiliateReferral) ? 'affiliate' : 'club' }}';
                 var ownerSlug = '{{ !empty($affiliateReferral) ? $affiliateReferral->slug : '' }}';
                 var cartItems = Array.isArray(window.cart) ? window.cart : [];
                 var packageIds = [];
@@ -8808,7 +8808,7 @@
             (function () {
                 var _origCalcCartTotal = window.calculateCartTotal;
                 var _autoDiscountTimer = null;
-                var promoSource = '{{ !empty($affiliateReferral) ? 'promoter' : 'club' }}';
+                var promoSource = '{{ !empty($affiliateReferral) ? 'affiliate' : 'club' }}';
                 var ownerSlug = '{{ !empty($affiliateReferral) ? $affiliateReferral->slug : '' }}';
                 var siteSlug = '{{ $data->slug }}';
 

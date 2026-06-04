@@ -87,13 +87,13 @@ class Affiliate extends Model
     public function withdrawPayoutMethods()
     {
         return $this->hasMany(WithdrawPayoutMethod::class, 'owner_id')
-            ->where('owner_type', 'promoter');
+            ->where('owner_type', 'affiliate');
     }
 
     public function withdrawRequests()
     {
         return $this->hasMany(WithdrawRequest::class, 'owner_id')
-            ->where('owner_type', 'promoter');
+            ->where('owner_type', 'affiliate');
     }
 
     public function w9Form()
@@ -103,7 +103,7 @@ class Affiliate extends Model
 
     public static function generateUniqueSlug(string $name): string
     {
-        $base = Str::slug($name ?: 'promoter');
+        $base = Str::slug($name ?: 'affiliate');
         $slug = $base;
         $counter = 1;
 

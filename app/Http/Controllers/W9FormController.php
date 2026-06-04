@@ -26,22 +26,22 @@ class W9FormController extends Controller
             $type = $data['type'];
             $id = $data['id'];
 
-            if ($type === 'promoter') {
-                $promoter = Affiliate::findOrFail($id);
+            if ($type === 'affiliate') {
+                $affiliate = Affiliate::findOrFail($id);
                 $w9Form = W9Form::where('affiliate_id', $id)->first();
 
                 // TESTING: Allow re-submission for testing
                 // if ($w9Form && $w9Form->status === 'submitted') {
                 //     return view('w9.already-submitted', [
-                //         'type' => 'promoter',
-                //         'name' => $promoter->display_name ?: $promoter->user->name,
+                //         'type' => 'affiliate',
+                //         'name' => $affiliate->display_name ?: $affiliate->user->name,
                 //     ]);
                 // }
 
                 return view('w9.form-html', [
-                    'type' => 'promoter',
+                    'type' => 'affiliate',
                     'id' => $id,
-                    'name' => $promoter->display_name ?: $promoter->user->name,
+                    'name' => $affiliate->display_name ?: $affiliate->user->name,
                     'w9Form' => $w9Form,
                     'token' => $token,
                 ]);
@@ -105,7 +105,7 @@ class W9FormController extends Controller
         }
 
         try {
-            if ($type === 'promoter') {
+            if ($type === 'affiliate') {
                 $w9Form = W9Form::firstOrCreate(['affiliate_id' => $id], ['type' => 'affiliate']);
             } else {
                 $w9Form = W9Form::firstOrCreate(['entertainer_id' => $id], ['type' => 'entertainer']);
@@ -235,7 +235,7 @@ class W9FormController extends Controller
 
     public function viewModal($id)
     {
-        $w9Form = W9Form::with(['promoter', 'entertainer', 'reviewedBy'])->findOrFail($id);
+        $w9Form = W9Form::with(['affiliate', 'entertainer', 'reviewedBy'])->findOrFail($id);
 
         if (!auth()->user()->isAdmin()) {
             abort(403, 'Unauthorized');
@@ -246,7 +246,7 @@ class W9FormController extends Controller
 
     public function downloadPdf($id)
     {
-        $w9Form = W9Form::with(['promoter', 'entertainer'])->findOrFail($id);
+        $w9Form = W9Form::with(['affiliate', 'entertainer'])->findOrFail($id);
 
         if (!auth()->user()->isAdmin()) {
             abort(403, 'Unauthorized');

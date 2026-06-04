@@ -23,17 +23,17 @@ return new class extends Migration
             }
         });
 
-        Schema::table('promoters', function (Blueprint $table) {
-            if (!Schema::hasColumn('promoters', 'hero_badge_1_label')) {
+        Schema::table('affiliates', function (Blueprint $table) {
+            if (!Schema::hasColumn('affiliates', 'hero_badge_1_label')) {
                 $table->string('hero_badge_1_label', 80)->nullable()->after('hero_subtitle');
             }
-            if (!Schema::hasColumn('promoters', 'hero_badge_1_sub')) {
+            if (!Schema::hasColumn('affiliates', 'hero_badge_1_sub')) {
                 $table->string('hero_badge_1_sub', 120)->nullable()->after('hero_badge_1_label');
             }
-            if (!Schema::hasColumn('promoters', 'hero_badge_2_label')) {
+            if (!Schema::hasColumn('affiliates', 'hero_badge_2_label')) {
                 $table->string('hero_badge_2_label', 80)->nullable()->after('hero_badge_1_sub');
             }
-            if (!Schema::hasColumn('promoters', 'hero_badge_2_sub')) {
+            if (!Schema::hasColumn('affiliates', 'hero_badge_2_sub')) {
                 $table->string('hero_badge_2_sub', 120)->nullable()->after('hero_badge_2_label');
             }
         });
@@ -53,10 +53,10 @@ return new class extends Migration
             }
         });
 
-        Schema::table('promoters', function (Blueprint $table) {
+        Schema::table('affiliates', function (Blueprint $table) {
             $drop = [];
             foreach (['hero_badge_1_label', 'hero_badge_1_sub', 'hero_badge_2_label', 'hero_badge_2_sub'] as $column) {
-                if (Schema::hasColumn('promoters', $column)) {
+                if (Schema::hasColumn('affiliates', $column)) {
                     $drop[] = $column;
                 }
             }

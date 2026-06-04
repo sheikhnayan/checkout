@@ -549,7 +549,7 @@
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="package_section_title" class="form-label">Package Section Title <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Heading shown above package cards on checkout and promoter public pages."></i></label>
+                                                        <label for="package_section_title" class="form-label">Package Section Title <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Heading shown above package cards on checkout and affiliate public pages."></i></label>
                                                         <input type="text" name="package_section_title" class="form-control" id="package_section_title" value="{{ old('package_section_title', $data->package_section_title) }}" placeholder="Select Your Package">
                                                     </div>
                                                 </div>

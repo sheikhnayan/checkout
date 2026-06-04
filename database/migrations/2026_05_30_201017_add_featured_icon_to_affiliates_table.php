@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('promoters', function (Blueprint $table) {
+        Schema::table('affiliates', function (Blueprint $table) {
             $table->string('featured_icon')->default('fa-star')->after('show_location_section');
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('promoters', function (Blueprint $table) {
+        Schema::table('affiliates', function (Blueprint $table) {
             $table->dropColumn('featured_icon');
         });
     }

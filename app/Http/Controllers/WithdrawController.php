@@ -18,18 +18,18 @@ class WithdrawController extends Controller
     // ------------------------------------------------------------------ helpers
 
     /**
-     * Returns ['owner' => model, 'type' => 'promoter'|'entertainer'] or aborts.
+     * Returns ['owner' => model, 'type' => 'affiliate'|'entertainer'] or aborts.
      */
     private function resolveOwner(): array
     {
         $user = auth()->user();
 
         if ($user->isAffiliate()) {
-            $owner = $user->promoter;
+            $owner = $user->affiliate;
             if (!$owner || $owner->status !== 'approved' || !$owner->is_active) {
-                abort(403, 'Promoter access denied.');
+                abort(403, 'affiliate access denied.');
             }
-            return ['owner' => $owner, 'type' => 'promoter'];
+            return ['owner' => $owner, 'type' => 'affiliate'];
         }
 
         if ($user->isEntertainer()) {
@@ -48,7 +48,7 @@ class WithdrawController extends Controller
      */
     private function chargeFor(array $resolved): float
     {
-        if ($resolved['type'] === 'promoter') {
+        if ($resolved['type'] === 'affiliate') {
             $setting = Setting::first();
             return $setting ? (float) $setting->affiliate_withdraw_charge : 0.0;
         }
@@ -66,7 +66,7 @@ class WithdrawController extends Controller
     // ------------------------------------------------------------------ portal pages
 
     /**
-     * GET /promoter-portal/withdraw  or  /entertainer-portal/withdraw
+     * GET /affiliate-portal/withdraw  or  /entertainer-portal/withdraw
      */
     public function index()
     {
@@ -81,7 +81,7 @@ class WithdrawController extends Controller
         $charge        = $this->chargeFor($resolved);
         $typeLabels    = WithdrawPayoutMethod::typeLabels();
 
-        $view = $type === 'promoter' ? 'promoter.withdraw' : 'entertainer.withdraw';
+        $view = $type === 'affiliate' ? 'affiliate.withdraw' : 'entertainer.withdraw';
 
         return view($view, compact('owner', 'payoutMethods', 'requests', 'charge', 'typeLabels'));
     }
@@ -89,7 +89,7 @@ class WithdrawController extends Controller
     // ------------------------------------------------------------------ payout methods
 
     /**
-     * POST /promoter-portal/withdraw/methods  or  /entertainer-portal/withdraw/methods
+     * POST /affiliate-portal/withdraw/methods  or  /entertainer-portal/withdraw/methods
      */
     public function storeMethod(Request $request)
     {
@@ -122,7 +122,7 @@ class WithdrawController extends Controller
     }
 
     /**
-     * POST /promoter-portal/withdraw/methods/{id}/delete
+     * POST /affiliate-portal/withdraw/methods/{id}/delete
      */
     public function destroyMethod(int $id)
     {
@@ -137,7 +137,7 @@ class WithdrawController extends Controller
     }
 
     /**
-     * POST /promoter-portal/withdraw/methods/{id}/set-default
+     * POST /affiliate-portal/withdraw/methods/{id}/set-default
      */
     public function setDefaultMethod(int $id)
     {
@@ -154,7 +154,7 @@ class WithdrawController extends Controller
     // ------------------------------------------------------------------ withdraw requests
 
     /**
-     * POST /promoter-portal/withdraw/request  or  /entertainer-portal/withdraw/request
+     * POST /affiliate-portal/withdraw/request  or  /entertainer-portal/withdraw/request
      */
     public function storeRequest(Request $request)
     {
@@ -196,7 +196,7 @@ class WithdrawController extends Controller
             $description = 'Withdrawal request of $' . number_format($amount, 2)
                 . ($feeAmount > 0 ? ' (fee: $' . number_format($feeAmount, 2) . ')' : '');
 
-            if ($type === 'promoter') {
+            if ($type === 'affiliate') {
                 AffiliateWalletTransaction::create([
                     'affiliate_id'  => $owner->id,
                     'type'          => 'withdrawal',
@@ -239,10 +239,10 @@ class WithdrawController extends Controller
         return redirect()->back()->with('success', 'Withdrawal request submitted. $' . number_format($amount, 2) . ' has been deducted from your wallet.');
     }
 
-    // ------------------------------------------------------------------ admin: promoter withdrawals
+    // ------------------------------------------------------------------ admin: affiliate withdrawals
 
     /**
-     * GET /admins/withdraw/promoters
+     * GET /admins/withdraw/affiliates
      */
     public function adminAffiliates(Request $request)
     {
@@ -253,7 +253,7 @@ class WithdrawController extends Controller
 
         $status  = $request->input('status', 'all');
         $query   = WithdrawRequest::with(['payoutMethod'])
-            ->where('owner_type', 'promoter');
+            ->where('owner_type', 'affiliate');
 
         if ($status !== 'all') {
             $query->where('status', $status);
@@ -261,18 +261,18 @@ class WithdrawController extends Controller
 
         $requests = $query->latest()->paginate(25)->withQueryString();
 
-        // Attach promoter display names
+        // Attach affiliate display names
         $affiliateIds = $requests->pluck('owner_id')->unique();
-        $promoters   = \App\Models\Affiliate::whereIn('id', $affiliateIds)->get()->keyBy('id');
+        $affiliates   = \App\Models\Affiliate::whereIn('id', $affiliateIds)->get()->keyBy('id');
 
         // Global charge setting
         $setting = Setting::first();
 
-        return view('admin.withdraw.promoters', compact('requests', 'promoters', 'status', 'setting'));
+        return view('admin.withdraw.affiliates', compact('requests', 'affiliates', 'status', 'setting'));
     }
 
     /**
-     * POST /admins/withdraw/promoters/{id}/status
+     * POST /admins/withdraw/affiliates/{id}/status
      */
     public function adminAffiliateStatus(Request $request, int $id)
     {
@@ -286,18 +286,18 @@ class WithdrawController extends Controller
             'admin_notes' => 'nullable|string|max:1000',
         ]);
 
-        $wr = WithdrawRequest::where('owner_type', 'promoter')->findOrFail($id);
+        $wr = WithdrawRequest::where('owner_type', 'affiliate')->findOrFail($id);
 
         // If rejecting a pending request, refund the wallet
         if ($validated['status'] === 'rejected' && $wr->status === 'pending') {
             DB::transaction(function () use ($wr, $validated) {
-                $promoter  = \App\Models\Affiliate::findOrFail($wr->owner_id);
-                $newBalance = (float) $promoter->wallet_balance + (float) $wr->amount;
-                $promoter->wallet_balance = $newBalance;
-                $promoter->save();
+                $affiliate  = \App\Models\Affiliate::findOrFail($wr->owner_id);
+                $newBalance = (float) $affiliate->wallet_balance + (float) $wr->amount;
+                $affiliate->wallet_balance = $newBalance;
+                $affiliate->save();
 
                 AffiliateWalletTransaction::create([
-                    'affiliate_id'  => $promoter->id,
+                    'affiliate_id'  => $affiliate->id,
                     'type'          => 'withdrawal_refund',
                     'status'        => 'completed',
                     'amount'        => $wr->amount,
@@ -319,7 +319,7 @@ class WithdrawController extends Controller
     }
 
     /**
-     * POST /admins/withdraw/promoters/charge
+     * POST /admins/withdraw/affiliates/charge
      */
     public function adminAffiliateCharge(Request $request)
     {
@@ -338,7 +338,7 @@ class WithdrawController extends Controller
             $setting->save();
         }
 
-        return redirect()->back()->with('success', 'Global promoter withdrawal charge updated.');
+        return redirect()->back()->with('success', 'Global affiliate withdrawal charge updated.');
     }
 
     // ------------------------------------------------------------------ admin: entertainer withdrawals

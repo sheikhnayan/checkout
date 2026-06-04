@@ -23,7 +23,7 @@ class AffiliateWalletTransaction extends Model
         'meta' => 'array',
     ];
 
-    public function promoter()
+    public function affiliate()
     {
         return $this->belongsTo(Affiliate::class);
     }

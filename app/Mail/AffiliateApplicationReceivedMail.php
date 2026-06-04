@@ -11,14 +11,14 @@ class AffiliateApplicationReceivedMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public Affiliate $promoter;
+    public Affiliate $affiliate;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(Affiliate $promoter)
+    public function __construct(Affiliate $affiliate)
     {
-        $this->promoter = $promoter;
+        $this->affiliate = $affiliate;
     }
 
     /**
@@ -26,7 +26,7 @@ class AffiliateApplicationReceivedMail extends Mailable
      */
     public function build(): self
     {
-        return $this->subject('Promoter Application Received - CartVIP')
-            ->view('emails.promoter-application-received');
+        return $this->subject('affiliate Application Received - CartVIP')
+            ->view('emails.affiliate-application-received');
     }
 }
