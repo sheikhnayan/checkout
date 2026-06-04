@@ -11,12 +11,12 @@ class AffiliateApprovedMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public Promoter $promoter;
+    public Affiliate $promoter;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(Promoter $promoter)
+    public function __construct(Affiliate $promoter)
     {
         $this->promoter = $promoter;
     }
