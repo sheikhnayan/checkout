@@ -820,21 +820,25 @@
                 </select>
             </div>
 
-            <div class="file-upload">
+            <div id="idTypeWarning" style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 10px; border-radius: 4px; font-size: 10px; color: #1565c0; margin-bottom: 12px; line-height: 1.5;">
+                <strong>👆 Select ID Type First:</strong> Please select an ID type above before uploading images.
+            </div>
+
+            <div class="file-upload" id="idFrontSection" style="opacity: 0.5; pointer-events: none;">
                 <div class="file-upload-label">Front of ID <span class="required">*</span></div>
                 <div class="file-upload-area" onclick="document.getElementById('idFront').click();">
                     <div>📤 Click to upload or drag & drop</div>
                 </div>
-                <input type="file" id="idFront" accept="image/jpeg,image/png,image/jpg" required>
+                <input type="file" id="idFront" accept="image/jpeg,image/png,image/jpg" required disabled>
                 <div id="idFrontPreview" class="file-preview"></div>
             </div>
 
-            <div class="file-upload">
+            <div class="file-upload" id="idBackSection" style="opacity: 0.5; pointer-events: none;">
                 <div class="file-upload-label">Back of ID <span class="required">*</span></div>
                 <div class="file-upload-area" onclick="document.getElementById('idBack').click();">
                     <div>📤 Click to upload or drag & drop</div>
                 </div>
-                <input type="file" id="idBack" accept="image/jpeg,image/png,image/jpg" required>
+                <input type="file" id="idBack" accept="image/jpeg,image/png,image/jpg" required disabled>
                 <div id="idBackPreview" class="file-preview"></div>
             </div>
 
@@ -949,6 +953,39 @@ document.getElementById('ssn2').addEventListener('input', (e) => autoFormatNumer
 document.getElementById('ssn3').addEventListener('input', (e) => autoFormatNumeric(e, 4));
 document.getElementById('ein1').addEventListener('input', (e) => autoFormatNumeric(e, 2));
 document.getElementById('ein2').addEventListener('input', (e) => autoFormatNumeric(e, 7));
+
+// ========== ID TYPE GATE FOR FILE UPLOADS ==========
+document.getElementById('idType').addEventListener('change', function() {
+    const idType = this.value;
+    const idFront = document.getElementById('idFront');
+    const idBack = document.getElementById('idBack');
+    const idFrontSection = document.getElementById('idFrontSection');
+    const idBackSection = document.getElementById('idBackSection');
+    const idTypeWarning = document.getElementById('idTypeWarning');
+
+    if (idType) {
+        // ID type selected - enable uploads
+        idFront.disabled = false;
+        idBack.disabled = false;
+        idFrontSection.style.opacity = '1';
+        idFrontSection.style.pointerEvents = 'auto';
+        idBackSection.style.opacity = '1';
+        idBackSection.style.pointerEvents = 'auto';
+        idTypeWarning.style.display = 'none';
+    } else {
+        // No ID type selected - disable uploads
+        idFront.disabled = true;
+        idBack.disabled = true;
+        idFrontSection.style.opacity = '0.5';
+        idFrontSection.style.pointerEvents = 'none';
+        idBackSection.style.opacity = '0.5';
+        idBackSection.style.pointerEvents = 'none';
+        idTypeWarning.style.display = 'block';
+        // Clear previews
+        document.getElementById('idFrontPreview').innerHTML = '';
+        document.getElementById('idBackPreview').innerHTML = '';
+    }
+});
 
 // File preview handlers
 document.getElementById('idFront').addEventListener('change', function(e) {
