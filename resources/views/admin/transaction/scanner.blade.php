@@ -110,9 +110,6 @@
                                                         <i class="fas fa-camera"></i> Retake Photos
                                                     </button>
                                                 </div>
-
-                                                <input type="hidden" id="frontPhotoData">
-                                                <input type="hidden" id="backPhotoData">
                                             </div>
                                         </div>
 
