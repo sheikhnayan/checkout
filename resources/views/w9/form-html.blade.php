@@ -1106,14 +1106,26 @@ async function submitForm() {
         const data = await response.json();
 
         if (response.ok) {
-            window.location.href = data.redirect_url || document.referrer;
+            window.location.href = data.redirect_url || '/w9/thank-you';
         } else {
-            errorBox.innerHTML = '<strong>Error:</strong><br>' + (data.message || 'An error occurred.');
+            // Show validation errors from server
+            let errorText = '<strong>Form Validation Errors:</strong><br>';
+            if (data.errors) {
+                for (const [field, messages] of Object.entries(data.errors)) {
+                    errorText += `✗ ${messages[0]}<br>`;
+                }
+            } else if (data.message) {
+                errorText = '<strong>Error:</strong><br>' + data.message;
+            } else {
+                errorText = '<strong>Error:</strong><br>An error occurred. Please try again.';
+            }
+            errorBox.innerHTML = errorText;
             errorBox.style.display = 'block';
             document.querySelector('.form-document').scrollIntoView({ behavior: 'smooth' });
+            console.error('Server response:', data);
         }
     } catch (error) {
-        errorBox.innerHTML = '<strong>Error:</strong><br>Failed to submit form. Please try again.';
+        errorBox.innerHTML = '<strong>Error:</strong><br>Failed to submit form. Please try again.<br><small>Check console for details.</small>';
         errorBox.style.display = 'block';
         console.error('Submit error:', error);
     } finally {
