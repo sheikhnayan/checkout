@@ -39,7 +39,9 @@
       "Bash(grep -n '=> $this\\\\->' 'c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Services\\\\ReportGenerationService.php')",
       "Bash(xargs grep -l \"revenue-over-time\\\\|events-per-entertainer\")",
       "Bash(ls -lh /c/wamp64/www/checkout/public/fw9.pdf && echo \"✓ PDF file exists\" || echo \"✗ PDF file missing\")",
-      "Read(//c/wamp64/www/checkout/public/**)"
+      "Read(//c/wamp64/www/checkout/public/**)",
+      "Bash(grep \"Information about TIN types\" /c/wamp64/www/checkout/.claude/worktrees/agent-aef2a66d7f65b2f3c/resources/views/w9/admin-modal.blade.php)",
+      "Read(//c/wamp64/www/checkout/.claude/worktrees/agent-aef2a66d7f65b2f3c/resources/views/w9/**)"
     ],
     "additionalDirectories": [
       "c:\\wamp64\\www\\checkout\\bootstrap\\cache",
