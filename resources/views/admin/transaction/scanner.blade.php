@@ -44,14 +44,62 @@
                                     <div id="scanStatus" class="small text-muted mb-3">Waiting for scan...</div>
 
                                     <div id="ticketResult" class="d-none">
+                                        <!-- Check-In Photo (if available) -->
+                                        <div id="checkinPhotoSection" class="d-none mb-3">
+                                            <div class="rounded-3 p-3" style="background:#f0fdf4;border:1px solid #86efac;">
+                                                <div class="fw-semibold text-success mb-2">
+                                                    <i class="fas fa-camera-alt"></i> Check-In Photo
+                                                </div>
+                                                <img id="checkinPhotoImg" style="width:100%;max-height:300px;object-fit:cover;border-radius:8px;">
+                                                <small class="text-muted d-block mt-2">Captured during check-in verification</small>
+                                            </div>
+                                        </div>
+
                                         <div class="rounded-3 p-3 mb-3" style="background:#0f172a;border:1px solid #334155;color:#e2e8f0;">
                                             <div class="fw-semibold mb-2">Purchase Details</div>
                                             <div class="small" id="ticketDetails" style="color:#e2e8f0;"></div>
                                         </div>
 
+                                        <!-- Photo Capture Section (Optional) -->
+                                        <div class="mb-3 p-3 rounded-3" style="background:#f8fafc;border:1px solid #e2e8f0;">
+                                            <div class="form-check form-switch mb-2">
+                                                <input class="form-check-input" type="checkbox" id="enablePhotoCapture">
+                                                <label class="form-check-label" for="enablePhotoCapture">
+                                                    <strong>Capture Photo</strong> (Optional)
+                                                </label>
+                                            </div>
+                                            <small class="text-muted d-block mb-2">Take a photo of guest with ID for verification. Photo is uploaded to server only, never saved locally.</small>
+
+                                            <div id="photoCaptureSection" class="d-none">
+                                                <div class="border rounded-2 p-2 bg-dark mb-3" style="min-height:200px;max-height:300px;overflow:hidden;">
+                                                    <video id="photoCameraFeed" style="width:100%;height:100%;object-fit:cover;display:none;"></video>
+                                                    <canvas id="photoCanvas" style="width:100%;height:100%;display:none;"></canvas>
+                                                    <div id="noCameraMsg" class="text-center text-white p-5">
+                                                        <i class="fas fa-camera fa-3x mb-3 d-block opacity-50"></i>
+                                                        Camera will appear here
+                                                    </div>
+                                                </div>
+
+                                                <div class="btn-group w-100 mb-3" role="group">
+                                                    <button type="button" id="startPhotoCameraBtn" class="btn btn-sm btn-outline-primary">Start Camera</button>
+                                                    <button type="button" id="capturePhotoBtn" class="btn btn-sm btn-outline-success d-none">Capture Photo</button>
+                                                    <button type="button" id="stopPhotoCameraBtn" class="btn btn-sm btn-outline-danger d-none">Stop Camera</button>
+                                                </div>
+
+                                                <div id="photoPreviewContainer" class="d-none mb-3">
+                                                    <small class="text-muted d-block mb-2">Photo Preview:</small>
+                                                    <img id="photoPreview" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0;">
+                                                    <small class="text-success d-block mt-2"><i class="fas fa-check-circle"></i> Photo ready to upload</small>
+                                                </div>
+
+                                                <input type="hidden" id="capturedPhotoData">
+                                            </div>
+                                        </div>
+
                                         <form method="POST" action="{{ route('admin.transaction.scan.check-in') }}" id="checkInForm" class="d-flex flex-wrap gap-2">
                                             @csrf
                                             <input type="hidden" name="ticket_qr_code" id="checkInCode">
+                                            <input type="hidden" name="photo_data" id="photoDataInput">
                                             <button type="submit" id="checkInBtn" class="btn btn-success px-4">Check In</button>
                                             <button type="button" id="cancelBtn" class="btn btn-outline-secondary px-4">Cancel</button>
                                         </form>
@@ -147,6 +195,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderDetails(data) {
         const transaction = data.transaction;
+        const checkinPhotoSection = document.getElementById('checkinPhotoSection');
+        const checkinPhotoImg = document.getElementById('checkinPhotoImg');
+
+        // Display check-in photo if available
+        if (transaction.checkin_photo_path) {
+            const photoUrl = '{{ route("admin.transaction.checkin-photo", ["id" => "TRANSACTION_ID"]) }}'.replace('TRANSACTION_ID', transaction.id);
+            checkinPhotoImg.src = photoUrl;
+            checkinPhotoSection.classList.remove('d-none');
+        } else {
+            checkinPhotoSection.classList.add('d-none');
+        }
+
         const packageDetails = Array.isArray(transaction.package_details) ? transaction.package_details : [];
         const packageListHtml = packageDetails.length
             ? '<div><strong>Packages:</strong></div><ul class="mb-2 ps-3">' + packageDetails.map(function (item) {
@@ -253,6 +313,102 @@ document.addEventListener('DOMContentLoaded', function () {
     cancelBtn.addEventListener('click', async function () {
         resetResult();
         await startScanner();
+    });
+
+    // ========== PHOTO CAPTURE FUNCTIONALITY ==========
+    const enablePhotoCaptureCheckbox = document.getElementById('enablePhotoCapture');
+    const photoCaptureSection = document.getElementById('photoCaptureSection');
+    const photoCameraFeed = document.getElementById('photoCameraFeed');
+    const photoCanvas = document.getElementById('photoCanvas');
+    const noCameraMsg = document.getElementById('noCameraMsg');
+    const startPhotoCameraBtn = document.getElementById('startPhotoCameraBtn');
+    const capturePhotoBtn = document.getElementById('capturePhotoBtn');
+    const stopPhotoCameraBtn = document.getElementById('stopPhotoCameraBtn');
+    const photoPreviewContainer = document.getElementById('photoPreviewContainer');
+    const photoPreview = document.getElementById('photoPreview');
+    const capturedPhotoData = document.getElementById('capturedPhotoData');
+    const photoDataInput = document.getElementById('photoDataInput');
+
+    let photoCameraStream = null;
+    let photoCtx = null;
+
+    enablePhotoCaptureCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            photoCaptureSection.classList.remove('d-none');
+        } else {
+            photoCaptureSection.classList.add('d-none');
+            stopPhotoCamera();
+            photoPreviewContainer.classList.add('d-none');
+            capturedPhotoData.value = '';
+            photoDataInput.value = '';
+        }
+    });
+
+    startPhotoCameraBtn.addEventListener('click', async function() {
+        try {
+            photoCameraStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }
+            });
+
+            photoCameraFeed.srcObject = photoCameraStream;
+            photoCameraFeed.style.display = 'block';
+            noCameraMsg.style.display = 'none';
+
+            startPhotoCameraBtn.classList.add('d-none');
+            capturePhotoBtn.classList.remove('d-none');
+            stopPhotoCameraBtn.classList.remove('d-none');
+        } catch (error) {
+            alert('Unable to access camera. Check browser permissions.');
+            console.error('Camera error:', error);
+        }
+    });
+
+    capturePhotoBtn.addEventListener('click', function() {
+        if (!photoCameraStream || !photoCameraFeed.srcObject) {
+            alert('Camera is not ready.');
+            return;
+        }
+
+        // Get canvas context
+        photoCtx = photoCanvas.getContext('2d');
+        photoCanvas.width = photoCameraFeed.videoWidth;
+        photoCanvas.height = photoCameraFeed.videoHeight;
+
+        // Draw current frame from video to canvas
+        photoCtx.drawImage(photoCameraFeed, 0, 0, photoCanvas.width, photoCanvas.height);
+
+        // Get image data as base64
+        const imageData = photoCanvas.toDataURL('image/jpeg', 0.9);
+        capturedPhotoData.value = imageData;
+        photoDataInput.value = imageData;
+
+        // Show preview
+        photoPreview.src = imageData;
+        photoPreviewContainer.classList.remove('d-none');
+
+        // Stop camera after capture
+        stopPhotoCamera();
+    });
+
+    function stopPhotoCamera() {
+        if (photoCameraStream) {
+            photoCameraStream.getTracks().forEach(track => track.stop());
+            photoCameraStream = null;
+        }
+
+        photoCameraFeed.style.display = 'none';
+        noCameraMsg.style.display = 'block';
+
+        startPhotoCameraBtn.classList.remove('d-none');
+        capturePhotoBtn.classList.add('d-none');
+        stopPhotoCameraBtn.classList.add('d-none');
+    }
+
+    stopPhotoCameraBtn.addEventListener('click', stopPhotoCamera);
+
+    // Ensure camera is stopped when form is submitted
+    document.getElementById('checkInForm').addEventListener('submit', function() {
+        stopPhotoCamera();
     });
 });
 </script>

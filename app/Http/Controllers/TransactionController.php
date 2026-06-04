@@ -955,6 +955,32 @@ class TransactionController extends Controller
         return view('admin.transaction.scanner');
     }
 
+    public function viewCheckinPhoto($transactionId)
+    {
+        // Security: Only allow authenticated admin users to view photos
+        if (!auth()->check() || !auth()->user()->hasRole('admin')) {
+            abort(403, 'Unauthorized access to check-in photos.');
+        }
+
+        $transaction = Transaction::findOrFail($transactionId);
+
+        if (!$transaction->checkin_photo_path) {
+            abort(404, 'No photo available for this check-in.');
+        }
+
+        $filePath = storage_path('app/private/' . $transaction->checkin_photo_path);
+
+        if (!file_exists($filePath)) {
+            abort(404, 'Photo file not found.');
+        }
+
+        return response()->file($filePath, [
+            'Content-Type' => 'image/jpeg',
+            'Cache-Control' => 'public, max-age=3600',
+            'Pragma' => 'public',
+        ]);
+    }
+
     public function scanLookup(Request $request)
     {
         $this->ensureScannerAccess();
@@ -1073,6 +1099,7 @@ class TransactionController extends Controller
 
         $request->validate([
             'ticket_qr_code' => ['required', 'string'],
+            'photo_data' => ['nullable', 'string'], // Base64 encoded image
         ]);
 
         $ticketCode = $this->normalizeTicketCode((string) $request->input('ticket_qr_code'));
@@ -1093,13 +1120,52 @@ class TransactionController extends Controller
             return redirect()->route('admin.transaction.scan')->with('success', 'Ticket was already checked in.');
         }
 
+        // Handle optional photo upload
+        $photoPath = null;
+        $photoData = $request->input('photo_data');
+
+        if ($photoData && strpos($photoData, 'data:image') === 0) {
+            try {
+                // Decode base64 image
+                $imageData = base64_decode(explode(',', $photoData)[1] ?? '');
+
+                if ($imageData) {
+                    // Create secure directory path (outside web root)
+                    $storagePath = storage_path('app/private/ticket-checkins');
+                    if (!is_dir($storagePath)) {
+                        mkdir($storagePath, 0755, true);
+                    }
+
+                    // Generate unique filename
+                    $fileName = 'checkin-' . $transaction->id . '-' . time() . '.jpg';
+                    $filePath = $storagePath . '/' . $fileName;
+
+                    // Save image to private storage
+                    file_put_contents($filePath, $imageData);
+
+                    // Store only the relative path in database
+                    $photoPath = 'ticket-checkins/' . $fileName;
+                }
+            } catch (\Exception $e) {
+                // Photo upload failed, but continue with check-in
+                \Log::error('Ticket check-in photo upload failed: ' . $e->getMessage());
+            }
+        }
+
         $transaction->checked_in_status = true;
         $transaction->checked_in_at_pacific = Carbon::now('America/Los_Angeles');
         $transaction->checked_in_by_user_id = auth()->id();
+
+        // Store photo path if captured
+        if ($photoPath && Schema::hasColumn('transactions', 'checkin_photo_path')) {
+            $transaction->checkin_photo_path = $photoPath;
+        }
+
         $transaction->save();
 
         return redirect()->route('admin.transaction.scan')
-            ->with('success', 'Check-in completed for ticket #' . $transaction->ticket_qr_code . '.');
+            ->with('success', 'Check-in completed for ticket #' . $transaction->ticket_qr_code .
+                   ($photoPath ? ' (Photo captured).' : '.'));
     }
 
     private function extractCartItemsFromRequest(Request $request): array
