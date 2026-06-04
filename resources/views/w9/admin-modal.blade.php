@@ -14,11 +14,20 @@
 
         body {
             font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            padding: 20px;
-            font-size: 11px;
-            line-height: 1.35;
-            color: #000;
+            background: #f5f5f5 !important;
+            padding: 20px !important;
+            font-size: 11px !important;
+            line-height: 1.35 !important;
+            color: #000 !important;
+        }
+
+        body, body * {
+            color: #000 !important;
+            background-color: inherit !important;
+        }
+
+        .page-wrapper, .page-wrapper * {
+            color: #000 !important;
         }
 
         .page-wrapper {
@@ -65,9 +74,14 @@
         }
 
         .form-document {
-            background: white;
-            padding: 40px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background: white !important;
+            padding: 40px !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+            color: #000 !important;
+        }
+
+        .form-document * {
+            color: #000 !important;
         }
 
         /* Header */
@@ -129,12 +143,17 @@
 
         /* Form Sections */
         .before-begin {
-            border: 1px solid #999;
-            padding: 8px;
-            margin-bottom: 12px;
-            background: #f9f9f9;
-            font-size: 10px;
-            line-height: 1.4;
+            border: 1px solid #999 !important;
+            padding: 8px !important;
+            margin-bottom: 12px !important;
+            background: #f9f9f9 !important;
+            font-size: 10px !important;
+            line-height: 1.4 !important;
+            color: #000 !important;
+        }
+
+        .before-begin * {
+            color: #000 !important;
         }
 
         .before-begin-text {
@@ -185,8 +204,12 @@
 
         .line-label {
             font-size: 9px;
-            color: #333;
+            color: #333 !important;
             margin-top: 1px;
+        }
+
+        h1, h2, h3, h4, h5, h6, p, label, div, span, strong {
+            color: #000 !important;
         }
 
         /* Checkboxes */
@@ -240,12 +263,17 @@
 
         /* Instructions Box */
         .instructions-box {
-            background: #f9f9f9;
-            border: 1px solid #999;
-            padding: 8px;
-            margin: 8px 0;
-            font-size: 9px;
-            line-height: 1.4;
+            background: #f9f9f9 !important;
+            border: 1px solid #999 !important;
+            padding: 8px !important;
+            margin: 8px 0 !important;
+            font-size: 9px !important;
+            line-height: 1.4 !important;
+            color: #000 !important;
+        }
+
+        .instructions-box * {
+            color: #000 !important;
         }
 
         /* TIN Section */
@@ -285,12 +313,17 @@
 
         /* Certification Section */
         .certification-box {
-            border: 1px solid #999;
-            padding: 10px;
-            margin: 12px 0;
-            background: #f9f9f9;
-            font-size: 9px;
-            line-height: 1.4;
+            border: 1px solid #999 !important;
+            padding: 10px !important;
+            margin: 12px 0 !important;
+            background: #f9f9f9 !important;
+            font-size: 9px !important;
+            line-height: 1.4 !important;
+            color: #000 !important;
+        }
+
+        .certification-box * {
+            color: #000 !important;
         }
 
         .cert-item {
@@ -463,22 +496,28 @@
         }
 
         .admin-info {
-            margin-top: 30px;
-            padding: 15px;
-            background: #e7f3ff;
-            border-left: 4px solid #0066cc;
-            border-radius: 4px;
-            font-size: 10px;
-            line-height: 1.5;
+            margin-top: 30px !important;
+            padding: 15px !important;
+            background: #e7f3ff !important;
+            border-left: 4px solid #0066cc !important;
+            border-radius: 4px !important;
+            font-size: 10px !important;
+            line-height: 1.5 !important;
+            color: #000 !important;
+        }
+
+        .admin-info * {
+            color: #000 !important;
         }
 
         .admin-info-row {
-            margin-bottom: 8px;
+            margin-bottom: 8px !important;
+            color: #000 !important;
         }
 
         .admin-info-label {
-            font-weight: bold;
-            color: #0066cc;
+            font-weight: bold !important;
+            color: #0066cc !important;
         }
 
         @media (max-width: 1024px) {
