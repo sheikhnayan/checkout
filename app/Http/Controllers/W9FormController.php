@@ -131,6 +131,9 @@ class W9FormController extends Controller
             foreach ($pdfData as $fieldName => $fieldValue) {
                 if (empty($fieldValue)) continue;
 
+                // Skip array values (like line3a_tax with multiple selections)
+                if (is_array($fieldValue)) continue;
+
                 $fieldLower = strtolower($fieldName);
                 $valueTrimmed = trim($fieldValue);
 
