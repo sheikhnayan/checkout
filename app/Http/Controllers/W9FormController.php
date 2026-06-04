@@ -227,7 +227,7 @@ class W9FormController extends Controller
 
         // Line 1: Name of entity/individual
         $pdf->SetXY(36, 73.5);
-        $pdf->Cell(120, 5, substr($w9Form->full_name, 0, 60), 0, 1, 'L');
+        $pdf->Cell(120, 5, substr($w9Form->full_name ?: '', 0, 60), 0, 1, 'L');
 
         // Line 2: Business name/disregarded entity name
         $pdf->SetXY(36, 84);
@@ -272,15 +272,15 @@ class W9FormController extends Controller
 
         // Line 5: Address (street)
         $pdf->SetXY(36, 156);
-        $pdf->Cell(120, 5, substr($w9Form->street_address, 0, 60), 0, 1, 'L');
+        $pdf->Cell(120, 5, substr($w9Form->street_address ?: '', 0, 60), 0, 1, 'L');
 
         // Line 6: City, State, ZIP
         $pdf->SetXY(36, 169);
-        $pdf->Cell(80, 5, substr($w9Form->city, 0, 40), 0, 0, 'L');
+        $pdf->Cell(80, 5, substr($w9Form->city ?: '', 0, 40), 0, 0, 'L');
         $pdf->SetXY(120, 169);
-        $pdf->Cell(10, 5, strtoupper($w9Form->state), 0, 0, 'L');
+        $pdf->Cell(10, 5, strtoupper($w9Form->state ?: ''), 0, 0, 'L');
         $pdf->SetXY(145, 169);
-        $pdf->Cell(20, 5, $w9Form->zip_code, 0, 1, 'L');
+        $pdf->Cell(20, 5, $w9Form->zip_code ?: '', 0, 1, 'L');
 
         // Line 7: Account numbers
         $pdf->SetXY(36, 182);
@@ -351,23 +351,28 @@ class W9FormController extends Controller
 
         $pdf->SetFont('Helvetica', '', 9);
         $pdf->SetXY(20, 40);
-        $pdf->Cell(0, 4, 'Government-Issued ID Type: ' . ucwords(str_replace('_', ' ', $w9Form->id_document_type)), 0, 1, 'L');
+        $idType = $w9Form->id_document_type ? ucwords(str_replace('_', ' ', $w9Form->id_document_type)) : 'Not specified';
+        $pdf->Cell(0, 4, 'Government-Issued ID Type: ' . $idType, 0, 1, 'L');
 
         $pdf->SetXY(20, 46);
         $pdf->Cell(0, 4, 'ID Verification: ✓ Submitted (Front & Back Images)', 0, 1, 'L');
 
         $pdf->SetXY(20, 52);
-        $pdf->Cell(0, 4, 'Submission Date: ' . $w9Form->created_at->format('M d, Y h:i A'), 0, 1, 'L');
+        $pdf->Cell(0, 4, 'Submission Date: ' . ($w9Form->created_at ? $w9Form->created_at->format('M d, Y h:i A') : 'N/A'), 0, 1, 'L');
 
         $pdf->SetXY(20, 58);
-        $pdf->Cell(0, 4, 'IP Address: ' . $w9Form->certification_ip, 0, 1, 'L');
+        $pdf->Cell(0, 4, 'IP Address: ' . ($w9Form->certification_ip ?: 'Not recorded'), 0, 1, 'L');
 
         $pdf->SetXY(20, 64);
-        $pdf->Cell(0, 4, 'Status: ' . ucfirst($w9Form->status), 0, 1, 'L');
+        $pdf->Cell(0, 4, 'Status: ' . ucfirst($w9Form->status ?: 'pending'), 0, 1, 'L');
     }
 
     private function formatTaxIdForPDF($taxId, $type)
     {
+        if (!$taxId) {
+            return '';
+        }
+
         if ($type === 'ssn') {
             // Format as XXX-XX-XXXX
             $clean = preg_replace('/[^0-9]/', '', $taxId);
