@@ -68,7 +68,7 @@ class AffiliatePortalController extends Controller
 
         $commissions = $promoter->walletTransactions()->where('type', 'commission')->sum('amount');
 
-        return view('promoter.dashboard', compact('promoter', 'commissions'));
+        return view('affiliate.dashboard', compact('promoter', 'commissions'));
     }
 
     public function packages()
@@ -93,7 +93,7 @@ class AffiliatePortalController extends Controller
             ->pluck('package_id')
             ->toArray();
 
-        return view('promoter.packages', compact('promoter', 'websites', 'selected'));
+        return view('affiliate.packages', compact('promoter', 'websites', 'selected'));
     }
 
     public function savePackages(Request $request)
@@ -162,7 +162,7 @@ class AffiliatePortalController extends Controller
     public function settings()
     {
         $promoter = $this->getAffiliateOrAbort();
-        return view('promoter.settings', compact('promoter'));
+        return view('affiliate.settings', compact('promoter'));
     }
 
     public function updateSettings(Request $request)
@@ -274,6 +274,6 @@ class AffiliatePortalController extends Controller
         $promoter = $this->getAffiliateOrAbort();
         $transactions = $promoter->walletTransactions()->latest()->paginate(20);
 
-        return view('promoter.wallet', compact('promoter', 'transactions'));
+        return view('affiliate.wallet', compact('promoter', 'transactions'));
     }
 }

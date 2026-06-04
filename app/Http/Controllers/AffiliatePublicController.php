@@ -131,7 +131,7 @@ class AffiliatePublicController extends Controller
             ];
         }
 
-        return view('promoter.public-page', compact('promoter', 'packageMappings', 'packageCategories', 'clubGroups', 'data', 'setting', 'uniqueClubsForFilter', 'dateOptions'));
+        return view('affiliate.public-page', compact('promoter', 'packageMappings', 'packageCategories', 'clubGroups', 'data', 'setting', 'uniqueClubsForFilter', 'dateOptions'));
     }
 
     private function buildPackageCategoryGroups(Collection $packageMappings)

@@ -14,7 +14,7 @@ class AffiliateRegistrationController extends Controller
 {
     public function showForm()
     {
-        return view('promoter.apply');
+        return view('affiliate.apply');
     }
 
     public function submit(Request $request)
