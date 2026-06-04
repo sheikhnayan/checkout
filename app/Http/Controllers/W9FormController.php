@@ -180,10 +180,17 @@ class W9FormController extends Controller
         try {
             $filledPdf = $this->generateFilledW9PDF($w9Form);
 
-            $filename = 'W-9_' . preg_replace('/[^a-z0-9]/i', '_', $w9Form->full_name) . '_' . now()->format('Y-m-d_H-i-s') . '.pdf';
+            $filename = 'W-9_' . preg_replace('/[^a-z0-9]/i', '_', $w9Form->full_name ?: 'form') . '_' . now()->format('Y-m-d_H-i-s') . '.pdf';
 
             return response()->download($filledPdf, $filename)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
+            \Log::error('W9 PDF Download Error', [
+                'id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
             abort(500, 'Error generating PDF: ' . $e->getMessage());
         }
     }

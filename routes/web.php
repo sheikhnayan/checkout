@@ -77,6 +77,58 @@ Route::post('/w9/{token}/submit', [W9FormController::class, 'store'])->name('w9.
 Route::get('/admin/w9/{id}/modal', [W9FormController::class, 'viewModal'])->name('w9.modal')->middleware('auth');
 Route::get('/admin/w9/{id}/download-pdf', [W9FormController::class, 'downloadPdf'])->name('w9.download')->middleware('auth');
 
+// DEBUG: Test W9 data
+Route::get('/debug/w9/{id}', function($id) {
+    try {
+        $w9 = \App\Models\W9Form::find($id);
+        if (!$w9) {
+            return response()->json(['error' => 'W9Form not found'], 404);
+        }
+        return response()->json([
+            'id' => $w9->id,
+            'id_document_type' => $w9->id_document_type,
+            'id_front_image' => $w9->id_front_image,
+            'id_back_image' => $w9->id_back_image,
+            'status' => $w9->status,
+            'created_at' => $w9->created_at,
+            'certification_ip' => $w9->certification_ip,
+            'full_name' => $w9->full_name,
+            'street_address' => $w9->street_address,
+            'city' => $w9->city,
+            'state' => $w9->state,
+            'zip_code' => $w9->zip_code,
+            'tax_id_type' => $w9->tax_id_type,
+            'tax_id_number' => $w9->tax_id_number,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+
+// DEBUG: Test PDF generation
+Route::get('/debug/pdf/{id}', function($id) {
+    try {
+        $w9 = \App\Models\W9Form::find($id);
+        if (!$w9) {
+            return response()->json(['error' => 'W9Form not found'], 404);
+        }
+
+        // Test template path
+        $templatePath = storage_path('app/public/w9-template/fw9_template.pdf');
+        return response()->json([
+            'template_path' => $templatePath,
+            'template_exists' => file_exists($templatePath),
+            'w9_data' => [
+                'full_name' => $w9->full_name,
+                'id_document_type' => $w9->id_document_type,
+                'created_at' => $w9->created_at ? $w9->created_at->format('Y-m-d H:i:s') : null,
+            ],
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()], 500);
+    }
+});
+
 // Affiliate public routes (must stay before slug route)
 Route::get('/affiliate/apply', [AffiliateRegistrationController::class, 'showForm'])->name('affiliate.apply');
 Route::post('/affiliate/apply', [AffiliateRegistrationController::class, 'submit'])->name('affiliate.apply.submit');
