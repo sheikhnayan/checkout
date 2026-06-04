@@ -787,7 +787,7 @@
         <!-- Privacy Notice -->
         <div style="margin-top: 30px; padding: 15px; background: #f0f4f8; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 10px; line-height: 1.5;">
             <strong style="display: block; margin-bottom: 8px; color: #0f172a;">🔒 Privacy Notice</strong>
-            <p style="margin: 0;">Information collected through this Substitute Form W-9 is used solely for payment processing, tax reporting, onboarding, and compliance purposes. Access to taxpayer information is restricted to authorized personnel only.</p>
+            <p style="margin: 0;">Information collected through this onboarding process may be used for identity verification, payment processing, fraud prevention, tax reporting, and compliance purposes. Access to taxpayer and identification information is restricted to authorized personnel only.</p>
         </div>
 
     </form>
@@ -800,7 +800,13 @@
             <div class="sidebar-title">📸 Government ID Verification</div>
 
             <div class="info-box">
-                Upload clear images of BOTH sides of your government-issued ID
+                Upload clear images of your government-issued photo ID.<br><br>
+                <strong>Driver's Licenses and State IDs:</strong> Upload both front and back.<br>
+                <strong>Passports:</strong> Upload the photo/information page.
+            </div>
+
+            <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px; border-radius: 4px; font-size: 10px; color: #333; margin-bottom: 12px; line-height: 1.5;">
+                <strong>Why we need this:</strong> Identity verification is required to help prevent fraud, verify taxpayer information, and protect against unauthorized payment activity.
             </div>
 
             <div class="form-group">
@@ -833,7 +839,7 @@
             </div>
 
             <button type="button" id="submitBtn" onclick="submitForm()" class="btn btn-primary" style="margin-top: 20px;">
-                ✓ Submit W-9 Form
+                ✓ Complete Onboarding
             </button>
 
             <div class="loading" id="loader">

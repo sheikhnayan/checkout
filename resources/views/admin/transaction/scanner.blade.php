@@ -89,10 +89,10 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="btn-group w-100 mb-3" role="group">
-                                                    <button type="button" id="startPhotoCameraBtn" class="btn btn-primary" style="flex:1;">Start Camera</button>
-                                                    <button type="button" id="capturePhotoBtn" class="btn btn-success d-none" style="flex:1;"><span id="capturePhotoText">Capture Photo</span></button>
-                                                    <button type="button" id="stopPhotoCameraBtn" class="btn btn-danger d-none" style="flex:1;">Stop Camera</button>
+                                                <div class="btn-group w-100 mb-3 gap-2" role="group" style="display: flex; flex-wrap: wrap;">
+                                                    <button type="button" id="startPhotoCameraBtn" class="btn btn-primary" style="flex:1;min-width:150px;">Start Camera</button>
+                                                    <button type="button" id="capturePhotoBtn" class="btn btn-success d-none" style="flex:1;min-width:150px;"><span id="capturePhotoText">Capture Photo</span></button>
+                                                    <button type="button" id="stopPhotoCameraBtn" class="btn btn-danger d-none" style="flex:1;min-width:150px;">Stop Camera</button>
                                                 </div>
 
                                                 <!-- Front ID Preview -->
@@ -462,6 +462,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 capturePhotoBtn.textContent = 'Capture Photo';
                 capturePhotoBtn.classList.remove('btn-warning');
                 capturePhotoBtn.classList.add('btn-success');
+                capturePhotoBtn.style.width = '';
+                capturePhotoBtn.style.marginBottom = '';
 
                 // Remove proceed button if it exists
                 const proceedBtn = document.getElementById('proceedToBackBtn');
@@ -515,17 +517,20 @@ document.addEventListener('DOMContentLoaded', function () {
             frontPhotoStatus.style.color = '#86efac';
 
             // Show delete button
-            capturePhotoBtn.textContent = 'Delete Front Photo';
+            capturePhotoBtn.textContent = '✕ Delete Front Photo';
             capturePhotoBtn.classList.remove('btn-success');
             capturePhotoBtn.classList.add('btn-warning');
+            capturePhotoBtn.style.marginBottom = '8px';
+            capturePhotoBtn.style.width = '100%';
 
             // Add a new button to proceed to back photo
             const proceedToBackBtn = document.createElement('button');
             proceedToBackBtn.type = 'button';
             proceedToBackBtn.id = 'proceedToBackBtn';
             proceedToBackBtn.className = 'btn btn-success';
-            proceedToBackBtn.innerHTML = 'Good ✓ - Capture Back of ID →';
-            proceedToBackBtn.style.flex = '1';
+            proceedToBackBtn.innerHTML = '<i class="fas fa-check-circle"></i> Good ✓ - Capture Back of ID →';
+            proceedToBackBtn.style.width = '100%';
+            proceedToBackBtn.style.marginBottom = '8px';
             proceedToBackBtn.addEventListener('click', function() {
                 proceedToBackBtn.remove();
                 capturePhotoText.textContent = 'Capture Back of ID';
@@ -533,6 +538,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 capturePhotoBtn.textContent = 'Capture Photo';
                 capturePhotoBtn.classList.remove('btn-warning');
                 capturePhotoBtn.classList.add('btn-success');
+                capturePhotoBtn.style.width = '';
+                capturePhotoBtn.style.marginBottom = '';
             });
 
             // Insert the new button after capture button
@@ -548,9 +555,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // All photos captured
             capturePhotoText.textContent = 'Both photos captured!';
-            capturePhotoBtn.textContent = 'Delete Back Photo';
+            capturePhotoBtn.textContent = '✕ Delete Back Photo';
             capturePhotoBtn.classList.remove('btn-success');
             capturePhotoBtn.classList.add('btn-warning');
+            capturePhotoBtn.style.width = '100%';
+            capturePhotoBtn.style.marginBottom = '8px';
             stopPhotoCameraBtn.classList.add('d-none');
 
             // Remove proceed button if it exists

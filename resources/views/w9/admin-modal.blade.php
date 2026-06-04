@@ -914,7 +914,7 @@
         <!-- Privacy Notice -->
         <div style="margin-top: 30px; padding: 15px; background: #f0f4f8; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 10px; line-height: 1.5;">
             <strong style="display: block; margin-bottom: 8px; color: #0f172a;">🔒 Privacy Notice</strong>
-            <p style="margin: 0;">Information collected through this Substitute Form W-9 is used solely for payment processing, tax reporting, onboarding, and compliance purposes. Access to taxpayer information is restricted to authorized personnel only.</p>
+            <p style="margin: 0;">Information collected through this onboarding process may be used for identity verification, payment processing, fraud prevention, tax reporting, and compliance purposes. Access to taxpayer and identification information is restricted to authorized personnel only.</p>
         </div>
 
         <!-- Government ID Photos Section -->
