@@ -374,6 +374,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     startPhotoCameraBtn.addEventListener('click', async function() {
         try {
+            // Stop QR scanner to prevent interference
+            if (scannerStarted && html5QrCode) {
+                await stopScanner();
+                startScannerBtn.disabled = true;
+            }
+
             photoCameraStream = await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } }
             });
@@ -499,6 +505,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (cameraSwitchBtn) {
             cameraSwitchBtn.classList.add('d-none');
         }
+
+        // Re-enable QR scanner button
+        startScannerBtn.disabled = false;
     }
 
     stopPhotoCameraBtn.addEventListener('click', stopPhotoCamera);
