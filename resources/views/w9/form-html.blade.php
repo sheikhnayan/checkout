@@ -723,15 +723,50 @@
             </div>
 
             <!-- Signature Section -->
-            <div class="signature-section">
-                <div class="sig-item">
-                    <div class="sig-label">Sign Here</div>
-                    <div class="sig-area"></div>
-                    <div style="font-size: 8px;">Signature of U.S. person</div>
+            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #999;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px;">
+                    <div>
+                        <div class="sig-label">Signature Method <span class="required">*</span></div>
+                        <div style="margin-top: 8px;">
+                            <div class="checkbox-item">
+                                <input type="radio" id="sigMethod_typed" name="signatureMethod" value="typed" checked>
+                                <label for="sigMethod_typed">Type Legal Name</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="radio" id="sigMethod_draw" name="signatureMethod" value="draw">
+                                <label for="sigMethod_draw">Draw Signature</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="sig-label">Date <span class="required">*</span></div>
+                        <input type="text" id="certDate" class="sig-input" placeholder="MM/DD/YYYY">
+                    </div>
                 </div>
-                <div class="sig-item">
-                    <div class="sig-label">Date</div>
-                    <input type="text" id="certDate" class="sig-input">
+
+                <!-- Typed Signature -->
+                <div id="typedSigSection" style="margin-bottom: 15px;">
+                    <div class="sig-label">Sign by Typing Your Full Legal Name <span class="required">*</span></div>
+                    <input type="text" id="typedSignature" class="sig-input" placeholder="Enter your full legal name exactly as shown on line 1" style="margin-top: 6px;">
+                    <div style="font-size: 8px; color: #666; margin-top: 4px;">Your typed name serves as your digital signature and is legally binding when you certify below.</div>
+                </div>
+
+                <!-- Canvas Signature -->
+                <div id="canvasSigSection" style="display: none; margin-bottom: 15px;">
+                    <div class="sig-label">Draw Your Signature <span class="required">*</span></div>
+                    <canvas id="signatureCanvas" style="border: 2px solid #ccc; border-radius: 4px; background: white; display: block; cursor: crosshair; margin-top: 6px; width: 100%; height: 120px;"></canvas>
+                    <button type="button" onclick="clearSignature()" style="margin-top: 6px; padding: 6px 12px; font-size: 10px; background: #f0f0f0; border: 1px solid #ccc; border-radius: 3px; cursor: pointer;">Clear Signature</button>
+                    <div style="font-size: 8px; color: #666; margin-top: 4px;">Draw your signature in the box above. This will be captured as your digital signature.</div>
+                </div>
+
+                <!-- Certification Statement -->
+                <div style="background: #f9f9f9; border: 1px solid #ddd; padding: 12px; border-radius: 4px; margin-top: 12px;">
+                    <div class="checkbox-item" style="align-items: flex-start;">
+                        <input type="checkbox" id="certifySignature" required style="margin-top: 2px;">
+                        <label for="certifySignature" style="font-size: 9px; line-height: 1.4;">
+                            <strong>Certification:</strong> I certify under penalties of perjury that the information provided on this Form W-9 is true, correct, and complete to the best of my knowledge. I understand that by typing/drawing my signature above or by entering my full legal name, I am electronically signing this document in compliance with federal law and IRS regulations.
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
@@ -943,7 +978,95 @@
 </div>
 
 <script>
-// Auto-format numeric inputs
+// ========== SIGNATURE FUNCTIONALITY ==========
+let isDrawing = false;
+let canvas, ctx;
+
+function initSignatureCanvas() {
+    canvas = document.getElementById('signatureCanvas');
+    ctx = canvas.getContext('2d');
+
+    // Set proper canvas resolution
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * window.devicePixelRatio;
+    canvas.height = rect.height * window.devicePixelRatio;
+    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+    // Set drawing properties
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#000';
+
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+
+    // Touch support
+    canvas.addEventListener('touchstart', handleTouch);
+    canvas.addEventListener('touchmove', handleTouch);
+    canvas.addEventListener('touchend', stopDrawing);
+}
+
+function handleTouch(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 'mousemove', {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+    });
+    canvas.dispatchEvent(mouseEvent);
+}
+
+function startDrawing(e) {
+    isDrawing = true;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+}
+
+function draw(e) {
+    if (!isDrawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    ctx.lineTo(x, y);
+    ctx.stroke();
+}
+
+function stopDrawing() {
+    isDrawing = false;
+    ctx.closePath();
+}
+
+function clearSignature() {
+    const rect = canvas.getBoundingClientRect();
+    ctx.clearRect(0, 0, rect.width, rect.height);
+}
+
+// Handle signature method toggle
+document.querySelectorAll('input[name="signatureMethod"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const typedSection = document.getElementById('typedSigSection');
+        const canvasSection = document.getElementById('canvasSigSection');
+
+        if (this.value === 'typed') {
+            typedSection.style.display = 'block';
+            canvasSection.style.display = 'none';
+            document.getElementById('typedSignature').focus();
+        } else {
+            typedSection.style.display = 'none';
+            canvasSection.style.display = 'block';
+            // Initialize canvas when shown
+            setTimeout(initSignatureCanvas, 100);
+        }
+    });
+});
+
+// ========== AUTO-FORMAT NUMERIC INPUTS ==========
 function autoFormatNumeric(e, maxLen) {
     e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, maxLen);
 }
@@ -1024,6 +1147,9 @@ async function submitForm() {
     const idType = document.getElementById('idType').value;
     const idFront = document.getElementById('idFront').files[0];
     const idBack = document.getElementById('idBack').files[0];
+    const certDate = document.getElementById('certDate').value.trim();
+    const certifyCheckbox = document.getElementById('certifySignature').checked;
+    const sigMethod = document.querySelector('input[name="signatureMethod"]:checked').value;
 
     let tinValue = '';
     const tinType = document.querySelector('input[name="tinType"]:checked').value;
@@ -1039,12 +1165,25 @@ async function submitForm() {
         if (ein1 && ein2) tinValue = ein1 + '-' + ein2;
     }
 
+    // Get signature
+    let signature = '';
+    let signatureImage = null;
+    if (sigMethod === 'typed') {
+        signature = document.getElementById('typedSignature').value.trim();
+    } else {
+        signatureImage = document.getElementById('signatureCanvas').toDataURL('image/png');
+    }
+
     const errors = [];
     if (!line1) errors.push('✗ Legal Name (Line 1) is required');
     if (!tinValue) errors.push('✗ Taxpayer Identification Number (TIN) is required');
     if (!idType) errors.push('✗ ID Type is required');
     if (!idFront) errors.push('✗ Front of ID is required');
     if (!idBack) errors.push('✗ Back of ID is required');
+    if (!certDate) errors.push('✗ Certification Date is required');
+    if (sigMethod === 'typed' && !signature) errors.push('✗ Signature (typed name) is required');
+    if (sigMethod === 'draw' && !signatureImage) errors.push('✗ Signature (drawn) is required');
+    if (!certifyCheckbox) errors.push('✗ You must certify the information is accurate');
 
     if (errors.length > 0) {
         errorBox.innerHTML = '<strong>Please correct these errors:</strong><br>' + errors.join('<br>');
@@ -1060,6 +1199,10 @@ async function submitForm() {
     formData.append('id_type', idType);
     formData.append('id_front_image', idFront);
     formData.append('id_back_image', idBack);
+    formData.append('signature_method', sigMethod);
+    if (signatureImage) {
+        formData.append('signature_image', signatureImage);
+    }
 
     const w9Data = {
         'line1_name': line1,
@@ -1073,7 +1216,10 @@ async function submitForm() {
         'line7_account': document.getElementById('line7').value.trim(),
         'tin_type': tinType,
         'tin_number': tinValue,
-        'cert_date': document.getElementById('certDate').value,
+        'signature_type': sigMethod,
+        'signature_typed': signature,
+        'certification_date': certDate,
+        'certified': true,
     };
 
     formData.append('pdf_form_data', JSON.stringify(w9Data));
