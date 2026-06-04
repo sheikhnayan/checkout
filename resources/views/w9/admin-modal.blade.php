@@ -238,9 +238,102 @@
         </div>
     </div>
 
-    <!-- PDF Section -->
-    <div class="w9-pdf-section">
-        <iframe src="{{ asset('fw9.pdf') }}" title="IRS Form W-9"></iframe>
+    <!-- Read-Only Form Display Section -->
+    <div class="w9-pdf-section" style="flex-direction: column; overflow-y: auto; padding: 30px; max-width: 800px; margin: 0 auto; width: 100%;">
+
+        <!-- Download Button -->
+        <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+            <button onclick="downloadW9PDF({{ $w9Form->id }})" class="btn btn-primary btn-sm">
+                <i class="fas fa-download"></i> Download as PDF
+            </button>
+            <button onclick="window.print()" class="btn btn-secondary btn-sm">
+                <i class="fas fa-print"></i> Print
+            </button>
+        </div>
+
+        <!-- W-9 Form Display (Read-Only) -->
+        <div style="background: white; color: #000; padding: 30px; border-radius: 8px; font-family: Arial, sans-serif;">
+
+            <!-- Form Header -->
+            <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #000; padding-bottom: 15px;">
+                <h2 style="margin: 0; font-size: 18px;">Substitute Form W-9</h2>
+                <p style="margin: 5px 0; font-size: 12px; color: #666;">Taxpayer Identification & Certification</p>
+            </div>
+
+            <!-- Part I: Name and TIN -->
+            <div style="margin-bottom: 20px;">
+                <strong style="font-size: 14px;">Part I - Taxpayer Identification Number (TIN)</strong>
+                <div style="margin: 10px 0; padding: 10px; background: #f5f5f5; border-left: 3px solid #0066cc;">
+                    <p style="margin: 5px 0;"><strong>Line 1 - Legal Name:</strong> {{ $w9Form->full_name ?? 'Not provided' }}</p>
+                </div>
+                <div style="margin: 10px 0; padding: 10px; background: #f5f5f5; border-left: 3px solid #0066cc;">
+                    <p style="margin: 5px 0;"><strong>Line 2 - Business Name:</strong> {{ $w9Form->business_name ?? 'Not provided' }}</p>
+                </div>
+                <div style="margin: 10px 0; padding: 10px; background: #f5f5f5; border-left: 3px solid #0066cc;">
+                    <p style="margin: 5px 0;"><strong>TIN Type:</strong> {{ ucwords(str_replace('_', ' ', $w9Form->tax_id_type ?? 'Not specified')) }}</p>
+                    <p style="margin: 5px 0;"><strong>TIN Number:</strong> {{ $w9Form->tax_id_number ?? 'Not provided' }}</p>
+                </div>
+            </div>
+
+            <!-- Address Section -->
+            <div style="margin-bottom: 20px;">
+                <strong style="font-size: 14px;">Address Information</strong>
+                <div style="margin: 10px 0; padding: 10px; background: #f5f5f5; border-left: 3px solid #0066cc;">
+                    <p style="margin: 5px 0;"><strong>Line 5 - Address:</strong> {{ $w9Form->street_address ?? 'Not provided' }}</p>
+                </div>
+                <div style="margin: 10px 0; padding: 10px; background: #f5f5f5; border-left: 3px solid #0066cc;">
+                    <p style="margin: 5px 0;"><strong>Line 6 - City, State, ZIP:</strong> {{ $w9Form->city_state_zip ?? 'Not provided' }}</p>
+                </div>
+            </div>
+
+            <!-- Certification Section -->
+            <div style="margin-bottom: 20px; padding: 15px; background: #f0fdf4; border-left: 3px solid #22c55e;">
+                <strong style="font-size: 14px;">Part II - Certification</strong>
+                <p style="margin: 10px 0; font-size: 12px;">✓ I acknowledge and agree to the certifications contained in Part II above.</p>
+                <p style="margin: 10px 0; font-size: 12px;">
+                    <strong>Certification Status:</strong>
+                    @if($w9Form->certification_signed)
+                        <span style="color: #22c55e;">✓ SIGNED</span> on {{ $w9Form->certification_date?->format('M d, Y') ?? 'N/A' }}
+                    @else
+                        <span style="color: #ef4444;">✗ NOT SIGNED</span>
+                    @endif
+                </p>
+            </div>
+
+            <!-- ID Verification -->
+            <div style="margin-bottom: 20px; padding: 15px; background: #eff6ff; border-left: 3px solid #0066cc;">
+                <strong style="font-size: 14px;">ID Verification</strong>
+                <p style="margin: 10px 0; font-size: 12px;">
+                    <strong>ID Document Type:</strong> {{ ucwords(str_replace('_', ' ', $w9Form->id_document_type ?? 'Not specified')) }}
+                </p>
+                <div style="margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    @if($w9Form->id_front_image)
+                    <div>
+                        <small style="color: #666;">Front of ID</small><br>
+                        <img src="{{ asset('storage/' . $w9Form->id_front_image) }}" alt="ID Front" style="max-width: 100%; max-height: 150px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px;">
+                    </div>
+                    @endif
+                    @if($w9Form->id_back_image)
+                    <div>
+                        <small style="color: #666;">Back of ID</small><br>
+                        <img src="{{ asset('storage/' . $w9Form->id_back_image) }}" alt="ID Back" style="max-width: 100%; max-height: 150px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px;">
+                    </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div style="text-align: center; font-size: 10px; color: #999; margin-top: 30px; padding-top: 15px; border-top: 1px solid #ccc;">
+                <p style="margin: 5px 0;">Submitted: {{ $w9Form->created_at?->format('M d, Y \a\t h:i A') ?? 'N/A' }}</p>
+                <p style="margin: 5px 0;">Status: {{ ucwords(str_replace('_', ' ', $w9Form->status)) }}</p>
+            </div>
+        </div>
     </div>
+
+    <script>
+    function downloadW9PDF(formId) {
+        window.location.href = '/admin/w9/' + formId + '/download-pdf';
+    }
+    </script>
 
 </div>
