@@ -30,13 +30,13 @@ class W9FormController extends Controller
                 $affiliate = Affiliate::findOrFail($id);
                 $w9Form = W9Form::where('affiliate_id', $id)->first();
 
-                // Check if already submitted
-                if ($w9Form && $w9Form->status === 'submitted') {
-                    return view('w9.already-submitted', [
-                        'type' => 'affiliate',
-                        'name' => $affiliate->display_name ?: $affiliate->user->name,
-                    ]);
-                }
+                // TESTING: Allow re-submission for testing
+                // if ($w9Form && $w9Form->status === 'submitted') {
+                //     return view('w9.already-submitted', [
+                //         'type' => 'affiliate',
+                //         'name' => $affiliate->display_name ?: $affiliate->user->name,
+                //     ]);
+                // }
 
                 return view('w9.form-html', [
                     'type' => 'affiliate',
@@ -49,13 +49,13 @@ class W9FormController extends Controller
                 $entertainer = Entertainer::findOrFail($id);
                 $w9Form = W9Form::where('entertainer_id', $id)->first();
 
-                // Check if already submitted
-                if ($w9Form && $w9Form->status === 'submitted') {
-                    return view('w9.already-submitted', [
-                        'type' => 'entertainer',
-                        'name' => $entertainer->display_name ?: $entertainer->user->name,
-                    ]);
-                }
+                // TESTING: Allow re-submission for testing
+                // if ($w9Form && $w9Form->status === 'submitted') {
+                //     return view('w9.already-submitted', [
+                //         'type' => 'entertainer',
+                //         'name' => $entertainer->display_name ?: $entertainer->user->name,
+                //     ]);
+                // }
 
                 return view('w9.form-html', [
                     'type' => 'entertainer',
