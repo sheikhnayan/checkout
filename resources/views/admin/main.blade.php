@@ -653,7 +653,7 @@
                   <img src="{{ asset('images/logo_admin.png') }}" width="90px" alt="CartVIP Logo" />
                 </span>
               </span>
-              <span class="app-brand-text demo menu-text fw-bold ms-2" style="font-size: 1rem; color: #fff;">by James and Sheikh</span>
+              <span class="app-brand-text demo menu-text fw-bold ms-2" style="font-size: 1rem; color: #fff;">by James</span>
             </a>
 
             <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
