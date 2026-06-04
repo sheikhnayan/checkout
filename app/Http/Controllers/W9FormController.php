@@ -88,25 +88,18 @@ class W9FormController extends Controller
 
         try {
             $validated = $request->validate([
-                'full_name' => 'required|string|max:255',
-                'tax_id_number' => 'required|string|max:20',
-                'street_address' => 'nullable|string|max:255',
-                'city_state_zip' => 'nullable|string|max:255',
-                'business_name' => 'nullable|string|max:255',
-                'tax_classification' => 'nullable|in:individual,c_corporation,s_corporation,partnership,trust_estate,limited_liability_company_c,limited_liability_company_s,limited_liability_company_individual,sole_proprietor,other',
-                'tax_classification_other' => 'nullable|string|max:255',
-                'tax_id_type' => 'nullable|in:ssn,ein',
-                'account_numbers' => 'nullable|string|max:255',
-                'requester_name' => 'nullable|string|max:255',
-                'requester_phone' => 'nullable|string|max:20',
-                'requester_email' => 'nullable|email|max:255',
-                'exempt_payee_code' => 'nullable|string|max:50',
-                'fatca_exemption_code' => 'nullable|string|max:50',
+                'pdf_form_data' => 'required|json',
                 'id_document_type' => 'required|in:driver_license,passport,state_id,other',
                 'id_front_image' => 'required|image|mimes:jpg,jpeg,png|max:5120',
                 'id_back_image' => 'required|image|mimes:jpg,jpeg,png|max:5120',
                 'certification_signed' => 'required|accepted',
             ]);
+
+            // Parse PDF form data
+            $pdfData = json_decode($request->input('pdf_form_data'), true);
+            if (!is_array($pdfData)) {
+                return response()->json(['errors' => ['pdf_form_data' => 'Invalid PDF data format']], 422);
+            }
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 422);
         }
@@ -118,24 +111,56 @@ class W9FormController extends Controller
                 $w9Form = W9Form::firstOrCreate(['entertainer_id' => $id], ['type' => 'entertainer']);
             }
 
+            // Extract key fields from PDF data
+            $pdfData = $pdfData ?? [];
+            $dataToSave = [];
+
+            // Map common PDF field names to database columns
+            $fieldMappings = [
+                'f1_01' => 'full_name', // Name line
+                'f1_05' => 'tax_id_number', // SSN/EIN
+                'f1_06' => 'street_address', // Address
+                'f1_07' => 'city_state_zip', // City, state, ZIP
+                'name' => 'full_name',
+                'ssn' => 'tax_id_number',
+                'ein' => 'tax_id_number',
+            ];
+
+            foreach ($fieldMappings as $pdfField => $dbColumn) {
+                if (!empty($pdfData[$pdfField])) {
+                    $dataToSave[$dbColumn] = $pdfData[$pdfField];
+                }
+            }
+
+            // Store raw PDF data for reference
+            $dataToSave['pdf_form_data'] = json_encode($pdfData);
+
             if ($request->hasFile('id_front_image')) {
                 $file = $request->file('id_front_image');
                 $path = $file->store('w9-documents/id-front', 'public');
-                $validated['id_front_image'] = $path;
+                $dataToSave['id_front_image'] = $path;
             }
 
             if ($request->hasFile('id_back_image')) {
                 $file = $request->file('id_back_image');
                 $path = $file->store('w9-documents/id-back', 'public');
-                $validated['id_back_image'] = $path;
+                $dataToSave['id_back_image'] = $path;
             }
 
-            $validated['certification_signed'] = true;
-            $validated['certification_date'] = now();
-            $validated['certification_ip'] = $request->ip();
-            $validated['status'] = 'submitted';
+            // Validate we have extracted name and tax ID
+            if (empty($dataToSave['full_name']) || empty($dataToSave['tax_id_number'])) {
+                return response()->json([
+                    'errors' => ['pdf_form_data' => 'Could not extract name and tax ID from PDF. Please ensure you filled these fields.']
+                ], 422);
+            }
 
-            $w9Form->update($validated);
+            $dataToSave['id_document_type'] = $validated['id_document_type'];
+            $dataToSave['certification_signed'] = true;
+            $dataToSave['certification_date'] = now();
+            $dataToSave['certification_ip'] = $request->ip();
+            $dataToSave['status'] = 'submitted';
+
+            $w9Form->update($dataToSave);
 
             return response()->json([
                 'success' => true,

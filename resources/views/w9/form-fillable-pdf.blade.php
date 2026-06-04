@@ -486,14 +486,26 @@
             document.getElementById('submitBtn').disabled = true;
             document.getElementById('loader').style.display = 'block';
 
-            // Show prompt to enter key W-9 data from the PDF they filled
-            const fullName = prompt('Enter the name from the W-9 form (line 1):');
-            const taxId = prompt('Enter the Tax ID/SSN from the W-9 form (line 5):');
-            const streetAddress = prompt('Enter the street address from the W-9 form (line 6):');
-            const cityStateZip = prompt('Enter city, state, ZIP from the W-9 form (line 7):');
+            // Extract PDF form field values
+            let pdfFormData = {};
+            try {
+                const pdfUrl = '{{ asset("fw9.pdf") }}';
+                const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
+                const page = await pdf.getPage(1);
+                const annotations = await page.getAnnotations();
 
-            if (!fullName || !taxId) {
-                alert('Name and Tax ID are required. Please fill the W-9 form completely.');
+                console.log('PDF Annotations found:', annotations.length);
+                for (const annotation of annotations) {
+                    if (annotation.subtype === 'Widget' && annotation.fieldName) {
+                        pdfFormData[annotation.fieldName] = annotation.fieldValue || '';
+                        console.log(annotation.fieldName + ':', annotation.fieldValue);
+                    }
+                }
+            } catch (error) {
+                console.error('Error extracting PDF:', error);
+                alert('Could not extract PDF data. Please ensure you filled the form correctly.');
+                document.getElementById('submitBtn').disabled = false;
+                document.getElementById('loader').style.display = 'none';
                 return;
             }
 
@@ -503,10 +515,9 @@
             formData.append('id_front_image', idFront);
             formData.append('id_back_image', idBack);
             formData.append('certification_signed', true);
-            formData.append('full_name', fullName);
-            formData.append('tax_id_number', taxId);
-            formData.append('street_address', streetAddress || '');
-            formData.append('city_state_zip', cityStateZip || '');
+
+            // Add all extracted PDF form data
+            formData.append('pdf_form_data', JSON.stringify(pdfFormData));
 
             try {
                 const response = await fetch('{{ route("w9.store", $token) }}', {
