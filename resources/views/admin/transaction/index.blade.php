@@ -483,7 +483,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             <th>Order ID</th>
                             <th>Event / Package</th>
                             <th>Customer</th>
-                            <th>affiliate</th>
+                            <th>Promoter</th>
                             <th>Amount</th>
                             <th>Status</th>
                             <th>Checked In</th>

@@ -245,10 +245,10 @@
             @if($selectedAudience === 'affiliate')
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="affiliate_id" class="form-label">affiliate <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Restrict this package so only the selected affiliate's customers can see and purchase it."></i></label>
+                        <label for="affiliate_id" class="form-label">Promoter <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Restrict this package so only the selected promoter's customers can see and purchase it."></i></label>
                         <select name="affiliate_id" class="form-control" id="affiliate_id">
-                            <option value="">Select affiliate</option>
-                            <option value="__all__" @selected($selectedAffiliateValue === '__all__')>Select All affiliates</option>
+                            <option value="">Select Promoter</option>
+                            <option value="__all__" @selected($selectedAffiliateValue === '__all__')>Select All Promoters</option>
                             @foreach($targetOptions['affiliates'] as $affiliate)
                                 <option value="{{ $affiliate->id }}" @selected((string) $affiliate->id === $selectedAffiliateValue)>
                                     {{ $affiliate->display_name ?: optional($affiliate->user)->name }}

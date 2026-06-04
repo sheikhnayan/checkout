@@ -5,7 +5,7 @@
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="card p-4">
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                <h4 class="mb-0">affiliate Applications</h4>
+                <h4 class="mb-0">Promoter Applications</h4>
                 <div class="d-flex align-items-center gap-2 flex-wrap">
                     <span class="badge bg-label-info d-inline-flex align-items-center gap-1">
                         <i class="bx bx-sort-alt-2"></i>

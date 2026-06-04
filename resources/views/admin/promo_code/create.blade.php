@@ -267,11 +267,11 @@ label{
                                             </div>
 
                                             @if(($promoAudience ?? 'club') === 'affiliate')
-                                            <h6 class="form-section-title">affiliate Target</h6>
+                                            <h6 class="form-section-title">Promoter Target</h6>
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="affiliate_id" class="form-label">Specific affiliate <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Restrict this promo code to customers of a specific affiliate only."></i></label>
+                                                        <label for="affiliate_id" class="form-label">Specific Promoter <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Restrict this promo code to customers of a specific promoter only."></i></label>
                                                         <select name="affiliate_id" class="form-control" id="affiliate_id">
                                                             <option value="">Select affiliate</option>
                                                             @foreach(($targetOptions['affiliates'] ?? collect()) as $affiliate)

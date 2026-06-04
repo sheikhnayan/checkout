@@ -472,7 +472,7 @@
                             <div class="tab-pane fade {{ $activeTab === 'targeted' ? 'show active' : '' }}" id="targetedPackages" role="tabpanel" aria-labelledby="targeted-tab">
                                 <div class="card">
                                     <div class="card-body">
-                                        <h6 class="card-title fw-bold">affiliate and Entertainer Packages</h6>
+                                        <h6 class="card-title fw-bold">Promoter and Entertainer Packages</h6>
                                         @if($targetedPackages->isEmpty())
                                             <p class="text-muted mb-0">No targeted packages created for this club yet.</p>
                                         @else

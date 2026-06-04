@@ -137,7 +137,7 @@
                         <div class="row mt-4">
                             <div class="col-lg">
                                 <div class="card-shadow-primary card-border text-white mb-3 card bg-dark p-2">
-                                    <h5 class="p-2 mb-2">affiliate & Entertainer Promo Codes</h5>
+                                    <h5 class="p-2 mb-2">Promoter & Entertainer Promo Codes</h5>
                                     <table class="table" id="targetedPromosTable">
                                         <thead>
                                             <tr>

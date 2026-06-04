@@ -907,7 +907,7 @@
   <li class="menu-item {{ request()->is('admins/transaction/affiliate') ? 'active' : '' }}">
     <a href="{{ route('admin.transaction.affiliate') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-user-check"></i>
-      <div class="text-truncate">affiliate Transactions</div>
+      <div class="text-truncate">Promoter Transactions</div>
     </a>
   </li>
   @endif
@@ -929,7 +929,7 @@
   <li class="menu-item {{ request()->is('admins/affiliate*') ? 'active' : '' }}">
     <a href="{{ route('admin.affiliate.index') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-group"></i>
-      <div class="text-truncate">affiliates</div>
+      <div class="text-truncate">Promoters</div>
     </a>
   </li>
   @endif
@@ -947,7 +947,7 @@
   <li class="menu-item {{ request()->is('admins/withdraw/affiliates*') ? 'active' : '' }}">
     <a href="{{ route('admin.withdraw.affiliates') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-money-withdraw"></i>
-      <div class="text-truncate">affiliate Withdrawals</div>
+      <div class="text-truncate">Promoter Withdrawals</div>
     </a>
   </li>
   @endif
@@ -965,7 +965,7 @@
   <li class="menu-item {{ request()->is('affiliate-portal/dashboard') ? 'active' : '' }}">
     <a href="{{ route('affiliate.portal.dashboard') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-home-alt-2"></i>
-      <div class="text-truncate">affiliate Dashboard</div>
+      <div class="text-truncate">Promoter Dashboard</div>
     </a>
   </li>
 
