@@ -21,6 +21,7 @@ use App\Services\CommissionLifecycleRunner;
 use App\Mail\TransactionMail;
 use App\Helpers\PackageLimitHelper;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
