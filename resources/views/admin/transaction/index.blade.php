@@ -1401,7 +1401,7 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 // Load ID verification photos
                 if (transactionId) {
-                    fetch(`/admin/transaction/${transactionId}/id-photos`)
+                    fetch(`/admins/transaction/${transactionId}/id-photos`)
                         .then(res => res.json())
                         .then(data => {
                             if (data.frontPhotoUrl) {
