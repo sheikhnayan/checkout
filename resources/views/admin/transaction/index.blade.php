@@ -151,6 +151,18 @@ body.modal-open .admin-mobile-menu-toggle {
         position: relative;
         z-index: 2;
         margin-right: 8px;
+        width: 2.5rem !important;
+        height: 2.5rem !important;
+        padding: 0.5rem !important;
+        opacity: 1 !important;
+        background-size: 1.5rem !important;
+        filter: invert(1) !important;
+    }
+
+    #viewTransactionModal .modal-header .btn-close:hover,
+    #viewTransactionModal .modal-header .btn-close:focus {
+        opacity: 0.8 !important;
+        background-color: rgba(255,255,255,0.15) !important;
     }
 }
 </style>

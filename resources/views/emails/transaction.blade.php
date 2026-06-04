@@ -153,6 +153,11 @@
                 @endif
                 <div class="ticket-code">{{ $mailData['ticket_qr_code'] }}</div>
             </div>
+
+            <div style="margin-top: 20px; padding: 14px 16px; border: 1px solid #fecaca; background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border-radius: 10px; color: #7f1d1d; font-size: 13px; line-height: 1.6;">
+                <strong style="display: block; margin-bottom: 8px;">⚠️ Important Notice</strong>
+                <p style="margin: 0;">A valid government-issued ID matching the purchaser or guest may be required at check-in. Identification may be photographed and retained for verification, fraud prevention, and chargeback dispute purposes.</p>
+            </div>
         @endif
 
         @if(!empty($mailCartItems))

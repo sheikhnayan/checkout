@@ -65,7 +65,7 @@
                                             <div class="fw-semibold mb-3" style="color:#60a5fa;">
                                                 <i class="fas fa-camera-alt"></i> Identity Verification Photos <span style="color:#ff4444;">*</span>
                                             </div>
-                                            <p class="mb-3" style="font-size:14px;line-height:1.6;">After scanning the package QR code, take photos of both the front and back of the guest's valid ID for identity verification and fraud prevention. ID images are securely uploaded to an encrypted server and are never stored locally on the scanning device.</p>
+                                            <p class="mb-3" style="font-size:14px;line-height:1.6;">After scanning the package QR code, take a photo of the guest's valid ID for identity verification and fraud prevention. ID images are securely uploaded to an encrypted server and are never stored locally on the scanning device.</p>
 
                                             <div id="photoCaptureSection" style="margin-top:15px;">
                                                 <!-- Photo Progress Indicator -->
@@ -271,6 +271,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         ticketResult.classList.remove('d-none');
+
+        // Auto-scroll to ticket results
+        setTimeout(function() {
+            ticketResult.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
     }
 
     function resetResult() {

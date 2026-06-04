@@ -656,8 +656,9 @@
               <span class="app-brand-text demo menu-text fw-bold ms-2" style="font-size: 1rem; color: #fff;">by James</span>
             </a>
 
-            <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
+            <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-flex align-items-center gap-2">
               <i class="bx bx-chevron-left d-block d-xl-none align-middle"></i>
+              <span class="d-none d-lg-none d-md-inline" style="font-size: 0.9rem; color: #7f8b9a;">Menu</span>
             </a>
           </div>
 
