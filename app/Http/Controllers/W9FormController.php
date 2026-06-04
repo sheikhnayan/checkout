@@ -29,7 +29,7 @@ class W9FormController extends Controller
             if ($type === 'affiliate') {
                 $affiliate = Affiliate::findOrFail($id);
                 $w9Form = W9Form::where('affiliate_id', $id)->first();
-                return view('w9.form-real-pdf', [
+                return view('w9.form-fillable-pdf', [
                     'type' => 'affiliate',
                     'id' => $id,
                     'name' => $affiliate->display_name ?: $affiliate->user->name,
@@ -39,7 +39,7 @@ class W9FormController extends Controller
             } elseif ($type === 'entertainer') {
                 $entertainer = Entertainer::findOrFail($id);
                 $w9Form = W9Form::where('entertainer_id', $id)->first();
-                return view('w9.form-real-pdf', [
+                return view('w9.form-fillable-pdf', [
                     'type' => 'entertainer',
                     'id' => $id,
                     'name' => $entertainer->display_name ?: $entertainer->user->name,
