@@ -334,11 +334,12 @@ document.addEventListener('DOMContentLoaded', function () {
     let photoCameraStream = null;
     let photoCtx = null;
     let photoPhotoCaptured = false;
+    let currentFacingMode = 'environment'; // Default to back camera
 
     startPhotoCameraBtn.addEventListener('click', async function() {
         try {
             photoCameraStream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }
+                video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } }
             });
 
             photoCameraFeed.srcObject = photoCameraStream;
@@ -349,9 +350,54 @@ document.addEventListener('DOMContentLoaded', function () {
             startPhotoCameraBtn.classList.add('d-none');
             capturePhotoBtn.classList.remove('d-none');
             stopPhotoCameraBtn.classList.remove('d-none');
+
+            // Show camera switch button if camera is running
+            if (cameraSwitchBtn) {
+                cameraSwitchBtn.classList.remove('d-none');
+            }
         } catch (error) {
             alert('Unable to access camera. Check browser permissions.');
             console.error('Camera error:', error);
+        }
+    });
+
+    // Camera switch functionality
+    const cameraSwitchBtn = document.createElement('button');
+    cameraSwitchBtn.type = 'button';
+    cameraSwitchBtn.id = 'cameraSwitchBtn';
+    cameraSwitchBtn.className = 'btn btn-info d-none';
+    cameraSwitchBtn.style.position = 'absolute';
+    cameraSwitchBtn.style.top = '10px';
+    cameraSwitchBtn.style.right = '10px';
+    cameraSwitchBtn.style.zIndex = '10';
+    cameraSwitchBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Switch Camera';
+
+    // Insert camera switch button into the camera container
+    const photoCameraContainer = photoCameraFeed.parentElement;
+    photoCameraContainer.style.position = 'relative';
+    photoCameraContainer.appendChild(cameraSwitchBtn);
+
+    cameraSwitchBtn.addEventListener('click', async function(e) {
+        e.preventDefault();
+        if (!photoCameraStream) return;
+
+        // Stop current stream
+        photoCameraStream.getTracks().forEach(track => track.stop());
+        photoCameraStream = null;
+
+        // Switch facing mode
+        currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+
+        try {
+            photoCameraStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } }
+            });
+
+            photoCameraFeed.srcObject = photoCameraStream;
+            photoCameraFeed.play();
+        } catch (error) {
+            alert('Unable to switch camera.');
+            console.error('Camera switch error:', error);
         }
     });
 
@@ -397,6 +443,11 @@ document.addEventListener('DOMContentLoaded', function () {
         startPhotoCameraBtn.classList.remove('d-none');
         capturePhotoBtn.classList.add('d-none');
         stopPhotoCameraBtn.classList.add('d-none');
+
+        // Hide camera switch button when camera is stopped
+        if (cameraSwitchBtn) {
+            cameraSwitchBtn.classList.add('d-none');
+        }
     }
 
     stopPhotoCameraBtn.addEventListener('click', stopPhotoCamera);
