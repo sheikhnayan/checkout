@@ -479,6 +479,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 capturePhotoBtn.textContent = 'Capture Photo';
                 capturePhotoBtn.classList.remove('btn-warning');
                 capturePhotoBtn.classList.add('btn-success');
+                capturePhotoBtn.style.width = '';
+                capturePhotoBtn.style.marginBottom = '';
                 stopPhotoCameraBtn.classList.remove('d-none');
             }
             return;
