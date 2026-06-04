@@ -679,12 +679,12 @@
                     <input type="radio" id="tin_ssn" name="tinType" value="ssn" checked>
                     <label for="tin_ssn">Social security number</label>
                 </div>
-                <div class="tin-boxes">
-                    <input type="text" id="ssn1" class="tin-box" maxlength="3" inputmode="numeric">
-                    <div class="tin-separator">–</div>
-                    <input type="text" id="ssn2" class="tin-box" maxlength="2" inputmode="numeric">
-                    <div class="tin-separator">–</div>
-                    <input type="text" id="ssn3" class="tin-box" maxlength="4" inputmode="numeric">
+                <div style="display: flex; gap: 8px; align-items: center; margin-top: 6px;">
+                    <input type="text" id="ssn1" placeholder="000" maxlength="3" inputmode="numeric" style="width: 60px; padding: 8px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; text-align: center;">
+                    <div style="font-weight: bold; font-size: 14px;">–</div>
+                    <input type="text" id="ssn2" placeholder="00" maxlength="2" inputmode="numeric" style="width: 50px; padding: 8px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; text-align: center;">
+                    <div style="font-weight: bold; font-size: 14px;">–</div>
+                    <input type="text" id="ssn3" placeholder="0000" maxlength="4" inputmode="numeric" style="width: 70px; padding: 8px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; text-align: center;">
                 </div>
             </div>
 
@@ -694,10 +694,10 @@
                     <input type="radio" id="tin_ein" name="tinType" value="ein">
                     <label for="tin_ein">Employer identification number</label>
                 </div>
-                <div class="tin-boxes">
-                    <input type="text" id="ein1" class="tin-box" maxlength="2" inputmode="numeric">
-                    <div class="tin-separator">–</div>
-                    <input type="text" id="ein2" class="tin-box" maxlength="7" inputmode="numeric">
+                <div style="display: flex; gap: 8px; align-items: center; margin-top: 6px;">
+                    <input type="text" id="ein1" placeholder="00" maxlength="2" inputmode="numeric" style="width: 60px; padding: 8px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; text-align: center;">
+                    <div style="font-weight: bold; font-size: 14px;">–</div>
+                    <input type="text" id="ein2" placeholder="0000000" maxlength="7" inputmode="numeric" style="width: 100px; padding: 8px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; text-align: center;">
                 </div>
             </div>
         </div>
