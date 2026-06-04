@@ -8,108 +8,55 @@
         <!-- Left Column -->
         <div>
             <div style="margin-bottom: 20px;">
-                <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">Full Name</label>
-                <p style="font-weight: 600;">{{ $w9Form->full_name }}</p>
+                <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">📝 Form Status</label>
+                <p style="font-weight: 600;">✓ W-9 Form Submitted</p>
             </div>
 
-            @if($w9Form->business_name)
             <div style="margin-bottom: 20px;">
-                <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">Business Name / DBA</label>
-                <p style="font-weight: 600;">{{ $w9Form->business_name }}</p>
+                <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">📅 Submitted On</label>
+                <p style="font-weight: 600;">{{ $w9Form->created_at->format('M d, Y h:i A') }}</p>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">🆔 ID Document Type</label>
+                <p style="font-weight: 600;">{{ ucwords(str_replace('_', ' ', $w9Form->id_document_type)) }}</p>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">✅ Certification</label>
+                <p style="font-weight: 600;">{{ $w9Form->certification_signed ? '✓ Signed' : 'Pending' }}</p>
+            </div>
+
+            @if($w9Form->certification_date)
+            <div style="margin-bottom: 20px;">
+                <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">🕐 Certified On</label>
+                <p style="font-weight: 600;">{{ $w9Form->certification_date->format('M d, Y h:i A') }}</p>
             </div>
             @endif
 
+            @if($w9Form->certification_ip)
             <div style="margin-bottom: 20px;">
-                <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">Tax Classification</label>
-                <p style="font-weight: 600;">{{ ucwords(str_replace('_', ' ', $w9Form->tax_classification)) }}</p>
-            </div>
-
-            @if($w9Form->tax_classification_other)
-            <div style="margin-bottom: 20px;">
-                <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">Specified Classification</label>
-                <p style="font-weight: 600;">{{ $w9Form->tax_classification_other }}</p>
-            </div>
-            @endif
-
-            <div style="margin-bottom: 20px;">
-                <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">Tax ID Type</label>
-                <p style="font-weight: 600;">{{ strtoupper($w9Form->tax_id_type) }}</p>
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">Tax ID Number</label>
-                <p style="font-weight: 600; font-family: monospace; letter-spacing: 2px;">{{ $w9Form->tax_id_number }}</p>
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">Street Address</label>
-                <p style="font-weight: 600;">{{ $w9Form->street_address }}</p>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
-                <div>
-                    <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">City</label>
-                    <p style="font-weight: 600;">{{ $w9Form->city }}</p>
-                </div>
-                <div>
-                    <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">State</label>
-                    <p style="font-weight: 600;">{{ strtoupper($w9Form->state) }}</p>
-                </div>
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">ZIP Code</label>
-                <p style="font-weight: 600;">{{ $w9Form->zip_code }}</p>
-            </div>
-
-            @if($w9Form->account_numbers)
-            <div style="margin-bottom: 20px;">
-                <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">Account Numbers</label>
-                <p style="font-weight: 600;">{{ $w9Form->account_numbers }}</p>
+                <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">🌐 Submission IP</label>
+                <p style="font-weight: 600; font-family: monospace;">{{ $w9Form->certification_ip }}</p>
             </div>
             @endif
         </div>
 
         <!-- Right Column -->
         <div>
-            @if($w9Form->requester_name)
             <div style="margin-bottom: 20px;">
-                <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">Requester Name</label>
-                <p style="font-weight: 600;">{{ $w9Form->requester_name }}</p>
-            </div>
-            @endif
-
-            @if($w9Form->requester_phone)
-            <div style="margin-bottom: 20px;">
-                <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">Requester Phone</label>
-                <p style="font-weight: 600;">{{ $w9Form->requester_phone }}</p>
-            </div>
-            @endif
-
-            @if($w9Form->requester_email)
-            <div style="margin-bottom: 20px;">
-                <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">Requester Email</label>
-                <p style="font-weight: 600;">{{ $w9Form->requester_email }}</p>
-            </div>
-            @endif
-
-            @if($w9Form->exempt_payee_code)
-            <div style="margin-bottom: 20px;">
-                <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">Exempt Payee Code</label>
-                <p style="font-weight: 600;">{{ $w9Form->exempt_payee_code }}</p>
-            </div>
-            @endif
-
-            @if($w9Form->fatca_exemption_code)
-            <div style="margin-bottom: 20px;">
-                <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">FATCA Exemption Code</label>
-                <p style="font-weight: 600;">{{ $w9Form->fatca_exemption_code }}</p>
-            </div>
-            @endif
-
-            <div style="margin-bottom: 20px;">
-                <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">ID Document Type</label>
-                <p style="font-weight: 600;">{{ ucwords(str_replace('_', ' ', $w9Form->id_document_type)) }}</p>
+                <label style="color: rgba(255,255,255,0.5); font-size: 12px; text-transform: uppercase;">📋 Review Status</label>
+                <p style="font-weight: 600;">
+                    @if($w9Form->status === 'approved')
+                        <span class="badge bg-success">✓ Approved</span>
+                    @elseif($w9Form->status === 'submitted')
+                        <span class="badge bg-warning text-dark">⏳ Pending Review</span>
+                    @elseif($w9Form->status === 'rejected')
+                        <span class="badge bg-danger">✗ Rejected</span>
+                    @else
+                        <span class="badge bg-secondary">◯ Not Started</span>
+                    @endif
+                </p>
             </div>
 
             <div style="margin-bottom: 20px;">

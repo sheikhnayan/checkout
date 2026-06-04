@@ -255,16 +255,10 @@
             </ol>
         </div>
 
-        <!-- Buttons -->
-        <div class="button-group">
-            <a href="/" class="btn btn-primary">← Return to Home</a>
-            <a href="https://app.cartvip.com/dashboard" class="btn btn-secondary">Go to Dashboard</a>
-        </div>
-
         <!-- Footer -->
         <div class="footer">
             <p><strong>Need Help?</strong></p>
-            <p>If you have any questions about your submission or the W-9 form, please contact our support team at <a href="mailto:support@cartvip.com" style="color: #0066cc;">support@cartvip.com</a></p>
+            <p>If you have any questions about your submission or the W-9 form, please contact our support team at <a href="mailto:hello@cartvip.com" style="color: #0066cc;">hello@cartvip.com</a></p>
             <p style="margin-top: 15px; color: #bbb;">CartVIP © {{ date('Y') }} - All Rights Reserved</p>
         </div>
     </div>

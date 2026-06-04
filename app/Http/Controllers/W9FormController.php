@@ -29,6 +29,15 @@ class W9FormController extends Controller
             if ($type === 'affiliate') {
                 $affiliate = Affiliate::findOrFail($id);
                 $w9Form = W9Form::where('affiliate_id', $id)->first();
+
+                // Check if already submitted
+                if ($w9Form && $w9Form->status === 'submitted') {
+                    return view('w9.already-submitted', [
+                        'type' => 'affiliate',
+                        'name' => $affiliate->display_name ?: $affiliate->user->name,
+                    ]);
+                }
+
                 return view('w9.form-fillable-pdf', [
                     'type' => 'affiliate',
                     'id' => $id,
@@ -39,6 +48,15 @@ class W9FormController extends Controller
             } elseif ($type === 'entertainer') {
                 $entertainer = Entertainer::findOrFail($id);
                 $w9Form = W9Form::where('entertainer_id', $id)->first();
+
+                // Check if already submitted
+                if ($w9Form && $w9Form->status === 'submitted') {
+                    return view('w9.already-submitted', [
+                        'type' => 'entertainer',
+                        'name' => $entertainer->display_name ?: $entertainer->user->name,
+                    ]);
+                }
+
                 return view('w9.form-fillable-pdf', [
                     'type' => 'entertainer',
                     'id' => $id,
@@ -70,16 +88,16 @@ class W9FormController extends Controller
 
         try {
             $validated = $request->validate([
-                'full_name' => 'required|string|max:255',
+                'full_name' => 'nullable|string|max:255',
                 'business_name' => 'nullable|string|max:255',
-                'tax_classification' => 'required|in:individual,c_corporation,s_corporation,partnership,trust_estate,limited_liability_company_c,limited_liability_company_s,limited_liability_company_individual,sole_proprietor,other',
+                'tax_classification' => 'nullable|in:individual,c_corporation,s_corporation,partnership,trust_estate,limited_liability_company_c,limited_liability_company_s,limited_liability_company_individual,sole_proprietor,other',
                 'tax_classification_other' => 'nullable|string|max:255',
-                'tax_id_type' => 'required|in:ssn,ein',
-                'tax_id_number' => 'required|string|max:20',
-                'street_address' => 'required|string|max:255',
-                'city' => 'required|string|max:100',
-                'state' => 'required|string|size:2',
-                'zip_code' => 'required|string|max:10',
+                'tax_id_type' => 'nullable|in:ssn,ein',
+                'tax_id_number' => 'nullable|string|max:20',
+                'street_address' => 'nullable|string|max:255',
+                'city' => 'nullable|string|max:100',
+                'state' => 'nullable|string|size:2',
+                'zip_code' => 'nullable|string|max:10',
                 'account_numbers' => 'nullable|string|max:255',
                 'requester_name' => 'nullable|string|max:255',
                 'requester_phone' => 'nullable|string|max:20',

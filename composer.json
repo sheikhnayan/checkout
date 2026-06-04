@@ -16,6 +16,7 @@
         "laravel/socialite": "^5.26",
         "laravel/tinker": "^2.10.1",
         "mikehaertl/phpwkhtmltopdf": "^2.5",
+        "setasign/fpdf": "^1.9",
         "setasign/fpdi": "^2.6",
         "stripe/stripe-php": "^17.4"
     },
