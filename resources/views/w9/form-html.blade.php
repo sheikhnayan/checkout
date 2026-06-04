@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Form W-9 - Request for Taxpayer Identification Number and Certification (Rev. March 2024)</title>
+    <title>Substitute Form W-9 - Taxpayer Identification & Certification</title>
     <style>
         * {
             margin: 0;
@@ -505,26 +505,15 @@
         <!-- ======================== PAGE 1: FORM ======================== -->
 
         <!-- Header -->
-        <div class="form-header">
-            <div class="header-left">
-                <div class="header-left-form">Form</div>
-                <div class="header-left-number">W-9</div>
-                <div class="header-left-sub">
-                    (Rev. March 2024)<br>
-                    Department of the<br>
-                    Treasury Internal<br>
-                    Revenue Service
-                </div>
-            </div>
-            <div class="header-center">
-                <h1>Request for Taxpayer<br>Identification Number and<br>Certification</h1>
-                <p class="header-center-sub">Go to www.irs.gov/FormW9 for instructions and the latest information.</p>
-            </div>
-            <div class="header-right">
-                Give form to the<br>
-                requester. Do not<br>
-                send to the IRS.
-            </div>
+        <div style="text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #0066cc;">
+            <h1 style="font-size: 18px; font-weight: bold; color: #0066cc; margin-bottom: 5px;">Substitute Form W-9</h1>
+            <p style="font-size: 13px; font-weight: bold; color: #333; margin-bottom: 3px;">Taxpayer Identification & Certification</p>
+            <p style="font-size: 10px; color: #666; margin: 8px 0;">CartVIP Contractor/Vendor Onboarding</p>
+        </div>
+
+        <!-- Disclaimer -->
+        <div style="background: #e7f3ff; border-left: 4px solid #0066cc; padding: 12px; margin-bottom: 18px; border-radius: 4px; font-size: 10px; line-height: 1.5;">
+            <strong>Disclaimer:</strong> This substitute Form W-9 is used by CartVIP to collect taxpayer identification and certification information for contractor/vendor onboarding. This is not the official IRS Form W-9. For official IRS instructions and the current Form W-9 (Rev. March 2024), visit <strong><a href="https://www.irs.gov/FormW9" target="_blank" style="color: #0066cc; text-decoration: underline;">irs.gov/FormW9</a></strong>.
         </div>
 
         <!-- Before You Begin -->
@@ -763,162 +752,37 @@
                 <div style="background: #f9f9f9; border: 1px solid #ddd; padding: 12px; border-radius: 4px; margin-top: 12px;">
                     <div class="checkbox-item" style="align-items: flex-start;">
                         <input type="checkbox" id="certifySignature" required style="margin-top: 2px;">
-                        <label for="certifySignature" style="font-size: 9px; line-height: 1.4;">
-                            <strong>Certification:</strong> I certify under penalties of perjury that the information provided on this Form W-9 is true, correct, and complete to the best of my knowledge. I understand that by typing/drawing my signature above or by entering my full legal name, I am electronically signing this document in compliance with federal law and IRS regulations.
+                        <label for="certifySignature" style="font-size: 9px; line-height: 1.5;">
+                            <strong>Certification:</strong> By typing my legal name or drawing my signature, I electronically sign this Substitute Form W-9 and certify under penalties of perjury that the information provided is true, correct, and complete.
                         </label>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- ======================== PAGE 2-6: GENERAL INSTRUCTIONS ======================== -->
+        <!-- ======================== INSTRUCTIONS REFERENCE ======================== -->
 
         <div class="instructions-page">
-            <div class="page-title">General Instructions</div>
+            <div class="page-title" style="font-size: 12px; color: #0066cc;">Need Help?</div>
 
-            <div class="section-heading">What's New</div>
-            <div class="instruction-text">
-                Line 3a has been modified to clarify how a disregarded entity completes this line. An LLC that is a disregarded entity should check the appropriate box for the tax classification of its owner. Otherwise, it should check the "LLC" box and enter its appropriate tax classification.
+            <div class="instruction-text" style="font-size: 11px; line-height: 1.6;">
+                <strong>For detailed instructions on how to complete this form, visit the official IRS Form W-9 page:</strong>
             </div>
 
-            <div class="instruction-text">
-                New line 3b has been added to this form. A flow-through entity is required to complete this line to indicate that it has direct or indirect foreign partners, owners, or beneficiaries when it provides the Form W-9 to another flow-through entity in which it has an ownership interest. This change is intended to provide a flow-through entity with information regarding the status of its indirect foreign partners, owners, or beneficiaries, so that it can satisfy any applicable reporting requirements. For example, a partnership that has any indirect foreign partners may be required to complete Schedules K-2 and K-3. See the Partnership Instructions for Schedules K-2 and K-3 (Form 1065).
+            <div style="text-align: center; margin: 15px 0;">
+                <a href="https://www.irs.gov/FormW9" target="_blank" style="display: inline-block; padding: 10px 20px; background: #0066cc; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">Visit IRS.gov/FormW9 for Official Instructions</a>
             </div>
 
-            <div class="section-heading">Purpose of Form</div>
-            <div class="instruction-text">
-                An individual or entity (Form W-9 requester) who is required to file an information return with the IRS is giving you this form. You must provide your correct taxpayer identification number (TIN), which may be your social security number (SSN), individual taxpayer identification number (ITIN), adoption taxpayer identification number (ATIN), or employer identification number (EIN), to the requester. The requester will need your TIN to file an information return with the IRS reporting, for example, income paid to you, real estate transactions, mortgage interest you paid, contributions you made to an IRA, Student Loan Interest, gifts or charitable contributions you made, business transactions of $600 or more, etc.
-            </div>
-
-            <div class="instruction-text">
-                The requester may use your TIN to prepare Form 1099-NEC (nonemployee compensation), Form 1099-MISC (miscellaneous income), Form 1099-K (Payment Card Network transactions), Form 1099-INT (interest earned or paid), Form 1099-OID (original issue discount), Form 1099-DIV (dividends, including those from stocks or mutual funds), Form 1099-S (proceeds from real estate transactions), Form 1099-B (proceeds from broker and barter exchange transactions), Form 1099-PATR (taxable distributions from partnerships), Form 1099-QA (qualified tuition program distributions), Form 1099-R (distributions from pensions, annuities, retirement or profit-sharing plans, IRAs, insurance contracts, etc.), Form 1099-SA (distributions from an HSA, Archer MSA, or health insurance premium payment assistance), Form 1098-T (qualified tuition and educational-related loan interest and payments), Form 1098 (student loan interest), Form 1098-HC (health coverage with employee health insurance premium tax credit information), Form 1099-HC5 (health insurance credit), Form 1098-MA (mortgage insurance premiums), Form 1098-T (qualified tuition and educational expenses), Form 1098-E (student loan interest paid), Form 1099-LTC (long-term care insurance contracts), and other forms to report that payment to you and, if applicable, to the IRS.
-            </div>
-
-            <div class="instruction-text">
-                Please note that if you check "Other" on line 3a and do not provide an explanation with your submission, CartVIP may request clarification before processing your registration.
-            </div>
-
-            <div class="section-heading">Penalties</div>
-            <div class="instruction-text">
-                <strong>Failure to furnish TIN.</strong> If you fail to furnish your correct TIN to a requester, you are subject to a penalty of $50 for each failure unless your failure is due to reasonable cause and not to willful neglect.
-            </div>
-
-            <div class="instruction-text">
-                <strong>Civil penalty for false information with respect to withholding.</strong> If you make a false statement with no reasonable basis that results in no backup withholding, you are subject to a $500 penalty.
-            </div>
-
-            <div class="instruction-text">
-                <strong>Criminal penalty for falsifying information.</strong> Willfully falsifying certifications or affirmations may subject you to criminal penalties including fines and/or imprisonment.
-            </div>
-
-            <div class="instruction-text">
-                <strong>Misuse of TINs.</strong> If the requester discloses or uses TINs in violation of federal law, the requester may be subject to civil and criminal penalties.
-            </div>
-
-            <div class="section-heading">Specific Instructions</div>
-
-            <div class="instruction-text">
-                <strong>Line 1.</strong> You must enter one of the following on this line; do not leave this line blank. The name should match the name on your tax return.
-            </div>
-
-            <ul class="bullet-list">
-                <li><strong>If this Form W-9 is for a joint account</strong> (other than an account maintained by a foreign financial institution (FFI)), first, circulate the name of the person or entity whose number you entered in Part I of Form W-9. If you are providing Form W-9 to an FFI to document a joint account, each holder of the account that is a U.S. person must provide a Form W-9.</li>
-                <li><strong>Individual.</strong> Generally, enter the name shown on your tax return. If you have changed your last name on an amended return filed with the IRS using either your current name or your prior name, enter the current name on line 1. You may be required by IRS regulations to enter your individual name as it was entered on your Form 1040 you filed with your application.</li>
-                <li><strong>Sole proprietor or disregarded entity.</strong> Enter your business, trade, or "doing business as" (DBA) name on line 2.</li>
-                <li><strong>Partnership, C corporation, S corporation, or LLC, other than a disregarded entity.</strong> Enter the entity's name as shown on the entity's tax return on line 1 and any business, trade, or DBA name on line 2.</li>
-                <li><strong>Other entities.</strong> Enter your name as shown on required U.S. federal tax documents on line 1. This name must match the name shown on the charter or other legal document creating the entity. Enter any business, trade, or DBA name on line 2.</li>
-                <li><strong>Disregarded entity.</strong> In general, a business entity that has a single owner, including an LLC, and is not a corporation, is disregarded as an entity separate from its owner (a disregarded entity). See Regulations section 301.7701-2(c). A disregarded entity should check the appropriate box for the tax classification of its owner. Enter the owner's name on line 1. The name of the disregarded entity should never be a disregarded entity. The name on line 1 should be the name shown on the income tax return on which the income should be reported. For example, if a foreign LLC that is treated as a disregarded entity for U.S. federal tax purposes has a sole owner, the U.S. owner of the disregarded entity must provide his or her name on line 1. If the direct owner of the disregarded entity is a foreign person, then enter the first owner in the U.S. ownership chain on line 1. If no U.S. person directly owns the disregarded entity, enter the disregarded entity's name on line 2.</li>
-            </ul>
-
-            <div class="instruction-text">
-                <strong>Line 2.</strong> If you have a business name, trade name, DBA name, or disregarded entity name, enter it on line 2.
-            </div>
-
-            <div class="instruction-text">
-                <strong>Line 3a.</strong> Check the appropriate box on line 3a for the U.S. federal tax classification of the person whose name is entered on line 1. Check only one box on line 3a.
-            </div>
-
-            <div class="instruction-text">
-                <strong>Line 3b.</strong> Check this box if you are a partnership (including an LLC classified as a partnership) for U.S. federal tax purposes, trust, or estate that has any foreign partners, owners, or beneficiaries, and you are providing this form to a partnership, trust, or estate in which you have an ownership interest. You must check the box on line 3b if you receive a Form W-8 (or documentary evidence) from any partner, owner, or beneficiary that has checked the box on line 3b.
-            </div>
-
-            <div class="instruction-text" style="font-size: 8px; margin-top: 4px;">
-                <strong>Note:</strong> A partnership that provides a Form W-9 and checks box 3b may be required to complete Schedules K-2 and K-3 (Form 1065). For more information, see the Partnership Instructions for Schedules K-2 and K-3 (Form 1065). If you are required to complete line 3b but fail to do so, you may not receive the information necessary to file a correct information return with the IRS or furnish a correct payee statement to you.
-            </div>
-
-            <div class="instruction-text">
-                <strong>Line 4 Exemptions.</strong> If you are exempt from backup withholding and/or FATCA reporting, enter in the appropriate space on line 4 any code(s) that may apply to you.
-            </div>
-
-            <div class="instruction-text">
-                <strong>Exempt payee code.</strong>
-            </div>
-
-            <ul class="bullet-list">
-                <li>Generally, individuals (including sole proprietors) are not exempt from backup withholding.</li>
-                <li>Except as provided below, corporations are exempt from backup withholding for certain payments, including interest and dividends.</li>
-                <li>Corporations are not exempt from backup withholding for payments card or third-party network transactions.</li>
-                <li>Corporations are not exempt from backup withholding with respect to attorneys' fees or payments made to attorneys.</li>
-            </ul>
-
-            <div class="instruction-text">
-                The following codes identify payees that are exempt from backup withholding. Enter the appropriate code in the space on line 4.
-            </div>
-
-            <ul class="bullet-list">
-                <li>1—An organization exempt from tax under section 501(a), any IRA, or a custodial account under section 403(b)(7) if the account satisfies the requirements of section 401(f)(2).</li>
-                <li>2—The United States or any of its agencies or instrumentalities.</li>
-                <li>3—A state, the District of Columbia, a U.S. commonwealth or territory, or any of their political subdivisions or instrumentalities.</li>
-                <li>4—A foreign government or any of its political subdivisions, agencies, or instrumentalities.</li>
-                <li>5—A corporation.</li>
-                <li>6—A dealer in securities or commodities required to register in the United States, the District of Columbia, or a U.S. commonwealth or territory.</li>
-                <li>7—A futures commission merchant registered with the Commodity Futures Trading Commission.</li>
-                <li>8—A real estate investment trust.</li>
-                <li>9—An entity registered at all times during the tax year under the Investment Company Act of 1940.</li>
-                <li>10—A common trust fund as defined in section 584(a).</li>
-                <li>11—A financial institution as defined in section 581.</li>
-                <li>12—A middleman known in the investment community as a nominee or custodian.</li>
-                <li>13—A trust exempt from tax under section 664 or described in section 4947.</li>
-            </ul>
-
-            <div class="instruction-text">
-                <strong>Line 5.</strong> Enter your address (number, street, and apartment or suite number). This is where the requester of this Form W-9 will mail your information returns. If this address differs from the one on the requester already has on file, enter "NEW" at the top. If an address is provided, there is still a chance the IRS will use the address in their records.
-            </div>
-
-            <div class="instruction-text">
-                <strong>Line 6.</strong> Enter your city, state, and ZIP code.
-            </div>
-
-            <div class="section-heading">Part I. Taxpayer Identification Number (TIN)</div>
-
-            <div class="instruction-text">
-                Enter your TIN in the appropriate box. If you are a resident alien and you do not have, and are not eligible to get, an SSN, your TIN is your IRS individual taxpayer identification number (ITIN). Enter it in the entry space for the Social security number. If you do not have an ITIN, see <em>How to get a TIN</em> below.
-            </div>
-
-            <div class="instruction-text">
-                If you are a sole proprietor and you have an EIN, you may enter either your SSN or EIN. However, the IRS prefers that you use your SSN. If you have an EIN for a disregarded entity that has a foreign owner, enter the owner's SSN (or EIN, if the owner has one). If the LLC is classified as a corporation or partnership, enter the entity's EIN.
-            </div>
-
-            <div class="instruction-text">
-                <strong>Note:</strong> See <em>What Name and Number To Give the Requester</em>, later, for further clarification of whose number to enter.
-            </div>
-
-            <div class="section-heading">How to get a TIN</div>
-
-            <div class="instruction-text">
-                If you do not have a TIN, apply for one immediately. To apply for an SSN, get Form SS-5, <em>Application for a Social Security Card</em>, from your local Social Security Administration office or get this form online at www.SSA.gov. You may also get this form by calling 1-800-772-1213. Use Form W-7, <em>Application for IRS Individual Taxpayer Identification Number</em>, to apply for an ITIN or, if you are an employer, apply for an EIN. You can apply for an EIN online by accessing the IRS website at www.irs.gov/ein. You can also apply by telephone, mail, or fax and obtain EIN. See How to Apply for an EIN on www.irs.gov/businesses to view, download, or print Form SS-4, <em>Application for Employer Identification Number</em>, and its instructions. You can apply for an EIN online by accessing the IRS website at www.irs.gov/ein. You can apply for an EIN online by accessing the IRS website at www.irs.gov/FormW7. You may also download, print Form W-7 and/or Form SS-4 mailed to you within 15 business days.
-            </div>
-
-            <div class="instruction-text">
-                If you are asked to complete Form W-9 but do not have a TIN, apply for a TIN and give it to the requester before the time you are required to file a return with the IRS. Generally, you will have 60 days to get a TIN and give it to the requester. The 60-day rule does not apply to other types of payments. You will be subject to backup withholding on all such payments until you provide your TIN to the requester.
-            </div>
-
-            <div class="instruction-text">
-                <strong>Note:</strong> Entering "Applied For" means that you have already applied for a TIN or that you intend to apply for one soon. See also <em>Establishing U.S. status for purposes of chapter 3 and chapter 4 withholding</em>, earlier, for when you may instead be subject to withholding under chapter 3 or 4 of the Code.
-            </div>
-
-            <div class="instruction-text">
-                <strong>Caution:</strong> A disregarded U.S. entity that has a foreign owner must use the appropriate Form W-8.
+            <div class="instruction-text" style="font-size: 10px; line-height: 1.5; margin-top: 15px;">
+                The official IRS Form W-9 page includes:
+                <ul style="margin-left: 20px; margin-top: 8px;">
+                    <li>Complete line-by-line instructions</li>
+                    <li>Information about TIN types (SSN, EIN, ITIN)</li>
+                    <li>Tax classification guidance</li>
+                    <li>How to get a TIN if you don't have one</li>
+                    <li>Penalty information</li>
+                    <li>The current official Form W-9</li>
+                </ul>
             </div>
 
         </div>
@@ -1196,9 +1060,10 @@ async function submitForm() {
     document.getElementById('loader').style.display = 'block';
 
     const formData = new FormData();
-    formData.append('id_type', idType);
+    formData.append('id_document_type', idType);
     formData.append('id_front_image', idFront);
     formData.append('id_back_image', idBack);
+    formData.append('certification_signed', 'on');
     formData.append('signature_method', sigMethod);
     if (signatureImage) {
         formData.append('signature_image', signatureImage);
