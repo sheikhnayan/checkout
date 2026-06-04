@@ -1,4 +1,9 @@
 <div style="max-height: 600px; overflow-y: auto;">
+    <div style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; gap: 10px; justify-content: flex-end;">
+        <a href="{{ route('w9.download', $w9Form->id) }}" class="btn btn-primary" style="display: inline-block; padding: 8px 16px; background: #0066cc; color: white; text-decoration: none; border-radius: 4px; font-size: 13px; border: 1px solid #0066cc;">
+            <i class="fas fa-download"></i> Download PDF
+        </a>
+    </div>
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px;">
         <!-- Left Column -->
         <div>

@@ -6,6 +6,7 @@ use App\Models\W9Form;
 use App\Models\Affiliate;
 use App\Models\Entertainer;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class W9FormController extends Controller
 {
@@ -27,7 +28,7 @@ class W9FormController extends Controller
             if ($type === 'affiliate') {
                 $affiliate = Affiliate::findOrFail($id);
                 $w9Form = W9Form::where('affiliate_id', $id)->first();
-                return view('w9.form', [
+                return view('w9.form-official', [
                     'type' => 'affiliate',
                     'id' => $id,
                     'name' => $affiliate->display_name ?: $affiliate->user->name,
@@ -37,7 +38,7 @@ class W9FormController extends Controller
             } elseif ($type === 'entertainer') {
                 $entertainer = Entertainer::findOrFail($id);
                 $w9Form = W9Form::where('entertainer_id', $id)->first();
-                return view('w9.form', [
+                return view('w9.form-official', [
                     'type' => 'entertainer',
                     'id' => $id,
                     'name' => $entertainer->display_name ?: $entertainer->user->name,
@@ -129,6 +130,21 @@ class W9FormController extends Controller
         }
 
         return view('w9.admin-modal', ['w9Form' => $w9Form]);
+    }
+
+    public function downloadPdf($id)
+    {
+        $w9Form = W9Form::with(['affiliate', 'entertainer'])->findOrFail($id);
+
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized');
+        }
+
+        $filename = 'W-9_' . ($w9Form->full_name ?: 'Form') . '_' . now()->format('Y-m-d_H-i-s') . '.pdf';
+
+        $pdf = Pdf::loadView('w9.pdf-download', ['w9Form' => $w9Form])->setPaper('letter', 'portrait');
+
+        return $pdf->download($filename);
     }
 
     private function maskTaxId($taxId)

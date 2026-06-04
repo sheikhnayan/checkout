@@ -74,6 +74,7 @@ use App\Http\Controllers\W9FormController;
 Route::get('/w9/{token}', [W9FormController::class, 'show'])->name('w9.show');
 Route::post('/w9/{token}/submit', [W9FormController::class, 'store'])->name('w9.store');
 Route::get('/admin/w9/{id}/modal', [W9FormController::class, 'viewModal'])->name('w9.modal')->middleware('auth');
+Route::get('/admin/w9/{id}/download-pdf', [W9FormController::class, 'downloadPdf'])->name('w9.download')->middleware('auth');
 
 // Affiliate public routes (must stay before slug route)
 Route::get('/affiliate/apply', [AffiliateRegistrationController::class, 'showForm'])->name('affiliate.apply');
