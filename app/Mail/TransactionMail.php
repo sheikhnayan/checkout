@@ -73,8 +73,11 @@ class TransactionMail extends Mailable
             ?? null;
 
         $mailData = $this->mailData;
-        if (!array_key_exists('cart_items', $mailData) && $this->cartItems !== null) {
+        // Always use the cartItems parameter if provided, as it has the freshest data with all addons
+        if ($this->cartItems !== null) {
             $mailData['cart_items'] = $this->cartItems;
+        } elseif (!array_key_exists('cart_items', $mailData)) {
+            $mailData['cart_items'] = [];
         }
         if (!array_key_exists('price_breakdown', $mailData) && $this->priceBreakdown !== null) {
             $mailData['price_breakdown'] = $this->priceBreakdown;
