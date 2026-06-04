@@ -77,11 +77,11 @@ return new class extends Migration
             $table->softDeletes();
 
             // Indexes
-            $table->foreign('affiliate_id')->references('id')->on('affiliates')->onDelete('cascade');
-            $table->foreign('entertainer_id')->references('id')->on('entertainers')->onDelete('cascade');
-            $table->foreign('reviewed_by')->references('id')->on('users')->onDelete('set null');
             $table->index('type');
             $table->index('status');
+            $table->index('affiliate_id');
+            $table->index('entertainer_id');
+            $table->index('reviewed_by');
         });
     }
 
