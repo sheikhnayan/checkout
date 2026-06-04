@@ -333,12 +333,12 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
     // Promoter admin routes
     Route::group(['prefix'=> 'promoter', 'as' => 'promoter.'], function () {
         Route::get('/', [AffiliateAdminController::class, 'index'])->name('index');
-        Route::get('/{promoter}', [AffiliateAdminController::class, 'show'])->name('show');
-        Route::post('/{promoter}/approve', [AffiliateAdminController::class, 'approve'])->name('approve');
-        Route::post('/{promoter}/unapprove', [AffiliateAdminController::class, 'unapprove'])->name('unapprove');
-        Route::post('/{promoter}/reject', [AffiliateAdminController::class, 'reject'])->name('reject');
-        Route::post('/{promoter}/commission', [AffiliateAdminController::class, 'updateCommission'])->name('commission.update');
-        Route::post('/{promoter}/packages', [AffiliateAdminController::class, 'updatePackages'])->name('packages.update');
+        Route::get('/{id}', [AffiliateAdminController::class, 'show'])->name('show');
+        Route::post('/{id}/approve', [AffiliateAdminController::class, 'approve'])->name('approve');
+        Route::post('/{id}/unapprove', [AffiliateAdminController::class, 'unapprove'])->name('unapprove');
+        Route::post('/{id}/reject', [AffiliateAdminController::class, 'reject'])->name('reject');
+        Route::post('/{id}/commission', [AffiliateAdminController::class, 'updateCommission'])->name('commission.update');
+        Route::post('/{id}/packages', [AffiliateAdminController::class, 'updatePackages'])->name('packages.update');
     });
 
     Route::group(['prefix'=> 'entertainer', 'as' => 'entertainer.'], function () {
