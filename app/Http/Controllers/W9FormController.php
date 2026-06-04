@@ -120,8 +120,15 @@ class W9FormController extends Controller
             $taxId = '';
 
             // Check for manual confirmation fields first (fallback approach)
+            if (!empty($pdfData['line1_name'])) {
+                $fullName = trim($pdfData['line1_name']);
+            }
             if (!empty($pdfData['manual_full_name'])) {
                 $fullName = trim($pdfData['manual_full_name']);
+            }
+
+            if (!empty($pdfData['tin_number'])) {
+                $taxId = preg_replace('/[^0-9-]/', '', trim($pdfData['tin_number']));
             }
             if (!empty($pdfData['manual_tax_id'])) {
                 $taxId = preg_replace('/[^0-9-]/', '', trim($pdfData['manual_tax_id']));

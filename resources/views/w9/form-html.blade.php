@@ -1091,6 +1091,9 @@ async function submitForm() {
 
     formData.append('pdf_form_data', JSON.stringify(w9Data));
 
+    console.log('W-9 Form Data Being Sent:', w9Data);
+    console.log('PDF Form Data JSON:', JSON.stringify(w9Data));
+
     try {
         const response = await fetch('{{ route("w9.store", $token) }}', {
             method: 'POST',
