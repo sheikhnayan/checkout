@@ -527,6 +527,33 @@
                 return;
             }
 
+            // If extraction found minimal data, ask user to confirm manually
+            const filledFieldsCount = Object.values(pdfFormData).filter(v => v && v.toString().trim().length > 0).length;
+
+            if (filledFieldsCount < 2) {
+                // Fallback: Ask user to confirm the data they filled
+                console.log('Extraction found only ' + filledFieldsCount + ' fields. Requesting manual confirmation.');
+
+                const fullName = prompt('Please confirm: What NAME did you enter in the W-9 form? (Line 1)');
+                if (!fullName) {
+                    alert('Name is required to proceed.');
+                    document.getElementById('submitBtn').disabled = false;
+                    document.getElementById('loader').style.display = 'none';
+                    return;
+                }
+
+                const taxId = prompt('Please confirm: What TAX ID/SSN did you enter? (Line 5)\nFormat: 9 digits (e.g., 123456789 or 12-3456789)');
+                if (!taxId) {
+                    alert('Tax ID is required to proceed.');
+                    document.getElementById('submitBtn').disabled = false;
+                    document.getElementById('loader').style.display = 'none';
+                    return;
+                }
+
+                pdfFormData['manual_full_name'] = fullName;
+                pdfFormData['manual_tax_id'] = taxId;
+            }
+
             // Prepare form data
             const formData = new FormData();
             formData.append('id_document_type', idDocumentType);

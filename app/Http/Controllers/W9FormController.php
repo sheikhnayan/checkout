@@ -119,7 +119,15 @@ class W9FormController extends Controller
             $fullName = '';
             $taxId = '';
 
-            // Search through all PDF fields for name and tax ID
+            // Check for manual confirmation fields first (fallback approach)
+            if (!empty($pdfData['manual_full_name'])) {
+                $fullName = trim($pdfData['manual_full_name']);
+            }
+            if (!empty($pdfData['manual_tax_id'])) {
+                $taxId = preg_replace('/[^0-9-]/', '', trim($pdfData['manual_tax_id']));
+            }
+
+            // If not found in manual fields, search through all PDF fields for name and tax ID
             foreach ($pdfData as $fieldName => $fieldValue) {
                 if (empty($fieldValue)) continue;
 
