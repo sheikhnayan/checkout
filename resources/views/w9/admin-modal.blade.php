@@ -39,14 +39,23 @@
         }
 
         .admin-header {
-            background: white;
-            padding: 20px;
-            margin-bottom: 0;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: white !important;
+            padding: 20px !important;
+            margin-bottom: 0 !important;
+            border-radius: 4px !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            color: #000 !important;
+        }
+
+        .admin-header * {
+            color: #000 !important;
+        }
+
+        .admin-header h2, .admin-header p {
+            color: #000 !important;
         }
 
         .admin-status {
@@ -578,12 +587,12 @@
         <div style="text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #0066cc;">
             <h1 style="font-size: 18px; font-weight: bold; color: #0066cc; margin-bottom: 5px;">Substitute Form W-9</h1>
             <p style="font-size: 13px; font-weight: bold; color: #333; margin-bottom: 3px;">Taxpayer Identification & Certification</p>
-            <p style="font-size: 10px; color: #666; margin: 8px 0;">CartVIP Contractor/Vendor Onboarding</p>
+            <p style="font-size: 10px; color: #666; margin: 8px 0;">CartVIP Onboarding</p>
         </div>
 
         <!-- Disclaimer -->
         <div style="background: #e7f3ff; border-left: 4px solid #0066cc; padding: 12px; margin-bottom: 18px; border-radius: 4px; font-size: 10px; line-height: 1.5;">
-            <strong>Disclaimer:</strong> This substitute Form W-9 is used by CartVIP to collect taxpayer identification and certification information for contractor/vendor onboarding. This is not the official IRS Form W-9. For official IRS instructions and the current Form W-9 (Rev. March 2024), visit <strong><a href="https://www.irs.gov/FormW9" target="_blank" style="color: #0066cc; text-decoration: underline;">irs.gov/FormW9</a></strong>.
+            <strong>Disclaimer:</strong> This Substitute Form W-9 is used by CartVIP to collect taxpayer identification, certification, and payment information as part of the CartVIP onboarding process. This information may be used for tax reporting, compliance, and payment processing purposes. This is not the official IRS Form W-9. For official IRS instructions and the current Form W-9, visit <strong><a href="https://www.irs.gov/FormW9" target="_blank" style="color: #0066cc; text-decoration: underline;">IRS.gov/FormW9</a></strong>.
         </div>
 
     <!-- Line 1 Notes -->
@@ -851,18 +860,23 @@
             <!-- Signature Display -->
             @php
                 $pdfData = $w9Form->pdf_form_data ? json_decode($w9Form->pdf_form_data, true) : [];
-                $signatureMethod = $pdfData['signature_type'] ?? 'typed';
-                $signatureTyped = $pdfData['signature_typed'] ?? '';
+                $signatureMethod = $pdfData['signature_method'] ?? $pdfData['signature_type'] ?? 'typed';
+                $signatureTyped = $pdfData['signature'] ?? $pdfData['signature_typed'] ?? '';
+                $signatureImage = $pdfData['signature'] ?? '';
             @endphp
 
             <div style="margin-bottom: 15px;">
                 <div class="sig-label">Signature</div>
-                <div class="sig-area">
-                    @if($signatureMethod === 'typed' && $signatureTyped)
-                        <div style="font-size: 14px; color: #000; padding: 10px; font-style: italic;">{{ $signatureTyped }}</div>
+                <div class="sig-area" style="min-height: 60px; padding: 10px; border: none;">
+                    @if($signatureMethod === 'typed' && $signatureTyped && !strpos($signatureTyped, 'data:image'))
+                        <div style="font-size: 18px; color: #000; padding: 15px 10px; font-style: italic; font-family: cursive;">{{ $signatureTyped }}</div>
+                    @elseif($signatureImage && strpos($signatureImage, 'data:image') === 0)
+                        <img src="{{ $signatureImage }}" alt="Signature" style="max-width: 100%; max-height: 80px; object-fit: contain;">
+                    @elseif($signatureTyped)
+                        <div style="font-size: 18px; color: #000; padding: 15px 10px; font-family: cursive;">{{ $signatureTyped }}</div>
                     @else
-                        <div style="font-size: 11px; color: #666; padding: 10px;">
-                            [Signature recorded digitally on {{ $w9Form->certification_date?->format('M d, Y') ?? 'N/A' }}]
+                        <div style="font-size: 11px; color: #999; padding: 10px; text-align: center;">
+                            [No signature recorded]
                         </div>
                     @endif
                 </div>

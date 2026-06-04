@@ -324,7 +324,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function onScanSuccess(decodedText) {
-        verifyCode(decodedText);
+        setStatus('✓ SUCCESS - QR code is scanned', false);
+        setTimeout(function() {
+            stopScanner();
+            verifyCode(decodedText);
+        }, 1500);
     }
 
     startScannerBtn.addEventListener('click', startScanner);
@@ -444,6 +448,40 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     capturePhotoBtn.addEventListener('click', function() {
+        // If already captured, check if this is a delete action
+        if ((capturingFrontPhoto && frontPhotoCaptured) || (!capturingFrontPhoto && backPhotoCaptured)) {
+            // Delete photo
+            if (capturingFrontPhoto) {
+                // Delete front photo
+                frontPhotoData.value = '';
+                frontPhotoPreviewContainer.classList.add('d-none');
+                frontPhotoCaptured = false;
+                frontPhotoStatus.textContent = 'Pending';
+                frontPhotoStatus.style.color = '#60a5fa';
+
+                capturePhotoBtn.textContent = 'Capture Photo';
+                capturePhotoBtn.classList.remove('btn-warning');
+                capturePhotoBtn.classList.add('btn-success');
+
+                // Remove proceed button if it exists
+                const proceedBtn = document.getElementById('proceedToBackBtn');
+                if (proceedBtn) proceedBtn.remove();
+            } else {
+                // Delete back photo
+                backPhotoData.value = '';
+                backPhotoPreviewContainer.classList.add('d-none');
+                backPhotoCaptured = false;
+                backPhotoStatus.textContent = 'Pending';
+                backPhotoStatus.style.color = '#60a5fa';
+
+                capturePhotoBtn.textContent = 'Capture Photo';
+                capturePhotoBtn.classList.remove('btn-warning');
+                capturePhotoBtn.classList.add('btn-success');
+                stopPhotoCameraBtn.classList.remove('d-none');
+            }
+            return;
+        }
+
         if (!photoCameraStream || !photoCameraFeed.srcObject) {
             alert('Camera is not ready.');
             return;
@@ -460,6 +498,13 @@ document.addEventListener('DOMContentLoaded', function () {
         // Get image data as base64
         const imageData = photoCanvas.toDataURL('image/jpeg', 0.9);
 
+        // Flash effect
+        photoCanvas.style.display = 'block';
+        photoCanvas.getContext('2d').drawImage(photoCameraFeed, 0, 0, photoCanvas.width, photoCanvas.height);
+        setTimeout(function() {
+            photoCanvas.style.display = 'none';
+        }, 150);
+
         if (capturingFrontPhoto) {
             // Capture front of ID
             frontPhotoData.value = imageData;
@@ -469,10 +514,29 @@ document.addEventListener('DOMContentLoaded', function () {
             frontPhotoStatus.textContent = '✓ Captured';
             frontPhotoStatus.style.color = '#86efac';
 
-            // Move to back photo
-            capturingFrontPhoto = false;
-            capturePhotoText.textContent = 'Capture Back of ID';
-            alert('Front of ID captured. Now capture the back of the ID.');
+            // Show delete button
+            capturePhotoBtn.textContent = 'Delete Front Photo';
+            capturePhotoBtn.classList.remove('btn-success');
+            capturePhotoBtn.classList.add('btn-warning');
+
+            // Add a new button to proceed to back photo
+            const proceedToBackBtn = document.createElement('button');
+            proceedToBackBtn.type = 'button';
+            proceedToBackBtn.id = 'proceedToBackBtn';
+            proceedToBackBtn.className = 'btn btn-success';
+            proceedToBackBtn.innerHTML = 'Good ✓ - Capture Back of ID →';
+            proceedToBackBtn.style.flex = '1';
+            proceedToBackBtn.addEventListener('click', function() {
+                proceedToBackBtn.remove();
+                capturePhotoText.textContent = 'Capture Back of ID';
+                capturingFrontPhoto = false;
+                capturePhotoBtn.textContent = 'Capture Photo';
+                capturePhotoBtn.classList.remove('btn-warning');
+                capturePhotoBtn.classList.add('btn-success');
+            });
+
+            // Insert the new button after capture button
+            capturePhotoBtn.parentNode.insertBefore(proceedToBackBtn, capturePhotoBtn.nextSibling);
         } else {
             // Capture back of ID
             backPhotoData.value = imageData;
@@ -484,7 +548,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // All photos captured
             capturePhotoText.textContent = 'Both photos captured!';
-            stopPhotoCamera();
+            capturePhotoBtn.textContent = 'Delete Back Photo';
+            capturePhotoBtn.classList.remove('btn-success');
+            capturePhotoBtn.classList.add('btn-warning');
+            stopPhotoCameraBtn.classList.add('d-none');
+
+            // Remove proceed button if it exists
+            const proceedBtn = document.getElementById('proceedToBackBtn');
+            if (proceedBtn) proceedBtn.remove();
         }
     });
 
@@ -516,29 +587,43 @@ document.addEventListener('DOMContentLoaded', function () {
     const retakePhotosBtn = document.getElementById('retakePhotosBtn');
     if (retakePhotosBtn) {
         retakePhotosBtn.addEventListener('click', function() {
-            // Reset photo states
-            frontPhotoCaptured = false;
-            backPhotoCaptured = false;
-            capturingFrontPhoto = true;
-
-            // Clear photo data and previews
-            frontPhotoData.value = '';
-            backPhotoData.value = '';
-            frontPhotoPreviewContainer.classList.add('d-none');
-            backPhotoPreviewContainer.classList.add('d-none');
-
-            // Reset status indicators
-            frontPhotoStatus.textContent = 'Pending';
-            frontPhotoStatus.style.color = '#60a5fa';
-            backPhotoStatus.textContent = 'Pending';
-            backPhotoStatus.style.color = '#60a5fa';
-
-            // Reset capture button text
-            capturePhotoText.textContent = 'Capture Front of ID';
-
-            // Show photo capture section
-            photoCaptureSection.style.display = '';
+            resetPhotos();
         });
+    }
+
+    function resetPhotos() {
+        // Reset photo states
+        frontPhotoCaptured = false;
+        backPhotoCaptured = false;
+        capturingFrontPhoto = true;
+
+        // Clear photo data and previews
+        frontPhotoData.value = '';
+        backPhotoData.value = '';
+        frontPhotoPreviewContainer.classList.add('d-none');
+        backPhotoPreviewContainer.classList.add('d-none');
+
+        // Reset status indicators
+        frontPhotoStatus.textContent = 'Pending';
+        frontPhotoStatus.style.color = '#60a5fa';
+        backPhotoStatus.textContent = 'Pending';
+        backPhotoStatus.style.color = '#60a5fa';
+
+        // Reset capture button text and style
+        capturePhotoText.textContent = 'Capture Front of ID';
+        capturePhotoBtn.textContent = 'Capture Photo';
+        capturePhotoBtn.classList.remove('btn-warning');
+        capturePhotoBtn.classList.add('btn-success');
+
+        // Remove proceed button if it exists
+        const proceedBtn = document.getElementById('proceedToBackBtn');
+        if (proceedBtn) proceedBtn.remove();
+
+        // Show photo capture section
+        photoCaptureSection.style.display = '';
+
+        // Restart camera
+        startPhotoCameraBtn.click();
     }
 
     // Validate both photos captured before form submission
