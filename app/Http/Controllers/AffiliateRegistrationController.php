@@ -42,9 +42,24 @@ class AffiliateRegistrationController extends Controller
             'description' => $request->experience,
         ]);
 
+        // Create W9Form record
+        $w9Form = \App\Models\W9Form::create([
+            'affiliate_id' => $affiliate->id,
+            'type' => 'affiliate',
+            'full_name' => $user->name,
+            'status' => 'pending',
+        ]);
+
+        // Generate W-9 form link token
+        $token = base64_encode(json_encode(['type' => 'affiliate', 'id' => $affiliate->id]));
+        $formUrl = route('w9.show', $token, true);
+
         try {
             $this->applyGlobalSmtp();
             Mail::to($user->email)->send(new AffiliateApplicationReceivedMail($affiliate));
+
+            // Send W-9 form email
+            Mail::to($user->email)->send(new \App\Mail\W9FormLink($formUrl, $user->name, 'affiliate'));
 
             $adminEmails = User::where('user_type', 'admin')->pluck('email')->filter()->toArray();
             foreach ($adminEmails as $adminEmail) {
@@ -59,7 +74,7 @@ class AffiliateRegistrationController extends Controller
             // Keep registration successful even if mail fails.
         }
 
-        return redirect()->route('login')->with('success', 'Your affiliate application has been submitted successfully. We will review your application and notify you once approved.');
+        return redirect()->route('login')->with('success', 'Your affiliate application has been submitted successfully. A confirmation email with instructions to complete your W-9 form has been sent to your email address. Please complete the W-9 form as soon as possible to expedite your account activation. We will review your application and notify you once approved.');
     }
 
     private function applyGlobalSmtp(): void

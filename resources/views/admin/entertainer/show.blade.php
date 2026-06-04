@@ -102,6 +102,31 @@
             @endif
         </div>
 
+        <!-- W-9 Form Status -->
+        @if($entertainer->w9Form)
+        <div class="card p-4 mb-4" style="border-left: 4px solid {{ $entertainer->w9Form->status === 'approved' ? '#10b981' : ($entertainer->w9Form->status === 'submitted' ? '#f59e0b' : '#6b7280') }};">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h5 class="mb-2">W-9 Form Status</h5>
+                    <p class="mb-0">
+                        @if($entertainer->w9Form->status === 'approved')
+                            <span class="badge bg-success">✓ Approved</span>
+                        @elseif($entertainer->w9Form->status === 'submitted')
+                            <span class="badge bg-warning text-dark">⏳ Pending Review</span>
+                        @elseif($entertainer->w9Form->status === 'rejected')
+                            <span class="badge bg-danger">✗ Rejected</span>
+                        @else
+                            <span class="badge bg-secondary">◯ Not Started</span>
+                        @endif
+                    </p>
+                </div>
+                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#w9Modal" onclick="loadW9Form({{ $entertainer->w9Form->id }})">
+                    <i class="fas fa-file-invoice"></i> View W-9 Form
+                </button>
+            </div>
+        </div>
+        @endif
+
         <div class="card p-4">
             <h5 class="mb-3">Transactions</h5>
             @if(!empty($transactions) && count($transactions) > 0)
@@ -152,6 +177,25 @@
     </div>
 </div>
 
+<!-- W-9 Form Modal -->
+<div class="modal fade" id="w9Modal" tabindex="-1" aria-labelledby="w9ModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="w9ModalLabel">W-9 Form Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="w9ModalBody">
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Transaction Details Modal -->
 <div class="modal fade" id="transactionModal" tabindex="-1" aria-labelledby="transactionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -173,6 +217,21 @@
 
 @push('scripts')
 <script>
+window.loadW9Form = function(formId) {
+    const modalBody = document.getElementById('w9ModalBody');
+    modalBody.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+
+    fetch('/admin/w9/' + formId + '/modal')
+        .then(response => response.text())
+        .then(html => {
+            modalBody.innerHTML = html;
+        })
+        .catch(error => {
+            modalBody.innerHTML = '<div class="alert alert-danger">Error loading W-9 form details</div>';
+            console.error('Error:', error);
+        });
+};
+
 window.loadTransactionDetails = function(transactionId) {
     const modalBody = document.getElementById('transactionModalBody');
     modalBody.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';

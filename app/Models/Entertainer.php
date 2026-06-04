@@ -92,6 +92,11 @@ class Entertainer extends Model
             ->where('owner_type', 'entertainer');
     }
 
+    public function w9Form()
+    {
+        return $this->hasOne(W9Form::class);
+    }
+
     public static function generateUniqueSlug(string $name): string
     {
         $base = Str::slug($name ?: 'entertainer');

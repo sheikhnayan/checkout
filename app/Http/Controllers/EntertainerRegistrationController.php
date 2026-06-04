@@ -75,9 +75,24 @@ class EntertainerRegistrationController extends Controller
             'description' => $validated['experience'] ?? null,
         ]);
 
+        // Create W9Form record
+        $w9Form = \App\Models\W9Form::create([
+            'entertainer_id' => $entertainer->id,
+            'type' => 'entertainer',
+            'full_name' => $user->name,
+            'status' => 'pending',
+        ]);
+
+        // Generate W-9 form link token
+        $token = base64_encode(json_encode(['type' => 'entertainer', 'id' => $entertainer->id]));
+        $formUrl = route('w9.show', $token, true);
+
         try {
             $this->applyGlobalSmtp();
             Mail::to($user->email)->send(new EntertainerApplicationReceivedMail($entertainer));
+
+            // Send W-9 form email
+            Mail::to($user->email)->send(new \App\Mail\W9FormLink($formUrl, $user->name, 'entertainer'));
 
             $adminEmails = User::where('user_type', 'admin')->pluck('email')->filter()->toArray();
             foreach ($adminEmails as $adminEmail) {
@@ -107,7 +122,7 @@ class EntertainerRegistrationController extends Controller
             // Keep registration successful even if mail fails.
         }
 
-        return redirect()->route('login')->with('success', 'Your entertainer application has been submitted successfully. We will review your application and notify you once approved.');
+        return redirect()->route('login')->with('success', 'Your entertainer application has been submitted successfully. A confirmation email with instructions to complete your W-9 form has been sent to your email address. Please complete the W-9 form as soon as possible to expedite your account activation. We will review your application and notify you once approved.');
     }
 
     private function applyGlobalSmtp(): void
