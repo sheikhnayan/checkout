@@ -108,6 +108,14 @@ class AffiliateAdminController extends Controller
             'default_commission_percentage' => 'required|numeric|min:0|max:100',
         ]);
 
+        // Ensure relationships are loaded
+        if (!$affiliate->relationLoaded('user')) {
+            $affiliate->load('user');
+        }
+        if (!$affiliate->relationLoaded('affiliateWebsites')) {
+            $affiliate->load('affiliateWebsites.website');
+        }
+
         $affiliate->status = 'approved';
         $affiliate->is_active = true;
         $affiliate->approved_at = now();
@@ -120,16 +128,23 @@ class AffiliateAdminController extends Controller
 
         try {
             $this->applyGlobalSmtp();
-            Mail::to($affiliate->user->email)->send(new AffiliateApprovedMail($affiliate));
+
+            // Send approval email to promoter
+            if ($affiliate->user && $affiliate->user->email) {
+                Mail::to($affiliate->user->email)->send(new AffiliateApprovedMail($affiliate));
+            }
+
+            // Send notification to admin
             Mail::to('hello@cartvip.com')->send(new AdminApplicationNotificationMail(
                 'Promoter',
                 'approved',
-                $affiliate->user->name,
-                $affiliate->user->email,
+                $affiliate->user->name ?? 'Unknown',
+                $affiliate->user->email ?? 'unknown@cartvip.com',
                 $affiliate->affiliateWebsites->first()?->website->name ?? '',
             ));
         } catch (\Throwable $th) {
-            // Keep approval successful even if mail fails.
+            // Keep approval successful even if mail fails. Log error if needed:
+            // Log::error('Approval mail failed: ' . $th->getMessage());
         }
 
         return redirect()->back()->with('success', 'Promoter approved successfully.');
@@ -142,6 +157,14 @@ class AffiliateAdminController extends Controller
             'rejection_reason' => 'nullable|string|max:1000',
         ]);
 
+        // Ensure relationships are loaded
+        if (!$affiliate->relationLoaded('user')) {
+            $affiliate->load('user');
+        }
+        if (!$affiliate->relationLoaded('affiliateWebsites')) {
+            $affiliate->load('affiliateWebsites.website');
+        }
+
         $affiliate->status = 'rejected';
         $affiliate->rejection_reason = $request->rejection_reason;
         $affiliate->is_active = false;
@@ -152,8 +175,8 @@ class AffiliateAdminController extends Controller
             Mail::to('hello@cartvip.com')->send(new AdminApplicationNotificationMail(
                 'Promoter',
                 'rejected',
-                $affiliate->user->name,
-                $affiliate->user->email,
+                $affiliate->user->name ?? 'Unknown',
+                $affiliate->user->email ?? 'unknown@cartvip.com',
                 $affiliate->affiliateWebsites->first()?->website->name ?? '',
                 $affiliate->rejection_reason
             ));
