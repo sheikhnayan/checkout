@@ -184,91 +184,168 @@ class W9FormController extends Controller
 
     private function fillFirstPage($pdf, $w9Form)
     {
-        $pdf->SetFont('Helvetica', '', 10);
+        $pdf->SetFont('Helvetica', '', 11);
         $pdf->SetTextColor(0, 0, 0);
 
-        $yOffset = 68;
-        $lineHeight = 4.5;
+        // Page 1 Form Field Positions (approximate coordinates from PDF)
 
-        $pdf->SetXY(25, $yOffset);
-        $pdf->Cell(0, $lineHeight, substr($w9Form->full_name, 0, 50), 0, 1, 'L');
+        // Line 1: Name of entity/individual
+        $pdf->SetXY(36, 73.5);
+        $pdf->Cell(120, 5, substr($w9Form->full_name, 0, 60), 0, 1, 'L');
 
-        $yOffset += 9;
-        $pdf->SetXY(25, $yOffset);
-        $pdf->Cell(0, $lineHeight, substr($w9Form->business_name ?: '', 0, 50), 0, 1, 'L');
+        // Line 2: Business name/disregarded entity name
+        $pdf->SetXY(36, 84);
+        $pdf->Cell(120, 5, substr($w9Form->business_name ?: '', 0, 60), 0, 1, 'L');
 
-        $yOffset += 12;
-        $taxClass = str_replace('_', ' ', ucwords($w9Form->tax_classification));
-        if ($w9Form->tax_classification === 'other' && $w9Form->tax_classification_other) {
-            $taxClass = $w9Form->tax_classification_other;
+        // Line 3a: Tax Classification - Mark the checkbox
+        if ($w9Form->tax_classification) {
+            $checkPositions = [
+                'individual' => [19.5, 101],
+                'c_corporation' => [58, 101],
+                's_corporation' => [98, 101],
+                'partnership' => [135, 101],
+                'trust_estate' => [172, 101],
+            ];
+
+            if (isset($checkPositions[$w9Form->tax_classification])) {
+                [$x, $y] = $checkPositions[$w9Form->tax_classification];
+                $pdf->SetFont('Helvetica', 'B', 14);
+                $pdf->SetXY($x, $y - 0.5);
+                $pdf->Cell(4, 4, '✓', 0, 0, 'L');
+            }
+
+            // If LLC, add tax classification
+            if (strpos($w9Form->tax_classification, 'limited_liability_company') === 0) {
+                $pdf->SetFont('Helvetica', '', 11);
+                $code = str_ends_with($w9Form->tax_classification, '_c') ? 'C' : (str_ends_with($w9Form->tax_classification, '_s') ? 'S' : 'P');
+                $pdf->SetXY(98, 109);
+                $pdf->Cell(20, 5, $code, 0, 1, 'L');
+            }
         }
-        $pdf->SetXY(25, $yOffset);
-        $pdf->Cell(0, $lineHeight, substr($taxClass, 0, 50), 0, 1, 'L');
 
-        $yOffset += 12;
-        $pdf->SetXY(25, $yOffset);
-        $pdf->Cell(0, $lineHeight, substr($w9Form->requester_name ?: '', 0, 50), 0, 1, 'L');
+        // Line 3b: Foreign partners checkbox
+        // Not checked in our form, can be left blank
 
-        $yOffset += 6;
-        $pdf->SetXY(140, $yOffset);
-        $pdf->Cell(0, $lineHeight, substr($w9Form->requester_phone ?: '', 0, 30), 0, 1, 'L');
+        // Line 4: Exempt payee code
+        $pdf->SetXY(142, 129);
+        $pdf->Cell(35, 5, substr($w9Form->exempt_payee_code ?: '', 0, 15), 0, 1, 'L');
 
-        $yOffset += 12;
-        $pdf->SetXY(25, $yOffset);
-        $pdf->Cell(0, $lineHeight, substr($w9Form->requester_email ?: '', 0, 50), 0, 1, 'L');
+        // Line 4: FATCA exemption code
+        $pdf->SetXY(142, 142);
+        $pdf->Cell(35, 5, substr($w9Form->fatca_exemption_code ?: '', 0, 15), 0, 1, 'L');
 
-        $yOffset += 16;
-        $pdf->SetXY(25, $yOffset);
-        $pdf->Cell(0, $lineHeight, ($w9Form->fatca_exemption_code ?: ''), 0, 1, 'L');
+        // Line 5: Address (street)
+        $pdf->SetXY(36, 156);
+        $pdf->Cell(120, 5, substr($w9Form->street_address, 0, 60), 0, 1, 'L');
 
-        $yOffset += 12;
-        $tidType = strtoupper($w9Form->tax_id_type) === 'SSN' ? 'SSN' : 'EIN';
-        $pdf->SetXY(25, $yOffset);
-        $pdf->Cell(10, $lineHeight, ($w9Form->tax_id_type === 'ssn' ? '✓' : ' '), 0, 0, 'L');
-        $pdf->SetXY(140, $yOffset);
-        $pdf->Cell(10, $lineHeight, ($w9Form->tax_id_type === 'ein' ? '✓' : ' '), 0, 0, 'L');
+        // Line 6: City, State, ZIP
+        $pdf->SetXY(36, 169);
+        $pdf->Cell(80, 5, substr($w9Form->city, 0, 40), 0, 0, 'L');
+        $pdf->SetXY(120, 169);
+        $pdf->Cell(10, 5, strtoupper($w9Form->state), 0, 0, 'L');
+        $pdf->SetXY(145, 169);
+        $pdf->Cell(20, 5, $w9Form->zip_code, 0, 1, 'L');
 
-        $yOffset += 8;
-        $pdf->SetXY(25, $yOffset);
-        $pdf->Cell(0, $lineHeight, $this->formatTaxId($w9Form->tax_id_number), 0, 1, 'L');
+        // Line 7: Account numbers
+        $pdf->SetXY(36, 182);
+        $pdf->Cell(120, 5, substr($w9Form->account_numbers ?: '', 0, 60), 0, 1, 'L');
 
-        $yOffset += 12;
-        $pdf->SetXY(25, $yOffset);
-        $pdf->Cell(0, $lineHeight, substr($w9Form->account_numbers ?: '', 0, 50), 0, 1, 'L');
+        // Requester info (optional field)
+        $pdf->SetFont('Helvetica', '', 9);
+        $pdf->SetXY(142, 182);
+        $pdf->Cell(45, 4, substr($w9Form->requester_name ?: '', 0, 30), 0, 1, 'L');
 
-        $yOffset += 12;
-        $pdf->SetXY(25, $yOffset);
-        $pdf->Cell(0, $lineHeight, substr($w9Form->exempt_payee_code ?: '', 0, 30), 0, 1, 'L');
+        // Part I: TIN
+        $pdf->SetFont('Helvetica', '', 11);
 
-        $yOffset += 12;
-        $pdf->SetXY(25, $yOffset);
-        $pdf->Cell(0, $lineHeight, substr($w9Form->street_address, 0, 50), 0, 1, 'L');
+        // SSN or EIN selection
+        if ($w9Form->tax_id_type === 'ssn') {
+            $pdf->SetFont('Helvetica', 'B', 14);
+            $pdf->SetXY(92, 210);
+            $pdf->Cell(4, 4, '✓', 0, 0, 'L');
+        } elseif ($w9Form->tax_id_type === 'ein') {
+            $pdf->SetFont('Helvetica', 'B', 14);
+            $pdf->SetXY(92, 226);
+            $pdf->Cell(4, 4, '✓', 0, 0, 'L');
+        }
 
-        $yOffset += 8;
-        $pdf->SetXY(25, $yOffset);
-        $pdf->Cell(0, $lineHeight, substr($w9Form->city, 0, 50), 0, 1, 'L');
+        // TIN Number formatting
+        $pdf->SetFont('Helvetica', '', 11);
+        $tidFormatted = $this->formatTaxIdForPDF($w9Form->tax_id_number, $w9Form->tax_id_type);
 
-        $yOffset += 5;
-        $pdf->SetXY(25, $yOffset);
-        $pdf->Cell(20, $lineHeight, strtoupper($w9Form->state), 0, 0, 'L');
-        $pdf->SetXY(60, $yOffset);
-        $pdf->Cell(0, $lineHeight, $w9Form->zip_code, 0, 1, 'L');
+        if ($w9Form->tax_id_type === 'ssn') {
+            // SSN format XXX-XX-XXXX (fill in separate boxes)
+            $parts = explode('-', $tidFormatted);
+            if (count($parts) === 3) {
+                $pdf->SetXY(65, 214);
+                $pdf->Cell(12, 4, $parts[0], 0, 0, 'C');
+                $pdf->SetXY(82, 214);
+                $pdf->Cell(8, 4, $parts[1], 0, 0, 'C');
+                $pdf->SetXY(95, 214);
+                $pdf->Cell(12, 4, $parts[2], 0, 0, 'C');
+            }
+        } else {
+            // EIN format XX-XXXXXXX
+            $parts = explode('-', $tidFormatted);
+            if (count($parts) === 2) {
+                $pdf->SetXY(65, 230);
+                $pdf->Cell(8, 4, $parts[0], 0, 0, 'C');
+                $pdf->SetXY(78, 230);
+                $pdf->Cell(18, 4, $parts[1], 0, 0, 'C');
+            }
+        }
 
-        $yOffset += 12;
-        $pdf->SetXY(25, $yOffset);
-        $pdf->Cell(10, $lineHeight, ($w9Form->certification_signed ? '✓' : ' '), 0, 0, 'L');
+        // Part II: Certification signature area
+        $pdf->SetFont('Helvetica', '', 9);
+        $pdf->SetXY(36, 270);
+        $pdf->Cell(80, 4, 'Digital Submission via CartVIP', 0, 1, 'L');
+
+        $pdf->SetXY(152, 270);
+        $pdf->Cell(40, 4, $w9Form->certification_date ? $w9Form->certification_date->format('m/d/Y') : date('m/d/Y'), 0, 1, 'L');
     }
 
     private function fillSecondPage($pdf, $w9Form)
     {
+        // Page 2 can include ID verification info if needed
+        $pdf->SetFont('Helvetica', '', 10);
+        $pdf->SetTextColor(80, 80, 80);
+
+        $pdf->SetXY(20, 30);
+        $pdf->Cell(0, 5, 'ADDITIONAL INFORMATION (CartVIP Form Submission)', 0, 1, 'L');
+
         $pdf->SetFont('Helvetica', '', 9);
-        $pdf->SetTextColor(100, 100, 100);
+        $pdf->SetXY(20, 40);
+        $pdf->Cell(0, 4, 'Government-Issued ID Type: ' . ucwords(str_replace('_', ' ', $w9Form->id_document_type)), 0, 1, 'L');
 
-        $pdf->SetXY(15, 250);
-        $pdf->Cell(0, 4, 'Government-Issued ID Verification: ' . ucwords(str_replace('_', ' ', $w9Form->id_document_type)), 0, 1, 'L');
+        $pdf->SetXY(20, 46);
+        $pdf->Cell(0, 4, 'ID Verification: ✓ Submitted (Front & Back Images)', 0, 1, 'L');
 
-        $pdf->SetXY(15, 256);
-        $pdf->Cell(0, 4, 'Submitted on: ' . $w9Form->created_at->format('M d, Y h:i A'), 0, 1, 'L');
+        $pdf->SetXY(20, 52);
+        $pdf->Cell(0, 4, 'Submission Date: ' . $w9Form->created_at->format('M d, Y h:i A'), 0, 1, 'L');
+
+        $pdf->SetXY(20, 58);
+        $pdf->Cell(0, 4, 'IP Address: ' . $w9Form->certification_ip, 0, 1, 'L');
+
+        $pdf->SetXY(20, 64);
+        $pdf->Cell(0, 4, 'Status: ' . ucfirst($w9Form->status), 0, 1, 'L');
+    }
+
+    private function formatTaxIdForPDF($taxId, $type)
+    {
+        if ($type === 'ssn') {
+            // Format as XXX-XX-XXXX
+            $clean = preg_replace('/[^0-9]/', '', $taxId);
+            if (strlen($clean) === 9) {
+                return substr($clean, 0, 3) . '-' . substr($clean, 3, 2) . '-' . substr($clean, 5);
+            }
+        } else {
+            // Format as XX-XXXXXXX
+            $clean = preg_replace('/[^0-9]/', '', $taxId);
+            if (strlen($clean) === 9) {
+                return substr($clean, 0, 2) . '-' . substr($clean, 2);
+            }
+        }
+        return $taxId;
     }
 
     private function formatTaxId($taxId)
@@ -281,13 +358,4 @@ class W9FormController extends Controller
         return $taxId;
     }
 
-    private function maskTaxId($taxId)
-    {
-        if (strlen($taxId) === 9) {
-            return '***-**-' . substr($taxId, -4);
-        } elseif (strlen($taxId) === 10) {
-            return '**-' . substr($taxId, -7);
-        }
-        return $taxId;
-    }
 }
