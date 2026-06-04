@@ -198,10 +198,11 @@ class W9FormController extends Controller
     private function generateFilledW9PDF($w9Form)
     {
         $pdf = new Fpdi();
-        $templatePath = storage_path('app/public/w9-template/fw9_template.pdf');
+        // Use the public fw9.pdf that's committed to git
+        $templatePath = public_path('fw9.pdf');
 
         if (!file_exists($templatePath)) {
-            throw new \Exception('W-9 template PDF not found');
+            throw new \Exception('W-9 template PDF not found at: ' . $templatePath);
         }
 
         $pageCount = $pdf->setSourceFile($templatePath);
