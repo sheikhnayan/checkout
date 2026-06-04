@@ -713,7 +713,7 @@
             <div style="margin-top: 12px; padding: 12px; background: #f0fdf4; border-left: 3px solid #22c55e; border-radius: 4px; font-size: 10px; line-height: 1.4;">
                 <div class="checkbox-item">
                     <input type="checkbox" id="certificationAck" required>
-                    <label for="certificationAck">☐ I acknowledge and agree to the certifications contained in Part II above.</label>
+                    <label for="certificationAck">☐ I certify and agree to the statements contained in Part II above.</label>
                 </div>
                 <small style="display: block; margin-top: 6px; color: #666;">If you cannot certify U.S. person status, you may need to complete Form W-8 instead.</small>
             </div>
@@ -787,7 +787,7 @@
         <!-- Privacy Notice -->
         <div style="margin-top: 30px; padding: 15px; background: #f0f4f8; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 10px; line-height: 1.5;">
             <strong style="display: block; margin-bottom: 8px; color: #0f172a;">🔒 Privacy Notice</strong>
-            <p style="margin: 0;">Information collected through this Substitute Form W-9 is used solely for tax reporting, contractor onboarding, and compliance purposes. Access to taxpayer information is restricted to authorized personnel only.</p>
+            <p style="margin: 0;">Information collected through this Substitute Form W-9 is used solely for payment processing, tax reporting, onboarding, and compliance purposes. Access to taxpayer information is restricted to authorized personnel only.</p>
         </div>
 
     </form>
