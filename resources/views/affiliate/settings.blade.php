@@ -36,47 +36,47 @@
         @endif
 
         <div class="card p-4">
-            <h4 class="mb-3">Affiliate Page Customization</h4>
-            <form method="POST" action="{{ route('affiliate.portal.settings.update') }}" enctype="multipart/form-data">
+            <h4 class="mb-3">Promoter Page Customization</h4>
+            <form method="POST" action="{{ route('promoter.portal.settings.update') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label">Display Name</label>
-                        <input type="text" class="form-control" name="display_name" value="{{ old('display_name', $affiliate->display_name) }}" required>
+                        <input type="text" class="form-control" name="display_name" value="{{ old('display_name', $promoter->display_name) }}" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Hero Title</label>
-                        <input type="text" class="form-control" name="hero_title" value="{{ old('hero_title', $affiliate->hero_title) }}" placeholder="Main headline on your affiliate page">
+                        <input type="text" class="form-control" name="hero_title" value="{{ old('hero_title', $promoter->hero_title) }}" placeholder="Main headline on your promoter page">
                     </div>
                     <div class="col-12">
                         <label class="form-label">Hero Subtitle</label>
-                        <input type="text" class="form-control" name="hero_subtitle" value="{{ old('hero_subtitle', $affiliate->hero_subtitle) }}" placeholder="Short supporting line under the headline">
+                        <input type="text" class="form-control" name="hero_subtitle" value="{{ old('hero_subtitle', $promoter->hero_subtitle) }}" placeholder="Short supporting line under the headline">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Hero Badge 1 Label</label>
-                        <input type="text" class="form-control" name="hero_badge_1_label" value="{{ old('hero_badge_1_label', $affiliate->hero_badge_1_label) }}" placeholder="Featured">
+                        <input type="text" class="form-control" name="hero_badge_1_label" value="{{ old('hero_badge_1_label', $promoter->hero_badge_1_label) }}" placeholder="Featured">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Hero Badge 1 Subtext</label>
-                        <input type="text" class="form-control" name="hero_badge_1_sub" value="{{ old('hero_badge_1_sub', $affiliate->hero_badge_1_sub) }}" placeholder="Premium Partner">
+                        <input type="text" class="form-control" name="hero_badge_1_sub" value="{{ old('hero_badge_1_sub', $promoter->hero_badge_1_sub) }}" placeholder="Premium Partner">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Hero Badge 2 Label</label>
-                        <input type="text" class="form-control" name="hero_badge_2_label" value="{{ old('hero_badge_2_label', $affiliate->hero_badge_2_label) }}" placeholder="Verified">
+                        <input type="text" class="form-control" name="hero_badge_2_label" value="{{ old('hero_badge_2_label', $promoter->hero_badge_2_label) }}" placeholder="Verified">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Hero Badge 2 Subtext</label>
-                        <input type="text" class="form-control" name="hero_badge_2_sub" value="{{ old('hero_badge_2_sub', $affiliate->hero_badge_2_sub) }}" placeholder="Trusted Source">
+                        <input type="text" class="form-control" name="hero_badge_2_sub" value="{{ old('hero_badge_2_sub', $promoter->hero_badge_2_sub) }}" placeholder="Trusted Source">
                     </div>
                     <div class="col-12">
                         <label class="form-label">Description</label>
-                        <textarea class="form-control" rows="4" name="description">{{ old('description', $affiliate->description) }}</textarea>
+                        <textarea class="form-control" rows="4" name="description">{{ old('description', $promoter->description) }}</textarea>
                     </div>
 
                     <!-- Featured Card Icon Picker -->
                     <div class="col-12">
                         <label class="form-label">Featured Card Icon</label>
-                        <small class="d-block text-muted mb-2">Choose an icon for your featured affiliate card</small>
+                        <small class="d-block text-muted mb-2">Choose an icon for your featured promoter card</small>
                         <div class="icon-picker-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 10px; margin-bottom: 12px;">
                             @php
                                 $iconOptions = [
@@ -103,7 +103,7 @@
                                 ];
                             @endphp
                             @foreach($iconOptions as $icon => $label)
-                                @php $isSelected = old('featured_icon', $affiliate->featured_icon ?? '') === $icon; @endphp
+                                @php $isSelected = old('featured_icon', $promoter->featured_icon ?? '') === $icon; @endphp
                                 <div class="icon-option" style="text-align: center; cursor: pointer;">
                                     <input type="radio" name="featured_icon" value="{{ $icon }}" id="icon-{{ $icon }}" class="d-none" {{ $isSelected ? 'checked' : '' }}>
                                     <label for="icon-{{ $icon }}" class="icon-label{{ $isSelected ? ' selected' : '' }}">
@@ -117,7 +117,7 @@
 
                     <div class="col-12">
                         <label class="form-label">Secondary Description (About Panel)</label>
-                        <textarea class="form-control" rows="4" name="secondary_description">{{ old('secondary_description', $affiliate->secondary_description) }}</textarea>
+                        <textarea class="form-control" rows="4" name="secondary_description">{{ old('secondary_description', $promoter->secondary_description) }}</textarea>
                     </div>
 
                     <div class="col-12">
@@ -129,7 +129,7 @@
                                 id="show_location_section"
                                 name="show_location_section"
                                 value="1"
-                                @checked(old('show_location_section', $affiliate->show_location_section ?? true))
+                                @checked(old('show_location_section', $promoter->show_location_section ?? true))
                             >
                             <label class="form-check-label" for="show_location_section">
                                 Show primary club info and map section on my public page
@@ -140,9 +140,9 @@
                     <div class="col-md-6">
                         <label class="form-label">Profile Image</label>
                         <input type="file" class="form-control" name="profile_image" accept="image/*">
-                        @if(!empty($affiliate->profile_image))
+                        @if(!empty($promoter->profile_image))
                             <div class="mt-2 d-flex align-items-center gap-2">
-                                <img src="{{ asset('uploads/' . $affiliate->profile_image) }}" alt="Profile image" style="width:72px;height:72px;border-radius:50%;object-fit:cover;">
+                                <img src="{{ asset('uploads/' . $promoter->profile_image) }}" alt="Profile image" style="width:72px;height:72px;border-radius:50%;object-fit:cover;">
                                 <small class="text-muted">Current profile image</small>
                             </div>
                         @endif
@@ -150,9 +150,9 @@
                     <div class="col-md-6">
                         <label class="form-label">Banner Image</label>
                         <input type="file" class="form-control" name="banner_image" accept="image/*">
-                        @if(!empty($affiliate->banner_image))
+                        @if(!empty($promoter->banner_image))
                             <div class="mt-2">
-                                <img src="{{ asset('uploads/' . $affiliate->banner_image) }}" alt="Banner image" style="width:100%;max-width:320px;height:90px;border-radius:10px;object-fit:cover;">
+                                <img src="{{ asset('uploads/' . $promoter->banner_image) }}" alt="Banner image" style="width:100%;max-width:320px;height:90px;border-radius:10px;object-fit:cover;">
                             </div>
                         @endif
                     </div>
@@ -160,26 +160,26 @@
                         <label for="page_gallery_picker" class="form-label">Gallery Images</label>
                         <input type="file" class="form-control" id="page_gallery_picker" accept="image/*">
                         <input type="file" name="gallery_images[]" class="d-none" id="gallery_images" accept="image/*" multiple>
-                        <input type="hidden" name="existing_gallery_images" id="existing_gallery_images" value='@json((array) ($affiliate->gallery_images ?? []))'>
+                        <input type="hidden" name="existing_gallery_images" id="existing_gallery_images" value='@json((array) ($promoter->gallery_images ?? []))'>
                         <small class="form-text text-muted">Upload one image at a time. Added images appear below and can be removed before saving. Maximum 6 total.</small>
                         <div id="page-gallery-preview" class="d-flex flex-wrap gap-2 mt-2"></div>
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Facebook URL</label>
-                        <input type="url" class="form-control" name="facebook_url" value="{{ old('facebook_url', $affiliate->facebook_url) }}">
+                        <input type="url" class="form-control" name="facebook_url" value="{{ old('facebook_url', $promoter->facebook_url) }}">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Instagram URL</label>
-                        <input type="url" class="form-control" name="instagram_url" value="{{ old('instagram_url', $affiliate->instagram_url) }}">
+                        <input type="url" class="form-control" name="instagram_url" value="{{ old('instagram_url', $promoter->instagram_url) }}">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">YouTube URL</label>
-                        <input type="url" class="form-control" name="youtube_url" value="{{ old('youtube_url', $affiliate->youtube_url) }}">
+                        <input type="url" class="form-control" name="youtube_url" value="{{ old('youtube_url', $promoter->youtube_url) }}">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">TikTok URL</label>
-                        <input type="url" class="form-control" name="tiktok_url" value="{{ old('tiktok_url', $affiliate->tiktok_url) }}">
+                        <input type="url" class="form-control" name="tiktok_url" value="{{ old('tiktok_url', $promoter->tiktok_url) }}">
                     </div>
                 </div>
 

@@ -38,7 +38,7 @@ class Package extends Model
     ];
     
     public const AUDIENCE_CLUB = 'club';
-    public const AUDIENCE_AFFILIATE = 'affiliate';
+    public const AUDIENCE_AFFILIATE = 'promoter';
     public const AUDIENCE_ENTERTAINER = 'entertainer';
     
     public const ALLOWED_AUDIENCES = [
@@ -60,9 +60,9 @@ class Package extends Model
         return $this->belongsTo(Website::class);
     }
     
-    public function affiliate()
+    public function promoter()
     {
-        return $this->belongsTo(Affiliate::class);
+        return $this->belongsTo(Promoter::class);
     }
     
     public function entertainer()

@@ -2,7 +2,7 @@
 
 namespace App\Mail;
 
-use App\Models\Affiliate;
+use App\Models\Promoter;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -11,14 +11,14 @@ class AffiliateApprovedMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public Affiliate $affiliate;
+    public Promoter $promoter;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(Affiliate $affiliate)
+    public function __construct(Promoter $promoter)
     {
-        $this->affiliate = $affiliate;
+        $this->promoter = $promoter;
     }
 
     /**
@@ -26,7 +26,7 @@ class AffiliateApprovedMail extends Mailable
      */
     public function build(): self
     {
-        return $this->subject('Your Affiliate Account Has Been Approved - CartVIP')
-            ->view('emails.affiliate-approved');
+        return $this->subject('Your Promoter Account Has Been Approved - CartVIP')
+            ->view('emails.promoter-approved');
     }
 }

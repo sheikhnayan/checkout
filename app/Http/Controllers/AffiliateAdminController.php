@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\AffiliateApprovedMail;
 use App\Mail\AdminApplicationNotificationMail;
-use App\Models\Affiliate;
+use App\Models\Promoter;
 use App\Models\AffiliatePackage;
 use App\Models\AffiliateWebsite;
 use App\Models\Package;
@@ -20,7 +20,7 @@ class AffiliateAdminController extends Controller
     {
         $user = auth()->user();
         if (!$user || !$user->isAdmin()) {
-            abort(403, 'Only super admin can manage affiliates.');
+            abort(403, 'Only super admin can manage promoters.');
         }
     }
 
@@ -29,20 +29,20 @@ class AffiliateAdminController extends Controller
         $this->ensureAdmin();
         $status = $request->input('status', 'pending');
 
-        $query = Affiliate::with('user');
+        $query = Promoter::with('user');
         if (in_array($status, ['pending', 'approved', 'rejected'], true)) {
             $query->where('status', $status);
         }
 
-        $affiliates = $query->latest()->get();
+        $promoters = $query->latest()->get();
 
-        return view('admin.affiliate.index', compact('affiliates', 'status'));
+        return view('admin.promoter.index', compact('promoters', 'status'));
     }
 
-    public function show(Affiliate $affiliate)
+    public function show(Promoter $promoter)
     {
         $this->ensureAdmin();
-        $affiliate->load(['user', 'affiliateWebsites.website']);
+        $promoter->load(['user', 'affiliateWebsites.website']);
         $websites = Website::where('is_archieved', 0)
             ->where('status', 1)
             ->withCount(['packages' => function ($query) {
@@ -50,14 +50,14 @@ class AffiliateAdminController extends Controller
             }])
             ->get();
 
-        $selectedWebsiteIds = $affiliate->affiliateWebsites()
+        $selectedWebsiteIds = $promoter->affiliateWebsites()
             ->where('is_active', true)
             ->pluck('website_id')
             ->toArray();
 
         $now = now();
         $transactions = Transaction::query()
-            ->where('affiliate_id', $affiliate->id)
+            ->where('affiliate_id', $promoter->id)
             ->get();
 
         $pendingAmount = $transactions->sum(function ($t) use ($now) {
@@ -79,8 +79,8 @@ class AffiliateAdminController extends Controller
             ->reject(fn ($t) => (string) ($t->affiliate_commission_status ?? '') === Transaction::COMMISSION_STATUS_REVERSED)
             ->sum(fn ($t) => (float) ($t->affiliate_commission_amount ?? 0));
 
-        return view('admin.affiliate.show', compact(
-            'affiliate',
+        return view('admin.promoter.show', compact(
+            'promoter',
             'websites',
             'selectedWebsiteIds',
             'pendingAmount',
@@ -90,84 +90,84 @@ class AffiliateAdminController extends Controller
         ));
     }
 
-    public function approve(Request $request, Affiliate $affiliate)
+    public function approve(Request $request, Promoter $promoter)
     {
         $this->ensureAdmin();
         $request->validate([
             'default_commission_percentage' => 'required|numeric|min:0|max:100',
         ]);
 
-        $affiliate->status = 'approved';
-        $affiliate->is_active = true;
-        $affiliate->approved_at = now();
-        $affiliate->approved_by = auth()->id();
-        $affiliate->default_commission_percentage = $request->default_commission_percentage;
-        if (empty($affiliate->slug)) {
-            $affiliate->slug = Affiliate::generateUniqueSlug($affiliate->display_name ?: $affiliate->user->name);
+        $promoter->status = 'approved';
+        $promoter->is_active = true;
+        $promoter->approved_at = now();
+        $promoter->approved_by = auth()->id();
+        $promoter->default_commission_percentage = $request->default_commission_percentage;
+        if (empty($promoter->slug)) {
+            $promoter->slug = Promoter::generateUniqueSlug($promoter->display_name ?: $promoter->user->name);
         }
-        $affiliate->save();
+        $promoter->save();
 
         try {
             $this->applyGlobalSmtp();
-            Mail::to($affiliate->user->email)->send(new AffiliateApprovedMail($affiliate));
+            Mail::to($promoter->user->email)->send(new AffiliateApprovedMail($promoter));
             Mail::to('hello@cartvip.com')->send(new AdminApplicationNotificationMail(
-                'Affiliate',
+                'Promoter',
                 'approved',
-                $affiliate->user->name,
-                $affiliate->user->email,
-                $affiliate->affiliateWebsites->first()?->website->name ?? '',
+                $promoter->user->name,
+                $promoter->user->email,
+                $promoter->affiliateWebsites->first()?->website->name ?? '',
             ));
         } catch (\Throwable $th) {
             // Keep approval successful even if mail fails.
         }
 
-        return redirect()->back()->with('success', 'Affiliate approved successfully.');
+        return redirect()->back()->with('success', 'Promoter approved successfully.');
     }
 
-    public function reject(Request $request, Affiliate $affiliate)
+    public function reject(Request $request, Promoter $promoter)
     {
         $this->ensureAdmin();
         $request->validate([
             'rejection_reason' => 'nullable|string|max:1000',
         ]);
 
-        $affiliate->status = 'rejected';
-        $affiliate->rejection_reason = $request->rejection_reason;
-        $affiliate->is_active = false;
-        $affiliate->save();
+        $promoter->status = 'rejected';
+        $promoter->rejection_reason = $request->rejection_reason;
+        $promoter->is_active = false;
+        $promoter->save();
 
         try {
             $this->applyGlobalSmtp();
             Mail::to('hello@cartvip.com')->send(new AdminApplicationNotificationMail(
-                'Affiliate',
+                'Promoter',
                 'rejected',
-                $affiliate->user->name,
-                $affiliate->user->email,
-                $affiliate->affiliateWebsites->first()?->website->name ?? '',
-                $affiliate->rejection_reason
+                $promoter->user->name,
+                $promoter->user->email,
+                $promoter->affiliateWebsites->first()?->website->name ?? '',
+                $promoter->rejection_reason
             ));
         } catch (\Throwable $th) {
             // Keep rejection successful even if mail fails.
         }
 
-        return redirect()->back()->with('success', 'Affiliate application rejected.');
+        return redirect()->back()->with('success', 'Promoter application rejected.');
     }
 
-    public function unapprove(Affiliate $affiliate)
+    public function unapprove(Promoter $promoter)
     {
         $this->ensureAdmin();
 
-        $affiliate->status = 'pending';
-        $affiliate->is_active = false;
-        $affiliate->approved_at = null;
-        $affiliate->approved_by = null;
-        $affiliate->rejection_reason = null;
-        $affiliate->save();
+        $promoter->status = 'pending';
+        $promoter->is_active = false;
+        $promoter->approved_at = null;
+        $promoter->approved_by = null;
+        $promoter->rejection_reason = null;
+        $promoter->save();
 
-        return redirect()->back()->with('success', 'Affiliate has been unapproved and moved back to pending review.');
+        return redirect()->back()->with('success', 'Promoter has been unapproved and moved back to pending review.');
     }
 
-    public function updatePackages(Request $request, Affiliate $affiliate)
+    public function updatePackages(Request $request, Promoter $promoter)
     {
         $this->ensureAdmin();
         $request->validate([
@@ -177,14 +177,14 @@ class AffiliateAdminController extends Controller
 
         $websiteIds = collect($request->input('website_ids', []))->map(fn ($id) => (int) $id)->unique()->values();
 
-        AffiliateWebsite::where('affiliate_id', $affiliate->id)
+        AffiliateWebsite::where('affiliate_id', $promoter->id)
             ->whereNotIn('website_id', $websiteIds->all())
             ->delete();
 
         foreach ($websiteIds as $websiteId) {
             AffiliateWebsite::updateOrCreate(
                 [
-                    'affiliate_id' => $affiliate->id,
+                    'affiliate_id' => $promoter->id,
                     'website_id' => $websiteId,
                 ],
                 [
@@ -194,14 +194,14 @@ class AffiliateAdminController extends Controller
         }
 
         // Remove previously selected package mappings from clubs no longer assigned.
-        AffiliatePackage::where('affiliate_id', $affiliate->id)
+        AffiliatePackage::where('affiliate_id', $promoter->id)
             ->whereNotIn('website_id', $websiteIds->all())
             ->delete();
 
-        return redirect()->back()->with('success', 'Affiliate club access updated successfully.');
+        return redirect()->back()->with('success', 'Promoter club access updated successfully.');
     }
 
-    public function updateCommission(Request $request, Affiliate $affiliate)
+    public function updateCommission(Request $request, Promoter $promoter)
     {
         $this->ensureAdmin();
 
@@ -209,10 +209,10 @@ class AffiliateAdminController extends Controller
             'default_commission_percentage' => 'required|numeric|min:0|max:100',
         ]);
 
-        $affiliate->default_commission_percentage = $request->default_commission_percentage;
-        $affiliate->save();
+        $promoter->default_commission_percentage = $request->default_commission_percentage;
+        $promoter->save();
 
-        return redirect()->back()->with('success', 'Affiliate commission updated successfully.');
+        return redirect()->back()->with('success', 'Promoter commission updated successfully.');
     }
 
     private function applyGlobalSmtp(): void

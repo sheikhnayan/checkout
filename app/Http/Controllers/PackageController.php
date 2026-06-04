@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\UploadedFile;
-use App\Models\Affiliate;
+use App\Models\Promoter;
 use App\Models\AffiliatePackage;
 use App\Models\AffiliateWebsite;
 use App\Models\Website;
@@ -117,7 +117,7 @@ class PackageController extends Controller
         }
 
         $title = $audience === Package::AUDIENCE_AFFILIATE
-            ? 'Affiliate Package'
+            ? 'Promoter Package'
             : 'Entertainer Package';
         $user = auth()->user();
         $websiteOptions = collect();
@@ -237,7 +237,7 @@ class PackageController extends Controller
             ->orderBy('packages.name')
             ->get();
 
-        $targetedPackages = Package::with(['category', 'affiliate.user', 'entertainer.user'])
+        $targetedPackages = Package::with(['category', 'promoter.user', 'entertainer.user'])
             ->where('packages.website_id', $id)
             ->whereIn('audience', [Package::AUDIENCE_AFFILIATE, Package::AUDIENCE_ENTERTAINER])
             ->leftJoin('package_categories as pc', 'packages.package_category_id', '=', 'pc.id')
@@ -319,7 +319,7 @@ class PackageController extends Controller
         $websiteOptions = collect();
         $canSelectWebsite = false;
         $title = $data->audience === Package::AUDIENCE_AFFILIATE
-            ? 'Affiliate Package'
+            ? 'Promoter Package'
             : 'Entertainer Package';
 
         if (auth()->user()->isAdmin()) {
@@ -345,7 +345,7 @@ class PackageController extends Controller
             $mappedCount = AffiliatePackage::where('package_id', $data->id)
                 ->where('website_id', $selectedWebsiteId)
                 ->count();
-            $availableCount = (int) $targetOptions['affiliates']->count();
+            $availableCount = (int) $targetOptions['promoters']->count();
             $selectAllAffiliate = $availableCount > 0 && $mappedCount === $availableCount;
         }
 
@@ -767,7 +767,7 @@ class PackageController extends Controller
         }
 
         if ($resolvedAudience === Package::AUDIENCE_AFFILIATE && (!$user || !$user->isAdmin())) {
-            abort(403, 'Only super admin can create or manage affiliate-specific packages.');
+            abort(403, 'Only super admin can create or manage promoter-specific packages.');
         }
 
         if ($resolvedAudience === Package::AUDIENCE_ENTERTAINER) {
@@ -789,7 +789,7 @@ class PackageController extends Controller
 
     private function packageTargetOptions(?int $websiteId = null): array
     {
-        $affiliates = Affiliate::with('user')
+        $promoters = Promoter::with('user')
             ->where('status', 'approved')
             ->where('is_active', true)
             ->when($websiteId, function ($query) use ($websiteId) {
@@ -811,7 +811,7 @@ class PackageController extends Controller
             ->get();
 
         return [
-            'affiliates' => $affiliates,
+            'promoters' => $promoters,
             'entertainers' => $entertainers,
         ];
     }
@@ -853,11 +853,11 @@ class PackageController extends Controller
             if ($selectAllAffiliate) {
                 if (!$websiteId) {
                     throw ValidationException::withMessages([
-                        'website_id' => 'Select the club this affiliate package belongs to.',
+                        'website_id' => 'Select the club this promoter package belongs to.',
                     ]);
                 }
 
-                $hasAffiliates = Affiliate::where('status', 'approved')
+                $hasAffiliates = Promoter::where('status', 'approved')
                     ->where('is_active', true)
                     ->whereHas('affiliateWebsites', function ($query) use ($websiteId) {
                         $query->where('website_id', $websiteId)
@@ -867,7 +867,7 @@ class PackageController extends Controller
 
                 if (!$hasAffiliates) {
                     throw ValidationException::withMessages([
-                        'affiliate_id' => 'No active affiliates found for the selected club.',
+                        'affiliate_id' => 'No active promoters found for the selected club.',
                     ]);
                 }
 
@@ -876,17 +876,17 @@ class PackageController extends Controller
 
             if (!$affiliateId) {
                 throw ValidationException::withMessages([
-                    'affiliate_id' => 'Select an affiliate or choose Select All Affiliates.',
+                    'affiliate_id' => 'Select an promoter or choose Select All Promoters.',
                 ]);
             }
 
             if (!$websiteId) {
                 throw ValidationException::withMessages([
-                    'website_id' => 'Select the club this affiliate package belongs to.',
+                    'website_id' => 'Select the club this promoter package belongs to.',
                 ]);
             }
 
-            $validAffiliate = Affiliate::where('id', $affiliateId)
+            $validAffiliate = Promoter::where('id', $affiliateId)
                 ->where('status', 'approved')
                 ->where('is_active', true)
                 ->whereHas('affiliateWebsites', function ($query) use ($websiteId) {
@@ -897,7 +897,7 @@ class PackageController extends Controller
 
             if (!$validAffiliate) {
                 throw ValidationException::withMessages([
-                    'affiliate_id' => 'Selected affiliate is not active for this club.',
+                    'affiliate_id' => 'Selected promoter is not active for this club.',
                 ]);
             }
 
@@ -976,7 +976,7 @@ class PackageController extends Controller
         $this->clearTargetedMappings($package);
 
         if ($package->audience === Package::AUDIENCE_AFFILIATE && $package->affiliate_id) {
-            $affiliate = Affiliate::find($package->affiliate_id);
+            $promoter = Promoter::find($package->affiliate_id);
             AffiliatePackage::updateOrCreate(
                 [
                     'affiliate_id' => $package->affiliate_id,
@@ -984,12 +984,12 @@ class PackageController extends Controller
                 ],
                 [
                     'website_id' => $package->website_id,
-                    'commission_percentage' => $affiliate?->default_commission_percentage ?? 0,
+                    'commission_percentage' => $promoter?->default_commission_percentage ?? 0,
                     'is_active' => true,
                 ]
             );
         } elseif ($package->audience === Package::AUDIENCE_AFFILIATE) {
-            $affiliates = Affiliate::where('status', 'approved')
+            $promoters = Promoter::where('status', 'approved')
                 ->where('is_active', true)
                 ->whereHas('affiliateWebsites', function ($query) use ($package) {
                     $query->where('website_id', $package->website_id)
@@ -997,15 +997,15 @@ class PackageController extends Controller
                 })
                 ->get(['id', 'default_commission_percentage']);
 
-            foreach ($affiliates as $affiliate) {
+            foreach ($promoters as $promoter) {
                 AffiliatePackage::updateOrCreate(
                     [
-                        'affiliate_id' => $affiliate->id,
+                        'affiliate_id' => $promoter->id,
                         'package_id' => $package->id,
                     ],
                     [
                         'website_id' => $package->website_id,
-                        'commission_percentage' => $affiliate->default_commission_percentage ?? 0,
+                        'commission_percentage' => $promoter->default_commission_percentage ?? 0,
                         'is_active' => true,
                     ]
                 );

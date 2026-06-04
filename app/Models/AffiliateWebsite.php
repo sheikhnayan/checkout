@@ -16,9 +16,9 @@ class AffiliateWebsite extends Model
         'is_active' => 'boolean',
     ];
 
-    public function affiliate()
+    public function promoter()
     {
-        return $this->belongsTo(Affiliate::class);
+        return $this->belongsTo(Promoter::class);
     }
 
     public function website()

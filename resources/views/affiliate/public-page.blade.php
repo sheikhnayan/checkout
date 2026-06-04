@@ -14,7 +14,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <title>{{ $affiliate->display_name }} - CartVIP</title>
+        <title>{{ $promoter->display_name }} - CartVIP</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css"
             integrity="sha512-fw7f+TcMjTb7bpbLJZlP8g2Y4XcCyFZW8uy8HsRZsH/SwbMw0plKHFHr99DN3l04VsYNwvzicUX/6qurvIxbxw=="
             crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -877,7 +877,7 @@ a {
 }
 
 /* ===================================================
-   AFFILIATE PAGE DESIGN SYSTEM
+   PROMOTER PAGE DESIGN SYSTEM
    =================================================== */
 :root {
     --accent:    {{ $brandPrimary }};
@@ -970,7 +970,7 @@ input::placeholder, textarea::placeholder {
     outline-offset: 2px;
 }
 
-/* Payment agreement toggles: exact affiliate parity, locked with stronger selectors */
+/* Payment agreement toggles: exact promoter parity, locked with stronger selectors */
 #payment-consent-group .consent-label {
     display: flex !important;
     gap: 10px !important;
@@ -1286,7 +1286,7 @@ input::placeholder, textarea::placeholder {
     font-weight: 700;
 }
 
-/* Exact affiliate-page layout surfaces */
+/* Exact promoter-page layout surfaces */
 body {
     background:
         radial-gradient(circle at top right, rgba(255, 255, 255, 0.06), transparent 34%),
@@ -4798,7 +4798,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 
 @media (max-width: 767px) {
-    /* Featured Affiliate Card - Mobile */
+    /* Featured Promoter Card - Mobile */
     .aff-featured-card {
         grid-template-columns: 100px 1fr !important;
         gap: 16px !important;
@@ -5046,7 +5046,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         display: flex !important;
     }
 
-    /* AFFILIATE PACKAGES Section Header */
+    /* PROMOTER PACKAGES Section Header */
     .section-kicker-lg {
         font-size: 13px !important;
         font-weight: 800 !important;
@@ -5498,11 +5498,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             <div class="aff-nav-badges" style="display: flex; gap: 24px; align-items: center;">
                 <div class="aff-nav-badge" style="display: flex; align-items: center; gap: 8px; font-size: 12px; white-space: nowrap;">
                     <i class="fas fa-star" style="color: #efbe6f; font-size: 16px; flex-shrink: 0;"></i>
-                    <span style="font-weight: 700; color: #fff;">{{ $affiliate->hero_badge_1_label ?: 'Featured' }} <span style="color: rgba(255,255,255,0.65); font-weight: 400;">{{ $affiliate->hero_badge_1_sub ?: 'Premium Partner' }}</span></span>
+                    <span style="font-weight: 700; color: #fff;">{{ $promoter->hero_badge_1_label ?: 'Featured' }} <span style="color: rgba(255,255,255,0.65); font-weight: 400;">{{ $promoter->hero_badge_1_sub ?: 'Premium Partner' }}</span></span>
                 </div>
                 <div class="aff-nav-badge" style="display: flex; align-items: center; gap: 8px; font-size: 12px; white-space: nowrap;">
                     <i class="fas fa-award" style="color: #efbe6f; font-size: 16px; flex-shrink: 0;"></i>
-                    <span style="font-weight: 700; color: #fff;">{{ $affiliate->hero_badge_2_label ?: 'Verified' }} <span style="color: rgba(255,255,255,0.65); font-weight: 400;">{{ $affiliate->hero_badge_2_sub ?: 'Trusted Source' }}</span></span>
+                    <span style="font-weight: 700; color: #fff;">{{ $promoter->hero_badge_2_label ?: 'Verified' }} <span style="color: rgba(255,255,255,0.65); font-weight: 400;">{{ $promoter->hero_badge_2_sub ?: 'Trusted Source' }}</span></span>
                 </div>
             </div>
             <button class="cv-hamburger" id="cv-hamburger" aria-label="Open menu">
@@ -5523,40 +5523,40 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 @endsession
 
                 @php
-                    $affiliateHeroImage = !empty($affiliate->banner_image) ? asset('uploads/' . $affiliate->banner_image) : asset('images/logo.png');
+                    $affiliateHeroImage = !empty($promoter->banner_image) ? asset('uploads/' . $promoter->banner_image) : asset('images/logo.png');
                 @endphp
                 <section class="cv-hero-stage" style="background-image:url('{{ $affiliateHeroImage }}');">
                     <div class="cv-hero-inner">
                         <div class="cv-hero-head">
                             <div class="cv-hero-venue">
-                                @if (!empty($affiliate->gallery_images))
+                                @if (!empty($promoter->gallery_images))
                                     <button type="button" id="affProfileStoryBtn" class="aff-profile-story-btn" title="Click to view gallery">
-                                        @if ($affiliate->profile_image)
-                                            <img src="{{ asset('uploads/' . $affiliate->profile_image) }}" alt="{{ $affiliate->display_name }}" class="cv-hero-venue-avatar">
+                                        @if ($promoter->profile_image)
+                                            <img src="{{ asset('uploads/' . $promoter->profile_image) }}" alt="{{ $promoter->display_name }}" class="cv-hero-venue-avatar">
                                         @else
-                                            <span class="cv-hero-venue-initial">{{ strtoupper(substr($affiliate->display_name ?: $affiliate->user->name, 0, 1)) }}</span>
+                                            <span class="cv-hero-venue-initial">{{ strtoupper(substr($promoter->display_name ?: $promoter->user->name, 0, 1)) }}</span>
                                         @endif
                                     </button>
                                 @else
-                                    @if ($affiliate->profile_image)
-                                        <img src="{{ asset('uploads/' . $affiliate->profile_image) }}" alt="{{ $affiliate->display_name }}" class="cv-hero-venue-avatar">
+                                    @if ($promoter->profile_image)
+                                        <img src="{{ asset('uploads/' . $promoter->profile_image) }}" alt="{{ $promoter->display_name }}" class="cv-hero-venue-avatar">
                                     @else
-                                        <span class="cv-hero-venue-initial">{{ strtoupper(substr($affiliate->display_name ?: $affiliate->user->name, 0, 1)) }}</span>
+                                        <span class="cv-hero-venue-initial">{{ strtoupper(substr($promoter->display_name ?: $promoter->user->name, 0, 1)) }}</span>
                                     @endif
                                 @endif
                                 <div>
-                                    <p class="cv-hero-venue-title">{{ $affiliate->display_name ?: $affiliate->user->name }}<span class="cv-hero-venue-verified" title="Verified Partner">&check;</span></p>
+                                    <p class="cv-hero-venue-title">{{ $promoter->display_name ?: $promoter->user->name }}<span class="cv-hero-venue-verified" title="Verified Partner">&check;</span></p>
                                     <p class="cv-hero-venue-meta">Premium Packages</p>
                                     <!-- Social Links beside profile -->
-                                    @if($affiliate->facebook_url || $affiliate->instagram_url)
+                                    @if($promoter->facebook_url || $promoter->instagram_url)
                                         <div class="aff-social-links" style="display: flex; gap: 8px; margin-top: 6px;">
-                                            @if($affiliate->facebook_url)
-                                                <a href="{{ $affiliate->facebook_url }}" target="_blank" rel="noopener noreferrer" class="aff-social-link" style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; text-decoration: none; transition: all 0.2s ease;" title="Facebook">
+                                            @if($promoter->facebook_url)
+                                                <a href="{{ $promoter->facebook_url }}" target="_blank" rel="noopener noreferrer" class="aff-social-link" style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; text-decoration: none; transition: all 0.2s ease;" title="Facebook">
                                                     <i class="fab fa-facebook-f" style="font-size: 15px;"></i>
                                                 </a>
                                             @endif
-                                            @if($affiliate->instagram_url)
-                                                <a href="{{ $affiliate->instagram_url }}" target="_blank" rel="noopener noreferrer" class="aff-social-link" style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; text-decoration: none; transition: all 0.2s ease;" title="Instagram">
+                                            @if($promoter->instagram_url)
+                                                <a href="{{ $promoter->instagram_url }}" target="_blank" rel="noopener noreferrer" class="aff-social-link" style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; text-decoration: none; transition: all 0.2s ease;" title="Instagram">
                                                     <i class="fab fa-instagram" style="font-size: 15px;"></i>
                                                 </a>
                                             @endif
@@ -5570,9 +5570,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         <div class="aff-hero-left-column">
                             <div class="cv-hero-bottom">
                                 <div class="cv-hero-content">
-                                    <div class="aff-kicker">Affiliate Packages</div>
+                                    <div class="aff-kicker">Promoter Packages</div>
                                     @php
-                                        $heroTitle = $affiliate->hero_title ?: ($affiliate->display_name ?: $affiliate->user->name);
+                                        $heroTitle = $promoter->hero_title ?: ($promoter->display_name ?: $promoter->user->name);
                                         $titleWords = preg_split('/\s+/', trim($heroTitle));
                                         $heroLastWord = '';
                                         if (count($titleWords) > 1) {
@@ -5583,8 +5583,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         }
                                     @endphp
 
-                                    <!-- Featured Affiliate Card -->
-                                    @if($affiliate->hero_title || $affiliate->hero_subtitle || $affiliate->description)
+                                    <!-- Featured Promoter Card -->
+                                    @if($promoter->hero_title || $promoter->hero_subtitle || $promoter->description)
                                     <div class="aff-featured-card" style="display: grid; grid-template-columns: 100px 1fr; gap: 24px; align-items: flex-start; padding: 28px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.1); background: linear-gradient(135deg, rgba(167,116,255,0.2) 0%, rgba(236,72,153,0.15) 100%); margin: 0 0 20px 0; position: relative; overflow: hidden;">
                                         <!-- Gradient overlay -->
                                         <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 45%; background: radial-gradient(ellipse at right center, rgba(255,255,255,0.05), transparent 70%); pointer-events: none;"></div>
@@ -5592,21 +5592,21 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         <!-- Icon -->
                                         <div style="display: flex; align-items: center; justify-content: center; width: 100px; height: 100px; background: rgba(255,255,255,0.06); border-radius: 12px; border: 1.5px solid rgba(167,116,255,0.6); position: relative; z-index: 1; flex-shrink: 0;">
                                             @php
-                                                $featuredIcon = $affiliate->featured_icon ?? 'fa-star';
+                                                $featuredIcon = $promoter->featured_icon ?? 'fa-star';
                                             @endphp
                                             <i class="fas {{ $featuredIcon }}" style="font-size: 48px; background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
                                         </div>
 
                                         <!-- Content -->
                                         <div style="position: relative; z-index: 1; padding-top: 4px;">
-                                            @if($affiliate->hero_title)
-                                                <h2 style="font-size: 36px; font-weight: 700; color: #fff; margin: 0 0 8px 0; letter-spacing: -0.01em;">{{ $affiliate->hero_title }}</h2>
+                                            @if($promoter->hero_title)
+                                                <h2 style="font-size: 36px; font-weight: 700; color: #fff; margin: 0 0 8px 0; letter-spacing: -0.01em;">{{ $promoter->hero_title }}</h2>
                                             @endif
-                                            @if($affiliate->hero_subtitle)
-                                                <p style="font-size: 14px; color: #a774ff; margin: 0 0 12px 0; font-weight: 500; padding-bottom: 12px; border-bottom: 1px solid rgba(167,116,255,0.3);">{{ $affiliate->hero_subtitle }}</p>
+                                            @if($promoter->hero_subtitle)
+                                                <p style="font-size: 14px; color: #a774ff; margin: 0 0 12px 0; font-weight: 500; padding-bottom: 12px; border-bottom: 1px solid rgba(167,116,255,0.3);">{{ $promoter->hero_subtitle }}</p>
                                             @endif
-                                            @if($affiliate->description)
-                                                <p style="font-size: 15px; color: rgba(255,255,255,0.8); margin: 0; line-height: 1.6;">{{ $affiliate->description }}</p>
+                                            @if($promoter->description)
+                                                <p style="font-size: 15px; color: rgba(255,255,255,0.8); margin: 0; line-height: 1.6;">{{ $promoter->description }}</p>
                                             @endif
                                         </div>
                                     </div>
@@ -5653,16 +5653,16 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         </div>
 
                         <!-- Right Column: Gallery (Desktop Only) -->
-                        @if(!empty($affiliate->gallery_images))
+                        @if(!empty($promoter->gallery_images))
                             <div class="aff-hero-gallery-carousel">
                                 <div class="aff-hero-carousel-track" id="affHeroCarouselTrack" style="display: flex; flex-direction: column; height: 100%; position: relative; overflow: hidden; border-radius: 12px;">
-                                    @foreach($affiliate->gallery_images as $galleryImage)
+                                    @foreach($promoter->gallery_images as $galleryImage)
                                         <div class="aff-hero-carousel-item" style="display: none; width: 100%; height: 100%; flex: 0 0 100%;">
                                             <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image" style="width: 100%; height: 100%; object-fit: contain; background: rgba(0,0,0,0.5);">
                                         </div>
                                     @endforeach
                                 </div>
-                                @if(count($affiliate->gallery_images) > 1)
+                                @if(count($promoter->gallery_images) > 1)
                                     <button class="aff-hero-carousel-prev" id="affHeroCarouselPrev" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); border: none; color: #fff; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: background 0.2s;">
                                         <i class="fas fa-chevron-up" style="font-size: 16px;"></i>
                                     </button>
@@ -5675,11 +5675,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     </div>
                 </section>
 
-                @if(!empty($affiliate->gallery_images))
+                @if(!empty($promoter->gallery_images))
                     <!-- Mobile Carousel Gallery (Horizontal) - Hidden, shown in modal -->
                     <div class="aff-mobile-gallery-carousel" id="affMobileGalleryCarousel" style="display: none !important; margin: 24px 0;">
                         <div class="aff-mgc-track" id="affMgcTrack" style="display: flex; flex-direction: row; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; height: auto; gap: 0; padding: 0; scroll-behavior: smooth;">
-                            @foreach($affiliate->gallery_images as $galleryImage)
+                            @foreach($promoter->gallery_images as $galleryImage)
                                 <button type="button" class="aff-mgc-slide js-checkout-gallery-trigger"
                                         data-gallery-src="{{ asset('uploads/' . $galleryImage) }}"
                                         data-gallery-alt="Gallery image {{ $loop->iteration }}"
@@ -5688,9 +5688,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 </button>
                             @endforeach
                         </div>
-                        @if(count($affiliate->gallery_images) > 1)
+                        @if(count($promoter->gallery_images) > 1)
                             <div class="aff-mgc-dots" id="affMgcDots" style="display: flex; justify-content: center; gap: 8px; padding: 12px 0; flex-wrap: wrap;">
-                                @foreach($affiliate->gallery_images as $galleryImage)
+                                @foreach($promoter->gallery_images as $galleryImage)
                                     <button type="button" class="aff-mgc-dot{{ $loop->first ? ' is-active' : '' }}" data-slide="{{ $loop->index }}" style="width: 8px; height: 8px; border-radius: 50%; border: none; background: rgba(255,255,255,0.25); cursor: pointer; padding: 0; transition: background .2s, width .25s;"></button>
                                 @endforeach
                             </div>
@@ -5699,7 +5699,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                     <!-- Desktop Grid Gallery (4 columns) - Hidden, shown in modal -->
                     <div class="aff-desktop-gallery-grid" style="display: none !important; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 24px 0;">
-                        @foreach($affiliate->gallery_images as $galleryImage)
+                        @foreach($promoter->gallery_images as $galleryImage)
                             <button type="button" class="aff-dgc-item js-checkout-gallery-trigger"
                                     data-gallery-src="{{ asset('uploads/' . $galleryImage) }}"
                                     data-gallery-alt="Gallery image {{ $loop->iteration }}"
@@ -5716,7 +5716,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 <section class="aff-story">
                     <h2>{{ $data->description_label ?? 'Description' }}</h2>
                     <div class="story-copy-block is-collapsed" data-mobile-collapsible>
-                        <div class="story-copy story-copy-collapsible">{{ $affiliate->description }}</div>
+                        <div class="story-copy story-copy-collapsible">{{ $promoter->description }}</div>
                         <button type="button" class="story-copy-toggle" aria-expanded="false">See more</button>
                     </div>
                 </section>
@@ -5773,7 +5773,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         <small id="package_use_date_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
                                     </div>
 
-                                    <!-- Search & Location Filters for Affiliate -->
+                                    <!-- Search & Location Filters for Promoter -->
                                     <div class="aff-location-selector" style="margin-bottom: 24px;">
                                         <label style="display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .6px; opacity: .68; font-weight: 700; margin: 0 0 8px 0;">Choose Your Location</label>
                                         <select id="package-location-filter-main" class="aff-location-mobile-select" style="width: 100%; min-height: 48px; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.2) !important; border-radius: 10px !important; color: #fff !important; padding: 12px 14px !important; font-size: 14px; font-weight: 600; -webkit-appearance: none; -moz-appearance: none; appearance: none;">
@@ -6252,7 +6252,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                                         <input type="hidden" name="website_id" value="{{ $data->id }}">
 
-                                        <input type="hidden" name="affiliate_slug" value="{{ $affiliate->slug }}">
+                                        <input type="hidden" name="affiliate_slug" value="{{ $promoter->slug }}">
     
                                         <input type="hidden" name="package_number_of_guest" class="package_number_of_guest" value="2">
     
@@ -6531,7 +6531,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     </div>
 
                     @php
-                        $sidebarVenueImage = !empty($affiliate->banner_image ?? null) ? asset('uploads/' . $affiliate->banner_image) : ($data->logo ? asset('uploads/' . $data->logo) : null);
+                        $sidebarVenueImage = !empty($promoter->banner_image ?? null) ? asset('uploads/' . $promoter->banner_image) : ($data->logo ? asset('uploads/' . $data->logo) : null);
                     @endphp
                     @if($sidebarVenueImage)
                         <img src="{{ $sidebarVenueImage }}" class="cv-sidebar-venue-image" alt="{{ $data->name }}">
@@ -6812,7 +6812,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     <div class="cv-footer-brand">
                         <img src="{{ asset('images/logo.png') }}" alt="CartVIP" class="cv-footer-logo">
                         <span class="cv-footer-powered">Powered by CartVIP</span>
-                        <p class="cv-footer-tagline">Modern commerce infrastructure for products, services, reservations, and affiliate sales.</p>
+                        <p class="cv-footer-tagline">Modern commerce infrastructure for products, services, reservations, and promoter sales.</p>
                     </div>
                     <div class="cv-footer-legal">
                         <div class="cv-footer-legal-title">Legal &amp; Disclosures</div>
@@ -7864,7 +7864,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         data: {
                             cart: JSON.stringify(selections.cart),
                             website_slug: @json($data->slug),
-                            event_name: @json($affiliate->display_name ?? $affiliate->user->name),
+                            event_name: @json($promoter->display_name ?? $promoter->user->name),
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },
                         success: function(res) {
@@ -8599,7 +8599,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 let code = $('#promo_code').val().trim();
                 if (!code) return;
 
-                var promoSource = @json(!empty($affiliateReferral) ? 'affiliate' : 'club');
+                var promoSource = @json(!empty($affiliateReferral) ? 'promoter' : 'club');
                 var ownerSlug = @json(!empty($affiliateReferral) ? $affiliateReferral->slug : '');
                 var cartItems = Array.isArray(window.cart) ? window.cart : [];
                 var packageIds = [];
@@ -8690,7 +8690,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 var _origCalcCartTotal = window.calculateCartTotal;
                 var _autoDiscountTimer = null;
 
-                var promoSource = @json(!empty($affiliateReferral) ? 'affiliate' : 'club');
+                var promoSource = @json(!empty($affiliateReferral) ? 'promoter' : 'club');
                 var ownerSlug = @json(!empty($affiliateReferral) ? $affiliateReferral->slug : '');
                 var siteSlug = @json($data->slug);
 
@@ -9387,7 +9387,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             </div>
         </div>
 
-        <!-- Affiliate Gallery Carousel Modal -->
+        <!-- Promoter Gallery Carousel Modal -->
         <div class="modal fade" id="affGalleryModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content aff-gallery-modal-content">
@@ -9398,13 +9398,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     <div class="modal-body aff-gallery-modal-body">
                         <div class="aff-gallery-carousel-container">
                             <div class="aff-gallery-carousel" id="affGalleryCarousel">
-                                @foreach($affiliate->gallery_images as $galleryImage)
+                                @foreach($promoter->gallery_images as $galleryImage)
                                     <div class="aff-gallery-carousel-item" style="display: none;">
                                         <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image" data-index="{{ $loop->index }}">
                                     </div>
                                 @endforeach
                             </div>
-                            @if(count($affiliate->gallery_images) > 1)
+                            @if(count($promoter->gallery_images) > 1)
                                 <button type="button" class="aff-gallery-carousel-nav aff-gallery-carousel-prev" id="affGalleryPrev" aria-label="Previous image">
                                     <i class="fas fa-chevron-left"></i>
                                 </button>
@@ -9413,9 +9413,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 </button>
                             @endif
                         </div>
-                        @if(count($affiliate->gallery_images) > 1)
+                        @if(count($promoter->gallery_images) > 1)
                             <div class="aff-gallery-carousel-indicators" id="affGalleryIndicators">
-                                @foreach($affiliate->gallery_images as $galleryImage)
+                                @foreach($promoter->gallery_images as $galleryImage)
                                     <button type="button" class="aff-gallery-carousel-indicator{{ $loop->first ? ' active' : '' }}" data-index="{{ $loop->index }}" aria-label="Go to image {{ $loop->iteration }}"></button>
                                 @endforeach
                             </div>

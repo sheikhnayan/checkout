@@ -19,7 +19,7 @@ Date: 2026-04-03
 | Guest count and package quantity handling | 55 |
 | Fee calculation engine (service charge, gratuity, tax) | 90 |
 | Payment integration (Stripe + Authorize.net) | 110 |
-| Affiliate public page flow and affiliate checkout logic | 35 |
+| Promoter public page flow and promoter checkout logic | 35 |
 | Feed module (content feed rendering and management) | 20 |
 | Transaction storage and order lifecycle | 85 |
 | Thank-you page and receipt rendering | 45 |

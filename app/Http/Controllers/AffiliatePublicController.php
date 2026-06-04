@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Affiliate;
+use App\Models\Promoter;
 use App\Models\Setting;
 use Illuminate\Support\Collection;
 
@@ -10,13 +10,13 @@ class AffiliatePublicController extends Controller
 {
     public function show($slug)
     {
-        $affiliate = Affiliate::with(['user', 'affiliatePackages.package.website'])
+        $promoter = Promoter::with(['user', 'affiliatePackages.package.website'])
             ->where('slug', $slug)
             ->where('status', 'approved')
             ->where('is_active', true)
             ->firstOrFail();
 
-        $packageMappings = $affiliate->affiliatePackages()
+        $packageMappings = $promoter->affiliatePackages()
             ->with(['package.website', 'package.category', 'package.addons'])
             ->where('is_active', true)
             ->get()
@@ -92,7 +92,7 @@ class AffiliatePublicController extends Controller
         }
 
         // Get the first affiliated website for fees and checkout info
-        $website = $affiliate->affiliateWebsites()
+        $website = $promoter->affiliateWebsites()
             ->with('website')
             ->where('is_active', true)
             ->first()
@@ -131,7 +131,7 @@ class AffiliatePublicController extends Controller
             ];
         }
 
-        return view('affiliate.public-page', compact('affiliate', 'packageMappings', 'packageCategories', 'clubGroups', 'data', 'setting', 'uniqueClubsForFilter', 'dateOptions'));
+        return view('promoter.public-page', compact('promoter', 'packageMappings', 'packageCategories', 'clubGroups', 'data', 'setting', 'uniqueClubsForFilter', 'dateOptions'));
     }
 
     private function buildPackageCategoryGroups(Collection $packageMappings)

@@ -17,7 +17,7 @@ class W9FormLink extends Mailable
     public $recipientName;
     public $type;
 
-    public function __construct($formUrl, $recipientName, $type = 'affiliate')
+    public function __construct($formUrl, $recipientName, $type = 'promoter')
     {
         $this->formUrl = $formUrl;
         $this->recipientName = $recipientName;

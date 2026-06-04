@@ -1,7 +1,7 @@
 # ✅ REPORTING FEATURE - COMPLETE IMPLEMENTATION SUMMARY
 
 ## 🎯 What You Asked For
-"Add comprehensive reporting/analytics feature to checkout platform inspired by Shopify, adapted to our domain (packages, events, affiliates, entertainers), maintaining consistency with existing RBAC role-based architecture, and ensure everything works with no errors."
+"Add comprehensive reporting/analytics feature to checkout platform inspired by Shopify, adapted to our domain (packages, events, promoters, entertainers), maintaining consistency with existing RBAC role-based architecture, and ensure everything works with no errors."
 
 ## ✅ What's Delivered
 
@@ -25,11 +25,11 @@
 
 ### 35 Reports Across 8 Categories
 
-**Sales (6)**: Revenue trends, package breakdown, affiliate revenue, payment methods, refunds, promo code effectiveness
+**Sales (6)**: Revenue trends, package breakdown, promoter revenue, payment methods, refunds, promo code effectiveness
 
 **Orders (5)**: Order volume, status breakdown, package types, multi-package analysis, average order value
 
-**Acquisition (3)**: New affiliates, performance ranking, commission tracking
+**Acquisition (3)**: New promoters, performance ranking, commission tracking
 
 **Entertainer (3)**: Events per entertainer, earnings, commission tracking
 
@@ -46,7 +46,7 @@ The system integrates seamlessly with existing RBAC:
 
 **Admin**: Can access all 35 reports
 **Bouncer/Manager**: Sales, Orders, Product, Customers, Events reports
-**Affiliate**: Acquisition reports (filtered by their affiliate_id)
+**Promoter**: Acquisition reports (filtered by their affiliate_id)
 **Entertainer**: Entertainer reports (filtered by their entertainer_id)
 
 **How It Works**:
@@ -113,7 +113,7 @@ This means:
 ## 📊 Report Visualization Types
 
 ### Line Chart
-Revenue Over Time, New Affiliates Over Time, New Customers Over Time
+Revenue Over Time, New Promoters Over Time, New Customers Over Time
 
 ### Bar/Stacked Bar Chart  
 Orders Over Time (shows status stacking)
@@ -122,7 +122,7 @@ Orders Over Time (shows status stacking)
 Revenue by Payment Method, Orders by Status, Repeat vs First-Time
 
 ### Data Table
-Revenue by Package, Affiliate Performance, Event Attendance
+Revenue by Package, Promoter Performance, Event Attendance
 
 ### Metric Cards
 Refund Analysis, Multi-Package Orders, Revenue Summary
@@ -142,7 +142,7 @@ All reports support these date ranges:
 - This Year
 - Custom (user-selected date range)
 
-**Example**: User can view "Affiliate Performance for Last 30 Days" instantly
+**Example**: User can view "Promoter Performance for Last 30 Days" instantly
 
 ## 💾 Export Functionality
 
@@ -165,7 +165,7 @@ All reports support these date ranges:
 
 ✅ **35 Pre-Built Reports** - Ready to use immediately
 ✅ **Role-Based Access** - Admin sees all, others see filtered view
-✅ **Data Isolation** - Affiliates see only their data
+✅ **Data Isolation** - Promoters see only their data
 ✅ **Save & Favorite** - Users can save report configurations
 ✅ **Dynamic Filtering** - Date ranges applied automatically
 ✅ **Multiple Visualizations** - Charts, tables, metrics
@@ -186,12 +186,12 @@ All reports support these date ranges:
 6. Export CSV → File downloads
 7. Save report → Appears in saved reports list
 
-### Affiliate User
-1. Login as affiliate
+### Promoter User
+1. Login as promoter
 2. Navigate to `/admins/reports`
 3. Should see only "Acquisition" reports (3 total)
-4. Click "Affiliate Commission Tracking" 
-5. Should show only their commission data (not other affiliates)
+4. Click "Promoter Commission Tracking" 
+5. Should show only their commission data (not other promoters)
 6. Export → Only their data included
 7. Save → Preference saved for their user_id
 
@@ -277,7 +277,7 @@ checkout/
 - Permissions cached by middleware
 
 ### Data Privacy
-- Affiliate reports filtered by affiliate_id
+- Promoter reports filtered by affiliate_id
 - Entertainer reports filtered by entertainer_id
 - Bouncer/Manager reports filtered by website_id
 - User can only access their own saved preferences

@@ -44,7 +44,7 @@ class EnsureWebsiteAdminUsers extends Command
         $transactionPermissionIds = Permission::query()
             ->whereIn('key', [
                 'admin.transaction.index',
-                'admin.transaction.affiliate',
+                'admin.transaction.promoter',
                 'admin.transaction.entertainer',
                 'admin.transaction.show',
                 'admin.transaction.update',

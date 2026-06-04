@@ -215,7 +215,7 @@
 
     <div class="card-body">
         <div class="targeted-package-note">
-            This package will stay out of the general club checkout and only appear on the selected {{ $selectedAudience === 'affiliate' ? 'affiliate' : 'entertainer' }} public page.
+            This package will stay out of the general club checkout and only appear on the selected {{ $selectedAudience === 'promoter' ? 'promoter' : 'entertainer' }} public page.
         </div>
 
         <div class="row">
@@ -236,22 +236,22 @@
 
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label class="form-label">Audience <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Choose who can see this package: all visitors, customers from a specific affiliate, or via an entertainer link."></i></label>
+                    <label class="form-label">Audience <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Choose who can see this package: all visitors, customers from a specific promoter, or via an entertainer link."></i></label>
                     <input type="text" class="form-control" value="{{ ucfirst($selectedAudience) }}" disabled>
                     <input type="hidden" name="audience" value="{{ $selectedAudience }}">
                 </div>
             </div>
 
-            @if($selectedAudience === 'affiliate')
+            @if($selectedAudience === 'promoter')
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label for="affiliate_id" class="form-label">Affiliate <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Restrict this package so only the selected affiliate's customers can see and purchase it."></i></label>
+                        <label for="affiliate_id" class="form-label">Promoter <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Restrict this package so only the selected promoter's customers can see and purchase it."></i></label>
                         <select name="affiliate_id" class="form-control" id="affiliate_id">
-                            <option value="">Select Affiliate</option>
-                            <option value="__all__" @selected($selectedAffiliateValue === '__all__')>Select All Affiliates</option>
-                            @foreach($targetOptions['affiliates'] as $affiliate)
-                                <option value="{{ $affiliate->id }}" @selected((string) $affiliate->id === $selectedAffiliateValue)>
-                                    {{ $affiliate->display_name ?: optional($affiliate->user)->name }}
+                            <option value="">Select Promoter</option>
+                            <option value="__all__" @selected($selectedAffiliateValue === '__all__')>Select All Promoters</option>
+                            @foreach($targetOptions['promoters'] as $promoter)
+                                <option value="{{ $promoter->id }}" @selected((string) $promoter->id === $selectedAffiliateValue)>
+                                    {{ $promoter->display_name ?: optional($promoter->user)->name }}
                                 </option>
                             @endforeach
                         </select>

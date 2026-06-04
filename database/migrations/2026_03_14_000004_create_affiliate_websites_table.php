@@ -22,7 +22,7 @@ return new class extends Migration
             $table->unique(['affiliate_id', 'website_id']);
         });
 
-        // Backfill from existing affiliate package mappings.
+        // Backfill from existing promoter package mappings.
         $existingPairs = DB::table('affiliate_packages')
             ->select('affiliate_id', 'website_id')
             ->distinct()

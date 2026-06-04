@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::disableForeignKeyConstraints();
 
-        DB::statement("ALTER TABLE users MODIFY COLUMN user_type ENUM('admin', 'website_user', 'affiliate') NOT NULL DEFAULT 'admin'");
+        DB::statement("ALTER TABLE users MODIFY COLUMN user_type ENUM('admin', 'website_user', 'promoter') NOT NULL DEFAULT 'admin'");
 
         // Repair any previously truncated rows caused by enum mismatch.
         DB::statement("UPDATE users SET user_type = 'admin' WHERE user_type = '' OR user_type IS NULL");
@@ -26,8 +26,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Map affiliate users back to website_user before removing enum value.
-        DB::statement("UPDATE users SET user_type = 'website_user' WHERE user_type = 'affiliate'");
+        // Map promoter users back to website_user before removing enum value.
+        DB::statement("UPDATE users SET user_type = 'website_user' WHERE user_type = 'promoter'");
         DB::statement("ALTER TABLE users MODIFY COLUMN user_type ENUM('admin', 'website_user') NOT NULL DEFAULT 'admin'");
     }
 };

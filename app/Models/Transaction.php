@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Affiliate;
+use App\Models\Promoter;
 use App\Models\Entertainer;
 
 class Transaction extends Model
@@ -25,9 +25,9 @@ class Transaction extends Model
         'entertainer_commission_reversed_at' => 'datetime',
     ];
 
-    public function affiliate()
+    public function promoter()
     {
-        return $this->belongsTo(Affiliate::class);
+        return $this->belongsTo(Promoter::class);
     }
 
     public function entertainer()

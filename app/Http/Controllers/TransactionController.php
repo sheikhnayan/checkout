@@ -8,7 +8,7 @@ use App\Models\Event;
 use App\Models\Package;
 use App\Models\Website;
 use App\Models\Setting;
-use App\Models\Affiliate;
+use App\Models\Promoter;
 use App\Models\AffiliatePackage;
 use App\Models\AffiliateWebsite;
 use App\Models\AffiliateWalletTransaction;
@@ -518,8 +518,8 @@ class TransactionController extends Controller
 
         return view('admin.transaction.index', [
             'data' => $data,
-            'dashboardTitle' => 'Affiliate Transactions',
-            'dashboardSubtitle' => 'Only affiliate-referred transactions are listed here.',
+            'dashboardTitle' => 'Promoter Transactions',
+            'dashboardSubtitle' => 'Only promoter-referred transactions are listed here.',
             'isPayoutPage' => true,
         ]);
     }
@@ -586,13 +586,13 @@ class TransactionController extends Controller
             $query->where('status', $statusMap[$statusKey]);
         }
 
-        $affiliateFilter = trim((string) $request->query('affiliate', ''));
+        $affiliateFilter = trim((string) $request->query('promoter', ''));
         if ($affiliateFilter !== '') {
             if (strcasecmp($affiliateFilter, 'Direct') === 0) {
                 $query->whereNull('affiliate_id')->whereNull('entertainer_id');
             } else {
                 $query->where(function ($nameQuery) use ($affiliateFilter) {
-                    $nameQuery->whereHas('affiliate', function ($affiliateQuery) use ($affiliateFilter) {
+                    $nameQuery->whereHas('promoter', function ($affiliateQuery) use ($affiliateFilter) {
                         $affiliateQuery->where('display_name', $affiliateFilter)
                             ->orWhereHas('user', function ($userQuery) use ($affiliateFilter) {
                                 $userQuery->where('name', $affiliateFilter);
@@ -620,7 +620,7 @@ class TransactionController extends Controller
         }
 
         return $query
-            ->with(['event', 'package', 'website', 'affiliate.user', 'entertainer.user'])
+            ->with(['event', 'package', 'website', 'promoter.user', 'entertainer.user'])
             ->latest()
             ->get();
     }
@@ -789,7 +789,7 @@ class TransactionController extends Controller
         }
 
         // Format data for modal display
-        $affiliateName = $transaction->affiliate ? ($transaction->affiliate->display_name ?: optional($transaction->affiliate->user)->name) : '';
+        $affiliateName = $transaction->promoter ? ($transaction->promoter->display_name ?: optional($transaction->promoter->user)->name) : '';
         $entertainerName = $transaction->entertainer ? ($transaction->entertainer->display_name ?: optional($transaction->entertainer->user)->name) : '';
 
         $html = '<div class="row">
@@ -861,7 +861,7 @@ class TransactionController extends Controller
 
         $source = 'Direct';
         if ($affiliateName) {
-            $source = 'Affiliate - ' . $affiliateName;
+            $source = 'Promoter - ' . $affiliateName;
         } elseif ($entertainerName) {
             $source = 'Entertainer - ' . $entertainerName;
         }
@@ -872,7 +872,7 @@ class TransactionController extends Controller
                 . ' | ' . number_format((float)($transaction->affiliate_commission_percentage ?? 0), 2) . '%'
                 . ' | $' . number_format((float)($transaction->affiliate_commission_amount ?? 0), 2)
                 . ($transaction->affiliate_commission_status ? (' | ' . strtoupper($transaction->affiliate_commission_status)) : '');
-            $html .= '<li class="list-group-item"><strong>Affiliate Commission:</strong> <span>' . htmlspecialchars($affText) . '</span></li>';
+            $html .= '<li class="list-group-item"><strong>Promoter Commission:</strong> <span>' . htmlspecialchars($affText) . '</span></li>';
         }
 
         if ($entertainerName || ((float)($transaction->entertainer_commission_amount ?? 0) > 0) || ((float)($transaction->entertainer_commission_percentage ?? 0) > 0) || $transaction->entertainer_commission_status) {
@@ -1654,21 +1654,21 @@ class TransactionController extends Controller
 
     private function applyAffiliateCommission(Request $request, Transaction $transaction, ?float $commissionBaseAmount = null): bool
     {
-        $affiliate = $this->resolveAffiliateFromRequest($request);
-        if (!$affiliate) {
+        $promoter = $this->resolveAffiliateFromRequest($request);
+        if (!$promoter) {
             return false;
         }
 
         $packageId = (int) $request->input('package_id');
         if ($packageId <= 0) {
-            $transaction->affiliate_id = $affiliate->id;
-            $transaction->affiliate_source = $affiliate->slug;
+            $transaction->affiliate_id = $promoter->id;
+            $transaction->affiliate_source = $promoter->slug;
             $transaction->save();
             session()->forget(['affiliate_referral_id', 'affiliate_referral_slug']);
             return true;
         }
 
-        $mapping = AffiliatePackage::where('affiliate_id', $affiliate->id)
+        $mapping = AffiliatePackage::where('affiliate_id', $promoter->id)
             ->where('package_id', $packageId)
             ->where('is_active', true)
             ->first();
@@ -1677,30 +1677,30 @@ class TransactionController extends Controller
             return true;
         }
 
-        $commissionPercentage = (float) ($mapping->commission_percentage ?? $affiliate->default_commission_percentage);
+        $commissionPercentage = (float) ($mapping->commission_percentage ?? $promoter->default_commission_percentage);
         $baseAmount = $commissionBaseAmount !== null
             ? (float) $commissionBaseAmount
             : (float) ($transaction->actual_total ?? $transaction->total ?? 0);
         $commissionAmount = round(max($baseAmount, 0) * ($commissionPercentage / 100), 2);
 
-        $transaction->affiliate_id = $affiliate->id;
+        $transaction->affiliate_id = $promoter->id;
         $transaction->affiliate_commission_percentage = $commissionPercentage;
         $transaction->affiliate_commission_amount = $commissionAmount;
         $transaction->affiliate_commission_status = Transaction::COMMISSION_STATUS_PENDING;
         $transaction->affiliate_commission_hold_until = $this->commissionHoldUntil($transaction);
         $transaction->affiliate_commission_approved_at = null;
         $transaction->affiliate_commission_reversed_at = null;
-        $transaction->affiliate_source = $affiliate->slug;
+        $transaction->affiliate_source = $promoter->slug;
         $transaction->save();
 
         if ($commissionAmount > 0) {
             AffiliateWalletTransaction::create([
-                'affiliate_id' => $affiliate->id,
+                'affiliate_id' => $promoter->id,
                 'transaction_id' => $transaction->id,
                 'type' => 'commission',
                 'status' => 'pending',
                 'amount' => $commissionAmount,
-                'balance_after' => (float) $affiliate->wallet_balance,
+                'balance_after' => (float) $promoter->wallet_balance,
                 'description' => 'Commission pending hold period for purchase #' . $transaction->id,
                 'meta' => [
                     'package_id' => $packageId,
@@ -1841,19 +1841,19 @@ class TransactionController extends Controller
             return false;
         }
 
-        $affiliate = Affiliate::find($transaction->affiliate_id);
-        if (!$affiliate) {
+        $promoter = Promoter::find($transaction->affiliate_id);
+        if (!$promoter) {
             return false;
         }
 
         $commissionAmount = round((float) $transaction->affiliate_commission_amount, 2);
-        $newBalance = round((float) $affiliate->wallet_balance + $commissionAmount, 2);
+        $newBalance = round((float) $promoter->wallet_balance + $commissionAmount, 2);
 
-        $affiliate->wallet_balance = $newBalance;
-        $affiliate->save();
+        $promoter->wallet_balance = $newBalance;
+        $promoter->save();
 
         AffiliateWalletTransaction::create([
-            'affiliate_id' => $affiliate->id,
+            'affiliate_id' => $promoter->id,
             'transaction_id' => $transaction->id,
             'type' => 'commission',
             'status' => 'credited',
@@ -1941,19 +1941,19 @@ class TransactionController extends Controller
             return;
         }
 
-        $affiliate = Affiliate::find($transaction->affiliate_id);
-        if (!$affiliate) {
+        $promoter = Promoter::find($transaction->affiliate_id);
+        if (!$promoter) {
             return;
         }
 
         $reverseAmount = round((float) $transaction->affiliate_commission_amount, 2);
-        $newBalance = round((float) $affiliate->wallet_balance - $reverseAmount, 2);
+        $newBalance = round((float) $promoter->wallet_balance - $reverseAmount, 2);
 
-        $affiliate->wallet_balance = $newBalance;
-        $affiliate->save();
+        $promoter->wallet_balance = $newBalance;
+        $promoter->save();
 
         AffiliateWalletTransaction::create([
-            'affiliate_id' => $affiliate->id,
+            'affiliate_id' => $promoter->id,
             'transaction_id' => $transaction->id,
             'type' => 'commission',
             'status' => 'reversed',
@@ -2301,31 +2301,31 @@ class TransactionController extends Controller
         return 'https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=' . urlencode($ticketCode);
     }
 
-    private function resolveAffiliateFromRequest(Request $request): ?Affiliate
+    private function resolveAffiliateFromRequest(Request $request): ?Promoter
     {
         $websiteId = (int) $request->input('website_id');
 
         if ($request->filled('affiliate_slug')) {
-            $affiliate = Affiliate::where('slug', $request->input('affiliate_slug'))
+            $promoter = Promoter::where('slug', $request->input('affiliate_slug'))
                 ->where('status', 'approved')
                 ->where('is_active', true)
                 ->first();
 
-            if ($affiliate && $this->affiliateAllowedForWebsite($affiliate->id, $websiteId)) {
-                return $affiliate;
+            if ($promoter && $this->affiliateAllowedForWebsite($promoter->id, $websiteId)) {
+                return $promoter;
             }
 
             return null;
         }
 
         if (session()->has('affiliate_referral_id')) {
-            $affiliate = Affiliate::where('id', session('affiliate_referral_id'))
+            $promoter = Promoter::where('id', session('affiliate_referral_id'))
                 ->where('status', 'approved')
                 ->where('is_active', true)
                 ->first();
 
-            if ($affiliate && $this->affiliateAllowedForWebsite($affiliate->id, $websiteId)) {
-                return $affiliate;
+            if ($promoter && $this->affiliateAllowedForWebsite($promoter->id, $websiteId)) {
+                return $promoter;
             }
 
             session()->forget(['affiliate_referral_id', 'affiliate_referral_slug']);
@@ -2391,13 +2391,13 @@ class TransactionController extends Controller
             ->where('is_archieved', 0)
             ->where('audience', $source)
             ->when($source === PromoCode::AUDIENCE_AFFILIATE, function ($query) use ($request) {
-                $affiliate = $this->resolveAffiliateFromRequest($request);
-                if (!$affiliate) {
+                $promoter = $this->resolveAffiliateFromRequest($request);
+                if (!$promoter) {
                     $query->whereRaw('1 = 0');
                     return;
                 }
 
-                $query->where('affiliate_id', $affiliate->id)
+                $query->where('affiliate_id', $promoter->id)
                     ->whereNull('entertainer_id');
             })
             ->when($source === PromoCode::AUDIENCE_ENTERTAINER, function ($query) use ($request) {

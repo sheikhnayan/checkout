@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::disableForeignKeyConstraints();
 
-        Schema::create('affiliates', function (Blueprint $table) {
+        Schema::create('promoters', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->unique();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
@@ -49,6 +49,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('affiliates');
+        Schema::dropIfExists('promoters');
     }
 };

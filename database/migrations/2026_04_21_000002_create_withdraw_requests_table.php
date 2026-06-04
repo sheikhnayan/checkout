@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('withdraw_requests', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('owner_id');
-            $table->string('owner_type');                          // 'affiliate' or 'entertainer'
+            $table->string('owner_type');                          // 'promoter' or 'entertainer'
             $table->unsignedBigInteger('payout_method_id')->nullable(); // null if method was deleted
             $table->unsignedBigInteger('website_id')->nullable();  // entertainer's website for charge lookup
             $table->decimal('amount', 10, 2);                      // requested amount

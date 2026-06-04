@@ -43,7 +43,7 @@ POST   /admins/reports/{report}/export   Export as CSV/Excel/PDF
 |----------|-------|----------|
 | Sales | 6 | Revenue trends, refund analysis, promo effectiveness |
 | Orders | 5 | Order volume, package types, AOV |
-| Acquisition | 3 | New affiliates, performance, commission tracking |
+| Acquisition | 3 | New promoters, performance, commission tracking |
 | Entertainer | 3 | Events, earnings, commission |
 | Product | 3 | Sales by package, popularity, capacity |
 | Customers | 3 | New customers, retention, location |
@@ -55,7 +55,7 @@ POST   /admins/reports/{report}/export   Export as CSV/Excel/PDF
 |------|------|---------|
 | Admin | All 35 reports | Revenue Over Time for all websites |
 | Bouncer/Manager | Sales, Orders, Product, Customers, Events (5 cats) | Revenue by Package for their website |
-| Affiliate | Acquisition (3 reports) | Commission Tracking for their affiliate only |
+| Promoter | Acquisition (3 reports) | Commission Tracking for their promoter only |
 | Entertainer | Entertainer (3 reports) | Events Per Entertainer for their data only |
 
 ## Test Checklist
@@ -64,16 +64,16 @@ POST   /admins/reports/{report}/export   Export as CSV/Excel/PDF
 - [ ] Change date range → Report updates
 - [ ] Click "Export CSV" → File downloads
 - [ ] Click "Save Report" → Modal appears
-- [ ] Login as Affiliate → See only Acquisition (3 reports)
+- [ ] Login as Promoter → See only Acquisition (3 reports)
 - [ ] Verify data is filtered to their affiliate_id
-- [ ] Export as Affiliate → Only their data in file
+- [ ] Export as Promoter → Only their data in file
 - [ ] Login as Entertainer → See only Entertainer (3 reports)
 - [ ] Verify data is filtered to their entertainer_id
 
 ## Key Features
 - ✅ 35 pre-built reports
 - ✅ Role-based access control (integrated with RBAC)
-- ✅ Data isolation (affiliates see only their data)
+- ✅ Data isolation (promoters see only their data)
 - ✅ Multiple visualization types (charts, tables, metrics)
 - ✅ Save & favorite reports
 - ✅ Date range filtering (8 options)

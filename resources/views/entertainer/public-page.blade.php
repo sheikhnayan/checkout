@@ -877,7 +877,7 @@ a {
 }
 
 /* ===================================================
-   AFFILIATE PAGE DESIGN SYSTEM
+   PROMOTER PAGE DESIGN SYSTEM
    =================================================== */
 :root {
     --accent:    {{ $brandPrimary }};
@@ -970,7 +970,7 @@ input::placeholder, textarea::placeholder {
     outline-offset: 2px;
 }
 
-/* Payment agreement toggles: exact affiliate parity, locked with stronger selectors */
+/* Payment agreement toggles: exact promoter parity, locked with stronger selectors */
 #payment-consent-group .consent-label {
     display: flex !important;
     gap: 10px !important;
@@ -1286,7 +1286,7 @@ input::placeholder, textarea::placeholder {
     font-weight: 700;
 }
 
-/* Exact affiliate-page layout surfaces */
+/* Exact promoter-page layout surfaces */
 body {
     background:
         radial-gradient(circle at top right, rgba(255, 255, 255, 0.06), transparent 34%),
@@ -4798,7 +4798,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 
 @media (max-width: 767px) {
-    /* Featured Affiliate Card - Mobile */
+    /* Featured Promoter Card - Mobile */
     .ent-featured-card {
         grid-template-columns: 100px 1fr !important;
         gap: 16px !important;
@@ -5046,7 +5046,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         display: flex !important;
     }
 
-    /* AFFILIATE PACKAGES Section Header */
+    /* PROMOTER PACKAGES Section Header */
     .section-kicker-lg {
         font-size: 13px !important;
         font-weight: 800 !important;
@@ -5583,7 +5583,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         }
                                     @endphp
 
-                                    <!-- Featured Affiliate Card -->
+                                    <!-- Featured Promoter Card -->
                                     @if($entertainer->hero_title || $entertainer->hero_subtitle || $entertainer->description)
                                     <div class="ent-featured-card" style="display: grid; grid-template-columns: 100px 1fr; gap: 24px; align-items: flex-start; padding: 28px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.1); background: linear-gradient(135deg, rgba(167,116,255,0.2) 0%, rgba(236,72,153,0.15) 100%); margin: 0 0 20px 0; position: relative; overflow: hidden;">
                                         <!-- Gradient overlay -->
@@ -5773,7 +5773,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         <small id="package_use_date_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
                                     </div>
 
-                                    <!-- Search & Location Filters for Affiliate -->
+                                    <!-- Search & Location Filters for Promoter -->
                                     <div class="ent-location-selector" style="margin-bottom: 24px;">
                                         <label style="display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .6px; opacity: .68; font-weight: 700; margin: 0 0 8px 0;">Choose Your Location</label>
                                         <select id="package-location-filter-main" class="ent-location-mobile-select" style="width: 100%; min-height: 48px; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.2) !important; border-radius: 10px !important; color: #fff !important; padding: 12px 14px !important; font-size: 14px; font-weight: 600; -webkit-appearance: none; -moz-appearance: none; appearance: none;">
@@ -6812,7 +6812,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     <div class="cv-footer-brand">
                         <img src="{{ asset('images/logo.png') }}" alt="CartVIP" class="cv-footer-logo">
                         <span class="cv-footer-powered">Powered by CartVIP</span>
-                        <p class="cv-footer-tagline">Modern commerce infrastructure for products, services, reservations, and affiliate sales.</p>
+                        <p class="cv-footer-tagline">Modern commerce infrastructure for products, services, reservations, and promoter sales.</p>
                     </div>
                     <div class="cv-footer-legal">
                         <div class="cv-footer-legal-title">Legal &amp; Disclosures</div>
@@ -8599,7 +8599,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 let code = $('#promo_code').val().trim();
                 if (!code) return;
 
-                var promoSource = @json(!empty($entertainerReferral) ? 'affiliate' : 'club');
+                var promoSource = @json(!empty($entertainerReferral) ? 'promoter' : 'club');
                 var ownerSlug = @json(!empty($entertainerReferral) ? $entertainerReferral->slug : '');
                 var cartItems = Array.isArray(window.cart) ? window.cart : [];
                 var packageIds = [];
@@ -8690,7 +8690,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 var _origCalcCartTotal = window.calculateCartTotal;
                 var _autoDiscountTimer = null;
 
-                var promoSource = @json(!empty($entertainerReferral) ? 'affiliate' : 'club');
+                var promoSource = @json(!empty($entertainerReferral) ? 'promoter' : 'club');
                 var ownerSlug = @json(!empty($entertainerReferral) ? $entertainerReferral->slug : '');
                 var siteSlug = @json($data->slug);
 
@@ -9387,7 +9387,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             </div>
         </div>
 
-        <!-- Affiliate Gallery Carousel Modal -->
+        <!-- Promoter Gallery Carousel Modal -->
         <div class="modal fade" id="entGalleryModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content ent-gallery-modal-content">

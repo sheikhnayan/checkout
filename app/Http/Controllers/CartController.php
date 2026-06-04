@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Affiliate;
+use App\Models\Promoter;
 use App\Models\Entertainer;
 use App\Models\SharedCart;
 use Illuminate\Http\Request;
@@ -85,9 +85,9 @@ class CartController extends Controller
         $cartJson = json_encode($sharedCart->cart_data);
         $cartParam = urlencode($cartJson);
 
-        // Redirect to affiliate page if this is an affiliate cart
+        // Redirect to promoter page if this is an promoter cart
         if ($sharedCart->affiliate_slug) {
-            $affiliateExists = Affiliate::where('slug', $sharedCart->affiliate_slug)
+            $affiliateExists = Promoter::where('slug', $sharedCart->affiliate_slug)
                 ->where('status', 'approved')
                 ->where('is_active', true)
                 ->exists();
@@ -103,7 +103,7 @@ class CartController extends Controller
             }
 
             if ($affiliateExists) {
-                return redirect()->route('affiliate.public', array_merge(
+                return redirect()->route('promoter.public', array_merge(
                     ['slug' => $sharedCart->affiliate_slug],
                     $params
                 ));

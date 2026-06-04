@@ -903,11 +903,11 @@
   </li>
   @endif
 
-  @if($authUser && $canAccessRoute('admin.transaction.affiliate'))
-  <li class="menu-item {{ request()->is('admins/transaction/affiliate') ? 'active' : '' }}">
-    <a href="{{ route('admin.transaction.affiliate') }}" class="menu-link">
+  @if($authUser && $canAccessRoute('admin.transaction.promoter'))
+  <li class="menu-item {{ request()->is('admins/transaction/promoter') ? 'active' : '' }}">
+    <a href="{{ route('admin.transaction.promoter') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-user-check"></i>
-      <div class="text-truncate">Affiliate Transactions</div>
+      <div class="text-truncate">Promoter Transactions</div>
     </a>
   </li>
   @endif
@@ -926,10 +926,10 @@
   </li>
 
   @if(auth()->check() && auth()->user()->isAdmin())
-  <li class="menu-item {{ request()->is('admins/affiliate*') ? 'active' : '' }}">
-    <a href="{{ route('admin.affiliate.index') }}" class="menu-link">
+  <li class="menu-item {{ request()->is('admins/promoter*') ? 'active' : '' }}">
+    <a href="{{ route('admin.promoter.index') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-group"></i>
-      <div class="text-truncate">Affiliates</div>
+      <div class="text-truncate">Promoters</div>
     </a>
   </li>
   @endif
@@ -944,10 +944,10 @@
   @endif
 
   @if(auth()->check() && auth()->user()->isAdmin())
-  <li class="menu-item {{ request()->is('admins/withdraw/affiliates*') ? 'active' : '' }}">
-    <a href="{{ route('admin.withdraw.affiliates') }}" class="menu-link">
+  <li class="menu-item {{ request()->is('admins/withdraw/promoters*') ? 'active' : '' }}">
+    <a href="{{ route('admin.withdraw.promoters') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-money-withdraw"></i>
-      <div class="text-truncate">Affiliate Withdrawals</div>
+      <div class="text-truncate">Promoter Withdrawals</div>
     </a>
   </li>
   @endif
@@ -962,46 +962,46 @@
   @endif
 
   @if(auth()->check() && auth()->user()->isAffiliate())
-  <li class="menu-item {{ request()->is('affiliate-portal/dashboard') ? 'active' : '' }}">
-    <a href="{{ route('affiliate.portal.dashboard') }}" class="menu-link">
+  <li class="menu-item {{ request()->is('promoter-portal/dashboard') ? 'active' : '' }}">
+    <a href="{{ route('promoter.portal.dashboard') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-home-alt-2"></i>
-      <div class="text-truncate">Affiliate Dashboard</div>
+      <div class="text-truncate">Promoter Dashboard</div>
     </a>
   </li>
 
-  <li class="menu-item {{ request()->is('affiliate-portal/packages') ? 'active' : '' }}">
-    <a href="{{ route('affiliate.portal.packages') }}" class="menu-link">
+  <li class="menu-item {{ request()->is('promoter-portal/packages') ? 'active' : '' }}">
+    <a href="{{ route('promoter.portal.packages') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-list-ul"></i>
       <div class="text-truncate">My Packages</div>
     </a>
   </li>
 
-  <li class="menu-item {{ request()->is('affiliate-portal/settings') ? 'active' : '' }}">
-    <a href="{{ route('affiliate.portal.settings') }}" class="menu-link">
+  <li class="menu-item {{ request()->is('promoter-portal/settings') ? 'active' : '' }}">
+    <a href="{{ route('promoter.portal.settings') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-palette"></i>
       <div class="text-truncate">Page Customization</div>
     </a>
   </li>
 
-  <li class="menu-item {{ request()->is('affiliate-portal/wallet') ? 'active' : '' }}">
-    <a href="{{ route('affiliate.portal.wallet') }}" class="menu-link">
+  <li class="menu-item {{ request()->is('promoter-portal/wallet') ? 'active' : '' }}">
+    <a href="{{ route('promoter.portal.wallet') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-wallet"></i>
       <div class="text-truncate">Wallet</div>
     </a>
   </li>
 
-  <li class="menu-item {{ request()->is('affiliate-portal/withdraw*') ? 'active' : '' }}">
-    <a href="{{ route('affiliate.portal.withdraw') }}" class="menu-link">
+  <li class="menu-item {{ request()->is('promoter-portal/withdraw*') ? 'active' : '' }}">
+    <a href="{{ route('promoter.portal.withdraw') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-money-withdraw"></i>
       <div class="text-truncate">Withdraw</div>
     </a>
   </li>
 
-  @if(auth()->user()->affiliate && auth()->user()->affiliate->slug)
+  @if(auth()->user()->promoter && auth()->user()->promoter->slug)
   <li class="menu-item">
-    <a href="{{ route('affiliate.public', auth()->user()->affiliate->slug) }}" target="_blank" class="menu-link">
+    <a href="{{ route('promoter.public', auth()->user()->promoter->slug) }}" target="_blank" class="menu-link">
       <i class="menu-icon tf-icons bx bx-link-external"></i>
-      <div class="text-truncate">My Affiliate Page</div>
+      <div class="text-truncate">My Promoter Page</div>
     </a>
   </li>
   @endif
@@ -1135,7 +1135,7 @@
             } else {
               // Special cases for portal pages
               if (str_ends_with($__currPath, '/wallet')) {
-                // For affiliate/entertainer wallet pages, go to dashboard
+                // For promoter/entertainer wallet pages, go to dashboard
                 $__backUrl = preg_replace('/\/wallet$/', '/dashboard', $__currPath);
               } else {
                 // Derive parent by stripping the last path segment

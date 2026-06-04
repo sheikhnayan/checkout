@@ -10,7 +10,7 @@ return new class extends Migration
     public function up(): void
     {
         // Extend user_type enum to include 'manager'
-        DB::statement("ALTER TABLE `users` MODIFY COLUMN `user_type` ENUM('admin','website_user','affiliate','entertainer','bouncer','manager') NOT NULL DEFAULT 'website_user'");
+        DB::statement("ALTER TABLE `users` MODIFY COLUMN `user_type` ENUM('admin','website_user','promoter','entertainer','bouncer','manager') NOT NULL DEFAULT 'website_user'");
 
         // Pivot: which websites a manager user can manage
         Schema::create('manager_websites', function (Blueprint $table) {
@@ -40,6 +40,6 @@ return new class extends Migration
     {
         Schema::dropIfExists('manager_websites');
 
-        DB::statement("ALTER TABLE `users` MODIFY COLUMN `user_type` ENUM('admin','website_user','affiliate','entertainer','bouncer') NOT NULL DEFAULT 'website_user'");
+        DB::statement("ALTER TABLE `users` MODIFY COLUMN `user_type` ENUM('admin','website_user','promoter','entertainer','bouncer') NOT NULL DEFAULT 'website_user'");
     }
 };

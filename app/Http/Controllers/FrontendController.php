@@ -8,7 +8,7 @@ use App\Models\Addon;
 use App\Models\Event;
 use App\Models\Package;
 use App\Models\PromoCode;
-use App\Models\Affiliate;
+use App\Models\Promoter;
 use App\Models\AffiliateWebsite;
 use App\Models\Entertainer;
 use App\Models\CheckoutPopup;
@@ -31,7 +31,7 @@ class FrontendController extends Controller
         }
 
         if ($request->filled('aff')) {
-            $affiliate = Affiliate::where('slug', $request->input('aff'))
+            $promoter = Promoter::where('slug', $request->input('aff'))
                 ->where('status', 'approved')
                 ->where('is_active', true)
                 ->whereHas('affiliateWebsites', function ($query) use ($data) {
@@ -39,10 +39,10 @@ class FrontendController extends Controller
                 })
                 ->first();
 
-            if ($affiliate) {
+            if ($promoter) {
                 session([
-                    'affiliate_referral_id' => $affiliate->id,
-                    'affiliate_referral_slug' => $affiliate->slug,
+                    'affiliate_referral_id' => $promoter->id,
+                    'affiliate_referral_slug' => $promoter->slug,
                 ]);
             } else {
                 session()->forget(['affiliate_referral_id', 'affiliate_referral_slug']);
@@ -51,7 +51,7 @@ class FrontendController extends Controller
 
         $affiliateReferral = null;
         if (session()->has('affiliate_referral_id')) {
-            $affiliateReferral = Affiliate::where('id', session('affiliate_referral_id'))
+            $affiliateReferral = Promoter::where('id', session('affiliate_referral_id'))
                 ->where('status', 'approved')
                 ->where('is_active', true)
                 ->whereHas('affiliateWebsites', function ($query) use ($data) {
@@ -135,17 +135,17 @@ class FrontendController extends Controller
             ->where('audience', $source);
 
         if ($source === PromoCode::AUDIENCE_AFFILIATE) {
-            $affiliate = Affiliate::where('slug', $ownerSlug)
+            $promoter = Promoter::where('slug', $ownerSlug)
                 ->where('status', 'approved')
                 ->where('is_active', true)
                 ->whereHas('affiliateWebsites', function ($q) use ($website) {
                     $q->where('website_id', $website->id)->where('is_active', true);
                 })
                 ->first();
-            if (!$affiliate) {
+            if (!$promoter) {
                 return response()->json(['valid' => false]);
             }
-            $query->where('affiliate_id', $affiliate->id)->whereNull('entertainer_id');
+            $query->where('affiliate_id', $promoter->id)->whereNull('entertainer_id');
         } elseif ($source === PromoCode::AUDIENCE_ENTERTAINER) {
             $entertainer = Entertainer::where('slug', $ownerSlug)
                 ->where('website_id', $website->id)
@@ -239,7 +239,7 @@ class FrontendController extends Controller
             ->whereRaw('LOWER(promo_code) = ?', [strtolower($normalizedCode)]);
 
         if ($source === PromoCode::AUDIENCE_AFFILIATE) {
-            $affiliate = Affiliate::where('slug', $ownerSlug)
+            $promoter = Promoter::where('slug', $ownerSlug)
                 ->where('status', 'approved')
                 ->where('is_active', true)
                 ->whereHas('affiliateWebsites', function ($query) use ($website) {
@@ -248,11 +248,11 @@ class FrontendController extends Controller
                 })
                 ->first();
 
-            if (!$affiliate) {
+            if (!$promoter) {
                 return response()->json(['valid' => false]);
             }
 
-            $check->where('affiliate_id', $affiliate->id)
+            $check->where('affiliate_id', $promoter->id)
                 ->whereNull('entertainer_id');
         } elseif ($source === PromoCode::AUDIENCE_ENTERTAINER) {
             $entertainer = Entertainer::where('slug', $ownerSlug)

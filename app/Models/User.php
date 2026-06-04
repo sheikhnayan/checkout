@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Models\Affiliate;
+use App\Models\Promoter;
 use App\Models\Entertainer;
 use App\Models\WebsiteRole;
 
@@ -69,9 +69,9 @@ class User extends Authenticatable
         return $this->belongsTo(WebsiteRole::class, 'website_role_id');
     }
 
-    public function affiliate()
+    public function promoter()
     {
-        return $this->hasOne(Affiliate::class);
+        return $this->hasOne(Promoter::class);
     }
 
     public function entertainer()
@@ -122,7 +122,7 @@ class User extends Authenticatable
 
     public function isAffiliate()
     {
-        return $this->user_type === 'affiliate';
+        return $this->user_type === 'promoter';
     }
 
     public function isEntertainer()
@@ -180,7 +180,7 @@ class User extends Authenticatable
         $priorityRoutes = [
             'admin.index',
             'admin.transaction.index',
-            'admin.transaction.affiliate',
+            'admin.transaction.promoter',
             'admin.transaction.entertainer',
             'admin.transaction.scan',
             'admin.event.index',

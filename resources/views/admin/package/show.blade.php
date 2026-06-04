@@ -130,7 +130,7 @@
                                     <div class="btn-group" role="group" aria-label="Basic example" style="float: right">
                                         <a href="/admins/package/create/{{ $website_id }}" class="btn btn-primary">Add Package</a>
                                         @if(auth()->user()->isAdmin())
-                                            <a href="{{ route('admin.package.create-targeted', ['audience' => 'affiliate', 'website_id' => $website_id]) }}" class="btn btn-dark">Add Affiliate Package</a>
+                                            <a href="{{ route('admin.package.create-targeted', ['audience' => 'promoter', 'website_id' => $website_id]) }}" class="btn btn-dark">Add Promoter Package</a>
                                         @endif
                                         <a href="{{ route('admin.package.create-targeted', ['audience' => 'entertainer', 'website_id' => $website_id]) }}" class="btn btn-info">Add Entertainer Package</a>
                                     </div>
@@ -472,7 +472,7 @@
                             <div class="tab-pane fade {{ $activeTab === 'targeted' ? 'show active' : '' }}" id="targetedPackages" role="tabpanel" aria-labelledby="targeted-tab">
                                 <div class="card">
                                     <div class="card-body">
-                                        <h6 class="card-title fw-bold">Affiliate and Entertainer Packages</h6>
+                                        <h6 class="card-title fw-bold">Promoter and Entertainer Packages</h6>
                                         @if($targetedPackages->isEmpty())
                                             <p class="text-muted mb-0">No targeted packages created for this club yet.</p>
                                         @else
@@ -494,8 +494,8 @@
                                                 <tbody>
                                                     @foreach($targetedPackages as $index => $item)
                                                         @php
-                                                            $owner = $item->audience === 'affiliate'
-                                                                ? (optional($item->affiliate)->display_name ?: optional(optional($item->affiliate)->user)->name ?: 'All Affiliates')
+                                                            $owner = $item->audience === 'promoter'
+                                                                ? (optional($item->promoter)->display_name ?: optional(optional($item->promoter)->user)->name ?: 'All Promoters')
                                                                 : (optional($item->entertainer)->display_name ?: optional(optional($item->entertainer)->user)->name ?: 'All Entertainers');
                                                         @endphp
                                                         <tr>

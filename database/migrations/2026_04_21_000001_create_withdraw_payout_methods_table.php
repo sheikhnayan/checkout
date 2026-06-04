@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('withdraw_payout_methods', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('owner_id');
-            $table->string('owner_type'); // 'affiliate' or 'entertainer'
+            $table->string('owner_type'); // 'promoter' or 'entertainer'
             $table->string('label');       // e.g. "My Chase Checking"
             $table->string('type');        // bank_transfer | check | wire | paypal | zelle | other
             $table->json('details');       // flexible JSON: account number, routing, bank name, etc.

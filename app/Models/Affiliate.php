@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class Affiliate extends Model
+class Promoter extends Model
 {
     protected $fillable = [
         'user_id',
@@ -87,13 +87,13 @@ class Affiliate extends Model
     public function withdrawPayoutMethods()
     {
         return $this->hasMany(WithdrawPayoutMethod::class, 'owner_id')
-            ->where('owner_type', 'affiliate');
+            ->where('owner_type', 'promoter');
     }
 
     public function withdrawRequests()
     {
         return $this->hasMany(WithdrawRequest::class, 'owner_id')
-            ->where('owner_type', 'affiliate');
+            ->where('owner_type', 'promoter');
     }
 
     public function w9Form()
@@ -103,7 +103,7 @@ class Affiliate extends Model
 
     public static function generateUniqueSlug(string $name): string
     {
-        $base = Str::slug($name ?: 'affiliate');
+        $base = Str::slug($name ?: 'promoter');
         $slug = $base;
         $counter = 1;
 

@@ -2,13 +2,13 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Affiliate Application Approved</title>
+    <title>Promoter Application Approved</title>
 </head>
 <body style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.6;">
-    <h2 style="margin-bottom: 8px;">Your CartVIP Affiliate Account Is Approved</h2>
-    <p>Hello {{ $affiliate->display_name ?? $affiliate->user->name }},</p>
-    <p>Great news. Your affiliate application has been approved.</p>
-    <p>You can now login to your affiliate portal, customize your affiliate page, select packages to promote, and start earning commissions on successful package sales.</p>
+    <h2 style="margin-bottom: 8px;">Your CartVIP Promoter Account Is Approved</h2>
+    <p>Hello {{ $promoter->display_name ?? $promoter->user->name }},</p>
+    <p>Great news. Your promoter application has been approved.</p>
+    <p>You can now login to your promoter portal, customize your promoter page, select packages to promote, and start earning commissions on successful package sales.</p>
     <p>
         Login URL: <a href="{{ route('login') }}">{{ route('login') }}</a>
     </p>

@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::disableForeignKeyConstraints();
 
-        Schema::table('affiliates', function (Blueprint $table) {
+        Schema::table('promoters', function (Blueprint $table) {
             $table->string('hero_title')->nullable()->after('display_name');
             $table->string('hero_subtitle', 500)->nullable()->after('hero_title');
             $table->text('secondary_description')->nullable()->after('description');
@@ -22,7 +22,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('affiliates', function (Blueprint $table) {
+        Schema::table('promoters', function (Blueprint $table) {
             $table->dropColumn([
                 'hero_title',
                 'hero_subtitle',

@@ -47,9 +47,9 @@ class W9Form extends Model
         'reviewed_at' => 'datetime',
     ];
 
-    public function affiliate()
+    public function promoter()
     {
-        return $this->belongsTo(Affiliate::class);
+        return $this->belongsTo(Promoter::class);
     }
 
     public function entertainer()
@@ -64,7 +64,7 @@ class W9Form extends Model
 
     public function getRelatedModel()
     {
-        return $this->type === 'affiliate' ? $this->affiliate : $this->entertainer;
+        return $this->type === 'promoter' ? $this->promoter : $this->entertainer;
     }
 
     public function isApproved()

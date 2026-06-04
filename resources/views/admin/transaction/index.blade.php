@@ -102,7 +102,7 @@
 .txn-date-main { font-size: 0.82rem; color: rgba(255,255,255,0.85); }
 .txn-date-time { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
 .badge-direct { background: rgba(107,114,128,0.2); color: #9ca3af; border: 1px solid rgba(107,114,128,0.3); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; padding: 3px 8px; border-radius: 6px; }
-.badge-affiliate { background: rgba(124,58,237,0.15); color: #a78bfa; border: 1px solid rgba(124,58,237,0.25); font-size: 0.75rem; padding: 3px 8px; border-radius: 6px; max-width: 130px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.badge-promoter { background: rgba(124,58,237,0.15); color: #a78bfa; border: 1px solid rgba(124,58,237,0.25); font-size: 0.75rem; padding: 3px 8px; border-radius: 6px; max-width: 130px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .badge-completed { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.25); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; padding: 4px 10px; border-radius: 20px; }
 .badge-canceled  { background: rgba(239,68,68,0.15);  color: #f87171; border: 1px solid rgba(239,68,68,0.25);  font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
 .badge-refunded  { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
@@ -259,10 +259,10 @@ body.modal-open .admin-mobile-menu-toggle {
             $topPackages  = $otherRevenue > 0 ? $top4->push(['name' => 'Other', 'revenue' => $otherRevenue]) : $top4;
             $topPackagesTotal = (float) $topPackages->sum('revenue');
 
-            // Affiliate names for filter
+            // Promoter names for filter
             $referralRows = $data->map(function ($row) {
-                if (!empty($row->affiliate_id) && !empty($row->affiliate))
-                    return $row->affiliate->display_name ?: optional($row->affiliate->user)->name ?: ('Affiliate #' . $row->affiliate_id);
+                if (!empty($row->affiliate_id) && !empty($row->promoter))
+                    return $row->promoter->display_name ?: optional($row->promoter->user)->name ?: ('Promoter #' . $row->affiliate_id);
                 if (!empty($row->entertainer_id) && !empty($row->entertainer))
                     return $row->entertainer->display_name ?: optional($row->entertainer->user)->name ?: ('Entertainer #' . $row->entertainer_id);
                 return null;
@@ -270,7 +270,7 @@ body.modal-open .admin-mobile-menu-toggle {
 
             $filterWebsite   = (string) request('website', '');
             $filterType      = (string) request('type', '');
-            $filterAffiliate = (string) request('affiliate', '');
+            $filterAffiliate = (string) request('promoter', '');
             $filterStatus    = (string) request('status', '');
             $filterDateFrom  = (string) request('date_from', '');
             $filterDateTo    = (string) request('date_to', '');
@@ -458,11 +458,11 @@ body.modal-open .admin-mobile-menu-toggle {
                 </div>
                 <div class="col-md-3 col-sm-6">
                     <select id="affiliateFilter" class="txn-filter-select">
-                        <option value="">All Affiliates</option>
+                        <option value="">All Promoters</option>
                         @foreach($referralRows as $rn)
                             <option value="{{ $rn }}" {{ $filterAffiliate === $rn ? 'selected' : '' }}>{{ $rn }}</option>
                         @endforeach
-                        <option value="Direct" {{ $filterAffiliate === 'Direct' ? 'selected' : '' }}>Direct (No Affiliate)</option>
+                        <option value="Direct" {{ $filterAffiliate === 'Direct' ? 'selected' : '' }}>Direct (No Promoter)</option>
                     </select>
                 </div>
                 <div class="col-md-3 col-sm-6">
@@ -483,7 +483,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             <th>Order ID</th>
                             <th>Event / Package</th>
                             <th>Customer</th>
-                            <th>Affiliate</th>
+                            <th>Promoter</th>
                             <th>Amount</th>
                             <th>Status</th>
                             <th>Checked In</th>
@@ -501,8 +501,8 @@ body.modal-open .admin-mobile-menu-toggle {
                         @forelse($data as $item)
                         @php
                             $affiliateName = null;
-                            if (!empty($item->affiliate_id) && !empty($item->affiliate))
-                                $affiliateName = $item->affiliate->display_name ?: optional($item->affiliate->user)->name ?: ('Affiliate #' . $item->affiliate_id);
+                            if (!empty($item->affiliate_id) && !empty($item->promoter))
+                                $affiliateName = $item->promoter->display_name ?: optional($item->promoter->user)->name ?: ('Promoter #' . $item->affiliate_id);
                             elseif (!empty($item->entertainer_id) && !empty($item->entertainer))
                                 $affiliateName = $item->entertainer->display_name ?: optional($item->entertainer->user)->name ?: ('Entertainer #' . $item->entertainer_id);
 
@@ -575,7 +575,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             </td>
                             <td>
                                 @if($affiliateName)
-                                    <span class="badge-affiliate" title="{{ $affiliateName }}">{{ $affiliateName }}</span>
+                                    <span class="badge-promoter" title="{{ $affiliateName }}">{{ $affiliateName }}</span>
                                 @else
                                     <span class="badge-direct">DIRECT</span>
                                 @endif
@@ -680,7 +680,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                         data-date="{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('Y-m-d h:i A T') }}"
                                         data-men="{{ $item->men ?? '' }}"
                                         data-women="{{ $item->women ?? '' }}"
-                                        data-affiliate_name="{{ !empty($item->affiliate_id) && !empty($item->affiliate) ? ($item->affiliate->display_name ?: optional($item->affiliate->user)->name ?: ('Affiliate #' . $item->affiliate_id)) : '' }}"
+                                        data-affiliate_name="{{ !empty($item->affiliate_id) && !empty($item->promoter) ? ($item->promoter->display_name ?: optional($item->promoter->user)->name ?: ('Promoter #' . $item->affiliate_id)) : '' }}"
                                         data-entertainer_name="{{ !empty($item->entertainer_id) && !empty($item->entertainer) ? ($item->entertainer->display_name ?: optional($item->entertainer->user)->name ?: ('Entertainer #' . $item->entertainer_id)) : '' }}"
                                         data-affiliate_commission_percentage="{{ (float) ($item->affiliate_commission_percentage ?? 0) }}"
                                         data-affiliate_commission_amount="{{ (float) ($item->affiliate_commission_amount ?? 0) }}"
@@ -826,7 +826,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                         <li class="list-group-item"><strong>Total Due:</strong> <span id="modal-total_due"></span></li>
                                         <li class="list-group-item"><strong>Total Commission:</strong> <span id="modal-total_commission"></span></li>
                                         <li class="list-group-item"><strong>Commission Source:</strong> <span id="modal-commission_source"></span></li>
-                                        <li class="list-group-item" id="modal-affiliate-commission-row"><strong>Affiliate Commission:</strong> <span id="modal-affiliate_commission"></span></li>
+                                        <li class="list-group-item" id="modal-promoter-commission-row"><strong>Promoter Commission:</strong> <span id="modal-affiliate_commission"></span></li>
                                         <li class="list-group-item" id="modal-entertainer-commission-row"><strong>Entertainer Commission:</strong> <span id="modal-entertainer_commission"></span></li>
                                         <li class="list-group-item"><strong>Date (Pacific Time):</strong> <span id="modal-date"></span></li>
                                         <li class="list-group-item"><strong>Accepted Terms and Conditions:</strong> <span id="modal-terms">Yes</span></li>
@@ -1160,7 +1160,7 @@ body.modal-open .admin-mobile-menu-toggle {
 
                     setOrDelete('website', $('#websiteFilter').val());
                     setOrDelete('type', $('#typeFilter').val());
-                    setOrDelete('affiliate', $('#affiliateFilter').val());
+                    setOrDelete('promoter', $('#affiliateFilter').val());
                     setOrDelete('status', $('#statusFilter').val());
 
                     const rangeStr = String($('#txnDateRange').val() || '').trim();
@@ -1514,7 +1514,7 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 var source = 'Direct';
                 if (affiliateName) {
-                    source = 'Affiliate - ' + affiliateName;
+                    source = 'Promoter - ' + affiliateName;
                 } else if (entertainerName) {
                     source = 'Entertainer - ' + entertainerName;
                 }
@@ -1529,9 +1529,9 @@ body.modal-open .admin-mobile-menu-toggle {
                         + (affStatus ? (' | ' + affStatus.toUpperCase()) : '')
                         + (affHold ? (' | Hold Until: ' + affHold) : '');
                     $('#modal-affiliate_commission').text(affText);
-                    $('#modal-affiliate-commission-row').show();
+                    $('#modal-promoter-commission-row').show();
                 } else {
-                    $('#modal-affiliate-commission-row').hide();
+                    $('#modal-promoter-commission-row').hide();
                 }
 
                 if (entertainerName || entAmt > 0 || entPct > 0 || entStatus) {

@@ -7,7 +7,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Package;
 use App\Models\Event;
-use App\Models\Affiliate;
+use App\Models\Promoter;
 use App\Models\Entertainer;
 use App\Models\Website;
 use Illuminate\Support\Facades\DB;
@@ -30,7 +30,7 @@ class ReportGenerationService
             // SALES REPORTS
             'revenue-over-time' => $this->revenueOverTime(),
             'revenue-by-package' => $this->revenueByPackage(),
-            'revenue-by-affiliate' => $this->revenueByAffiliate(),
+            'revenue-by-promoter' => $this->revenueByAffiliate(),
             'revenue-by-payment-method' => $this->revenueByPaymentMethod(),
             'refund-analysis' => $this->refundAnalysis(),
             'promo-code-effectiveness' => $this->promoCodeEffectiveness(),
@@ -43,9 +43,9 @@ class ReportGenerationService
             'average-order-value' => $this->averageOrderValue(),
 
             // ACQUISITION REPORTS
-            'new-affiliates-over-time' => $this->newAffiliatesOverTime(),
-            'affiliate-performance-ranking' => $this->affiliatePerformanceRanking(),
-            'affiliate-commission-tracking' => $this->affiliateCommissionTracking(),
+            'new-promoters-over-time' => $this->newAffiliatesOverTime(),
+            'promoter-performance-ranking' => $this->affiliatePerformanceRanking(),
+            'promoter-commission-tracking' => $this->affiliateCommissionTracking(),
 
             // ENTERTAINER REPORTS
             'events-per-entertainer' => $this->eventsPerEntertainer(),
@@ -203,27 +203,27 @@ class ReportGenerationService
             ->where('transactions.status', 1)
             ->whereBetween('transactions.created_at', [$startDate, $endDate])
             ->whereNotNull('transactions.affiliate_id')
-            ->join('affiliates', 'transactions.affiliate_id', '=', 'affiliates.id')
+            ->join('promoters', 'transactions.affiliate_id', '=', 'promoters.id')
             ->select(
-                'affiliates.id',
-                DB::raw("COALESCE(affiliates.display_name, users.name, CONCAT('Affiliate #', affiliates.id)) as affiliate_name"),
+                'promoters.id',
+                DB::raw("COALESCE(promoters.display_name, users.name, CONCAT('Promoter #', promoters.id)) as affiliate_name"),
                 DB::raw('SUM(transactions.total) as revenue'),
                 DB::raw('COUNT(transactions.id) as orders')
             )
-            ->leftJoin('users', 'affiliates.user_id', '=', 'users.id')
-            ->groupBy('affiliates.id')
+            ->leftJoin('users', 'promoters.user_id', '=', 'users.id')
+            ->groupBy('promoters.id')
             ->orderByDesc('revenue')
             ->limit(20)
             ->get()
             ->map(fn ($row) => [
-                'affiliate' => $row->affiliate_name,
+                'promoter' => $row->affiliate_name,
                 'revenue' => (float) $row->revenue,
                 'orders' => (int) $row->orders,
             ]);
 
         return [
             'type' => 'table',
-            'title' => 'Revenue by Affiliate',
+            'title' => 'Revenue by Promoter',
             'data' => $data->toArray(),
         ];
     }
@@ -446,7 +446,7 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $rawData = Affiliate::query()
+        $rawData = Promoter::query()
             ->whereBetween('created_at', [$startDate, $endDate])
             ->select(DB::raw('DATE(created_at) as date'), DB::raw('COUNT(*) as count'))
             ->groupBy('date')
@@ -463,7 +463,7 @@ class ReportGenerationService
             'labels' => $rawData->pluck('date')->toArray(),
             'datasets' => [
                 [
-                    'label' => 'New Affiliates',
+                    'label' => 'New Promoters',
                     'data' => $rawData->pluck('count')->map(fn($v) => (int)$v)->toArray(),
                     'borderColor' => 'rgb(75, 192, 192)',
                     'backgroundColor' => 'rgba(75, 192, 192, 0.1)',
@@ -475,7 +475,7 @@ class ReportGenerationService
 
         return [
             'type' => 'line_chart',
-            'title' => 'New Affiliates Over Time',
+            'title' => 'New Promoters Over Time',
             'data' => $chartData,
             'raw_data' => $data->toArray(),
         ];
@@ -485,29 +485,29 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $data = Affiliate::query()
+        $data = Promoter::query()
             ->select(
-                'affiliates.id',
-                DB::raw("COALESCE(affiliates.display_name, users.name, CONCAT('Affiliate #', affiliates.id)) as name"),
+                'promoters.id',
+                DB::raw("COALESCE(promoters.display_name, users.name, CONCAT('Promoter #', promoters.id)) as name"),
                 DB::raw('COUNT(transactions.id) as orders'),
                 DB::raw('SUM(transactions.total) as revenue')
             )
-            ->leftJoin('users', 'affiliates.user_id', '=', 'users.id')
-            ->leftJoin('transactions', 'affiliates.id', '=', 'transactions.affiliate_id')
+            ->leftJoin('users', 'promoters.user_id', '=', 'users.id')
+            ->leftJoin('transactions', 'promoters.id', '=', 'transactions.affiliate_id')
             ->whereBetween('transactions.created_at', [$startDate, $endDate])
-            ->groupBy('affiliates.id')
+            ->groupBy('promoters.id')
             ->orderByDesc('revenue')
             ->limit(20)
             ->get()
             ->map(fn ($row) => [
-                'affiliate' => $row->name,
+                'promoter' => $row->name,
                 'orders' => (int) $row->orders,
                 'revenue' => (float) $row->revenue,
             ]);
 
         return [
             'type' => 'table',
-            'title' => 'Affiliate Performance Ranking',
+            'title' => 'Promoter Performance Ranking',
             'data' => $data->toArray(),
         ];
     }
@@ -521,17 +521,17 @@ class ReportGenerationService
             ->whereBetween('transactions.created_at', [$startDate, $endDate])
             ->select(
                 'transactions.affiliate_id',
-                DB::raw("COALESCE(affiliates.display_name, users.name, CONCAT('Affiliate #', transactions.affiliate_id)) as affiliate_name"),
+                DB::raw("COALESCE(promoters.display_name, users.name, CONCAT('Promoter #', transactions.affiliate_id)) as affiliate_name"),
                 DB::raw('SUM(COALESCE(affiliate_commission_amount, 0)) as total_commission'),
                 DB::raw('SUM(transactions.total) as revenue')
             )
-            ->join('affiliates', 'transactions.affiliate_id', '=', 'affiliates.id')
-            ->leftJoin('users', 'affiliates.user_id', '=', 'users.id')
+            ->join('promoters', 'transactions.affiliate_id', '=', 'promoters.id')
+            ->leftJoin('users', 'promoters.user_id', '=', 'users.id')
             ->groupBy('transactions.affiliate_id')
             ->orderByDesc('total_commission')
             ->get()
             ->map(fn ($row) => [
-                'affiliate' => $row->affiliate_name,
+                'promoter' => $row->affiliate_name,
                 'commission' => (float) $row->total_commission,
                 'revenue' => (float) $row->revenue,
                 'commission_rate' => $row->revenue > 0 ? round(($row->total_commission / $row->revenue) * 100, 2) : 0,
@@ -539,7 +539,7 @@ class ReportGenerationService
 
         return [
             'type' => 'table',
-            'title' => 'Affiliate Commission Tracking',
+            'title' => 'Promoter Commission Tracking',
             'data' => $data->toArray(),
         ];
     }

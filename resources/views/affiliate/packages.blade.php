@@ -91,11 +91,11 @@
 
         <div class="card p-4">
             <h4 class="mb-4">Select Packages From Your Assigned Clubs</h4>
-            <form method="POST" action="{{ route('affiliate.portal.packages.save') }}">
+            <form method="POST" action="{{ route('promoter.portal.packages.save') }}">
                 @csrf
                 @if($websites->isEmpty())
                     <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                        No clubs are assigned to your affiliate account yet. Please contact super admin.
+                        No clubs are assigned to your promoter account yet. Please contact super admin.
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 @endif
