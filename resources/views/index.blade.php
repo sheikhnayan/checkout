@@ -5961,7 +5961,7 @@ input[type="checkbox"],
                                                                         </div>
                                                                 @endif
                                                             </div>
-                                                            <div class="checkbox-container" style="margin-top: 1.5rem;">
+                                                            <div class="checkbox-container payment-consent-group" style="margin-top: 1.5rem;">
                                                                 <label class="consent-label">
                                                                     <input type="checkbox" id="businessExpenseCheckbox" />
                                                                     <span>This purchase is for business purposes</span>
@@ -6015,10 +6015,7 @@ input[type="checkbox"],
                                                                 </label>
 
                                                                 <p style="margin: 12px 0 0; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);">
-                                                                    All bookings are processed by CartVIP. By completing this purchase, you agree to our no-refund policy and venue entry requirements.
-                                                                </p>
-                                                                <p style="margin: 8px 0 0; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.72);">
-                                                                    By completing this purchase, you confirm you are authorized to use this payment method and agree not to initiate a chargeback without contacting CartVIP first.
+                                                                    All bookings are processed through CartVIP. By completing this purchase, you acknowledge that all sales are final and non-refundable, subject to applicable law and the venue's policies, and that you agree to all venue entry requirements. You confirm that you are authorized to use this payment method and that the information provided is accurate. You understand that a valid government-issued photo ID may be required at check-in and may be photographed to verify identity, age, reservation redemption, fraud prevention, venue security, and chargeback dispute purposes. Identification records are securely stored and are never retained on the scanning device.
                                                                 </p>
                                                             </div>
 
