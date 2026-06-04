@@ -492,14 +492,6 @@
             formData.append('id_front_image', idFront);
             formData.append('id_back_image', idBack);
             formData.append('certification_signed', true);
-            formData.append('full_name', 'Submitted via PDF');
-            formData.append('street_address', 'Submitted via PDF');
-            formData.append('city', 'Submitted via PDF');
-            formData.append('state', 'US');
-            formData.append('zip_code', '00000');
-            formData.append('tax_classification', 'individual');
-            formData.append('tax_id_type', 'ssn');
-            formData.append('tax_id_number', '000-00-0000');
 
             try {
                 const response = await fetch('{{ route("w9.store", $token) }}', {
