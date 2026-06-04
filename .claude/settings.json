@@ -37,7 +37,9 @@
       "Bash(grep -n 'profileType\\\\|profile.*type\\\\|$entertainer\\\\|$club\\\\|$affiliate' 'c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\feed\\\\profile.blade.php')",
       "Bash(grep -o '\\\\$affiliate->[a-zA-Z_]*\\\\|\\\\$data->[a-zA-Z_]*' 'c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\affiliate\\\\public-page.blade.php')",
       "Bash(grep -n '=> $this\\\\->' 'c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Services\\\\ReportGenerationService.php')",
-      "Bash(xargs grep -l \"revenue-over-time\\\\|events-per-entertainer\")"
+      "Bash(xargs grep -l \"revenue-over-time\\\\|events-per-entertainer\")",
+      "Bash(ls -lh /c/wamp64/www/checkout/public/fw9.pdf && echo \"✓ PDF file exists\" || echo \"✗ PDF file missing\")",
+      "Read(//c/wamp64/www/checkout/public/**)"
     ],
     "additionalDirectories": [
       "c:\\wamp64\\www\\checkout\\bootstrap\\cache",

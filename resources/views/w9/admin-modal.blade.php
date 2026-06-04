@@ -1,7 +1,7 @@
-<div style="display: flex; flex-direction: column; max-height: 600px;">
+<div style="display: flex; flex-direction: column; height: 100%; min-height: 500px;">
 
     <!-- Submission Details Section -->
-    <div style="flex: 0 0 auto; overflow-y: auto;">
+    <div style="flex: 0 0 auto; max-height: 250px; overflow-y: auto;">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px;">
             <!-- Left Column -->
             <div>
@@ -102,8 +102,8 @@
     </div>
 
     <!-- PDF Section at Bottom -->
-    <div style="flex: 1; border-top: 1px solid rgba(255,255,255,0.1); overflow: hidden;">
-        <iframe src="{{ asset('fw9.pdf') }}" style="width: 100%; height: 100%; border: none;"></iframe>
+    <div style="flex: 1; min-height: 250px; border-top: 1px solid rgba(255,255,255,0.1); overflow: hidden; display: flex;">
+        <iframe src="{{ asset('fw9.pdf') }}" style="width: 100%; height: 100%; border: none; flex: 1;"></iframe>
     </div>
 
 </div>
