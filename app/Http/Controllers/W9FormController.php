@@ -119,6 +119,14 @@ class W9FormController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'W-9 form submitted successfully. Your submission is under review.',
+            'redirect' => route('w9.thank-you'),
+        ]);
+    }
+
+    public function thankYou()
+    {
+        return view('w9.thank-you', [
+            'submissionId' => 'W9-' . strtoupper(uniqid()),
         ]);
     }
 
