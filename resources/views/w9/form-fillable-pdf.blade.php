@@ -360,6 +360,36 @@
             </div>
 
             <div class="sidebar-card">
+                <div class="sidebar-title">📋 W-9 Information</div>
+
+                <div class="info-box">
+                    ✓ Enter the information you filled in the PDF
+                </div>
+
+                <div class="form-group">
+                    <label>Full Name <span class="required">*</span></label>
+                    <input type="text" id="w9FullName" placeholder="Name from Line 1" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;">
+                    <span class="error-message" id="fullNameError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Tax ID / SSN <span class="required">*</span></label>
+                    <input type="text" id="w9TaxId" placeholder="SSN or EIN from Line 5" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;">
+                    <span class="error-message" id="taxIdError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Street Address</label>
+                    <input type="text" id="w9Address" placeholder="Address from Line 6" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;">
+                </div>
+
+                <div class="form-group">
+                    <label>City, State, ZIP</label>
+                    <input type="text" id="w9CityStateZip" placeholder="City, State, ZIP from Line 7" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;">
+                </div>
+            </div>
+
+            <div class="sidebar-card">
                 <div class="sidebar-title">⚖️ Certification</div>
 
                 <div class="checkbox-item">
@@ -486,73 +516,38 @@
             document.getElementById('submitBtn').disabled = true;
             document.getElementById('loader').style.display = 'block';
 
-            // Extract PDF form field values
-            let pdfFormData = {};
-            try {
-                const pdfUrl = '{{ asset("fw9.pdf") }}';
-                const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
-                const page = await pdf.getPage(1);
-                const annotations = await page.getAnnotations();
+            // Get W-9 data from form fields
+            const w9FullName = document.getElementById('w9FullName').value.trim();
+            const w9TaxId = document.getElementById('w9TaxId').value.trim();
+            const w9Address = document.getElementById('w9Address').value.trim();
+            const w9CityStateZip = document.getElementById('w9CityStateZip').value.trim();
 
-                console.log('=== PDF EXTRACTION DEBUG ===');
-                console.log('Total Annotations:', annotations.length);
-
-                for (const annotation of annotations) {
-                    if (annotation.subtype === 'Widget') {
-                        const fieldName = annotation.fieldName || 'UNNAMED';
-                        const fieldValue = annotation.fieldValue || '';
-                        pdfFormData[fieldName] = fieldValue;
-                        console.log('Field:', fieldName, '| Value:', fieldValue);
-                    }
-                }
-
-                console.log('All extracted data:', pdfFormData);
-                console.log('=== END DEBUG ===');
-
-                // Show extracted data in alert for verification
-                const fieldList = Object.entries(pdfFormData)
-                    .filter(([k, v]) => v)
-                    .map(([k, v]) => `${k}: ${v}`)
-                    .join('\n');
-
-                if (fieldList) {
-                    console.log('Filled fields:\n' + fieldList);
-                }
-
-            } catch (error) {
-                console.error('Error extracting PDF:', error);
-                alert('Could not extract PDF data. Check browser console for field names.');
+            // Validate required fields
+            if (!w9FullName) {
+                errorBox.innerHTML = '<strong>Error:</strong> Full Name is required';
+                errorBox.style.display = 'block';
                 document.getElementById('submitBtn').disabled = false;
                 document.getElementById('loader').style.display = 'none';
+                window.scrollTo(0, 0);
                 return;
             }
 
-            // If extraction found minimal data, ask user to confirm manually
-            const filledFieldsCount = Object.values(pdfFormData).filter(v => v && v.toString().trim().length > 0).length;
-
-            if (filledFieldsCount < 2) {
-                // Fallback: Ask user to confirm the data they filled
-                console.log('Extraction found only ' + filledFieldsCount + ' fields. Requesting manual confirmation.');
-
-                const fullName = prompt('Please confirm: What NAME did you enter in the W-9 form? (Line 1)');
-                if (!fullName) {
-                    alert('Name is required to proceed.');
-                    document.getElementById('submitBtn').disabled = false;
-                    document.getElementById('loader').style.display = 'none';
-                    return;
-                }
-
-                const taxId = prompt('Please confirm: What TAX ID/SSN did you enter? (Line 5)\nFormat: 9 digits (e.g., 123456789 or 12-3456789)');
-                if (!taxId) {
-                    alert('Tax ID is required to proceed.');
-                    document.getElementById('submitBtn').disabled = false;
-                    document.getElementById('loader').style.display = 'none';
-                    return;
-                }
-
-                pdfFormData['manual_full_name'] = fullName;
-                pdfFormData['manual_tax_id'] = taxId;
+            if (!w9TaxId) {
+                errorBox.innerHTML = '<strong>Error:</strong> Tax ID / SSN is required';
+                errorBox.style.display = 'block';
+                document.getElementById('submitBtn').disabled = false;
+                document.getElementById('loader').style.display = 'none';
+                window.scrollTo(0, 0);
+                return;
             }
+
+            // Create PDF form data with the entered information
+            const pdfFormData = {
+                'full_name': w9FullName,
+                'tax_id_number': w9TaxId,
+                'street_address': w9Address,
+                'city_state_zip': w9CityStateZip
+            };
 
             // Prepare form data
             const formData = new FormData();
