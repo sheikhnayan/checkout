@@ -1,339 +1,748 @@
-<style>
-.w9-modal-container {
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 100px);
-    width: 100%;
-    background: #1a1a2e;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>W-9 Form - Admin View</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-.w9-details-section {
-    flex: 0 0 auto;
-    max-height: 45%;
-    overflow-y: auto;
-    padding: 20px;
-    border-bottom: 2px solid rgba(255,255,255,0.1);
-    background: #16213e;
-}
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            font-size: 11px;
+            line-height: 1.35;
+            color: #000;
+        }
 
-.w9-pdf-section {
-    flex: 1;
-    overflow: hidden;
-    display: flex;
-    min-height: 300px;
-    background: white;
-}
+        .admin-header {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-.w9-pdf-section iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-}
+        .admin-status {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
 
-.w9-field {
-    margin-bottom: 18px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-}
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
 
-.w9-field-label {
-    color: rgba(255,255,255,0.4);
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    font-weight: 700;
-    margin-bottom: 8px;
-    display: block;
-}
+        .status-approved { background: #10b981; color: white; }
+        .status-pending { background: #f59e0b; color: #000; }
+        .status-rejected { background: #ef4444; color: white; }
+        .status-submitted { background: #3b82f6; color: white; }
 
-.w9-field-value {
-    color: #fff;
-    font-weight: 600;
-    font-size: 14px;
-    word-break: break-word;
-    padding: 8px 12px;
-    background: rgba(255,255,255,0.03);
-    border-left: 3px solid #0066cc;
-    border-radius: 2px;
-}
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
 
-.w9-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 25px;
-}
+        .btn {
+            padding: 10px 15px;
+            font-size: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
 
-.w9-title {
-    color: #0066cc;
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 20px;
-    margin-top: 0;
-}
+        .btn-primary {
+            background: #0066cc;
+            color: white;
+        }
 
-.w9-status-badge {
-    display: inline-block;
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 600;
-}
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
 
-.w9-status-approved {
-    background: #10b981;
-    color: white;
-}
+        .form-document {
+            background: white;
+            padding: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-width: 900px;
+            margin: 0 auto;
+        }
 
-.w9-status-pending {
-    background: #f59e0b;
-    color: #000;
-}
+        .form-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #000;
+        }
 
-.w9-status-rejected {
-    background: #ef4444;
-    color: white;
-}
+        .form-header h1 {
+            font-size: 18px;
+            font-weight: bold;
+            line-height: 1.2;
+            margin-bottom: 5px;
+            color: #0066cc;
+        }
 
-.w9-id-image {
-    max-width: 100%;
-    max-height: 120px;
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 4px;
-    margin: 8px 0;
-}
+        .form-header-sub {
+            font-size: 12px;
+            color: #666;
+            margin: 3px 0;
+        }
 
-.w9-warning {
-    background: #d97706;
-    color: white;
-    padding: 12px;
-    border-radius: 4px;
-    font-size: 12px;
-    margin-bottom: 15px;
-    border-left: 4px solid #dc2626;
-}
-</style>
+        .disclaimer {
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            padding: 12px;
+            margin-bottom: 18px;
+            border-radius: 4px;
+            font-size: 10px;
+            line-height: 1.5;
+        }
 
-<div class="w9-modal-container">
+        .before-begin {
+            border: 1px solid #999;
+            padding: 8px;
+            margin-bottom: 12px;
+            background: #f9f9f9;
+            font-size: 10px;
+            line-height: 1.4;
+        }
 
-    <!-- Submission Details Section -->
-    <div class="w9-details-section">
-        <h5 class="w9-title">✓ W-9 Submission Details (READ-ONLY)</h5>
+        .form-line {
+            display: grid;
+            grid-template-columns: 20px 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+            align-items: start;
+        }
 
-        <div class="w9-grid">
-            <!-- Left Column -->
-            <div>
-                <div class="w9-field">
-                    <span class="w9-field-label">👤 Full Name</span>
-                    <div class="w9-field-value">{{ $w9Form->full_name ?? 'Not provided' }}</div>
-                </div>
+        .line-number {
+            font-weight: bold;
+            font-size: 11px;
+            padding-top: 1px;
+        }
 
-                <div class="w9-field">
-                    <span class="w9-field-label">🆔 Tax ID/SSN</span>
-                    <div class="w9-field-value">{{ $w9Form->tax_id_number ?? 'Not provided' }}</div>
-                </div>
+        .line-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
 
-                <div class="w9-field">
-                    <span class="w9-field-label">📍 Street Address</span>
-                    <div class="w9-field-value">{{ $w9Form->street_address ?? 'Not provided' }}</div>
-                </div>
+        .line-input {
+            border: none;
+            border-bottom: 1px solid #000;
+            padding: 2px 3px;
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            background: #f9f9f9;
+            min-height: 18px;
+            color: #333;
+        }
 
-                <div class="w9-field">
-                    <span class="w9-field-label">🏙️ City, State, ZIP</span>
-                    <div class="w9-field-value">
-                        @if($w9Form->city_state_zip)
-                            {{ $w9Form->city_state_zip }}
-                        @else
-                            Not provided
-                        @endif
-                    </div>
-                </div>
+        .line-input:disabled {
+            background: #f9f9f9;
+            color: #333;
+            cursor: not-allowed;
+        }
 
-                <div class="w9-field">
-                    <span class="w9-field-label">📝 ID Document Type</span>
-                    <div class="w9-field-value">{{ ucwords(str_replace('_', ' ', $w9Form->id_document_type ?? 'Not specified')) }}</div>
-                </div>
+        .line-label {
+            font-size: 9px;
+            color: #333;
+            margin-top: 1px;
+        }
 
-                <div class="w9-field">
-                    <span class="w9-field-label">📅 Submitted On</span>
-                    <div class="w9-field-value">{{ $w9Form->created_at ? $w9Form->created_at->format('M d, Y h:i A') : 'N/A' }}</div>
-                </div>
-            </div>
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 6px 0;
+        }
 
-            <!-- Right Column -->
-            <div>
-                <div class="w9-field">
-                    <span class="w9-field-label">📋 Review Status</span>
-                    <div class="w9-field-value">
-                        @if($w9Form->status === 'approved')
-                            <span class="w9-status-badge w9-status-approved">✓ APPROVED</span>
-                        @elseif($w9Form->status === 'submitted')
-                            <span class="w9-status-badge w9-status-pending">⏳ PENDING REVIEW</span>
-                        @elseif($w9Form->status === 'rejected')
-                            <span class="w9-status-badge w9-status-rejected">✗ REJECTED</span>
-                        @else
-                            <span class="w9-status-badge" style="background: #6b7280; color: white;">◯ PENDING</span>
-                        @endif
-                    </div>
-                </div>
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+        }
 
-                <div class="w9-field">
-                    <span class="w9-field-label">✅ Certification</span>
-                    <div class="w9-field-value">{{ $w9Form->certification_signed ? '✓ Certified' : '✗ Not Certified' }}</div>
-                </div>
+        .checkbox-item input[type="checkbox"],
+        .checkbox-item input[type="radio"] {
+            width: 12px;
+            height: 12px;
+            cursor: pointer;
+            margin: 0;
+        }
 
-                @if($w9Form->certification_date)
-                <div class="w9-field">
-                    <span class="w9-field-label">🕐 Certified On</span>
-                    <div class="w9-field-value">{{ $w9Form->certification_date->format('M d, Y h:i A') }}</div>
-                </div>
-                @endif
+        .checkbox-item label {
+            cursor: pointer;
+            margin: 0;
+            font-size: 10px;
+        }
 
-                @if($w9Form->certification_ip)
-                <div class="w9-field">
-                    <span class="w9-field-label">🌐 Submission IP Address</span>
-                    <div class="w9-field-value" style="font-family: 'Courier New', monospace;">{{ $w9Form->certification_ip }}</div>
-                </div>
-                @endif
+        .part-header {
+            font-weight: bold;
+            font-size: 11px;
+            margin: 15px 0 8px 0;
+            padding: 6px 0;
+            border-top: 2px solid #000;
+            border-bottom: 1px solid #000;
+        }
 
-                @if($w9Form->reviewed_by && $w9Form->reviewed_at)
-                <div class="w9-field">
-                    <span class="w9-field-label">👤 Reviewed By</span>
-                    <div class="w9-field-value">{{ $w9Form->reviewedBy?->name ?? 'System' }} on {{ $w9Form->reviewed_at->format('M d, Y') }}</div>
-                </div>
-                @endif
+        .part-number {
+            display: inline-block;
+            min-width: 50px;
+        }
 
-                @if($w9Form->admin_notes)
-                <div class="w9-field">
-                    <span class="w9-field-label">📝 Admin Notes</span>
-                    <div class="w9-field-value" style="color: #fbbf24;">{{ $w9Form->admin_notes }}</div>
-                </div>
-                @endif
-            </div>
-        </div>
+        .instructions-box {
+            background: #f9f9f9;
+            border: 1px solid #999;
+            padding: 8px;
+            margin: 8px 0;
+            font-size: 9px;
+            line-height: 1.4;
+        }
 
-        <!-- ID Documents -->
-        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
-            <h6 style="color: #0066cc; font-weight: 700; margin: 0 0 15px 0; font-size: 12px; text-transform: uppercase;">Government-Issued ID Documents</h6>
-            <div class="w9-grid">
-                @if($w9Form->id_front_image)
-                <div class="w9-field">
-                    <span class="w9-field-label">📸 ID Front</span>
-                    <img src="{{ asset('storage/' . $w9Form->id_front_image) }}" alt="ID Front" class="w9-id-image">
-                    <a href="{{ asset('storage/' . $w9Form->id_front_image) }}" target="_blank" style="color: #3b82f6; text-decoration: none; font-size: 12px;">
-                        <i class="fas fa-external-link-alt"></i> Open full size
-                    </a>
-                </div>
-                @endif
+        .tin-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 10px 0;
+        }
 
-                @if($w9Form->id_back_image)
-                <div class="w9-field">
-                    <span class="w9-field-label">📸 ID Back</span>
-                    <img src="{{ asset('storage/' . $w9Form->id_back_image) }}" alt="ID Back" class="w9-id-image">
-                    <a href="{{ asset('storage/' . $w9Form->id_back_image) }}" target="_blank" style="color: #3b82f6; text-decoration: none; font-size: 12px;">
-                        <i class="fas fa-external-link-alt"></i> Open full size
-                    </a>
-                </div>
-                @endif
-            </div>
-        </div>
+        .tin-option {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .tin-boxes {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .tin-box {
+            border: 1px solid #000;
+            width: 22px;
+            height: 17px;
+            text-align: center;
+            padding: 1px;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .certification-box {
+            border: 1px solid #999;
+            padding: 10px;
+            margin: 12px 0;
+            background: #f9f9f9;
+            font-size: 9px;
+            line-height: 1.4;
+        }
+
+        .cert-item {
+            margin-bottom: 5px;
+            padding-left: 12px;
+        }
+
+        .signature-section {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #999;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .sig-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .sig-label {
+            font-weight: bold;
+            font-size: 9px;
+        }
+
+        .sig-area {
+            border-bottom: 1px solid #000;
+            min-height: 20px;
+            background: #f9f9f9;
+            padding: 2px;
+        }
+
+        .sig-display {
+            font-size: 14px;
+            color: #333;
+            padding: 5px;
+        }
+
+        .id-photos-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #000;
+        }
+
+        .id-photos-section h3 {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .id-photos-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .id-photo-item {
+            text-align: center;
+        }
+
+        .id-photo-item label {
+            display: block;
+            font-weight: bold;
+            font-size: 10px;
+            margin-bottom: 8px;
+        }
+
+        .id-photo-item img {
+            max-width: 100%;
+            max-height: 250px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .admin-info {
+            margin-top: 30px;
+            padding: 15px;
+            background: #e7f3ff;
+            border-left: 4px solid #0066cc;
+            border-radius: 4px;
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        .admin-info-row {
+            margin-bottom: 8px;
+        }
+
+        .admin-info-label {
+            font-weight: bold;
+            color: #0066cc;
+        }
+
+        @media print {
+            .admin-header {
+                display: none;
+            }
+            body {
+                background: white;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Admin Header with Status & Actions -->
+<div class="admin-header">
+    <div>
+        <h2 style="margin: 0 0 8px 0; font-size: 16px;">W-9 Form Submission - Admin View</h2>
+        <p style="margin: 0; color: #666; font-size: 12px;">
+            @if($w9Form->type === 'affiliate')
+                Affiliate: {{ $w9Form->affiliate?->user->name ?? 'Unknown' }}
+            @else
+                Entertainer: {{ $w9Form->entertainer?->user->name ?? 'Unknown' }}
+            @endif
+        </p>
     </div>
-
-    <!-- Read-Only Form Display Section -->
-    <div class="w9-pdf-section" style="flex-direction: column; overflow-y: auto; padding: 30px; max-width: 800px; margin: 0 auto; width: 100%;">
-
-        <!-- Download Button -->
-        <div style="margin-bottom: 20px; display: flex; gap: 10px;">
-            <button onclick="downloadW9PDF({{ $w9Form->id }})" class="btn btn-primary btn-sm">
-                <i class="fas fa-download"></i> Download as PDF
+    <div class="admin-status">
+        @if($w9Form->status === 'approved')
+            <span class="status-badge status-approved">✓ APPROVED</span>
+        @elseif($w9Form->status === 'submitted')
+            <span class="status-badge status-submitted">⏳ SUBMITTED</span>
+        @elseif($w9Form->status === 'rejected')
+            <span class="status-badge status-rejected">✗ REJECTED</span>
+        @else
+            <span class="status-badge status-pending">◯ PENDING</span>
+        @endif
+        <div class="action-buttons">
+            <button onclick="downloadW9PDF({{ $w9Form->id }})" class="btn btn-primary">
+                <i class="fas fa-download"></i> Download PDF
             </button>
-            <button onclick="window.print()" class="btn btn-secondary btn-sm">
+            <button onclick="window.print()" class="btn btn-secondary">
                 <i class="fas fa-print"></i> Print
             </button>
         </div>
+    </div>
+</div>
 
-        <!-- W-9 Form Display (Read-Only) -->
-        <div style="background: white; color: #000; padding: 30px; border-radius: 8px; font-family: Arial, sans-serif;">
+<!-- Main Form Document -->
+<div class="form-document">
 
-            <!-- Form Header -->
-            <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #000; padding-bottom: 15px;">
-                <h2 style="margin: 0; font-size: 18px;">Substitute Form W-9</h2>
-                <p style="margin: 5px 0; font-size: 12px; color: #666;">Taxpayer Identification & Certification</p>
-            </div>
+    <!-- Header -->
+    <div class="form-header">
+        <h1>Substitute Form W-9</h1>
+        <p class="form-header-sub">Taxpayer Identification & Certification</p>
+        <p class="form-header-sub">CartVIP Contractor/Vendor Onboarding</p>
+    </div>
 
-            <!-- Part I: Name and TIN -->
-            <div style="margin-bottom: 20px;">
-                <strong style="font-size: 14px;">Part I - Taxpayer Identification Number (TIN)</strong>
-                <div style="margin: 10px 0; padding: 10px; background: #f5f5f5; border-left: 3px solid #0066cc;">
-                    <p style="margin: 5px 0;"><strong>Line 1 - Legal Name:</strong> {{ $w9Form->full_name ?? 'Not provided' }}</p>
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+        <strong>Disclaimer:</strong> This substitute Form W-9 is used by CartVIP to collect taxpayer identification and certification information for contractor/vendor onboarding. This is not the official IRS Form W-9.
+    </div>
+
+    <!-- Line 1 Notes -->
+    <div class="before-begin">
+        <div style="font-size: 9px; line-height: 1.4;">
+            <strong>Line 1 — Legal Name:</strong> An entry is required. For a sole proprietor or disregarded entity, enter the owner's name on line 1 and the business/disregarded entity's name on line 2.
+        </div>
+    </div>
+
+    <!-- Line 1: Name -->
+    <div class="form-line">
+        <div class="line-number">1</div>
+        <div class="line-content">
+            <input type="text" class="line-input" disabled value="{{ $w9Form->full_name ?? '' }}">
+            <div class="line-label">Name of entity/individual</div>
+        </div>
+    </div>
+
+    <!-- Line 2: Business Name -->
+    <div class="form-line">
+        <div class="line-number">2</div>
+        <div class="line-content">
+            <input type="text" class="line-input" disabled value="{{ $w9Form->business_name ?? '' }}">
+            <div class="line-label">Business name/disregarded entity name, if different from above.</div>
+        </div>
+    </div>
+
+    <!-- Line 3a: Tax Classification -->
+    <div class="form-line">
+        <div class="line-number">3a</div>
+        <div class="line-content">
+            <div style="font-size: 9px; margin-bottom: 6px; line-height: 1.4;">Check the appropriate box for federal tax classification of the entity/individual whose name is entered on line 1. Check only one of the following seven boxes.</div>
+
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" disabled {{ $w9Form->tax_classification === 'individual' ? 'checked' : '' }}>
+                    <label>Individual/sole proprietor</label>
                 </div>
-                <div style="margin: 10px 0; padding: 10px; background: #f5f5f5; border-left: 3px solid #0066cc;">
-                    <p style="margin: 5px 0;"><strong>Line 2 - Business Name:</strong> {{ $w9Form->business_name ?? 'Not provided' }}</p>
+                <div class="checkbox-item">
+                    <input type="checkbox" disabled {{ $w9Form->tax_classification === 'c_corporation' ? 'checked' : '' }}>
+                    <label>C corporation</label>
                 </div>
-                <div style="margin: 10px 0; padding: 10px; background: #f5f5f5; border-left: 3px solid #0066cc;">
-                    <p style="margin: 5px 0;"><strong>TIN Type:</strong> {{ ucwords(str_replace('_', ' ', $w9Form->tax_id_type ?? 'Not specified')) }}</p>
-                    <p style="margin: 5px 0;"><strong>TIN Number:</strong> {{ $w9Form->tax_id_number ?? 'Not provided' }}</p>
-                </div>
-            </div>
-
-            <!-- Address Section -->
-            <div style="margin-bottom: 20px;">
-                <strong style="font-size: 14px;">Address Information</strong>
-                <div style="margin: 10px 0; padding: 10px; background: #f5f5f5; border-left: 3px solid #0066cc;">
-                    <p style="margin: 5px 0;"><strong>Line 5 - Address:</strong> {{ $w9Form->street_address ?? 'Not provided' }}</p>
-                </div>
-                <div style="margin: 10px 0; padding: 10px; background: #f5f5f5; border-left: 3px solid #0066cc;">
-                    <p style="margin: 5px 0;"><strong>Line 6 - City, State, ZIP:</strong> {{ $w9Form->city_state_zip ?? 'Not provided' }}</p>
-                </div>
-            </div>
-
-            <!-- Certification Section -->
-            <div style="margin-bottom: 20px; padding: 15px; background: #f0fdf4; border-left: 3px solid #22c55e;">
-                <strong style="font-size: 14px;">Part II - Certification</strong>
-                <p style="margin: 10px 0; font-size: 12px;">✓ I acknowledge and agree to the certifications contained in Part II above.</p>
-                <p style="margin: 10px 0; font-size: 12px;">
-                    <strong>Certification Status:</strong>
-                    @if($w9Form->certification_signed)
-                        <span style="color: #22c55e;">✓ SIGNED</span> on {{ $w9Form->certification_date?->format('M d, Y') ?? 'N/A' }}
-                    @else
-                        <span style="color: #ef4444;">✗ NOT SIGNED</span>
-                    @endif
-                </p>
-            </div>
-
-            <!-- ID Verification -->
-            <div style="margin-bottom: 20px; padding: 15px; background: #eff6ff; border-left: 3px solid #0066cc;">
-                <strong style="font-size: 14px;">ID Verification</strong>
-                <p style="margin: 10px 0; font-size: 12px;">
-                    <strong>ID Document Type:</strong> {{ ucwords(str_replace('_', ' ', $w9Form->id_document_type ?? 'Not specified')) }}
-                </p>
-                <div style="margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    @if($w9Form->id_front_image)
-                    <div>
-                        <small style="color: #666;">Front of ID</small><br>
-                        <img src="{{ asset('storage/' . $w9Form->id_front_image) }}" alt="ID Front" style="max-width: 100%; max-height: 150px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px;">
-                    </div>
-                    @endif
-                    @if($w9Form->id_back_image)
-                    <div>
-                        <small style="color: #666;">Back of ID</small><br>
-                        <img src="{{ asset('storage/' . $w9Form->id_back_image) }}" alt="ID Back" style="max-width: 100%; max-height: 150px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px;">
-                    </div>
-                    @endif
+                <div class="checkbox-item">
+                    <input type="checkbox" disabled {{ $w9Form->tax_classification === 's_corporation' ? 'checked' : '' }}>
+                    <label>S corporation</label>
                 </div>
             </div>
 
-            <!-- Footer -->
-            <div style="text-align: center; font-size: 10px; color: #999; margin-top: 30px; padding-top: 15px; border-top: 1px solid #ccc;">
-                <p style="margin: 5px 0;">Submitted: {{ $w9Form->created_at?->format('M d, Y \a\t h:i A') ?? 'N/A' }}</p>
-                <p style="margin: 5px 0;">Status: {{ ucwords(str_replace('_', ' ', $w9Form->status)) }}</p>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" disabled {{ $w9Form->tax_classification === 'partnership' ? 'checked' : '' }}>
+                    <label>Partnership</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" disabled {{ $w9Form->tax_classification === 'trust_estate' ? 'checked' : '' }}>
+                    <label>Trust/estate</label>
+                </div>
+            </div>
+
+            <div style="margin-top: 6px;">
+                <div class="checkbox-item">
+                    <input type="checkbox" disabled {{ strpos($w9Form->tax_classification ?? '', 'limited_liability_company') === 0 ? 'checked' : '' }}>
+                    <label><strong>LLC.</strong> Enter the tax classification (C = C corporation, S = S corporation, P = Partnership)</label>
+                </div>
+            </div>
+
+            <div style="margin-top: 6px;">
+                <div class="checkbox-item">
+                    <input type="checkbox" disabled {{ $w9Form->tax_classification === 'other' ? 'checked' : '' }}>
+                    <label>Other</label>
+                </div>
             </div>
         </div>
     </div>
 
-    <script>
-    function downloadW9PDF(formId) {
-        window.location.href = '/admin/w9/' + formId + '/download-pdf';
-    }
-    </script>
+    <!-- Line 3b: Foreign Partners -->
+    <div class="form-line">
+        <div class="line-number">3b</div>
+        <div class="line-content">
+            <div style="font-size: 9px; line-height: 1.4; margin-bottom: 6px;">If applicable, check this box if you have foreign partners, owners, or beneficiaries.</div>
+            <div class="checkbox-item">
+                <input type="checkbox" disabled>
+                <label></label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Line 4: Exemptions -->
+    <div class="form-line">
+        <div class="line-number">4</div>
+        <div class="line-content">
+            <div style="font-size: 9px; margin-bottom: 6px;"><strong>Exemptions:</strong> Exemptions apply only to certain entities. See IRS Form W-9 instructions for details.</div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                    <input type="text" class="line-input" disabled value="{{ $w9Form->exempt_payee_code ?? '' }}" maxlength="2">
+                    <div class="line-label">Exempt payee code (if any)</div>
+                </div>
+                <div>
+                    <input type="text" class="line-input" disabled value="{{ $w9Form->fatca_exemption_code ?? '' }}" maxlength="2">
+                    <div class="line-label">Exemption from FATCA reporting code (if any)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Line 5: Address -->
+    <div class="form-line">
+        <div class="line-number">5</div>
+        <div class="line-content">
+            <input type="text" class="line-input" disabled value="{{ $w9Form->street_address ?? '' }}">
+            <div class="line-label">Address (number, street, apartment, or suite)</div>
+        </div>
+    </div>
+
+    <!-- Line 6: City, State, ZIP -->
+    <div class="form-line">
+        <div class="line-number">6</div>
+        <div class="line-content">
+            @php
+                $cityStateZip = '';
+                if ($w9Form->city) $cityStateZip .= $w9Form->city;
+                if ($w9Form->state) $cityStateZip .= ($cityStateZip ? ', ' : '') . $w9Form->state;
+                if ($w9Form->zip_code) $cityStateZip .= ($cityStateZip ? ' ' : '') . $w9Form->zip_code;
+            @endphp
+            <input type="text" class="line-input" disabled value="{{ $cityStateZip }}">
+            <div class="line-label">City, state, and ZIP code</div>
+        </div>
+    </div>
+
+    <!-- PART I: Taxpayer Identification Number (TIN) -->
+    <div class="part-header">
+        <span class="part-number"><strong>Part I</strong></span> <strong>Taxpayer Identification Number (TIN)</strong>
+    </div>
+
+    <div class="instructions-box">
+        <strong>Part I — Taxpayer Identification Number (TIN):</strong> Enter your TIN in the appropriate box. The TIN provided must match the name given on line 1.
+    </div>
+
+    <div class="tin-section">
+        <!-- SSN -->
+        <div class="tin-option">
+            <div class="checkbox-item">
+                <input type="radio" disabled {{ $w9Form->tax_id_type === 'ssn' ? 'checked' : '' }}>
+                <label>Social security number</label>
+            </div>
+            @php
+                $tinParts = ['', '', ''];
+                if ($w9Form->tax_id_type === 'ssn' && $w9Form->tax_id_number) {
+                    $cleaned = preg_replace('/[^0-9]/', '', $w9Form->tax_id_number);
+                    if (strlen($cleaned) >= 9) {
+                        $tinParts = [
+                            substr($cleaned, 0, 3),
+                            substr($cleaned, 3, 2),
+                            substr($cleaned, 5, 4)
+                        ];
+                    }
+                }
+            @endphp
+            <div style="display: flex; gap: 8px; align-items: center; margin-top: 6px;">
+                <input type="text" disabled value="{{ $tinParts[0] }}" style="width: 60px; padding: 8px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; text-align: center; background: #f9f9f9;">
+                <div style="font-weight: bold; font-size: 14px;">–</div>
+                <input type="text" disabled value="{{ $tinParts[1] }}" style="width: 50px; padding: 8px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; text-align: center; background: #f9f9f9;">
+                <div style="font-weight: bold; font-size: 14px;">–</div>
+                <input type="text" disabled value="{{ $tinParts[2] }}" style="width: 70px; padding: 8px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; text-align: center; background: #f9f9f9;">
+            </div>
+        </div>
+
+        <!-- EIN -->
+        <div class="tin-option">
+            <div class="checkbox-item">
+                <input type="radio" disabled {{ $w9Form->tax_id_type === 'ein' ? 'checked' : '' }}>
+                <label>Employer identification number</label>
+            </div>
+            @php
+                $einParts = ['', ''];
+                if ($w9Form->tax_id_type === 'ein' && $w9Form->tax_id_number) {
+                    $cleaned = preg_replace('/[^0-9]/', '', $w9Form->tax_id_number);
+                    if (strlen($cleaned) >= 9) {
+                        $einParts = [
+                            substr($cleaned, 0, 2),
+                            substr($cleaned, 2, 7)
+                        ];
+                    }
+                }
+            @endphp
+            <div style="display: flex; gap: 8px; align-items: center; margin-top: 6px;">
+                <input type="text" disabled value="{{ $einParts[0] }}" style="width: 60px; padding: 8px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; text-align: center; background: #f9f9f9;">
+                <div style="font-weight: bold; font-size: 14px;">–</div>
+                <input type="text" disabled value="{{ $einParts[1] }}" style="width: 100px; padding: 8px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; text-align: center; background: #f9f9f9;">
+            </div>
+        </div>
+    </div>
+
+    <!-- PART II: Certification -->
+    <div class="part-header">
+        <span class="part-number"><strong>Part II</strong></span> <strong>Certification</strong>
+    </div>
+
+    <div class="certification-box">
+        <div style="margin-bottom: 10px; font-size: 10px; line-height: 1.5;">
+            <strong>Under penalties of perjury, I certify that:</strong>
+        </div>
+
+        <div class="cert-item" style="margin-bottom: 10px; font-size: 10px; line-height: 1.5;">
+            <strong>1.</strong> The number shown on this form is my correct taxpayer identification number (or I am waiting for a number to be issued to me); and
+        </div>
+
+        <div class="cert-item" style="margin-bottom: 10px; font-size: 10px; line-height: 1.5;">
+            <strong>2.</strong> I am not subject to backup withholding because...
+        </div>
+
+        <div class="cert-item" style="margin-bottom: 10px; font-size: 10px; line-height: 1.5;">
+            <strong>3.</strong> I am a U.S. citizen or other U.S. person; and
+        </div>
+
+        <div class="cert-item" style="margin-bottom: 12px; font-size: 10px; line-height: 1.5;">
+            <strong>4.</strong> The FATCA code(s) entered on this form (if any) indicating that I am exempt from FATCA reporting is correct.
+        </div>
+
+        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #999; font-size: 10px; line-height: 1.5;">
+            <strong>Electronic Signature Certification:</strong> By signing below, I electronically sign this Substitute Form W-9.
+        </div>
+
+        <div style="margin-top: 12px; padding: 12px; background: #f0fdf4; border-left: 3px solid #22c55e; border-radius: 4px; font-size: 10px; line-height: 1.4;">
+            <div class="checkbox-item">
+                <input type="checkbox" disabled {{ $w9Form->certification_signed ? 'checked' : '' }}>
+                <label>☐ I acknowledge and agree to the certifications contained in Part II above.</label>
+            </div>
+        </div>
+
+        <!-- Signature Section -->
+        <div style="margin-top: 15px; padding-top: 12px; border-top: 1px solid #999;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px;">
+                <div>
+                    <div class="sig-label">Signature Method</div>
+                    <div style="margin-top: 8px;">
+                        <div class="checkbox-item">
+                            <input type="radio" disabled>
+                            <label>Type Legal Name</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" disabled>
+                            <label>Draw Signature</label>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="sig-label">Date</div>
+                    <input type="text" class="line-input" disabled value="{{ $w9Form->certification_date ? $w9Form->certification_date->format('m/d/Y') : '' }}" style="margin-top: 6px;">
+                </div>
+            </div>
+
+            <!-- Signature Display -->
+            @php
+                $pdfData = $w9Form->pdf_form_data ? json_decode($w9Form->pdf_form_data, true) : [];
+                $signatureMethod = $pdfData['signature_type'] ?? 'typed';
+                $signatureTyped = $pdfData['signature_typed'] ?? '';
+            @endphp
+
+            <div style="margin-bottom: 15px;">
+                <div class="sig-label">Signature</div>
+                <div class="sig-area">
+                    @if($signatureMethod === 'typed' && $signatureTyped)
+                        <div class="sig-display" style="font-style: italic;">{{ $signatureTyped }}</div>
+                    @else
+                        <div style="font-size: 11px; color: #999; padding: 10px;">
+                            [Signature recorded digitally on {{ $w9Form->certification_date?->format('M d, Y') ?? 'N/A' }}]
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Government ID Photos Section -->
+    @if($w9Form->id_front_image || $w9Form->id_back_image)
+    <div class="id-photos-section">
+        <h3>Government-Issued ID Verification</h3>
+        <p style="font-size: 10px; color: #666; margin-bottom: 12px;">
+            <strong>ID Type:</strong> {{ ucwords(str_replace('_', ' ', $w9Form->id_document_type ?? 'Not specified')) }}
+        </p>
+
+        <div class="id-photos-grid">
+            @if($w9Form->id_front_image)
+            <div class="id-photo-item">
+                <label>Front of ID</label>
+                <img src="{{ asset('storage/' . $w9Form->id_front_image) }}" alt="ID Front">
+            </div>
+            @endif
+
+            @if($w9Form->id_back_image)
+            <div class="id-photo-item">
+                <label>Back of ID</label>
+                <img src="{{ asset('storage/' . $w9Form->id_back_image) }}" alt="ID Back">
+            </div>
+            @endif
+        </div>
+    </div>
+    @endif
+
+    <!-- Admin Information -->
+    <div class="admin-info">
+        <h4 style="margin: 0 0 12px 0; color: #0066cc;">ADMIN INFORMATION (READ-ONLY)</h4>
+        <div class="admin-info-row">
+            <span class="admin-info-label">Status:</span>
+            {{ ucwords(str_replace('_', ' ', $w9Form->status)) }}
+        </div>
+        <div class="admin-info-row">
+            <span class="admin-info-label">Submitted:</span>
+            {{ $w9Form->created_at ? $w9Form->created_at->format('M d, Y h:i A') : 'N/A' }}
+        </div>
+        <div class="admin-info-row">
+            <span class="admin-info-label">IP Address:</span>
+            {{ $w9Form->certification_ip ?? 'Not recorded' }}
+        </div>
+        @if($w9Form->reviewed_by && $w9Form->reviewed_at)
+        <div class="admin-info-row">
+            <span class="admin-info-label">Reviewed By:</span>
+            {{ $w9Form->reviewedBy?->name ?? 'System' }} on {{ $w9Form->reviewed_at->format('M d, Y h:i A') }}
+        </div>
+        @endif
+        @if($w9Form->admin_notes)
+        <div class="admin-info-row">
+            <span class="admin-info-label">Admin Notes:</span>
+            {{ $w9Form->admin_notes }}
+        </div>
+        @endif
+    </div>
 
 </div>
+
+<script>
+function downloadW9PDF(formId) {
+    window.location.href = '/admin/w9/' + formId + '/download-pdf';
+}
+</script>
+
+</body>
+</html>
