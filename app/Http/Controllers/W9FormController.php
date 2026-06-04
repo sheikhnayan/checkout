@@ -68,59 +68,69 @@ class W9FormController extends Controller
             return response()->json(['error' => 'Invalid token'], 400);
         }
 
-        $validated = $request->validate([
-            'full_name' => 'required|string|max:255',
-            'business_name' => 'nullable|string|max:255',
-            'tax_classification' => 'required|in:individual,c_corporation,s_corporation,partnership,trust_estate,limited_liability_company_c,limited_liability_company_s,limited_liability_company_individual,sole_proprietor,other',
-            'tax_classification_other' => 'nullable|string|max:255',
-            'tax_id_type' => 'required|in:ssn,ein',
-            'tax_id_number' => 'required|string|max:20',
-            'street_address' => 'required|string|max:255',
-            'city' => 'required|string|max:100',
-            'state' => 'required|string|size:2',
-            'zip_code' => 'required|string|max:10',
-            'account_numbers' => 'nullable|string|max:255',
-            'requester_name' => 'nullable|string|max:255',
-            'requester_phone' => 'nullable|string|max:20',
-            'requester_email' => 'nullable|email|max:255',
-            'exempt_payee_code' => 'nullable|string|max:50',
-            'fatca_exemption_code' => 'nullable|string|max:50',
-            'id_document_type' => 'required|in:driver_license,passport,state_id,other',
-            'id_front_image' => 'required|image|mimes:jpg,jpeg,png|max:5120',
-            'id_back_image' => 'required|image|mimes:jpg,jpeg,png|max:5120',
-            'certification_signed' => 'required|accepted',
-        ]);
-
-        if ($type === 'affiliate') {
-            $w9Form = W9Form::firstOrCreate(['affiliate_id' => $id], ['type' => 'affiliate']);
-        } else {
-            $w9Form = W9Form::firstOrCreate(['entertainer_id' => $id], ['type' => 'entertainer']);
+        try {
+            $validated = $request->validate([
+                'full_name' => 'required|string|max:255',
+                'business_name' => 'nullable|string|max:255',
+                'tax_classification' => 'required|in:individual,c_corporation,s_corporation,partnership,trust_estate,limited_liability_company_c,limited_liability_company_s,limited_liability_company_individual,sole_proprietor,other',
+                'tax_classification_other' => 'nullable|string|max:255',
+                'tax_id_type' => 'required|in:ssn,ein',
+                'tax_id_number' => 'required|string|max:20',
+                'street_address' => 'required|string|max:255',
+                'city' => 'required|string|max:100',
+                'state' => 'required|string|size:2',
+                'zip_code' => 'required|string|max:10',
+                'account_numbers' => 'nullable|string|max:255',
+                'requester_name' => 'nullable|string|max:255',
+                'requester_phone' => 'nullable|string|max:20',
+                'requester_email' => 'nullable|email|max:255',
+                'exempt_payee_code' => 'nullable|string|max:50',
+                'fatca_exemption_code' => 'nullable|string|max:50',
+                'id_document_type' => 'required|in:driver_license,passport,state_id,other',
+                'id_front_image' => 'required|image|mimes:jpg,jpeg,png|max:5120',
+                'id_back_image' => 'required|image|mimes:jpg,jpeg,png|max:5120',
+                'certification_signed' => 'required|accepted',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
         }
 
-        if ($request->hasFile('id_front_image')) {
-            $file = $request->file('id_front_image');
-            $path = $file->store('w9-documents/id-front', 'public');
-            $validated['id_front_image'] = $path;
+        try {
+            if ($type === 'affiliate') {
+                $w9Form = W9Form::firstOrCreate(['affiliate_id' => $id], ['type' => 'affiliate']);
+            } else {
+                $w9Form = W9Form::firstOrCreate(['entertainer_id' => $id], ['type' => 'entertainer']);
+            }
+
+            if ($request->hasFile('id_front_image')) {
+                $file = $request->file('id_front_image');
+                $path = $file->store('w9-documents/id-front', 'public');
+                $validated['id_front_image'] = $path;
+            }
+
+            if ($request->hasFile('id_back_image')) {
+                $file = $request->file('id_back_image');
+                $path = $file->store('w9-documents/id-back', 'public');
+                $validated['id_back_image'] = $path;
+            }
+
+            $validated['certification_signed'] = true;
+            $validated['certification_date'] = now();
+            $validated['certification_ip'] = $request->ip();
+            $validated['status'] = 'submitted';
+
+            $w9Form->update($validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'W-9 form submitted successfully. Your submission is under review.',
+                'redirect' => route('w9.thank-you'),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'An error occurred while processing your submission: ' . $e->getMessage()
+            ], 500);
         }
-
-        if ($request->hasFile('id_back_image')) {
-            $file = $request->file('id_back_image');
-            $path = $file->store('w9-documents/id-back', 'public');
-            $validated['id_back_image'] = $path;
-        }
-
-        $validated['certification_signed'] = true;
-        $validated['certification_date'] = now();
-        $validated['certification_ip'] = $request->ip();
-        $validated['status'] = 'submitted';
-
-        $w9Form->update($validated);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'W-9 form submitted successfully. Your submission is under review.',
-            'redirect' => route('w9.thank-you'),
-        ]);
     }
 
     public function thankYou()

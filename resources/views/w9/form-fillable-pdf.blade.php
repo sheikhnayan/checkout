@@ -465,24 +465,38 @@
                     body: formData
                 });
 
+                const contentType = response.headers.get('content-type');
+                let data;
+
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    const text = await response.text();
+                    console.error('Server returned non-JSON response:', text.substring(0, 200));
+                    throw new Error('Server error: Invalid response format');
+                }
+
                 if (response.ok) {
-                    const data = await response.json();
-                    // Redirect to thank you page
+                    // Success - redirect to thank you page
                     setTimeout(() => {
                         window.location.href = '{{ route("w9.thank-you") }}';
                     }, 500);
                 } else {
-                    const error = await response.json();
-                    errorBox.innerHTML = '<strong>Error:</strong> ' + (error.message || 'Failed to submit form. Please try again.');
+                    // Error response with JSON
+                    const errorMsg = data.errors ? Object.values(data.errors).flat().join('<br>') : (data.message || 'Failed to submit form');
+                    errorBox.innerHTML = '<strong>Error:</strong><br>' + errorMsg;
                     errorBox.style.display = 'block';
                     document.getElementById('submitBtn').disabled = false;
                     document.getElementById('loader').style.display = 'none';
+                    window.scrollTo(0, 0);
                 }
             } catch (error) {
-                errorBox.innerHTML = '<strong>Error:</strong> ' + error.message;
+                console.error('Submission error:', error);
+                errorBox.innerHTML = '<strong>Error:</strong> ' + error.message + '<br><small>Please check your internet connection and try again.</small>';
                 errorBox.style.display = 'block';
                 document.getElementById('submitBtn').disabled = false;
                 document.getElementById('loader').style.display = 'none';
+                window.scrollTo(0, 0);
             }
         }
     </script>
