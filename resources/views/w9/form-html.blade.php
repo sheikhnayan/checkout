@@ -1081,7 +1081,6 @@ async function submitForm() {
         'line4_fatca': document.getElementById('line4fatca').value.trim(),
         'line5_address': document.getElementById('line5').value.trim(),
         'line6_city_state_zip': document.getElementById('line6').value.trim(),
-        'line7_account': document.getElementById('line7').value.trim(),
         'tin_type': tinType,
         'tin_number': tinValue,
         'signature_type': sigMethod,
