@@ -658,7 +658,7 @@
 
             <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-flex align-items-center gap-2">
               <i class="bx bx-chevron-left d-block d-xl-none align-middle"></i>
-              <span class="d-none d-lg-none d-md-inline" style="font-size: 0.9rem; color: #7f8b9a;">Menu</span>
+              <span class="d-inline d-lg-none" style="font-size: 0.9rem; color: #7f8b9a; white-space: nowrap;">Menu</span>
             </a>
           </div>
 
