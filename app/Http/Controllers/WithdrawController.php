@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Promoter;
+use App\Models\Affiliate;
 use App\Models\AffiliateWalletTransaction;
 use App\Models\Entertainer;
 use App\Models\EntertainerWalletTransaction;
@@ -263,7 +263,7 @@ class WithdrawController extends Controller
 
         // Attach promoter display names
         $affiliateIds = $requests->pluck('owner_id')->unique();
-        $promoters   = \App\Models\Promoter::whereIn('id', $affiliateIds)->get()->keyBy('id');
+        $promoters   = \App\Models\Affiliate::whereIn('id', $affiliateIds)->get()->keyBy('id');
 
         // Global charge setting
         $setting = Setting::first();
@@ -291,7 +291,7 @@ class WithdrawController extends Controller
         // If rejecting a pending request, refund the wallet
         if ($validated['status'] === 'rejected' && $wr->status === 'pending') {
             DB::transaction(function () use ($wr, $validated) {
-                $promoter  = \App\Models\Promoter::findOrFail($wr->owner_id);
+                $promoter  = \App\Models\Affiliate::findOrFail($wr->owner_id);
                 $newBalance = (float) $promoter->wallet_balance + (float) $wr->amount;
                 $promoter->wallet_balance = $newBalance;
                 $promoter->save();

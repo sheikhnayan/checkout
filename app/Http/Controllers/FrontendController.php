@@ -8,7 +8,7 @@ use App\Models\Addon;
 use App\Models\Event;
 use App\Models\Package;
 use App\Models\PromoCode;
-use App\Models\Promoter;
+use App\Models\Affiliate;
 use App\Models\AffiliateWebsite;
 use App\Models\Entertainer;
 use App\Models\CheckoutPopup;

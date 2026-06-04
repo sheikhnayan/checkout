@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Promoter;
+use App\Models\Affiliate;
 use App\Models\Entertainer;
 use App\Models\Package;
 use App\Models\PromoCode;

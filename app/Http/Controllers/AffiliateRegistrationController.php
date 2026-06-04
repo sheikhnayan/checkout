@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\AffiliateApplicationReceivedMail;
-use App\Models\Promoter;
+use App\Models\Affiliate;
 use App\Models\SMTP;
 use App\Models\User;
 use Illuminate\Http\Request;

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\W9Form;
-use App\Models\Promoter;
+use App\Models\Affiliate;
 use App\Models\Entertainer;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;

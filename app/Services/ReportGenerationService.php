@@ -7,7 +7,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Package;
 use App\Models\Event;
-use App\Models\Promoter;
+use App\Models\Affiliate;
 use App\Models\Entertainer;
 use App\Models\Website;
 use Illuminate\Support\Facades\DB;

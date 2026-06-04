@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\AffiliateApprovedMail;
 use App\Mail\AdminApplicationNotificationMail;
-use App\Models\Promoter;
+use App\Models\Affiliate;
 use App\Models\AffiliatePackage;
 use App\Models\AffiliateWebsite;
 use App\Models\Package;

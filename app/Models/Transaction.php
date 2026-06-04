@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Promoter;
+use App\Models\Affiliate;
 use App\Models\Entertainer;
 
 class Transaction extends Model

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Promoter;
+use App\Models\Affiliate;
 use App\Models\Entertainer;
 use App\Models\SharedCart;
 use Illuminate\Http\Request;

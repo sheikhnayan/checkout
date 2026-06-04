@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\AffiliateApplicationReceivedMail;
 use App\Mail\EntertainerApplicationReceivedMail;
-use App\Models\Promoter;
+use App\Models\Affiliate;
 use App\Models\Entertainer;
 use App\Models\SMTP;
 use App\Models\User;

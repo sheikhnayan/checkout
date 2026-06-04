@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\UploadedFile;
-use App\Models\Promoter;
+use App\Models\Affiliate;
 use App\Models\AffiliatePackage;
 use App\Models\AffiliateWebsite;
 use App\Models\Website;

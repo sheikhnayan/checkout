@@ -8,7 +8,7 @@ use App\Models\Event;
 use App\Models\Package;
 use App\Models\Website;
 use App\Models\Setting;
-use App\Models\Promoter;
+use App\Models\Affiliate;
 use App\Models\AffiliatePackage;
 use App\Models\AffiliateWebsite;
 use App\Models\AffiliateWalletTransaction;

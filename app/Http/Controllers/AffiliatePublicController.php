@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Promoter;
+use App\Models\Affiliate;
 use App\Models\Setting;
 use Illuminate\Support\Collection;
 
