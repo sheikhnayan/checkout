@@ -60,15 +60,27 @@
                                             <div class="small" id="ticketDetails" style="color:#e2e8f0;"></div>
                                         </div>
 
-                                        <!-- Photo Capture Section (MANDATORY) -->
+                                        <!-- Photo Capture Section (MANDATORY - Front & Back ID) -->
                                         <div class="mb-3 p-3 rounded-3" style="background:#0f172a;border:2px solid #3b82f6;color:#e2e8f0;">
                                             <div class="fw-semibold mb-3" style="color:#60a5fa;">
-                                                <i class="fas fa-camera-alt"></i> Identity Verification Photo <span style="color:#ff4444;">*</span>
+                                                <i class="fas fa-camera-alt"></i> Identity Verification Photos <span style="color:#ff4444;">*</span>
                                             </div>
-                                            <p class="mb-3" style="font-size:14px;line-height:1.6;">After scanning the package QR code, take a photo of the guest's valid ID for identity verification and fraud prevention. ID images are securely uploaded to an encrypted server and are never stored locally on the scanning device.</p>
+                                            <p class="mb-3" style="font-size:14px;line-height:1.6;">After scanning the package QR code, take photos of both the front and back of the guest's valid ID for identity verification and fraud prevention. ID images are securely uploaded to an encrypted server and are never stored locally on the scanning device.</p>
 
                                             <div id="photoCaptureSection" style="margin-top:15px;">
-                                                <div class="border-2 rounded-2 p-2 mb-3" style="min-height:200px;max-height:300px;overflow:hidden;background:#1a1f2e;border-color:#3b82f6;">
+                                                <!-- Photo Progress Indicator -->
+                                                <div class="d-flex gap-2 mb-3">
+                                                    <div class="flex-grow-1 p-2 rounded-2" style="background:#1a3a1a;border:2px solid #22c55e;">
+                                                        <small style="color:#86efac;"><strong><i class="fas fa-id-card"></i> Front of ID</strong></small>
+                                                        <div id="frontPhotoStatus" style="color:#60a5fa;font-size:12px;margin-top:4px;">Pending</div>
+                                                    </div>
+                                                    <div class="flex-grow-1 p-2 rounded-2" style="background:#1a2a3a;border:2px solid #64b5f6;">
+                                                        <small style="color:#90caf9;"><strong><i class="fas fa-id-card"></i> Back of ID</strong></small>
+                                                        <div id="backPhotoStatus" style="color:#60a5fa;font-size:12px;margin-top:4px;">Pending</div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="border-2 rounded-2 p-2 mb-3" style="min-height:200px;max-height:300px;overflow:hidden;background:#1a1f2e;border-color:#3b82f6;position:relative;">
                                                     <video id="photoCameraFeed" style="width:100%;height:100%;object-fit:cover;display:none;background:#000;"></video>
                                                     <canvas id="photoCanvas" style="width:100%;height:100%;display:none;"></canvas>
                                                     <div id="noCameraMsg" class="text-center p-5" style="color:#60a5fa;">
@@ -79,24 +91,33 @@
 
                                                 <div class="btn-group w-100 mb-3" role="group">
                                                     <button type="button" id="startPhotoCameraBtn" class="btn btn-primary" style="flex:1;">Start Camera</button>
-                                                    <button type="button" id="capturePhotoBtn" class="btn btn-success d-none" style="flex:1;">Capture Photo</button>
+                                                    <button type="button" id="capturePhotoBtn" class="btn btn-success d-none" style="flex:1;"><span id="capturePhotoText">Capture Photo</span></button>
                                                     <button type="button" id="stopPhotoCameraBtn" class="btn btn-danger d-none" style="flex:1;">Stop Camera</button>
                                                 </div>
 
-                                                <div id="photoPreviewContainer" class="d-none mb-3">
-                                                    <div class="fw-semibold mb-2" style="color:#60a5fa;font-size:14px;"><i class="fas fa-check-circle"></i> Photo Captured</div>
-                                                    <img id="photoPreview" style="width:100%;max-height:250px;object-fit:cover;border-radius:8px;border:2px solid #22c55e;">
-                                                    <small class="text-success d-block mt-2">Ready to submit</small>
+                                                <!-- Front ID Preview -->
+                                                <div id="frontPhotoPreviewContainer" class="d-none mb-3">
+                                                    <div class="fw-semibold mb-2" style="color:#86efac;"><i class="fas fa-check-circle"></i> Front of ID Captured</div>
+                                                    <img id="frontPhotoPreview" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;border:2px solid #22c55e;">
                                                 </div>
 
-                                                <input type="hidden" id="capturedPhotoData">
+                                                <!-- Back ID Preview -->
+                                                <div id="backPhotoPreviewContainer" class="d-none mb-3">
+                                                    <div class="fw-semibold mb-2" style="color:#90caf9;"><i class="fas fa-check-circle"></i> Back of ID Captured</div>
+                                                    <img id="backPhotoPreview" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;border:2px solid #3b82f6;">
+                                                    <small class="text-success d-block mt-2"><i class="fas fa-check-double"></i> Both photos ready to submit</small>
+                                                </div>
+
+                                                <input type="hidden" id="frontPhotoData">
+                                                <input type="hidden" id="backPhotoData">
                                             </div>
                                         </div>
 
                                         <form method="POST" action="{{ route('admin.transaction.scan.check-in') }}" id="checkInForm" class="d-flex flex-wrap gap-2">
                                             @csrf
                                             <input type="hidden" name="ticket_qr_code" id="checkInCode">
-                                            <input type="hidden" name="photo_data" id="photoDataInput">
+                                            <input type="hidden" name="photo_data_front" id="frontPhotoData">
+                                            <input type="hidden" name="photo_data_back" id="backPhotoData">
                                             <button type="submit" id="checkInBtn" class="btn btn-success px-4">Check In</button>
                                             <button type="button" id="cancelBtn" class="btn btn-outline-secondary px-4">Cancel</button>
                                         </form>
@@ -258,11 +279,18 @@ document.addEventListener('DOMContentLoaded', function () {
         checkInCode.value = '';
         manualCodeInput.value = '';
         stopPhotoCamera();
-        photoPreviewContainer.classList.add('d-none');
-        capturedPhotoData.value = '';
-        photoDataInput.value = '';
-        photoPhotoCaptured = false;
-        manualCodeInput.value = '';
+        frontPhotoPreviewContainer.classList.add('d-none');
+        backPhotoPreviewContainer.classList.add('d-none');
+        frontPhotoData.value = '';
+        backPhotoData.value = '';
+        frontPhotoCaptured = false;
+        backPhotoCaptured = false;
+        capturingFrontPhoto = true;
+        capturePhotoText.textContent = 'Capture Front of ID';
+        frontPhotoStatus.textContent = 'Pending';
+        frontPhotoStatus.style.color = '#60a5fa';
+        backPhotoStatus.textContent = 'Pending';
+        backPhotoStatus.style.color = '#60a5fa';
         setStatus('Ready for next ticket scan.', false);
     }
 
@@ -325,15 +353,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const noCameraMsg = document.getElementById('noCameraMsg');
     const startPhotoCameraBtn = document.getElementById('startPhotoCameraBtn');
     const capturePhotoBtn = document.getElementById('capturePhotoBtn');
+    const capturePhotoText = document.getElementById('capturePhotoText');
     const stopPhotoCameraBtn = document.getElementById('stopPhotoCameraBtn');
-    const photoPreviewContainer = document.getElementById('photoPreviewContainer');
-    const photoPreview = document.getElementById('photoPreview');
-    const capturedPhotoData = document.getElementById('capturedPhotoData');
+    const frontPhotoPreviewContainer = document.getElementById('frontPhotoPreviewContainer');
+    const frontPhotoPreview = document.getElementById('frontPhotoPreview');
+    const backPhotoPreviewContainer = document.getElementById('backPhotoPreviewContainer');
+    const backPhotoPreview = document.getElementById('backPhotoPreview');
+    const frontPhotoData = document.getElementById('frontPhotoData');
+    const backPhotoData = document.getElementById('backPhotoData');
     const photoDataInput = document.getElementById('photoDataInput');
+    const frontPhotoStatus = document.getElementById('frontPhotoStatus');
+    const backPhotoStatus = document.getElementById('backPhotoStatus');
 
     let photoCameraStream = null;
     let photoCtx = null;
-    let photoPhotoCaptured = false;
+    let frontPhotoCaptured = false;
+    let backPhotoCaptured = false;
+    let capturingFrontPhoto = true; // Start with front photo
     let currentFacingMode = 'environment'; // Default to back camera
 
     startPhotoCameraBtn.addEventListener('click', async function() {
@@ -417,18 +453,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Get image data as base64
         const imageData = photoCanvas.toDataURL('image/jpeg', 0.9);
-        capturedPhotoData.value = imageData;
-        photoDataInput.value = imageData;
 
-        // Show preview
-        photoPreview.src = imageData;
-        photoPreviewContainer.classList.remove('d-none');
+        if (capturingFrontPhoto) {
+            // Capture front of ID
+            frontPhotoData.value = imageData;
+            frontPhotoPreview.src = imageData;
+            frontPhotoPreviewContainer.classList.remove('d-none');
+            frontPhotoCaptured = true;
+            frontPhotoStatus.textContent = '✓ Captured';
+            frontPhotoStatus.style.color = '#86efac';
 
-        // Mark photo as captured
-        photoPhotoCaptured = true;
+            // Move to back photo
+            capturingFrontPhoto = false;
+            capturePhotoText.textContent = 'Capture Back of ID';
+            alert('Front of ID captured. Now capture the back of the ID.');
+        } else {
+            // Capture back of ID
+            backPhotoData.value = imageData;
+            backPhotoPreview.src = imageData;
+            backPhotoPreviewContainer.classList.remove('d-none');
+            backPhotoCaptured = true;
+            backPhotoStatus.textContent = '✓ Captured';
+            backPhotoStatus.style.color = '#90caf9';
 
-        // Stop camera after capture
-        stopPhotoCamera();
+            // All photos captured
+            capturePhotoText.textContent = 'Both photos captured!';
+            stopPhotoCamera();
+        }
     });
 
     function stopPhotoCamera() {
@@ -452,11 +503,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     stopPhotoCameraBtn.addEventListener('click', stopPhotoCamera);
 
-    // Validate photo captured before form submission
+    // Validate both photos captured before form submission
     document.getElementById('checkInForm').addEventListener('submit', function(e) {
-        if (!photoPhotoCaptured) {
+        if (!frontPhotoCaptured) {
             e.preventDefault();
-            alert('Photo is required. Please capture a photo of the guest\'s ID before checking in.');
+            alert('Front of ID photo is required. Please capture the front side of the guest\'s ID.');
+            return false;
+        }
+        if (!backPhotoCaptured) {
+            e.preventDefault();
+            alert('Back of ID photo is required. Please capture the back side of the guest\'s ID.');
             return false;
         }
         stopPhotoCamera();
