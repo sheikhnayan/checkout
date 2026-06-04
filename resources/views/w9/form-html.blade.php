@@ -516,9 +516,8 @@
             <strong>Disclaimer:</strong> This substitute Form W-9 is used by CartVIP to collect taxpayer identification and certification information for contractor/vendor onboarding. This is not the official IRS Form W-9. For official IRS instructions and the current Form W-9 (Rev. March 2024), visit <strong><a href="https://www.irs.gov/FormW9" target="_blank" style="color: #0066cc; text-decoration: underline;">irs.gov/FormW9</a></strong>.
         </div>
 
-        <!-- Important Notice -->
+        <!-- Line 1 Notes -->
         <div class="before-begin">
-            <div class="before-begin-text" style="margin-bottom: 8px;">For official IRS instructions and the latest Form W-9, visit <strong><a href="https://www.irs.gov/FormW9" target="_blank" style="color: #0066cc; text-decoration: underline;">IRS.gov/FormW9</a></strong>.</div>
             <div style="font-size: 9px; line-height: 1.4;">
                 <strong>Line 1 — Legal Name:</strong> An entry is required. For a sole proprietor or disregarded entity, enter the owner's name on line 1 and the business/disregarded entity's name on line 2.
             </div>
@@ -588,7 +587,7 @@
 
                 <div class="checkbox-item" style="margin-left: 17px; margin-top: 4px;">
                     <input type="checkbox" id="tax_other" name="tax_3a" value="other">
-                    <label for="tax_other">Other (see instructions)</label>
+                    <label for="tax_other">Other</label>
                 </div>
             </div>
         </div>
@@ -629,7 +628,7 @@
             <div class="line-number">5</div>
             <div class="line-content">
                 <input type="text" id="line5" class="line-input">
-                <div class="line-label">Address (number, street, and apt. or suite no.). See instructions.</div>
+                <div class="line-label">Address (number, street, apartment, or suite)</div>
             </div>
         </div>
 
@@ -688,14 +687,28 @@
 
         <div class="certification-box">
             <div style="margin-bottom: 10px; font-size: 10px; line-height: 1.5;">
-                <strong>By typing my legal name or drawing my signature below, I electronically sign this Substitute Form W-9 and certify under penalties of perjury that:</strong>
+                <strong>Under penalties of perjury, I certify that:</strong>
             </div>
 
-            <ul class="bullet-list" style="margin-left: 20px; margin-bottom: 12px; font-size: 10px; line-height: 1.5;">
-                <li>The information provided on this form is true, correct, and complete.</li>
-                <li>I have reviewed and agree to the certifications contained in Part II above.</li>
-                <li>My electronic signature has the same legal effect as a handwritten signature.</li>
-            </ul>
+            <div class="cert-item" style="margin-bottom: 10px; font-size: 10px; line-height: 1.5;">
+                <strong>1.</strong> The number shown on this form is my correct taxpayer identification number (or I am waiting for a number to be issued to me); and
+            </div>
+
+            <div class="cert-item" style="margin-bottom: 10px; font-size: 10px; line-height: 1.5;">
+                <strong>2.</strong> I am not subject to backup withholding because (a) I am exempt from backup withholding, or (b) I have not been notified by the Internal Revenue Service (IRS) that I am subject to backup withholding as a result of a failure to report all interest or dividends, or (c) the IRS has notified me that I am no longer subject to backup withholding; and
+            </div>
+
+            <div class="cert-item" style="margin-bottom: 10px; font-size: 10px; line-height: 1.5;">
+                <strong>3.</strong> I am a U.S. citizen or other U.S. person; and
+            </div>
+
+            <div class="cert-item" style="margin-bottom: 12px; font-size: 10px; line-height: 1.5;">
+                <strong>4.</strong> The FATCA code(s) entered on this form (if any) indicating that I am exempt from FATCA reporting is correct.
+            </div>
+
+            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #999; font-size: 10px; line-height: 1.5;">
+                <strong>Electronic Signature Certification:</strong> By typing my legal name or drawing my signature below, I electronically sign this Substitute Form W-9. I understand that my electronic signature has the same legal effect as a handwritten signature.
+            </div>
 
             <div style="margin-top: 12px; padding: 12px; background: #f0fdf4; border-left: 3px solid #22c55e; border-radius: 4px; font-size: 10px; line-height: 1.4;">
                 <strong>U.S. Person Certification <span class="required">*</span></strong>
