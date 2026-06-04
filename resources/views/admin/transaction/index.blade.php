@@ -622,6 +622,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                 <div class="d-flex align-items-center gap-1">
                                     <button type="button" class="txn-action-eye view-btn"
                                         data-bs-toggle="modal" data-bs-target="#viewTransactionModal"
+                                        data-id="{{ $item->id }}"
                                         data-transaction_id="{{ $item->transaction_id ?? 'Free' }}"
                                         data-package_id="{{ $packageDetailsText }}"
                                         data-package_first_name="{{ $item->package_first_name }}"
@@ -736,6 +737,30 @@ body.modal-open .admin-mobile-menu-toggle {
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body" id="transaction-modal-content">
+                            <!-- ID Verification Photos Section -->
+                            <div class="mb-4" id="modal-id-photos-section" style="display:none;">
+                                <h6 class="mb-3" style="color:#f8fafc;">📸 ID Verification Photos</h6>
+                                <div class="row g-2">
+                                    <div class="col-md-6" id="modal-front-photo-container" style="display:none;">
+                                        <div class="card bg-dark border-info">
+                                            <div class="card-header p-2 bg-info bg-opacity-25" style="border-bottom:1px solid #0066cc;">
+                                                <small class="text-info"><strong>Front of ID</strong></small>
+                                            </div>
+                                            <img id="modal-front-id-photo" style="width:100%;max-height:250px;object-fit:cover;border-radius:4px;margin:8px;">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6" id="modal-back-photo-container" style="display:none;">
+                                        <div class="card bg-dark border-secondary">
+                                            <div class="card-header p-2 bg-secondary bg-opacity-25" style="border-bottom:1px solid #666;">
+                                                <small class="text-secondary"><strong>Back of ID</strong></small>
+                                            </div>
+                                            <img id="modal-back-id-photo" style="width:100%;max-height:250px;object-fit:cover;border-radius:4px;margin:8px;">
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr style="border-color:rgba(255,255,255,0.1);margin:12px 0;">
+                            </div>
+
                             <div class="row">
                                 <div class="col-md-6">
                                     <ul class="list-group">
@@ -1372,6 +1397,39 @@ body.modal-open .admin-mobile-menu-toggle {
 
             <script>
             $(document).on('click', '.view-btn', function() {
+                const transactionId = $(this).data('id');
+
+                // Load ID verification photos
+                if (transactionId) {
+                    fetch(`/admin/transaction/${transactionId}/id-photos`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.frontPhotoUrl) {
+                                $('#modal-front-id-photo').attr('src', data.frontPhotoUrl);
+                                $('#modal-front-photo-container').show();
+                            } else {
+                                $('#modal-front-photo-container').hide();
+                            }
+
+                            if (data.backPhotoUrl) {
+                                $('#modal-back-id-photo').attr('src', data.backPhotoUrl);
+                                $('#modal-back-photo-container').show();
+                            } else {
+                                $('#modal-back-photo-container').hide();
+                            }
+
+                            if (data.frontPhotoUrl || data.backPhotoUrl) {
+                                $('#modal-id-photos-section').show();
+                            } else {
+                                $('#modal-id-photos-section').hide();
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Error loading photos:', err);
+                            $('#modal-id-photos-section').hide();
+                        });
+                }
+
                 $('#modal-package_date_of_use').text($(this).data('package_use_date'));
                 $('#modal-promo_code').text($(this).data('promo_code'));
                 $('#modal-discounted_amount').text($(this).data('discounted_amount'));

@@ -981,6 +981,61 @@ class TransactionController extends Controller
         ]);
     }
 
+    public function getIdPhotos($transactionId)
+    {
+        // Security: Only allow authenticated admin/staff users to view photos
+        if (!auth()->check() || !in_array(auth()->user()->user_type, ['admin', 'website_user'])) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $transaction = Transaction::findOrFail($transactionId);
+
+        $frontPhotoUrl = null;
+        $backPhotoUrl = null;
+
+        // Check for front ID photo
+        if ($transaction->checkin_photo_front_path && file_exists(storage_path('app/private/' . $transaction->checkin_photo_front_path))) {
+            $frontPhotoUrl = route('admin.transaction.id-photo', ['transactionId' => $transactionId, 'side' => 'front']);
+        }
+
+        // Check for back ID photo
+        if ($transaction->checkin_photo_back_path && file_exists(storage_path('app/private/' . $transaction->checkin_photo_back_path))) {
+            $backPhotoUrl = route('admin.transaction.id-photo', ['transactionId' => $transactionId, 'side' => 'back']);
+        }
+
+        return response()->json([
+            'frontPhotoUrl' => $frontPhotoUrl,
+            'backPhotoUrl' => $backPhotoUrl,
+        ]);
+    }
+
+    public function getIdPhoto($transactionId, $side)
+    {
+        // Security: Only allow authenticated admin/staff users to view photos
+        if (!auth()->check() || !in_array(auth()->user()->user_type, ['admin', 'website_user'])) {
+            abort(403, 'Unauthorized access to ID photos.');
+        }
+
+        $transaction = Transaction::findOrFail($transactionId);
+
+        $photoPath = null;
+        if ($side === 'front' && $transaction->checkin_photo_front_path) {
+            $photoPath = storage_path('app/private/' . $transaction->checkin_photo_front_path);
+        } elseif ($side === 'back' && $transaction->checkin_photo_back_path) {
+            $photoPath = storage_path('app/private/' . $transaction->checkin_photo_back_path);
+        }
+
+        if (!$photoPath || !file_exists($photoPath)) {
+            abort(404, 'Photo not found.');
+        }
+
+        return response()->file($photoPath, [
+            'Content-Type' => 'image/jpeg',
+            'Cache-Control' => 'public, max-age=3600',
+            'Pragma' => 'public',
+        ]);
+    }
+
     public function scanLookup(Request $request)
     {
         $this->ensureScannerAccess();

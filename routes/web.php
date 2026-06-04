@@ -286,6 +286,8 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::get('/scan/lookup', [TransactionController::class, 'scanLookup'])->name('scan.lookup');
         Route::post('/scan/check-in', [TransactionController::class, 'scanCheckIn'])->name('scan.check-in');
         Route::get('/{id}/checkin-photo', [TransactionController::class, 'viewCheckinPhoto'])->name('checkin-photo');
+        Route::get('/{transactionId}/id-photos', [TransactionController::class, 'getIdPhotos'])->name('id-photos');
+        Route::get('/{transactionId}/id-photo/{side}', [TransactionController::class, 'getIdPhoto'])->name('id-photo');
     });
 
     Route::group(['prefix' => 'jobs', 'as' => 'jobs.'], function () {

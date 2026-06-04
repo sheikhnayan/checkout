@@ -106,6 +106,9 @@
                                                     <div class="fw-semibold mb-2" style="color:#90caf9;"><i class="fas fa-check-circle"></i> Back of ID Captured</div>
                                                     <img id="backPhotoPreview" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;border:2px solid #3b82f6;">
                                                     <small class="text-success d-block mt-2"><i class="fas fa-check-double"></i> Both photos ready to submit</small>
+                                                    <button type="button" id="retakePhotosBtn" class="btn btn-warning btn-sm mt-3">
+                                                        <i class="fas fa-camera"></i> Retake Photos
+                                                    </button>
                                                 </div>
 
                                                 <input type="hidden" id="frontPhotoData">
@@ -502,6 +505,35 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     stopPhotoCameraBtn.addEventListener('click', stopPhotoCamera);
+
+    // Retake Photos functionality
+    const retakePhotosBtn = document.getElementById('retakePhotosBtn');
+    if (retakePhotosBtn) {
+        retakePhotosBtn.addEventListener('click', function() {
+            // Reset photo states
+            frontPhotoCaptured = false;
+            backPhotoCaptured = false;
+            capturingFrontPhoto = true;
+
+            // Clear photo data and previews
+            frontPhotoData.value = '';
+            backPhotoData.value = '';
+            frontPhotoPreviewContainer.classList.add('d-none');
+            backPhotoPreviewContainer.classList.add('d-none');
+
+            // Reset status indicators
+            frontPhotoStatus.textContent = 'Pending';
+            frontPhotoStatus.style.color = '#60a5fa';
+            backPhotoStatus.textContent = 'Pending';
+            backPhotoStatus.style.color = '#60a5fa';
+
+            // Reset capture button text
+            capturePhotoText.textContent = 'Capture Front of ID';
+
+            // Show photo capture section
+            photoCaptureSection.style.display = '';
+        });
+    }
 
     // Validate both photos captured before form submission
     document.getElementById('checkInForm').addEventListener('submit', function(e) {
