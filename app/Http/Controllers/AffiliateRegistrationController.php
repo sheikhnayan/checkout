@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class AffiliateRegistrationController extends Controller
 {
@@ -71,7 +72,10 @@ class AffiliateRegistrationController extends Controller
                 );
             }
         } catch (\Throwable $th) {
-            // Keep registration successful even if mail fails.
+            Log::error('Affiliate registration email failed: ' . $th->getMessage(), [
+                'email' => $user->email,
+                'exception' => (string) $th,
+            ]);
         }
 
         return redirect()->route('login')->with('success', 'Your promoter application has been submitted successfully. A confirmation email with instructions to complete your W-9 form has been sent to your email address. Please complete the W-9 form as soon as possible to expedite your account activation. We will review your application and notify you once approved.');

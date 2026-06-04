@@ -13,6 +13,7 @@ use App\Models\Transaction;
 use App\Models\Website;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class AffiliateAdminController extends Controller
 {
@@ -143,8 +144,11 @@ class AffiliateAdminController extends Controller
                 $affiliate->affiliateWebsites->first()?->website->name ?? '',
             ));
         } catch (\Throwable $th) {
-            // Keep approval successful even if mail fails. Log error if needed:
-            // Log::error('Approval mail failed: ' . $th->getMessage());
+            Log::error('Affiliate approval email failed: ' . $th->getMessage(), [
+                'affiliate_id' => $affiliate->id,
+                'email' => $affiliate->user?->email,
+                'exception' => (string) $th,
+            ]);
         }
 
         return redirect()->back()->with('success', 'Promoter approved successfully.');
