@@ -596,7 +596,7 @@
         <div class="form-line">
             <div class="line-number">3b</div>
             <div class="line-content">
-                <div style="font-size: 9px; line-height: 1.4; margin-bottom: 6px;">If you checked "Partnership" above and you are providing this form to a partnership, trust, or estate in which you have an ownership interest, check this box if you have any foreign partners, owners, or beneficiaries. See instructions.</div>
+                <div style="font-size: 9px; line-height: 1.4; margin-bottom: 6px;">If applicable, check this box if you have foreign partners, owners, or beneficiaries.</div>
                 <div class="checkbox-item">
                     <input type="checkbox" id="line3b">
                     <label for="line3b"></label>
@@ -711,12 +711,11 @@
             </div>
 
             <div style="margin-top: 12px; padding: 12px; background: #f0fdf4; border-left: 3px solid #22c55e; border-radius: 4px; font-size: 10px; line-height: 1.4;">
-                <strong>U.S. Person Certification <span class="required">*</span></strong>
-                <div class="checkbox-item" style="margin-top: 8px;">
-                    <input type="checkbox" id="usPerson" required>
-                    <label for="usPerson">I certify that I am a U.S. citizen or other U.S. person for federal tax purposes.</label>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="certificationAck" required>
+                    <label for="certificationAck">☐ I acknowledge and agree to the certifications contained in Part II above.</label>
                 </div>
-                <small style="display: block; margin-top: 6px; color: #666;">If you cannot certify U.S. person status, you may need to complete Form W-8 instead. Consult the IRS Form W-9 instructions for guidance.</small>
+                <small style="display: block; margin-top: 6px; color: #666;">If you cannot certify U.S. person status, you may need to complete Form W-8 instead.</small>
             </div>
 
             <!-- Signature Section -->
@@ -754,16 +753,6 @@
                     <canvas id="signatureCanvas" style="border: 2px solid #ccc; border-radius: 4px; background: white; display: block; cursor: crosshair; margin-top: 6px; width: 100%; height: 120px;"></canvas>
                     <button type="button" onclick="clearSignature()" style="margin-top: 6px; padding: 6px 12px; font-size: 10px; background: #f0f0f0; border: 1px solid #ccc; border-radius: 3px; cursor: pointer;">Clear Signature</button>
                     <div style="font-size: 8px; color: #666; margin-top: 4px;">Draw your signature in the box above. This will be captured as your digital signature.</div>
-                </div>
-
-                <!-- Certification Statement -->
-                <div style="background: #f9f9f9; border: 1px solid #ddd; padding: 12px; border-radius: 4px; margin-top: 12px;">
-                    <div class="checkbox-item" style="align-items: flex-start;">
-                        <input type="checkbox" id="certifySignature" required style="margin-top: 2px;">
-                        <label for="certifySignature" style="font-size: 9px; line-height: 1.5;">
-                            <strong>Certification:</strong> By typing my legal name or drawing my signature, I electronically sign this Substitute Form W-9 and certify under penalties of perjury that the information provided is true, correct, and complete.
-                        </label>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1026,7 +1015,7 @@ async function submitForm() {
     const idFront = document.getElementById('idFront').files[0];
     const idBack = document.getElementById('idBack').files[0];
     const certDate = document.getElementById('certDate').value.trim();
-    const certifyCheckbox = document.getElementById('certifySignature').checked;
+    const certifyCheckbox = document.getElementById('certificationAck').checked;
     const sigMethod = document.querySelector('input[name="signatureMethod"]:checked').value;
 
     let tinValue = '';
