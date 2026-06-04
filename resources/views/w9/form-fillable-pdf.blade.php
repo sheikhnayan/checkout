@@ -486,12 +486,27 @@
             document.getElementById('submitBtn').disabled = true;
             document.getElementById('loader').style.display = 'block';
 
+            // Show prompt to enter key W-9 data from the PDF they filled
+            const fullName = prompt('Enter the name from the W-9 form (line 1):');
+            const taxId = prompt('Enter the Tax ID/SSN from the W-9 form (line 5):');
+            const streetAddress = prompt('Enter the street address from the W-9 form (line 6):');
+            const cityStateZip = prompt('Enter city, state, ZIP from the W-9 form (line 7):');
+
+            if (!fullName || !taxId) {
+                alert('Name and Tax ID are required. Please fill the W-9 form completely.');
+                return;
+            }
+
             // Prepare form data
             const formData = new FormData();
             formData.append('id_document_type', idDocumentType);
             formData.append('id_front_image', idFront);
             formData.append('id_back_image', idBack);
             formData.append('certification_signed', true);
+            formData.append('full_name', fullName);
+            formData.append('tax_id_number', taxId);
+            formData.append('street_address', streetAddress || '');
+            formData.append('city_state_zip', cityStateZip || '');
 
             try {
                 const response = await fetch('{{ route("w9.store", $token) }}', {

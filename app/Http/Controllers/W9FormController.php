@@ -88,16 +88,14 @@ class W9FormController extends Controller
 
         try {
             $validated = $request->validate([
-                'full_name' => 'nullable|string|max:255',
+                'full_name' => 'required|string|max:255',
+                'tax_id_number' => 'required|string|max:20',
+                'street_address' => 'nullable|string|max:255',
+                'city_state_zip' => 'nullable|string|max:255',
                 'business_name' => 'nullable|string|max:255',
                 'tax_classification' => 'nullable|in:individual,c_corporation,s_corporation,partnership,trust_estate,limited_liability_company_c,limited_liability_company_s,limited_liability_company_individual,sole_proprietor,other',
                 'tax_classification_other' => 'nullable|string|max:255',
                 'tax_id_type' => 'nullable|in:ssn,ein',
-                'tax_id_number' => 'nullable|string|max:20',
-                'street_address' => 'nullable|string|max:255',
-                'city' => 'nullable|string|max:100',
-                'state' => 'nullable|string|size:2',
-                'zip_code' => 'nullable|string|max:10',
                 'account_numbers' => 'nullable|string|max:255',
                 'requester_name' => 'nullable|string|max:255',
                 'requester_phone' => 'nullable|string|max:20',
