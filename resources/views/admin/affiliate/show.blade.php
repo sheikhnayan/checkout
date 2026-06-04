@@ -58,7 +58,13 @@
             <p class="mb-1"><strong>Email:</strong> {{ $affiliate->user?->email ?? 'N/A' }}</p>
             <p class="mb-1"><strong>Status:</strong> {{ ucfirst($affiliate->status) }}</p>
             <p class="mb-1"><strong>Default Commission:</strong> {{ number_format((float) ($affiliate->default_commission_percentage ?? 0), 2) }}%</p>
-            <p class="mb-3"><strong>Public Page:</strong> <a href="{{ route('promoter.public', $affiliate->slug) }}" target="_blank">{{ route('promoter.public', $affiliate->slug) }}</a></p>
+            <p class="mb-3"><strong>Public Page:</strong>
+                @if($affiliate->slug)
+                    <a href="{{ route('promoter.public', $affiliate->slug) }}" target="_blank">{{ route('promoter.public', $affiliate->slug) }}</a>
+                @else
+                    <span class="text-muted">Not yet generated</span>
+                @endif
+            </p>
 
             @if($affiliate->status !== 'approved')
                 <form method="POST" action="{{ route('admin.promoter.approve', $affiliate->id) }}" class="d-flex gap-2 align-items-end mb-3">

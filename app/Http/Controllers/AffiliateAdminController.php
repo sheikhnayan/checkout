@@ -42,7 +42,16 @@ class AffiliateAdminController extends Controller
     public function show(Affiliate $affiliate)
     {
         $this->ensureAdmin();
-        $affiliate->load(['user', 'affiliateWebsites.website']);
+
+        // Ensure relationships are loaded
+        if (!$affiliate->relationLoaded('user')) {
+            $affiliate->load('user');
+        }
+        if (!$affiliate->relationLoaded('affiliateWebsites')) {
+            $affiliate->load('affiliateWebsites.website');
+        }
+
+        // Get websites with package counts
         $websites = Website::where('is_archieved', 0)
             ->where('status', 1)
             ->withCount(['packages' => function ($query) {
@@ -50,11 +59,13 @@ class AffiliateAdminController extends Controller
             }])
             ->get();
 
+        // Get selected website IDs
         $selectedWebsiteIds = $affiliate->affiliateWebsites()
             ->where('is_active', true)
             ->pluck('website_id')
             ->toArray();
 
+        // Calculate commission amounts
         $now = now();
         $transactions = Transaction::query()
             ->where('affiliate_id', $affiliate->id)
