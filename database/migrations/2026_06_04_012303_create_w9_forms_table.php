@@ -33,18 +33,18 @@ return new class extends Migration
                 'limited_liability_company_individual',
                 'sole_proprietor',
                 'other'
-            ])->default('individual');
+            ])->nullable();
             $table->string('tax_classification_other')->nullable(); // If "other" is selected
 
             // Tax ID
-            $table->string('tax_id_type'); // 'ssn' or 'ein'
-            $table->string('tax_id_number'); // SSN or EIN (encrypted)
+            $table->string('tax_id_type')->nullable(); // 'ssn' or 'ein'
+            $table->string('tax_id_number')->nullable(); // SSN or EIN (encrypted)
 
             // Address
-            $table->string('street_address');
-            $table->string('city');
-            $table->string('state', 2);
-            $table->string('zip_code', 10);
+            $table->string('street_address')->nullable();
+            $table->string('city')->nullable();
+            $table->string('state', 2)->nullable();
+            $table->string('zip_code', 10)->nullable();
 
             // Optional Fields
             $table->string('account_numbers')->nullable(); // Account number(s) for records (optional)
@@ -54,7 +54,7 @@ return new class extends Migration
 
             // Certification
             $table->boolean('certification_signed') // Checkbox: I declare under penalty of perjury
-                ->default(false);
+                ->default(false)->nullable();
             $table->timestamp('certification_date')->nullable();
             $table->string('certification_ip')->nullable(); // IP address of certification
 
