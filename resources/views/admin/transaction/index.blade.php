@@ -1413,18 +1413,21 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 // Load ID verification photos
                 if (transactionId) {
-                    fetch(`/admins/transaction/${transactionId}/id-photos`)
+                    // Show loading state
+                    $('#modal-id-photos-section').html('<div class="text-center p-3"><small class="text-muted">Loading photos...</small></div>').show();
+
+                    fetch(`/admins/transaction/${transactionId}/id-photos`, { cache: 'force-cache' })
                         .then(res => res.json())
                         .then(data => {
                             if (data.frontPhotoUrl) {
-                                $('#modal-front-id-photo').attr('src', data.frontPhotoUrl);
+                                $('#modal-front-id-photo').attr('src', data.frontPhotoUrl).css('cursor', 'pointer');
                                 $('#modal-front-photo-container').show();
                             } else {
                                 $('#modal-front-photo-container').hide();
                             }
 
                             if (data.backPhotoUrl) {
-                                $('#modal-back-id-photo').attr('src', data.backPhotoUrl);
+                                $('#modal-back-id-photo').attr('src', data.backPhotoUrl).css('cursor', 'pointer');
                                 $('#modal-back-photo-container').show();
                             } else {
                                 $('#modal-back-photo-container').hide();
@@ -1441,6 +1444,13 @@ body.modal-open .admin-mobile-menu-toggle {
                             $('#modal-id-photos-section').hide();
                         });
                 }
+
+                // Add click handlers to photos for instant display
+                $(document).on('click', '#modal-front-id-photo, #modal-back-id-photo', function() {
+                    const imgSrc = $(this).attr('src');
+                    const imgLabel = $(this).closest('[id*="container"]').find('.fw-semibold').text() || 'Photo';
+                    window.open(imgSrc, '_blank');
+                });
 
                 $('#modal-package_date_of_use').text($(this).data('package_use_date'));
                 $('#modal-promo_code').text($(this).data('promo_code'));
