@@ -433,7 +433,7 @@
                     <div class="feature-icon"><i class="fas fa-link"></i></div>
                     <div class="feature-text">
                         <strong>Promoter Engine</strong>
-                        <span>Turn partners into a sales force. Track referrals, commissions, and performance automatically.</span>
+                        <span>Turn partners into a sales force. Track referrals, promoter fees, and performance automatically.</span>
                     </div>
                 </div>
                 <div class="feature-item">

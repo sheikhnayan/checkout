@@ -9014,7 +9014,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     noCalendar: true,
                     time_24hr: false,
                     minuteIncrement: 15,
-                    dateFormat: 'H:i',
+                    dateFormat: 'h:i K',
                     allowInput: false,
                     onChange: function () {
                         $(el).removeClass('required-field');

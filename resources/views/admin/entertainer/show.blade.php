@@ -80,7 +80,7 @@
                     <label class="form-label">Change Commission (%) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Update the commission percentage this entertainer earns from referred bookings."></i></label>
                     <input type="number" min="0" max="100" step="0.01" name="default_commission_percentage" class="form-control" value="{{ old('default_commission_percentage', $entertainer->default_commission_percentage ?? 10) }}" required>
                 </div>
-                <button type="submit" class="btn btn-outline-primary">Update Commission</button>
+                <button type="submit" class="btn btn-outline-primary">Update Fee</button>
             </form>
 
             @if($entertainer->status === 'approved')
@@ -137,6 +137,7 @@
                                 <th>Confirmation #</th>
                                 <th>Venue</th>
                                 <th>Guest Name</th>
+                                <th>Reservation Date</th>
                                 <th>Date</th>
                                 <th>Amount</th>
                                 <th>Commission Amount</th>
@@ -150,6 +151,7 @@
                                     <td><strong>{{ $transaction->transaction_id }}</strong></td>
                                     <td>{{ optional($transaction->website)->name ?? 'N/A' }}</td>
                                     <td>{{ $transaction->package_first_name }} {{ $transaction->package_last_name }}</td>
+                                    <td>{{ optional($transaction->package_use_date)->format('M d, Y') ?: '-' }}</td>
                                     <td>{{ optional($transaction->created_at)->format('M d, Y') }}</td>
                                     <td>${{ number_format((float) ($transaction->actual_total ?? 0), 2) }}</td>
                                     <td>${{ number_format((float) ($transaction->entertainer_commission_amount ?? 0), 2) }}</td>

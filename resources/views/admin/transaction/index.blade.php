@@ -491,6 +491,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             @if($isPayoutPage)
                             <th style="min-width:130px">Hold Until</th>
                             @endif
+                            <th>Reservation Date</th>
                             <th>Date</th>
                             <th>Action</th>
                             <th class="d-none">_website</th>
@@ -626,6 +627,9 @@ body.modal-open .admin-mobile-menu-toggle {
                                 @endif
                             </td>
                             @endif
+                            <td>
+                                <div class="txn-date-main">{{ optional($item->package_use_date)->format('M d, Y') ?: '-' }}</div>
+                            </td>
                             <td>
                                 <div class="txn-date-main">{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('M d, Y') }}</div>
                                 <div class="txn-date-time">{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('h:i A') }}</div>
