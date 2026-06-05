@@ -83,9 +83,15 @@
                                                 <div class="border-2 rounded-2 p-2 mb-3" style="min-height:200px;max-height:300px;overflow:hidden;background:#1a1f2e;border-color:#3b82f6;position:relative;">
                                                     <video id="photoCameraFeed" style="width:100%;height:100%;object-fit:cover;display:none;background:#000;"></video>
                                                     <canvas id="photoCanvas" style="width:100%;height:100%;display:none;"></canvas>
+                                                    <!-- ID Card Frame Guide Overlay -->
+                                                    <canvas id="idFrameGuide" style="width:100%;height:100%;position:absolute;top:0;left:0;display:none;"></canvas>
                                                     <div id="noCameraMsg" class="text-center p-5" style="color:#60a5fa;">
                                                         <i class="fas fa-camera fa-3x mb-3 d-block opacity-75"></i>
                                                         <div style="font-size:14px;">Camera will appear here</div>
+                                                    </div>
+                                                    <!-- Frame Guide Instructions -->
+                                                    <div id="frameGuideLabel" style="position:absolute;top:8px;left:8px;background:rgba(34,197,94,0.9);color:#fff;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;display:none;">
+                                                        <i class="fas fa-info-circle"></i> Align US ID Card within frame
                                                     </div>
                                                 </div>
 
@@ -98,13 +104,15 @@
                                                 <!-- Front ID Preview -->
                                                 <div id="frontPhotoPreviewContainer" class="d-none mb-3">
                                                     <div class="fw-semibold mb-2" style="color:#86efac;"><i class="fas fa-check-circle"></i> Front of ID Captured</div>
-                                                    <img id="frontPhotoPreview" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;border:2px solid #22c55e;">
+                                                    <img id="frontPhotoPreview" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;border:2px solid #22c55e;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
+                                                    <small class="text-muted d-block mt-2" style="font-size:11px;"><i class="fas fa-info-circle"></i> Frame Reference: ID card should fill the green frame guide</small>
                                                 </div>
 
                                                 <!-- Back ID Preview -->
                                                 <div id="backPhotoPreviewContainer" class="d-none mb-3">
                                                     <div class="fw-semibold mb-2" style="color:#90caf9;"><i class="fas fa-check-circle"></i> Back of ID Captured</div>
-                                                    <img id="backPhotoPreview" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;border:2px solid #3b82f6;">
+                                                    <img id="backPhotoPreview" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;border:2px solid #3b82f6;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
+                                                    <small class="text-muted d-block mt-2" style="font-size:11px;"><i class="fas fa-info-circle"></i> Frame Reference: ID card should fill the green frame guide</small>
                                                     <small class="text-success d-block mt-2"><i class="fas fa-check-double"></i> Both photos ready to submit</small>
                                                     <button type="button" id="retakePhotosBtn" class="btn btn-warning btn-sm mt-3">
                                                         <i class="fas fa-camera"></i> Retake Photos
@@ -398,6 +406,58 @@ document.addEventListener('DOMContentLoaded', function () {
             photoCameraFeed.style.display = 'block';
             noCameraMsg.style.display = 'none';
 
+            // Draw ID card frame guide
+            const idFrameGuide = document.getElementById('idFrameGuide');
+            const frameGuideLabel = document.getElementById('frameGuideLabel');
+            idFrameGuide.width = photoCameraFeed.offsetWidth;
+            idFrameGuide.height = photoCameraFeed.offsetHeight;
+            idFrameGuide.style.display = 'block';
+            frameGuideLabel.style.display = 'block';
+
+            // Draw the frame guide
+            const ctx = idFrameGuide.getContext('2d');
+            const drawFrameGuide = () => {
+                ctx.clearRect(0, 0, idFrameGuide.width, idFrameGuide.height);
+
+                // US ID card aspect ratio is approximately 3.375:2.125 (85.6mm x 53.98mm)
+                const frameWidth = Math.min(idFrameGuide.width * 0.85, idFrameGuide.width - 20);
+                const frameHeight = frameWidth * 0.631; // 2.125/3.375
+                const frameX = (idFrameGuide.width - frameWidth) / 2;
+                const frameY = (idFrameGuide.height - frameHeight) / 2;
+
+                // Draw semi-transparent overlay (darker outside frame)
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                ctx.fillRect(0, 0, idFrameGuide.width, frameY);
+                ctx.fillRect(0, frameY + frameHeight, idFrameGuide.width, idFrameGuide.height - frameY - frameHeight);
+                ctx.fillRect(0, frameY, frameX, frameHeight);
+                ctx.fillRect(frameX + frameWidth, frameY, idFrameGuide.width - frameX - frameWidth, frameHeight);
+
+                // Draw green frame border
+                ctx.strokeStyle = '#22c55e';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([]);
+                ctx.strokeRect(frameX, frameY, frameWidth, frameHeight);
+
+                // Draw corner markers
+                const cornerSize = 20;
+                ctx.fillStyle = '#22c55e';
+                // Top-left
+                ctx.fillRect(frameX, frameY, cornerSize, 3);
+                ctx.fillRect(frameX, frameY, 3, cornerSize);
+                // Top-right
+                ctx.fillRect(frameX + frameWidth - cornerSize, frameY, cornerSize, 3);
+                ctx.fillRect(frameX + frameWidth - 3, frameY, 3, cornerSize);
+                // Bottom-left
+                ctx.fillRect(frameX, frameY + frameHeight - 3, cornerSize, 3);
+                ctx.fillRect(frameX, frameY + frameHeight - cornerSize, 3, cornerSize);
+                // Bottom-right
+                ctx.fillRect(frameX + frameWidth - cornerSize, frameY + frameHeight - 3, cornerSize, 3);
+                ctx.fillRect(frameX + frameWidth - 3, frameY + frameHeight - cornerSize, 3, cornerSize);
+            };
+
+            drawFrameGuide();
+            window.addEventListener('resize', drawFrameGuide);
+
             startPhotoCameraBtn.classList.add('d-none');
             capturePhotoBtn.classList.remove('d-none');
             stopPhotoCameraBtn.classList.remove('d-none');
@@ -583,6 +643,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         photoCameraFeed.style.display = 'none';
         noCameraMsg.style.display = 'block';
+
+        // Hide frame guide
+        const idFrameGuide = document.getElementById('idFrameGuide');
+        const frameGuideLabel = document.getElementById('frameGuideLabel');
+        idFrameGuide.style.display = 'none';
+        frameGuideLabel.style.display = 'none';
 
         startPhotoCameraBtn.classList.remove('d-none');
         capturePhotoBtn.classList.add('d-none');
