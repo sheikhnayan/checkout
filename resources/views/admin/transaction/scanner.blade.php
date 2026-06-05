@@ -80,7 +80,7 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="border-2 rounded-2 p-2 mb-3" style="width:100%;aspect-ratio:16/9;overflow:hidden;background:#1a1f2e;border-color:#3b82f6;position:relative;">
+                                                <div class="border-2 rounded-2 p-2 mb-3" style="width:100%;aspect-ratio:3/2;overflow:hidden;background:#1a1f2e;border-color:#3b82f6;position:relative;">
                                                     <video id="photoCameraFeed" style="width:100%;height:100%;object-fit:contain;display:none;background:#000;"></video>
                                                     <canvas id="photoCanvas" style="width:100%;height:100%;display:none;"></canvas>
                                                     <!-- ID Card Frame Guide Overlay -->
@@ -104,7 +104,7 @@
                                                 <!-- Front ID Preview -->
                                                 <div id="frontPhotoPreviewContainer" class="d-none mb-3">
                                                     <div class="fw-semibold mb-2" style="color:#86efac;"><i class="fas fa-check-circle"></i> Front of ID Captured</div>
-                                                    <div style="width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:8px;border:2px solid #22c55e;">
+                                                    <div style="width:100%;aspect-ratio:3/2;overflow:hidden;border-radius:8px;border:2px solid #22c55e;">
                                                         <img id="frontPhotoPreview" style="width:100%;height:100%;object-fit:contain;background:#000;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
                                                     </div>
                                                     <small class="text-muted d-block mt-2" style="font-size:11px;"><i class="fas fa-info-circle"></i> Frame Reference: ID card should fill the green frame guide</small>
@@ -113,7 +113,7 @@
                                                 <!-- Back ID Preview -->
                                                 <div id="backPhotoPreviewContainer" class="d-none mb-3">
                                                     <div class="fw-semibold mb-2" style="color:#90caf9;"><i class="fas fa-check-circle"></i> Back of ID Captured</div>
-                                                    <div style="width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:8px;border:2px solid #3b82f6;">
+                                                    <div style="width:100%;aspect-ratio:3/2;overflow:hidden;border-radius:8px;border:2px solid #3b82f6;">
                                                         <img id="backPhotoPreview" style="width:100%;height:100%;object-fit:contain;background:#000;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
                                                     </div>
                                                     <small class="text-muted d-block mt-2" style="font-size:11px;"><i class="fas fa-info-circle"></i> Frame Reference: ID card should fill the green frame guide</small>
