@@ -25,7 +25,7 @@
                             <div class="alert alert-danger">{{ session('error') }}</div>
                         @endif
 
-                        <div class="row g-3">
+                        <div class="row g-3" id="scannerSection">
                             <div class="col-12 col-lg-6">
                                 <div class="border rounded-3 p-2 bg-dark-subtle" style="min-height:280px;">
                                     <div id="reader" style="width:100%;"></div>
@@ -283,6 +283,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         ticketResult.classList.remove('d-none');
+        document.getElementById('scannerSection').classList.add('d-none');
 
         // Auto-scroll to ticket results
         setTimeout(function() {
@@ -292,6 +293,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function resetResult() {
         ticketResult.classList.add('d-none');
+        document.getElementById('scannerSection').classList.remove('d-none');
         ticketDetails.innerHTML = '';
         checkInCode.value = '';
         manualCodeInput.value = '';
