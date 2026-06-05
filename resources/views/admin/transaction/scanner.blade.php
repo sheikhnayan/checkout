@@ -80,8 +80,8 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="border-2 rounded-2 p-2 mb-3" style="min-height:200px;max-height:300px;overflow:hidden;background:#1a1f2e;border-color:#3b82f6;position:relative;">
-                                                    <video id="photoCameraFeed" style="width:100%;height:100%;object-fit:cover;display:none;background:#000;"></video>
+                                                <div class="border-2 rounded-2 p-2 mb-3" style="width:100%;aspect-ratio:16/9;overflow:hidden;background:#1a1f2e;border-color:#3b82f6;position:relative;">
+                                                    <video id="photoCameraFeed" style="width:100%;height:100%;object-fit:contain;display:none;background:#000;"></video>
                                                     <canvas id="photoCanvas" style="width:100%;height:100%;display:none;"></canvas>
                                                     <!-- ID Card Frame Guide Overlay -->
                                                     <canvas id="idFrameGuide" style="width:100%;height:100%;position:absolute;top:0;left:0;display:none;"></canvas>
@@ -104,14 +104,18 @@
                                                 <!-- Front ID Preview -->
                                                 <div id="frontPhotoPreviewContainer" class="d-none mb-3">
                                                     <div class="fw-semibold mb-2" style="color:#86efac;"><i class="fas fa-check-circle"></i> Front of ID Captured</div>
-                                                    <img id="frontPhotoPreview" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;border:2px solid #22c55e;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
+                                                    <div style="width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:8px;border:2px solid #22c55e;">
+                                                        <img id="frontPhotoPreview" style="width:100%;height:100%;object-fit:contain;background:#000;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
+                                                    </div>
                                                     <small class="text-muted d-block mt-2" style="font-size:11px;"><i class="fas fa-info-circle"></i> Frame Reference: ID card should fill the green frame guide</small>
                                                 </div>
 
                                                 <!-- Back ID Preview -->
                                                 <div id="backPhotoPreviewContainer" class="d-none mb-3">
                                                     <div class="fw-semibold mb-2" style="color:#90caf9;"><i class="fas fa-check-circle"></i> Back of ID Captured</div>
-                                                    <img id="backPhotoPreview" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;border:2px solid #3b82f6;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
+                                                    <div style="width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:8px;border:2px solid #3b82f6;">
+                                                        <img id="backPhotoPreview" style="width:100%;height:100%;object-fit:contain;background:#000;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
+                                                    </div>
                                                     <small class="text-muted d-block mt-2" style="font-size:11px;"><i class="fas fa-info-circle"></i> Frame Reference: ID card should fill the green frame guide</small>
                                                     <small class="text-success d-block mt-2"><i class="fas fa-check-double"></i> Both photos ready to submit</small>
                                                     <button type="button" id="retakePhotosBtn" class="btn btn-warning btn-sm mt-3">
