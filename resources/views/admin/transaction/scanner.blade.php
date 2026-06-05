@@ -12,7 +12,7 @@
                                 <h5 class="mb-1">Ticket QR Scanner</h5>
                                 <p class="text-muted mb-0">Scan customer QR tickets and confirm check-in at the door.</p>
                             </div>
-                            <div class="d-flex gap-2">
+                            <div class="d-flex gap-2" id="qrCameraControlsBtn">
                                 <button id="startScannerBtn" class="btn btn-primary">Start Camera</button>
                                 <button id="stopScannerBtn" class="btn btn-outline-danger" disabled>Stop Camera</button>
                             </div>
@@ -289,6 +289,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         ticketResult.classList.remove('d-none');
         document.getElementById('scannerSection').classList.add('d-none');
+        document.getElementById('qrCameraControlsBtn').classList.add('d-none');
 
         // Auto-scroll to ticket results
         setTimeout(function() {
@@ -299,6 +300,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function resetResult() {
         ticketResult.classList.add('d-none');
         document.getElementById('scannerSection').classList.remove('d-none');
+        document.getElementById('qrCameraControlsBtn').classList.remove('d-none');
         ticketDetails.innerHTML = '';
         checkInCode.value = '';
         manualCodeInput.value = '';
