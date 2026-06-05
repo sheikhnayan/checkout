@@ -25,6 +25,7 @@
                             <div class="alert alert-danger">{{ session('error') }}</div>
                         @endif
 
+                        <!-- QR Scanner & Manual Input Section (Hidden when transaction found) -->
                         <div class="row g-3" id="scannerSection">
                             <div class="col-12 col-lg-6">
                                 <div class="border rounded-3 p-2 bg-dark-subtle" style="min-height:280px;">
@@ -42,8 +43,12 @@
                                     </div>
 
                                     <div id="scanStatus" class="small text-muted mb-3">Waiting for scan...</div>
+                                </div>
+                            </div>
+                        </div>
 
-                                    <div id="ticketResult" class="d-none">
+                        <!-- Transaction Results Section (Shown when transaction found) -->
+                        <div id="ticketResult" class="d-none">
                                         <!-- Check-In Photo (if available) -->
                                         <div id="checkinPhotoSection" class="d-none mb-3">
                                             <div class="rounded-3 p-3" style="background:#f0fdf4;border:1px solid #86efac;">
