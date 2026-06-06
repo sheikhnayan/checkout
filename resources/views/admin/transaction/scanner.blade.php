@@ -91,7 +91,7 @@
                                                 </div>
 
                                                 <div class="border-2 rounded-3 p-0 mb-3" style="width:100%;aspect-ratio:16/9;overflow:hidden;background:#000;border-color:#3b82f6;position:relative;display:flex;align-items:center;justify-content:center;">
-                                                    <video id="photoCameraFeed" style="width:100%;height:100%;object-fit:cover;display:none;background:#000;"></video>
+                                                    <video id="photoCameraFeed" style="width:100%;height:100%;object-fit:contain;display:none;background:#000;"></video>
                                                     <canvas id="photoCanvas" style="display:none;"></canvas>
                                                     <!-- ID Frame Guide - GREEN RECTANGLE FRAME -->
                                                     <svg id="idFrameGuide" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:10;display:none;"></svg>
