@@ -432,7 +432,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 } catch (e) {
                     console.log('QR Scanner stop error (non-critical):', e);
                 }
-                startScannerBtn.disabled = true;
+                startScannerBtn.disabled = false; // Re-enable button after stopping QR
             }
 
             // Add small delay to ensure QR camera is fully released
