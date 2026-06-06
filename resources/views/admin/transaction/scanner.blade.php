@@ -779,12 +779,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 proceedBtn.innerHTML = '<i class="fas fa-arrow-right"></i> Proceed to Back';
                 proceedBtn.style.fontSize = '14px';
                 proceedBtn.style.marginBottom = '8px';
-                proceedBtn.addEventListener('click', function() {
+                // Function to switch to back camera
+                function switchToBackCamera() {
                     capturePhotoBtn.classList.remove('btn-outline-warning');
                     capturePhotoBtn.classList.add('btn-success');
                     capturePhotoBtn.style.fontSize = '14px';
                     capturePhotoBtn.textContent = 'Capture Photo';
-                    proceedBtn.remove();
+                    if (proceedBtn && proceedBtn.parentNode) {
+                        proceedBtn.remove();
+                    }
                     capturingFrontPhoto = false;
 
                     // Update indicator
@@ -799,10 +802,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     setTimeout(function() {
                         startPhotoCameraBtn.click();
                     }, 300);
-                });
+                }
+
+                proceedBtn.addEventListener('click', switchToBackCamera);
 
                 // Insert proceed button after capture button
                 capturePhotoBtn.parentNode.insertBefore(proceedBtn, capturePhotoBtn.nextSibling);
+
+                // Auto-trigger back camera after 3 seconds
+                setTimeout(switchToBackCamera, 3000);
             }
         } else {
             // Capture back of ID
@@ -827,11 +835,13 @@ document.addEventListener('DOMContentLoaded', function () {
             setTimeout(function() {
                 stopPhotoCamera();
 
-                // Scroll to front photo (which shows both)
-                const scrollTarget = frontPhotoPreviewContainer;
-                if (scrollTarget) {
-                    window.scrollBy({ top: 300, behavior: 'smooth' });
-                }
+                // Scroll to front photo preview
+                setTimeout(function() {
+                    const element = document.querySelector('#frontPhotoPreviewContainer');
+                    if (element && element.offsetParent !== null) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 100);
             }, 600);
         }
     });
