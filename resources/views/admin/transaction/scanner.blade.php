@@ -425,15 +425,43 @@ document.addEventListener('DOMContentLoaded', function () {
 
     startPhotoCameraBtn.addEventListener('click', async function() {
         try {
-            // Stop QR scanner to prevent interference
+            // Stop QR scanner to prevent interference and release camera
             if (scannerStarted && html5QrCode) {
-                await stopScanner();
+                try {
+                    await stopScanner();
+                } catch (e) {
+                    console.log('QR Scanner stop error (non-critical):', e);
+                }
                 startScannerBtn.disabled = true;
             }
 
-            photoCameraStream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } }
-            });
+            // Add small delay to ensure QR camera is fully released
+            await new Promise(resolve => setTimeout(resolve, 200));
+
+            // Stop any existing photo camera stream
+            if (photoCameraStream) {
+                photoCameraStream.getTracks().forEach(track => track.stop());
+                photoCameraStream = null;
+            }
+
+            // Try to get camera with proper error handling
+            try {
+                photoCameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } }
+                });
+            } catch (cameraError) {
+                console.error('Camera access error:', cameraError);
+                // If environment camera fails, try user camera (front-facing)
+                if (currentFacingMode === 'environment') {
+                    console.log('Environment camera failed, trying user camera...');
+                    currentFacingMode = 'user';
+                    photoCameraStream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }
+                    });
+                } else {
+                    throw cameraError;
+                }
+            }
 
             photoCameraFeed.srcObject = photoCameraStream;
             photoCameraFeed.play();
@@ -520,8 +548,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 cameraSwitchBtn.classList.remove('d-none');
             }
         } catch (error) {
-            alert('Unable to access camera. Check browser permissions.');
-            console.error('Camera error:', error);
+            console.error('ID Camera error:', error);
+            let errorMessage = 'Unable to access camera. Check browser permissions.';
+
+            if (error.name === 'NotAllowedError') {
+                errorMessage = 'Camera permission denied. Please enable camera access in your browser settings.';
+            } else if (error.name === 'NotFoundError') {
+                errorMessage = 'No camera device found. Please check your device has a camera.';
+            } else if (error.name === 'NotReadableError') {
+                errorMessage = 'Camera is already in use by another application. Please close other apps and try again.';
+            } else if (error.name === 'SecurityError') {
+                errorMessage = 'Camera access is blocked by security settings. Please use HTTPS or check your browser security settings.';
+            }
+
+            alert(errorMessage);
+
+            // Re-enable QR scanner if it was stopped
+            startScannerBtn.disabled = false;
         }
     });
 
@@ -711,6 +754,8 @@ document.addEventListener('DOMContentLoaded', function () {
             photoCameraStream = null;
         }
 
+        // Properly clear the video element
+        photoCameraFeed.srcObject = null;
         photoCameraFeed.style.display = 'none';
         noCameraMsg.style.display = 'block';
 
