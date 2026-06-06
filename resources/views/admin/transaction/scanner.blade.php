@@ -90,8 +90,8 @@
                                                     <strong id="currentSideText" style="color:#86efac;">📷 Capturing Front of ID</strong>
                                                 </div>
 
-                                                <div class="border-2 rounded-3 p-0 mb-3" style="width:100%;aspect-ratio:16/9;overflow:hidden;background:#000;border-color:#3b82f6;position:relative;display:flex;align-items:center;justify-content:center;">
-                                                    <video id="photoCameraFeed" style="width:100%;height:100%;object-fit:contain;display:none;background:#000;"></video>
+                                                <div class="border-2 rounded-3 p-0 mb-3" style="width:100%;height:300px;overflow:hidden;background:#000;border-color:#3b82f6;position:relative;">
+                                                    <video id="photoCameraFeed" style="width:100%;height:100%;object-fit:cover;display:none;background:#000;"></video>
                                                     <canvas id="photoCanvas" style="display:none;"></canvas>
                                                     <!-- ID Frame Guide - GREEN RECTANGLE FRAME -->
                                                     <svg id="idFrameGuide" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:10;display:none;"></svg>
@@ -130,8 +130,8 @@
                                                 <!-- Front ID Preview -->
                                                 <div id="frontPhotoPreviewContainer" class="d-none mb-3">
                                                     <div class="fw-semibold mb-2" style="color:#86efac;"><i class="fas fa-check-circle"></i> Front of ID Captured</div>
-                                                    <div style="width:100%;max-height:280px;min-height:200px;overflow:hidden;border-radius:8px;border:2px solid #22c55e;">
-                                                        <img id="frontPhotoPreview" style="width:100%;height:100%;object-fit:contain;background:#000;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
+                                                    <div style="width:100%;height:300px;overflow:auto;border-radius:8px;border:2px solid #22c55e;background:#000;">
+                                                        <img id="frontPhotoPreview" style="width:100%;height:auto;display:block;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
                                                     </div>
                                                     <small class="text-muted d-block mt-2" style="font-size:11px;"><i class="fas fa-info-circle"></i> Frame Reference: ID card should fill the green frame guide</small>
                                                 </div>
@@ -139,8 +139,8 @@
                                                 <!-- Back ID Preview -->
                                                 <div id="backPhotoPreviewContainer" class="d-none mb-3">
                                                     <div class="fw-semibold mb-2" style="color:#90caf9;"><i class="fas fa-check-circle"></i> Back of ID Captured</div>
-                                                    <div style="width:100%;max-height:280px;min-height:200px;overflow:hidden;border-radius:8px;border:2px solid #3b82f6;">
-                                                        <img id="backPhotoPreview" style="width:100%;height:100%;object-fit:contain;background:#000;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
+                                                    <div style="width:100%;height:300px;overflow:auto;border-radius:8px;border:2px solid #3b82f6;background:#000;">
+                                                        <img id="backPhotoPreview" style="width:100%;height:auto;display:block;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
                                                     </div>
                                                     <small class="text-muted d-block mt-2" style="font-size:11px;"><i class="fas fa-info-circle"></i> Frame Reference: ID card should fill the green frame guide</small>
                                                     <small class="text-success d-block mt-2"><i class="fas fa-check-double"></i> Both photos ready to submit</small>
@@ -489,13 +489,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     if (w === 0 || h === 0) return;
 
-                    // Frame dimensions (US ID ratio: 1.588:1) - sized for good visibility
-                    let frameH = Math.min(h * 0.70, 220); // Height is 70% of camera
+                    // Frame dimensions (US ID ratio: 1.588:1) - 65% of available space
+                    let frameH = h * 0.65; // Height is 65% of camera height
                     let frameW = frameH * 1.588; // Width proportional (ID ratio)
 
-                    // Make sure frame fits within camera width
-                    if (frameW > w * 0.85) {
-                        frameW = w * 0.80;
+                    // Make sure frame fits within camera width (leave 7% margin on each side)
+                    if (frameW > w * 0.86) {
+                        frameW = w * 0.86;
                         frameH = frameW / 1.588;
                     }
 
