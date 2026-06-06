@@ -90,8 +90,8 @@
                                                     <strong id="currentSideText" style="color:#86efac;">📷 Capturing Front of ID</strong>
                                                 </div>
 
-                                                <div class="border-2 rounded-3 p-0 mb-3" style="width:100%;max-height:280px;min-height:200px;overflow:hidden;background:#000;border-color:#3b82f6;position:relative;display:flex;align-items:center;justify-content:center;">
-                                                    <video id="photoCameraFeed" style="width:100%;height:100%;object-fit:cover;display:none;background:#000;"></video>
+                                                <div class="border-2 rounded-3 p-0 mb-3" style="width:100%;height:360px;overflow:hidden;background:#000;border-color:#3b82f6;position:relative;display:flex;align-items:center;justify-content:center;">
+                                                    <video id="photoCameraFeed" style="width:100%;height:100%;object-fit:contain;display:none;background:#000;"></video>
                                                     <canvas id="photoCanvas" style="display:none;"></canvas>
                                                     <!-- ID Frame Guide - GREEN RECTANGLE FRAME -->
                                                     <svg id="idFrameGuide" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:10;display:none;"></svg>
@@ -478,9 +478,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (w === 0 || h === 0) return;
 
-                // Frame dimensions (US ID ratio: 85.6mm x 53.98mm ≈ 1.585:1)
-                const frameW = Math.min(w * 0.88, w - 16);
-                const frameH = frameW * 0.631; // Match ID ratio
+                // Frame dimensions (US ID ratio: 85.6mm x 53.98mm ≈ 1.588:1)
+                // Make frame WIDER and shorter to look like actual ID card
+                const frameH = Math.min(h * 0.60, 180); // Height is max 180px
+                const frameW = frameH * 1.588; // Width proportional to height (ID ratio)
                 const frameX = (w - frameW) / 2;
                 const frameY = (h - frameH) / 2;
 
