@@ -130,8 +130,8 @@
                                                 <!-- Front ID Preview -->
                                                 <div id="frontPhotoPreviewContainer" class="d-none mb-3">
                                                     <div class="fw-semibold mb-2" style="color:#86efac;"><i class="fas fa-check-circle"></i> Front of ID Captured</div>
-                                                    <div style="width:100%;height:300px;overflow:auto;border-radius:8px;border:2px solid #22c55e;background:#000;">
-                                                        <img id="frontPhotoPreview" style="width:100%;height:auto;display:block;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
+                                                    <div style="width:100%;max-height:280px;border-radius:8px;border:2px solid #22c55e;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                                                        <img id="frontPhotoPreview" style="max-width:100%;max-height:100%;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
                                                     </div>
                                                     <small class="text-muted d-block mt-2" style="font-size:11px;"><i class="fas fa-info-circle"></i> Frame Reference: ID card should fill the green frame guide</small>
                                                 </div>
@@ -139,8 +139,8 @@
                                                 <!-- Back ID Preview -->
                                                 <div id="backPhotoPreviewContainer" class="d-none mb-3">
                                                     <div class="fw-semibold mb-2" style="color:#90caf9;"><i class="fas fa-check-circle"></i> Back of ID Captured</div>
-                                                    <div style="width:100%;height:300px;overflow:auto;border-radius:8px;border:2px solid #3b82f6;background:#000;">
-                                                        <img id="backPhotoPreview" style="width:100%;height:auto;display:block;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
+                                                    <div style="width:100%;max-height:280px;border-radius:8px;border:2px solid #3b82f6;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                                                        <img id="backPhotoPreview" style="max-width:100%;max-height:100%;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
                                                     </div>
                                                     <small class="text-muted d-block mt-2" style="font-size:11px;"><i class="fas fa-info-circle"></i> Frame Reference: ID card should fill the green frame guide</small>
                                                     <small class="text-success d-block mt-2"><i class="fas fa-check-double"></i> Both photos ready to submit</small>
@@ -667,8 +667,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Helper function to crop image to frame area ONLY
     function cropImageToFrame(sourceCanvas) {
-        // Return FULL image - frame is just visual guide for positioning
-        return sourceCanvas.toDataURL('image/jpeg', 0.93);
+        const container = photoCameraFeed.parentElement;
+        const containerW = container.offsetWidth;
+        const containerH = container.offsetHeight;
+
+        // Calculate frame dimensions (same as SVG frame drawing)
+        const frameH = containerH * 0.65; // 65% of container height
+        const frameW = frameH * 1.588; // ID ratio
+        const frameX = (containerW - frameW) / 2;
+        const frameY = (containerH - frameH) / 2;
+
+        // Scale to canvas dimensions
+        const scaleX = sourceCanvas.width / containerW;
+        const scaleY = sourceCanvas.height / containerH;
+
+        const cropX = Math.round(frameX * scaleX);
+        const cropY = Math.round(frameY * scaleY);
+        const cropW = Math.round(frameW * scaleX);
+        const cropH = Math.round(frameH * scaleY);
+
+        // Create cropped canvas
+        const cropCanvas = document.createElement('canvas');
+        cropCanvas.width = cropW;
+        cropCanvas.height = cropH;
+
+        const ctx = cropCanvas.getContext('2d');
+        ctx.drawImage(sourceCanvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+
+        return cropCanvas.toDataURL('image/jpeg', 0.95);
     }
 
     capturePhotoBtn.addEventListener('click', async function() {
