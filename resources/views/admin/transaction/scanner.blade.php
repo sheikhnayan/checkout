@@ -763,55 +763,37 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('frontPhotoIndicator').style.opacity = '1';
             document.getElementById('frontPhotoIndicator').style.borderColor = '#86efac';
 
-            // Show subtle retake option and proceed button
-            capturePhotoBtn.textContent = '✕ Retake';
-            capturePhotoBtn.classList.remove('btn-success');
-            capturePhotoBtn.classList.add('btn-outline-warning');
-            capturePhotoBtn.style.fontSize = '12px';
+            // Hide capture button while preparing for back camera
+            capturePhotoBtn.classList.add('d-none');
 
-            // Add "Proceed to Back Camera" button if it doesn't exist
-            let proceedBtn = document.getElementById('proceedToBackBtn');
-            if (!proceedBtn) {
-                proceedBtn = document.createElement('button');
-                proceedBtn.type = 'button';
-                proceedBtn.id = 'proceedToBackBtn';
-                proceedBtn.className = 'btn btn-success';
-                proceedBtn.innerHTML = '<i class="fas fa-arrow-right"></i> Proceed to Back';
-                proceedBtn.style.fontSize = '14px';
-                proceedBtn.style.marginBottom = '8px';
-                // Function to switch to back camera
-                function switchToBackCamera() {
-                    capturePhotoBtn.classList.remove('btn-outline-warning');
-                    capturePhotoBtn.classList.add('btn-success');
-                    capturePhotoBtn.style.fontSize = '14px';
-                    capturePhotoBtn.textContent = 'Capture Photo';
-                    if (proceedBtn && proceedBtn.parentNode) {
-                        proceedBtn.remove();
-                    }
-                    capturingFrontPhoto = false;
+            // Show notice to prepare for back photo
+            const backPhotoNotice = document.createElement('div');
+            backPhotoNotice.id = 'backPhotoNotice';
+            backPhotoNotice.innerHTML = '<div style="background:#3b82f6;color:#fff;padding:16px;border-radius:8px;margin-bottom:16px;text-align:center;font-size:16px;font-weight:600;"><i class="fas fa-arrow-right"></i> <strong>Get Ready!</strong> Prepare to photograph the back of your ID card...</div>';
+            capturePhotoBtn.parentNode.insertBefore(backPhotoNotice, capturePhotoBtn);
 
-                    // Update indicator
-                    document.getElementById('backPhotoIndicator').style.opacity = '1';
-                    document.getElementById('currentSideLabel').style.display = 'block';
-                    document.getElementById('currentSideText').textContent = '📷 Capturing Back of ID - Please flip the card';
-                    document.getElementById('currentSideText').style.color = '#90caf9';
-
-                    // Stop current camera and start back camera
-                    stopPhotoCameraBtn.click();
-
-                    setTimeout(function() {
-                        startPhotoCameraBtn.click();
-                    }, 300);
+            // Auto-switch to back camera after 3 seconds
+            setTimeout(function() {
+                capturePhotoBtn.classList.remove('d-none');
+                if (backPhotoNotice && backPhotoNotice.parentNode) {
+                    backPhotoNotice.remove();
                 }
 
-                proceedBtn.addEventListener('click', switchToBackCamera);
+                capturingFrontPhoto = false;
 
-                // Insert proceed button after capture button
-                capturePhotoBtn.parentNode.insertBefore(proceedBtn, capturePhotoBtn.nextSibling);
+                // Update indicator
+                document.getElementById('backPhotoIndicator').style.opacity = '1';
+                document.getElementById('currentSideLabel').style.display = 'block';
+                document.getElementById('currentSideText').textContent = '📷 Capturing Back of ID - Please flip the card';
+                document.getElementById('currentSideText').style.color = '#90caf9';
 
-                // Auto-trigger back camera after 3 seconds
-                setTimeout(switchToBackCamera, 3000);
-            }
+                // Stop current camera and start back camera
+                stopPhotoCameraBtn.click();
+
+                setTimeout(function() {
+                    startPhotoCameraBtn.click();
+                }, 300);
+            }, 3000);
         } else {
             // Capture back of ID
             backPhotoData.value = croppedImageData;
@@ -831,16 +813,13 @@ document.addEventListener('DOMContentLoaded', function () {
             capturePhotoBtn.classList.add('btn-warning');
             stopPhotoCameraBtn.classList.add('d-none');
 
-            // Stop camera and scroll to photos
+            // Stop camera and scroll to bottom
             setTimeout(function() {
                 stopPhotoCamera();
 
-                // Scroll to front photo preview
+                // Scroll to bottom of page to show all photos
                 setTimeout(function() {
-                    const element = document.querySelector('#frontPhotoPreviewContainer');
-                    if (element && element.offsetParent !== null) {
-                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
+                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
                 }, 100);
             }, 600);
         }
