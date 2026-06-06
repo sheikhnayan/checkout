@@ -799,6 +799,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Insert proceed button after capture button
                 capturePhotoBtn.parentNode.insertBefore(proceedBtn, capturePhotoBtn.nextSibling);
+            }
         } else {
             // Capture back of ID
             backPhotoData.value = croppedImageData;

@@ -55,7 +55,8 @@
       "Read(//c/wamp64/www/checkout/resources/views/affiliate/**)",
       "Read(//c/wamp64/www/checkout/database/migrations/**)",
       "Bash(cat)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(node -c \"c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\admin\\\\transaction\\\\scanner.blade.php\")"
     ],
     "additionalDirectories": [
       "c:\\wamp64\\www\\checkout\\bootstrap\\cache",
