@@ -90,8 +90,8 @@
                                                     <strong id="currentSideText" style="color:#86efac;">📷 Capturing Front of ID</strong>
                                                 </div>
 
-                                                <div class="border-2 rounded-3 p-0 mb-3" style="width:100%;height:360px;overflow:hidden;background:#000;border-color:#3b82f6;position:relative;display:flex;align-items:center;justify-content:center;">
-                                                    <video id="photoCameraFeed" style="width:100%;height:100%;object-fit:contain;display:none;background:#000;"></video>
+                                                <div class="border-2 rounded-3 p-0 mb-3" style="width:100%;aspect-ratio:16/9;overflow:hidden;background:#000;border-color:#3b82f6;position:relative;display:flex;align-items:center;justify-content:center;">
+                                                    <video id="photoCameraFeed" style="width:100%;height:100%;object-fit:cover;display:none;background:#000;"></video>
                                                     <canvas id="photoCanvas" style="display:none;"></canvas>
                                                     <!-- ID Frame Guide - GREEN RECTANGLE FRAME -->
                                                     <svg id="idFrameGuide" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:10;display:none;"></svg>
@@ -478,10 +478,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (w === 0 || h === 0) return;
 
-                // Frame dimensions (US ID ratio: 85.6mm x 53.98mm ≈ 1.588:1)
-                // Make frame WIDER and shorter to look like actual ID card
-                const frameH = Math.min(h * 0.60, 180); // Height is max 180px
-                const frameW = frameH * 1.588; // Width proportional to height (ID ratio)
+                // Frame dimensions (US ID ratio: 1.588:1) - sized for camera view
+                const frameH = Math.min(h * 0.50, 160); // Height is 50% of camera (max 160px)
+                const frameW = frameH * 1.588; // Width proportional (ID ratio)
+
+                // Make sure frame fits within camera width
+                if (frameW > w * 0.95) {
+                    const frameW2 = w * 0.90;
+                    frameH = frameW2 / 1.588;
+                }
+
                 const frameX = (w - frameW) / 2;
                 const frameY = (h - frameH) / 2;
 
@@ -743,31 +749,46 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('frontPhotoIndicator').style.opacity = '1';
             document.getElementById('frontPhotoIndicator').style.borderColor = '#86efac';
 
-            // Auto-switch to back camera after 800ms
-            setTimeout(function() {
-                capturingFrontPhoto = false;
-
-                // Update indicator for back camera
-                document.getElementById('backPhotoIndicator').style.opacity = '1';
-                document.getElementById('currentSideLabel').style.display = 'block';
-                document.getElementById('currentSideText').textContent = '📷 Capturing Back of ID - Please flip the card';
-                document.getElementById('currentSideText').style.color = '#90caf9';
-
-                // Stop current camera and start back camera
-                stopPhotoCameraBtn.click();
-
-                setTimeout(function() {
-                    startPhotoCameraBtn.click();
-                    capturePhotoBtn.textContent = 'Capture Photo';
-                    capturePhotoBtn.classList.remove('btn-warning');
-                    capturePhotoBtn.classList.add('btn-success');
-                }, 300);
-            }, 800);
-
-            // Show delete button
-            capturePhotoBtn.textContent = '✕ Delete Front Photo';
+            // Show subtle retake option and proceed button
+            capturePhotoBtn.textContent = '✕ Retake';
             capturePhotoBtn.classList.remove('btn-success');
-            capturePhotoBtn.classList.add('btn-warning');
+            capturePhotoBtn.classList.add('btn-outline-warning');
+            capturePhotoBtn.style.fontSize = '12px';
+
+            // Add "Proceed to Back Camera" button if it doesn't exist
+            let proceedBtn = document.getElementById('proceedToBackBtn');
+            if (!proceedBtn) {
+                proceedBtn = document.createElement('button');
+                proceedBtn.type = 'button';
+                proceedBtn.id = 'proceedToBackBtn';
+                proceedBtn.className = 'btn btn-success';
+                proceedBtn.innerHTML = '<i class="fas fa-arrow-right"></i> Proceed to Back';
+                proceedBtn.style.fontSize = '14px';
+                proceedBtn.style.marginBottom = '8px';
+                proceedBtn.addEventListener('click', function() {
+                    capturePhotoBtn.classList.remove('btn-outline-warning');
+                    capturePhotoBtn.classList.add('btn-success');
+                    capturePhotoBtn.style.fontSize = '14px';
+                    capturePhotoBtn.textContent = 'Capture Photo';
+                    proceedBtn.remove();
+                    capturingFrontPhoto = false;
+
+                    // Update indicator
+                    document.getElementById('backPhotoIndicator').style.opacity = '1';
+                    document.getElementById('currentSideLabel').style.display = 'block';
+                    document.getElementById('currentSideText').textContent = '📷 Capturing Back of ID - Please flip the card';
+                    document.getElementById('currentSideText').style.color = '#90caf9';
+
+                    // Stop current camera and start back camera
+                    stopPhotoCameraBtn.click();
+
+                    setTimeout(function() {
+                        startPhotoCameraBtn.click();
+                    }, 300);
+                });
+
+                // Insert proceed button after capture button
+                capturePhotoBtn.parentNode.insertBefore(proceedBtn, capturePhotoBtn.nextSibling);
         } else {
             // Capture back of ID
             backPhotoData.value = croppedImageData;
