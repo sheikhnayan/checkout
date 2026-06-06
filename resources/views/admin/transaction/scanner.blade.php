@@ -73,32 +73,53 @@
                                             <p class="mb-3" style="font-size:14px;line-height:1.6;">After scanning the package QR code, take a photo of the guest's valid ID for identity verification and fraud prevention. ID images are securely uploaded to an encrypted server and are never stored locally on the scanning device.</p>
 
                                             <div id="photoCaptureSection" style="margin-top:15px;">
-                                                <!-- Photo Progress Indicator -->
+                                                <!-- Photo Progress Indicator with Auto-Switch Message -->
                                                 <div class="d-flex gap-2 mb-3">
-                                                    <div class="flex-grow-1 p-2 rounded-2" style="background:#1a3a1a;border:2px solid #22c55e;">
+                                                    <div class="flex-grow-1 p-3 rounded-2" id="frontPhotoIndicator" style="background:#1a3a1a;border:2px solid #22c55e;transition:all 0.3s ease;">
                                                         <small style="color:#86efac;"><strong><i class="fas fa-id-card"></i> Front of ID</strong></small>
                                                         <div id="frontPhotoStatus" style="color:#60a5fa;font-size:12px;margin-top:4px;">Pending</div>
                                                     </div>
-                                                    <div class="flex-grow-1 p-2 rounded-2" style="background:#1a2a3a;border:2px solid #64b5f6;">
+                                                    <div class="flex-grow-1 p-3 rounded-2" id="backPhotoIndicator" style="background:#1a2a3a;border:2px solid #64b5f6;transition:all 0.3s ease;opacity:0.5;">
                                                         <small style="color:#90caf9;"><strong><i class="fas fa-id-card"></i> Back of ID</strong></small>
                                                         <div id="backPhotoStatus" style="color:#60a5fa;font-size:12px;margin-top:4px;">Pending</div>
                                                     </div>
                                                 </div>
 
-                                                <div class="border-2 rounded-2 p-2 mb-3" style="width:100%;max-height:280px;min-height:200px;overflow:hidden;background:#1a1f2e;border-color:#3b82f6;position:relative;">
+                                                <!-- Current Side Label (Auto-Switch Indicator) -->
+                                                <div id="currentSideLabel" style="text-align:center;margin-bottom:12px;padding:8px;background:rgba(34,197,94,0.15);border-radius:8px;border:1px solid #22c55e;display:none;">
+                                                    <strong id="currentSideText" style="color:#86efac;">📷 Capturing Front of ID</strong>
+                                                </div>
+
+                                                <div class="border-2 rounded-3 p-0 mb-3" style="width:100%;max-height:280px;min-height:200px;overflow:hidden;background:#000;border-color:#3b82f6;position:relative;">
                                                     <video id="photoCameraFeed" style="width:100%;height:100%;object-fit:contain;display:none;background:#000;"></video>
                                                     <canvas id="photoCanvas" style="width:100%;height:100%;display:none;"></canvas>
-                                                    <!-- ID Card Frame Guide Overlay -->
-                                                    <canvas id="idFrameGuide" style="width:100%;height:100%;position:absolute;top:0;left:0;display:none;"></canvas>
+                                                    <!-- ID Frame Overlay (cropping guide) -->
+                                                    <canvas id="idFrameGuide" style="width:100%;height:100%;position:absolute;top:0;left:0;display:none;z-index:10;"></canvas>
+                                                    <!-- Photo Taken Flash -->
+                                                    <div id="photoFlash" style="position:absolute;top:0;left:0;width:100%;height:100%;background:#fff;z-index:20;display:none;opacity:0.7;"></div>
+                                                    <!-- Photo Captured Checkmark (Large & Visible) -->
+                                                    <div id="photoCapturedCheck" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:60px;display:none;z-index:15;animation:scaleIn 0.4s ease-out;">
+                                                        <i class="fas fa-check-circle" style="color:#22c55e;text-shadow:0 0 10px rgba(34,197,94,0.8);"></i>
+                                                    </div>
                                                     <div id="noCameraMsg" class="text-center p-5" style="color:#60a5fa;">
                                                         <i class="fas fa-camera fa-3x mb-3 d-block opacity-75"></i>
                                                         <div style="font-size:14px;">Camera will appear here</div>
                                                     </div>
-                                                    <!-- Frame Guide Instructions -->
-                                                    <div id="frameGuideLabel" style="position:absolute;top:8px;left:8px;background:rgba(34,197,94,0.9);color:#fff;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;display:none;">
-                                                        <i class="fas fa-info-circle"></i> Align US ID Card within frame
-                                                    </div>
                                                 </div>
+
+                                                <style>
+                                                    @keyframes scaleIn {
+                                                        from { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+                                                        to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+                                                    }
+                                                    @keyframes flash {
+                                                        from { opacity: 0.7; }
+                                                        to { opacity: 0; }
+                                                    }
+                                                    #photoFlash.flashing {
+                                                        animation: flash 0.3s ease-out;
+                                                    }
+                                                </style>
 
                                                 <div class="btn-group w-100 mb-3 gap-2" role="group" style="display: flex; flex-wrap: wrap;">
                                                     <button type="button" id="startPhotoCameraBtn" class="btn btn-primary" style="flex:1;min-width:150px;">Start Camera</button>
@@ -429,6 +450,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Draw the frame guide
             const ctx = idFrameGuide.getContext('2d');
+            ctx.setLineDash([]);
             const drawFrameGuide = () => {
                 ctx.clearRect(0, 0, idFrameGuide.width, idFrameGuide.height);
 
@@ -439,33 +461,51 @@ document.addEventListener('DOMContentLoaded', function () {
                 const frameY = (idFrameGuide.height - frameHeight) / 2;
 
                 // Draw semi-transparent overlay (darker outside frame)
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
                 ctx.fillRect(0, 0, idFrameGuide.width, frameY);
                 ctx.fillRect(0, frameY + frameHeight, idFrameGuide.width, idFrameGuide.height - frameY - frameHeight);
                 ctx.fillRect(0, frameY, frameX, frameHeight);
                 ctx.fillRect(frameX + frameWidth, frameY, idFrameGuide.width - frameX - frameWidth, frameHeight);
 
-                // Draw green frame border
+                // Draw rounded ID card style border with proper corners
                 ctx.strokeStyle = '#22c55e';
-                ctx.lineWidth = 3;
-                ctx.setLineDash([]);
-                ctx.strokeRect(frameX, frameY, frameWidth, frameHeight);
+                ctx.lineWidth = 2;
+                const radius = 8;
 
-                // Draw corner markers
-                const cornerSize = 20;
+                // Draw rounded rectangle
+                ctx.beginPath();
+                ctx.moveTo(frameX + radius, frameY);
+                ctx.lineTo(frameX + frameWidth - radius, frameY);
+                ctx.quadraticCurveTo(frameX + frameWidth, frameY, frameX + frameWidth, frameY + radius);
+                ctx.lineTo(frameX + frameWidth, frameY + frameHeight - radius);
+                ctx.quadraticCurveTo(frameX + frameWidth, frameY + frameHeight, frameX + frameWidth - radius, frameY + frameHeight);
+                ctx.lineTo(frameX + radius, frameY + frameHeight);
+                ctx.quadraticCurveTo(frameX, frameY + frameHeight, frameX, frameY + frameHeight - radius);
+                ctx.lineTo(frameX, frameY + radius);
+                ctx.quadraticCurveTo(frameX, frameY, frameX + radius, frameY);
+                ctx.closePath();
+                ctx.stroke();
+
+                // Draw corner markers (inside the frame, not extending out)
                 ctx.fillStyle = '#22c55e';
-                // Top-left
-                ctx.fillRect(frameX, frameY, cornerSize, 3);
-                ctx.fillRect(frameX, frameY, 3, cornerSize);
-                // Top-right
-                ctx.fillRect(frameX + frameWidth - cornerSize, frameY, cornerSize, 3);
-                ctx.fillRect(frameX + frameWidth - 3, frameY, 3, cornerSize);
-                // Bottom-left
-                ctx.fillRect(frameX, frameY + frameHeight - 3, cornerSize, 3);
-                ctx.fillRect(frameX, frameY + frameHeight - cornerSize, 3, cornerSize);
-                // Bottom-right
-                ctx.fillRect(frameX + frameWidth - cornerSize, frameY + frameHeight - 3, cornerSize, 3);
-                ctx.fillRect(frameX + frameWidth - 3, frameY + frameHeight - cornerSize, 3, cornerSize);
+                const cornerSize = 15;
+                const cornerThickness = 2;
+
+                // Top-left corner
+                ctx.fillRect(frameX + 3, frameY + 3, cornerSize, cornerThickness);
+                ctx.fillRect(frameX + 3, frameY + 3, cornerThickness, cornerSize);
+
+                // Top-right corner
+                ctx.fillRect(frameX + frameWidth - cornerSize - 3, frameY + 3, cornerSize, cornerThickness);
+                ctx.fillRect(frameX + frameWidth - 3 - cornerThickness, frameY + 3, cornerThickness, cornerSize);
+
+                // Bottom-left corner
+                ctx.fillRect(frameX + 3, frameY + frameHeight - 3 - cornerThickness, cornerSize, cornerThickness);
+                ctx.fillRect(frameX + 3, frameY + frameHeight - cornerSize - 3, cornerThickness, cornerSize);
+
+                // Bottom-right corner
+                ctx.fillRect(frameX + frameWidth - cornerSize - 3, frameY + frameHeight - 3 - cornerThickness, cornerSize, cornerThickness);
+                ctx.fillRect(frameX + frameWidth - 3 - cornerThickness, frameY + frameHeight - cornerSize - 3, cornerThickness, cornerSize);
             };
 
             drawFrameGuide();
@@ -525,7 +565,29 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    capturePhotoBtn.addEventListener('click', function() {
+    // Helper function to crop image to frame area
+    function cropImageToFrame(sourceCanvas) {
+        const sourceCtx = sourceCanvas.getContext('2d');
+        const imgData = sourceCtx.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height);
+
+        // Calculate frame dimensions based on video/canvas size
+        const frameWidth = Math.min(sourceCanvas.width * 0.85, sourceCanvas.width - 20);
+        const frameHeight = frameWidth * 0.631; // US ID aspect ratio
+        const frameX = (sourceCanvas.width - frameWidth) / 2;
+        const frameY = (sourceCanvas.height - frameHeight) / 2;
+
+        // Create crop canvas with frame dimensions
+        const cropCanvas = document.createElement('canvas');
+        cropCanvas.width = Math.round(frameWidth);
+        cropCanvas.height = Math.round(frameHeight);
+        const cropCtx = cropCanvas.getContext('2d');
+
+        // Draw cropped portion
+        cropCtx.drawImage(sourceCanvas, frameX, frameY, frameWidth, frameHeight, 0, 0, frameWidth, frameHeight);
+        return cropCanvas.toDataURL('image/jpeg', 0.95);
+    }
+
+    capturePhotoBtn.addEventListener('click', async function() {
         // If already captured, check if this is a delete action
         if ((capturingFrontPhoto && frontPhotoCaptured) || (!capturingFrontPhoto && backPhotoCaptured)) {
             // Delete photo
@@ -536,16 +598,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 frontPhotoCaptured = false;
                 frontPhotoStatus.textContent = 'Pending';
                 frontPhotoStatus.style.color = '#60a5fa';
-
-                capturePhotoBtn.textContent = 'Capture Photo';
-                capturePhotoBtn.classList.remove('btn-warning');
-                capturePhotoBtn.classList.add('btn-success');
-                capturePhotoBtn.style.width = '';
-                capturePhotoBtn.style.marginBottom = '';
-
-                // Remove proceed button if it exists
-                const proceedBtn = document.getElementById('proceedToBackBtn');
-                if (proceedBtn) proceedBtn.remove();
+                document.getElementById('frontPhotoIndicator').style.opacity = '0.5';
             } else {
                 // Delete back photo
                 backPhotoData.value = '';
@@ -553,14 +606,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 backPhotoCaptured = false;
                 backPhotoStatus.textContent = 'Pending';
                 backPhotoStatus.style.color = '#60a5fa';
-
-                capturePhotoBtn.textContent = 'Capture Photo';
-                capturePhotoBtn.classList.remove('btn-warning');
-                capturePhotoBtn.classList.add('btn-success');
-                capturePhotoBtn.style.width = '';
-                capturePhotoBtn.style.marginBottom = '';
-                stopPhotoCameraBtn.classList.remove('d-none');
+                document.getElementById('backPhotoIndicator').style.opacity = '0.5';
             }
+
+            capturePhotoBtn.textContent = 'Capture Photo';
+            capturePhotoBtn.classList.remove('btn-warning');
+            capturePhotoBtn.classList.add('btn-success');
             return;
         }
 
@@ -577,74 +628,80 @@ document.addEventListener('DOMContentLoaded', function () {
         // Draw current frame from video to canvas
         photoCtx.drawImage(photoCameraFeed, 0, 0, photoCanvas.width, photoCanvas.height);
 
-        // Get image data as base64
-        const imageData = photoCanvas.toDataURL('image/jpeg', 0.9);
+        // Show flash effect
+        const photoFlash = document.getElementById('photoFlash');
+        photoFlash.style.display = 'block';
+        photoFlash.classList.add('flashing');
+        setTimeout(() => { photoFlash.style.display = 'none'; photoFlash.classList.remove('flashing'); }, 300);
 
-        // Flash effect
-        photoCanvas.style.display = 'block';
-        photoCanvas.getContext('2d').drawImage(photoCameraFeed, 0, 0, photoCanvas.width, photoCanvas.height);
-        setTimeout(function() {
-            photoCanvas.style.display = 'none';
-        }, 150);
+        // Show checkmark with animation
+        const photoCapturedCheck = document.getElementById('photoCapturedCheck');
+        photoCapturedCheck.style.display = 'block';
+        setTimeout(() => { photoCapturedCheck.style.display = 'none'; }, 600);
+
+        // Crop image to frame area
+        const croppedImageData = cropImageToFrame(photoCanvas);
 
         if (capturingFrontPhoto) {
             // Capture front of ID
-            frontPhotoData.value = imageData;
-            frontPhotoPreview.src = imageData;
+            frontPhotoData.value = croppedImageData;
+            frontPhotoPreview.src = croppedImageData;
             frontPhotoPreviewContainer.classList.remove('d-none');
             frontPhotoCaptured = true;
             frontPhotoStatus.textContent = '✓ Captured';
             frontPhotoStatus.style.color = '#86efac';
+            document.getElementById('frontPhotoIndicator').style.opacity = '1';
+            document.getElementById('frontPhotoIndicator').style.borderColor = '#86efac';
+
+            // Auto-switch to back camera after 1 second
+            setTimeout(async function() {
+                if (!backPhotoCaptured) {
+                    capturingFrontPhoto = false;
+                    currentFacingMode = 'environment';
+
+                    // Update indicator
+                    document.getElementById('backPhotoIndicator').style.opacity = '1';
+                    document.getElementById('currentSideLabel').style.display = 'block';
+                    document.getElementById('currentSideText').textContent = '📷 Capturing Back of ID - Please flip the card';
+                    document.getElementById('currentSideText').style.color = '#90caf9';
+
+                    stopPhotoCameraBtn.click();
+
+                    // Small delay before starting back camera
+                    setTimeout(() => {
+                        startPhotoCameraBtn.click();
+                        capturePhotoBtn.textContent = 'Capture Photo';
+                        capturePhotoBtn.classList.remove('btn-warning');
+                        capturePhotoBtn.classList.add('btn-success');
+                    }, 500);
+                } else {
+                    capturePhotoBtn.textContent = '✓ Both photos captured';
+                    capturePhotoBtn.disabled = true;
+                }
+            }, 1200);
 
             // Show delete button
             capturePhotoBtn.textContent = '✕ Delete Front Photo';
             capturePhotoBtn.classList.remove('btn-success');
             capturePhotoBtn.classList.add('btn-warning');
-            capturePhotoBtn.style.marginBottom = '8px';
-            capturePhotoBtn.style.width = '100%';
-
-            // Add a new button to proceed to back photo
-            const proceedToBackBtn = document.createElement('button');
-            proceedToBackBtn.type = 'button';
-            proceedToBackBtn.id = 'proceedToBackBtn';
-            proceedToBackBtn.className = 'btn btn-success';
-            proceedToBackBtn.innerHTML = '<i class="fas fa-check-circle"></i> Good ✓ - Capture Back of ID →';
-            proceedToBackBtn.style.width = '100%';
-            proceedToBackBtn.style.marginBottom = '8px';
-            proceedToBackBtn.addEventListener('click', function() {
-                proceedToBackBtn.remove();
-                capturePhotoText.textContent = 'Capture Back of ID';
-                capturingFrontPhoto = false;
-                capturePhotoBtn.textContent = 'Capture Photo';
-                capturePhotoBtn.classList.remove('btn-warning');
-                capturePhotoBtn.classList.add('btn-success');
-                capturePhotoBtn.style.width = '';
-                capturePhotoBtn.style.marginBottom = '';
-            });
-
-            // Insert the new button after capture button
-            capturePhotoBtn.parentNode.insertBefore(proceedToBackBtn, capturePhotoBtn.nextSibling);
         } else {
             // Capture back of ID
-            backPhotoData.value = imageData;
-            backPhotoPreview.src = imageData;
+            backPhotoData.value = croppedImageData;
+            backPhotoPreview.src = croppedImageData;
             backPhotoPreviewContainer.classList.remove('d-none');
             backPhotoCaptured = true;
             backPhotoStatus.textContent = '✓ Captured';
             backPhotoStatus.style.color = '#90caf9';
+            document.getElementById('backPhotoIndicator').style.borderColor = '#90caf9';
+
+            // Hide current side label
+            document.getElementById('currentSideLabel').style.display = 'none';
 
             // All photos captured
-            capturePhotoText.textContent = 'Both photos captured!';
             capturePhotoBtn.textContent = '✕ Delete Back Photo';
             capturePhotoBtn.classList.remove('btn-success');
             capturePhotoBtn.classList.add('btn-warning');
-            capturePhotoBtn.style.width = '100%';
-            capturePhotoBtn.style.marginBottom = '8px';
             stopPhotoCameraBtn.classList.add('d-none');
-
-            // Remove proceed button if it exists
-            const proceedBtn = document.getElementById('proceedToBackBtn');
-            if (proceedBtn) proceedBtn.remove();
         }
     });
 
@@ -691,6 +748,7 @@ document.addEventListener('DOMContentLoaded', function () {
         frontPhotoCaptured = false;
         backPhotoCaptured = false;
         capturingFrontPhoto = true;
+        currentFacingMode = 'environment';
 
         // Clear photo data and previews
         frontPhotoData.value = '';
@@ -703,16 +761,19 @@ document.addEventListener('DOMContentLoaded', function () {
         frontPhotoStatus.style.color = '#60a5fa';
         backPhotoStatus.textContent = 'Pending';
         backPhotoStatus.style.color = '#60a5fa';
+        document.getElementById('frontPhotoIndicator').style.opacity = '0.5';
+        document.getElementById('frontPhotoIndicator').style.borderColor = '#22c55e';
+        document.getElementById('backPhotoIndicator').style.opacity = '0.5';
+        document.getElementById('backPhotoIndicator').style.borderColor = '#64b5f6';
+
+        // Hide current side label
+        document.getElementById('currentSideLabel').style.display = 'none';
 
         // Reset capture button text and style
-        capturePhotoText.textContent = 'Capture Front of ID';
         capturePhotoBtn.textContent = 'Capture Photo';
         capturePhotoBtn.classList.remove('btn-warning');
         capturePhotoBtn.classList.add('btn-success');
-
-        // Remove proceed button if it exists
-        const proceedBtn = document.getElementById('proceedToBackBtn');
-        if (proceedBtn) proceedBtn.remove();
+        capturePhotoBtn.disabled = false;
 
         // Show photo capture section
         photoCaptureSection.style.display = '';
