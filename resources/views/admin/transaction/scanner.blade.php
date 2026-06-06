@@ -659,33 +659,46 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (!photoCameraStream || !photoCameraFeed.srcObject) {
-            alert('Camera is not ready.');
+            alert('Camera is not ready. Please wait a moment and try again.');
             return;
         }
 
-        // Get canvas context
-        photoCtx = photoCanvas.getContext('2d');
-        photoCanvas.width = photoCameraFeed.videoWidth;
-        photoCanvas.height = photoCameraFeed.videoHeight;
+        // Check if video has metadata loaded
+        if (!photoCameraFeed.videoWidth || !photoCameraFeed.videoHeight) {
+            alert('Camera video is still loading. Please wait a moment and try again.');
+            return;
+        }
 
-        // Draw current frame from video to canvas
-        photoCtx.drawImage(photoCameraFeed, 0, 0, photoCanvas.width, photoCanvas.height);
+        try {
+            // Get canvas context
+            photoCtx = photoCanvas.getContext('2d');
+            photoCanvas.width = photoCameraFeed.videoWidth;
+            photoCanvas.height = photoCameraFeed.videoHeight;
 
-        // Show flash effect
-        const photoFlash = document.getElementById('photoFlash');
-        photoFlash.style.display = 'block';
-        photoFlash.classList.add('flashing');
-        setTimeout(() => { photoFlash.style.display = 'none'; photoFlash.classList.remove('flashing'); }, 300);
+            // Draw current frame from video to canvas
+            photoCtx.drawImage(photoCameraFeed, 0, 0, photoCanvas.width, photoCanvas.height);
+        } catch (canvasError) {
+            console.error('Canvas drawing error:', canvasError);
+            alert('Error capturing photo. Please try again.');
+            return;
+        }
 
-        // Show checkmark with animation
-        const photoCapturedCheck = document.getElementById('photoCapturedCheck');
-        photoCapturedCheck.style.display = 'block';
-        setTimeout(() => { photoCapturedCheck.style.display = 'none'; }, 600);
+        try {
+            // Show flash effect
+            const photoFlash = document.getElementById('photoFlash');
+            photoFlash.style.display = 'block';
+            photoFlash.classList.add('flashing');
+            setTimeout(() => { photoFlash.style.display = 'none'; photoFlash.classList.remove('flashing'); }, 300);
 
-        // Crop image to frame area
-        const croppedImageData = cropImageToFrame(photoCanvas);
+            // Show checkmark with animation
+            const photoCapturedCheck = document.getElementById('photoCapturedCheck');
+            photoCapturedCheck.style.display = 'block';
+            setTimeout(() => { photoCapturedCheck.style.display = 'none'; }, 600);
 
-        if (capturingFrontPhoto) {
+            // Crop image to frame area
+            const croppedImageData = cropImageToFrame(photoCanvas);
+
+            if (capturingFrontPhoto) {
             // Capture front of ID
             frontPhotoData.value = croppedImageData;
             frontPhotoPreview.src = croppedImageData;
@@ -745,6 +758,10 @@ document.addEventListener('DOMContentLoaded', function () {
             capturePhotoBtn.classList.remove('btn-success');
             capturePhotoBtn.classList.add('btn-warning');
             stopPhotoCameraBtn.classList.add('d-none');
+            }
+        } catch (captureError) {
+            console.error('Photo capture error:', captureError);
+            alert('Error capturing photo: ' + (captureError.message || 'Unknown error. Please try again.'));
         }
     });
 
