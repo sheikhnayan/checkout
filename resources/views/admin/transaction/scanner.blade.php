@@ -90,18 +90,18 @@
                                                     <strong id="currentSideText" style="color:#86efac;">📷 Capturing Front of ID</strong>
                                                 </div>
 
-                                                <div class="border-2 rounded-3 p-0 mb-3" style="width:100%;max-height:280px;min-height:200px;overflow:hidden;background:#000;border-color:#3b82f6;position:relative;">
-                                                    <video id="photoCameraFeed" style="width:100%;height:100%;object-fit:contain;display:none;background:#000;"></video>
-                                                    <canvas id="photoCanvas" style="width:100%;height:100%;display:none;"></canvas>
-                                                    <!-- ID Frame Overlay (cropping guide) -->
-                                                    <canvas id="idFrameGuide" style="width:100%;height:100%;position:absolute;top:0;left:0;display:none;z-index:10;"></canvas>
-                                                    <!-- Photo Taken Flash -->
+                                                <div class="border-2 rounded-3 p-0 mb-3" style="width:100%;max-height:280px;min-height:200px;overflow:hidden;background:#000;border-color:#3b82f6;position:relative;display:flex;align-items:center;justify-content:center;">
+                                                    <video id="photoCameraFeed" style="width:100%;height:100%;object-fit:cover;display:none;background:#000;"></video>
+                                                    <canvas id="photoCanvas" style="display:none;"></canvas>
+                                                    <!-- ID Frame Guide - GREEN RECTANGLE FRAME -->
+                                                    <svg id="idFrameGuide" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:10;display:none;"></svg>
+                                                    <!-- Photo Flash Effect -->
                                                     <div id="photoFlash" style="position:absolute;top:0;left:0;width:100%;height:100%;background:#fff;z-index:20;display:none;opacity:0.7;"></div>
-                                                    <!-- Photo Captured Checkmark (Large & Visible) -->
-                                                    <div id="photoCapturedCheck" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:60px;display:none;z-index:15;animation:scaleIn 0.4s ease-out;">
-                                                        <i class="fas fa-check-circle" style="color:#22c55e;text-shadow:0 0 10px rgba(34,197,94,0.8);"></i>
+                                                    <!-- Photo Captured Checkmark -->
+                                                    <div id="photoCapturedCheck" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:70px;display:none;z-index:15;animation:scaleIn 0.5s ease-out;">
+                                                        <i class="fas fa-check-circle" style="color:#22c55e;text-shadow:0 0 15px rgba(34,197,94,0.9);filter:drop-shadow(0 0 8px rgba(34,197,94,0.8));"></i>
                                                     </div>
-                                                    <div id="noCameraMsg" class="text-center p-5" style="color:#60a5fa;">
+                                                    <div id="noCameraMsg" class="text-center p-5" style="color:#60a5fa;z-index:5;">
                                                         <i class="fas fa-camera fa-3x mb-3 d-block opacity-75"></i>
                                                         <div style="font-size:14px;">Camera will appear here</div>
                                                     </div>
@@ -468,62 +468,108 @@ document.addEventListener('DOMContentLoaded', function () {
             photoCameraFeed.style.display = 'block';
             noCameraMsg.style.display = 'none';
 
-            // Draw ID card frame guide after video is ready
+            // Draw ID frame guide using SVG
             const idFrameGuide = document.getElementById('idFrameGuide');
-            const frameGuideLabel = document.getElementById('frameGuideLabel');
+            const container = photoCameraFeed.parentElement;
 
-            // Wait for video to load before drawing frame
-            photoCameraFeed.onloadedmetadata = function() {
-                if (idFrameGuide.offsetWidth === 0) {
-                    // Use container dimensions if canvas not ready
-                    idFrameGuide.width = photoCameraFeed.parentElement.offsetWidth;
-                } else {
-                    idFrameGuide.width = idFrameGuide.offsetWidth;
-                }
-                idFrameGuide.height = idFrameGuide.offsetHeight || 280;
+            function drawIDFrame() {
+                const w = container.offsetWidth;
+                const h = container.offsetHeight;
+
+                if (w === 0 || h === 0) return;
+
+                // Frame dimensions (US ID ratio: 85.6mm x 53.98mm ≈ 1.585:1)
+                const frameW = Math.min(w * 0.88, w - 16);
+                const frameH = frameW * 0.631; // Match ID ratio
+                const frameX = (w - frameW) / 2;
+                const frameY = (h - frameH) / 2;
+
+                // Clear and redraw SVG
+                idFrameGuide.innerHTML = '';
+                idFrameGuide.setAttribute('viewBox', `0 0 ${w} ${h}`);
+                idFrameGuide.setAttribute('preserveAspectRatio', 'none');
+
+                // Dark overlay outside frame
+                const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+                const mask = document.createElementNS('http://www.w3.org/2000/svg', 'mask');
+                mask.setAttribute('id', 'frameMask');
+
+                const maskBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                maskBg.setAttribute('width', w);
+                maskBg.setAttribute('height', h);
+                maskBg.setAttribute('fill', 'white');
+                mask.appendChild(maskBg);
+
+                const maskFrame = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                maskFrame.setAttribute('x', frameX);
+                maskFrame.setAttribute('y', frameY);
+                maskFrame.setAttribute('width', frameW);
+                maskFrame.setAttribute('height', frameH);
+                maskFrame.setAttribute('fill', 'black');
+                maskFrame.setAttribute('rx', '6');
+                mask.appendChild(maskFrame);
+                defs.appendChild(mask);
+                idFrameGuide.appendChild(defs);
+
+                // Dark overlay
+                const overlay = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                overlay.setAttribute('width', w);
+                overlay.setAttribute('height', h);
+                overlay.setAttribute('fill', 'rgba(0,0,0,0.5)');
+                overlay.setAttribute('mask', 'url(#frameMask)');
+                idFrameGuide.appendChild(overlay);
+
+                // Green border frame
+                const border = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                border.setAttribute('x', frameX);
+                border.setAttribute('y', frameY);
+                border.setAttribute('width', frameW);
+                border.setAttribute('height', frameH);
+                border.setAttribute('fill', 'none');
+                border.setAttribute('stroke', '#22c55e');
+                border.setAttribute('stroke-width', '3');
+                border.setAttribute('rx', '8');
+                idFrameGuide.appendChild(border);
+
+                // Corner brackets
+                const cornerLen = 24;
+                const corners = [
+                    { x: frameX, y: frameY }, // top-left
+                    { x: frameX + frameW, y: frameY }, // top-right
+                    { x: frameX, y: frameY + frameH }, // bottom-left
+                    { x: frameX + frameW, y: frameY + frameH } // bottom-right
+                ];
+
+                corners.forEach((corner, idx) => {
+                    const isRight = idx === 1 || idx === 3;
+                    const isBottom = idx === 2 || idx === 3;
+
+                    // Horizontal line
+                    const h1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    h1.setAttribute('x1', isRight ? corner.x - cornerLen : corner.x);
+                    h1.setAttribute('y1', corner.y);
+                    h1.setAttribute('x2', isRight ? corner.x : corner.x + cornerLen);
+                    h1.setAttribute('y2', corner.y);
+                    h1.setAttribute('stroke', '#22c55e');
+                    h1.setAttribute('stroke-width', '3');
+                    idFrameGuide.appendChild(h1);
+
+                    // Vertical line
+                    const v1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    v1.setAttribute('x1', corner.x);
+                    v1.setAttribute('y1', isBottom ? corner.y - cornerLen : corner.y);
+                    v1.setAttribute('x2', corner.x);
+                    v1.setAttribute('y2', isBottom ? corner.y : corner.y + cornerLen);
+                    v1.setAttribute('stroke', '#22c55e');
+                    v1.setAttribute('stroke-width', '3');
+                    idFrameGuide.appendChild(v1);
+                });
+
                 idFrameGuide.style.display = 'block';
-                frameGuideLabel.style.display = 'block';
+            }
 
-                const ctx = idFrameGuide.getContext('2d');
-                if (!ctx) return;
-
-                const drawFrameGuide = () => {
-                    ctx.clearRect(0, 0, idFrameGuide.width, idFrameGuide.height);
-
-                    const frameWidth = Math.min(idFrameGuide.width * 0.85, idFrameGuide.width - 20);
-                    const frameHeight = frameWidth * 0.631;
-                    const frameX = (idFrameGuide.width - frameWidth) / 2;
-                    const frameY = (idFrameGuide.height - frameHeight) / 2;
-
-                    // Semi-transparent overlay
-                    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-                    ctx.fillRect(0, 0, idFrameGuide.width, frameY);
-                    ctx.fillRect(0, frameY + frameHeight, idFrameGuide.width, idFrameGuide.height - frameY - frameHeight);
-                    ctx.fillRect(0, frameY, frameX, frameHeight);
-                    ctx.fillRect(frameX + frameWidth, frameY, idFrameGuide.width - frameX - frameWidth, frameHeight);
-
-                    // Green border
-                    ctx.strokeStyle = '#22c55e';
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(frameX, frameY, frameWidth, frameHeight);
-
-                    // Corner markers
-                    ctx.fillStyle = '#22c55e';
-                    const cornerSize = 12;
-                    const cornerThickness = 2;
-                    ctx.fillRect(frameX + 4, frameY + 4, cornerSize, cornerThickness);
-                    ctx.fillRect(frameX + 4, frameY + 4, cornerThickness, cornerSize);
-                    ctx.fillRect(frameX + frameWidth - cornerSize - 4, frameY + 4, cornerSize, cornerThickness);
-                    ctx.fillRect(frameX + frameWidth - 4 - cornerThickness, frameY + 4, cornerThickness, cornerSize);
-                    ctx.fillRect(frameX + 4, frameY + frameHeight - 4 - cornerThickness, cornerSize, cornerThickness);
-                    ctx.fillRect(frameX + 4, frameY + frameHeight - cornerSize - 4, cornerThickness, cornerSize);
-                    ctx.fillRect(frameX + frameWidth - cornerSize - 4, frameY + frameHeight - 4 - cornerThickness, cornerSize, cornerThickness);
-                    ctx.fillRect(frameX + frameWidth - 4 - cornerThickness, frameY + frameHeight - cornerSize - 4, cornerThickness, cornerSize);
-                };
-
-                drawFrameGuide();
-                window.addEventListener('resize', drawFrameGuide);
-            };
+            drawIDFrame();
+            window.addEventListener('resize', drawIDFrame);
 
             startPhotoCameraBtn.classList.add('d-none');
             capturePhotoBtn.classList.remove('d-none');
@@ -594,25 +640,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Helper function to crop image to frame area
+    // Helper function to save captured image (full image, frame is just a guide)
     function cropImageToFrame(sourceCanvas) {
-        // Calculate frame dimensions based on video/canvas size
-        const frameWidth = Math.min(sourceCanvas.width * 0.85, sourceCanvas.width - 20);
-        const frameHeight = frameWidth * 0.631; // US ID aspect ratio
-        const frameX = (sourceCanvas.width - frameWidth) / 2;
-        const frameY = (sourceCanvas.height - frameHeight) / 2;
-
-        // Create crop canvas with frame dimensions
-        const cropCanvas = document.createElement('canvas');
-        cropCanvas.width = Math.round(frameWidth);
-        cropCanvas.height = Math.round(frameHeight);
-        const cropCtx = cropCanvas.getContext('2d');
-
-        // Draw cropped portion from source canvas
-        cropCtx.drawImage(sourceCanvas, frameX, frameY, frameWidth, frameHeight, 0, 0, frameWidth, frameHeight);
-
-        // Return as data URL
-        return cropCanvas.toDataURL('image/jpeg', 0.9);
+        // Return full image as JPEG - frame guide is just to help user position ID
+        return sourceCanvas.toDataURL('image/jpeg', 0.92);
     }
 
     capturePhotoBtn.addEventListener('click', async function() {
