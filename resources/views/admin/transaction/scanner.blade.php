@@ -468,76 +468,62 @@ document.addEventListener('DOMContentLoaded', function () {
             photoCameraFeed.style.display = 'block';
             noCameraMsg.style.display = 'none';
 
-            // Draw ID card frame guide
+            // Draw ID card frame guide after video is ready
             const idFrameGuide = document.getElementById('idFrameGuide');
             const frameGuideLabel = document.getElementById('frameGuideLabel');
-            idFrameGuide.width = photoCameraFeed.offsetWidth;
-            idFrameGuide.height = photoCameraFeed.offsetHeight;
-            idFrameGuide.style.display = 'block';
-            frameGuideLabel.style.display = 'block';
 
-            // Draw the frame guide
-            const ctx = idFrameGuide.getContext('2d');
-            ctx.setLineDash([]);
-            const drawFrameGuide = () => {
-                ctx.clearRect(0, 0, idFrameGuide.width, idFrameGuide.height);
+            // Wait for video to load before drawing frame
+            photoCameraFeed.onloadedmetadata = function() {
+                if (idFrameGuide.offsetWidth === 0) {
+                    // Use container dimensions if canvas not ready
+                    idFrameGuide.width = photoCameraFeed.parentElement.offsetWidth;
+                } else {
+                    idFrameGuide.width = idFrameGuide.offsetWidth;
+                }
+                idFrameGuide.height = idFrameGuide.offsetHeight || 280;
+                idFrameGuide.style.display = 'block';
+                frameGuideLabel.style.display = 'block';
 
-                // US ID card aspect ratio is approximately 3.375:2.125 (85.6mm x 53.98mm)
-                const frameWidth = Math.min(idFrameGuide.width * 0.85, idFrameGuide.width - 20);
-                const frameHeight = frameWidth * 0.631; // 2.125/3.375
-                const frameX = (idFrameGuide.width - frameWidth) / 2;
-                const frameY = (idFrameGuide.height - frameHeight) / 2;
+                const ctx = idFrameGuide.getContext('2d');
+                if (!ctx) return;
 
-                // Draw semi-transparent overlay (darker outside frame)
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-                ctx.fillRect(0, 0, idFrameGuide.width, frameY);
-                ctx.fillRect(0, frameY + frameHeight, idFrameGuide.width, idFrameGuide.height - frameY - frameHeight);
-                ctx.fillRect(0, frameY, frameX, frameHeight);
-                ctx.fillRect(frameX + frameWidth, frameY, idFrameGuide.width - frameX - frameWidth, frameHeight);
+                const drawFrameGuide = () => {
+                    ctx.clearRect(0, 0, idFrameGuide.width, idFrameGuide.height);
 
-                // Draw rounded ID card style border with proper corners
-                ctx.strokeStyle = '#22c55e';
-                ctx.lineWidth = 2;
-                const radius = 8;
+                    const frameWidth = Math.min(idFrameGuide.width * 0.85, idFrameGuide.width - 20);
+                    const frameHeight = frameWidth * 0.631;
+                    const frameX = (idFrameGuide.width - frameWidth) / 2;
+                    const frameY = (idFrameGuide.height - frameHeight) / 2;
 
-                // Draw rounded rectangle
-                ctx.beginPath();
-                ctx.moveTo(frameX + radius, frameY);
-                ctx.lineTo(frameX + frameWidth - radius, frameY);
-                ctx.quadraticCurveTo(frameX + frameWidth, frameY, frameX + frameWidth, frameY + radius);
-                ctx.lineTo(frameX + frameWidth, frameY + frameHeight - radius);
-                ctx.quadraticCurveTo(frameX + frameWidth, frameY + frameHeight, frameX + frameWidth - radius, frameY + frameHeight);
-                ctx.lineTo(frameX + radius, frameY + frameHeight);
-                ctx.quadraticCurveTo(frameX, frameY + frameHeight, frameX, frameY + frameHeight - radius);
-                ctx.lineTo(frameX, frameY + radius);
-                ctx.quadraticCurveTo(frameX, frameY, frameX + radius, frameY);
-                ctx.closePath();
-                ctx.stroke();
+                    // Semi-transparent overlay
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+                    ctx.fillRect(0, 0, idFrameGuide.width, frameY);
+                    ctx.fillRect(0, frameY + frameHeight, idFrameGuide.width, idFrameGuide.height - frameY - frameHeight);
+                    ctx.fillRect(0, frameY, frameX, frameHeight);
+                    ctx.fillRect(frameX + frameWidth, frameY, idFrameGuide.width - frameX - frameWidth, frameHeight);
 
-                // Draw corner markers (inside the frame, not extending out)
-                ctx.fillStyle = '#22c55e';
-                const cornerSize = 15;
-                const cornerThickness = 2;
+                    // Green border
+                    ctx.strokeStyle = '#22c55e';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(frameX, frameY, frameWidth, frameHeight);
 
-                // Top-left corner
-                ctx.fillRect(frameX + 3, frameY + 3, cornerSize, cornerThickness);
-                ctx.fillRect(frameX + 3, frameY + 3, cornerThickness, cornerSize);
+                    // Corner markers
+                    ctx.fillStyle = '#22c55e';
+                    const cornerSize = 12;
+                    const cornerThickness = 2;
+                    ctx.fillRect(frameX + 4, frameY + 4, cornerSize, cornerThickness);
+                    ctx.fillRect(frameX + 4, frameY + 4, cornerThickness, cornerSize);
+                    ctx.fillRect(frameX + frameWidth - cornerSize - 4, frameY + 4, cornerSize, cornerThickness);
+                    ctx.fillRect(frameX + frameWidth - 4 - cornerThickness, frameY + 4, cornerThickness, cornerSize);
+                    ctx.fillRect(frameX + 4, frameY + frameHeight - 4 - cornerThickness, cornerSize, cornerThickness);
+                    ctx.fillRect(frameX + 4, frameY + frameHeight - cornerSize - 4, cornerThickness, cornerSize);
+                    ctx.fillRect(frameX + frameWidth - cornerSize - 4, frameY + frameHeight - 4 - cornerThickness, cornerSize, cornerThickness);
+                    ctx.fillRect(frameX + frameWidth - 4 - cornerThickness, frameY + frameHeight - cornerSize - 4, cornerThickness, cornerSize);
+                };
 
-                // Top-right corner
-                ctx.fillRect(frameX + frameWidth - cornerSize - 3, frameY + 3, cornerSize, cornerThickness);
-                ctx.fillRect(frameX + frameWidth - 3 - cornerThickness, frameY + 3, cornerThickness, cornerSize);
-
-                // Bottom-left corner
-                ctx.fillRect(frameX + 3, frameY + frameHeight - 3 - cornerThickness, cornerSize, cornerThickness);
-                ctx.fillRect(frameX + 3, frameY + frameHeight - cornerSize - 3, cornerThickness, cornerSize);
-
-                // Bottom-right corner
-                ctx.fillRect(frameX + frameWidth - cornerSize - 3, frameY + frameHeight - 3 - cornerThickness, cornerSize, cornerThickness);
-                ctx.fillRect(frameX + frameWidth - 3 - cornerThickness, frameY + frameHeight - cornerSize - 3, cornerThickness, cornerSize);
+                drawFrameGuide();
+                window.addEventListener('resize', drawFrameGuide);
             };
-
-            drawFrameGuide();
-            window.addEventListener('resize', drawFrameGuide);
 
             startPhotoCameraBtn.classList.add('d-none');
             capturePhotoBtn.classList.remove('d-none');
