@@ -90,7 +90,7 @@
                                                     <strong id="currentSideText" style="color:#86efac;">📷 Capturing Front of ID</strong>
                                                 </div>
 
-                                                <div class="border-2 rounded-3 p-0 mb-3" style="width:100%;max-width:500px;height:400px;margin:0 auto;overflow:hidden;background:#000;border-color:#3b82f6;position:relative;display:flex;align-items:center;justify-content:center;">
+                                                <div class="border-2 rounded-3 p-0 mb-3" style="width:100%;aspect-ratio:4/3;overflow:hidden;background:#000;border-color:#3b82f6;position:relative;display:flex;align-items:center;justify-content:center;">
                                                     <video id="photoCameraFeed" style="width:100%;height:100%;object-fit:contain;display:none;background:#000;"></video>
                                                     <canvas id="photoCanvas" style="display:none;"></canvas>
                                                     <!-- ID Frame Guide - GREEN RECTANGLE FRAME -->
@@ -483,23 +483,24 @@ document.addEventListener('DOMContentLoaded', function () {
             const container = photoCameraFeed.parentElement;
 
             function drawIDFrame() {
-                const w = container.offsetWidth;
-                const h = container.offsetHeight;
+                try {
+                    const w = container.offsetWidth;
+                    const h = container.offsetHeight;
 
-                if (w === 0 || h === 0) return;
+                    if (w === 0 || h === 0) return;
 
-                // Frame dimensions (US ID ratio: 1.588:1) - sized larger for better visibility
-                const frameH = Math.min(h * 0.75, 280); // Height is 75% of camera (max 280px)
-                const frameW = frameH * 1.588; // Width proportional (ID ratio)
+                    // Frame dimensions (US ID ratio: 1.588:1) - sized for good visibility
+                    let frameH = Math.min(h * 0.70, 220); // Height is 70% of camera
+                    let frameW = frameH * 1.588; // Width proportional (ID ratio)
 
-                // Make sure frame fits within camera width
-                if (frameW > w * 0.90) {
-                    const frameW2 = w * 0.85;
-                    frameH = frameW2 / 1.588;
-                }
+                    // Make sure frame fits within camera width
+                    if (frameW > w * 0.85) {
+                        frameW = w * 0.80;
+                        frameH = frameW / 1.588;
+                    }
 
-                const frameX = (w - frameW) / 2;
-                const frameY = (h - frameH) / 2;
+                    const frameX = (w - frameW) / 2;
+                    const frameY = (h - frameH) / 2;
 
                 // Clear and redraw SVG
                 idFrameGuide.innerHTML = '';
@@ -582,11 +583,18 @@ document.addEventListener('DOMContentLoaded', function () {
                     idFrameGuide.appendChild(v1);
                 });
 
-                idFrameGuide.style.display = 'block';
+                    idFrameGuide.style.display = 'block';
+                } catch (e) {
+                    console.error('Frame drawing error:', e);
+                }
             }
 
-            drawIDFrame();
-            window.addEventListener('resize', drawIDFrame);
+            try {
+                drawIDFrame();
+                window.addEventListener('resize', drawIDFrame);
+            } catch (e) {
+                console.error('Frame initialization error:', e);
+            }
 
             startPhotoCameraBtn.classList.add('d-none');
             capturePhotoBtn.classList.remove('d-none');
