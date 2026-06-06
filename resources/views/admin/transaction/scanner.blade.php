@@ -610,9 +610,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Helper function to crop image to frame area
     function cropImageToFrame(sourceCanvas) {
-        const sourceCtx = sourceCanvas.getContext('2d');
-        const imgData = sourceCtx.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height);
-
         // Calculate frame dimensions based on video/canvas size
         const frameWidth = Math.min(sourceCanvas.width * 0.85, sourceCanvas.width - 20);
         const frameHeight = frameWidth * 0.631; // US ID aspect ratio
@@ -625,9 +622,11 @@ document.addEventListener('DOMContentLoaded', function () {
         cropCanvas.height = Math.round(frameHeight);
         const cropCtx = cropCanvas.getContext('2d');
 
-        // Draw cropped portion
+        // Draw cropped portion from source canvas
         cropCtx.drawImage(sourceCanvas, frameX, frameY, frameWidth, frameHeight, 0, 0, frameWidth, frameHeight);
-        return cropCanvas.toDataURL('image/jpeg', 0.95);
+
+        // Return as data URL
+        return cropCanvas.toDataURL('image/jpeg', 0.9);
     }
 
     capturePhotoBtn.addEventListener('click', async function() {
@@ -659,44 +658,31 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (!photoCameraStream || !photoCameraFeed.srcObject) {
-            alert('Camera is not ready. Please wait a moment and try again.');
+            alert('Camera is not ready.');
             return;
         }
 
-        // Check if video has metadata loaded
-        if (!photoCameraFeed.videoWidth || !photoCameraFeed.videoHeight) {
-            alert('Camera video is still loading. Please wait a moment and try again.');
-            return;
-        }
+        // Get canvas context
+        photoCtx = photoCanvas.getContext('2d');
+        photoCanvas.width = photoCameraFeed.videoWidth;
+        photoCanvas.height = photoCameraFeed.videoHeight;
 
-        try {
-            // Get canvas context
-            photoCtx = photoCanvas.getContext('2d');
-            photoCanvas.width = photoCameraFeed.videoWidth;
-            photoCanvas.height = photoCameraFeed.videoHeight;
+        // Draw current frame from video to canvas
+        photoCtx.drawImage(photoCameraFeed, 0, 0, photoCanvas.width, photoCanvas.height);
 
-            // Draw current frame from video to canvas
-            photoCtx.drawImage(photoCameraFeed, 0, 0, photoCanvas.width, photoCanvas.height);
-        } catch (canvasError) {
-            console.error('Canvas drawing error:', canvasError);
-            alert('Error capturing photo. Please try again.');
-            return;
-        }
+        // Get image data - crop to frame
+        const croppedImageData = cropImageToFrame(photoCanvas);
 
-        try {
-            // Show flash effect
-            const photoFlash = document.getElementById('photoFlash');
-            photoFlash.style.display = 'block';
-            photoFlash.classList.add('flashing');
-            setTimeout(() => { photoFlash.style.display = 'none'; photoFlash.classList.remove('flashing'); }, 300);
+        // Show flash effect
+        const photoFlash = document.getElementById('photoFlash');
+        photoFlash.style.display = 'block';
+        photoFlash.classList.add('flashing');
+        setTimeout(() => { photoFlash.style.display = 'none'; photoFlash.classList.remove('flashing'); }, 300);
 
-            // Show checkmark with animation
-            const photoCapturedCheck = document.getElementById('photoCapturedCheck');
-            photoCapturedCheck.style.display = 'block';
-            setTimeout(() => { photoCapturedCheck.style.display = 'none'; }, 600);
-
-            // Crop image to frame area
-            const croppedImageData = cropImageToFrame(photoCanvas);
+        // Show checkmark with animation
+        const photoCapturedCheck = document.getElementById('photoCapturedCheck');
+        photoCapturedCheck.style.display = 'block';
+        setTimeout(() => { photoCapturedCheck.style.display = 'none'; }, 600);
 
             if (capturingFrontPhoto) {
             // Capture front of ID
@@ -709,32 +695,26 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('frontPhotoIndicator').style.opacity = '1';
             document.getElementById('frontPhotoIndicator').style.borderColor = '#86efac';
 
-            // Auto-switch to back camera after 1 second
-            setTimeout(async function() {
-                if (!backPhotoCaptured) {
-                    capturingFrontPhoto = false;
-                    currentFacingMode = 'environment';
+            // Auto-switch to back camera after 800ms
+            setTimeout(function() {
+                capturingFrontPhoto = false;
 
-                    // Update indicator
-                    document.getElementById('backPhotoIndicator').style.opacity = '1';
-                    document.getElementById('currentSideLabel').style.display = 'block';
-                    document.getElementById('currentSideText').textContent = '📷 Capturing Back of ID - Please flip the card';
-                    document.getElementById('currentSideText').style.color = '#90caf9';
+                // Update indicator for back camera
+                document.getElementById('backPhotoIndicator').style.opacity = '1';
+                document.getElementById('currentSideLabel').style.display = 'block';
+                document.getElementById('currentSideText').textContent = '📷 Capturing Back of ID - Please flip the card';
+                document.getElementById('currentSideText').style.color = '#90caf9';
 
-                    stopPhotoCameraBtn.click();
+                // Stop current camera and start back camera
+                stopPhotoCameraBtn.click();
 
-                    // Small delay before starting back camera
-                    setTimeout(() => {
-                        startPhotoCameraBtn.click();
-                        capturePhotoBtn.textContent = 'Capture Photo';
-                        capturePhotoBtn.classList.remove('btn-warning');
-                        capturePhotoBtn.classList.add('btn-success');
-                    }, 500);
-                } else {
-                    capturePhotoBtn.textContent = '✓ Both photos captured';
-                    capturePhotoBtn.disabled = true;
-                }
-            }, 1200);
+                setTimeout(function() {
+                    startPhotoCameraBtn.click();
+                    capturePhotoBtn.textContent = 'Capture Photo';
+                    capturePhotoBtn.classList.remove('btn-warning');
+                    capturePhotoBtn.classList.add('btn-success');
+                }, 300);
+            }, 800);
 
             // Show delete button
             capturePhotoBtn.textContent = '✕ Delete Front Photo';
@@ -758,10 +738,6 @@ document.addEventListener('DOMContentLoaded', function () {
             capturePhotoBtn.classList.remove('btn-success');
             capturePhotoBtn.classList.add('btn-warning');
             stopPhotoCameraBtn.classList.add('d-none');
-            }
-        } catch (captureError) {
-            console.error('Photo capture error:', captureError);
-            alert('Error capturing photo: ' + (captureError.message || 'Unknown error. Please try again.'));
         }
     });
 
