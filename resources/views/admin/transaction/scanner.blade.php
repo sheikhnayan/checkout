@@ -90,8 +90,8 @@
                                                     <strong id="currentSideText" style="color:#86efac;">📷 Capturing Front of ID</strong>
                                                 </div>
 
-                                                <div class="border-2 rounded-3 p-0 mb-3" style="width:100%;aspect-ratio:4/3;overflow:hidden;background:#000;border-color:#3b82f6;position:relative;display:flex;align-items:center;justify-content:center;">
-                                                    <video id="photoCameraFeed" style="width:100%;height:100%;object-fit:contain;display:none;background:#000;"></video>
+                                                <div class="border-2 rounded-3 p-0 mb-3" style="width:100%;aspect-ratio:16/9;overflow:hidden;background:#000;border-color:#3b82f6;position:relative;display:flex;align-items:center;justify-content:center;">
+                                                    <video id="photoCameraFeed" style="width:100%;height:100%;object-fit:cover;display:none;background:#000;"></video>
                                                     <canvas id="photoCanvas" style="display:none;"></canvas>
                                                     <!-- ID Frame Guide - GREEN RECTANGLE FRAME -->
                                                     <svg id="idFrameGuide" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:10;display:none;"></svg>
@@ -667,38 +667,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Helper function to crop image to frame area ONLY
     function cropImageToFrame(sourceCanvas) {
-        const container = photoCameraFeed.parentElement;
-        const containerW = container.offsetWidth;
-        const containerH = container.offsetHeight;
-
-        // Calculate frame position on screen (same as SVG frame)
-        const frameH = Math.min(containerH * 0.60, 180);
-        const frameW = frameH * 1.588; // ID ratio
-        const frameX = (containerW - frameW) / 2;
-        const frameY = (containerH - frameH) / 2;
-
-        // Scale frame coordinates to canvas dimensions
-        const scaleX = sourceCanvas.width / containerW;
-        const scaleY = sourceCanvas.height / containerH;
-
-        const cropX = frameX * scaleX;
-        const cropY = frameY * scaleY;
-        const cropW = frameW * scaleX;
-        const cropH = frameH * scaleY;
-
-        // Create new canvas with cropped area
-        const cropCanvas = document.createElement('canvas');
-        cropCanvas.width = Math.round(cropW);
-        cropCanvas.height = Math.round(cropH);
-
-        const cropCtx = cropCanvas.getContext('2d');
-        cropCtx.drawImage(
-            sourceCanvas,
-            cropX, cropY, cropW, cropH,  // Source area
-            0, 0, cropW, cropH            // Destination area
-        );
-
-        return cropCanvas.toDataURL('image/jpeg', 0.95);
+        // Return FULL image - frame is just visual guide for positioning
+        return sourceCanvas.toDataURL('image/jpeg', 0.93);
     }
 
     capturePhotoBtn.addEventListener('click', async function() {
