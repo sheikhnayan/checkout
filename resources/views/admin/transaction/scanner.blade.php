@@ -822,6 +822,14 @@ document.addEventListener('DOMContentLoaded', function () {
             capturePhotoBtn.classList.remove('btn-success');
             capturePhotoBtn.classList.add('btn-warning');
             stopPhotoCameraBtn.classList.add('d-none');
+
+            // Stop camera and scroll to photos
+            setTimeout(function() {
+                stopPhotoCamera();
+
+                // Scroll to back photo preview
+                backPhotoPreviewContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 500);
         }
     });
 
