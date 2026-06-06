@@ -212,7 +212,15 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        html5QrCode = new Html5Qrcode('reader');
+        // Always create fresh instance to reset state
+        try {
+            if (html5QrCode) {
+                try {
+                    await html5QrCode.stop();
+                } catch (e) {}
+            }
+            html5QrCode = new Html5Qrcode('reader');
+        } catch (e) {}
 
         try {
             await html5QrCode.start(
@@ -227,7 +235,9 @@ document.addEventListener('DOMContentLoaded', function () {
             startScannerBtn.disabled = true;
             stopScannerBtn.disabled = false;
         } catch (error) {
+            console.error('QR Scanner start error:', error);
             setStatus('Unable to access camera. Use manual code verification.', true);
+            scannerStarted = false;
         }
     }
 
