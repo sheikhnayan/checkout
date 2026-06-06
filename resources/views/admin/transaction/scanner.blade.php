@@ -827,9 +827,12 @@ document.addEventListener('DOMContentLoaded', function () {
             setTimeout(function() {
                 stopPhotoCamera();
 
-                // Scroll to back photo preview
-                backPhotoPreviewContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 500);
+                // Scroll to front photo (which shows both)
+                const scrollTarget = frontPhotoPreviewContainer;
+                if (scrollTarget) {
+                    window.scrollBy({ top: 300, behavior: 'smooth' });
+                }
+            }, 600);
         }
     });
 
