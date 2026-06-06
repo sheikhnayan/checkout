@@ -641,10 +641,40 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Helper function to save captured image (full image, frame is just a guide)
+    // Helper function to crop image to frame area ONLY
     function cropImageToFrame(sourceCanvas) {
-        // Return full image as JPEG - frame guide is just to help user position ID
-        return sourceCanvas.toDataURL('image/jpeg', 0.92);
+        const container = photoCameraFeed.parentElement;
+        const containerW = container.offsetWidth;
+        const containerH = container.offsetHeight;
+
+        // Calculate frame position on screen (same as SVG frame)
+        const frameH = Math.min(containerH * 0.60, 180);
+        const frameW = frameH * 1.588; // ID ratio
+        const frameX = (containerW - frameW) / 2;
+        const frameY = (containerH - frameH) / 2;
+
+        // Scale frame coordinates to canvas dimensions
+        const scaleX = sourceCanvas.width / containerW;
+        const scaleY = sourceCanvas.height / containerH;
+
+        const cropX = frameX * scaleX;
+        const cropY = frameY * scaleY;
+        const cropW = frameW * scaleX;
+        const cropH = frameH * scaleY;
+
+        // Create new canvas with cropped area
+        const cropCanvas = document.createElement('canvas');
+        cropCanvas.width = Math.round(cropW);
+        cropCanvas.height = Math.round(cropH);
+
+        const cropCtx = cropCanvas.getContext('2d');
+        cropCtx.drawImage(
+            sourceCanvas,
+            cropX, cropY, cropW, cropH,  // Source area
+            0, 0, cropW, cropH            // Destination area
+        );
+
+        return cropCanvas.toDataURL('image/jpeg', 0.95);
     }
 
     capturePhotoBtn.addEventListener('click', async function() {
