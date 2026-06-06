@@ -90,8 +90,8 @@
                                                     <strong id="currentSideText" style="color:#86efac;">📷 Capturing Front of ID</strong>
                                                 </div>
 
-                                                <div class="border-2 rounded-3 p-0 mb-3" style="width:100%;aspect-ratio:16/9;overflow:hidden;background:#000;border-color:#3b82f6;position:relative;display:flex;align-items:center;justify-content:center;">
-                                                    <video id="photoCameraFeed" style="width:100%;height:100%;object-fit:cover;display:none;background:#000;"></video>
+                                                <div class="border-2 rounded-3 p-0 mb-3" style="width:100%;max-width:500px;height:400px;margin:0 auto;overflow:hidden;background:#000;border-color:#3b82f6;position:relative;display:flex;align-items:center;justify-content:center;">
+                                                    <video id="photoCameraFeed" style="width:100%;height:100%;object-fit:contain;display:none;background:#000;"></video>
                                                     <canvas id="photoCanvas" style="display:none;"></canvas>
                                                     <!-- ID Frame Guide - GREEN RECTANGLE FRAME -->
                                                     <svg id="idFrameGuide" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:10;display:none;"></svg>
@@ -488,13 +488,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (w === 0 || h === 0) return;
 
-                // Frame dimensions (US ID ratio: 1.588:1) - sized for camera view
-                const frameH = Math.min(h * 0.50, 160); // Height is 50% of camera (max 160px)
+                // Frame dimensions (US ID ratio: 1.588:1) - sized larger for better visibility
+                const frameH = Math.min(h * 0.75, 280); // Height is 75% of camera (max 280px)
                 const frameW = frameH * 1.588; // Width proportional (ID ratio)
 
                 // Make sure frame fits within camera width
-                if (frameW > w * 0.95) {
-                    const frameW2 = w * 0.90;
+                if (frameW > w * 0.90) {
+                    const frameW2 = w * 0.85;
                     frameH = frameW2 / 1.588;
                 }
 
