@@ -59,7 +59,14 @@
       "Bash(node -c \"c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\admin\\\\transaction\\\\scanner.blade.php\")",
       "Bash(grep -n 'package_use_date\\\\|protected $fillable\\\\|protected $casts' 'c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Models\\\\Transaction.php')",
       "Bash(grep -n \"@filterStatus\\\\|filterWebsite\\\\|\\\\$\\('#\" \"c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\admin\\\\transaction\\\\index.blade.php\")",
-      "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\admin\\\\main.blade.php\")"
+      "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\admin\\\\main.blade.php\")",
+      "Bash(dir \"c:\\\\Users\\\\Sheikh Nayan\\\\.claude\\\\projects\\\\c--wamp64-www-checkout\\\\memory\")",
+      "Bash(grep -i \"bot\\\\|recaptcha\\\\|rate.*limit\\\\|honeypot\\\\|prevention\" \"C:\\\\Users\\\\Sheikh Nayan\\\\.claude\\\\projects\\\\c--wamp64-www-checkout\\\\d0fd7d7c-8bc8-4b08-b86e-e8128e552c8c.jsonl\" 2>/dev/null | head -30)",
+      "Read(//c/Users/Sheikh Nayan/.claude/projects/c--wamp64-www-checkout/**)",
+      "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Http\\\\Controllers\\\\TransactionController.php\")",
+      "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Services\\\\RecaptchaService.php\")",
+      "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Services\\\\FormValidationService.php\")",
+      "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Http\\\\Middleware\\\\ThrottleFormSubmissions.php\")"
     ],
     "additionalDirectories": [
       "c:\\wamp64\\www\\checkout\\bootstrap\\cache",

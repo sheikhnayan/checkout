@@ -627,6 +627,47 @@ class TransactionController extends Controller
 
     public function reservation_store($slug, Request $request)
     {
+        // ========== BOT PREVENTION - LAYER 1: reCAPTCHA v3 ==========
+        if (config('services.recaptcha.secret_key') && config('services.recaptcha.secret_key') !== 'YOUR_RECAPTCHA_SECRET_KEY_HERE') {
+            $recaptchaToken = $request->input('recaptcha_token');
+            if (!$recaptchaToken) {
+                return redirect()->back()->with('error', 'Bot verification failed. Please try again.');
+            }
+
+            $recaptchaService = new \App\Services\RecaptchaService();
+            $recaptchaResult = $recaptchaService->verify($recaptchaToken);
+
+            if (!$recaptchaResult['success']) {
+                \Log::warning('Reservation bot detected by reCAPTCHA', [
+                    'score' => $recaptchaResult['score'],
+                    'ip' => $request->ip(),
+                    'email' => $request->input('reservation_email')
+                ]);
+                return redirect()->back()->with('error', 'Bot behavior detected. Please try again.');
+            }
+        }
+
+        // ========== BOT PREVENTION - LAYER 3: Server-Side Validation ==========
+        $validationData = [
+            'email' => $request->input('reservation_email'),
+            'phone' => $request->input('reservation_phone'),
+            'name' => $request->input('reservation_first_name') . ' ' . $request->input('reservation_last_name'),
+            'form_load_time' => $request->input('form_load_time'),
+            'men_count' => $request->input('men_count'),
+            'women_count' => $request->input('women_count'),
+            'reservation_date' => $request->input('package_use_date'),
+        ];
+
+        $validationResult = \App\Services\FormValidationService::validateReservation($validationData, $request->ip());
+        if (!$validationResult['valid']) {
+            \Log::warning('Reservation rejected by server validation', [
+                'errors' => $validationResult['errors'],
+                'ip' => $request->ip(),
+                'email' => $request->input('reservation_email')
+            ]);
+            return redirect()->back()->with('error', 'Submission validation failed: ' . implode(', ', $validationResult['errors']));
+        }
+
         if ($request->filled('event_id')) {
             $requestedGuests = max(0, (int) $request->input('men_count')) + max(0, (int) $request->input('women_count'));
             $this->ensureEventCapacityAvailable(

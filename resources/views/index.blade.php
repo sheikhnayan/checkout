@@ -4784,6 +4784,29 @@ input[type="checkbox"],
                 gtag('config', '{{ $gaMeasurementId }}');
             </script>
         @endif
+        <!-- reCAPTCHA v3 Script -->
+        @if(config('services.recaptcha.site_key') && config('services.recaptcha.site_key') !== 'YOUR_RECAPTCHA_SITE_KEY_HERE')
+        <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+        <script>
+            window.executeRecaptcha = function(action = 'submit') {
+                return new Promise((resolve) => {
+                    if (!window.grecaptcha) {
+                        resolve(null);
+                        return;
+                    }
+                    grecaptcha.ready(function() {
+                        grecaptcha.execute('{{ config('services.recaptcha.site_key') }}', {action: action})
+                            .then(function(token) {
+                                resolve(token);
+                            })
+                            .catch(function() {
+                                resolve(null);
+                            });
+                    });
+                });
+            };
+        </script>
+        @endif
     </head>
 
     <body>
@@ -5281,10 +5304,12 @@ input[type="checkbox"],
                             </section>
 
                             {{-- Location card removed (now lives in the hero .cv-hero-location panel) --}}
-    
+
 
                             <input type="hidden" name="type" value="guest">
-    
+                            <input type="hidden" name="recaptcha_token" id="recaptcha_token" value="">
+                            <input type="hidden" name="form_load_time" id="form_load_time" value="">
+
                         </form>
                     </div>
                 @endif
@@ -6475,7 +6500,13 @@ input[type="checkbox"],
                 const form = submitBtn.closest('form');
                 if (!form) return;
 
-                submitBtn.addEventListener('click', function (e) {
+                // Set form load time
+                const formLoadTimeField = document.getElementById('form_load_time');
+                if (formLoadTimeField) {
+                    formLoadTimeField.value = Math.floor(Date.now() / 1000);
+                }
+
+                submitBtn.addEventListener('click', async function (e) {
                     const reservationDate = document.getElementById('package_use_date');
                     const menCount = parseInt(document.getElementById('menCount')?.textContent || '0', 10);
                     const womenCount = parseInt(document.getElementById('womenCount')?.textContent || '0', 10);
@@ -6519,7 +6550,21 @@ input[type="checkbox"],
                         e.stopPropagation();
                         // Show error alert
                         alert(errorMessage);
+                        return;
                     }
+
+                    // Get reCAPTCHA token
+                    if (typeof window.executeRecaptcha === 'function') {
+                        const token = await window.executeRecaptcha('reservation_submit');
+                        if (token) {
+                            const tokenField = document.getElementById('recaptcha_token');
+                            if (tokenField) {
+                                tokenField.value = token;
+                            }
+                        }
+                    }
+
+                    // All validations passed, form will submit normally
                 });
             })();
 
