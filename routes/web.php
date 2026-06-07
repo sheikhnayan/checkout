@@ -166,7 +166,9 @@ Route::get('/{slug}/package/{packageId}/capacity', [FrontendController::class, '
 
 Route::post('/{slug}/checkout/store', [TransactionController::class, 'store'])->name('checkout.store');
 
-Route::post('/{slug}/reservation/store', [TransactionController::class, 'reservation_store'])->middleware('throttle:5,60')->name('reservations.store');
+Route::post('/{slug}/reservation/store', [TransactionController::class, 'reservation_store'])
+    ->middleware(['throttle:10,60', \App\Http\Middleware\HandleThrottleResponse::class])
+    ->name('reservations.store');
 
 // Cart sharing routes
 Route::post('/cart/share', [CartController::class, 'generateSharedLink'])->name('cart.generate-share');
