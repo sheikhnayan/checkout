@@ -805,8 +805,19 @@ class TransactionController extends Controller
                             <li class="list-group-item"><strong>Email:</strong> <span>' . htmlspecialchars($transaction->package_email ?? '') . '</span></li>
                             <li class="list-group-item"><strong>DOB:</strong> <span>' . htmlspecialchars($transaction->package_dob ?? '') . '</span></li>
                             <li class="list-group-item"><strong>Note:</strong> <span>' . htmlspecialchars($transaction->package_note ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Number of Guests:</strong> <span>' . htmlspecialchars($transaction->package_number_of_guest ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Male Guests:</strong> <span>' . htmlspecialchars($transaction->package_men ?? '') . '</span></li>
+                            <li class="list-group-item"><strong>Number of Guests:</strong> <span>' . htmlspecialchars($transaction->package_number_of_guest ?? '') . '</span></li>';
+
+        // Show guest breakdown for reservation types
+        if (strtolower($transaction->type ?? '') === 'reservation') {
+            $menCount = (int)($transaction->package_men ?? 0);
+            $womenCount = (int)($transaction->package_women ?? 0);
+            if ($menCount > 0 || $womenCount > 0) {
+                $totalGuests = $menCount + $womenCount;
+                $html .= '<li class="list-group-item"><strong>Guest Breakdown:</strong> <span style="font-weight: bold; color: #fbbf24;">' . htmlspecialchars($menCount . ' Men + ' . $womenCount . ' Women = ' . $totalGuests . ' Total') . '</span></li>';
+            }
+        }
+
+        $html .= '<li class="list-group-item"><strong>Male Guests:</strong> <span>' . htmlspecialchars($transaction->package_men ?? '') . '</span></li>
                             <li class="list-group-item"><strong>Female Guests:</strong> <span>' . htmlspecialchars($transaction->package_women ?? '') . '</span></li>
                             <li class="list-group-item"><strong>Transportation Pickup Time:</strong> <span>' . htmlspecialchars($transaction->transportation_pickup_time ?? '') . '</span></li>
                             <li class="list-group-item"><strong>Transportation Address:</strong> <span>' . htmlspecialchars($transaction->transportation_address ?? '') . '</span></li>

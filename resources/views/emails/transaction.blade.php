@@ -36,7 +36,10 @@
             $reservationDateFormatted = (string) $reservationDateRaw;
         }
     }
-    $guestCount = (int) ($mailData['guest_count'] ?? (max(0, (int) ($mailData['men'] ?? 0)) + max(0, (int) ($mailData['women'] ?? 0))));
+    $menCount = (int) ($mailData['men'] ?? 0);
+    $womenCount = (int) ($mailData['women'] ?? 0);
+    $guestCount = (int) ($mailData['guest_count'] ?? ($menCount + $womenCount));
+    $isReservationType = strtolower((string) ($mailData['type'] ?? ($transaction->type ?? 'booking'))) === 'reservation';
     $rawMailCartItems = $mailData['cart_items'] ?? [];
     if (is_string($rawMailCartItems)) {
         $decoded = json_decode($rawMailCartItems, true);
@@ -70,7 +73,11 @@
             <tr><th>Event</th><td>{{ $eventName }}</td></tr>
             @endif
             @if($guestCount > 0)
+            @if($isReservationType && ($menCount > 0 || $womenCount > 0))
+            <tr><th>Guest Breakdown</th><td><strong>{{ $menCount }} Men + {{ $womenCount }} Women = {{ $guestCount }} Total Guests</strong></td></tr>
+            @else
             <tr><th>Guest Count</th><td>{{ $guestCount }}</td></tr>
+            @endif
             @endif
             @if(!empty($mailData['package_note']))
             <tr><th>Notes</th><td>{{ $mailData['package_note'] }}</td></tr>
@@ -130,7 +137,11 @@
             <tr><th>Event</th><td>{{ $eventName }}</td></tr>
             @endif
             @if($guestCount > 0)
+            @if($isReservationType && ($menCount > 0 || $womenCount > 0))
+            <tr><th>Guest Breakdown</th><td><strong>{{ $menCount }} Men + {{ $womenCount }} Women = {{ $guestCount }} Total Guests</strong></td></tr>
+            @else
             <tr><th>Guest Count</th><td>{{ $guestCount }}</td></tr>
+            @endif
             @endif
             <tr><th>Email</th><td>{{ $mailData['package_email'] ?? 'N/A' }}</td></tr>
             <tr><th>Phone</th><td>{{ $mailData['package_phone'] ?? 'N/A' }}</td></tr>
