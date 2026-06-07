@@ -245,23 +245,46 @@ class TransactionController extends Controller
                         if ($purchaserEmail && filter_var($purchaserEmail, FILTER_VALIDATE_EMAIL)) {
                             \Illuminate\Support\Facades\Mail::to($purchaserEmail)->send($send_mail_purchaser);
                         }
+
+                        // ========== SEND SMS NOTIFICATION ==========
+                        if (config('services.aloware.enabled')) {
+                            $purchaserPhone = $request->input('package_phone');
+                            if ($purchaserPhone) {
+                                try {
+                                    $smsService = new \App\Services\AlowareSmsService();
+                                    $packageData = $this->getPackageData($slug, $request);
+                                    $smsData = [
+                                        'transaction_id' => $add->transaction_id,
+                                        'club_name' => $website->name ?? 'Venue',
+                                        'club_slug' => $website->slug ?? '',
+                                        'package_name' => $packageData['name'] ?? 'Package',
+                                        'quantity' => $request->input('quantity', 1),
+                                        'package_date' => $request->input('package_use_date') ?? '',
+                                        'total_amount' => $add->total_amount,
+                                    ];
+                                    $smsService->sendTransactionNotification($purchaserPhone, $smsData, 'package');
+                                } catch (\Exception $smsError) {
+                                    \Log::error('SMS notification failed: ' . $smsError->getMessage());
+                                }
+                            }
+                        }
                     } catch (\Throwable $th) {
                         report($th);
                         throw ValidationException::withMessages([
                             'email' => 'Email delivery failed: ' . $th->getMessage(),
                         ]);
                     }
-    
-    
-    
-    
+
+
+
+
                     // Redirect to thank you page with transaction details
                     return redirect()->route('thank-you')
                         ->with('transaction', $add->fresh())
                         ->with('website', $website)
                         ->with('paymentType', 'full');
-              
-            
+
+
 
         } else {
             # code...
@@ -757,6 +780,30 @@ class TransactionController extends Controller
                         if ($guestEmail && filter_var($guestEmail, FILTER_VALIDATE_EMAIL)) {
                             $guestMail = new \App\Mail\TransactionMail($mailData, $new, [], null, $website, true, 'guest');
                             \Illuminate\Support\Facades\Mail::to($guestEmail)->send($guestMail);
+                        }
+
+                        // ========== SEND SMS NOTIFICATION ==========
+                        if (config('services.aloware.enabled')) {
+                            $guestPhone = $new->package_phone;
+                            if ($guestPhone) {
+                                try {
+                                    $smsService = new \App\Services\AlowareSmsService();
+                                    $smsData = [
+                                        'transaction_id' => $new->transaction_id,
+                                        'club_name' => $website->name ?? 'Venue',
+                                        'club_slug' => $website->slug ?? '',
+                                        'reservation_date' => $new->package_use_date,
+                                        'men_count' => $new->package_male_count ?? 0,
+                                        'women_count' => $new->package_female_count ?? 0,
+                                        'total_amount' => $new->total_amount,
+                                        'notes' => $new->package_note ?? '',
+                                    ];
+                                    $smsService->sendTransactionNotification($guestPhone, $smsData, 'reservation');
+                                } catch (\Exception $smsError) {
+                                    \Log::error('SMS notification failed: ' . $smsError->getMessage());
+                                    // Don't throw error - SMS failure shouldn't block transaction
+                                }
+                            }
                         }
                     } catch (\Throwable $th) {
                         report($th);

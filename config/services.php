@@ -53,4 +53,10 @@ return [
         'threshold' => env('RECAPTCHA_THRESHOLD', 0.5),
     ],
 
+    'aloware' => [
+        'api_key' => env('ALOWARE_API_KEY'),
+        'api_url' => env('ALOWARE_API_URL', 'https://api.aloware.io/v1'),
+        'enabled' => env('ALOWARE_ENABLED', false),
+    ],
+
 ];

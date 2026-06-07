@@ -71,7 +71,8 @@
       "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Http\\\\Controllers\\\\AffiliateRegistrationController.php\")",
       "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Http\\\\Controllers\\\\EntertainerRegistrationController.php\")",
       "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Http\\\\Controllers\\\\StaffRegistrationController.php\")",
-      "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Http\\\\Controllers\\\\StaffAdminController.php\")"
+      "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Http\\\\Controllers\\\\StaffAdminController.php\")",
+      "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Services\\\\AlowareSmsService.php\")"
     ],
     "additionalDirectories": [
       "c:\\wamp64\\www\\checkout\\bootstrap\\cache",
