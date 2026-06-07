@@ -5710,6 +5710,9 @@
                                                         <label for="phone">Phone Number</label>
                                                         <input type="tel" name="reservation_phone" id="phone"
                                                             placeholder="Phone Number" required />
+                                                        <small style="display: block; color: #888; margin-top: 4px; font-size: 0.85rem;">
+                                                            📞 Format: (212) 555-1234 or +1 212 555 1234 - Both work!
+                                                        </small>
                                                     </div>
                                                     <div class="form-group" style="width: 50%;">
                                                         <label for="email">Email</label>
@@ -6250,6 +6253,9 @@
                                                                     <input type="tel" id="phone"
                                                                         name="package_phone"
                                                                         placeholder="Phone Number" required />
+                                                                    <small style="display: block; color: #888; margin-top: 4px; font-size: 0.85rem;">
+                                                                        📞 Format: (212) 555-1234 or +1 212 555 1234 - Both work!
+                                                                    </small>
                                                                 </div>
                                                                 <div class="form-group" style="width: 50%;">
                                                                     <label for="email">Email</label>

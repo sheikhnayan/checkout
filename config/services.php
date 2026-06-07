@@ -55,8 +55,10 @@ return [
 
     'aloware' => [
         'api_key' => env('ALOWARE_API_KEY'),
-        'api_url' => env('ALOWARE_API_URL', 'https://api.aloware.io/v1'),
+        'api_url' => env('ALOWARE_API_URL', 'https://app.aloware.io/api/v1/webhook/sms-gateway/send'),
+        'from_number' => env('ALOWARE_FROM_NUMBER'), // The phone number to send FROM (e.g., +18552562001)
         'enabled' => env('ALOWARE_ENABLED', false),
+        'default_country_code' => env('ALOWARE_DEFAULT_COUNTRY_CODE', '1'), // 1=US, 44=UK, 33=France, 52=Mexico, etc
     ],
 
 ];

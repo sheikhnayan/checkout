@@ -7,13 +7,15 @@ use GuzzleHttp\Client;
 
 class AlowareSmsService
 {
-    private $apiKey;
-    private $apiUrl = 'https://api.aloware.io/v1/send-message';
+    private $apiToken;
+    private $apiUrl = 'https://app.aloware.io/api/v1/webhook/sms-gateway/send';
+    private $fromNumber; // Default sending number
     private $client;
 
     public function __construct()
     {
-        $this->apiKey = config('services.aloware.api_key');
+        $this->apiToken = config('services.aloware.api_key');
+        $this->fromNumber = config('services.aloware.from_number'); // e.g., +18552562001
         $this->client = new Client();
     }
 
@@ -27,13 +29,19 @@ class AlowareSmsService
      */
     public function sendTransactionNotification($phoneNumber, $transactionData, $type = 'package')
     {
-        if (!$this->apiKey) {
-            Log::warning('Aloware API key not configured');
+        if (!$this->apiToken) {
+            Log::warning('Aloware API token not configured');
             return ['success' => false, 'message' => 'SMS service not configured'];
+        }
+
+        if (!$this->fromNumber) {
+            Log::warning('Aloware "from" number (ALOWARE_FROM_NUMBER) not configured');
+            return ['success' => false, 'message' => 'SMS service not properly configured - no sending number'];
         }
 
         try {
             $message = $this->formatTransactionMessage($transactionData, $type);
+            $phoneNumber = $this->formatPhoneNumber($phoneNumber);
 
             return $this->sendSms($phoneNumber, $message);
         } catch (\Exception $e) {
@@ -65,44 +73,44 @@ class AlowareSmsService
             $womenCount = $data['women_count'] ?? 0;
             $totalGuests = $menCount + $womenCount;
 
-            $message = "🎉 *RESERVATION CONFIRMED* 🎉\n\n";
-            $message .= "📍 *{$clubName}*\n";
-            $message .= "Confirmation: #{$confirmationId}\n\n";
-            $message .= "📅 Reservation Date: {$reservationDate}\n";
-            $message .= "👥 Guests: {$menCount} Men + {$womenCount} Women = {$totalGuests} Total\n";
-            $message .= "💰 Total: \${$totalAmount}\n\n";
+            $message = "RESERVATION CONFIRMED\n\n";
+            $message .= "Club: {$clubName}\n";
+            $message .= "Confirmation: #{$confirmationId}\n";
+            $message .= "Date: {$reservationDate}\n";
+            $message .= "Guests: {$menCount} Men + {$womenCount} Women = {$totalGuests} Total\n";
+            $message .= "Total: \${$totalAmount}\n\n";
 
             if (!empty($data['notes'])) {
-                $message .= "📝 Notes: {$data['notes']}\n\n";
+                $message .= "Notes: {$data['notes']}\n\n";
             }
 
-            $message .= "✅ Your reservation is confirmed and ready!\n";
+            $message .= "Your reservation is confirmed!\n";
+            $message .= "View Details: {$this->getClubLink($data)}\n";
+            $message .= "Questions? Contact {$clubName}";
         } else {
             // Package type
             $packageName = $data['package_name'] ?? 'Package';
             $quantity = $data['quantity'] ?? 1;
 
-            $message = "🎊 *BOOKING CONFIRMED* 🎊\n\n";
-            $message .= "📍 *{$clubName}*\n";
-            $message .= "Confirmation: #{$confirmationId}\n\n";
-            $message .= "📦 Package: {$packageName}\n";
-            $message .= "Qty: {$quantity}\n";
-            $message .= "💰 Total: \${$totalAmount}\n\n";
+            $message = "BOOKING CONFIRMED\n\n";
+            $message .= "Club: {$clubName}\n";
+            $message .= "Confirmation: #{$confirmationId}\n";
+            $message .= "Package: {$packageName}\n";
+            $message .= "Quantity: {$quantity}\n";
+            $message .= "Total: \${$totalAmount}\n\n";
 
             if (!empty($data['package_date']) || !empty($data['event_date'])) {
                 $eventDate = $data['package_date'] ?? $data['event_date'] ?? 'N/A';
-                $message .= "📅 Event Date: {$eventDate}\n\n";
+                $message .= "Event Date: {$eventDate}\n\n";
             }
 
-            $message .= "✅ Your booking is confirmed!\n";
+            $message .= "Your booking is confirmed!\n";
+            $message .= "View Details: {$this->getClubLink($data)}\n";
+            $message .= "Questions? Contact {$clubName}";
         }
 
-        // Add common footer info
-        $message .= "🔗 View Details: {$this->getClubLink($data)}\n";
-        $message .= "📞 Questions? Contact {$clubName}\n\n";
-        $message .= "Thank you for your business! 🙏";
-
-        return $message;
+        // Keep message under 160 characters if possible, but Aloware handles longer messages
+        return substr($message, 0, 300); // Allow up to 300 chars, Aloware will handle multi-part
     }
 
     /**
@@ -119,7 +127,7 @@ class AlowareSmsService
     }
 
     /**
-     * Send SMS via Aloware API
+     * Send SMS via Aloware API (Official endpoint)
      */
     private function sendSms($phoneNumber, $message)
     {
@@ -127,24 +135,27 @@ class AlowareSmsService
             // Ensure phone number has country code
             $phoneNumber = $this->formatPhoneNumber($phoneNumber);
 
+            // Official Aloware API request
             $response = $this->client->post($this->apiUrl, [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . $this->apiKey,
+                    'Accept' => 'application/json',
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    'to' => $phoneNumber,
-                    'body' => $message,
-                    'type' => 'text', // or 'whatsapp' if supported
+                    'api_token' => $this->apiToken,
+                    'from' => $this->fromNumber, // The sending phone number
+                    'to' => $phoneNumber, // The recipient phone number
+                    'message' => $message, // The SMS text
                 ]
             ]);
 
             $statusCode = $response->getStatusCode();
             $body = json_decode($response->getBody(), true);
 
-            if ($statusCode >= 200 && $statusCode < 300) {
+            if ($statusCode === 202) { // Aloware returns 202 on success
                 Log::info('SMS sent successfully', [
                     'phone' => $phoneNumber,
+                    'from' => $this->fromNumber,
                     'response' => $body
                 ]);
 
@@ -166,23 +177,41 @@ class AlowareSmsService
                     'status' => $statusCode
                 ];
             }
-        } catch (\GuzzleHttp\Exception\RequestException $e) {
-            $response = $e->getResponse();
-            $statusCode = $response ? $response->getStatusCode() : 'unknown';
-
-            Log::error('Aloware API request failed', [
+        } catch (\GuzzleHttp\Exception\ConnectException $e) {
+            // Network/DNS error
+            Log::error('Aloware API connection failed (Network/DNS issue)', [
                 'phone' => $phoneNumber,
-                'status' => $statusCode,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'suggestion' => 'Server cannot reach app.aloware.io - check firewall, DNS, or internet connectivity'
             ]);
 
             return [
                 'success' => false,
-                'message' => 'API request failed: ' . $e->getMessage(),
+                'message' => 'Network error: Cannot reach SMS service. Contact hosting provider.',
+                'network_error' => true
+            ];
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            $response = $e->getResponse();
+            $statusCode = $response ? $response->getStatusCode() : 'unknown';
+            $body = $response ? json_decode($response->getBody(), true) : [];
+
+            Log::error('Aloware API request failed', [
+                'phone' => $phoneNumber,
+                'status' => $statusCode,
+                'error' => $e->getMessage(),
+                'response' => $body
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'API request failed: ' . ($body['message'] ?? $e->getMessage()),
                 'status' => $statusCode
             ];
         } catch (\Exception $e) {
-            Log::error('SMS sending exception: ' . $e->getMessage());
+            Log::error('SMS sending exception: ' . $e->getMessage(), [
+                'exception_class' => get_class($e),
+                'phone' => $phoneNumber
+            ]);
             return [
                 'success' => false,
                 'message' => 'Unexpected error: ' . $e->getMessage()
@@ -192,22 +221,47 @@ class AlowareSmsService
 
     /**
      * Format phone number to international format
+     * More lenient - accepts numbers without country code
      */
     private function formatPhoneNumber($phoneNumber)
     {
-        // Remove all non-numeric characters
+        // Remove all non-numeric characters except +
         $cleaned = preg_replace('/[^0-9+]/', '', $phoneNumber);
 
-        // If doesn't start with +, assume US and add +1
-        if (!str_starts_with($cleaned, '+')) {
-            // Remove leading 1 if present (for US)
-            if (strlen($cleaned) === 11 && str_starts_with($cleaned, '1')) {
-                $cleaned = substr($cleaned, 1);
-            }
-            $cleaned = '+1' . $cleaned;
+        // If already has +, return as-is
+        if (str_starts_with($cleaned, '+')) {
+            return $cleaned;
         }
 
-        return $cleaned;
+        // Get default country code from config
+        $defaultCountryCode = config('services.aloware.default_country_code', '1');
+
+        // If no +, we need to add a country code
+        // Check if it starts with the country code already (without the +)
+        if (str_starts_with($cleaned, $defaultCountryCode)) {
+            // Already has country code as first digits, just add +
+            return '+' . $cleaned;
+        }
+
+        // Remove any leading 1 if default country code is 1 (US) and length is 11
+        if ($defaultCountryCode === '1' && strlen($cleaned) === 11 && str_starts_with($cleaned, '1')) {
+            $cleaned = substr($cleaned, 1);
+        }
+
+        // Check phone length - must be at least 7 digits for most countries
+        if (strlen($cleaned) >= 7) {
+            // Add the default country code
+            return '+' . $defaultCountryCode . $cleaned;
+        } else {
+            // Too short - log warning and try anyway
+            Log::warning('Phone number appears incomplete', [
+                'original' => $phoneNumber,
+                'cleaned' => $cleaned,
+                'length' => strlen($cleaned),
+                'default_country_code' => $defaultCountryCode
+            ]);
+            return '+' . $defaultCountryCode . $cleaned;
+        }
     }
 
     /**
@@ -215,7 +269,7 @@ class AlowareSmsService
      */
     public function sendTest($phoneNumber, $message = null)
     {
-        $testMessage = $message ?? "🧪 Test message from CartVIP SMS Service. If you received this, SMS notifications are working! ✅";
+        $testMessage = $message ?? "Test message from CartVIP SMS Service. If you received this, SMS notifications are working!";
 
         return $this->sendSms($phoneNumber, $testMessage);
     }
