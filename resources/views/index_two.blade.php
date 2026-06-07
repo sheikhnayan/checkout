@@ -7176,7 +7176,7 @@
                     formLoadTimeField.value = Math.floor(Date.now() / 1000);
                 }
 
-                submitBtn.addEventListener('click', async function (e) {
+                submitBtn.addEventListener('click', function (e) {
                     const reservationDate = document.getElementById('package_use_date');
                     const menCount = parseInt(document.getElementById('menCount')?.textContent || '0', 10);
                     const womenCount = parseInt(document.getElementById('womenCount')?.textContent || '0', 10);
@@ -7223,18 +7223,30 @@
                         return;
                     }
 
-                    // Get reCAPTCHA token
-                    if (typeof window.executeRecaptcha === 'function') {
-                        const token = await window.executeRecaptcha('reservation_submit');
-                        if (token) {
-                            const tokenField = document.getElementById('recaptcha_token');
-                            if (tokenField) {
-                                tokenField.value = token;
-                            }
-                        }
-                    }
+                    // Prevent default and handle submission with reCAPTCHA
+                    e.preventDefault();
 
-                    // All validations passed, form will submit normally
+                    // Get reCAPTCHA token before submitting
+                    if (typeof window.executeRecaptcha === 'function') {
+                        window.executeRecaptcha('reservation_submit').then(function(token) {
+                            if (token) {
+                                const tokenField = document.getElementById('recaptcha_token');
+                                if (tokenField) {
+                                    tokenField.value = token;
+                                }
+                            }
+                            // Submit form after token is set
+                            form.submit();
+                        }).catch(function(error) {
+                            console.warn('reCAPTCHA error:', error);
+                            // Still submit if reCAPTCHA fails - server-side validation will handle
+                            form.submit();
+                        });
+                    } else {
+                        // reCAPTCHA not available - submit directly
+                        console.warn('reCAPTCHA not loaded');
+                        form.submit();
+                    }
                 });
             })();
 

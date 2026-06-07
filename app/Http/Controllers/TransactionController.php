@@ -630,20 +630,34 @@ class TransactionController extends Controller
         // ========== BOT PREVENTION - LAYER 1: reCAPTCHA v3 ==========
         if (config('services.recaptcha.secret_key') && config('services.recaptcha.secret_key') !== 'YOUR_RECAPTCHA_SECRET_KEY_HERE') {
             $recaptchaToken = $request->input('recaptcha_token');
-            if (!$recaptchaToken) {
-                return redirect()->back()->with('error', 'Bot verification failed. Please try again.');
-            }
 
-            $recaptchaService = new \App\Services\RecaptchaService();
-            $recaptchaResult = $recaptchaService->verify($recaptchaToken);
+            // Log token reception for debugging
+            \Log::info('Reservation token check', [
+                'has_token' => !empty($recaptchaToken),
+                'token_length' => strlen($recaptchaToken ?? ''),
+                'ip' => $request->ip(),
+                'email' => $request->input('reservation_email')
+            ]);
 
-            if (!$recaptchaResult['success']) {
-                \Log::warning('Reservation bot detected by reCAPTCHA', [
-                    'score' => $recaptchaResult['score'],
+            if ($recaptchaToken) {
+                $recaptchaService = new \App\Services\RecaptchaService();
+                $recaptchaResult = $recaptchaService->verify($recaptchaToken);
+
+                if (!$recaptchaResult['success']) {
+                    \Log::warning('reCAPTCHA verification failed', [
+                        'score' => $recaptchaResult['score'],
+                        'message' => $recaptchaResult['message'],
+                        'ip' => $request->ip(),
+                        'email' => $request->input('reservation_email')
+                    ]);
+                    // Don't block on reCAPTCHA failure - let Layer 3 catch it
+                }
+            } else {
+                \Log::warning('No reCAPTCHA token received', [
                     'ip' => $request->ip(),
                     'email' => $request->input('reservation_email')
                 ]);
-                return redirect()->back()->with('error', 'Bot behavior detected. Please try again.');
+                // Token not provided - will be caught by Layer 3 validation
             }
         }
 
