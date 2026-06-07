@@ -6512,6 +6512,14 @@ input[type="checkbox"],
                     const womenCount = parseInt(document.getElementById('womenCount')?.textContent || '0', 10);
                     const totalGuests = menCount + womenCount;
 
+                    // Sync reservation date to hidden field BEFORE validation
+                    if (reservationDate && reservationDate.value) {
+                        const hiddenDateField = document.querySelector('input[name="package_use_date"]');
+                        if (hiddenDateField) {
+                            hiddenDateField.value = reservationDate.value;
+                        }
+                    }
+
                     let hasError = false;
                     let errorMessage = '';
 
