@@ -6467,6 +6467,62 @@ input[type="checkbox"],
                 });
             })();
 
+            // Reservation form validation: prevent submission without date and guests
+            (function () {
+                const submitBtn = document.getElementById('submitBtn_two');
+                if (!submitBtn) return;
+
+                const form = submitBtn.closest('form');
+                if (!form) return;
+
+                submitBtn.addEventListener('click', function (e) {
+                    const reservationDate = document.getElementById('package_use_date');
+                    const menCount = parseInt(document.getElementById('menCount')?.textContent || '0', 10);
+                    const womenCount = parseInt(document.getElementById('womenCount')?.textContent || '0', 10);
+                    const totalGuests = menCount + womenCount;
+
+                    let hasError = false;
+                    let errorMessage = '';
+
+                    // Check if reservation date is selected
+                    if (!reservationDate || !reservationDate.value || reservationDate.value.trim() === '') {
+                        hasError = true;
+                        errorMessage = 'Please select a reservation date.';
+                        if (reservationDate) {
+                            reservationDate.classList.add('required-field');
+                            reservationDate.setAttribute('aria-invalid', 'true');
+                        }
+                        const dateError = document.getElementById('package_use_date_error');
+                        if (dateError) {
+                            dateError.textContent = errorMessage;
+                            dateError.style.display = 'block';
+                        }
+                    } else {
+                        if (reservationDate) {
+                            reservationDate.classList.remove('required-field');
+                            reservationDate.removeAttribute('aria-invalid');
+                        }
+                        const dateError = document.getElementById('package_use_date_error');
+                        if (dateError) {
+                            dateError.style.display = 'none';
+                        }
+                    }
+
+                    // Check if total guests is greater than 0
+                    if (totalGuests === 0) {
+                        hasError = true;
+                        errorMessage = errorMessage ? 'Please select a reservation date and add at least one guest.' : 'Please add at least one guest (men or women).';
+                    }
+
+                    if (hasError) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // Show error alert
+                        alert(errorMessage);
+                    }
+                });
+            })();
+
             // Cart toast: show a notification when an item is added (helpful on mobile
             // where the cart sidebar is below the fold).
             (function () {
