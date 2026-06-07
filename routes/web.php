@@ -21,6 +21,7 @@ use App\Http\Controllers\AffiliatePublicController;
 use App\Http\Controllers\AffiliateAdminController;
 use App\Http\Controllers\AffiliatePortalController;
 use App\Http\Controllers\StaffRegistrationController;
+use App\Http\Controllers\StaffAdminController;
 use App\Http\Controllers\EntertainerRegistrationController;
 use App\Http\Controllers\EntertainerPublicController;
 use App\Http\Controllers\EntertainerAdminController;
@@ -360,6 +361,13 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::post('/{entertainer}/unapprove', [EntertainerAdminController::class, 'unapprove'])->name('unapprove');
         Route::post('/{entertainer}/reject', [EntertainerAdminController::class, 'reject'])->name('reject');
         Route::post('/{entertainer}/commission', [EntertainerAdminController::class, 'updateCommission'])->name('commission.update');
+    });
+
+    Route::group(['prefix' => 'staff', 'as' => 'staff.'], function () {
+        Route::get('/', [StaffAdminController::class, 'index'])->name('index');
+        Route::get('/{type}/{id}', [StaffAdminController::class, 'show'])->name('show');
+        Route::post('/{type}/{id}/approve', [StaffAdminController::class, 'approve'])->name('approve');
+        Route::post('/{type}/{id}/reject', [StaffAdminController::class, 'reject'])->name('reject');
     });
 
     Route::group(['prefix' => 'feed-model', 'as' => 'feed-model.'], function () {

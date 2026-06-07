@@ -82,13 +82,14 @@ class StaffRegistrationController extends Controller
             'user_type' => $userType,
         ]);
 
-        // Create affiliate or entertainer record
+        // Create affiliate or entertainer record (marked as staff registration)
         if ($staffType === 'affiliate') {
             $staff = Affiliate::create([
                 'user_id' => $user->id,
                 'status' => 'pending',
                 'slug' => Affiliate::generateUniqueSlug($request->name),
                 'display_name' => $request->name,
+                'is_staff_registration' => true,
             ]);
         } else {
             $staff = Entertainer::create([
@@ -97,6 +98,7 @@ class StaffRegistrationController extends Controller
                 'status' => 'pending',
                 'slug' => Entertainer::generateUniqueSlug($request->name),
                 'display_name' => $request->name,
+                'is_staff_registration' => true,
             ]);
         }
 

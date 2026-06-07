@@ -946,6 +946,15 @@
   </li>
   @endif
 
+  @if($authUser && ($canAccessRoute('admin.entertainer.index') || $canAccessRoute('admin.affiliate.index')))
+  <li class="menu-item {{ request()->is('admins/staff*') ? 'active' : '' }}">
+    <a href="{{ route('admin.staff.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-id-card"></i>
+      <div class="text-truncate">Current Staff</div>
+    </a>
+  </li>
+  @endif
+
   @if(auth()->check() && auth()->user()->isAdmin())
   <li class="menu-item {{ request()->is('admins/withdraw/affiliates*') ? 'active' : '' }}">
     <a href="{{ route('admin.withdraw.affiliates') }}" class="menu-link">
