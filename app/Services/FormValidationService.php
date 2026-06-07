@@ -147,17 +147,25 @@ class FormValidationService
         }
 
         // Check for obviously fake patterns
-        $fakePatterns = [
-            '/^[a-z]{20,}@/', // 20+ letter local part (common in spam)
-            '/[!@#$%^&*()+=\[\]{};:\'",<>?\\\\/]{3,}/', // 3+ special chars in a row
-            '/test|spam|fake|bot|scam|hack/i', // Common spam keywords
-            '/aaa|bbb|ccc|ddd|eee|fff|ggg|hhh|iii|jjj|kkk|lll|mmm|nnn|ooo|ppp|qqq|rrr|sss|ttt|uuu|vvv|www|xxx|yyy|zzz/' // Repeated chars
-        ];
+        // 20+ consecutive letters in local part (spam indicator)
+        if (preg_match('/^[a-z]{20,}@/i', $email)) {
+            return false;
+        }
 
-        foreach ($fakePatterns as $pattern) {
-            if (preg_match($pattern, $email)) {
-                return false;
-            }
+        // Spam keywords
+        if (preg_match('/(test|spam|fake|bot|scam|hack|viagra|casino|crypto)/i', $email)) {
+            return false;
+        }
+
+        // Repeated characters pattern (aaaa, bbbb, etc)
+        if (preg_match('/(.)\1{3,}/', $email)) {
+            return false;
+        }
+
+        // Too many special characters
+        $specialCharCount = preg_match_all('/[!#$%^&*+=\[\]{};:\'",<>?]/', $email);
+        if ($specialCharCount >= 3) {
+            return false;
         }
 
         return true;
