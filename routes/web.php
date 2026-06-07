@@ -131,12 +131,16 @@ Route::get('/debug/pdf/{id}', function($id) {
 
 // affiliate public routes (must stay before slug route)
 Route::get('/affiliate/apply', [AffiliateRegistrationController::class, 'showForm'])->name('affiliate.apply');
-Route::post('/affiliate/apply', [AffiliateRegistrationController::class, 'submit'])->name('affiliate.apply.submit');
+Route::post('/affiliate/apply', [AffiliateRegistrationController::class, 'submit'])
+    ->middleware(['throttle:10,60', \App\Http\Middleware\HandleThrottleResponse::class])
+    ->name('affiliate.apply.submit');
 Route::get('/signup/{role}/{provider}/redirect', [SocialSignupController::class, 'redirect'])->name('social.signup.redirect');
 Route::get('/signup/{role}/{provider}/callback', [SocialSignupController::class, 'callback'])->name('social.signup.callback');
 Route::get('/affiliate/{slug}', [AffiliatePublicController::class, 'show'])->name('affiliate.public');
 Route::get('/entertainer/apply', [EntertainerRegistrationController::class, 'showForm'])->name('entertainer.apply');
-Route::post('/entertainer/apply', [EntertainerRegistrationController::class, 'submit'])->name('entertainer.apply.submit');
+Route::post('/entertainer/apply', [EntertainerRegistrationController::class, 'submit'])
+    ->middleware(['throttle:10,60', \App\Http\Middleware\HandleThrottleResponse::class])
+    ->name('entertainer.apply.submit');
 Route::get('/entertainer/{slug}', [EntertainerPublicController::class, 'show'])->name('entertainer.public');
 Route::get('/incident-witness/{token}', [IncidentController::class, 'publicWitnessForm'])->name('incident.witness.form');
 Route::post('/incident-witness/{token}', [IncidentController::class, 'publicWitnessStore'])->name('incident.witness.submit');

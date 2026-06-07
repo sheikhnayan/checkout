@@ -20,6 +20,42 @@ class AffiliateRegistrationController extends Controller
 
     public function submit(Request $request)
     {
+        // ========== BOT PREVENTION - LAYER 1: reCAPTCHA v3 (OPTIONAL) ==========
+        $recaptchaToken = $request->input('recaptcha_token');
+        if ($recaptchaToken && config('services.recaptcha.secret_key') && config('services.recaptcha.secret_key') !== 'YOUR_RECAPTCHA_SECRET_KEY_HERE') {
+            $recaptchaService = new \App\Services\RecaptchaService();
+            $recaptchaResult = $recaptchaService->verify($recaptchaToken);
+
+            if (!$recaptchaResult['success']) {
+                \Log::info('Affiliate registration reCAPTCHA score low', [
+                    'score' => $recaptchaResult['score'],
+                    'ip' => $request->ip(),
+                    'email' => $request->input('email')
+                ]);
+            }
+        }
+
+        // ========== BOT PREVENTION - LAYER 3: Server-Side Validation ==========
+        $validationData = [
+            'email' => $request->input('email'),
+            'phone' => $request->input('phone'),
+            'name' => $request->input('name'),
+            'form_load_time' => $request->input('form_load_time'),
+        ];
+
+        $validationResult = \App\Services\FormValidationService::validateAffiliateRegistration($validationData, $request->ip());
+        if (!$validationResult['valid']) {
+            \Log::warning('Affiliate registration rejected by server validation', [
+                'errors' => $validationResult['errors'],
+                'ip' => $request->ip(),
+                'email' => $request->input('email')
+            ]);
+            return redirect()->back()
+                ->with('error', 'Registration validation failed: ' . implode(', ', $validationResult['errors']))
+                ->withInput();
+        }
+
+        // Standard Laravel validation
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',

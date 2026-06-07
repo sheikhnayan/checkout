@@ -67,7 +67,9 @@
       "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Services\\\\RecaptchaService.php\")",
       "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Services\\\\FormValidationService.php\")",
       "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Http\\\\Middleware\\\\ThrottleFormSubmissions.php\")",
-      "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Http\\\\Middleware\\\\HandleThrottleResponse.php\")"
+      "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Http\\\\Middleware\\\\HandleThrottleResponse.php\")",
+      "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Http\\\\Controllers\\\\AffiliateRegistrationController.php\")",
+      "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Http\\\\Controllers\\\\EntertainerRegistrationController.php\")"
     ],
     "additionalDirectories": [
       "c:\\wamp64\\www\\checkout\\bootstrap\\cache",

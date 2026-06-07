@@ -618,9 +618,36 @@
                         <i class="fas fa-paper-plane me-2"></i> Submit Application
                     </button>
                 </div>
+                <input type="hidden" name="recaptcha_token" id="recaptcha_token" value="">
+                <input type="hidden" name="form_load_time" id="form_load_time" value="">
             </form>
         </div>
     </div>
+
+    <script>
+        // Set form load time
+        document.addEventListener('DOMContentLoaded', function() {
+            const formLoadTimeField = document.getElementById('form_load_time');
+            if (formLoadTimeField) {
+                formLoadTimeField.value = Math.floor(Date.now() / 1000);
+            }
+        });
+
+        // Get reCAPTCHA token on form submit
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', async function(e) {
+                if (typeof window.executeRecaptcha === 'function') {
+                    e.preventDefault();
+                    const token = await window.executeRecaptcha('entertainer_apply');
+                    if (token) {
+                        document.getElementById('recaptcha_token').value = token;
+                    }
+                    form.submit();
+                }
+            });
+        }
+    </script>
 
     <script>
         function togglePass(id, btn) {

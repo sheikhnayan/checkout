@@ -30,6 +30,41 @@ class EntertainerRegistrationController extends Controller
 
     public function submit(Request $request)
     {
+        // ========== BOT PREVENTION - LAYER 1: reCAPTCHA v3 (OPTIONAL) ==========
+        $recaptchaToken = $request->input('recaptcha_token');
+        if ($recaptchaToken && config('services.recaptcha.secret_key') && config('services.recaptcha.secret_key') !== 'YOUR_RECAPTCHA_SECRET_KEY_HERE') {
+            $recaptchaService = new \App\Services\RecaptchaService();
+            $recaptchaResult = $recaptchaService->verify($recaptchaToken);
+
+            if (!$recaptchaResult['success']) {
+                \Log::info('Entertainer registration reCAPTCHA score low', [
+                    'score' => $recaptchaResult['score'],
+                    'ip' => $request->ip(),
+                    'email' => $request->input('email')
+                ]);
+            }
+        }
+
+        // ========== BOT PREVENTION - LAYER 3: Server-Side Validation ==========
+        $validationData = [
+            'email' => $request->input('email'),
+            'phone' => $request->input('phone'),
+            'name' => $request->input('name'),
+            'form_load_time' => $request->input('form_load_time'),
+        ];
+
+        $validationResult = \App\Services\FormValidationService::validateEntertainerRegistration($validationData, $request->ip());
+        if (!$validationResult['valid']) {
+            \Log::warning('Entertainer registration rejected by server validation', [
+                'errors' => $validationResult['errors'],
+                'ip' => $request->ip(),
+                'email' => $request->input('email')
+            ]);
+            return redirect()->back()
+                ->with('error', 'Registration validation failed: ' . implode(', ', $validationResult['errors']))
+                ->withInput();
+        }
+
         $clubSlug = trim((string) $request->input('club_slug', $request->query('club', '')));
         $selectedClub = $clubSlug !== ''
             ? Website::where('slug', $clubSlug)->where('status', 1)->where('is_archieved', 0)->first()
