@@ -111,12 +111,25 @@ class FormValidationService
             return false;
         }
 
-        // Local part shouldn't be all numbers or all special chars
-        if (!preg_match('/[a-zA-Z0-9]/', $localPart)) {
+        // ===== LOCAL PART CHECKS =====
+
+        // Reject if local part has ANY special characters except . - _
+        if (!preg_match('/^[a-zA-Z0-9._-]+$/', $localPart)) {
+            return false; // Characters like ! @ # $ % are NOT allowed in local part
+        }
+
+        // Local part should have at least one letter
+        if (!preg_match('/[a-zA-Z]/', $localPart)) {
             return false;
         }
 
-        // Domain validation
+        // Check for gibberish patterns in local part
+        if (!self::isRealisticLocalPart($localPart)) {
+            return false;
+        }
+
+        // ===== DOMAIN VALIDATION =====
+
         if (strlen($domain) < 4) { // Minimum: a.co
             return false;
         }
@@ -134,7 +147,7 @@ class FormValidationService
             if (strlen($part) === 0) {
                 return false;
             }
-            // Part should contain only alphanumeric, dash, and not start/end with dash
+            // Part should contain only alphanumeric and dash (not start/end with dash)
             if (!preg_match('/^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$/', $part)) {
                 return false;
             }
@@ -146,25 +159,50 @@ class FormValidationService
             return false;
         }
 
-        // Check for obviously fake patterns
-        // 20+ consecutive letters in local part (spam indicator)
-        if (preg_match('/^[a-z]{20,}@/i', $email)) {
+        // ===== KNOWN SPAM PATTERNS =====
+
+        // Spam keywords anywhere
+        if (preg_match('/(test|spam|fake|bot|scam|hack|viagra|casino|crypto|forex|lottery)/i', $email)) {
             return false;
         }
 
-        // Spam keywords
-        if (preg_match('/(test|spam|fake|bot|scam|hack|viagra|casino|crypto)/i', $email)) {
-            return false;
-        }
-
-        // Repeated characters pattern (aaaa, bbbb, etc)
+        // Repeated characters (aaaa, bbbb, etc)
         if (preg_match('/(.)\1{3,}/', $email)) {
             return false;
         }
 
-        // Too many special characters
-        $specialCharCount = preg_match_all('/[!#$%^&*+=\[\]{};:\'",<>?]/', $email);
-        if ($specialCharCount >= 3) {
+        return true;
+    }
+
+    /**
+     * Check if local part looks realistic (not gibberish)
+     */
+    private static function isRealisticLocalPart($localPart)
+    {
+        // Very long local parts (>30 chars) are suspicious
+        if (strlen($localPart) > 30) {
+            // Should have at least some pattern or known words
+            if (!preg_match('/(name|user|admin|info|contact|support|sales|hello|john|jane|test|demo)/i', $localPart)) {
+                return false;
+            }
+        }
+
+        // Count consonants and vowels to detect gibberish
+        $vowels = preg_match_all('/[aeiouAEIOU]/', $localPart);
+        $consonants = preg_match_all('/[bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]/', $localPart);
+        $total = $vowels + $consonants;
+
+        // If mostly consonants/no vowels (gibberish indicator)
+        if ($total > 0) {
+            $vowelRatio = $vowels / $total;
+            // Normal emails have 30-40% vowels, gibberish has <15%
+            if ($vowelRatio < 0.15 && strlen($localPart) > 12) {
+                return false;
+            }
+        }
+
+        // Too many repeated sequences
+        if (preg_match('/([a-z])\1{2,}/i', $localPart)) {
             return false;
         }
 
