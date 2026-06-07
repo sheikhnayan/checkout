@@ -20,6 +20,7 @@ use App\Http\Controllers\AffiliateRegistrationController;
 use App\Http\Controllers\AffiliatePublicController;
 use App\Http\Controllers\AffiliateAdminController;
 use App\Http\Controllers\AffiliatePortalController;
+use App\Http\Controllers\StaffRegistrationController;
 use App\Http\Controllers\EntertainerRegistrationController;
 use App\Http\Controllers\EntertainerPublicController;
 use App\Http\Controllers\EntertainerAdminController;
@@ -130,6 +131,11 @@ Route::get('/debug/pdf/{id}', function($id) {
 });
 
 // affiliate public routes (must stay before slug route)
+Route::get('/staff/apply', [StaffRegistrationController::class, 'showForm'])->name('staff.apply');
+Route::post('/staff/apply', [StaffRegistrationController::class, 'submit'])
+    ->middleware(['throttle:10,60', \App\Http\Middleware\HandleThrottleResponse::class])
+    ->name('staff.apply.submit');
+
 Route::get('/affiliate/apply', [AffiliateRegistrationController::class, 'showForm'])->name('affiliate.apply');
 Route::post('/affiliate/apply', [AffiliateRegistrationController::class, 'submit'])
     ->middleware(['throttle:10,60', \App\Http\Middleware\HandleThrottleResponse::class])

@@ -519,6 +519,9 @@
             <div class="divider">or join as</div>
 
             <div class="alt-links">
+                <a href="{{ route('staff.apply') }}" class="alt-link" style="background: rgba(79, 70, 229, 0.15); border-color: rgba(79, 70, 229, 0.3);">
+                    <i class="fas fa-id-badge"></i> Current Staff
+                </a>
                 <a href="{{ route('affiliate.apply') }}" class="alt-link">
                     <i class="fas fa-bullhorn"></i> Promoter
                 </a>
