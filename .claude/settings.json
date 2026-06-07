@@ -58,7 +58,8 @@
       "Read(//tmp/**)",
       "Bash(node -c \"c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\admin\\\\transaction\\\\scanner.blade.php\")",
       "Bash(grep -n 'package_use_date\\\\|protected $fillable\\\\|protected $casts' 'c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Models\\\\Transaction.php')",
-      "Bash(grep -n \"@filterStatus\\\\|filterWebsite\\\\|\\\\$\\('#\" \"c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\admin\\\\transaction\\\\index.blade.php\")"
+      "Bash(grep -n \"@filterStatus\\\\|filterWebsite\\\\|\\\\$\\('#\" \"c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\admin\\\\transaction\\\\index.blade.php\")",
+      "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\admin\\\\main.blade.php\")"
     ],
     "additionalDirectories": [
       "c:\\wamp64\\www\\checkout\\bootstrap\\cache",

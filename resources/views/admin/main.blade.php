@@ -1551,7 +1551,7 @@
             // Check all following siblings until the next menu-header
             while (nextElement && !nextElement.classList.contains('menu-header')) {
               const computedStyle = window.getComputedStyle(nextElement);
-              // Check if element is visible (not display:none and not hidden by @if condition)
+              // Check if element is visible (not display:none and not hidden by permission condition)
               if (computedStyle.display !== 'none' && nextElement.offsetParent !== null) {
                 hasVisibleItems = true;
                 break;
