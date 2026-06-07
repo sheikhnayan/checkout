@@ -473,6 +473,56 @@ body.modal-open .admin-mobile-menu-toggle {
                         <option value="Refunded" {{ $filterStatus === 'Refunded' ? 'selected' : '' }}>Refunded</option>
                     </select>
                 </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
+                    <select id="reservationFilter" class="form-control" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:8px 12px;border-radius:8px;font-size:0.9rem;">
+                        <option value="">All Reservations</option>
+                        <option value="upcoming">Upcoming</option>
+                        <option value="today">Today</option>
+                        <option value="weekend">This Weekend</option>
+                        <option value="past">Past</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Stat Cards -->
+            @php
+                $pendingCommission = $data->sum(function($item) {
+                    $comm = (float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0);
+                    $status = $item->affiliate_commission_status ?? $item->entertainer_commission_status ?? null;
+                    return $status === 'pending' ? $comm : 0;
+                });
+                $availableNow = $data->sum(function($item) {
+                    $comm = (float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0);
+                    $status = $item->affiliate_commission_status ?? $item->entertainer_commission_status ?? null;
+                    $holdUntil = $item->affiliate_commission_hold_until ?? $item->entertainer_commission_hold_until ?? null;
+                    return ($status === 'approved' || ($holdUntil && $holdUntil->lte(now()))) ? $comm : 0;
+                });
+                $lifetimeEarned = $data->sum(function($item) {
+                    return (float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0);
+                });
+            @endphp
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:24px;">
+                <div class="txn-stat-card">
+                    <div class="txn-stat-icon" style="background:rgba(249,115,22,0.2);">⏳</div>
+                    <div>
+                        <div class="txn-stat-label">Pending Commission</div>
+                        <div class="txn-stat-value">${{ number_format($pendingCommission, 2) }}</div>
+                    </div>
+                </div>
+                <div class="txn-stat-card">
+                    <div class="txn-stat-icon" style="background:rgba(16,185,129,0.2);">✓</div>
+                    <div>
+                        <div class="txn-stat-label">Available Now</div>
+                        <div class="txn-stat-value">${{ number_format($availableNow, 2) }}</div>
+                    </div>
+                </div>
+                <div class="txn-stat-card">
+                    <div class="txn-stat-icon" style="background:rgba(59,130,246,0.2);">💰</div>
+                    <div>
+                        <div class="txn-stat-label">Lifetime Earned</div>
+                        <div class="txn-stat-value">${{ number_format($lifetimeEarned, 2) }}</div>
+                    </div>
+                </div>
             </div>
 
             <div class="table-responsive">
@@ -486,13 +536,13 @@ body.modal-open .admin-mobile-menu-toggle {
                             <th>Promoter</th>
                             <th>Amount</th>
                             <th>Status</th>
+                            <th>Reservation Date</th>
                             <th>Checked In</th>
                             <th>Commission</th>
                             @if($isPayoutPage)
-                            <th style="min-width:130px">Hold Until</th>
+                            <th style="min-width:130px">Commission Available</th>
                             @endif
-                            <th>Reservation Date</th>
-                            <th>Date</th>
+                            <th>Sale Date</th>
                             <th>Action</th>
                             <th class="d-none">_website</th>
                             <th class="d-none">_type</th>
@@ -590,6 +640,25 @@ body.modal-open .admin-mobile-menu-toggle {
                                 @endif
                             </td>
                             <td>
+                                @php
+                                    $reservationDate = optional($item->package_use_date);
+                                    $today = \Carbon\Carbon::today();
+                                    $isToday = $reservationDate && $reservationDate->isToday();
+                                    $isFuture = $reservationDate && $reservationDate->isFuture();
+                                @endphp
+                                @if($reservationDate && $reservationDate->isValid())
+                                    @if($isToday)
+                                        <div style="font-size:1.1rem">🔥 Today</div>
+                                    @elseif($isFuture)
+                                        <div style="font-size:1rem">🗓️ {{ $reservationDate->format('M d, Y') }}</div>
+                                    @else
+                                        <div style="font-size:0.9rem;color:rgba(255,255,255,0.6)">✓ {{ $reservationDate->format('M d, Y') }}</div>
+                                    @endif
+                                @else
+                                    <span style="color:rgba(255,255,255,0.25);font-size:0.78rem">-</span>
+                                @endif
+                            </td>
+                            <td>
                                 @if($item->checked_in_status)
                                     <span class="badge-checkin-yes">YES</span>
                                 @else
@@ -598,8 +667,11 @@ body.modal-open .admin-mobile-menu-toggle {
                             </td>
                             <td class="txn-commission">
                                 <div>${{ number_format($commission, 2) }}</div>
-                                @if($commStatus === 'pending')
-                                    <span class="badge-payout-pending">PENDING</span>
+                                @if($commStatus === 'pending' && $holdUntil)
+                                    @php $daysRemaining = now()->diffInDays($holdUntil, false); @endphp
+                                    <span class="badge-payout-pending">{{ abs($daysRemaining) }}-Day Hold</span>
+                                @elseif($commStatus === 'pending')
+                                    <span class="badge-payout-pending">Pending Hold</span>
                                 @elseif($commStatus === 'approved')
                                     <span class="badge-payout-approved">APPROVED</span>
                                 @elseif($commStatus === 'paid')
@@ -617,19 +689,12 @@ body.modal-open .admin-mobile-menu-toggle {
                                 @elseif($commStatus === 'reversed')
                                     <span class="badge-payout-reversed">REVERSED</span>
                                 @elseif($holdUntil && !$isEligible)
-                                    <div style="font-size:0.82rem;color:#fbbf24;font-weight:700"><i class="fas fa-lock me-1"></i>{{ $holdUntil->timezone('America/Los_Angeles')->format('M d, Y') }}</div>
-                                    <div style="font-size:0.68rem;color:rgba(255,255,255,0.35);margin-top:2px">Not yet eligible</div>
+                                    <div style="font-size:0.82rem;color:#fbbf24;font-weight:700"><i class="fas fa-lock me-1"></i>Available {{ $holdUntil->timezone('America/Los_Angeles')->format('M d') }}</div>
                                 @else
-                                    <div class="txn-payout-eligible" style="font-size:0.8rem;font-weight:700"><i class="fas fa-check-circle me-1"></i>Eligible now</div>
-                                    @if($holdUntil)
-                                        <div style="font-size:0.68rem;color:rgba(255,255,255,0.35);margin-top:2px">Hold ended {{ $holdUntil->timezone('America/Los_Angeles')->format('M d, Y') }}</div>
-                                    @endif
+                                    <div class="txn-payout-eligible" style="font-size:0.8rem;font-weight:700"><i class="fas fa-check-circle me-1"></i>Available Now</div>
                                 @endif
                             </td>
                             @endif
-                            <td>
-                                <div class="txn-date-main">{{ optional($item->package_use_date)->format('M d, Y') ?: '-' }}</div>
-                            </td>
                             <td>
                                 <div class="txn-date-main">{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('M d, Y') }}</div>
                                 <div class="txn-date-time">{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('h:i A') }}</div>
@@ -1166,6 +1231,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     setOrDelete('type', $('#typeFilter').val());
                     setOrDelete('affiliate', $('#affiliateFilter').val());
                     setOrDelete('status', $('#statusFilter').val());
+                    setOrDelete('reservation', $('#reservationFilter').val());
 
                     const rangeStr = String($('#txnDateRange').val() || '').trim();
                     if (rangeStr && rangeStr.includes(' - ')) {
@@ -1190,7 +1256,7 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 // Filters always visible, no toggle needed
 
-                $('#websiteFilter, #typeFilter, #affiliateFilter, #statusFilter').on('change', function() {
+                $('#websiteFilter, #typeFilter, #affiliateFilter, #statusFilter, #reservationFilter').on('change', function() {
                     reloadWithServerFilters();
                 });
 

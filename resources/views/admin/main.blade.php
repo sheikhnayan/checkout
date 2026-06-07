@@ -115,7 +115,6 @@
       }
 
       .form-control,
-      .form-select,
       textarea,
       input,
       select {
@@ -125,9 +124,13 @@
       }
 
       .form-select {
+        background-color: var(--admin-surface-2) !important;
+        color: var(--admin-text) !important;
+        border-color: var(--admin-border) !important;
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23e8eaf6' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
         background-position: right 0.75rem center !important;
         background-size: 16px 12px !important;
+        background-repeat: no-repeat !important;
         padding-right: 2.5rem !important;
       }
 
@@ -1533,6 +1536,40 @@
           document.addEventListener('DOMContentLoaded', bindUploadCriteria);
         } else {
           bindUploadCriteria();
+        }
+      })();
+
+      // Hide menu headers if all items under them are hidden
+      (function () {
+        function hideEmptyMenuHeaders() {
+          const menuHeaders = document.querySelectorAll('.menu-header');
+
+          menuHeaders.forEach(function (header) {
+            let hasVisibleItems = false;
+            let nextElement = header.nextElementSibling;
+
+            // Check all following siblings until the next menu-header
+            while (nextElement && !nextElement.classList.contains('menu-header')) {
+              const computedStyle = window.getComputedStyle(nextElement);
+              // Check if element is visible (not display:none and not hidden by @if condition)
+              if (computedStyle.display !== 'none' && nextElement.offsetParent !== null) {
+                hasVisibleItems = true;
+                break;
+              }
+              nextElement = nextElement.nextElementSibling;
+            }
+
+            // Hide header if no visible items found
+            if (!hasVisibleItems) {
+              header.style.display = 'none';
+            }
+          });
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', hideEmptyMenuHeaders);
+        } else {
+          hideEmptyMenuHeaders();
         }
       })();
     </script>

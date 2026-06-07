@@ -152,6 +152,35 @@
 
         <div class="card p-4">
             <h5 class="mb-3">Transactions</h5>
+
+            <!-- Stat Cards -->
+            @php
+                $pendingComm = collect($transactions)->sum(function($t) {
+                    return $t->affiliate_commission_status === 'pending' ? (float)($t->affiliate_commission_amount ?? 0) : 0;
+                });
+                $availableComm = collect($transactions)->sum(function($t) {
+                    $status = $t->affiliate_commission_status ?? 'pending';
+                    return ($status === 'approved' || $status === 'paid') ? (float)($t->affiliate_commission_amount ?? 0) : 0;
+                });
+                $totalComm = collect($transactions)->sum(function($t) {
+                    return (float)($t->affiliate_commission_amount ?? 0);
+                });
+            @endphp
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:20px;">
+                <div style="background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.3);padding:12px;border-radius:8px;">
+                    <div style="font-size:0.75rem;font-weight:600;opacity:0.6;margin-bottom:4px">Pending Commission</div>
+                    <div style="font-size:1.4rem;font-weight:700">${{ number_format($pendingComm, 2) }}</div>
+                </div>
+                <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);padding:12px;border-radius:8px;">
+                    <div style="font-size:0.75rem;font-weight:600;opacity:0.6;margin-bottom:4px">Available Now</div>
+                    <div style="font-size:1.4rem;font-weight:700">${{ number_format($availableComm, 2) }}</div>
+                </div>
+                <div style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);padding:12px;border-radius:8px;">
+                    <div style="font-size:0.75rem;font-weight:600;opacity:0.6;margin-bottom:4px">Lifetime Earned</div>
+                    <div style="font-size:1.4rem;font-weight:700">${{ number_format($totalComm, 2) }}</div>
+                </div>
+            </div>
+
             @if(!empty($transactions) && count($transactions) > 0)
                 <div class="table-responsive">
                     <table class="table table-sm table-hover">
@@ -159,12 +188,12 @@
                             <tr>
                                 <th>Confirmation #</th>
                                 <th>Venue</th>
-                                <th>Guest Name</th>
                                 <th>Reservation Date</th>
-                                <th>Date</th>
+                                <th>Guest Name</th>
                                 <th>Amount</th>
                                 <th>Commission Amount</th>
                                 <th>Commission Status</th>
+                                <th>Sale Date</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -173,9 +202,26 @@
                                 <tr>
                                     <td><strong>{{ $transaction->transaction_id }}</strong></td>
                                     <td>{{ optional($transaction->website)->name ?? 'N/A' }}</td>
+                                    <td>
+                                        @php
+                                            $reservationDate = optional($transaction->package_use_date);
+                                            $today = \Carbon\Carbon::today();
+                                            $isToday = $reservationDate && $reservationDate->isToday();
+                                            $isFuture = $reservationDate && $reservationDate->isFuture();
+                                        @endphp
+                                        @if($reservationDate && $reservationDate->isValid())
+                                            @if($isToday)
+                                                <span style="font-size:1rem">🔥 Today</span>
+                                            @elseif($isFuture)
+                                                <span style="font-size:0.95rem">🗓️ {{ $reservationDate->format('M d, Y') }}</span>
+                                            @else
+                                                <span style="font-size:0.9rem;opacity:0.6">✓ {{ $reservationDate->format('M d, Y') }}</span>
+                                            @endif
+                                        @else
+                                            <span style="opacity:0.3">-</span>
+                                        @endif
+                                    </td>
                                     <td>{{ $transaction->package_first_name }} {{ $transaction->package_last_name }}</td>
-                                    <td>{{ optional($transaction->package_use_date)->format('M d, Y') ?: '-' }}</td>
-                                    <td>{{ optional($transaction->created_at)->format('M d, Y') }}</td>
                                     <td>${{ number_format((float) ($transaction->actual_total ?? 0), 2) }}</td>
                                     <td>${{ number_format((float) ($transaction->affiliate_commission_amount ?? 0), 2) }}</td>
                                     <td>
@@ -185,6 +231,7 @@
                                         @endphp
                                         <span class="badge bg-{{ $badgeColor }}">{{ ucfirst($status) }}</span>
                                     </td>
+                                    <td>{{ optional($transaction->created_at)->format('M d, Y') }}</td>
                                     <td>
                                         <button type="button" class="btn btn-sm btn-outline-primary" title="View Details" data-bs-toggle="modal" data-bs-target="#transactionModal" onclick="loadTransactionDetails({{ $transaction->id }})">
                                             <i class="fas fa-eye"></i>
