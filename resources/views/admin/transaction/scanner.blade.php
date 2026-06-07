@@ -349,6 +349,11 @@ document.addEventListener('DOMContentLoaded', function () {
         backPhotoStatus.textContent = 'Pending';
         backPhotoStatus.style.color = '#60a5fa';
         setStatus('Ready for next ticket scan.', false);
+
+        // Auto-start QR scanner
+        setTimeout(function() {
+            startScanner();
+        }, 500);
     }
 
     async function verifyCode(rawCode) {
@@ -918,6 +923,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         stopPhotoCamera();
     });
+
+    // Auto-start QR scanner when page loads
+    setTimeout(function() {
+        startScanner();
+    }, 800);
 });
 </script>
 @endsection

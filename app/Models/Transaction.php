@@ -16,6 +16,7 @@ class Transaction extends Model
     protected $casts = [
         'cart_items' => 'array',
         'checked_in_status' => 'boolean',
+        'package_use_date' => 'date',
         'checked_in_at_pacific' => 'datetime',
         'affiliate_commission_hold_until' => 'datetime',
         'affiliate_commission_approved_at' => 'datetime',

@@ -56,7 +56,8 @@
       "Read(//c/wamp64/www/checkout/database/migrations/**)",
       "Bash(cat)",
       "Read(//tmp/**)",
-      "Bash(node -c \"c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\admin\\\\transaction\\\\scanner.blade.php\")"
+      "Bash(node -c \"c:\\\\wamp64\\\\www\\\\checkout\\\\resources\\\\views\\\\admin\\\\transaction\\\\scanner.blade.php\")",
+      "Bash(grep -n 'package_use_date\\\\|protected $fillable\\\\|protected $casts' 'c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Models\\\\Transaction.php')"
     ],
     "additionalDirectories": [
       "c:\\wamp64\\www\\checkout\\bootstrap\\cache",
