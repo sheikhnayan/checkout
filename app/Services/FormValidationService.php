@@ -14,9 +14,19 @@ class FormValidationService
     {
         $errors = [];
 
-        // 1. Validate email format
-        if (isset($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            $errors[] = 'Invalid email format';
+        // 1. Validate email format (strict)
+        if (isset($data['email'])) {
+            $email = trim($data['email']);
+
+            // Basic format check
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $errors[] = 'Invalid email format';
+            }
+
+            // Additional strict checks for obviously fake emails
+            if (!self::isValidEmail($email)) {
+                $errors[] = 'Please enter a valid email address';
+            }
         }
 
         // 2. Validate phone format (if provided)
@@ -76,6 +86,81 @@ class FormValidationService
             'valid' => count($errors) === 0,
             'errors' => $errors,
         ];
+    }
+
+    /**
+     * Strict email validation - reject obviously fake emails
+     */
+    private static function isValidEmail($email)
+    {
+        // Check length (realistic emails are 5-254 chars)
+        if (strlen($email) < 5 || strlen($email) > 254) {
+            return false;
+        }
+
+        // Split email into local and domain parts
+        $parts = explode('@', $email);
+        if (count($parts) !== 2) {
+            return false;
+        }
+
+        list($localPart, $domain) = $parts;
+
+        // Local part validation
+        if (strlen($localPart) === 0 || strlen($localPart) > 64) {
+            return false;
+        }
+
+        // Local part shouldn't be all numbers or all special chars
+        if (!preg_match('/[a-zA-Z0-9]/', $localPart)) {
+            return false;
+        }
+
+        // Domain validation
+        if (strlen($domain) < 4) { // Minimum: a.co
+            return false;
+        }
+
+        // Domain must have at least one dot
+        if (strpos($domain, '.') === false) {
+            return false;
+        }
+
+        // Domain parts validation
+        $domainParts = explode('.', $domain);
+
+        // Each domain part must have alphanumeric characters
+        foreach ($domainParts as $part) {
+            if (strlen($part) === 0) {
+                return false;
+            }
+            // Part should contain only alphanumeric, dash, and not start/end with dash
+            if (!preg_match('/^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$/', $part)) {
+                return false;
+            }
+        }
+
+        // TLD (last part) should be at least 2 chars and only letters
+        $tld = end($domainParts);
+        if (strlen($tld) < 2 || !preg_match('/^[a-zA-Z]{2,}$/', $tld)) {
+            return false;
+        }
+
+        // Check for obviously fake patterns
+        $fakePatterns = [
+            '/^[a-z]{20,}@/', // 20+ letter local part (common in spam)
+            '/[!@#$%^&*()+=\[\]{};:\'",<>?\\\\/]{3,}/', // 3+ special chars in a row
+            '/test|spam|fake|bot|scam|hack/i', // Common spam keywords
+            '/aaa|bbb|ccc|ddd|eee|fff|ggg|hhh|iii|jjj|kkk|lll|mmm|nnn|ooo|ppp|qqq|rrr|sss|ttt|uuu|vvv|www|xxx|yyy|zzz/' // Repeated chars
+        ];
+
+        foreach ($fakePatterns as $pattern) {
+            if (preg_match($pattern, $email)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

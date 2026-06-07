@@ -627,41 +627,23 @@ class TransactionController extends Controller
 
     public function reservation_store($slug, Request $request)
     {
-        // ========== BOT PREVENTION - LAYER 1: reCAPTCHA v3 ==========
-        if (config('services.recaptcha.secret_key') && config('services.recaptcha.secret_key') !== 'YOUR_RECAPTCHA_SECRET_KEY_HERE') {
-            $recaptchaToken = $request->input('recaptcha_token');
+        // ========== BOT PREVENTION - LAYER 1: reCAPTCHA v3 (OPTIONAL) ==========
+        $recaptchaToken = $request->input('recaptcha_token');
+        if ($recaptchaToken && config('services.recaptcha.secret_key') && config('services.recaptcha.secret_key') !== 'YOUR_RECAPTCHA_SECRET_KEY_HERE') {
+            $recaptchaService = new \App\Services\RecaptchaService();
+            $recaptchaResult = $recaptchaService->verify($recaptchaToken);
 
-            // Log token reception for debugging
-            \Log::info('Reservation token check', [
-                'has_token' => !empty($recaptchaToken),
-                'token_length' => strlen($recaptchaToken ?? ''),
-                'ip' => $request->ip(),
-                'email' => $request->input('reservation_email')
-            ]);
-
-            if ($recaptchaToken) {
-                $recaptchaService = new \App\Services\RecaptchaService();
-                $recaptchaResult = $recaptchaService->verify($recaptchaToken);
-
-                if (!$recaptchaResult['success']) {
-                    \Log::warning('reCAPTCHA verification failed', [
-                        'score' => $recaptchaResult['score'],
-                        'message' => $recaptchaResult['message'],
-                        'ip' => $request->ip(),
-                        'email' => $request->input('reservation_email')
-                    ]);
-                    // Don't block on reCAPTCHA failure - let Layer 3 catch it
-                }
-            } else {
-                \Log::warning('No reCAPTCHA token received', [
+            if (!$recaptchaResult['success']) {
+                \Log::info('reCAPTCHA score low', [
+                    'score' => $recaptchaResult['score'],
                     'ip' => $request->ip(),
                     'email' => $request->input('reservation_email')
                 ]);
-                // Token not provided - will be caught by Layer 3 validation
+                // Don't block here - let Layer 3 validation provide defense
             }
         }
 
-        // ========== BOT PREVENTION - LAYER 3: Server-Side Validation ==========
+        // ========== BOT PREVENTION - LAYER 3: Server-Side Validation (PRIMARY DEFENSE) ==========
         $validationData = [
             'email' => $request->input('reservation_email'),
             'phone' => $request->input('reservation_phone'),
@@ -679,7 +661,9 @@ class TransactionController extends Controller
                 'ip' => $request->ip(),
                 'email' => $request->input('reservation_email')
             ]);
-            return redirect()->back()->with('error', 'Submission validation failed: ' . implode(', ', $validationResult['errors']));
+            // Show user-friendly error message
+            $errorMessage = count($validationResult['errors']) > 0 ? $validationResult['errors'][0] : 'Submission failed. Please try again.';
+            return redirect()->back()->with('error', $errorMessage)->withInput();
         }
 
         if ($request->filled('event_id')) {
