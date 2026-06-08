@@ -464,7 +464,7 @@ Route::group(['prefix'=> 'entertainer-portal', 'as' => 'entertainer.portal.', 'm
 Route::post('/payment-logos', [PaymentLogoController::class, 'store'])->middleware('image.upload.guard')->name('payment-logos.store');
 Route::delete('/payment-logos/{id}', [PaymentLogoController::class, 'destroy'])->name('payment-logos.destroy');
 
-// Telnyx Webhook routes (SMS delivery notifications)
+// Telnyx Webhook routes (SMS delivery notifications - no CSRF needed)
 Route::post('/webhooks/telnyx/sms', [TelnyxWebhookController::class, 'handleSmsWebhook'])->name('telnyx.webhook.sms');
 
 // Frontend catch-all route with slug parameter
