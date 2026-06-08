@@ -712,6 +712,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                         data-package_email="{{ $item->package_email }}"
                                         data-package_dob="{{ $item->package_dob }}"
                                         data-package_note="{{ $item->package_note }}"
+                                        data-host_name="{{ $item->host_name }}"
                                         data-package_number_of_guest="{{ $item->package_number_of_guest }}"
                                         data-transportation_pickup_time="{{ $item->transportation_pickup_time }}"
                                         data-transportation_address="{{ $item->transportation_address }}"
@@ -742,6 +743,12 @@ body.modal-open .admin-mobile-menu-toggle {
                                         data-subtotal="{{ $item->actual_total }}"
                                         data-refundable="{{ number_format(($item->actual_total / 100) * ($item->website->refundable_fee ?? 0), 2) }}"
                                         data-gratuity="{{ number_format(($item->actual_total / 100) * ($item->website->gratuity_fee ?? 0), 2) }}"
+                                        data-service_charge="{{ number_format(($item->actual_total / 100) * ($item->website->service_charge_fee ?? 0), 2) }}"
+                                        data-processing_fee="{{
+                                            ($item->website->processing_fee_type ?? 'percentage') === 'flat'
+                                                ? number_format($item->website->processing_fee ?? 0, 2)
+                                                : number_format(($item->actual_total / 100) * ($item->website->processing_fee ?? 0), 2)
+                                        }}"
                                         data-due="{{ $item->actual_total - $item->total }}"
                                         data-promo_code="{{ $promo_code_name }}"
                                         data-discounted_amount="{{ $item->discounted_amount }}"
@@ -855,6 +862,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                         <li class="list-group-item"><strong>Email:</strong> <span id="modal-package_email"></span></li>
                                         <li class="list-group-item"><strong>DOB:</strong> <span id="modal-package_dob"></span></li>
                                         <li class="list-group-item"><strong>Note:</strong> <span id="modal-package_note"></span></li>
+                                        <li class="list-group-item"><strong>Host Name:</strong> <span id="modal-host_name"></span></li>
                                         <li class="list-group-item"><strong>Number of Guests:</strong> <span id="modal-package_number_of_guest"></span></li>
                                         <li class="list-group-item"><strong>Male Guests:</strong> <span id="modal-package_men_guest"></span></li>
                                         <li class="list-group-item"><strong>Female Guests:</strong> <span id="modal-package_women_guest"></span></li>
@@ -890,6 +898,8 @@ body.modal-open .admin-mobile-menu-toggle {
                                         <li class="list-group-item"><strong>Discounted Amount:</strong> <span id="modal-discounted_amount"></span></li>
                                         <li class="list-group-item"><strong>Total Amount:</strong> <span id="modal-sub_total"></span></li>
                                         <li class="list-group-item"><strong>Gratuity:</strong> <span id="modal-gratuity"></span></li>
+                                        <li class="list-group-item"><strong>Service Charge:</strong> <span id="modal-service_charge"></span></li>
+                                        <li class="list-group-item"><strong>Processing Fee:</strong> <span id="modal-processing_fee"></span></li>
                                         <li class="list-group-item"><strong>Non refundable deposit:</strong> <span id="modal-refundable"></span></li>
                                         <li class="list-group-item"><strong>Total Amount Paid:</strong> <span id="modal-total"></span></li>
                                         <li class="list-group-item"><strong>Total Due:</strong> <span id="modal-total_due"></span></li>
@@ -1536,6 +1546,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 $('#modal-package_email').text($(this).data('package_email'));
                 $('#modal-package_dob').text($(this).data('package_dob'));
                 $('#modal-package_note').text($(this).data('package_note'));
+                $('#modal-host_name').text($(this).data('host_name'));
                 $('#modal-package_number_of_guest').text($(this).data('package_number_of_guest'));
                 $('#modal-transportation_pickup_time').text($(this).data('transportation_pickup_time'));
                 $('#modal-transportation_address').text($(this).data('transportation_address'));
@@ -1576,6 +1587,8 @@ body.modal-open .admin-mobile-menu-toggle {
                 $('#modal-business_purpose').text($(this).data('business_purpose'));
                 $('#modal-refundable').text($(this).data('refundable'));
                 $('#modal-gratuity').text($(this).data('gratuity'));
+                $('#modal-service_charge').text('$' + ($(this).data('service_charge') || '0.00'));
+                $('#modal-processing_fee').text('$' + ($(this).data('processing_fee') || '0.00'));
                 $('#modal-total').text($(this).data('total'));
                 $('#modal-total_due').text($(this).data('due'));
                 $('#modal-date').text($(this).data('date'));

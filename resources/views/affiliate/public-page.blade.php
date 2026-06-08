@@ -6137,8 +6137,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 <textarea id="note" name="package_note"
                                                                     placeholder="Your occasion or special request?"></textarea>
                                                             </div>
+                                                            <div class="form-group">
+                                                                <label for="host">Host Name</label>
+                                                                <input id="host" name="host_name"
+                                                                    placeholder="Enter host name (optional)">
+                                                            </div>
                                                         </div>
-    
+
                                                     </div>
                                                 </div>
                                             </div>

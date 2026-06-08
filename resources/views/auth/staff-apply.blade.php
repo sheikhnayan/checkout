@@ -450,21 +450,17 @@
             <div class="form-title">Staff registration</div>
             <div class="form-subtitle">Complete your details to submit your staff application.</div>
 
-            @if($errors->any())
+            @if($errors->any() || session('error'))
                 <div class="alert-auth">
                     <i class="fas fa-exclamation-circle mt-1"></i>
                     <span>
+                        @if(session('error'))
+                            <div>{{ session('error') }}</div>
+                        @endif
                         @foreach($errors->all() as $error)
                             <div>{{ $error }}</div>
                         @endforeach
                     </span>
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div class="alert-auth">
-                    <i class="fas fa-exclamation-circle mt-1"></i>
-                    <span>{{ session('error') }}</span>
                 </div>
             @endif
 

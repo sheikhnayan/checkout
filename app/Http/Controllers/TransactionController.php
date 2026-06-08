@@ -138,6 +138,7 @@ class TransactionController extends Controller
                     $package_year = $request->input('package_year');
                     $add->package_dob = ($package_year && $package_month && $package_day) ? (sprintf('%04d-%02d-%02d', $package_year, $package_month, $package_day)) : null;
                     $add->package_note = $request->input('package_note');
+                    $add->host_name = $request->input('host_name');
                     $add->promo_code = $validatedPromoCodeId;
                     $add->actual_total = $request->input('payment_total');
                     $add->discounted_amount = $validatedDiscountAmount;
@@ -367,6 +368,7 @@ class TransactionController extends Controller
                     $package_year = $request->input('package_year');
                     $add->package_dob = ($package_year && $package_month && $package_day) ? (sprintf('%04d-%02d-%02d', $package_year, $package_month, $package_day)) : null;
                     $add->package_note = $request->input('package_note');
+                    $add->host_name = $request->input('host_name');
                     $add->promo_code = $validatedPromoCodeId;
                     $add->actual_total = $request->input('payment_total');
                     $add->discounted_amount = $validatedDiscountAmount;

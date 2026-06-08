@@ -37,11 +37,16 @@ class EntertainerRegistrationController extends Controller
             $recaptchaResult = $recaptchaService->verify($recaptchaToken);
 
             if (!$recaptchaResult['success']) {
-                \Log::info('Entertainer registration reCAPTCHA score low', [
+                \Log::warning('Entertainer registration blocked by reCAPTCHA', [
                     'score' => $recaptchaResult['score'],
                     'ip' => $request->ip(),
-                    'email' => $request->input('email')
+                    'email' => $request->input('email'),
+                    'threshold' => config('services.recaptcha.threshold')
                 ]);
+                // Block the submission if reCAPTCHA score is too low (bot detected)
+                return redirect()->back()
+                    ->with('error', 'Bot verification failed. Please try again.')
+                    ->withInput();
             }
         }
 
