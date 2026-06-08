@@ -1228,6 +1228,21 @@ class TransactionController extends Controller
             $totalGuests = max(1, (int) $transaction->package_number_of_guest);
         }
 
+        // Get men and women counts
+        $menCount = (int) ($transaction->package_men ?? $transaction->men ?? 0);
+        $womenCount = (int) ($transaction->package_women ?? $transaction->women ?? 0);
+
+        // Format use date in PST with time (default to midnight if no time)
+        $useDateFormatted = '-';
+        if ($transaction->package_use_date) {
+            try {
+                $useDate = \Carbon\Carbon::createFromFormat('Y-m-d', $transaction->package_use_date);
+                $useDateFormatted = $useDate->setTimezone('America/Los_Angeles')->format('l, M d, Y \a\t 12:00 AM PT');
+            } catch (\Exception $e) {
+                $useDateFormatted = $transaction->package_use_date;
+            }
+        }
+
         return response()->json([
             'success' => true,
             'transaction' => [
@@ -1241,7 +1256,9 @@ class TransactionController extends Controller
                 'website_name' => optional($transaction->website)->name,
                 'event_name' => $eventName !== '' ? $eventName : null,
                 'total' => number_format((float) $transaction->total, 2, '.', ''),
-                'package_use_date' => $transaction->package_use_date,
+                'package_use_date' => $useDateFormatted,
+                'men_count' => $menCount,
+                'women_count' => $womenCount,
                 'package_details' => $packageDetails,
                 'total_guests' => $totalGuests,
                 'checked_in_status' => (bool) $transaction->checked_in_status,

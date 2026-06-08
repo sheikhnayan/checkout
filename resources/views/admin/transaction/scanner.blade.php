@@ -301,8 +301,8 @@ document.addEventListener('DOMContentLoaded', function () {
             '<div><strong>Website:</strong> ' + (transaction.website_name || '-') + '</div>',
             '<div><strong>Event:</strong> ' + (transaction.event_name || '-') + '</div>',
             '<div><strong>Total:</strong> $' + (transaction.total || '0.00') + '</div>',
-            '<div><strong>Total Guests:</strong> ' + (transaction.total_guests || '-') + '</div>',
-            '<div><strong>Use Date:</strong> ' + (transaction.package_use_date || '-') + '</div>',
+            '<div><strong>Guests:</strong> <span style="font-weight:700;color:#fbbf24;">' + (transaction.men_count || 0) + ' Men + ' + (transaction.women_count || 0) + ' Women = ' + (transaction.total_guests || 0) + ' Total</span></div>',
+            '<div><strong>Event Date (PST):</strong> ' + (transaction.package_use_date || '-') + '</div>',
             packageListHtml,
             checkedInText
         ].join('');
