@@ -73,7 +73,8 @@
       "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Http\\\\Controllers\\\\StaffRegistrationController.php\")",
       "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Http\\\\Controllers\\\\StaffAdminController.php\")",
       "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Services\\\\AlowareSmsService.php\")",
-      "WebFetch(domain:developers.telnyx.com)"
+      "WebFetch(domain:developers.telnyx.com)",
+      "Bash(php -l \"c:\\\\wamp64\\\\www\\\\checkout\\\\app\\\\Http\\\\Middleware\\\\VerifyCsrfToken.php\")"
     ],
     "additionalDirectories": [
       "c:\\wamp64\\www\\checkout\\bootstrap\\cache",
