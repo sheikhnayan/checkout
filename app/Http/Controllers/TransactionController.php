@@ -1161,10 +1161,11 @@ class TransactionController extends Controller
             ], 404);
         }
 
-        if ((string) $transaction->type !== 'package' || (string) $transaction->status !== '1') {
+        $transactionType = (string) $transaction->type;
+        if (($transactionType !== 'package' && $transactionType !== 'reservation') || (string) $transaction->status !== '1') {
             return response()->json([
                 'success' => false,
-                'message' => 'This transaction is not an active paid package ticket.',
+                'message' => 'This ticket is not valid or not yet approved.',
             ], 422);
         }
 
@@ -1233,6 +1234,7 @@ class TransactionController extends Controller
                 'id' => $transaction->id,
                 'transaction_id' => $transaction->transaction_id,
                 'ticket_qr_code' => $transaction->ticket_qr_code,
+                'type' => $transactionType === 'reservation' ? 'Reservation' : 'Package',
                 'guest_name' => trim(($transaction->package_first_name ?? '') . ' ' . ($transaction->package_last_name ?? '')),
                 'package_email' => $transaction->package_email,
                 'package_phone' => $transaction->package_phone,
