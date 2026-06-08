@@ -8890,6 +8890,23 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     e.preventDefault();
                     return;
                 }
+
+                // Check SMS consent checkbox
+                const smsConsentPackage = document.getElementById('smsConsent');
+                if (!smsConsentPackage || !smsConsentPackage.checked) {
+                    e.preventDefault();
+                    alert('Please agree to receive SMS communications.');
+                    return;
+                }
+
+                // Check terms consent checkbox
+                const termsConsentPackage = document.getElementById('termsConsent');
+                if (!termsConsentPackage || !termsConsentPackage.checked) {
+                    e.preventDefault();
+                    alert('Please accept the Terms of Service.');
+                    return;
+                }
+
                 prepareCheckoutCartPayload(this);
             });
 

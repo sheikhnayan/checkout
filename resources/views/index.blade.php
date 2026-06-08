@@ -6560,6 +6560,20 @@ input[type="checkbox"],
                         errorMessage = errorMessage ? 'Please select a reservation date and add at least one guest.' : 'Please add at least one guest (men or women).';
                     }
 
+                    // Check SMS consent checkbox
+                    const smsConsent = document.getElementById('smsConsent_two');
+                    if (!smsConsent || !smsConsent.checked) {
+                        hasError = true;
+                        errorMessage = 'Please agree to receive SMS communications.';
+                    }
+
+                    // Check terms consent checkbox
+                    const termsConsent = document.getElementById('termsConsent_two');
+                    if (!termsConsent || !termsConsent.checked) {
+                        hasError = true;
+                        errorMessage = 'Please accept the Terms of Service.';
+                    }
+
                     if (hasError) {
                         e.preventDefault();
                         e.stopPropagation();
@@ -8556,6 +8570,23 @@ input[type="checkbox"],
                     e.preventDefault();
                     return;
                 }
+
+                // Check SMS consent checkbox for package form
+                const smsConsentPackage = document.getElementById('smsConsent');
+                if (!smsConsentPackage || !smsConsentPackage.checked) {
+                    e.preventDefault();
+                    alert('Please agree to receive SMS communications.');
+                    return;
+                }
+
+                // Check terms consent checkbox for package form
+                const termsConsentPackage = document.getElementById('termsConsent');
+                if (!termsConsentPackage || !termsConsentPackage.checked) {
+                    e.preventDefault();
+                    alert('Please accept the Terms of Service.');
+                    return;
+                }
+
                 prepareCheckoutCartPayload(this);
             });
 
