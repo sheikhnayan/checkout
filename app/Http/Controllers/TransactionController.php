@@ -1223,14 +1223,18 @@ class TransactionController extends Controller
             ]];
         }
 
-        $totalGuests = (int) collect($packageDetails)->sum('guests');
-        if ($totalGuests <= 0) {
-            $totalGuests = max(1, (int) $transaction->package_number_of_guest);
-        }
-
         // Get men and women counts
         $menCount = (int) ($transaction->package_men ?? $transaction->men ?? 0);
         $womenCount = (int) ($transaction->package_women ?? $transaction->women ?? 0);
+
+        // Calculate total guests from men + women, or use stored total
+        $totalGuests = $menCount + $womenCount;
+        if ($totalGuests <= 0) {
+            $totalGuests = (int) collect($packageDetails)->sum('guests');
+            if ($totalGuests <= 0) {
+                $totalGuests = max(1, (int) $transaction->package_number_of_guest);
+            }
+        }
 
         // Format use date in PST with time (default to midnight if no time)
         $useDateFormatted = '-';

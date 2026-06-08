@@ -301,7 +301,14 @@ document.addEventListener('DOMContentLoaded', function () {
             '<div><strong>Website:</strong> ' + (transaction.website_name || '-') + '</div>',
             '<div><strong>Event:</strong> ' + (transaction.event_name || '-') + '</div>',
             '<div><strong>Total:</strong> $' + (transaction.total || '0.00') + '</div>',
-            '<div><strong>Guests:</strong> <span style="font-weight:700;color:#fbbf24;">' + (transaction.men_count || 0) + ' Men + ' + (transaction.women_count || 0) + ' Women = ' + (transaction.total_guests || 0) + ' Total</span></div>',
+            (function() {
+                var menCount = parseInt(transaction.men_count || 0);
+                var womenCount = parseInt(transaction.women_count || 0);
+                var totalGuests = parseInt(transaction.total_guests || 0);
+                var menLabel = menCount === 1 ? 'Man' : 'Men';
+                var womenLabel = womenCount === 1 ? 'Woman' : 'Women';
+                return '<div><strong>Guests:</strong> <span style="font-weight:700;color:#fbbf24;">' + menCount + ' ' + menLabel + ' + ' + womenCount + ' ' + womenLabel + ' = ' + totalGuests + ' Total</span></div>';
+            })(),
             '<div><strong>Event Date (PST):</strong> ' + (transaction.package_use_date || '-') + '</div>',
             packageListHtml,
             checkedInText
