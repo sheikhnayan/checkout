@@ -13,6 +13,7 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         // Telnyx webhook - external service sending delivery notifications
-        'webhooks/telnyx/sms',
+        'webhooks/telnyx/*',
+        '/webhooks/telnyx/*',
     ];
 }

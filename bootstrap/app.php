@@ -21,6 +21,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('web', [
             \App\Http\Middleware\RestrictMrRollCallDomain::class,
         ]);
+
+        // Exclude Telnyx webhook from CSRF protection (Laravel 11)
+        $middleware->validateCsrfTokens(
+            except: [
+                'webhooks/telnyx/sms',
+                'webhooks/telnyx/*',
+            ],
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
