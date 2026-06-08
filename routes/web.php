@@ -28,6 +28,7 @@ use App\Http\Controllers\EntertainerAdminController;
 use App\Http\Controllers\EntertainerPortalController;
 use App\Http\Controllers\SocialSignupController;
 use App\Http\Controllers\PackageCategoryController;
+use App\Http\Controllers\TelnyxWebhookController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\FeedModelController;
 use App\Http\Controllers\FeedPostController;
@@ -462,6 +463,9 @@ Route::group(['prefix'=> 'entertainer-portal', 'as' => 'entertainer.portal.', 'm
 // Payment Logo routes (outside admin group for direct access)
 Route::post('/payment-logos', [PaymentLogoController::class, 'store'])->middleware('image.upload.guard')->name('payment-logos.store');
 Route::delete('/payment-logos/{id}', [PaymentLogoController::class, 'destroy'])->name('payment-logos.destroy');
+
+// Telnyx Webhook routes (SMS delivery notifications)
+Route::post('/webhooks/telnyx/sms', [TelnyxWebhookController::class, 'handleSmsWebhook'])->name('telnyx.webhook.sms');
 
 // Frontend catch-all route with slug parameter
 // Keep this at the very end so it does not shadow admin/auth/portal routes.
