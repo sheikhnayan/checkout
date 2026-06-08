@@ -668,7 +668,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td class="txn-commission">
                                 <div>${{ number_format($commission, 2) }}</div>
                                 @if($commStatus === 'pending' && $holdUntil)
-                                    @php $daysRemaining = now()->diffInDays($holdUntil, false); @endphp
+                                    @php $daysRemaining = (int)now()->diffInDays($holdUntil, false); @endphp
                                     <span class="badge-payout-pending">{{ abs($daysRemaining) }}-Day Hold</span>
                                 @elseif($commStatus === 'pending')
                                     <span class="badge-payout-pending">Pending Hold</span>
