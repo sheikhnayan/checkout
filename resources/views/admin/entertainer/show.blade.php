@@ -170,7 +170,7 @@
                                 <th>Amount</th>
                                 <th>Commission Amount</th>
                                 <th>Commission Status</th>
-                                <th>Sale Date</th>
+                                <th>Booking Date</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>

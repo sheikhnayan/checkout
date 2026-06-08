@@ -542,7 +542,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             @if($isPayoutPage)
                             <th style="min-width:130px">Commission Available</th>
                             @endif
-                            <th>Sale Date</th>
+                            <th>Booking Date</th>
                             <th>Action</th>
                             <th class="d-none">_website</th>
                             <th class="d-none">_type</th>
