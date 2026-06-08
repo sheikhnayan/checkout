@@ -251,7 +251,7 @@ class TransactionController extends Controller
                             $purchaserPhone = $request->input('package_phone');
                             if ($purchaserPhone) {
                                 try {
-                                    $smsService = new \App\Services\AlowareSmsService();
+                                    $smsService = new \App\Services\TelnyxSmsService();
                                     $packageData = $this->getPackageData($slug, $request);
                                     $smsData = [
                                         'transaction_id' => $add->transaction_id,
@@ -787,7 +787,7 @@ class TransactionController extends Controller
                             $guestPhone = $new->package_phone;
                             if ($guestPhone) {
                                 try {
-                                    $smsService = new \App\Services\AlowareSmsService();
+                                    $smsService = new \App\Services\TelnyxSmsService();
                                     $smsData = [
                                         'transaction_id' => $new->transaction_id,
                                         'club_name' => $website->name ?? 'Venue',

@@ -5708,11 +5708,8 @@
                                                 <div class="form-row" style="margin-bottom: 1rem;">
                                                     <div class="form-group" style="width: 50%;">
                                                         <label for="phone">Phone Number</label>
-                                                        <input type="tel" name="reservation_phone" id="phone"
-                                                            placeholder="Phone Number" required />
-                                                        <small style="display: block; color: #888; margin-top: 4px; font-size: 0.85rem;">
-                                                            📞 Format: (212) 555-1234 or +1 212 555 1234 - Both work!
-                                                        </small>
+                                                        <input type="tel" name="reservation_phone" id="reservation_phone"
+                                                            placeholder="(555) 123-4567" required />
                                                     </div>
                                                     <div class="form-group" style="width: 50%;">
                                                         <label for="email">Email</label>
@@ -6250,12 +6247,9 @@
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 50%;">
                                                                     <label for="phone">Phone Number</label>
-                                                                    <input type="tel" id="phone"
+                                                                    <input type="tel" id="package_phone"
                                                                         name="package_phone"
-                                                                        placeholder="Phone Number" required />
-                                                                    <small style="display: block; color: #888; margin-top: 4px; font-size: 0.85rem;">
-                                                                        📞 Format: (212) 555-1234 or +1 212 555 1234 - Both work!
-                                                                    </small>
+                                                                        placeholder="(555) 123-4567" required />
                                                                 </div>
                                                                 <div class="form-group" style="width: 50%;">
                                                                     <label for="email">Email</label>
@@ -9916,6 +9910,53 @@
                 });
             }
 
+            // Auto-format phone numbers as user types
+            function initPhoneFormatters() {
+                const phoneFields = ['#reservation_phone', '#package_phone'];
+
+                phoneFields.forEach(selector => {
+                    const field = document.querySelector(selector);
+                    if (!field) return;
+
+                    field.addEventListener('input', function(e) {
+                        let value = e.target.value.replace(/\D/g, ''); // Remove all non-digits
+                        let formatted = '';
+
+                        if (value.length === 0) {
+                            formatted = '';
+                        } else if (value.length <= 3) {
+                            formatted = '(' + value;
+                        } else if (value.length <= 6) {
+                            formatted = '(' + value.slice(0, 3) + ') ' + value.slice(3);
+                        } else {
+                            formatted = '(' + value.slice(0, 3) + ') ' + value.slice(3, 6) + '-' + value.slice(6, 10);
+                        }
+
+                        e.target.value = formatted;
+                    });
+
+                    // Handle paste - strip and reformat
+                    field.addEventListener('paste', function(e) {
+                        setTimeout(() => {
+                            let value = field.value.replace(/\D/g, '');
+                            let formatted = '';
+
+                            if (value.length === 0) {
+                                formatted = '';
+                            } else if (value.length <= 3) {
+                                formatted = '(' + value;
+                            } else if (value.length <= 6) {
+                                formatted = '(' + value.slice(0, 3) + ') ' + value.slice(3);
+                            } else {
+                                formatted = '(' + value.slice(0, 3) + ') ' + value.slice(3, 6) + '-' + value.slice(6, 10);
+                            }
+
+                            field.value = formatted;
+                        }, 0);
+                    });
+                });
+            }
+
             document.addEventListener('DOMContentLoaded', function() {
                 initSidebar();
                 initSidebarDateSync();
@@ -9925,6 +9966,7 @@
                 initCheckoutSteps();
                 initDateNotification();
                 initMapButton();
+                initPhoneFormatters();
             });
         })();
         </script>

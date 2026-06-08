@@ -56,9 +56,17 @@ return [
     'aloware' => [
         'api_key' => env('ALOWARE_API_KEY'),
         'api_url' => env('ALOWARE_API_URL', 'https://app.aloware.io/api/v1/webhook/sms-gateway/send'),
-        'from_number' => env('ALOWARE_FROM_NUMBER'), // The phone number to send FROM (e.g., +18552562001)
+        'from_number' => env('ALOWARE_FROM_NUMBER'),
         'enabled' => env('ALOWARE_ENABLED', false),
-        'default_country_code' => env('ALOWARE_DEFAULT_COUNTRY_CODE', '1'), // 1=US, 44=UK, 33=France, 52=Mexico, etc
+        'default_country_code' => env('ALOWARE_DEFAULT_COUNTRY_CODE', '1'),
+    ],
+
+    'telnyx' => [
+        'api_key' => env('TELNYX_API_KEY'),
+        'api_url' => env('TELNYX_API_URL', 'https://api.telnyx.com/v2/messages'),
+        'from_number' => env('TELNYX_FROM_NUMBER'), // Your Telnyx phone number in E.164 format (e.g., +15551234567)
+        'enabled' => env('TELNYX_ENABLED', true),
+        'default_country_code' => env('TELNYX_DEFAULT_COUNTRY_CODE', '1'), // 1=US, 44=UK, 33=France, 52=Mexico, 61=Australia, 971=UAE, etc
     ],
 
 ];
