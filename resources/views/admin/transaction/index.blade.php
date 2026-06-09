@@ -767,6 +767,8 @@ body.modal-open .admin-mobile-menu-toggle {
                                         data-entertainer_commission_status="{{ $item->entertainer_commission_status ?? '' }}"
                                         data-entertainer_commission_hold_until="{{ $item->entertainer_commission_hold_until ? optional($item->entertainer_commission_hold_until)->timezone('America/Los_Angeles')->format('M d, Y h:i A T') : '' }}"
                                         data-total_commission="{{ (float) $commission }}"
+                                        data-checkin_photo_front="{{ $item->checkin_photo_front_path ?? '' }}"
+                                        data-checkin_photo_back="{{ $item->checkin_photo_back_path ?? '' }}"
                                         title="View Details">
                                         <i class="fas fa-eye"></i>
                                     </button>
@@ -911,6 +913,25 @@ body.modal-open .admin-mobile-menu-toggle {
                                         <li class="list-group-item"><strong>Accepted Terms and Conditions:</strong> <span id="modal-terms">Yes</span></li>
                                         <li class="list-group-item"><strong>Accepted SMS:</strong> <span id="modal-sms">Yes</span></li>
                                     </ul>
+                                </div>
+                            </div>
+
+                            <!-- Check-In Photos Section -->
+                            <div id="checkinPhotosSection" class="d-none mt-4">
+                                <h6 style="color:#e2e8f0;margin-bottom:16px;"><i class="fas fa-camera-alt"></i> Check-In ID Photos</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div id="frontPhotoContainer" class="d-none">
+                                            <h6 style="color:#86efac;font-size:12px;margin-bottom:8px;">📷 Front of ID</h6>
+                                            <img id="modal-checkin-photo-front" style="width:100%;border-radius:8px;border:1px solid #334155;max-height:300px;object-fit:cover;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div id="backPhotoContainer" class="d-none">
+                                            <h6 style="color:#90caf9;font-size:12px;margin-bottom:8px;">📷 Back of ID</h6>
+                                            <img id="modal-checkin-photo-back" style="width:100%;border-radius:8px;border:1px solid #334155;max-height:300px;object-fit:cover;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1638,6 +1659,44 @@ body.modal-open .admin-mobile-menu-toggle {
                 } else {
                     $('#modal-entertainer-commission-row').hide();
                 }
+
+                // Handle check-in photos
+                var transactionId = $(this).data('id');
+                var checkinPhotosSection = $('#checkinPhotosSection');
+                var frontPhotoContainer = $('#frontPhotoContainer');
+                var backPhotoContainer = $('#backPhotoContainer');
+
+                var frontPhotoUrl = '{{ route("admin.transaction.id-photo", ["transactionId" => "ID", "side" => "front"]) }}'.replace('ID', transactionId);
+                var backPhotoUrl = '{{ route("admin.transaction.id-photo", ["transactionId" => "ID", "side" => "back"]) }}'.replace('ID', transactionId);
+
+                $('#modal-checkin-photo-front').attr('src', frontPhotoUrl);
+                $('#modal-checkin-photo-back').attr('src', backPhotoUrl);
+
+                // Check if photos exist by trying to load them
+                var frontPhotoExists = false;
+                var backPhotoExists = false;
+
+                var frontImg = new Image();
+                frontImg.onload = function() {
+                    frontPhotoExists = true;
+                    frontPhotoContainer.removeClass('d-none');
+                    checkinPhotosSection.removeClass('d-none');
+                };
+                frontImg.onerror = function() {
+                    frontPhotoContainer.addClass('d-none');
+                };
+                frontImg.src = frontPhotoUrl;
+
+                var backImg = new Image();
+                backImg.onload = function() {
+                    backPhotoExists = true;
+                    backPhotoContainer.removeClass('d-none');
+                    checkinPhotosSection.removeClass('d-none');
+                };
+                backImg.onerror = function() {
+                    backPhotoContainer.addClass('d-none');
+                };
+                backImg.src = backPhotoUrl;
             });
             </script>
 
