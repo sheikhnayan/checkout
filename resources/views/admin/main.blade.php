@@ -594,6 +594,7 @@
       aria-controls="layout-menu"
       aria-expanded="false">
       <i class="bx bx-menu"></i>
+      <span class="d-md-none" style="margin-left: 6px; font-size: 0.85rem; opacity: 0.9;">Menu</span>
     </button>
 
     <!-- Layout wrapper -->

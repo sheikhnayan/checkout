@@ -1832,11 +1832,9 @@ body.modal-open .admin-mobile-menu-toggle {
                 packageModal.show();
             });
 
-            // Clean up modal when it's hidden
-            $('#packageDetailsModal').on('hidden.bs.modal', function() {
+            // Clean up modal content when it's about to hide
+            $('#packageDetailsModal').on('hide.bs.modal', function() {
                 $('#packageDetailsContent').empty();
-                $('body').removeClass('modal-open');
-                $('.modal-backdrop').remove();
             });
             </script>
 @endpush
