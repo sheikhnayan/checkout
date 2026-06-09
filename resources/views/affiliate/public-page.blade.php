@@ -5472,6 +5472,23 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
 }
 
+        /* Fix reCAPTCHA badge positioning on mobile */
+        .grecaptcha-badge {
+            z-index: 9999 !important;
+            bottom: 20px !important;
+            right: 20px !important;
+            position: fixed !important;
+        }
+
+        @media (max-width: 768px) {
+            .grecaptcha-badge {
+                bottom: 10px !important;
+                right: 10px !important;
+                transform: scale(0.9);
+                transform-origin: bottom right;
+            }
+        }
+
         </style>
         @php
             $gaMeasurementId = preg_replace('/[^A-Za-z0-9_-]/', '', (string) ($data->google_analytics_id ?? ''));
