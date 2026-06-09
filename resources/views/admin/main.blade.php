@@ -593,9 +593,9 @@
       aria-label="Open sidebar"
       aria-controls="layout-menu"
       aria-expanded="false"
-      style="display: flex; align-items: center; gap: 8px;">
+      style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; white-space: nowrap;">
       <i class="bx bx-menu"></i>
-      <span class="d-md-none" style="font-size: 0.9rem; font-weight: 500; opacity: 0.8;">Menu</span>
+      <span class="d-md-none" style="font-size: 0.85rem; font-weight: 500; opacity: 0.85;">Menu</span>
     </button>
 
     <!-- Layout wrapper -->
