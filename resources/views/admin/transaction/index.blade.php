@@ -1512,39 +1512,8 @@ body.modal-open .admin-mobile-menu-toggle {
             $(document).on('click', '.view-btn', function() {
                 const transactionId = $(this).data('id');
 
-                // Load ID verification photos
-                if (transactionId) {
-                    // Show loading state
-                    $('#modal-id-photos-section').html('<div class="text-center p-3"><small class="text-muted">Loading photos...</small></div>').show();
-
-                    fetch(`/admins/transaction/${transactionId}/id-photos`, { cache: 'force-cache' })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.frontPhotoUrl) {
-                                $('#modal-front-id-photo').attr('src', data.frontPhotoUrl).css('cursor', 'pointer');
-                                $('#modal-front-photo-container').show();
-                            } else {
-                                $('#modal-front-photo-container').hide();
-                            }
-
-                            if (data.backPhotoUrl) {
-                                $('#modal-back-id-photo').attr('src', data.backPhotoUrl).css('cursor', 'pointer');
-                                $('#modal-back-photo-container').show();
-                            } else {
-                                $('#modal-back-photo-container').hide();
-                            }
-
-                            if (data.frontPhotoUrl || data.backPhotoUrl) {
-                                $('#modal-id-photos-section').show();
-                            } else {
-                                $('#modal-id-photos-section').hide();
-                            }
-                        })
-                        .catch(err => {
-                            console.error('Error loading photos:', err);
-                            $('#modal-id-photos-section').hide();
-                        });
-                }
+                // Hide old photo loading section (we use checkinPhotosSection instead)
+                $('#modal-id-photos-section').hide();
 
                 // Add click handlers to photos for instant display
                 $(document).on('click', '#modal-front-id-photo, #modal-back-id-photo', function() {
