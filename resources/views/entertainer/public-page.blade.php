@@ -5472,35 +5472,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
 }
 
-        /* Hide reCAPTCHA text and scale down icon */
+        /* Scale down reCAPTCHA badge */
         .grecaptcha-badge {
             z-index: 9999 !important;
-            bottom: 15px !important;
-            right: 15px !important;
+            bottom: 10px !important;
+            right: 10px !important;
             position: fixed !important;
-            transform: scale(0.7) !important;
+            transform: scale(0.5) !important;
             transform-origin: bottom right !important;
-        }
-
-        .grecaptcha-badge iframe {
-            visibility: hidden !important;
-        }
-
-        .grecaptcha-badge > div {
-            display: none !important;
-        }
-
-        /* Show only the reCAPTCHA icon/logo */
-        .grecaptcha-badge svg {
-            display: block !important;
-            visibility: visible !important;
-        }
-
-        @media (max-width: 768px) {
-            .grecaptcha-badge {
-                bottom: 12px !important;
-                right: 12px !important;
-            }
         }
 
         </style>
