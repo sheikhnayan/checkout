@@ -6217,7 +6217,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                     <label for="">Number of Guest(s)</label>
     
                                                                     <input type="number" class="form-control"
-                                                                        name="transportation_guest" value="0" min="1" required
+                                                                        name="transportation_guest" min="1" required
                                                                         style="width: 120px; max-width: 120px; color: #fff;"  />
     
     
