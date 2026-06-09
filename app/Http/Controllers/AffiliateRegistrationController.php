@@ -105,12 +105,15 @@ class AffiliateRegistrationController extends Controller
 
             $adminEmails = User::where('user_type', 'admin')->pluck('email')->filter()->toArray();
             foreach ($adminEmails as $adminEmail) {
-                Mail::raw(
-                    'New affiliate application received from ' . $user->name . ' (' . $user->email . ').',
-                    function ($message) use ($adminEmail) {
-                        $message->to($adminEmail)->subject('New affiliate Application - CartVIP');
-                    }
-                );
+                Mail::to($adminEmail)->send(new \App\Mail\AdminApplicationNotificationMail(
+                    'Affiliate',
+                    'Public Registration',
+                    $user->name,
+                    $user->email,
+                    'General',
+                    $request->input('phone'),
+                    "Experience: " . ($request->input('experience') ? substr($request->input('experience'), 0, 100) . '...' : 'Not provided')
+                ));
             }
         } catch (\Throwable $th) {
             Log::error('Affiliate registration email failed: ' . $th->getMessage(), [

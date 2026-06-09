@@ -136,12 +136,15 @@ class EntertainerRegistrationController extends Controller
 
             $adminEmails = User::where('user_type', 'admin')->pluck('email')->filter()->toArray();
             foreach ($adminEmails as $adminEmail) {
-                Mail::raw(
-                    'New entertainer application received from ' . $user->name . ' (' . $user->email . ') for club ' . $club->name . '.',
-                    function ($message) use ($adminEmail) {
-                        $message->to($adminEmail)->subject('New Entertainer Application - CartVIP');
-                    }
-                );
+                Mail::to($adminEmail)->send(new \App\Mail\AdminApplicationNotificationMail(
+                    'Entertainer',
+                    'Public Registration',
+                    $user->name,
+                    $user->email,
+                    $club->name,
+                    $request->input('phone'),
+                    "Experience: " . ($request->input('experience') ? substr($request->input('experience'), 0, 100) . '...' : 'Not provided')
+                ));
             }
 
             $websiteUserEmails = User::where('user_type', 'website_user')
@@ -151,12 +154,15 @@ class EntertainerRegistrationController extends Controller
                 ->toArray();
 
             foreach ($websiteUserEmails as $websiteUserEmail) {
-                Mail::raw(
-                    'A new entertainer application was submitted for your club: ' . $club->name . '.',
-                    function ($message) use ($websiteUserEmail) {
-                        $message->to($websiteUserEmail)->subject('New Entertainer Application - Club Notification');
-                    }
-                );
+                Mail::to($websiteUserEmail)->send(new \App\Mail\AdminApplicationNotificationMail(
+                    'Entertainer',
+                    'Club Application',
+                    $user->name,
+                    $user->email,
+                    $club->name,
+                    $request->input('phone'),
+                    "Experience: " . ($request->input('experience') ? substr($request->input('experience'), 0, 100) . '...' : 'Not provided')
+                ));
             }
         } catch (\Throwable $th) {
             // Keep registration successful even if mail fails.

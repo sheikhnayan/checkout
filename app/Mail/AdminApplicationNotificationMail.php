@@ -11,25 +11,37 @@ class AdminApplicationNotificationMail extends Mailable
     use Queueable, SerializesModels;
 
     public string $applicantType;
-    public string $status;
+    public string $registrationType;
     public string $name;
     public string $email;
+    public ?string $phone;
     public string $websiteName;
-    public ?string $rejectionReason;
+    public string $submittedAt;
+    public ?string $additionalInfo;
 
-    public function __construct(string $applicantType, string $status, string $name, string $email, string $websiteName = '', ?string $rejectionReason = null)
-    {
+    public function __construct(
+        string $applicantType,
+        string $registrationType,
+        string $name,
+        string $email,
+        string $websiteName = '',
+        ?string $phone = null,
+        ?string $additionalInfo = null
+    ) {
         $this->applicantType = $applicantType;
-        $this->status = $status;
+        $this->registrationType = $registrationType;
         $this->name = $name;
         $this->email = $email;
+        $this->phone = $phone;
         $this->websiteName = $websiteName;
-        $this->rejectionReason = $rejectionReason;
+        $this->submittedAt = now()->timezone('America/Los_Angeles')->format('M d, Y \a\t h:i A PT');
+        $this->additionalInfo = $additionalInfo;
     }
 
     public function build(): self
     {
-        $subject = sprintf('%s Application %s - CartVIP', $this->applicantType, ucfirst($this->status));
+        $clubLabel = !empty($this->websiteName) ? " - {$this->websiteName}" : '';
+        $subject = "New {$this->applicantType} Registration Received{$clubLabel}";
 
         return $this->subject($subject)
             ->view('emails.admin-application-notification');

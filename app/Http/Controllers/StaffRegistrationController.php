@@ -119,14 +119,17 @@ class StaffRegistrationController extends Controller
 
             // Notify admins
             $adminEmails = User::where('user_type', 'admin')->pluck('email')->filter()->toArray();
+            $staffTypeLabel = $staffType === 'affiliate' ? 'Promoter' : 'Entertainer';
             foreach ($adminEmails as $adminEmail) {
-                $staffTypeLabel = $staffType === 'affiliate' ? 'Promoter' : 'Entertainer';
-                Mail::raw(
-                    "New {$staffTypeLabel} staff registration received from {$user->name} ({$user->email}) at {$website->name}.",
-                    function ($message) use ($adminEmail) {
-                        $message->to($adminEmail)->subject('New Staff Registration - CartVIP');
-                    }
-                );
+                Mail::to($adminEmail)->send(new \App\Mail\AdminApplicationNotificationMail(
+                    $staffTypeLabel,
+                    'Staff Registration',
+                    $user->name,
+                    $user->email,
+                    $website->name,
+                    $request->input('phone'),
+                    "Staff Type: " . $staffTypeLabel
+                ));
             }
         } catch (\Throwable $th) {
             Log::error('Staff registration email failed: ' . $th->getMessage(), [
