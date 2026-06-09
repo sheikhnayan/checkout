@@ -8420,20 +8420,21 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     }
                 }
 
-                if (stepNumber === 2 && window.requiresTransportation) {
-                    const transportationGuestField = $('[name="transportation_guest"]');
-                    const transportationGuestValue = parseInt(transportationGuestField.val(), 10);
-                    if (!Number.isFinite(transportationGuestValue) || transportationGuestValue < 1) {
-                        transportationGuestField.addClass('required-field');
-                        isValid = false;
-                        firstInvalidField = firstInvalidField || transportationGuestField;
-                        alertMessage = 'Please enter Number of Guest(s) in Transportation (minimum 1).';
-                    }
-                }
-                
-                if (!isValid && stepNumber === 2 && window.requiresTransportation && alertMessage === 'Please fill in all required fields.') {
-                    alertMessage = 'Please complete the required transportation details before proceeding.';
-                }
+                // Transportation validation removed - allow form to proceed
+                // if (stepNumber === 2 && window.requiresTransportation) {
+                //     const transportationGuestField = $('[name="transportation_guest"]');
+                //     const transportationGuestValue = parseInt(transportationGuestField.val(), 10);
+                //     if (!Number.isFinite(transportationGuestValue) || transportationGuestValue < 1) {
+                //         transportationGuestField.addClass('required-field');
+                //         isValid = false;
+                //         firstInvalidField = firstInvalidField || transportationGuestField;
+                //         alertMessage = 'Please enter Number of Guest(s) in Transportation (minimum 1).';
+                //     }
+                // }
+
+                // if (!isValid && stepNumber === 2 && window.requiresTransportation && alertMessage === 'Please fill in all required fields.') {
+                //     alertMessage = 'Please complete the required transportation details before proceeding.';
+                // }
 
                 if (!isValid) {
                     alert(alertMessage);
