@@ -1828,8 +1828,15 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += '</div>';
 
                 $('#packageDetailsContent').html(html);
-                var modal = new bootstrap.Modal(document.getElementById('packageDetailsModal'));
-                modal.show();
+                var packageModal = new bootstrap.Modal(document.getElementById('packageDetailsModal'));
+                packageModal.show();
+            });
+
+            // Clean up modal when it's hidden
+            $('#packageDetailsModal').on('hidden.bs.modal', function() {
+                $('#packageDetailsContent').empty();
+                $('body').removeClass('modal-open');
+                $('.modal-backdrop').remove();
             });
             </script>
 @endpush
