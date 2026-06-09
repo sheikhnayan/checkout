@@ -8388,7 +8388,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         return false;
                     }
                 }
-                
+
+                // Auto-fill empty transportation_guest field with 1 if transportation required
+                if (stepNumber === 2 && window.requiresTransportation) {
+                    const guestField = $('[name="transportation_guest"]');
+                    if (!guestField.val() || parseInt(guestField.val(), 10) < 1) {
+                        guestField.val('1');
+                    }
+                }
+
                 // Check required fields
                 requiredFields.forEach(function(selector) {
                     const field = $(selector);
@@ -9033,10 +9041,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 }
 
                 el.type = 'text';
-                el.setAttribute('readonly', 'readonly');
                 if (typeof flatpickr === 'undefined') {
                     el.type = 'time';
-                    el.removeAttribute('readonly');
                     if (minT) el.min = minT;
                     if (maxT) el.max = maxT;
                     el.step = 900;
