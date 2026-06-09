@@ -6175,12 +6175,23 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                 <div class="row">
     
                                                     <div class="col-md-12">
-    
+
                                                         <h2 style="margin-bottom: 35px;">Transportation</h2>
-    
+
+                                                        <!-- IMPORTANT NOTICE -->
+                                                        <div style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); border: 3px solid #c92a2a; border-radius: 12px; padding: 20px 24px; margin-bottom: 28px; box-shadow: 0 8px 24px rgba(255, 107, 107, 0.3);">
+                                                            <div style="display: flex; align-items: center; gap: 16px;">
+                                                                <div style="font-size: 28px; color: #fff;">⚠️</div>
+                                                                <div>
+                                                                    <p style="margin: 0; color: #fff; font-weight: 700; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">HOUSE TRANSPORTATION OR SELF DRIVE ONLY</p>
+                                                                    <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.95); font-size: 13px; line-height: 1.5;">Uber, Lyft, taxi, limo, and other ride-sharing services are NOT permitted.</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
                                                         <!-- Left: Form Fields -->
                                                         <div class="form-left">
-                                                        
+
                                                             <button type="button" class="same-as-info-transport">Same as package holder information</button>
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 100%;">
