@@ -1832,9 +1832,22 @@ body.modal-open .admin-mobile-menu-toggle {
                 packageModal.show();
             });
 
-            // Clean up modal content when it's about to hide
-            $('#packageDetailsModal').on('hide.bs.modal', function() {
+            // Clean up modal properly when it's fully hidden
+            $('#packageDetailsModal').on('hidden.bs.modal', function() {
                 $('#packageDetailsContent').empty();
+
+                // Ensure body is back to normal
+                $('body').removeAttr('style');
+                $('body').removeClass('modal-open');
+
+                // Remove all modal backdrops
+                $('.modal-backdrop').fadeOut(100, function() {
+                    $(this).remove();
+                });
+
+                // Double-check scroll is enabled
+                $('body').css('overflow-y', 'auto');
+                document.body.style.overflow = '';
             });
             </script>
 @endpush
