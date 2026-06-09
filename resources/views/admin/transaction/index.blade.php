@@ -1661,42 +1661,34 @@ body.modal-open .admin-mobile-menu-toggle {
                 }
 
                 // Handle check-in photos
-                var transactionId = $(this).data('id');
                 var checkinPhotosSection = $('#checkinPhotosSection');
                 var frontPhotoContainer = $('#frontPhotoContainer');
                 var backPhotoContainer = $('#backPhotoContainer');
 
-                var frontPhotoUrl = '{{ route("admin.transaction.id-photo", ["transactionId" => "ID", "side" => "front"]) }}'.replace('ID', transactionId);
-                var backPhotoUrl = '{{ route("admin.transaction.id-photo", ["transactionId" => "ID", "side" => "back"]) }}'.replace('ID', transactionId);
+                var hasFrontPhoto = String($(this).data('checkin_photo_front') || '').trim().length > 0;
+                var hasBackPhoto = String($(this).data('checkin_photo_back') || '').trim().length > 0;
 
-                $('#modal-checkin-photo-front').attr('src', frontPhotoUrl);
-                $('#modal-checkin-photo-back').attr('src', backPhotoUrl);
-
-                // Check if photos exist by trying to load them
-                var frontPhotoExists = false;
-                var backPhotoExists = false;
-
-                var frontImg = new Image();
-                frontImg.onload = function() {
-                    frontPhotoExists = true;
-                    frontPhotoContainer.removeClass('d-none');
+                if (hasFrontPhoto || hasBackPhoto) {
                     checkinPhotosSection.removeClass('d-none');
-                };
-                frontImg.onerror = function() {
-                    frontPhotoContainer.addClass('d-none');
-                };
-                frontImg.src = frontPhotoUrl;
 
-                var backImg = new Image();
-                backImg.onload = function() {
-                    backPhotoExists = true;
-                    backPhotoContainer.removeClass('d-none');
-                    checkinPhotosSection.removeClass('d-none');
-                };
-                backImg.onerror = function() {
-                    backPhotoContainer.addClass('d-none');
-                };
-                backImg.src = backPhotoUrl;
+                    if (hasFrontPhoto) {
+                        var frontPhotoUrl = '{{ route("admin.transaction.id-photo", ["transactionId" => "ID", "side" => "front"]) }}'.replace('ID', transactionId);
+                        $('#modal-checkin-photo-front').attr('src', frontPhotoUrl);
+                        frontPhotoContainer.removeClass('d-none');
+                    } else {
+                        frontPhotoContainer.addClass('d-none');
+                    }
+
+                    if (hasBackPhoto) {
+                        var backPhotoUrl = '{{ route("admin.transaction.id-photo", ["transactionId" => "ID", "side" => "back"]) }}'.replace('ID', transactionId);
+                        $('#modal-checkin-photo-back').attr('src', backPhotoUrl);
+                        backPhotoContainer.removeClass('d-none');
+                    } else {
+                        backPhotoContainer.addClass('d-none');
+                    }
+                } else {
+                    checkinPhotosSection.addClass('d-none');
+                }
             });
             </script>
 
