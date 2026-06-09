@@ -165,6 +165,84 @@ body.modal-open .admin-mobile-menu-toggle {
         background-color: rgba(255,255,255,0.15) !important;
     }
 }
+
+/* Package Details Button */
+.btn-link-package {
+    background: linear-gradient(135deg, rgba(124,58,237,0.15) 0%, rgba(99,102,241,0.15) 100%);
+    border: 1px solid rgba(124,58,237,0.3);
+    color: #818cf8;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.btn-link-package:hover {
+    background: linear-gradient(135deg, rgba(124,58,237,0.25) 0%, rgba(99,102,241,0.25) 100%);
+    border-color: rgba(124,58,237,0.5);
+    color: #a5b4fc;
+    transform: translateY(-1px);
+}
+
+.btn-link-package:active {
+    transform: translateY(0);
+}
+
+/* Package Details Modal */
+#packageDetailsModal .modal-content {
+    background: #111a2e;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #f4f6ff;
+}
+
+#packageDetailsModal .modal-header {
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+#packageDetailsModal .modal-title {
+    color: #f8fafc !important;
+    font-weight: 700;
+}
+
+#packageDetailsModal .btn-close {
+    filter: invert(1) grayscale(100%);
+}
+
+#packageDetailsModal .list-group-item {
+    background: #0f172a;
+    border-color: #1e293b;
+    color: #f8fafc !important;
+    padding: 12px 16px;
+}
+
+#packageDetailsModal .package-item {
+    background: rgba(124,58,237,0.1);
+    border: 1px solid rgba(124,58,237,0.2);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    color: #e0e7ff;
+}
+
+#packageDetailsModal .package-name {
+    font-weight: 700;
+    color: #a5b4fc;
+    margin-bottom: 4px;
+}
+
+#packageDetailsModal .addon-item {
+    background: rgba(59,130,246,0.1);
+    border-left: 3px solid rgba(59,130,246,0.5);
+    padding: 8px 12px;
+    margin: 8px 0;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: #bfdbfe;
+}
 </style>
     <!-- Content wrapper -->
     <div class="content-wrapper">
@@ -614,7 +692,15 @@ body.modal-open .admin-mobile-menu-toggle {
                                 <div class="txn-venue">{{ $venueName }}</div>
                                 <div class="txn-pkg-type">
                                     @if($packageDetails->count() > 1)
-                                        Multiple packages: {{ $packageDetailsText }}
+                                        <button type="button"
+                                            class="btn btn-sm btn-link-package"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#packageDetailsModal"
+                                            data-transaction-id="{{ $item->id }}"
+                                            data-package-details='@json($packageDetails)'
+                                            data-addons="{{ $addons }}'>
+                                            📦 {{ $packageDetails->count() }} Packages
+                                        </button>
                                     @else
                                         {{ $packageDetailsText }}
                                     @endif
@@ -944,6 +1030,26 @@ body.modal-open .admin-mobile-menu-toggle {
                     </div>
                 </div>
             </div>
+
+            <!-- Package Details Modal -->
+            <div class="modal fade" id="packageDetailsModal" tabindex="-1" aria-labelledby="packageDetailsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="packageDetailsModalLabel">📦 Package Details</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="packageDetailsContent">
+                                <!-- Content will be filled by JavaScript -->
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         @endsection
 
 @push('styles')
@@ -1226,7 +1332,7 @@ body.modal-open .admin-mobile-menu-toggle {
 
                     table = $('#txnDataTable').DataTable({
                         dom: 'rtip',
-                        pageLength: 10,
+                        pageLength: 50,
                         columnDefs: [
                             { orderable: false, targets: nonOrderableTargets },
                             { visible: false, targets: hiddenMetaTargets }
@@ -1687,6 +1793,43 @@ body.modal-open .admin-mobile-menu-toggle {
                     headStyles: { fillColor: [41, 128, 185] }
                 });
                 doc.save('transaction-details.pdf');
+            });
+
+            // Handle Package Details Modal
+            $(document).on('click', '.btn-link-package', function(e) {
+                e.preventDefault();
+                var packageDetails = $(this).data('package-details');
+                var addons = $(this).data('addons') || '';
+                var transactionId = $(this).data('transaction-id');
+
+                var html = '<div>';
+
+                // Display packages
+                if (packageDetails && Array.isArray(packageDetails)) {
+                    html += '<h6 style="color:#e0e7ff;margin-bottom:16px;font-weight:700;"><i class="fas fa-box"></i> Packages</h6>';
+                    packageDetails.forEach(function(pkg, index) {
+                        html += '<div class="package-item">';
+                        html += '<div class="package-name">' + (index + 1) + '. ' + (pkg || 'Unknown Package') + '</div>';
+                        html += '</div>';
+                    });
+                }
+
+                // Display addons
+                if (addons && addons.trim() !== '') {
+                    html += '<h6 style="color:#e0e7ff;margin-top:20px;margin-bottom:16px;font-weight:700;"><i class="fas fa-plus-circle"></i> Add-ons</h6>';
+                    var addonList = addons.split(',').map(function(a) { return a.trim(); }).filter(Boolean);
+                    addonList.forEach(function(addon) {
+                        html += '<div class="addon-item">✓ ' + addon + '</div>';
+                    });
+                } else {
+                    html += '<p style="color:#94a3b8;margin-top:20px;font-style:italic;">No add-ons selected</p>';
+                }
+
+                html += '</div>';
+
+                $('#packageDetailsContent').html(html);
+                var modal = new bootstrap.Modal(document.getElementById('packageDetailsModal'));
+                modal.show();
             });
             </script>
 @endpush
