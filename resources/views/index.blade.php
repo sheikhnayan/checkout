@@ -5739,17 +5739,6 @@ input[type="checkbox"],
 
                                                         <h2 style="margin-bottom: 35px;">Transportation</h2>
 
-                                                        <!-- IMPORTANT NOTICE -->
-                                                        <div style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); border: 3px solid #c92a2a; border-radius: 12px; padding: 20px 24px; margin-bottom: 28px; box-shadow: 0 8px 24px rgba(255, 107, 107, 0.3);">
-                                                            <div style="display: flex; align-items: center; gap: 16px;">
-                                                                <div style="font-size: 28px; color: #fff;">⚠️</div>
-                                                                <div>
-                                                                    <p style="margin: 0; color: #fff; font-weight: 700; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">HOUSE TRANSPORTATION OR SELF DRIVE ONLY</p>
-                                                                    <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.95); font-size: 13px; line-height: 1.5;">Uber, Lyft, taxi, limo, and other ride-sharing services are NOT permitted.</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
                                                         <!-- Left: Form Fields -->
                                                         <div class="form-left">
                                                         
@@ -5802,11 +5791,22 @@ input[type="checkbox"],
                                                                 <textarea name="transportation_note" id="note"
                                                                     placeholder="If any"></textarea>
                                                             </div>
+
+                                                            <!-- TRANSPORTATION RESTRICTION NOTICE -->
+                                                            <div style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); border: 2px solid #c92a2a; border-radius: 8px; padding: 14px 16px; margin-top: 20px; box-shadow: 0 4px 12px rgba(255, 107, 107, 0.25);">
+                                                                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                                                                    <div style="font-size: 20px; color: #fff; flex-shrink: 0;">⚠️</div>
+                                                                    <div>
+                                                                        <p style="margin: 0; color: #fff; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">HOUSE TRANSPORTATION OR SELF DRIVE ONLY</p>
+                                                                        <p style="margin: 6px 0 0 0; color: rgba(255,255,255,0.9); font-size: 12px; line-height: 1.4;">Uber, Lyft, taxi, limo & ride-sharing are NOT permitted.</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
                                             <!-- Step Navigation -->
                                             <div class="step-navigation">
                                                 <button type="button" class="btn-prev" id="prev-to-package-from-form">Previous: Package Details</button>
@@ -8726,7 +8726,7 @@ input[type="checkbox"],
                     noCalendar: true,
                     time_24hr: false,
                     minuteIncrement: 15,
-                    dateFormat: 'H:i',
+                    dateFormat: 'h:i K',
                     allowInput: false,
                     onChange: function () {
                         $(el).removeClass('required-field');
