@@ -4771,20 +4771,34 @@ input[type="checkbox"],
     .hero-gallery-grid { display: none !important; }
 }
 
-        /* Fix reCAPTCHA badge positioning on mobile */
+        /* Hide reCAPTCHA text and scale down icon */
         .grecaptcha-badge {
             z-index: 9999 !important;
-            bottom: 20px !important;
-            right: 20px !important;
+            bottom: 15px !important;
+            right: 15px !important;
             position: fixed !important;
+            transform: scale(0.7) !important;
+            transform-origin: bottom right !important;
+        }
+
+        .grecaptcha-badge iframe {
+            visibility: hidden !important;
+        }
+
+        .grecaptcha-badge > div {
+            display: none !important;
+        }
+
+        /* Show only the reCAPTCHA icon/logo */
+        .grecaptcha-badge svg {
+            display: block !important;
+            visibility: visible !important;
         }
 
         @media (max-width: 768px) {
             .grecaptcha-badge {
-                bottom: 10px !important;
-                right: 10px !important;
-                transform: scale(0.9);
-                transform-origin: bottom right;
+                bottom: 12px !important;
+                right: 12px !important;
             }
         }
 
