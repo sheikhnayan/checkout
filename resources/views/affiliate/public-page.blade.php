@@ -8378,7 +8378,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         '[name="package_use_date"]',
                         '[name="transportation_pickup_time"]',
                         '[name="transportation_address"]',
-                        '[name="transportation_phone"]'
+                        '[name="transportation_phone"]',
+                        '[name="transportation_guest"]'
                     );
                 } else if (stepNumber === 2 && !window.requiresTransportation) {
                     // Validate transportation confirmation checkbox
