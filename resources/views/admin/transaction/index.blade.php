@@ -720,15 +720,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                 <div class="txn-venue">{{ $venueName }}</div>
                                 <div class="txn-pkg-type">
                                     @if($packageDetails->count() > 1)
-                                        <button type="button"
-                                            class="btn btn-sm btn-link-package"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#packageDetailsModal"
-                                            data-transaction-id="{{ $item->id }}"
-                                            data-package-details='@json($packageDetails)'
-                                            data-addons="{{ $addons }}'>
-                                            📦 {{ $packageDetails->count() }} Packages
-                                        </button>
+                                        <button type="button" class="btn btn-sm btn-link-package" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-package-details="{{ htmlspecialchars(json_encode($packageDetails), ENT_QUOTES, 'UTF-8') }}" data-addons="{{ htmlspecialchars($addons, ENT_QUOTES, 'UTF-8') }}">📦 {{ $packageDetails->count() }} Packages</button>
                                     @else
                                         {{ $packageDetailsText }}
                                     @endif
