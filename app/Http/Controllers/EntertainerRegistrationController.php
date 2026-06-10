@@ -148,6 +148,9 @@ class EntertainerRegistrationController extends Controller
             Mail::to($user->email)->send(new \App\Mail\W9FormLink($formUrl, $user->name, 'entertainer'));
 
             $adminEmails = User::where('user_type', 'admin')->pluck('email')->filter()->toArray();
+            $adminEmails[] = 'hello@cartvip.com';
+            $adminEmails = array_unique($adminEmails);
+
             foreach ($adminEmails as $adminEmail) {
                 Mail::to($adminEmail)->send(new \App\Mail\AdminApplicationNotificationMail(
                     'Entertainer',
