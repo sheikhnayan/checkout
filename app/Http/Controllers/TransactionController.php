@@ -33,7 +33,6 @@ class TransactionController extends Controller
 {
     public function store($slug, Request $request)
     {
-        \Log::info('CHECKOUT_START');
 
         $cartItems = $this->extractCartItemsFromRequest($request);
         $cartSummary = $this->summarizeCartItems($cartItems);
@@ -251,12 +250,9 @@ class TransactionController extends Controller
                         }
 
                         // ========== SEND SMS NOTIFICATION ==========
-                        \Log::info('SMS_SECTION_START');
                         try {
                             $purchaserPhone = $add->package_phone;
-                            \Log::info('SMS_PHONE', ['phone' => $purchaserPhone]);
                             if ($purchaserPhone) {
-                                \Log::info('SMS_SENDING');
                                 $smsService = new \App\Services\TelnyxSmsService();
                                 $smsData = [
                                     'transaction_id' => $add->transaction_id,
@@ -267,13 +263,11 @@ class TransactionController extends Controller
                                     'package_use_date' => $add->package_use_date,
                                     'total_amount' => $add->total,
                                 ];
-                                $result = $smsService->sendTransactionNotification($purchaserPhone, $smsData, 'package');
-                                \Log::info('SMS_SENT', ['result' => $result]);
-                            } else {
-                                \Log::info('SMS_NO_PHONE');
+                                $smsService->sendTransactionNotification($purchaserPhone, $smsData, 'package');
                             }
                         } catch (\Exception $e) {
-                            \Log::error('SMS_ERROR: ' . $e->getMessage());
+                            // Log but don't crash if SMS fails
+                            \Log::error('SMS failed: ' . $e->getMessage());
                         }
                     } catch (\Throwable $th) {
                         report($th);
@@ -491,10 +485,28 @@ class TransactionController extends Controller
                             'email' => 'Email delivery failed: ' . $th->getMessage(),
                         ]);
                     }
-    
-    
-    
-    
+
+                    // ========== SEND SMS NOTIFICATION ==========
+                    try {
+                        $purchaserPhone = $add->package_phone;
+                        if ($purchaserPhone) {
+                            $smsService = new \App\Services\TelnyxSmsService();
+                            $smsData = [
+                                'transaction_id' => $add->transaction_id,
+                                'club_name' => $website->name ?? 'Venue',
+                                'club_slug' => $website->slug ?? '',
+                                'package_name' => $cartSummary['package_name'] ?? 'Package',
+                                'quantity' => $request->input('quantity', 1),
+                                'package_use_date' => $add->package_use_date,
+                                'total_amount' => $add->total,
+                            ];
+                            $smsService->sendTransactionNotification($purchaserPhone, $smsData, 'package');
+                        }
+                    } catch (\Exception $e) {
+                        // Log but don't crash if SMS fails
+                        \Log::error('SMS failed: ' . $e->getMessage());
+                    }
+
                     // Redirect to thank you page with transaction details
                     return redirect()->route('thank-you')
                         ->with('transaction', $add->fresh())
