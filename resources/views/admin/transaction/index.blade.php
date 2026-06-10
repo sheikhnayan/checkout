@@ -707,7 +707,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td class="txn-order-id">#{{ str_pad($item->id, 3, '0', STR_PAD_LEFT) }}</td>
                             <td class="txn-pkg-name">
                                 @if($packageDetails->count() > 1)
-                                    <button type="button" class="btn btn-sm btn-link-package" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-package-details="{{ htmlspecialchars(json_encode($packageDetails), ENT_QUOTES, 'UTF-8') }}" data-addons="{{ htmlspecialchars($addons, ENT_QUOTES, 'UTF-8') }}">📦 {{ $packageDetails->count() }} Packages</button>
+                                    <button type="button" class="btn btn-sm btn-link-package" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-package-details='@json($packageDetails)' data-addons='@json($addons)'>📦 {{ $packageDetails->count() }} Packages</button>
                                 @else
                                     {{ $packageDetailsText }}
                                 @endif
