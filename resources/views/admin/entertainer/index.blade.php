@@ -47,6 +47,14 @@
                         <th>Email</th>
                         <th>Club</th>
                         <th>Status</th>
+                        <th>Application Date</th>
+                        @if($status === 'approved')
+                            <th>Approved Date</th>
+                            <th>Approved By</th>
+                        @elseif($status === 'rejected')
+                            <th>Rejected Date</th>
+                            <th>Rejected By</th>
+                        @endif
                         <th>Wallet</th>
                         <th>Action</th>
                     </tr>
@@ -58,6 +66,43 @@
                             <td>{{ $entertainer->user->email }}</td>
                             <td>{{ $entertainer->website->name ?? 'N/A' }}</td>
                             <td><span class="badge bg-{{ $entertainer->status === 'approved' ? 'success' : ($entertainer->status === 'pending' ? 'warning' : 'danger') }}">{{ ucfirst($entertainer->status) }}</span></td>
+                            <td style="white-space: nowrap;">
+                                {{ optional($entertainer->created_at)->timezone('America/Los_Angeles')->format('M d, Y') }}<br>
+                                <small style="opacity: 0.7;">{{ optional($entertainer->created_at)->timezone('America/Los_Angeles')->format('h:i A') }}</small>
+                            </td>
+                            @if($status === 'approved')
+                                <td style="white-space: nowrap;">
+                                    @if($entertainer->approved_at)
+                                        {{ optional($entertainer->approved_at)->timezone('America/Los_Angeles')->format('M d, Y') }}<br>
+                                        <small style="opacity: 0.7;">{{ optional($entertainer->approved_at)->timezone('America/Los_Angeles')->format('h:i A') }}</small>
+                                    @else
+                                        <span style="opacity: 0.5;">—</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($entertainer->approved_by_user)
+                                        {{ $entertainer->approved_by_user->name ?? 'Admin' }}
+                                    @else
+                                        <span style="opacity: 0.5;">—</span>
+                                    @endif
+                                </td>
+                            @elseif($status === 'rejected')
+                                <td style="white-space: nowrap;">
+                                    @if($entertainer->rejected_at)
+                                        {{ optional($entertainer->rejected_at)->timezone('America/Los_Angeles')->format('M d, Y') }}<br>
+                                        <small style="opacity: 0.7;">{{ optional($entertainer->rejected_at)->timezone('America/Los_Angeles')->format('h:i A') }}</small>
+                                    @else
+                                        <span style="opacity: 0.5;">—</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($entertainer->rejected_by_user)
+                                        {{ $entertainer->rejected_by_user->name ?? 'Admin' }}
+                                    @else
+                                        <span style="opacity: 0.5;">—</span>
+                                    @endif
+                                </td>
+                            @endif
                             <td>${{ number_format($entertainer->wallet_balance, 2) }}</td>
                             <td>
                                 <a href="{{ route('admin.entertainer.show', $entertainer->id) }}" class="btn btn-sm btn-primary">Manage</a>
