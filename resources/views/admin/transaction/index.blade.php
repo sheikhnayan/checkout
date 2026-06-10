@@ -609,6 +609,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         <tr>
                             <th><input type="checkbox" id="selectAll"></th>
                             <th>Order ID</th>
+                            <th>Event / Package</th>
                             <th>Customer</th>
                             <th>Amount</th>
                             <th>Payment</th>
@@ -616,12 +617,12 @@ body.modal-open .admin-mobile-menu-toggle {
                             <th>Reservation Date</th>
                             <th>Entry Status</th>
                             <th>Commission</th>
-                            <th>Promoter</th>
-                            <th style="min-width:130px">Commission Available</th>
-                            <th>Booking Date</th>
+                            <th>Sale Date</th>
                             <th>Action</th>
                             <th class="d-none">_website</th>
                             <th class="d-none">_type</th>
+                            <th class="d-none">_promoter</th>
+                            <th class="d-none">_commission_available</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -704,6 +705,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         <tr data-row-id="{{ $item->id }}" data-row-error="{{ $rowError ?? '' }}">
                             <td><input type="checkbox" class="row-check" value="{{ $item->id }}"></td>
                             <td class="txn-order-id">#{{ str_pad($item->id, 3, '0', STR_PAD_LEFT) }}</td>
+                            <td class="txn-pkg-name">{{ $packageDetailsText }}</td>
                             <td>
                                 <div class="txn-customer-name">{{ $item->package_first_name }} {{ $item->package_last_name }}</div>
                                 <div class="txn-customer-email">{{ $item->package_email }}</div>
@@ -718,13 +720,6 @@ body.modal-open .admin-mobile-menu-toggle {
                             </td>
                             <td>
                                 <div class="txn-venue">{{ $venueName }}</div>
-                                <div class="txn-pkg-type">
-                                    @if($packageDetails->count() > 1)
-                                        <button type="button" class="btn btn-sm btn-link-package" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-package-details="{{ htmlspecialchars(json_encode($packageDetails), ENT_QUOTES, 'UTF-8') }}" data-addons="{{ htmlspecialchars($addons, ENT_QUOTES, 'UTF-8') }}">📦 {{ $packageDetails->count() }} Packages</button>
-                                    @else
-                                        {{ $packageDetailsText }}
-                                    @endif
-                                </div>
                             </td>
                             <td>{{-- RESERVATION DATE --}}
                                 @php
@@ -781,30 +776,6 @@ body.modal-open .admin-mobile-menu-toggle {
                                     <span class="badge-payout-paid">PAID</span>
                                 @elseif($commStatus === 'reversed')
                                     <span class="badge-payout-reversed">REVERSED</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($affiliateName)
-                                    <span class="badge-affiliate" title="{{ $affiliateName }}">{{ $affiliateName }}</span>
-                                @else
-                                    <span class="badge-direct">DIRECT</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($isPayoutPage)
-                                    @if($commission == 0)
-                                        <span style="color:rgba(255,255,255,0.25);font-size:0.78rem">N/A</span>
-                                    @elseif($commStatus === 'paid')
-                                        <span class="badge-payout-paid">PAID OUT</span>
-                                    @elseif($commStatus === 'reversed')
-                                        <span class="badge-payout-reversed">REVERSED</span>
-                                    @elseif($holdUntil && !$isEligible)
-                                        <div style="font-size:0.82rem;color:#fbbf24;font-weight:700"><i class="fas fa-lock me-1"></i>Available {{ $holdUntil->timezone('America/Los_Angeles')->format('M d') }}</div>
-                                    @else
-                                        <div class="txn-payout-eligible" style="font-size:0.8rem;font-weight:700"><i class="fas fa-check-circle me-1"></i>Available Now</div>
-                                    @endif
-                                @else
-                                    <span style="color:rgba(255,255,255,0.1)">—</span>
                                 @endif
                             </td>
                             <td>
@@ -902,6 +873,8 @@ body.modal-open .admin-mobile-menu-toggle {
                                     </div>
                                 </div>
                             </td>
+                            <td class="d-none">{{ $affiliateName ?: 'DIRECT' }}</td>
+                            <td class="d-none">@if($isPayoutPage)@if($commission == 0)N/A@elseif($commStatus === 'paid')PAID OUT@elseif($commStatus === 'reversed')REVERSED@else{{ $commStatus }}@endif@else-@endif</td>
                             <td class="d-none">{{ $venueName }}</td>
                             <td class="d-none">{{ $packageName }}</td>
                         </tr>
