@@ -734,17 +734,22 @@ body.modal-open .admin-mobile-menu-toggle {
                                     @endif
                                 </div>
                             </td>
-                            <td>
+                            <td>{{-- RESERVATION DATE --}}
                                 @php
+                                    $reservationDate = null;
+                                    $isToday = false;
+                                    $isFuture = false;
                                     try {
-                                        $reservationDate = $item->package_use_date ? optional($item->package_use_date) : null;
+                                        if (isset($item) && property_exists($item, 'package_use_date')) {
+                                            $reservationDate = $item->package_use_date ? optional($item->package_use_date) : null;
+                                        } elseif (isset($item->package_use_date)) {
+                                            $reservationDate = $item->package_use_date ? optional($item->package_use_date) : null;
+                                        }
+
                                         if ($reservationDate) {
                                             $today = \Carbon\Carbon::today();
                                             $isToday = $reservationDate->isToday();
                                             $isFuture = $reservationDate->isFuture();
-                                        } else {
-                                            $isToday = false;
-                                            $isFuture = false;
                                         }
                                     } catch (\Exception $e) {
                                         $reservationDate = null;
