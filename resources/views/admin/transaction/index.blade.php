@@ -1320,31 +1320,61 @@ body.modal-open .admin-mobile-menu-toggle {
                 // ── DataTable ────────────────────────────────────────────────
                 let table = null;
                 try {
-                    const totalColumns = $('#txnDataTable thead th').length;
-                    const hiddenMetaTargets = totalColumns >= 2
-                        ? [totalColumns - 2, totalColumns - 1]
-                        : [];
-                    const actionTarget = totalColumns >= 3 ? totalColumns - 3 : -1;
-                    const nonOrderableTargets = [0]
-                        .concat(actionTarget >= 0 ? [actionTarget] : [])
-                        .concat(hiddenMetaTargets);
+                    // Check if table has data rows
+                    const dataRows = $('#txnDataTable tbody tr').not(':has(td[colspan])');
+                    if (dataRows.length === 0) {
+                        console.log('No data rows found in transaction table');
+                    } else {
+                        // Get actual column counts from HTML
+                        const headerCells = $('#txnDataTable thead tr:first th').length;
+                        const firstDataRow = $('#txnDataTable tbody tr:not(:has(td[colspan])):first');
+                        const bodyCells = firstDataRow.find('td').length;
 
-                    table = $('#txnDataTable').DataTable({
-                        dom: 'rtip',
-                        pageLength: 50,
-                        columnDefs: [
-                            { orderable: false, targets: nonOrderableTargets },
-                            { visible: false, targets: hiddenMetaTargets }
-                        ],
-                        language: {
-                            paginate: {
-                                previous: '<i class="fas fa-chevron-left"></i>',
-                                next: '<i class="fas fa-chevron-right"></i>'
-                            }
+                        console.log('Table diagnostic:', {
+                            headerCells: headerCells,
+                            bodyCells: bodyCells,
+                            dataRows: dataRows.length
+                        });
+
+                        if (headerCells === 0 || bodyCells === 0) {
+                            console.warn('Table structure incomplete');
+                        } else if (bodyCells === headerCells) {
+                            const totalColumns = headerCells;
+                            const hiddenMetaTargets = totalColumns >= 2
+                                ? [totalColumns - 2, totalColumns - 1]
+                                : [];
+                            const actionTarget = totalColumns >= 3 ? totalColumns - 3 : -1;
+                            const nonOrderableTargets = [0]
+                                .concat(actionTarget >= 0 ? [actionTarget] : [])
+                                .concat(hiddenMetaTargets);
+
+                            console.log('Initializing DataTable...');
+
+                            table = $('#txnDataTable').DataTable({
+                                dom: 'rtip',
+                                pageLength: 50,
+                                autoWidth: false,
+                                columnDefs: [
+                                    { orderable: false, targets: nonOrderableTargets },
+                                    { visible: false, targets: hiddenMetaTargets }
+                                ],
+                                language: {
+                                    paginate: {
+                                        previous: '<i class="fas fa-chevron-left"></i>',
+                                        next: '<i class="fas fa-chevron-right"></i>'
+                                    }
+                                },
+                                deferRender: true,
+                                scrollCollapse: true
+                            });
+                            console.log('✓ DataTable initialized successfully');
+                        } else {
+                            console.warn('Column mismatch: Header=' + headerCells + ', Body=' + bodyCells);
                         }
-                    });
+                    }
                 } catch (error) {
-                    console.error('Transaction table init failed:', error);
+                    console.error('✗ Transaction table init error:', error.message);
+                    table = null;
                 }
 
                 // ── Custom search ────────────────────────────────────────────
