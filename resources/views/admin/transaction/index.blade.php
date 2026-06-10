@@ -665,7 +665,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                         return $name . ($quantity > 1 ? ' x' . $quantity : '');
                                     }
 
-                                    return $name . ' ' . $quantity . ' ' . ($quantity === 1 ? 'guest' : 'guests');
+                                    return $name . ': ' . $quantity . ' ' . ($quantity === 1 ? 'guest' : 'guests');
                                 })->filter()->values();
 
                                 $packageDetailsText = $packageDetails->isNotEmpty()
@@ -720,16 +720,26 @@ body.modal-open .admin-mobile-menu-toggle {
                                 @php
                                     $sourceText = 'Direct';
                                     $sourceBadgeColor = '#6b7280';
+                                    $sourceLink = null;
+                                    $sourceType = null;
 
                                     if (!empty($item->affiliate_id) && !empty($item->affiliate)) {
                                         $sourceText = $item->affiliate->display_name ?: optional($item->affiliate->user)->name ?: 'Affiliate #' . $item->affiliate_id;
                                         $sourceBadgeColor = '#8b5cf6';
+                                        $sourceLink = route('admin.affiliate.show', $item->affiliate_id);
+                                        $sourceType = 'affiliate';
                                     } elseif (!empty($item->entertainer_id) && !empty($item->entertainer)) {
                                         $sourceText = $item->entertainer->display_name ?: optional($item->entertainer->user)->name ?: 'Entertainer #' . $item->entertainer_id;
                                         $sourceBadgeColor = '#ec4899';
+                                        $sourceLink = route('admin.entertainer.show', $item->entertainer_id);
+                                        $sourceType = 'entertainer';
                                     }
                                 @endphp
-                                <span style="background:{{ $sourceBadgeColor }};color:white;padding:4px 10px;border-radius:4px;font-size:0.85rem;font-weight:600;">{{ $sourceText }}</span>
+                                @if($sourceLink)
+                                    <a href="{{ $sourceLink }}" style="background:{{ $sourceBadgeColor }};color:white;padding:4px 10px;border-radius:4px;font-size:0.85rem;font-weight:600;text-decoration:none;display:inline-block;cursor:pointer;" title="View {{ $sourceType }} profile">{{ $sourceText }}</a>
+                                @else
+                                    <span style="background:{{ $sourceBadgeColor }};color:white;padding:4px 10px;border-radius:4px;font-size:0.85rem;font-weight:600;">{{ $sourceText }}</span>
+                                @endif
                             </td>
                             <td>
                                 <div class="txn-customer-name">{{ $item->package_first_name }} {{ $item->package_last_name }}</div>
