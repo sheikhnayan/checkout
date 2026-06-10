@@ -617,9 +617,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             <th>Entry Status</th>
                             <th>Commission</th>
                             <th>Promoter</th>
-                            @if($isPayoutPage)
                             <th style="min-width:130px">Commission Available</th>
-                            @endif
                             <th>Booking Date</th>
                             <th>Action</th>
                             <th class="d-none">_website</th>
@@ -795,21 +793,23 @@ body.modal-open .admin-mobile-menu-toggle {
                                     <span class="badge-direct">DIRECT</span>
                                 @endif
                             </td>
-                            @if($isPayoutPage)
                             <td>
-                                @if($commission == 0)
-                                    <span style="color:rgba(255,255,255,0.25);font-size:0.78rem">N/A</span>
-                                @elseif($commStatus === 'paid')
-                                    <span class="badge-payout-paid">PAID OUT</span>
-                                @elseif($commStatus === 'reversed')
-                                    <span class="badge-payout-reversed">REVERSED</span>
-                                @elseif($holdUntil && !$isEligible)
-                                    <div style="font-size:0.82rem;color:#fbbf24;font-weight:700"><i class="fas fa-lock me-1"></i>Available {{ $holdUntil->timezone('America/Los_Angeles')->format('M d') }}</div>
+                                @if($isPayoutPage)
+                                    @if($commission == 0)
+                                        <span style="color:rgba(255,255,255,0.25);font-size:0.78rem">N/A</span>
+                                    @elseif($commStatus === 'paid')
+                                        <span class="badge-payout-paid">PAID OUT</span>
+                                    @elseif($commStatus === 'reversed')
+                                        <span class="badge-payout-reversed">REVERSED</span>
+                                    @elseif($holdUntil && !$isEligible)
+                                        <div style="font-size:0.82rem;color:#fbbf24;font-weight:700"><i class="fas fa-lock me-1"></i>Available {{ $holdUntil->timezone('America/Los_Angeles')->format('M d') }}</div>
+                                    @else
+                                        <div class="txn-payout-eligible" style="font-size:0.8rem;font-weight:700"><i class="fas fa-check-circle me-1"></i>Available Now</div>
+                                    @endif
                                 @else
-                                    <div class="txn-payout-eligible" style="font-size:0.8rem;font-weight:700"><i class="fas fa-check-circle me-1"></i>Available Now</div>
+                                    <span style="color:rgba(255,255,255,0.1)">—</span>
                                 @endif
                             </td>
-                            @endif
                             <td>
                                 <div class="txn-date-main">{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('M d, Y') }}</div>
                                 <div class="txn-date-time">{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('h:i A') }}</div>
@@ -1346,31 +1346,39 @@ body.modal-open .admin-mobile-menu-toggle {
             <script>
             $(document).ready(function() {
 
-                // ── Table Diagnostics ─────────────────────────────────────────
+                // ── Table Diagnostics & Auto-Fix ──────────────────────────────
                 const headerCount = $('#txnDataTable thead tr:first th').length;
                 console.log('Table Headers:', headerCount);
 
                 const problematicRows = [];
                 $('#txnDataTable tbody tr').each(function(idx) {
-                    const cellCount = $(this).find('td').length;
+                    let cellCount = $(this).find('td').length;
                     const rowId = $(this).data('row-id');
                     const rowError = $(this).data('row-error');
+                    const missing = headerCount - cellCount;
 
                     if (cellCount !== headerCount) {
+                        // Add missing cells with empty content
+                        for (let i = 0; i < missing; i++) {
+                            $(this).append('<td><span style="color:rgba(255,255,255,0.1)">—</span></td>');
+                        }
+                        cellCount = $(this).find('td').length;
+
                         problematicRows.push({
                             index: idx,
                             id: rowId,
                             cells: cellCount,
                             expected: headerCount,
                             error: rowError,
-                            missing: headerCount - cellCount
+                            missing: missing,
+                            fixed: true
                         });
-                        console.warn(`Row ${idx} (ID: ${rowId}) has ${cellCount} cells, expected ${headerCount}. Missing: ${headerCount - cellCount}`);
+                        console.warn(`Row ${idx} (ID: ${rowId}) was missing ${missing} columns - AUTO-FIXED`);
                     }
                 });
 
                 if (problematicRows.length > 0) {
-                    console.error('❌ Found ' + problematicRows.length + ' rows with missing columns:', problematicRows);
+                    console.log('⚠️ Auto-fixed ' + problematicRows.length + ' rows with missing columns');
                 } else {
                     console.log('✓ All rows have correct column count');
                 }
