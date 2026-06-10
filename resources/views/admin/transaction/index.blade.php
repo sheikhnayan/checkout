@@ -735,14 +735,36 @@ body.modal-open .admin-mobile-menu-toggle {
                                     <span style="color:rgba(255,255,255,0.3);">-</span>
                                 @endif
                             </td>
-                            <td>
+                            <td>{{-- RESERVATION STATUS --}}
                                 @php
+                                    // First, calculate reservation date
+                                    $reservationDate = null;
+                                    $isToday = false;
+                                    $isFuture = false;
+                                    try {
+                                        if (isset($item) && property_exists($item, 'package_use_date')) {
+                                            $reservationDate = $item->package_use_date ? optional($item->package_use_date) : null;
+                                        } elseif (isset($item->package_use_date)) {
+                                            $reservationDate = $item->package_use_date ? optional($item->package_use_date) : null;
+                                        }
+
+                                        if ($reservationDate) {
+                                            $today = \Carbon\Carbon::today();
+                                            $isToday = $reservationDate->isToday();
+                                            $isFuture = $reservationDate->isFuture();
+                                        }
+                                    } catch (\Exception $e) {
+                                        $reservationDate = null;
+                                        $isToday = false;
+                                        $isFuture = false;
+                                    }
+
+                                    // Now determine reservation status
                                     $reservationStatusValue = 'Upcoming';
                                     $reservationStatusColor = '#3b82f6';
                                     $statusEmoji = '🟦';
 
                                     if ($reservationDate) {
-                                        $today = \Carbon\Carbon::today();
                                         if ($reservationDate->isToday()) {
                                             $reservationStatusValue = 'Today';
                                         } elseif ($reservationDate->isFuture()) {
@@ -772,28 +794,6 @@ body.modal-open .admin-mobile-menu-toggle {
                                 <span style="background:{{ $reservationStatusColor }};color:white;padding:6px 12px;border-radius:6px;font-weight:600;font-size:0.85rem;">{{ $statusEmoji }} {{ $reservationStatusValue }}</span>
                             </td>
                             <td>{{-- RESERVATION DATE --}}
-                                @php
-                                    $reservationDate = null;
-                                    $isToday = false;
-                                    $isFuture = false;
-                                    try {
-                                        if (isset($item) && property_exists($item, 'package_use_date')) {
-                                            $reservationDate = $item->package_use_date ? optional($item->package_use_date) : null;
-                                        } elseif (isset($item->package_use_date)) {
-                                            $reservationDate = $item->package_use_date ? optional($item->package_use_date) : null;
-                                        }
-
-                                        if ($reservationDate) {
-                                            $today = \Carbon\Carbon::today();
-                                            $isToday = $reservationDate->isToday();
-                                            $isFuture = $reservationDate->isFuture();
-                                        }
-                                    } catch (\Exception $e) {
-                                        $reservationDate = null;
-                                        $isToday = false;
-                                        $isFuture = false;
-                                    }
-                                @endphp
                                 @if($reservationDate)
                                     @if($isToday)
                                         <div style="font-size:1.1rem">🔥 Today</div>
