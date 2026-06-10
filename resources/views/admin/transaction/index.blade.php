@@ -629,63 +629,81 @@ body.modal-open .admin-mobile-menu-toggle {
                     <tbody>
                         @forelse($data as $item)
                         @php
-                            $affiliateName = null;
-                            if (!empty($item->affiliate_id) && !empty($item->affiliate))
-                                $affiliateName = $item->affiliate->display_name ?: optional($item->affiliate->user)->name ?: ('affiliate #' . $item->affiliate_id);
-                            elseif (!empty($item->entertainer_id) && !empty($item->entertainer))
-                                $affiliateName = $item->entertainer->display_name ?: optional($item->entertainer->user)->name ?: ('Entertainer #' . $item->entertainer_id);
+                            try {
+                                $affiliateName = null;
+                                if (!empty($item->affiliate_id) && !empty($item->affiliate))
+                                    $affiliateName = $item->affiliate->display_name ?: optional($item->affiliate->user)->name ?: ('affiliate #' . $item->affiliate_id);
+                                elseif (!empty($item->entertainer_id) && !empty($item->entertainer))
+                                    $affiliateName = $item->entertainer->display_name ?: optional($item->entertainer->user)->name ?: ('Entertainer #' . $item->entertainer_id);
 
-                            $commission  = (float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0);
-                            $packageName = $item->type === 'package' ? ($item->package_table_label ?: 'Package') : 'Reservation';
-                            $venueName   = $item->website->name ?? ($item->event->name ?? 'N/A');
+                                $commission  = (float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0);
+                                $packageName = $item->type === 'package' ? ($item->package_table_label ?: 'Package') : 'Reservation';
+                                $venueName   = $item->website->name ?? ($item->event->name ?? 'N/A');
 
-                            $cartItems = is_array($item->cart_items ?? null) ? $item->cart_items : json_decode($item->cart_items ?? '[]', true);
-                            $packageDetails = collect($cartItems)->map(function ($ci) {
-                                if (!is_array($ci)) {
-                                    return null;
+                                $cartItems = is_array($item->cart_items ?? null) ? $item->cart_items : json_decode($item->cart_items ?? '[]', true);
+                                $packageDetails = collect($cartItems)->map(function ($ci) {
+                                    if (!is_array($ci)) {
+                                        return null;
+                                    }
+
+                                    $name = trim((string) ($ci['package_name'] ?? $ci['packageName'] ?? $ci['pkgName'] ?? ''));
+                                    if ($name === '') {
+                                        return null;
+                                    }
+
+                                    $quantity = max(1, (int) ($ci['guests'] ?? $ci['quantity'] ?? 1));
+                                    $packageType = strtolower(trim((string) ($ci['package_type'] ?? $ci['type'] ?? $ci['packageType'] ?? '')));
+                                    if ($packageType === '' && !empty($ci['package_id'])) {
+                                        $package = \App\Models\Package::find((int) $ci['package_id']);
+                                        $packageType = $package ? strtolower(trim((string) ($package->package_type ?? ''))) : '';
+                                    }
+
+                                    $isTicketPkg = $packageType === 'ticket';
+                                    if ($isTicketPkg) {
+                                        return $name . ($quantity > 1 ? ' x' . $quantity : '');
+                                    }
+
+                                    return $name . ' ' . $quantity . ' ' . ($quantity === 1 ? 'guest' : 'guests');
+                                })->filter()->values();
+
+                                $packageDetailsText = $packageDetails->isNotEmpty()
+                                    ? ($packageDetails->count() > 1 ? $packageDetails->implode(', ') : $packageDetails->first())
+                                    : $packageName;
+
+                                $addons = collect($cartItems)->flatMap(fn($ci) => $ci['addons'] ?? [])->pluck('name')->filter()->implode(', ');
+                                if ($addons === '') {
+                                    foreach (explode(',', (string)$item->addons) as $av) {
+                                        $ao = \App\Models\Addon::find(trim($av));
+                                        if ($ao) $addons .= ($addons !== '' ? ', ' : '') . $ao->name;
+                                    }
                                 }
+                                $promo_obj = \App\Models\PromoCode::where('id', $item->promo_code)->first();
+                                $promo_code_name = $promo_obj ? $promo_obj->name : null;
 
-                                $name = trim((string) ($ci['package_name'] ?? $ci['packageName'] ?? $ci['pkgName'] ?? ''));
-                                if ($name === '') {
-                                    return null;
-                                }
-
-                                $quantity = max(1, (int) ($ci['guests'] ?? $ci['quantity'] ?? 1));
-                                $packageType = strtolower(trim((string) ($ci['package_type'] ?? $ci['type'] ?? $ci['packageType'] ?? '')));
-                                if ($packageType === '' && !empty($ci['package_id'])) {
-                                    $package = \App\Models\Package::find((int) $ci['package_id']);
-                                    $packageType = $package ? strtolower(trim((string) ($package->package_type ?? ''))) : '';
-                                }
-
-                                $isTicketPkg = $packageType === 'ticket';
-                                if ($isTicketPkg) {
-                                    return $name . ($quantity > 1 ? ' x' . $quantity : '');
-                                }
-
-                                return $name . ' ' . $quantity . ' ' . ($quantity === 1 ? 'guest' : 'guests');
-                            })->filter()->values();
-
-                            $packageDetailsText = $packageDetails->isNotEmpty()
-                                ? ($packageDetails->count() > 1 ? $packageDetails->implode(', ') : $packageDetails->first())
-                                : $packageName;
-
-                            $addons = collect($cartItems)->flatMap(fn($ci) => $ci['addons'] ?? [])->pluck('name')->filter()->implode(', ');
-                            if ($addons === '') {
-                                foreach (explode(',', (string)$item->addons) as $av) {
-                                    $ao = \App\Models\Addon::find(trim($av));
-                                    if ($ao) $addons .= ($addons !== '' ? ', ' : '') . $ao->name;
-                                }
+                                // Payout lifecycle
+                                $commStatus = $item->affiliate_commission_status ?? $item->entertainer_commission_status ?? null;
+                                $holdUntil  = $item->affiliate_commission_hold_until ?? $item->entertainer_commission_hold_until ?? null;
+                                $now        = \Carbon\Carbon::now();
+                                $isEligible = $holdUntil && $holdUntil->lte($now);
+                                $rowError = null;
+                            } catch (\Exception $e) {
+                                // If there's an error in setup, set defaults
+                                $affiliateName = '';
+                                $commission = 0;
+                                $packageName = 'N/A';
+                                $venueName = 'N/A';
+                                $packageDetails = collect([]);
+                                $packageDetailsText = 'N/A';
+                                $addons = '';
+                                $promo_code_name = null;
+                                $commStatus = null;
+                                $holdUntil = null;
+                                $now = \Carbon\Carbon::now();
+                                $isEligible = false;
+                                $rowError = $e->getMessage();
                             }
-                            $promo_obj = \App\Models\PromoCode::where('id', $item->promo_code)->first();
-                            $promo_code_name = $promo_obj ? $promo_obj->name : null;
-
-                            // Payout lifecycle
-                            $commStatus = $item->affiliate_commission_status ?? $item->entertainer_commission_status ?? null;
-                            $holdUntil  = $item->affiliate_commission_hold_until ?? $item->entertainer_commission_hold_until ?? null;
-                            $now        = \Carbon\Carbon::now();
-                            $isEligible = $holdUntil && $holdUntil->lte($now);
                         @endphp
-                        <tr>
+                        <tr data-row-id="{{ $item->id }}" data-row-error="{{ $rowError ?? '' }}">
                             <td><input type="checkbox" class="row-check" value="{{ $item->id }}"></td>
                             <td class="txn-order-id">#{{ str_pad($item->id, 3, '0', STR_PAD_LEFT) }}</td>
                             <td>
@@ -1328,33 +1346,66 @@ body.modal-open .admin-mobile-menu-toggle {
             <script>
             $(document).ready(function() {
 
+                // ── Table Diagnostics ─────────────────────────────────────────
+                const headerCount = $('#txnDataTable thead tr:first th').length;
+                console.log('Table Headers:', headerCount);
+
+                const problematicRows = [];
+                $('#txnDataTable tbody tr').each(function(idx) {
+                    const cellCount = $(this).find('td').length;
+                    const rowId = $(this).data('row-id');
+                    const rowError = $(this).data('row-error');
+
+                    if (cellCount !== headerCount) {
+                        problematicRows.push({
+                            index: idx,
+                            id: rowId,
+                            cells: cellCount,
+                            expected: headerCount,
+                            error: rowError,
+                            missing: headerCount - cellCount
+                        });
+                        console.warn(`Row ${idx} (ID: ${rowId}) has ${cellCount} cells, expected ${headerCount}. Missing: ${headerCount - cellCount}`);
+                    }
+                });
+
+                if (problematicRows.length > 0) {
+                    console.error('❌ Found ' + problematicRows.length + ' rows with missing columns:', problematicRows);
+                } else {
+                    console.log('✓ All rows have correct column count');
+                }
+
                 // ── DataTable ────────────────────────────────────────────────
                 let table = null;
                 try {
-                    const totalColumns = $('#txnDataTable thead th').length;
-                    const hiddenMetaTargets = totalColumns >= 2
-                        ? [totalColumns - 2, totalColumns - 1]
-                        : [];
-                    const actionTarget = totalColumns >= 3 ? totalColumns - 3 : -1;
-                    const nonOrderableTargets = [0]
-                        .concat(actionTarget >= 0 ? [actionTarget] : [])
-                        .concat(hiddenMetaTargets);
+                    if (problematicRows.length === 0) {
+                        const totalColumns = headerCount;
+                        const hiddenMetaTargets = totalColumns >= 2
+                            ? [totalColumns - 2, totalColumns - 1]
+                            : [];
+                        const actionTarget = totalColumns >= 3 ? totalColumns - 3 : -1;
+                        const nonOrderableTargets = [0]
+                            .concat(actionTarget >= 0 ? [actionTarget] : [])
+                            .concat(hiddenMetaTargets);
 
-                    table = $('#txnDataTable').DataTable({
-                        dom: 'rtip',
-                        pageLength: 50,
-                        columnDefs: [
-                            { orderable: false, targets: nonOrderableTargets },
-                            { visible: false, targets: hiddenMetaTargets }
-                        ],
-                        language: {
-                            paginate: {
-                                previous: '<i class="fas fa-chevron-left"></i>',
-                                next: '<i class="fas fa-chevron-right"></i>'
+                        table = $('#txnDataTable').DataTable({
+                            dom: 'rtip',
+                            pageLength: 50,
+                            columnDefs: [
+                                { orderable: false, targets: nonOrderableTargets },
+                                { visible: false, targets: hiddenMetaTargets }
+                            ],
+                            language: {
+                                paginate: {
+                                    previous: '<i class="fas fa-chevron-left"></i>',
+                                    next: '<i class="fas fa-chevron-right"></i>'
+                                }
                             }
-                        }
-                    });
-                    console.log('✓ DataTable initialized successfully');
+                        });
+                        console.log('✓ DataTable initialized successfully with ' + totalColumns + ' columns');
+                    } else {
+                        console.warn('Skipping DataTable due to column mismatch. Problematic rows:', problematicRows);
+                    }
                 } catch (error) {
                     console.error('⚠️ DataTable init failed:', error.message);
                     console.log('Table will display without DataTable features');
