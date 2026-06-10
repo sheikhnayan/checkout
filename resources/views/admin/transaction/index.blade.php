@@ -967,7 +967,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     </tbody>
                     <tfoot>
                         <tr>
-                            <th colspan="5" class="text-end" style="color:rgba(255,255,255,0.5);font-size:0.82rem">Total (filtered):</th>
+                            <th colspan="5" class="text-end" style="color:rgba(255,255,255,0.5);font-size:0.82rem">Total:</th>
                             <th id="amount-total" style="color:#fff;font-weight:700;font-size:0.9rem"></th>
                             <th colspan="11"></th>
                         </tr>
@@ -1650,14 +1650,15 @@ body.modal-open .admin-mobile-menu-toggle {
                 function updateTotal() {
                     if (!table) return;
                     let total = 0;
-                    table.rows({ search: 'applied' }).every(function() {
-                        const cell = this.data()[5];
-                        const tmp = document.createElement('div');
-                        tmp.innerHTML = cell;
-                        const text = (tmp.textContent || tmp.innerText || '').replace(/[^0-9.-]+/g, '');
-                        total += parseFloat(text) || 0;
+                    table.rows({ search: 'applied' }).every(function(index) {
+                        const row = this.node();
+                        const amountCell = row.querySelector('.txn-amount');
+                        if (amountCell) {
+                            const text = amountCell.textContent.replace(/[^0-9.-]+/g, '');
+                            total += parseFloat(text) || 0;
+                        }
                     });
-                    $('#amount-total').text('$' + total.toLocaleString(undefined, { minimumFractionDigits: 2 }));
+                    $('#amount-total').text('$' + total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
                 }
                 if (table) {
                     table.on('draw', updateTotal);
