@@ -611,6 +611,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             <th><input type="checkbox" id="selectAll"></th>
                             <th>Order ID</th>
                             <th>Event / Package</th>
+                            <th>Source</th>
                             <th>Customer</th>
                             <th>Amount</th>
                             <th>Payment</th>
@@ -713,6 +714,22 @@ body.modal-open .admin-mobile-menu-toggle {
                                 @else
                                     {{ $packageDetailsText }}
                                 @endif
+                                <div style="font-size:0.85rem;color:rgba(255,255,255,0.6);margin-top:6px;">{{ $venueName }}</div>
+                            </td>
+                            <td>
+                                @php
+                                    $sourceText = 'Direct';
+                                    $sourceBadgeColor = '#6b7280';
+
+                                    if (!empty($item->affiliate_id) && !empty($item->affiliate)) {
+                                        $sourceText = $item->affiliate->display_name ?: optional($item->affiliate->user)->name ?: 'Affiliate #' . $item->affiliate_id;
+                                        $sourceBadgeColor = '#8b5cf6';
+                                    } elseif (!empty($item->entertainer_id) && !empty($item->entertainer)) {
+                                        $sourceText = $item->entertainer->display_name ?: optional($item->entertainer->user)->name ?: 'Entertainer #' . $item->entertainer_id;
+                                        $sourceBadgeColor = '#ec4899';
+                                    }
+                                @endphp
+                                <span style="background:{{ $sourceBadgeColor }};color:white;padding:4px 10px;border-radius:4px;font-size:0.85rem;font-weight:600;">{{ $sourceText }}</span>
                             </td>
                             <td>
                                 <div class="txn-customer-name">{{ $item->package_first_name }} {{ $item->package_last_name }}</div>
@@ -938,7 +955,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="15" class="text-center py-5" style="color:rgba(255,255,255,0.3)">
+                            <td colspan="17" class="text-center py-5" style="color:rgba(255,255,255,0.3)">
                                 <i class="fas fa-inbox fa-2x mb-3 d-block"></i>No transactions found.
                             </td>
                         </tr>
@@ -948,7 +965,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         <tr>
                             <th colspan="5" class="text-end" style="color:rgba(255,255,255,0.5);font-size:0.82rem">Total (filtered):</th>
                             <th id="amount-total" style="color:#fff;font-weight:700;font-size:0.9rem"></th>
-                            <th colspan="9"></th>
+                            <th colspan="11"></th>
                         </tr>
                     </tfoot>
                 </table>
