@@ -81,44 +81,31 @@ class TelnyxSmsService
 
         if ($type === 'reservation') {
             $reservationDate = $data['reservation_date'] ?? $data['package_use_date'] ?? 'N/A';
-            $menCount = $data['men_count'] ?? 0;
-            $womenCount = $data['women_count'] ?? 0;
+            // Use package_men and package_women field names (from transaction table)
+            $menCount = isset($data['men_count']) ? $data['men_count'] : (isset($data['package_men']) ? $data['package_men'] : 0);
+            $womenCount = isset($data['women_count']) ? $data['women_count'] : (isset($data['package_women']) ? $data['package_women'] : 0);
             $totalGuests = $menCount + $womenCount;
 
-            $message = "RESERVATION CONFIRMED\n\n";
+            $message = "RESERVATION CONFIRMED\n";
             $message .= "Club: {$clubName}\n";
             $message .= "Confirmation: #{$confirmationId}\n";
             $message .= "Date: {$reservationDate}\n";
-            $message .= "Guests: {$menCount} Men + {$womenCount} Women = {$totalGuests} Total\n";
+            $message .= "Guests: {$menCount} Male, {$womenCount} Female = {$totalGuests} total\n";
             $message .= "Total: \${$totalAmount}\n\n";
-
-            if (!empty($data['notes'])) {
-                $message .= "Notes: {$data['notes']}\n\n";
-            }
-
-            $message .= "Your reservation is confirmed!\n";
-            $message .= "View Details: {$this->getClubLink($data)}\n";
-            $message .= "Questions? Contact {$clubName}";
+            $message .= "Check your email for reservation details and your QR code.\n";
+            $message .= "Questions regarding your reservation? Please contact the location directly";
         } else {
             // Package type
-            $packageName = $data['package_name'] ?? 'Package';
-            $quantity = $data['quantity'] ?? 1;
+            $packageCount = $data['quantity'] ?? $data['package_count'] ?? 1;
 
-            $message = "BOOKING CONFIRMED\n\n";
+            $message = "RESERVATION CONFIRMED\n";
             $message .= "Club: {$clubName}\n";
             $message .= "Confirmation: #{$confirmationId}\n";
-            $message .= "Package: {$packageName}\n";
-            $message .= "Quantity: {$quantity}\n";
+            $message .= "Date: " . ($data['reservation_date'] ?? $data['package_use_date'] ?? 'N/A') . "\n";
+            $message .= "Total Packages: {$packageCount} total\n";
             $message .= "Total: \${$totalAmount}\n\n";
-
-            if (!empty($data['package_date']) || !empty($data['event_date'])) {
-                $eventDate = $data['package_date'] ?? $data['event_date'] ?? 'N/A';
-                $message .= "Event Date: {$eventDate}\n\n";
-            }
-
-            $message .= "Your booking is confirmed!\n";
-            $message .= "View Details: {$this->getClubLink($data)}\n";
-            $message .= "Questions? Contact {$clubName}";
+            $message .= "Check your email for reservation details and your QR code.\n";
+            $message .= "Questions regarding your reservation? Please contact the location directly";
         }
 
         // Telnyx supports up to 1,600 characters (SMS will be concatenated if longer)

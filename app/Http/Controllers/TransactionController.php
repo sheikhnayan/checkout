@@ -260,8 +260,8 @@ class TransactionController extends Controller
                                         'club_slug' => $website->slug ?? '',
                                         'package_name' => $packageData['name'] ?? 'Package',
                                         'quantity' => $request->input('quantity', 1),
-                                        'package_date' => $request->input('package_use_date') ?? '',
-                                        'total_amount' => $add->total_amount,
+                                        'package_use_date' => $request->input('package_use_date') ?? '',
+                                        'total_amount' => $add->total,
                                     ];
                                     $smsService->sendTransactionNotification($purchaserPhone, $smsData, 'package');
                                 } catch (\Exception $smsError) {
@@ -815,9 +815,9 @@ class TransactionController extends Controller
                                         'club_name' => $website->name ?? 'Venue',
                                         'club_slug' => $website->slug ?? '',
                                         'reservation_date' => $new->package_use_date,
-                                        'men_count' => $new->package_male_count ?? 0,
-                                        'women_count' => $new->package_female_count ?? 0,
-                                        'total_amount' => $new->total_amount,
+                                        'men_count' => $new->package_men ?? 0,
+                                        'women_count' => $new->package_women ?? 0,
+                                        'total_amount' => $new->total,
                                         'notes' => $new->package_note ?? '',
                                     ];
                                     $smsService->sendTransactionNotification($guestPhone, $smsData, 'reservation');

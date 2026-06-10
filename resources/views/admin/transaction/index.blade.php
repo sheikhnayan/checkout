@@ -711,7 +711,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td class="txn-pkg-name">
                                 <div style="font-size:0.95rem;font-weight:600;margin-bottom:8px;">{{ $venueName }}</div>
                                 @if($packageDetails->count() > 1)
-                                    <button type="button" class="btn btn-sm btn-link-package" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-package-details='@json($packageDetails)' data-addons='@json($addons)' style="font-size:0.85rem;">{{ $packageDetails->count() }} Packages</button>
+                                    <button type="button" class="btn btn-sm btn-link-package" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-cart-items='@json($cartItems)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' style="font-size:0.85rem;">{{ $packageDetails->count() }} Packages</button>
                                 @else
                                     <div style="font-size:0.85rem;">{{ $packageDetailsText }}</div>
                                 @endif
@@ -1850,31 +1850,78 @@ body.modal-open .admin-mobile-menu-toggle {
             // Handle Package Details Modal
             $(document).on('click', '.btn-link-package', function(e) {
                 e.preventDefault();
-                var packageDetails = $(this).data('package-details');
-                var addons = $(this).data('addons') || '';
+                var cartItems = $(this).data('cart-items') || [];
+                var transactionType = $(this).data('transaction-type') || 'package';
+                var menCount = $(this).data('men') || 0;
+                var womenCount = $(this).data('women') || 0;
                 var transactionId = $(this).data('transaction-id');
 
                 var html = '<div>';
 
-                // Display packages
-                if (packageDetails && Array.isArray(packageDetails)) {
+                // Display packages with details
+                if (cartItems && Array.isArray(cartItems)) {
                     html += '<h6 style="color:#e0e7ff;margin-bottom:16px;font-weight:700;"><i class="fas fa-box"></i> Packages</h6>';
-                    packageDetails.forEach(function(pkg, index) {
-                        html += '<div class="package-item">';
-                        html += '<div class="package-name">' + (index + 1) + '. ' + (pkg || 'Unknown Package') + '</div>';
+
+                    cartItems.forEach(function(item, index) {
+                        if (!item) return;
+
+                        var packageName = item.package_name || item.packageName || item.pkgName || 'Unknown Package';
+                        var quantity = Math.max(1, parseInt(item.guests || item.quantity || 1));
+                        var packageType = (item.package_type || item.type || item.packageType || '').toLowerCase();
+                        var price = parseFloat(item.unit_price || 0);
+                        var itemTotal = price * quantity;
+
+                        html += '<div class="package-item" style="background:#1e293b;border:1px solid rgba(255,255,255,0.1);padding:12px;border-radius:8px;margin-bottom:10px;">';
+                        html += '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">';
+                        html += '<div style="font-weight:600;color:#e0e7ff;">' + packageName + '</div>';
+                        html += '<div style="text-align:right;">';
+
+                        if (packageType === 'ticket') {
+                            html += '<div style="color:#fbbf24;font-weight:600;">x' + quantity + ' tickets</div>';
+                        } else {
+                            html += '<div style="color:#fbbf24;font-weight:600;">' + quantity + ' ' + (quantity === 1 ? 'guest' : 'guests') + '</div>';
+                        }
+
+                        if (price > 0) {
+                            html += '<div style="color:#94a3b8;font-size:0.85rem;">$' + price.toFixed(2) + ' x ' + quantity + ' = $' + itemTotal.toFixed(2) + '</div>';
+                        }
+
+                        html += '</div></div>';
+
+                        // Display add-ons for this item
+                        if (item.addons && Array.isArray(item.addons) && item.addons.length > 0) {
+                            html += '<div style="margin-left:12px;border-left:2px solid rgba(251,191,36,0.3);padding-left:12px;margin-top:8px;">';
+                            html += '<div style="color:#94a3b8;font-size:0.85rem;margin-bottom:6px;">Add-ons:</div>';
+
+                            item.addons.forEach(function(addon) {
+                                var addonQty = addon.quantity || 1;
+                                var addonPrice = parseFloat(addon.price || 0);
+                                var addonTotal = addonPrice * addonQty;
+                                html += '<div style="color:#e0e7ff;font-size:0.85rem;margin-bottom:4px;">';
+                                html += '✓ ' + (addon.name || 'Add-on') + ' ';
+                                if (addonQty > 1) html += 'x' + addonQty + ' ';
+                                if (addonPrice > 0) html += '($' + addonPrice.toFixed(2);
+                                if (addonQty > 1) html += ' × ' + addonQty;
+                                if (addonPrice > 0) html += ' = $' + addonTotal.toFixed(2) + ')';
+                                html += '</div>';
+                            });
+
+                            html += '</div>';
+                        }
+
                         html += '</div>';
                     });
                 }
 
-                // Display addons
-                if (addons && addons.trim() !== '') {
-                    html += '<h6 style="color:#e0e7ff;margin-top:20px;margin-bottom:16px;font-weight:700;"><i class="fas fa-plus-circle"></i> Add-ons</h6>';
-                    var addonList = addons.split(',').map(function(a) { return a.trim(); }).filter(Boolean);
-                    addonList.forEach(function(addon) {
-                        html += '<div class="addon-item">✓ ' + addon + '</div>';
-                    });
-                } else {
-                    html += '<p style="color:#94a3b8;margin-top:20px;font-style:italic;">No add-ons selected</p>';
+                // Display guest information for reservations
+                if (transactionType === 'reservation' && (menCount > 0 || womenCount > 0)) {
+                    var totalGuests = parseInt(menCount) + parseInt(womenCount);
+                    html += '<h6 style="color:#e0e7ff;margin-top:20px;margin-bottom:12px;font-weight:700;"><i class="fas fa-users"></i> Guest Breakdown</h6>';
+                    html += '<div style="background:#1e293b;border:1px solid rgba(255,255,255,0.1);padding:12px;border-radius:8px;">';
+                    html += '<div style="color:#e0e7ff;margin-bottom:6px;">👨 Males: <span style="font-weight:600;color:#fbbf24;">' + menCount + '</span></div>';
+                    html += '<div style="color:#e0e7ff;margin-bottom:6px;">👩 Females: <span style="font-weight:600;color:#fbbf24;">' + womenCount + '</span></div>';
+                    html += '<div style="color:#e0e7ff;border-top:1px solid rgba(255,255,255,0.1);padding-top:8px;margin-top:8px;font-weight:600;">Total: <span style="color:#fbbf24;">' + totalGuests + ' guests</span></div>';
+                    html += '</div>';
                 }
 
                 html += '</div>';
