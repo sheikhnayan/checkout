@@ -26,7 +26,7 @@ class AffiliateApplicationReceivedMail extends Mailable
      */
     public function build(): self
     {
-        return $this->subject('affiliate Application Received - CartVIP')
+        return $this->subject('promoter Application Received - CartVIP')
             ->view('emails.affiliate-application-received');
     }
 }

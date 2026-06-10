@@ -188,7 +188,7 @@ class AffiliateAdminController extends Controller
             // Keep rejection successful even if mail fails.
         }
 
-        return redirect()->back()->with('success', 'affiliate application rejected.');
+        return redirect()->back()->with('success', 'promoter application rejected.');
     }
 
     public function unapprove(Affiliate $affiliate)

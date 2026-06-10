@@ -97,7 +97,7 @@
                 <form method="POST" action="{{ route('admin.affiliate.reject', $affiliate->id) }}" class="mb-2">
                     @csrf
                     <div class="mb-2">
-                        <label class="form-label">Rejection Reason (optional) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional note explaining why this affiliate application was rejected. Visible to the affiliate."></i></label>
+                        <label class="form-label">Rejection Reason (optional) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional note explaining why this promoter application was rejected. Visible to the affiliate."></i></label>
                         <textarea name="rejection_reason" rows="2" class="form-control"></textarea>
                     </div>
                     <button type="submit" class="btn btn-danger">Reject</button>

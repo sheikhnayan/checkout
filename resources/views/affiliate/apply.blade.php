@@ -523,7 +523,7 @@
 
                 <div class="social-signup-wrap">
                     <div class="fw-semibold">Quick Sign Up</div>
-                    <div class="muted">Use Google to continue and submit the same affiliate application.</div>
+                    <div class="muted">Use Google to continue and submit the same promoter application.</div>
                     <a class="btn-social" href="{{ route('social.signup.redirect', ['role' => 'affiliate', 'provider' => 'google']) }}">
                         <i class="fab fa-google"></i>
                         Sign up with Google

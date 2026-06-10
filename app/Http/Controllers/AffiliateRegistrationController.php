@@ -135,7 +135,7 @@ class AffiliateRegistrationController extends Controller
             ]);
         }
 
-        return redirect()->route('login')->with('success', 'Your affiliate application has been submitted successfully. A confirmation email with instructions to complete your W-9 form has been sent to your email address. Please complete the W-9 form as soon as possible to expedite your account activation. We will review your application and notify you once approved.');
+        return redirect()->route('login')->with('success', 'Your promoter application has been submitted successfully. A confirmation email with instructions to complete your W-9 form has been sent to your email address. Please complete the W-9 form as soon as possible to expedite your account activation. We will review your application and notify you once approved.');
     }
 
     private function applyGlobalSmtp(): void

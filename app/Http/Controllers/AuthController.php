@@ -47,7 +47,7 @@ class AuthController extends Controller
                     $request->session()->regenerateToken();
 
                     return back()->withErrors([
-                        'email' => 'Your affiliate application is still under review. We will notify you once approved.',
+                        'email' => 'Your promoter application is still under review. We will notify you once approved.',
                     ])->onlyInput('email');
                 }
             }

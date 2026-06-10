@@ -179,7 +179,7 @@ class SocialSignupController extends Controller
 
             $this->clearSession();
 
-            return redirect()->route('login')->with('success', 'affiliate application submitted via ' . ucfirst($provider) . '. We will notify you once approved.');
+            return redirect()->route('login')->with('success', 'promoter application submitted via ' . ucfirst($provider) . '. We will notify you once approved.');
         }
 
         $club = Website::where('id', $selectedWebsiteId)->where('status', 1)->where('is_archieved', 0)->first();
@@ -219,9 +219,9 @@ class SocialSignupController extends Controller
             $adminEmails = User::where('user_type', 'admin')->pluck('email')->filter()->toArray();
             foreach ($adminEmails as $adminEmail) {
                 Mail::raw(
-                    'New affiliate application received from ' . $user->name . ' (' . $user->email . ').',
+                    'New promoter application received from ' . $user->name . ' (' . $user->email . ').',
                     function ($message) use ($adminEmail) {
-                        $message->to($adminEmail)->subject('New affiliate Application - CartVIP');
+                        $message->to($adminEmail)->subject('New promoter Application - CartVIP');
                     }
                 );
             }
