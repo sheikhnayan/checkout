@@ -33,7 +33,7 @@ class TransactionController extends Controller
 {
     public function store($slug, Request $request)
     {
-        \Log::info('=== PACKAGE CHECKOUT STARTED ===', ['phone' => $request->input('package_phone'), 'email' => $request->input('package_email')]);
+        \Log::info('=== PACKAGE CHECKOUT STARTED ===', ['phone' => $request->input('package_phone'), 'email' => $request->input('package_email'), 'hostname' => $request->input('transportation_guest')]);
 
         $cartItems = $this->extractCartItemsFromRequest($request);
         $cartSummary = $this->summarizeCartItems($cartItems);
@@ -128,10 +128,9 @@ class TransactionController extends Controller
                     $add->package_email = $request->input('package_email');
                     $add->package_number_of_guest = $cartSummary['total_guests'];
                     $add->package_use_date = $request->input('package_use_date');
-                    $add->business_company = $request->business_company;
-                    $add->business_vat = $request->business_vat;
-                    $add->business_address = $request->business_address;
-                    $add->business_purpose = $request->business_purpose;
+                    $add->business_company = $request->input('business_company');
+                    $add->business_vat = $request->input('business_vat');
+                    $add->business_address = $request->input('business_address');
                     // Merge package DOB
                     $package_month = $request->input('package_month');
                     $package_day = $request->input('package_day');
@@ -251,7 +250,7 @@ class TransactionController extends Controller
                         }
 
                         // ========== SEND SMS NOTIFICATION ==========
-                        $purchaserPhone = $request->input('package_phone');
+                        $purchaserPhone = $add->package_phone;
                         if ($purchaserPhone) {
                             try {
                                 \Log::info('Attempting to send package SMS', ['phone' => $purchaserPhone]);
@@ -262,7 +261,7 @@ class TransactionController extends Controller
                                     'club_slug' => $website->slug ?? '',
                                     'package_name' => $cartSummary['package_name'] ?? 'Package',
                                     'quantity' => $request->input('quantity', 1),
-                                    'package_use_date' => $request->input('package_use_date') ?? '',
+                                    'package_use_date' => $add->package_use_date,
                                     'total_amount' => $add->total,
                                 ];
                                 $result = $smsService->sendTransactionNotification($purchaserPhone, $smsData, 'package');
@@ -362,10 +361,9 @@ class TransactionController extends Controller
                     $add->package_email = $request->input('package_email');
                     $add->package_number_of_guest = $cartSummary['total_guests'];
                     $add->package_use_date = $request->input('package_use_date');
-                    $add->business_company = $request->business_company;
-                    $add->business_vat = $request->business_vat;
-                    $add->business_address = $request->business_address;
-                    $add->business_purpose = $request->business_purpose;
+                    $add->business_company = $request->input('business_company');
+                    $add->business_vat = $request->input('business_vat');
+                    $add->business_address = $request->input('business_address');
                     // Merge package DOB
                     $package_month = $request->input('package_month');
                     $package_day = $request->input('package_day');
@@ -679,7 +677,7 @@ class TransactionController extends Controller
 
     public function reservation_store($slug, Request $request)
     {
-        \Log::info('=== RESERVATION CHECKOUT STARTED ===', ['phone' => $request->input('reservation_phone'), 'email' => $request->input('reservation_email')]);
+        \Log::info('=== RESERVATION CHECKOUT STARTED ===', ['phone' => $request->input('reservation_phone'), 'email' => $request->input('reservation_email'), 'hostname' => $request->input('transportation_guest')]);
 
         // ========== BOT PREVENTION - LAYER 1: reCAPTCHA v3 (OPTIONAL) ==========
         $recaptchaToken = $request->input('recaptcha_token');
@@ -815,6 +813,7 @@ class TransactionController extends Controller
 
                         // ========== SEND SMS NOTIFICATION ==========
                         $guestPhone = $new->package_phone;
+                        \Log::info('SMS CHECK - Phone value (reservation)', ['phone' => $guestPhone, 'phone_type' => gettype($guestPhone), 'phone_empty' => empty($guestPhone)]);
                         if ($guestPhone) {
                             try {
                                 \Log::info('Attempting to send reservation SMS', ['phone' => $guestPhone]);
