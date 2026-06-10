@@ -273,16 +273,22 @@
                                     <td><input type="checkbox" class="txn-row-check" value="{{ $transaction->id }}"></td>
                                     <td><strong>#{{ str_pad($transaction->id, 3, '0', STR_PAD_LEFT) }}</strong></td>
                                     <td>
-                                        <div style="font-weight:600;">{{ $transaction->type === 'package' ? ($transaction->package_table_label ?: 'Package') : 'Reservation' }}</div>
-                                        <div style="font-size:0.85rem;color:rgba(0,0,0,0.6);margin-top:4px;">{{ optional($transaction->website)->name ?? 'N/A' }}</div>
+                                        <div style="font-weight:600;margin-bottom:6px;">{{ optional($transaction->website)->name ?? 'N/A' }}</div>
+                                        <div style="font-size:0.85rem;">{{ $transaction->type === 'package' ? ($transaction->package_table_label ?: 'Package') : 'Reservation' }}</div>
                                     </td>
                                     <td>
+                                        @php
+                                            $paymentText = $paymentStatus;
+                                            if ($paymentStatus === 'Partial') {
+                                                $paymentText = 'Partial ($' . number_format($paidAmount, 2) . ' paid)';
+                                            }
+                                        @endphp
                                         @if($paymentStatus === 'Paid')
-                                            <span class="badge bg-success">{{ $paymentStatus }}</span>
+                                            <span class="badge bg-success" style="font-size:0.85rem;">{{ $paymentText }}</span>
                                         @elseif($paymentStatus === 'Partial')
-                                            <span class="badge bg-warning text-dark">{{ $paymentStatus }}</span>
+                                            <span class="badge bg-warning text-dark" style="font-size:0.85rem;">{{ $paymentText }}</span>
                                         @else
-                                            <span class="badge bg-secondary">{{ $paymentStatus }}</span>
+                                            <span class="badge bg-secondary" style="font-size:0.85rem;">{{ $paymentText }}</span>
                                         @endif
                                     </td>
                                     <td>
@@ -293,16 +299,16 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <span style="background:{{ $reservationStatusColor }};color:white;padding:4px 8px;border-radius:4px;font-weight:600;font-size:0.8rem;">{{ $statusEmoji }} {{ $reservationStatusValue }}</span>
+                                        <span style="background:{{ $reservationStatusColor }};color:white;padding:4px 8px;border-radius:4px;font-weight:600;font-size:0.8rem;">{{ $reservationStatusValue }}</span>
                                     </td>
                                     <td>
                                         @if($reservationDate && $reservationDate->isValid())
                                             @if($isToday)
-                                                <div style="font-size:0.95rem">🔥 Today</div>
+                                                <div style="font-size:0.9rem;font-weight:600;">Today</div>
                                             @elseif($isFuture)
-                                                <div style="font-size:0.9rem">🗓️ {{ $reservationDate->format('M d, Y') }}</div>
+                                                <div style="font-size:0.9rem;">{{ $reservationDate->format('M d, Y') }}</div>
                                             @else
-                                                <div style="font-size:0.85rem;opacity:0.7">✓ {{ $reservationDate->format('M d, Y') }}</div>
+                                                <div style="font-size:0.85rem;opacity:0.7;">{{ $reservationDate->format('M d, Y') }}</div>
                                             @endif
                                         @else
                                             <span style="opacity:0.3;">-</span>

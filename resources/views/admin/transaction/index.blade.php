@@ -709,12 +709,12 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td><input type="checkbox" class="row-check" value="{{ $item->id }}"></td>
                             <td class="txn-order-id">#{{ str_pad($item->id, 3, '0', STR_PAD_LEFT) }}</td>
                             <td class="txn-pkg-name">
+                                <div style="font-size:0.95rem;font-weight:600;margin-bottom:8px;">{{ $venueName }}</div>
                                 @if($packageDetails->count() > 1)
-                                    <button type="button" class="btn btn-sm btn-link-package" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-package-details='@json($packageDetails)' data-addons='@json($addons)'>📦 {{ $packageDetails->count() }} Packages</button>
+                                    <button type="button" class="btn btn-sm btn-link-package" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-package-details='@json($packageDetails)' data-addons='@json($addons)' style="font-size:0.85rem;">{{ $packageDetails->count() }} Packages</button>
                                 @else
-                                    {{ $packageDetailsText }}
+                                    <div style="font-size:0.85rem;">{{ $packageDetailsText }}</div>
                                 @endif
-                                <div style="font-size:0.85rem;color:rgba(255,255,255,0.6);margin-top:6px;">{{ $venueName }}</div>
                             </td>
                             <td>
                                 @php
@@ -742,8 +742,12 @@ body.modal-open .admin-mobile-menu-toggle {
                                     $totalAmount = (float)($item->total ?? 0);
                                     $dueAmount = $totalAmount - $paidAmount;
                                     $paymentStatus = $paidAmount >= $totalAmount ? 'Paid' : ($paidAmount > 0 ? 'Partial' : 'Pending');
+                                    $paymentText = $paymentStatus;
+                                    if ($paymentStatus === 'Partial') {
+                                        $paymentText = 'Partial ($' . number_format($paidAmount, 2) . ' paid)';
+                                    }
                                 @endphp
-                                <span class="badge-{{ $paymentStatus === 'Paid' ? 'completed' : ($paymentStatus === 'Partial' ? 'warning' : 'canceled') }}">{{ $paymentStatus }}</span>
+                                <span class="badge-{{ $paymentStatus === 'Paid' ? 'completed' : ($paymentStatus === 'Partial' ? 'warning' : 'canceled') }}" style="font-size:0.85rem;">{{ $paymentText }}</span>
                             </td>
                             <td class="txn-amount">
                                 @if($dueAmount > 0)
@@ -808,16 +812,16 @@ body.modal-open .admin-mobile-menu-toggle {
                                         $reservationStatusColor = '#ef4444';
                                     }
                                 @endphp
-                                <span style="background:{{ $reservationStatusColor }};color:white;padding:6px 12px;border-radius:6px;font-weight:600;font-size:0.85rem;">{{ $statusEmoji }} {{ $reservationStatusValue }}</span>
+                                <span style="background:{{ $reservationStatusColor }};color:white;padding:6px 12px;border-radius:6px;font-weight:600;font-size:0.85rem;">{{ $reservationStatusValue }}</span>
                             </td>
                             <td>{{-- RESERVATION DATE --}}
                                 @if($reservationDate)
                                     @if($isToday)
-                                        <div style="font-size:1.1rem">🔥 Today</div>
+                                        <div style="font-size:0.95rem;font-weight:600;">Today</div>
                                     @elseif($isFuture)
-                                        <div style="font-size:1rem">🗓️ {{ $reservationDate->format('M d, Y') }}</div>
+                                        <div style="font-size:0.9rem;">{{ $reservationDate->format('M d, Y') }}</div>
                                     @else
-                                        <div style="font-size:0.9rem;color:rgba(255,255,255,0.6)">✓ {{ $reservationDate->format('M d, Y') }}</div>
+                                        <div style="font-size:0.9rem;color:rgba(255,255,255,0.6);">{{ $reservationDate->format('M d, Y') }}</div>
                                     @endif
                                 @else
                                     <span style="color:rgba(255,255,255,0.25);font-size:0.78rem">-</span>

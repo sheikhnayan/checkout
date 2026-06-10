@@ -644,6 +644,26 @@ class TransactionController extends Controller
             }
         }
 
+        $reservationFilter = strtolower(trim((string) $request->query('reservation', '')));
+        if ($reservationFilter !== '') {
+            $today = Carbon::now('America/Los_Angeles')->startOfDay();
+            $tomorrow = $today->copy()->addDay();
+            $endOfWeek = $today->copy()->endOfWeek();
+
+            if ($reservationFilter === 'upcoming') {
+                $query->whereDate('package_use_date', '>', $today->toDateString());
+            } elseif ($reservationFilter === 'today') {
+                $query->whereDate('package_use_date', $today->toDateString());
+            } elseif ($reservationFilter === 'weekend') {
+                $query->whereRaw("DATE(package_use_date) >= ? AND DATE(package_use_date) <= ? AND DAYOFWEEK(package_use_date) IN (6, 7)", [
+                    $tomorrow->toDateString(),
+                    $endOfWeek->toDateString()
+                ]);
+            } elseif ($reservationFilter === 'past') {
+                $query->whereDate('package_use_date', '<', $today->toDateString());
+            }
+        }
+
         return $query
             ->with(['event', 'package', 'website', 'affiliate.user', 'entertainer.user'])
             ->latest()
