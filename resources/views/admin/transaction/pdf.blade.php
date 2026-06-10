@@ -57,13 +57,22 @@
                 </div>
 
                 <div class="section">
-                    <div class="section-title">🚗 Transportation Information</div>
+                    <div class="section-title">🚗 Transportation Details</div>
                     <ul class="list-group">
                         <li class="list-group-item"><strong>Pickup Time:</strong> <span>{{ htmlspecialchars($transaction->transportation_pickup_time ?? '') }}</span></li>
-                        <li class="list-group-item"><strong>Address:</strong> <span>{{ htmlspecialchars($transaction->transportation_address ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Pickup Location:</strong> <span>{{ htmlspecialchars($transaction->transportation_address ?? '') }}</span></li>
                         <li class="list-group-item"><strong>Phone:</strong> <span>{{ htmlspecialchars($transaction->transportation_phone ?? '') }}</span></li>
-                        <li class="list-group-item"><strong>Guest Name:</strong> <span>{{ htmlspecialchars($transaction->transportation_guest ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Host Name:</strong> <span>{{ htmlspecialchars($transaction->transportation_guest ?? '') }}</span></li>
                         <li class="list-group-item"><strong>Note:</strong> <span>{{ htmlspecialchars($transaction->transportation_note ?? '') }}</span></li>
+                    </ul>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">💼 Business Information</div>
+                    <ul class="list-group">
+                        <li class="list-group-item"><strong>Company Name:</strong> <span>{{ htmlspecialchars($transaction->business_company ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Tax ID:</strong> <span>{{ htmlspecialchars($transaction->business_vat ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Address:</strong> <span>{{ htmlspecialchars($transaction->business_address ?? '') }}</span></li>
                     </ul>
                 </div>
             </div>

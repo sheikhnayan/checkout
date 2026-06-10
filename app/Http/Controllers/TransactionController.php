@@ -251,6 +251,7 @@ class TransactionController extends Controller
                         $purchaserPhone = $request->input('package_phone');
                         if ($purchaserPhone) {
                             try {
+                                \Log::info('Attempting to send package SMS', ['phone' => $purchaserPhone]);
                                 $smsService = new \App\Services\TelnyxSmsService();
                                 $packageData = $this->getPackageData($slug, $request);
                                 $smsData = [
@@ -262,10 +263,13 @@ class TransactionController extends Controller
                                     'package_use_date' => $request->input('package_use_date') ?? '',
                                     'total_amount' => $add->total,
                                 ];
-                                $smsService->sendTransactionNotification($purchaserPhone, $smsData, 'package');
+                                $result = $smsService->sendTransactionNotification($purchaserPhone, $smsData, 'package');
+                                \Log::info('SMS result for package', ['result' => $result]);
                             } catch (\Exception $smsError) {
-                                \Log::error('SMS notification failed for package: ' . $smsError->getMessage());
+                                \Log::error('SMS notification failed for package: ' . $smsError->getMessage(), ['trace' => $smsError->getTraceAsString()]);
                             }
+                        } else {
+                            \Log::warning('No phone number provided for package SMS');
                         }
                     } catch (\Throwable $th) {
                         report($th);
