@@ -1878,12 +1878,14 @@ body.modal-open .admin-mobile-menu-toggle {
 
                         if (packageType === 'ticket') {
                             html += '<div style="color:#fbbf24;font-weight:600;">x' + quantity + ' tickets</div>';
+                            if (price > 0) {
+                                html += '<div style="color:#94a3b8;font-size:0.85rem;">$' + price.toFixed(2) + ' x ' + quantity + ' = $' + itemTotal.toFixed(2) + '</div>';
+                            }
                         } else {
                             html += '<div style="color:#fbbf24;font-weight:600;">' + quantity + ' ' + (quantity === 1 ? 'guest' : 'guests') + '</div>';
-                        }
-
-                        if (price > 0) {
-                            html += '<div style="color:#94a3b8;font-size:0.85rem;">$' + price.toFixed(2) + ' x ' + quantity + ' = $' + itemTotal.toFixed(2) + '</div>';
+                            if (price > 0) {
+                                html += '<div style="color:#94a3b8;font-size:0.85rem;">$' + price.toFixed(2) + '</div>';
+                            }
                         }
 
                         html += '</div></div>';
