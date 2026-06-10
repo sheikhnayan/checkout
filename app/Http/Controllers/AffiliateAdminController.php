@@ -30,7 +30,7 @@ class AffiliateAdminController extends Controller
         $this->ensureAdmin();
         $status = $request->input('status', 'pending');
 
-        $query = Affiliate::with('user');
+        $query = Affiliate::with('user', 'approved_by_user', 'rejected_by_user');
         if (in_array($status, ['pending', 'approved', 'rejected'], true)) {
             $query->where('status', $status);
         }
@@ -121,6 +121,9 @@ class AffiliateAdminController extends Controller
         $affiliate->is_active = true;
         $affiliate->approved_at = now();
         $affiliate->approved_by = auth()->id();
+        $affiliate->rejected_at = null;
+        $affiliate->rejected_by = null;
+        $affiliate->rejection_reason = null;
         $affiliate->default_commission_percentage = $request->default_commission_percentage;
         if (empty($affiliate->slug)) {
             $affiliate->slug = Affiliate::generateUniqueSlug($affiliate->display_name ?: $affiliate->user->name);
@@ -172,6 +175,8 @@ class AffiliateAdminController extends Controller
         $affiliate->status = 'rejected';
         $affiliate->rejection_reason = $request->rejection_reason;
         $affiliate->is_active = false;
+        $affiliate->rejected_at = now();
+        $affiliate->rejected_by = auth()->id();
         $affiliate->save();
 
         try {

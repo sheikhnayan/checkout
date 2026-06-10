@@ -39,12 +39,15 @@ class Affiliate extends Model
         'wallet_balance',
         'approved_at',
         'approved_by',
+        'rejected_at',
+        'rejected_by',
         'rejection_reason',
         'is_active',
     ];
 
     protected $casts = [
         'approved_at' => 'datetime',
+        'rejected_at' => 'datetime',
         'is_active' => 'boolean',
         'wallet_balance' => 'decimal:2',
         'default_commission_percentage' => 'decimal:2',
@@ -60,6 +63,21 @@ class Affiliate extends Model
     public function approver()
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function approved_by_user()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function rejector()
+    {
+        return $this->belongsTo(User::class, 'rejected_by');
+    }
+
+    public function rejected_by_user()
+    {
+        return $this->belongsTo(User::class, 'rejected_by');
     }
 
     public function affiliatePackages()

@@ -51,7 +51,7 @@ class EntertainerAdminController extends Controller
     {
         $status = $request->input('status', 'pending');
 
-        $query = Entertainer::with(['user', 'website']);
+        $query = Entertainer::with(['user', 'website', 'approved_by_user', 'rejected_by_user']);
         $this->scopeQueryForUser($query);
 
         if (in_array($status, ['pending', 'approved', 'rejected'], true)) {
@@ -119,6 +119,9 @@ class EntertainerAdminController extends Controller
         $entertainer->is_active = true;
         $entertainer->approved_at = now();
         $entertainer->approved_by = auth()->id();
+        $entertainer->rejected_at = null;
+        $entertainer->rejected_by = null;
+        $entertainer->rejection_reason = null;
         $entertainer->default_commission_percentage = request('default_commission_percentage');
 
         if (empty($entertainer->slug)) {
@@ -194,6 +197,8 @@ class EntertainerAdminController extends Controller
         $entertainer->status = 'rejected';
         $entertainer->rejection_reason = $request->rejection_reason;
         $entertainer->is_active = false;
+        $entertainer->rejected_at = now();
+        $entertainer->rejected_by = auth()->id();
         $entertainer->save();
 
         if ($entertainer->feed_model_id) {
@@ -227,6 +232,8 @@ class EntertainerAdminController extends Controller
         $entertainer->is_active = false;
         $entertainer->approved_at = null;
         $entertainer->approved_by = null;
+        $entertainer->rejected_at = null;
+        $entertainer->rejected_by = null;
         $entertainer->rejection_reason = null;
         $entertainer->save();
 
