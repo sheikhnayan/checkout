@@ -246,25 +246,19 @@ class TransactionController extends Controller
                             ->unique()
                             ->values();
 
-                        \Log::info('=== EMAILS SECTION START ===');
                         foreach ($clubEmails as $clubEmail) {
                             \Illuminate\Support\Facades\Mail::to($clubEmail)->send(clone $send_mail_club);
                         }
-                        \Log::info('=== CLUB EMAIL SENT ===');
 
                         $purchaserEmail = $request->input('package_email');
                         if ($purchaserEmail && filter_var($purchaserEmail, FILTER_VALIDATE_EMAIL)) {
                             \Illuminate\Support\Facades\Mail::to($purchaserEmail)->send($send_mail_purchaser);
-                            \Log::info('=== PURCHASER EMAIL SENT ===');
                         }
 
-                        \Log::info('=== ABOUT TO SEND SMS ===', ['transaction_id' => $add->id, 'transaction_phone' => $add->package_phone]);
-
                         // ========== SEND SMS NOTIFICATION ==========
-                        $purchaserPhone = $add->package_phone;
-                        if ($purchaserPhone) {
-                            try {
-                                \Log::info('Attempting to send package SMS', ['phone' => $purchaserPhone]);
+                        try {
+                            $purchaserPhone = $add->package_phone;
+                            if ($purchaserPhone) {
                                 $smsService = new \App\Services\TelnyxSmsService();
                                 $smsData = [
                                     'transaction_id' => $add->transaction_id,
@@ -275,13 +269,11 @@ class TransactionController extends Controller
                                     'package_use_date' => $add->package_use_date,
                                     'total_amount' => $add->total,
                                 ];
-                                $result = $smsService->sendTransactionNotification($purchaserPhone, $smsData, 'package');
-                                \Log::info('SMS result for package', ['result' => $result]);
-                            } catch (\Exception $smsError) {
-                                \Log::error('SMS notification failed for package: ' . $smsError->getMessage(), ['trace' => $smsError->getTraceAsString()]);
+                                $smsService->sendTransactionNotification($purchaserPhone, $smsData, 'package');
                             }
-                        } else {
-                            \Log::warning('No phone number provided for package SMS');
+                        } catch (\Exception $e) {
+                            // Log but don't crash if SMS fails
+                            \Log::error('SMS failed: ' . $e->getMessage());
                         }
                     } catch (\Throwable $th) {
                         report($th);
