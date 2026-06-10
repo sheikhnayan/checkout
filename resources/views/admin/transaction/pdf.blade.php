@@ -94,15 +94,6 @@
                     </ul>
                 </div>
 
-                <div class="section">
-                    <div class="section-title">💼 Business Information</div>
-                    <ul class="list-group">
-                        <li class="list-group-item"><strong>Company Name:</strong> <span>{{ htmlspecialchars($transaction->business_company ?? '') }}</span></li>
-                        <li class="list-group-item"><strong>VAT Number:</strong> <span>{{ htmlspecialchars($transaction->business_vat ?? '') }}</span></li>
-                        <li class="list-group-item"><strong>Address:</strong> <span>{{ htmlspecialchars($transaction->business_address ?? '') }}</span></li>
-                        <li class="list-group-item"><strong>Purpose:</strong> <span>{{ htmlspecialchars($transaction->business_purpose ?? '') }}</span></li>
-                    </ul>
-                </div>
             </div>
         </div>
 

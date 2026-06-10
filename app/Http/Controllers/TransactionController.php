@@ -196,6 +196,9 @@ class TransactionController extends Controller
                             'transportation_phone' => $request->input('transportation_phone'),
                             'transportation_guest' => $request->input('transportation_guest'),
                             'transportation_note' => $request->input('transportation_note'),
+                            'business_company' => $add->business_company,
+                            'business_vat' => $add->business_vat,
+                            'business_address' => $add->business_address,
                             'addons' => $cartSummary['addons_summary'],
                             'package_id' => $cartSummary['primary_package_id'] ?: $request->input('package_id'),
                             'cart_items' => $cartItems,
@@ -428,6 +431,9 @@ class TransactionController extends Controller
                             'transportation_phone' => $request->input('transportation_phone'),
                             'transportation_guest' => $request->input('transportation_guest'),
                             'transportation_note' => $request->input('transportation_note'),
+                            'business_company' => $add->business_company,
+                            'business_vat' => $add->business_vat,
+                            'business_address' => $add->business_address,
                             'addons' => $cartSummary['addons_summary'],
                             'package_id' => $cartSummary['primary_package_id'] ?: $request->input('package_id'),
                             'cart_items' => $cartItems,
@@ -807,25 +813,26 @@ class TransactionController extends Controller
                         }
 
                         // ========== SEND SMS NOTIFICATION ==========
-                        if (config('services.aloware.enabled')) {
-                            $guestPhone = $new->package_phone;
-                            if ($guestPhone) {
-                                try {
-                                    $smsService = new \App\Services\TelnyxSmsService();
-                                    $smsData = [
-                                        'transaction_id' => $new->transaction_id,
-                                        'club_name' => $website->name ?? 'Venue',
-                                        'club_slug' => $website->slug ?? '',
-                                        'reservation_date' => $new->package_use_date,
-                                        'men_count' => $new->package_men ?? 0,
-                                        'women_count' => $new->package_women ?? 0,
-                                        'total_amount' => $new->total,
-                                        'notes' => $new->package_note ?? '',
-                                    ];
-                                    $smsService->sendTransactionNotification($guestPhone, $smsData, 'reservation');
-                                } catch (\Exception $smsError) {
-                                    \Log::error('SMS notification failed: ' . $smsError->getMessage());
-                                    // Don't throw error - SMS failure shouldn't block transaction
+                        $guestPhone = $new->package_phone;
+                        if ($guestPhone) {
+                            try {
+                                \Log::info('Attempting to send reservation SMS', ['phone' => $guestPhone]);
+                                $smsService = new \App\Services\TelnyxSmsService();
+                                $smsData = [
+                                    'transaction_id' => $new->transaction_id,
+                                    'club_name' => $website->name ?? 'Venue',
+                                    'club_slug' => $website->slug ?? '',
+                                    'reservation_date' => $new->package_use_date,
+                                    'men_count' => $new->package_men ?? 0,
+                                    'women_count' => $new->package_women ?? 0,
+                                    'total_amount' => $new->total,
+                                    'notes' => $new->package_note ?? '',
+                                ];
+                                $result = $smsService->sendTransactionNotification($guestPhone, $smsData, 'reservation');
+                                \Log::info('SMS result for reservation', ['result' => $result]);
+                            } catch (\Exception $smsError) {
+                                \Log::error('SMS notification failed for reservation: ' . $smsError->getMessage(), ['trace' => $smsError->getTraceAsString()]);
+                                // Don't throw error - SMS failure shouldn't block transaction
                                 }
                             }
                         }
