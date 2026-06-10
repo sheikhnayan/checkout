@@ -720,12 +720,23 @@ body.modal-open .admin-mobile-menu-toggle {
                             </td>
                             <td>
                                 @php
-                                    $reservationDate = optional($item->package_use_date);
-                                    $today = \Carbon\Carbon::today();
-                                    $isToday = $reservationDate && $reservationDate->isToday();
-                                    $isFuture = $reservationDate && $reservationDate->isFuture();
+                                    try {
+                                        $reservationDate = $item->package_use_date ? optional($item->package_use_date) : null;
+                                        if ($reservationDate) {
+                                            $today = \Carbon\Carbon::today();
+                                            $isToday = $reservationDate->isToday();
+                                            $isFuture = $reservationDate->isFuture();
+                                        } else {
+                                            $isToday = false;
+                                            $isFuture = false;
+                                        }
+                                    } catch (\Exception $e) {
+                                        $reservationDate = null;
+                                        $isToday = false;
+                                        $isFuture = false;
+                                    }
                                 @endphp
-                                @if($reservationDate && $reservationDate->isValid())
+                                @if($reservationDate)
                                     @if($isToday)
                                         <div style="font-size:1.1rem">🔥 Today</div>
                                     @elseif($isFuture)
@@ -1318,10 +1329,36 @@ body.modal-open .admin-mobile-menu-toggle {
             $(document).ready(function() {
 
                 // ── DataTable ────────────────────────────────────────────────
-                // TEMPORARILY DISABLED - investigating column mismatch issue
-                // Will re-enable once all rows have consistent column count
                 let table = null;
-                console.log('DataTable temporarily disabled for debugging');
+                try {
+                    const totalColumns = $('#txnDataTable thead th').length;
+                    const hiddenMetaTargets = totalColumns >= 2
+                        ? [totalColumns - 2, totalColumns - 1]
+                        : [];
+                    const actionTarget = totalColumns >= 3 ? totalColumns - 3 : -1;
+                    const nonOrderableTargets = [0]
+                        .concat(actionTarget >= 0 ? [actionTarget] : [])
+                        .concat(hiddenMetaTargets);
+
+                    table = $('#txnDataTable').DataTable({
+                        dom: 'rtip',
+                        pageLength: 50,
+                        columnDefs: [
+                            { orderable: false, targets: nonOrderableTargets },
+                            { visible: false, targets: hiddenMetaTargets }
+                        ],
+                        language: {
+                            paginate: {
+                                previous: '<i class="fas fa-chevron-left"></i>',
+                                next: '<i class="fas fa-chevron-right"></i>'
+                            }
+                        }
+                    });
+                    console.log('✓ DataTable initialized successfully');
+                } catch (error) {
+                    console.error('⚠️ DataTable init failed:', error.message);
+                    console.log('Table will display without DataTable features');
+                }
 
                 // ── Custom search ────────────────────────────────────────────
                 $('#txnSearch').on('keyup', function() {
