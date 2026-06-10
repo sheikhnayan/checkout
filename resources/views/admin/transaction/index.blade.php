@@ -609,14 +609,14 @@ body.modal-open .admin-mobile-menu-toggle {
                         <tr>
                             <th><input type="checkbox" id="selectAll"></th>
                             <th>Order ID</th>
-                            <th>Event / Package</th>
                             <th>Customer</th>
-                            <th>Promoter</th>
                             <th>Amount</th>
-                            <th>Status</th>
+                            <th>Payment</th>
+                            <th>Reservation Status</th>
                             <th>Reservation Date</th>
-                            <th>Checked In</th>
+                            <th>Entry Status</th>
                             <th>Commission</th>
+                            <th>Promoter</th>
                             @if($isPayoutPage)
                             <th style="min-width:130px">Commission Available</th>
                             @endif
@@ -689,6 +689,18 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td><input type="checkbox" class="row-check" value="{{ $item->id }}"></td>
                             <td class="txn-order-id">#{{ str_pad($item->id, 3, '0', STR_PAD_LEFT) }}</td>
                             <td>
+                                <div class="txn-customer-name">{{ $item->package_first_name }} {{ $item->package_last_name }}</div>
+                                <div class="txn-customer-email">{{ $item->package_email }}</div>
+                            </td>
+                            <td class="txn-amount">${{ number_format((float)$item->total, 2) }}</td>
+                            <td>
+                                @if($item->status == 1)     <span class="badge-completed">Completed</span>
+                                @elseif($item->status == 0) <span class="badge-canceled">Canceled</span>
+                                @elseif($item->status == 2) <span class="badge-refunded">Refunded</span>
+                                @else                       <span class="badge-canceled">Unknown</span>
+                                @endif
+                            </td>
+                            <td>
                                 <div class="txn-venue">{{ $venueName }}</div>
                                 <div class="txn-pkg-type">
                                     @if($packageDetails->count() > 1)
@@ -705,25 +717,6 @@ body.modal-open .admin-mobile-menu-toggle {
                                         {{ $packageDetailsText }}
                                     @endif
                                 </div>
-                            </td>
-                            <td>
-                                <div class="txn-customer-name">{{ $item->package_first_name }} {{ $item->package_last_name }}</div>
-                                <div class="txn-customer-email">{{ $item->package_email }}</div>
-                            </td>
-                            <td>
-                                @if($affiliateName)
-                                    <span class="badge-affiliate" title="{{ $affiliateName }}">{{ $affiliateName }}</span>
-                                @else
-                                    <span class="badge-direct">DIRECT</span>
-                                @endif
-                            </td>
-                            <td class="txn-amount">${{ number_format((float)$item->total, 2) }}</td>
-                            <td>
-                                @if($item->status == 1)     <span class="badge-completed">Completed</span>
-                                @elseif($item->status == 0) <span class="badge-canceled">Canceled</span>
-                                @elseif($item->status == 2) <span class="badge-refunded">Refunded</span>
-                                @else                       <span class="badge-canceled">Unknown</span>
-                                @endif
                             </td>
                             <td>
                                 @php
@@ -764,6 +757,13 @@ body.modal-open .admin-mobile-menu-toggle {
                                     <span class="badge-payout-paid">PAID</span>
                                 @elseif($commStatus === 'reversed')
                                     <span class="badge-payout-reversed">REVERSED</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($affiliateName)
+                                    <span class="badge-affiliate" title="{{ $affiliateName }}">{{ $affiliateName }}</span>
+                                @else
+                                    <span class="badge-direct">DIRECT</span>
                                 @endif
                             </td>
                             @if($isPayoutPage)
