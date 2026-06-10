@@ -215,10 +215,15 @@ class EntertainerAdminController extends Controller
                 $entertainer->user->name,
                 $entertainer->user->email,
                 $entertainer->website->name ?? '',
+                null,
                 $entertainer->rejection_reason
             ));
         } catch (\Throwable $th) {
-            // Keep rejection successful even if mail fails.
+            Log::error('Entertainer rejection email failed: ' . $th->getMessage(), [
+                'entertainer_id' => $entertainer->id,
+                'email' => $entertainer->user?->email,
+                'exception' => (string) $th,
+            ]);
         }
 
         return redirect()->back()->with('success', 'Entertainer application rejected.');

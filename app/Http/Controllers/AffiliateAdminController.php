@@ -187,10 +187,15 @@ class AffiliateAdminController extends Controller
                 $affiliate->user->name ?? 'Unknown',
                 $affiliate->user->email ?? 'unknown@cartvip.com',
                 $affiliate->affiliateWebsites->first()?->website->name ?? '',
+                null,
                 $affiliate->rejection_reason
             ));
         } catch (\Throwable $th) {
-            // Keep rejection successful even if mail fails.
+            Log::error('Affiliate rejection email failed: ' . $th->getMessage(), [
+                'affiliate_id' => $affiliate->id,
+                'email' => $affiliate->user?->email,
+                'exception' => (string) $th,
+            ]);
         }
 
         return redirect()->back()->with('success', 'promoter application rejected.');
