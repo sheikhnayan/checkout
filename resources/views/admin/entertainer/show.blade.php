@@ -204,13 +204,22 @@
                                     </td>
                                     <td>{{ $transaction->package_first_name }} {{ $transaction->package_last_name }}</td>
                                     <td>${{ number_format((float) ($transaction->actual_total ?? 0), 2) }}</td>
-                                    <td>${{ number_format((float) ($transaction->entertainer_commission_amount ?? 0), 2) }}</td>
                                     <td>
                                         @php
+                                            $commAmount = (float)($transaction->entertainer_commission_amount ?? 0);
+                                            $commDisplay = ($commAmount == intval($commAmount)) ? number_format($commAmount, 0) : number_format($commAmount, 2);
                                             $status = $transaction->entertainer_commission_status ?? 'pending';
-                                            $badgeColor = $status === 'paid' ? 'success' : ($status === 'pending' ? 'warning' : ($status === 'reversed' ? 'danger' : 'secondary'));
+                                            $holdUntil = $transaction->entertainer_commission_hold_until;
+
+                                            $commissionText = '$' . $commDisplay;
+                                            if ($status === 'pending' && $holdUntil) {
+                                                $daysRemaining = (int)now()->diffInDays($holdUntil, false);
+                                                $commissionText .= ' (Available in ' . abs($daysRemaining) . ' days)';
+                                            } elseif ($status === 'paid') {
+                                                $commissionText .= ' (Paid out)';
+                                            }
                                         @endphp
-                                        <span class="badge bg-{{ $badgeColor }}">{{ ucfirst($status) }}</span>
+                                        {{ $commissionText }}
                                     </td>
                                     <td>{{ optional($transaction->created_at)->format('M d, Y') }}</td>
                                     <td>

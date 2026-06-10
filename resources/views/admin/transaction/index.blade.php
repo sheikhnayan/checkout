@@ -614,6 +614,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             <th>Customer</th>
                             <th>Amount</th>
                             <th>Payment</th>
+                            <th>Due Amount</th>
                             <th>Reservation Status</th>
                             <th>Reservation Date</th>
                             <th>Entry Status</th>
@@ -719,14 +720,56 @@ body.modal-open .admin-mobile-menu-toggle {
                             </td>
                             <td class="txn-amount">${{ number_format((float)$item->total, 2) }}</td>
                             <td>
-                                @if($item->status == 1)     <span class="badge-completed">Completed</span>
-                                @elseif($item->status == 0) <span class="badge-canceled">Canceled</span>
-                                @elseif($item->status == 2) <span class="badge-refunded">Refunded</span>
-                                @else                       <span class="badge-canceled">Unknown</span>
+                                @php
+                                    $paidAmount = (float)($item->actual_total ?? $item->total ?? 0);
+                                    $totalAmount = (float)($item->total ?? 0);
+                                    $dueAmount = $totalAmount - $paidAmount;
+                                    $paymentStatus = $paidAmount >= $totalAmount ? 'Paid' : ($paidAmount > 0 ? 'Partial' : 'Pending');
+                                @endphp
+                                <span class="badge-{{ $paymentStatus === 'Paid' ? 'completed' : ($paymentStatus === 'Partial' ? 'warning' : 'canceled') }}">{{ $paymentStatus }}</span>
+                            </td>
+                            <td class="txn-amount">
+                                @if($dueAmount > 0)
+                                    <span style="color:#ef4444;font-weight:600;">${{ number_format($dueAmount, 2) }}</span>
+                                @else
+                                    <span style="color:rgba(255,255,255,0.3);">-</span>
                                 @endif
                             </td>
                             <td>
-                                <div class="txn-venue">{{ $venueName }}</div>
+                                @php
+                                    $reservationStatusValue = 'Upcoming';
+                                    $reservationStatusColor = '#3b82f6';
+                                    $statusEmoji = '🟦';
+
+                                    if ($reservationDate) {
+                                        $today = \Carbon\Carbon::today();
+                                        if ($reservationDate->isToday()) {
+                                            $reservationStatusValue = 'Today';
+                                        } elseif ($reservationDate->isFuture()) {
+                                            $reservationStatusValue = 'Upcoming';
+                                        } else {
+                                            // Past date - check entry status
+                                            if ($item->checked_in_status) {
+                                                $reservationStatusValue = 'Checked In';
+                                                $reservationStatusColor = '#10b981';
+                                                $statusEmoji = '🟩';
+                                            } else {
+                                                $reservationStatusValue = 'No Show';
+                                                $reservationStatusColor = '#f97316';
+                                                $statusEmoji = '🟧';
+                                            }
+                                        }
+                                    }
+
+                                    if ($item->status == 2) {
+                                        $reservationStatusValue = 'Refunded';
+                                        $reservationStatusColor = '#6b7280';
+                                    } elseif ($item->status == 0) {
+                                        $reservationStatusValue = 'Cancelled';
+                                        $reservationStatusColor = '#ef4444';
+                                    }
+                                @endphp
+                                <span style="background:{{ $reservationStatusColor }};color:white;padding:6px 12px;border-radius:6px;font-weight:600;font-size:0.85rem;">{{ $statusEmoji }} {{ $reservationStatusValue }}</span>
                             </td>
                             <td>{{-- RESERVATION DATE --}}
                                 @php
@@ -765,25 +808,33 @@ body.modal-open .admin-mobile-menu-toggle {
                             </td>
                             <td>
                                 @if($item->checked_in_status)
-                                    <span class="badge-checkin-yes">YES</span>
+                                    <span class="badge-checkin-yes">Redeemed</span>
                                 @else
-                                    <span class="badge-checkin-no">NO</span>
+                                    <span class="badge-checkin-no">Not Redeemed</span>
                                 @endif
                             </td>
                             <td class="txn-commission">
-                                <div>${{ number_format($commission, 2) }}</div>
-                                @if($commStatus === 'pending' && $holdUntil)
-                                    @php $daysRemaining = (int)now()->diffInDays($holdUntil, false); @endphp
-                                    <span class="badge-payout-pending">{{ abs($daysRemaining) }}-Day Hold</span>
-                                @elseif($commStatus === 'pending')
-                                    <span class="badge-payout-pending">Pending Hold</span>
-                                @elseif($commStatus === 'approved')
-                                    <span class="badge-payout-approved">APPROVED</span>
-                                @elseif($commStatus === 'paid')
-                                    <span class="badge-payout-paid">PAID</span>
-                                @elseif($commStatus === 'reversed')
-                                    <span class="badge-payout-reversed">REVERSED</span>
-                                @endif
+                                @php
+                                    // Smart formatting: show whole number without decimals if it's a whole number
+                                    $commissionDisplay = ($commission == intval($commission)) ? number_format($commission, 0) : number_format($commission, 2);
+                                    $commissionText = '$' . $commissionDisplay;
+
+                                    if ($commStatus === 'pending' && $holdUntil) {
+                                        $daysRemaining = (int)now()->diffInDays($holdUntil, false);
+                                        if ($daysRemaining <= 0) {
+                                            $commissionText .= ' (Available now)';
+                                        } else {
+                                            $commissionText .= ' (Available in ' . abs($daysRemaining) . ' days)';
+                                        }
+                                    } elseif ($commStatus === 'paid') {
+                                        $commissionText .= ' (Paid out)';
+                                    } elseif ($commStatus === 'approved') {
+                                        $commissionText .= ' (Approved)';
+                                    } elseif ($commStatus === 'reversed') {
+                                        $commissionText .= ' (Reversed)';
+                                    }
+                                @endphp
+                                <div style="font-weight:600;">{{ $commissionText }}</div>
                             </td>
                             <td>
                                 <div class="txn-date-main">{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('M d, Y') }}</div>
