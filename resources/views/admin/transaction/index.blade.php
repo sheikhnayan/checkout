@@ -705,7 +705,13 @@ body.modal-open .admin-mobile-menu-toggle {
                         <tr data-row-id="{{ $item->id }}" data-row-error="{{ $rowError ?? '' }}">
                             <td><input type="checkbox" class="row-check" value="{{ $item->id }}"></td>
                             <td class="txn-order-id">#{{ str_pad($item->id, 3, '0', STR_PAD_LEFT) }}</td>
-                            <td class="txn-pkg-name">{{ $packageDetailsText }}</td>
+                            <td class="txn-pkg-name">
+                                @if($packageDetails->count() > 1)
+                                    <button type="button" class="btn btn-sm btn-link-package" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-package-details="{{ htmlspecialchars(json_encode($packageDetails), ENT_QUOTES, 'UTF-8') }}" data-addons="{{ htmlspecialchars($addons, ENT_QUOTES, 'UTF-8') }}">📦 {{ $packageDetails->count() }} Packages</button>
+                                @else
+                                    {{ $packageDetailsText }}
+                                @endif
+                            </td>
                             <td>
                                 <div class="txn-customer-name">{{ $item->package_first_name }} {{ $item->package_last_name }}</div>
                                 <div class="txn-customer-email">{{ $item->package_email }}</div>
