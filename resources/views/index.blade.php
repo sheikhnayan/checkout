@@ -6043,11 +6043,6 @@ input[type="checkbox"],
             <input type="text" name="business_address" id="business_address" placeholder="Business Address" />
         </div>
     </div>
-    <div class="form-row">
-        <div class="form-group" style="width: 100%;">
-            <label for="business_purpose">Purpose of Purchase</label>
-            <input type="text" name="business_purpose" id="business_purpose" placeholder="e.g. team event, client entertainment" />
-        </div>
     </div>
 </div>
     

@@ -80,7 +80,22 @@
             @endif
             @endif
             @if(!empty($mailData['package_note']))
-            <tr><th>Notes</th><td>{{ $mailData['package_note'] }}</td></tr>
+            <tr><th>Booking Note</th><td>{{ $mailData['package_note'] }}</td></tr>
+            @endif
+            @if(!empty($mailData['transportation_note']))
+            <tr><th>Transportation Note</th><td>{{ $mailData['transportation_note'] }}</td></tr>
+            @endif
+            @if(!empty($mailData['business_company']) || !empty($mailData['business_vat']) || !empty($mailData['business_address']))
+            <tr><th colspan="2" style="background: #fef3c7; padding: 14px; border-radius: 6px;"><strong>💼 Business Details</strong></th></tr>
+            @if(!empty($mailData['business_company']))
+            <tr><th>Company Name</th><td>{{ $mailData['business_company'] }}</td></tr>
+            @endif
+            @if(!empty($mailData['business_vat']))
+            <tr><th>VAT/Tax ID</th><td>{{ $mailData['business_vat'] }}</td></tr>
+            @endif
+            @if(!empty($mailData['business_address']))
+            <tr><th>Business Address</th><td>{{ $mailData['business_address'] }}</td></tr>
+            @endif
             @endif
             <tr><th>Amount Paid</th><td>${{ number_format((float) ($mailPriceBreakdown['amount_paid_now'] ?? ($mailData['total'] ?? 0)), 2) }}</td></tr>
         </table>
@@ -145,6 +160,24 @@
             @endif
             <tr><th>Email</th><td>{{ $mailData['package_email'] ?? 'N/A' }}</td></tr>
             <tr><th>Phone</th><td>{{ $mailData['package_phone'] ?? 'N/A' }}</td></tr>
+            @if(!empty($mailData['package_note']))
+            <tr><th>Booking Note</th><td>{{ $mailData['package_note'] }}</td></tr>
+            @endif
+            @if(!empty($mailData['transportation_note']))
+            <tr><th>Transportation Note</th><td>{{ $mailData['transportation_note'] }}</td></tr>
+            @endif
+            @if(!empty($mailData['business_company']) || !empty($mailData['business_vat']) || !empty($mailData['business_address']))
+            <tr><th colspan="2" style="background: #fef3c7; padding: 14px; border-radius: 6px;"><strong>💼 Business Details</strong></th></tr>
+            @if(!empty($mailData['business_company']))
+            <tr><th>Company Name</th><td>{{ $mailData['business_company'] }}</td></tr>
+            @endif
+            @if(!empty($mailData['business_vat']))
+            <tr><th>VAT/Tax ID</th><td>{{ $mailData['business_vat'] }}</td></tr>
+            @endif
+            @if(!empty($mailData['business_address']))
+            <tr><th>Business Address</th><td>{{ $mailData['business_address'] }}</td></tr>
+            @endif
+            @endif
         </table>
 
         @if(!empty($mailData['ticket_qr_code']))

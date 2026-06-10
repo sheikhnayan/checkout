@@ -292,6 +292,14 @@ document.addEventListener('DOMContentLoaded', function () {
             ? '<div style="color:#ff2b2b;font-weight:700;"><strong>Check-In:</strong> ALREADY CHECKED IN at ' + (transaction.checked_in_at_pacific || '-') + ' PT</div>'
             : '<div><strong>Check-In:</strong> Not checked in</div>';
 
+        const businessDetailsHtml = (transaction.business_company || transaction.business_vat || transaction.business_address)
+            ? '<div style="background:rgba(255,204,0,0.15);padding:12px;border-radius:6px;border-left:3px solid #ffcc00;margin:12px 0;"><div style="color:#fbbf24;font-weight:700;margin-bottom:8px;">💼 Business Details</div>' +
+              (transaction.business_company ? '<div><strong>Company:</strong> ' + escapeHtml(transaction.business_company) + '</div>' : '') +
+              (transaction.business_vat ? '<div><strong>VAT/Tax ID:</strong> ' + escapeHtml(transaction.business_vat) + '</div>' : '') +
+              (transaction.business_address ? '<div><strong>Address:</strong> ' + escapeHtml(transaction.business_address) + '</div>' : '') +
+              '</div>'
+            : '';
+
         ticketDetails.innerHTML = [
             '<div><strong>Purchase Type:</strong> <span style="color:#60a5fa;font-weight:700;">' + (transaction.type || 'Unknown') + '</span></div>',
             '<div><strong>Order:</strong> #' + transaction.id + '</div>',
@@ -312,6 +320,7 @@ document.addEventListener('DOMContentLoaded', function () {
             })(),
             '<div><strong>Event Date (PST):</strong> ' + (transaction.package_use_date || '-') + '</div>',
             packageListHtml,
+            businessDetailsHtml,
             checkedInText
         ].join('');
 

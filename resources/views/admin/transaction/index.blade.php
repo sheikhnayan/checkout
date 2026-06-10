@@ -976,7 +976,6 @@ body.modal-open .admin-mobile-menu-toggle {
                                         <li class="list-group-item"><strong>Business Company Name:</strong> <span id="modal-business_company"></span></li>
                                         <li class="list-group-item"><strong>Business Vat Number:</strong> <span id="modal-business_vat"></span></li>
                                         <li class="list-group-item"><strong>Business Address:</strong> <span id="modal-business_address"></span></li>
-                                        <li class="list-group-item"><strong>Business Purpose:</strong> <span id="modal-business_purpose"></span></li>
                                         <li class="list-group-item"><strong>Type:</strong> <span id="modal-type"></span></li>
                                         <li class="list-group-item"><strong>Status:</strong> <span id="modal-status-badge"></span></li>
                                         <li class="list-group-item"><strong>Website ID:</strong> <span id="modal-website_id"></span></li>
@@ -1680,7 +1679,6 @@ body.modal-open .admin-mobile-menu-toggle {
                 $('#modal-business_company').text($(this).data('business_company'));
                 $('#modal-business_vat').text($(this).data('business_vat'));
                 $('#modal-business_address').text($(this).data('business_address'));
-                $('#modal-business_purpose').text($(this).data('business_purpose'));
                 $('#modal-refundable').text($(this).data('refundable'));
                 $('#modal-gratuity').text($(this).data('gratuity'));
                 $('#modal-service_charge').text('$' + ($(this).data('service_charge') || '0.00'));
