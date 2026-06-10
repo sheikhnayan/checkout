@@ -1,8 +1,12 @@
+@php
+    $displayType = $applicantType === 'Affiliate' ? 'Promoter' : $applicantType;
+    $displayWebsite = $applicantType === 'Affiliate' ? 'General' : ($websiteName ?? 'CartVIP');
+@endphp
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>New {{ $applicantType }} Registration - CartVIP</title>
+    <title>New {{ $displayType }} Registration - CartVIP</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1f2937; line-height: 1.6; }
         .container { max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; }
@@ -22,12 +26,12 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>New {{ $applicantType }} Registration</h1>
-            <p style="margin: 8px 0 0 0; opacity: 0.9;">{{ $websiteName ?? 'CartVIP' }}</p>
+            <h1>New {{ $displayType }} Registration</h1>
+            <p style="margin: 8px 0 0 0; opacity: 0.9;">{{ $displayWebsite }}</p>
         </div>
 
         <div class="content">
-            <p>A new {{ strtolower($applicantType) }} has submitted a registration application on CartVIP.</p>
+            <p>A new {{ strtolower($displayType) }} has submitted a registration application on CartVIP.</p>
 
             <div class="section">
                 <div class="section-title">📋 Applicant Information</div>
