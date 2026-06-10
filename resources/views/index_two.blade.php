@@ -1116,7 +1116,8 @@
         }
 
         /* Payment agreement toggles: exact affiliate parity, locked with stronger selectors */
-        #payment-consent-group .consent-label {
+        #payment-consent-group .consent-label,
+.payment-consent-group .consent-label {
             display: flex !important;
             gap: 10px !important;
             align-items: flex-start !important;
@@ -1126,13 +1127,15 @@
             font-family: 'Inter', sans-serif !important;
             font-weight: 400 !important;
         }
-        #payment-consent-group .consent-label span {
+        #payment-consent-group .consent-label span,
+.payment-consent-group .consent-label span {
             flex: 1 !important;
             line-height: 1.4 !important;
             font-size: 13px !important;
             font-family: 'Inter', sans-serif !important;
         }
-        #payment-consent-group .consent-label input[type="checkbox"] {
+        #payment-consent-group .consent-label input[type="checkbox"],
+.payment-consent-group .consent-label input[type="checkbox"] {
             -webkit-appearance: none !important;
             appearance: none !important;
             width: 46px !important;
@@ -1148,7 +1151,8 @@
             cursor: pointer !important;
             transition: background .2s ease, border-color .2s ease !important;
         }
-        #payment-consent-group .consent-label input[type="checkbox"]::before {
+        #payment-consent-group .consent-label input[type="checkbox"]::before,
+.payment-consent-group .consent-label input[type="checkbox"]::before {
             content: '' !important;
             position: absolute !important;
             top: 2px !important;
@@ -1159,11 +1163,13 @@
             background: #fff !important;
             transition: transform .2s ease !important;
         }
-        #payment-consent-group .consent-label input[type="checkbox"]:checked {
+        #payment-consent-group .consent-label input[type="checkbox"]:checked,
+.payment-consent-group .consent-label input[type="checkbox"]:checked {
             background: #ffcc00 !important;
             border-color: #ffcc00 !important;
         }
-        #payment-consent-group .consent-label input[type="checkbox"]:checked::before {
+        #payment-consent-group .consent-label input[type="checkbox"]:checked::before,
+.payment-consent-group .consent-label input[type="checkbox"]:checked::before {
             background: #fff !important;
             transform: translateX(20px) !important;
             box-shadow: 0 0 0 3px rgba(0,0,0,0.1) !important;
