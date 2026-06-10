@@ -33,7 +33,7 @@ class TransactionController extends Controller
 {
     public function store($slug, Request $request)
     {
-        // dd($request->all());
+        \Log::info('=== PACKAGE CHECKOUT STARTED ===', ['phone' => $request->input('package_phone'), 'email' => $request->input('package_email')]);
 
         $cartItems = $this->extractCartItemsFromRequest($request);
         $cartSummary = $this->summarizeCartItems($cartItems);
@@ -680,6 +680,8 @@ class TransactionController extends Controller
 
     public function reservation_store($slug, Request $request)
     {
+        \Log::info('=== RESERVATION CHECKOUT STARTED ===', ['phone' => $request->input('reservation_phone'), 'email' => $request->input('reservation_email')]);
+
         // ========== BOT PREVENTION - LAYER 1: reCAPTCHA v3 (OPTIONAL) ==========
         $recaptchaToken = $request->input('recaptcha_token');
         if ($recaptchaToken && config('services.recaptcha.secret_key') && config('services.recaptcha.secret_key') !== 'YOUR_RECAPTCHA_SECRET_KEY_HERE') {

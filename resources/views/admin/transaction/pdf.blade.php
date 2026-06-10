@@ -57,7 +57,7 @@
                 </div>
 
                 <div class="section">
-                    <div class="section-title">🚗 Transportation Details</div>
+                    <div class="section-title">Transportation Details</div>
                     <ul class="list-group">
                         <li class="list-group-item"><strong>Pickup Time:</strong> <span>{{ htmlspecialchars($transaction->transportation_pickup_time ?? '') }}</span></li>
                         <li class="list-group-item"><strong>Pickup Location:</strong> <span>{{ htmlspecialchars($transaction->transportation_address ?? '') }}</span></li>
@@ -68,7 +68,7 @@
                 </div>
 
                 <div class="section">
-                    <div class="section-title">💼 Business Information</div>
+                    <div class="section-title">Business Information</div>
                     <ul class="list-group">
                         <li class="list-group-item"><strong>Company Name:</strong> <span>{{ htmlspecialchars($transaction->business_company ?? '') }}</span></li>
                         <li class="list-group-item"><strong>Tax ID:</strong> <span>{{ htmlspecialchars($transaction->business_vat ?? '') }}</span></li>

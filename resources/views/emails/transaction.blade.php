@@ -86,7 +86,7 @@
             <tr><th>Transportation Note</th><td>{{ $mailData['transportation_note'] }}</td></tr>
             @endif
             @if(!empty($mailData['transportation_pickup_time']) || !empty($mailData['transportation_address']) || !empty($mailData['transportation_guest']))
-            <tr><th colspan="2" style="background: #dbeafe; padding: 14px; border-radius: 6px;"><strong style="margin-left: 8px;">🚗 Transportation Details</strong></th></tr>
+            <tr><th colspan="2" style="background: #dbeafe; padding: 14px; border-radius: 6px;"><strong>Transportation Details</strong></th></tr>
             @if(!empty($mailData['transportation_pickup_time']))
             <tr><th>Pickup Time</th><td>{{ $mailData['transportation_pickup_time'] }}</td></tr>
             @endif
@@ -98,7 +98,7 @@
             @endif
             @endif
             @if(!empty($mailData['business_company']) || !empty($mailData['business_vat']) || !empty($mailData['business_address']))
-            <tr><th colspan="2" style="background: #fef3c7; padding: 14px; border-radius: 6px;"><strong>💼 Business Details</strong></th></tr>
+            <tr><th colspan="2" style="background: #fef3c7; padding: 14px; border-radius: 6px;"><strong>Business Details</strong></th></tr>
             @if(!empty($mailData['business_company']))
             <tr><th>Company Name</th><td>{{ $mailData['business_company'] }}</td></tr>
             @endif
@@ -179,7 +179,7 @@
             <tr><th>Transportation Note</th><td>{{ $mailData['transportation_note'] }}</td></tr>
             @endif
             @if(!empty($mailData['transportation_pickup_time']) || !empty($mailData['transportation_address']) || !empty($mailData['transportation_guest']))
-            <tr><th colspan="2" style="background: #dbeafe; padding: 14px; border-radius: 6px;"><strong style="margin-left: 8px;">🚗 Transportation Details</strong></th></tr>
+            <tr><th colspan="2" style="background: #dbeafe; padding: 14px; border-radius: 6px;"><strong>Transportation Details</strong></th></tr>
             @if(!empty($mailData['transportation_pickup_time']))
             <tr><th>Pickup Time</th><td>{{ $mailData['transportation_pickup_time'] }}</td></tr>
             @endif
@@ -191,7 +191,7 @@
             @endif
             @endif
             @if(!empty($mailData['business_company']) || !empty($mailData['business_vat']) || !empty($mailData['business_address']))
-            <tr><th colspan="2" style="background: #fef3c7; padding: 14px; border-radius: 6px;"><strong>💼 Business Details</strong></th></tr>
+            <tr><th colspan="2" style="background: #fef3c7; padding: 14px; border-radius: 6px;"><strong>Business Details</strong></th></tr>
             @if(!empty($mailData['business_company']))
             <tr><th>Company Name</th><td>{{ $mailData['business_company'] }}</td></tr>
             @endif
