@@ -4,168 +4,147 @@
     <meta charset="UTF-8">
     <title>Transaction Details - {{ $transaction->transaction_id }}</title>
     <style>
-        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; }
-        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
-        .header { border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
-        .header h1 { margin: 0; font-size: 24px; }
-        .header p { margin: 5px 0; color: #666; }
-        .section { margin-bottom: 30px; }
-        .section-title { font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
-        .row { display: flex; margin-bottom: 10px; }
-        .label { width: 30%; font-weight: bold; }
-        .value { width: 70%; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background: #f0f0f0; padding: 10px; text-align: left; font-weight: bold; border: 1px solid #ddd; }
-        td { padding: 10px; border: 1px solid #ddd; }
-        .footer { margin-top: 50px; border-top: 1px solid #ddd; padding-top: 20px; text-align: center; color: #666; font-size: 12px; }
-        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
-        .badge-paid { background: #d4edda; color: #155724; }
-        .badge-pending { background: #fff3cd; color: #856404; }
-        .badge-partial { background: #ffc107; color: #000; }
+        @media print {
+            body { margin: 0; padding: 10mm; }
+            .page-break { page-break-after: always; }
+        }
+        body { font-family: Arial, sans-serif; color: #333; line-height: 1.4; font-size: 12px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .header { border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
+        .header h1 { margin: 0 0 10px 0; font-size: 20px; }
+        .header p { margin: 3px 0; font-size: 11px; }
+        .section { margin-bottom: 20px; page-break-inside: avoid; }
+        .section-title { font-size: 12px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #999; padding-bottom: 5px; background: #f5f5f5; padding: 5px 5px 5px 5px; }
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .list-group { list-style: none; padding: 0; margin: 0; }
+        .list-group-item { padding: 8px; border: 1px solid #ddd; border-bottom: none; background: #fafafa; }
+        .list-group-item:last-child { border-bottom: 1px solid #ddd; }
+        .list-group-item strong { display: inline-block; width: 40%; font-weight: bold; }
+        .list-group-item span { display: inline-block; width: 60%; word-break: break-word; }
+        .badge { display: inline-block; padding: 3px 6px; border-radius: 3px; font-weight: bold; font-size: 10px; }
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+        .badge-danger { background: #f8d7da; color: #721c24; }
+        .badge-secondary { background: #e2e3e5; color: #383d41; }
+        .footer { margin-top: 40px; border-top: 1px solid #ddd; padding-top: 10px; text-align: center; color: #999; font-size: 10px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>Transaction Details</h1>
-            <p><strong>Order ID:</strong> {{ $transaction->transaction_id ?? '#' . $transaction->id }}</p>
+            <p><strong>Transaction ID:</strong> {{ htmlspecialchars($transaction->transaction_id ?? '') }}</p>
             <p><strong>Generated:</strong> {{ now()->format('M d, Y h:i A') }}</p>
         </div>
 
-        <div class="section">
-            <div class="section-title">Transaction Information</div>
-            <div class="row">
-                <div class="label">Order Date:</div>
-                <div class="value">{{ $transaction->created_at->format('M d, Y h:i A') }}</div>
+        <div class="two-column">
+            <div>
+                <div class="section">
+                    <div class="section-title">📋 Package & Guest Information</div>
+                    <ul class="list-group">
+                        <li class="list-group-item"><strong>Order Items:</strong> <span>{{ htmlspecialchars($transaction->package_table_label ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Package Date Of Use:</strong> <span>{{ htmlspecialchars($transaction->package_use_date ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>First Name:</strong> <span>{{ htmlspecialchars($transaction->package_first_name ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Last Name:</strong> <span>{{ htmlspecialchars($transaction->package_last_name ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Phone:</strong> <span>{{ htmlspecialchars($transaction->package_phone ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Email:</strong> <span>{{ htmlspecialchars($transaction->package_email ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>DOB:</strong> <span>{{ htmlspecialchars($transaction->package_dob ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Number of Guests:</strong> <span>{{ htmlspecialchars($transaction->package_number_of_guest ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Male Guests:</strong> <span>{{ htmlspecialchars($transaction->package_men ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Female Guests:</strong> <span>{{ htmlspecialchars($transaction->package_women ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Booking Note:</strong> <span>{{ htmlspecialchars($transaction->package_note ?? '') }}</span></li>
+                    </ul>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">🚗 Transportation Information</div>
+                    <ul class="list-group">
+                        <li class="list-group-item"><strong>Pickup Time:</strong> <span>{{ htmlspecialchars($transaction->transportation_pickup_time ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Address:</strong> <span>{{ htmlspecialchars($transaction->transportation_address ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Phone:</strong> <span>{{ htmlspecialchars($transaction->transportation_phone ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Guest Name:</strong> <span>{{ htmlspecialchars($transaction->transportation_guest ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Note:</strong> <span>{{ htmlspecialchars($transaction->transportation_note ?? '') }}</span></li>
+                    </ul>
+                </div>
             </div>
-            <div class="row">
-                <div class="label">Event/Package:</div>
-                <div class="value">{{ $transaction->type === 'package' ? ($transaction->package_table_label ?: 'Package') : 'Reservation' }}</div>
-            </div>
-            <div class="row">
-                <div class="label">Club/Venue:</div>
-                <div class="value">{{ $transaction->website->name ?? 'N/A' }}</div>
-            </div>
-            <div class="row">
-                <div class="label">Reservation Date:</div>
-                <div class="value">
-                    @if($transaction->package_use_date)
-                        {{ optional($transaction->package_use_date)->format('M d, Y') }}
-                    @else
-                        N/A
-                    @endif
+
+            <div>
+                <div class="section">
+                    <div class="section-title">💳 Payment Information</div>
+                    <ul class="list-group">
+                        <li class="list-group-item"><strong>First Name:</strong> <span>{{ htmlspecialchars($transaction->payment_first_name ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Last Name:</strong> <span>{{ htmlspecialchars($transaction->payment_last_name ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Phone:</strong> <span>{{ htmlspecialchars($transaction->payment_phone ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Email:</strong> <span>{{ htmlspecialchars($transaction->payment_email ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Address:</strong> <span>{{ htmlspecialchars($transaction->payment_address ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>City:</strong> <span>{{ htmlspecialchars($transaction->payment_city ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>State:</strong> <span>{{ htmlspecialchars($transaction->payment_state ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Zip Code:</strong> <span>{{ htmlspecialchars($transaction->payment_zip_code ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Country:</strong> <span>{{ htmlspecialchars($transaction->payment_country ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>DOB:</strong> <span>{{ htmlspecialchars($transaction->payment_dob ?? '') }}</span></li>
+                    </ul>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">💼 Business Information</div>
+                    <ul class="list-group">
+                        <li class="list-group-item"><strong>Company Name:</strong> <span>{{ htmlspecialchars($transaction->business_company ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>VAT Number:</strong> <span>{{ htmlspecialchars($transaction->business_vat ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Address:</strong> <span>{{ htmlspecialchars($transaction->business_address ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Purpose:</strong> <span>{{ htmlspecialchars($transaction->business_purpose ?? '') }}</span></li>
+                    </ul>
                 </div>
             </div>
         </div>
 
         <div class="section">
-            <div class="section-title">Customer Information</div>
-            <div class="row">
-                <div class="label">Name:</div>
-                <div class="value">{{ $transaction->package_first_name }} {{ $transaction->package_last_name }}</div>
-            </div>
-            <div class="row">
-                <div class="label">Email:</div>
-                <div class="value">{{ $transaction->package_email }}</div>
-            </div>
-            <div class="row">
-                <div class="label">Phone:</div>
-                <div class="value">{{ $transaction->package_phone ?? 'N/A' }}</div>
-            </div>
-            <div class="row">
-                <div class="label">Number of Guests:</div>
-                <div class="value">{{ $transaction->package_number_of_guest ?? 1 }}</div>
-            </div>
-        </div>
-
-        <div class="section">
-            <div class="section-title">Payment Information</div>
-            <div class="row">
-                <div class="label">Total Amount:</div>
-                <div class="value">${{ number_format((float)$transaction->total, 2) }}</div>
-            </div>
-            <div class="row">
-                <div class="label">Paid Amount:</div>
-                <div class="value">${{ number_format((float)($transaction->actual_total ?? $transaction->total), 2) }}</div>
-            </div>
-            @php
-                $paidAmount = (float)($transaction->actual_total ?? $transaction->total ?? 0);
-                $totalAmount = (float)($transaction->total ?? 0);
-                $dueAmount = $totalAmount - $paidAmount;
-                $paymentStatus = $paidAmount >= $totalAmount ? 'Paid' : ($paidAmount > 0 ? 'Partial' : 'Pending');
-            @endphp
-            <div class="row">
-                <div class="label">Due Amount:</div>
-                <div class="value">
-                    @if($dueAmount > 0)
-                        ${{ number_format($dueAmount, 2) }}
-                    @else
-                        $0.00
-                    @endif
-                </div>
-            </div>
-            <div class="row">
-                <div class="label">Payment Status:</div>
-                <div class="value">
-                    <span class="badge badge-{{ $paymentStatus === 'Paid' ? 'paid' : ($paymentStatus === 'Partial' ? 'partial' : 'pending') }}">
-                        {{ $paymentStatus }}
+            <div class="section-title">💰 Transaction Summary</div>
+            <ul class="list-group">
+                <li class="list-group-item"><strong>Promo Code:</strong> <span>{{ htmlspecialchars($transaction->promo_code ?? '-') }}</span></li>
+                <li class="list-group-item"><strong>Discounted Amount:</strong> <span>${{ number_format((float)($transaction->discount ?? 0), 2) }}</span></li>
+                <li class="list-group-item"><strong>Subtotal:</strong> <span>${{ number_format((float)($transaction->sub_total ?? 0), 2) }}</span></li>
+                <li class="list-group-item"><strong>Gratuity:</strong> <span>${{ number_format((float)($transaction->gratuity ?? 0), 2) }}</span></li>
+                <li class="list-group-item"><strong>Non-Refundable Deposit:</strong> <span>${{ number_format((float)($transaction->refundable ?? 0), 2) }}</span></li>
+                <li class="list-group-item"><strong>Total Amount:</strong> <span><strong>${{ number_format((float)($transaction->total ?? 0), 2) }}</strong></span></li>
+                <li class="list-group-item"><strong>Total Due:</strong> <span><strong>${{ number_format((float)($transaction->due ?? 0), 2) }}</strong></span></li>
+                <li class="list-group-item">
+                    <strong>Status:</strong> <span>
+                        @if($transaction->status == 1)
+                            <span class="badge badge-success">Completed</span>
+                        @elseif($transaction->status == 0)
+                            <span class="badge badge-danger">Canceled</span>
+                        @elseif($transaction->status == 2)
+                            <span class="badge badge-warning">Refunded</span>
+                        @else
+                            <span class="badge badge-secondary">Unknown</span>
+                        @endif
                     </span>
-                </div>
-            </div>
+                </li>
+            </ul>
         </div>
 
         <div class="section">
-            <div class="section-title">Commission Information</div>
-            @php
-                $commission = (float)($transaction->affiliate_commission_amount ?? 0) + (float)($transaction->entertainer_commission_amount ?? 0);
-                $commDisplay = ($commission == intval($commission)) ? number_format($commission, 0) : number_format($commission, 2);
-            @endphp
-            <div class="row">
-                <div class="label">Total Commission:</div>
-                <div class="value">${{ $commDisplay }}</div>
-            </div>
-            @if(!empty($transaction->affiliate_id) && !empty($transaction->affiliate))
-            <div class="row">
-                <div class="label">Affiliate Commission:</div>
-                <div class="value">${{ number_format((float)($transaction->affiliate_commission_amount ?? 0), 2) }}</div>
-            </div>
-            <div class="row">
-                <div class="label">Affiliate:</div>
-                <div class="value">{{ $transaction->affiliate->display_name ?: optional($transaction->affiliate->user)->name ?: 'N/A' }}</div>
-            </div>
-            @endif
-            @if(!empty($transaction->entertainer_id) && !empty($transaction->entertainer))
-            <div class="row">
-                <div class="label">Entertainer Commission:</div>
-                <div class="value">${{ number_format((float)($transaction->entertainer_commission_amount ?? 0), 2) }}</div>
-            </div>
-            <div class="row">
-                <div class="label">Entertainer:</div>
-                <div class="value">{{ $transaction->entertainer->display_name ?: optional($transaction->entertainer->user)->name ?: 'N/A' }}</div>
-            </div>
-            @endif
+            <div class="section-title">🏆 Commission & Dates</div>
+            <ul class="list-group">
+                @php
+                    $affiliateName = $transaction->affiliate ? ($transaction->affiliate->display_name ?: optional($transaction->affiliate->user)->name) : '';
+                    $entertainerName = $transaction->entertainer ? ($transaction->entertainer->display_name ?: optional($transaction->entertainer->user)->name) : '';
+                    $totalCommission = (float)($transaction->affiliate_commission_amount ?? 0) + (float)($transaction->entertainer_commission_amount ?? 0);
+                @endphp
+                <li class="list-group-item"><strong>Total Commission:</strong> <span>${{ number_format($totalCommission, 2) }}</span></li>
+                @if($affiliateName || $transaction->affiliate_commission_amount)
+                <li class="list-group-item"><strong>Affiliate:</strong> <span>{{ $affiliateName ?: 'N/A' }} ({{ $transaction->affiliate_commission_percentage ?? 0 }}% | ${{ number_format((float)($transaction->affiliate_commission_amount ?? 0), 2) }})</span></li>
+                @endif
+                @if($entertainerName || $transaction->entertainer_commission_amount)
+                <li class="list-group-item"><strong>Entertainer:</strong> <span>{{ $entertainerName ?: 'N/A' }} ({{ $transaction->entertainer_commission_percentage ?? 0 }}% | ${{ number_format((float)($transaction->entertainer_commission_amount ?? 0), 2) }})</span></li>
+                @endif
+                <li class="list-group-item"><strong>Date (Pacific Time):</strong> <span>{{ $transaction->created_at ? $transaction->created_at->timezone('America/Los_Angeles')->format('M d, Y h:i A') : '' }}</span></li>
+                <li class="list-group-item"><strong>IP Address:</strong> <span>{{ htmlspecialchars($transaction->ip_address ?? '') }}</span></li>
+            </ul>
         </div>
-
-        @if($transaction->package_note)
-        <div class="section">
-            <div class="section-title">Booking Notes</div>
-            <div class="row">
-                <div class="value">{{ $transaction->package_note }}</div>
-            </div>
-        </div>
-        @endif
-
-        @if($transaction->transportation_note)
-        <div class="section">
-            <div class="section-title">Transportation Notes</div>
-            <div class="row">
-                <div class="value">{{ $transaction->transportation_note }}</div>
-            </div>
-        </div>
-        @endif
 
         <div class="footer">
-            <p>This is a confidential document. CartVIP © {{ now()->year }}</p>
+            <p>This is a confidential document. CartVIP © {{ now()->year }} | Page generated automatically</p>
         </div>
     </div>
 </body>
