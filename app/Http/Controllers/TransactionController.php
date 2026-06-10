@@ -833,8 +833,9 @@ class TransactionController extends Controller
                             } catch (\Exception $smsError) {
                                 \Log::error('SMS notification failed for reservation: ' . $smsError->getMessage(), ['trace' => $smsError->getTraceAsString()]);
                                 // Don't throw error - SMS failure shouldn't block transaction
-                                }
                             }
+                        } else {
+                            \Log::warning('No phone number provided for reservation SMS');
                         }
                     } catch (\Throwable $th) {
                         report($th);
