@@ -1346,78 +1346,11 @@ body.modal-open .admin-mobile-menu-toggle {
             <script>
             $(document).ready(function() {
 
-                // ── Table Diagnostics & Auto-Fix ──────────────────────────────
-                const headerCount = $('#txnDataTable thead tr:first th').length;
-                console.log('Table Headers:', headerCount);
-
-                const problematicRows = [];
-                $('#txnDataTable tbody tr').each(function(idx) {
-                    let cellCount = $(this).find('td').length;
-                    const rowId = $(this).data('row-id');
-                    const rowError = $(this).data('row-error');
-                    const missing = headerCount - cellCount;
-
-                    if (cellCount !== headerCount) {
-                        // Add missing cells with empty content
-                        for (let i = 0; i < missing; i++) {
-                            $(this).append('<td><span style="color:rgba(255,255,255,0.1)">—</span></td>');
-                        }
-                        cellCount = $(this).find('td').length;
-
-                        problematicRows.push({
-                            index: idx,
-                            id: rowId,
-                            cells: cellCount,
-                            expected: headerCount,
-                            error: rowError,
-                            missing: missing,
-                            fixed: true
-                        });
-                        console.warn(`Row ${idx} (ID: ${rowId}) was missing ${missing} columns - AUTO-FIXED`);
-                    }
-                });
-
-                if (problematicRows.length > 0) {
-                    console.log('⚠️ Auto-fixed ' + problematicRows.length + ' rows with missing columns');
-                } else {
-                    console.log('✓ All rows have correct column count');
-                }
-
-                // ── DataTable ────────────────────────────────────────────────
+                // DataTable is DISABLED for now
+                // The table will display normally without pagination/sorting
+                // This is temporary while we fix the column structure
+                console.log('DataTable is temporarily disabled');
                 let table = null;
-                try {
-                    if (problematicRows.length === 0) {
-                        const totalColumns = headerCount;
-                        const hiddenMetaTargets = totalColumns >= 2
-                            ? [totalColumns - 2, totalColumns - 1]
-                            : [];
-                        const actionTarget = totalColumns >= 3 ? totalColumns - 3 : -1;
-                        const nonOrderableTargets = [0]
-                            .concat(actionTarget >= 0 ? [actionTarget] : [])
-                            .concat(hiddenMetaTargets);
-
-                        table = $('#txnDataTable').DataTable({
-                            dom: 'rtip',
-                            pageLength: 50,
-                            columnDefs: [
-                                { orderable: false, targets: nonOrderableTargets },
-                                { visible: false, targets: hiddenMetaTargets }
-                            ],
-                            language: {
-                                paginate: {
-                                    previous: '<i class="fas fa-chevron-left"></i>',
-                                    next: '<i class="fas fa-chevron-right"></i>'
-                                }
-                            }
-                        });
-                        console.log('✓ DataTable initialized successfully with ' + totalColumns + ' columns');
-                    } else {
-                        console.warn('Skipping DataTable due to column mismatch. Problematic rows:', problematicRows);
-                    }
-                } catch (error) {
-                    console.error('⚠️ DataTable init failed:', error.message);
-                    console.log('Table will display without DataTable features');
-                }
 
                 // ── Custom search ────────────────────────────────────────────
                 $('#txnSearch').on('keyup', function() {
