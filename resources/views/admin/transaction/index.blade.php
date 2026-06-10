@@ -617,7 +617,9 @@ body.modal-open .admin-mobile-menu-toggle {
                             <th>Entry Status</th>
                             <th>Commission</th>
                             <th>Promoter</th>
+                            @if($isPayoutPage)
                             <th style="min-width:130px">Commission Available</th>
+                            @endif
                             <th>Booking Date</th>
                             <th>Action</th>
                             <th class="d-none">_website</th>
@@ -764,23 +766,21 @@ body.modal-open .admin-mobile-menu-toggle {
                                     <span class="badge-direct">DIRECT</span>
                                 @endif
                             </td>
+                            @if($isPayoutPage)
                             <td>
-                                @if($isPayoutPage)
-                                    @if($commission == 0)
-                                        <span style="color:rgba(255,255,255,0.25);font-size:0.78rem">N/A</span>
-                                    @elseif($commStatus === 'paid')
-                                        <span class="badge-payout-paid">PAID OUT</span>
-                                    @elseif($commStatus === 'reversed')
-                                        <span class="badge-payout-reversed">REVERSED</span>
-                                    @elseif($holdUntil && !$isEligible)
-                                        <div style="font-size:0.82rem;color:#fbbf24;font-weight:700"><i class="fas fa-lock me-1"></i>Available {{ $holdUntil->timezone('America/Los_Angeles')->format('M d') }}</div>
-                                    @else
-                                        <div class="txn-payout-eligible" style="font-size:0.8rem;font-weight:700"><i class="fas fa-check-circle me-1"></i>Available Now</div>
-                                    @endif
+                                @if($commission == 0)
+                                    <span style="color:rgba(255,255,255,0.25);font-size:0.78rem">N/A</span>
+                                @elseif($commStatus === 'paid')
+                                    <span class="badge-payout-paid">PAID OUT</span>
+                                @elseif($commStatus === 'reversed')
+                                    <span class="badge-payout-reversed">REVERSED</span>
+                                @elseif($holdUntil && !$isEligible)
+                                    <div style="font-size:0.82rem;color:#fbbf24;font-weight:700"><i class="fas fa-lock me-1"></i>Available {{ $holdUntil->timezone('America/Los_Angeles')->format('M d') }}</div>
                                 @else
-                                    <span style="color:rgba(255,255,255,0.15);font-size:0.78rem">-</span>
+                                    <div class="txn-payout-eligible" style="font-size:0.8rem;font-weight:700"><i class="fas fa-check-circle me-1"></i>Available Now</div>
                                 @endif
                             </td>
+                            @endif
                             <td>
                                 <div class="txn-date-main">{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('M d, Y') }}</div>
                                 <div class="txn-date-time">{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('h:i A') }}</div>
@@ -1318,34 +1318,10 @@ body.modal-open .admin-mobile-menu-toggle {
             $(document).ready(function() {
 
                 // ── DataTable ────────────────────────────────────────────────
+                // TEMPORARILY DISABLED - investigating column mismatch issue
+                // Will re-enable once all rows have consistent column count
                 let table = null;
-                try {
-                    const totalColumns = $('#txnDataTable thead th').length;
-                    const hiddenMetaTargets = totalColumns >= 2
-                        ? [totalColumns - 2, totalColumns - 1]
-                        : [];
-                    const actionTarget = totalColumns >= 3 ? totalColumns - 3 : -1;
-                    const nonOrderableTargets = [0]
-                        .concat(actionTarget >= 0 ? [actionTarget] : [])
-                        .concat(hiddenMetaTargets);
-
-                    table = $('#txnDataTable').DataTable({
-                        dom: 'rtip',
-                        pageLength: 50,
-                        columnDefs: [
-                            { orderable: false, targets: nonOrderableTargets },
-                            { visible: false, targets: hiddenMetaTargets }
-                        ],
-                        language: {
-                            paginate: {
-                                previous: '<i class="fas fa-chevron-left"></i>',
-                                next: '<i class="fas fa-chevron-right"></i>'
-                            }
-                        }
-                    });
-                } catch (error) {
-                    console.error('Transaction table init failed:', error);
-                }
+                console.log('DataTable temporarily disabled for debugging');
 
                 // ── Custom search ────────────────────────────────────────────
                 $('#txnSearch').on('keyup', function() {
