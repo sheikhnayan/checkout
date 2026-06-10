@@ -2703,8 +2703,8 @@ class TransactionController extends Controller
 
         return response()->streamDownload(function () use ($html) {
             echo $html;
-        }, 'transaction-' . $transaction->id . '.html', [
-            'Content-Type' => 'text/html; charset=UTF-8',
+        }, 'transaction-' . $transaction->id . '.pdf', [
+            'Content-Type' => 'application/pdf',
         ]);
     }
 
