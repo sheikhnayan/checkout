@@ -46,10 +46,10 @@
                             <div class="info-value">{{ $phone }}</div>
                         </div>
                     @endif
-                    <div class="info-item">
+                    {{-- <div class="info-item">
                         <div class="info-label">Registration Type</div>
                         <div class="info-value">{{ ucfirst($registrationType) }}</div>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
 

@@ -40,8 +40,15 @@ class AdminApplicationNotificationMail extends Mailable
 
     public function build(): self
     {
-        $clubLabel = !empty($this->websiteName) ? " - {$this->websiteName}" : '';
-        $subject = "New {$this->applicantType} Registration Received{$clubLabel}";
+        // For affiliates, don't show clubLabel
+        $clubLabel = '';
+        if ($this->applicantType !== 'Affiliate' && !empty($this->websiteName)) {
+            $clubLabel = " - {$this->websiteName}";
+        }
+
+        // Replace "Affiliate" with "Promoter" in subject
+        $displayType = $this->applicantType === 'Affiliate' ? 'Promoter' : $this->applicantType;
+        $subject = "New {$displayType} Registration Received{$clubLabel}";
 
         return $this->subject($subject)
             ->view('emails.admin-application-notification');
