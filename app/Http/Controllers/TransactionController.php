@@ -33,6 +33,7 @@ class TransactionController extends Controller
 {
     public function store($slug, Request $request)
     {
+        \Log::info('CHECKOUT_START');
 
         $cartItems = $this->extractCartItemsFromRequest($request);
         $cartSummary = $this->summarizeCartItems($cartItems);
