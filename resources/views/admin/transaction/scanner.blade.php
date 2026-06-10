@@ -121,12 +121,6 @@
                                                     }
                                                 </style>
 
-                                                <div class="btn-group w-100 mb-3 gap-2" role="group" style="display: flex; flex-wrap: wrap;">
-                                                    <button type="button" id="startPhotoCameraBtn" class="btn btn-primary" style="flex:1;min-width:150px;">Start Camera</button>
-                                                    <button type="button" id="capturePhotoBtn" class="btn btn-success d-none" style="flex:1;min-width:150px;"><span id="capturePhotoText">Capture Photo</span></button>
-                                                    <button type="button" id="stopPhotoCameraBtn" class="btn btn-danger d-none" style="flex:1;min-width:150px;">Stop Camera</button>
-                                                </div>
-
                                                 <!-- Front ID Preview -->
                                                 <div id="frontPhotoPreviewContainer" class="d-none mb-3">
                                                     <div class="fw-semibold mb-2" style="color:#86efac;"><i class="fas fa-check-circle"></i> Front of ID Captured</div>
@@ -147,6 +141,13 @@
                                                     <button type="button" id="retakePhotosBtn" class="btn btn-warning btn-sm mt-3">
                                                         <i class="fas fa-camera"></i> Retake Photos
                                                     </button>
+                                                </div>
+
+                                                <!-- Photo Capture Controls (Moved to Bottom) -->
+                                                <div class="btn-group w-100 mb-3 gap-2" role="group" style="display: flex; flex-wrap: wrap;">
+                                                    <button type="button" id="startPhotoCameraBtn" class="btn btn-primary" style="flex:1;min-width:150px;">Start Camera</button>
+                                                    <button type="button" id="capturePhotoBtn" class="btn btn-success d-none" style="flex:1;min-width:150px;"><span id="capturePhotoText">Capture Photo</span></button>
+                                                    <button type="button" id="stopPhotoCameraBtn" class="btn btn-danger d-none" style="flex:1;min-width:150px;">Stop Camera</button>
                                                 </div>
                                             </div>
                                         </div>
