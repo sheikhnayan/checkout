@@ -248,25 +248,23 @@ class TransactionController extends Controller
                         }
 
                         // ========== SEND SMS NOTIFICATION ==========
-                        if (config('services.aloware.enabled')) {
-                            $purchaserPhone = $request->input('package_phone');
-                            if ($purchaserPhone) {
-                                try {
-                                    $smsService = new \App\Services\TelnyxSmsService();
-                                    $packageData = $this->getPackageData($slug, $request);
-                                    $smsData = [
-                                        'transaction_id' => $add->transaction_id,
-                                        'club_name' => $website->name ?? 'Venue',
-                                        'club_slug' => $website->slug ?? '',
-                                        'package_name' => $packageData['name'] ?? 'Package',
-                                        'quantity' => $request->input('quantity', 1),
-                                        'package_use_date' => $request->input('package_use_date') ?? '',
-                                        'total_amount' => $add->total,
-                                    ];
-                                    $smsService->sendTransactionNotification($purchaserPhone, $smsData, 'package');
-                                } catch (\Exception $smsError) {
-                                    \Log::error('SMS notification failed: ' . $smsError->getMessage());
-                                }
+                        $purchaserPhone = $request->input('package_phone');
+                        if ($purchaserPhone) {
+                            try {
+                                $smsService = new \App\Services\TelnyxSmsService();
+                                $packageData = $this->getPackageData($slug, $request);
+                                $smsData = [
+                                    'transaction_id' => $add->transaction_id,
+                                    'club_name' => $website->name ?? 'Venue',
+                                    'club_slug' => $website->slug ?? '',
+                                    'package_name' => $packageData['name'] ?? 'Package',
+                                    'quantity' => $request->input('quantity', 1),
+                                    'package_use_date' => $request->input('package_use_date') ?? '',
+                                    'total_amount' => $add->total,
+                                ];
+                                $smsService->sendTransactionNotification($purchaserPhone, $smsData, 'package');
+                            } catch (\Exception $smsError) {
+                                \Log::error('SMS notification failed for package: ' . $smsError->getMessage());
                             }
                         }
                     } catch (\Throwable $th) {

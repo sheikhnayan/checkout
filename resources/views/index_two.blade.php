@@ -6675,15 +6675,6 @@
                                                                         placeholder="Business Address" />
                                                                 </div>
                                                             </div>
-                                                            <div class="form-row">
-                                                                <div class="form-group" style="width: 100%;">
-                                                                    <label for="business_purpose">Purpose of
-                                                                        Purchase</label>
-                                                                    <input type="text" name="business_purpose"
-                                                                        id="business_purpose"
-                                                                        placeholder="e.g. team event, client entertainment" />
-                                                                </div>
-                                                            </div>
                                                         </div>
 
                                                         <div class="checkbox-container payment-consent-group" id="payment-consent-group">
