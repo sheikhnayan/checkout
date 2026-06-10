@@ -20,9 +20,22 @@ class AffiliateRegistrationController extends Controller
 
     public function submit(Request $request)
     {
-        // ========== BOT PREVENTION - LAYER 1: reCAPTCHA v3 (OPTIONAL) ==========
+        // ========== BOT PREVENTION - LAYER 1: reCAPTCHA v3 (REQUIRED) ==========
         $recaptchaToken = $request->input('recaptcha_token');
-        if ($recaptchaToken && config('services.recaptcha.secret_key') && config('services.recaptcha.secret_key') !== 'YOUR_RECAPTCHA_SECRET_KEY_HERE') {
+        $hasRecaptchaConfig = config('services.recaptcha.secret_key') && config('services.recaptcha.secret_key') !== 'YOUR_RECAPTCHA_SECRET_KEY_HERE';
+
+        if ($hasRecaptchaConfig) {
+            // reCAPTCHA is configured - token is REQUIRED
+            if (!$recaptchaToken) {
+                \Log::warning('Affiliate registration rejected - no reCAPTCHA token provided', [
+                    'ip' => $request->ip(),
+                    'email' => $request->input('email')
+                ]);
+                return redirect()->back()
+                    ->with('error', 'Bot verification failed. Please try again.')
+                    ->withInput();
+            }
+
             $recaptchaService = new \App\Services\RecaptchaService();
             $recaptchaResult = $recaptchaService->verify($recaptchaToken);
 
