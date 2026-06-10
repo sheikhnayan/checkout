@@ -200,6 +200,7 @@ class TransactionController extends Controller
                             'transportation_phone' => $request->input('transportation_phone'),
                             'transportation_guest' => $request->input('transportation_guest'),
                             'transportation_note' => $request->input('transportation_note'),
+                            'host_name' => $request->input('host_name'),
                             'business_company' => $add->business_company,
                             'business_vat' => $add->business_vat,
                             'business_address' => $add->business_address,
@@ -245,13 +246,16 @@ class TransactionController extends Controller
                             ->unique()
                             ->values();
 
+                        \Log::info('=== EMAILS SECTION START ===');
                         foreach ($clubEmails as $clubEmail) {
                             \Illuminate\Support\Facades\Mail::to($clubEmail)->send(clone $send_mail_club);
                         }
+                        \Log::info('=== CLUB EMAIL SENT ===');
 
                         $purchaserEmail = $request->input('package_email');
                         if ($purchaserEmail && filter_var($purchaserEmail, FILTER_VALIDATE_EMAIL)) {
                             \Illuminate\Support\Facades\Mail::to($purchaserEmail)->send($send_mail_purchaser);
+                            \Log::info('=== PURCHASER EMAIL SENT ===');
                         }
 
                         \Log::info('=== ABOUT TO SEND SMS ===', ['transaction_id' => $add->id, 'transaction_phone' => $add->package_phone]);
@@ -435,6 +439,7 @@ class TransactionController extends Controller
                             'transportation_phone' => $request->input('transportation_phone'),
                             'transportation_guest' => $request->input('transportation_guest'),
                             'transportation_note' => $request->input('transportation_note'),
+                            'host_name' => $request->input('host_name'),
                             'business_company' => $add->business_company,
                             'business_vat' => $add->business_vat,
                             'business_address' => $add->business_address,

@@ -93,8 +93,8 @@
             @if(!empty($mailData['transportation_address']))
             <tr><th>Pickup Location</th><td>{{ $mailData['transportation_address'] }}</td></tr>
             @endif
-            @if(!empty($mailData['transportation_guest']))
-            <tr><th>Host Name</th><td>{{ $mailData['transportation_guest'] }}</td></tr>
+            @if(!empty($mailData['host_name']))
+            <tr><th>Host Name</th><td>{{ $mailData['host_name'] }}</td></tr>
             @endif
             @endif
             @if(!empty($mailData['business_company']) || !empty($mailData['business_vat']) || !empty($mailData['business_address']))
@@ -186,8 +186,8 @@
             @if(!empty($mailData['transportation_address']))
             <tr><th>Pickup Location</th><td>{{ $mailData['transportation_address'] }}</td></tr>
             @endif
-            @if(!empty($mailData['transportation_guest']))
-            <tr><th>Host Name</th><td>{{ $mailData['transportation_guest'] }}</td></tr>
+            @if(!empty($mailData['host_name']))
+            <tr><th>Host Name</th><td>{{ $mailData['host_name'] }}</td></tr>
             @endif
             @endif
             @if(!empty($mailData['business_company']) || !empty($mailData['business_vat']) || !empty($mailData['business_address']))
