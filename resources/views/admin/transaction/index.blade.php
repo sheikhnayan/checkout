@@ -1113,10 +1113,10 @@ body.modal-open .admin-mobile-menu-toggle {
             .daterangepicker .drp-calendar .prev span,
             .daterangepicker .drp-calendar .next span { border-color: #e2e8f0 !important; }
             /* ── Payout badge styles ─────────────────────────────────────────── */
-            .badge-payout-pending  { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); font-size: 0.68rem; font-weight: 700; padding: 2px 7px; border-radius: 6px; letter-spacing: 0.04em; }
-            .badge-payout-approved { background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); font-size: 0.68rem; font-weight: 700; padding: 2px 7px; border-radius: 6px; letter-spacing: 0.04em; }
-            .badge-payout-paid     { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); font-size: 0.68rem; font-weight: 700; padding: 2px 7px; border-radius: 6px; letter-spacing: 0.04em; }
-            .badge-payout-reversed { background: rgba(239,68,68,0.15);  color: #f87171; border: 1px solid rgba(239,68,68,0.3);  font-size: 0.68rem; font-weight: 700; padding: 2px 7px; border-radius: 6px; letter-spacing: 0.04em; }
+            .badge-payout-pending  { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); font-size: 0.68rem; font-weight: 700; padding: 2px 2px; border-radius: 6px; letter-spacing: 0.04em; }
+            .badge-payout-approved { background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); font-size: 0.68rem; font-weight: 700; padding: 2px 2px; border-radius: 6px; letter-spacing: 0.04em; }
+            .badge-payout-paid     { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); font-size: 0.68rem; font-weight: 700; padding: 2px 2px; border-radius: 6px; letter-spacing: 0.04em; }
+            .badge-payout-reversed { background: rgba(239,68,68,0.15);  color: #f87171; border: 1px solid rgba(239,68,68,0.3);  font-size: 0.68rem; font-weight: 700; padding: 2px 2px; border-radius: 6px; letter-spacing: 0.04em; }
             .txn-payout-hold { font-size: 0.7rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
             .txn-payout-eligible { font-size: 0.7rem; color: #34d399; margin-top: 2px; }
             </style>
