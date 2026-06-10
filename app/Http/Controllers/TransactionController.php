@@ -33,12 +33,6 @@ class TransactionController extends Controller
 {
     public function store($slug, Request $request)
     {
-        \Log::info('=== PACKAGE CHECKOUT STARTED ===', [
-            'phone' => $request->input('package_phone'),
-            'email' => $request->input('package_email'),
-            'hostname' => $request->input('transportation_guest'),
-            'all_request_data' => $request->all()
-        ]);
 
         $cartItems = $this->extractCartItemsFromRequest($request);
         $cartSummary = $this->summarizeCartItems($cartItems);
