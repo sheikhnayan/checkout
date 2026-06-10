@@ -881,7 +881,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="13" class="text-center py-5" style="color:rgba(255,255,255,0.3)">
+                            <td colspan="15" class="text-center py-5" style="color:rgba(255,255,255,0.3)">
                                 <i class="fas fa-inbox fa-2x mb-3 d-block"></i>No transactions found.
                             </td>
                         </tr>
@@ -891,7 +891,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         <tr>
                             <th colspan="5" class="text-end" style="color:rgba(255,255,255,0.5);font-size:0.82rem">Total (filtered):</th>
                             <th id="amount-total" style="color:#fff;font-weight:700;font-size:0.9rem"></th>
-                            <th colspan="7"></th>
+                            <th colspan="9"></th>
                         </tr>
                     </tfoot>
                 </table>

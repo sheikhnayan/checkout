@@ -56,6 +56,7 @@
         <div class="card p-4 mb-4">
             <h4>{{ $affiliate->display_name ?: ($affiliate->user?->name ?? 'N/A') }}</h4>
             <p class="mb-1"><strong>Email:</strong> {{ $affiliate->user?->email ?? 'N/A' }}</p>
+            <p class="mb-1"><strong>Legal Name:</strong> {{ $affiliate->w9Form?->full_name ?? 'Not provided' }}</p>
             <p class="mb-1"><strong>Status:</strong> {{ ucfirst($affiliate->status) }}</p>
             <p class="mb-1"><strong>Default Commission:</strong> {{ number_format((float) ($affiliate->default_commission_percentage ?? 0), 2) }}%</p>
             <p class="mb-3"><strong>Public Page:</strong>
