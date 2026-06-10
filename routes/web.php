@@ -302,6 +302,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::get('/{id}/checkin-photo', [TransactionController::class, 'viewCheckinPhoto'])->name('checkin-photo');
         Route::get('/{transactionId}/id-photos', [TransactionController::class, 'getIdPhotos'])->name('id-photos');
         Route::get('/{transactionId}/id-photo/{side}', [TransactionController::class, 'getIdPhoto'])->name('id-photo');
+        Route::get('/{id}/pdf', [TransactionController::class, 'downloadPdf'])->name('pdf');
     });
 
     Route::group(['prefix' => 'jobs', 'as' => 'jobs.'], function () {

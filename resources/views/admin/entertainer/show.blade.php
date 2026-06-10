@@ -60,7 +60,7 @@
             <h4>{{ $entertainer->display_name ?: $entertainer->user->name }}</h4>
             <p class="mb-1"><strong>Email:</strong> {{ $entertainer->user->email }}</p>
             <p class="mb-1"><strong>Legal Name:</strong> {{ $entertainer->w9Form?->full_name ?? 'Not provided' }}</p>
-            <p class="mb-1"><strong>Club:</strong> {{ $entertainer->website->name ?? 'N/A' }}</p>
+            <p class="mb-1"><strong>Club:</strong> <span style="color:#f8fafc;">{{ $entertainer->website->name ?? 'N/A' }}</span></p>
             <p class="mb-1"><strong>Status:</strong> {{ ucfirst($entertainer->status) }}</p>
             <p class="mb-3"><strong>Default Commission:</strong> {{ number_format((float) ($entertainer->default_commission_percentage ?? 0), 2) }}%</p>
             @if($entertainer->slug)

@@ -2673,4 +2673,45 @@ class TransactionController extends Controller
         return round(max((float) $subtotal, 0), 2);
     }
 
+    public function downloadPdf($id)
+    {
+        $transaction = Transaction::with(['website', 'affiliate.user', 'entertainer.user'])->findOrFail($id);
+
+        $this->ensureCanAccess($transaction);
+
+        $html = view('admin.transaction.pdf', compact('transaction'))->render();
+
+        return response()->streamDownload(function () use ($html) {
+            echo $html;
+        }, 'transaction-' . $transaction->id . '.html', [
+            'Content-Type' => 'text/html; charset=UTF-8',
+        ]);
+    }
+
+    private function ensureCanAccess(Transaction $transaction)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            abort(401);
+        }
+
+        if ($user->user_type === 'admin') {
+            return;
+        }
+
+        if ($user->user_type === 'website_user' && $user->website_id === $transaction->website_id) {
+            return;
+        }
+
+        if ($user->user_type === 'affiliate' && $user->affiliate_id === $transaction->affiliate_id) {
+            return;
+        }
+
+        if ($user->user_type === 'entertainer' && $user->entertainer_id === $transaction->entertainer_id) {
+            return;
+        }
+
+        abort(403);
+    }
+
 }

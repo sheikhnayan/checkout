@@ -29,7 +29,7 @@
                 <div class="col-md-6">
                     <p class="mb-1"><strong>Staff Type:</strong> {{ $staffType }}</p>
                     @if($type === 'entertainer')
-                        <p class="mb-1"><strong>Club:</strong> {{ $staff->website->name ?? 'N/A' }}</p>
+                        <p class="mb-1"><strong>Club:</strong> <span style="color:#f8fafc;">{{ $staff->website->name ?? 'N/A' }}</span></p>
                     @endif
                     <p class="mb-1"><strong>Submitted:</strong> {{ $staff->created_at->format('M d, Y H:i') }}</p>
                 </div>
@@ -187,7 +187,7 @@
                                 <td><strong>#{{ str_pad($transaction->id, 3, '0', STR_PAD_LEFT) }}</strong></td>
                                 <td>
                                     <div style="font-weight:600;">{{ $transaction->type === 'package' ? ($transaction->package_table_label ?: 'Package') : 'Reservation' }}</div>
-                                    <div style="font-size:0.85rem;color:rgba(0,0,0,0.6);margin-top:4px;">{{ optional($transaction->website)->name ?? 'N/A' }}</div>
+                                    <div style="font-size:0.85rem;color:rgba(255,255,255,0.6);margin-top:4px;">{{ optional($transaction->website)->name ?? 'N/A' }}</div>
                                 </td>
                                 <td>
                                     @if($paymentStatus === 'Paid')
