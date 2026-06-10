@@ -119,7 +119,8 @@
 .dataTables_wrapper .dataTables_info { color: rgba(255,255,255,0.4) !important; font-size: 0.8rem; }
 .dataTables_wrapper .dataTables_length select { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 6px; padding: 3px 6px; }
 .dataTables_wrapper .dataTables_length label { color: rgba(255,255,255,0.45); font-size: 0.8rem; }
-.dataTables_wrapper .dataTables_paginate { padding-top: 14px; }
+.table-responsive { padding-bottom: 20px; }
+.dataTables_wrapper .dataTables_paginate { padding-top: 14px; margin-bottom: 0; }
 .dt-buttons, .dataTables_filter { display: none !important; }
 #viewTransactionModal .modal-header { background: #0f172a; border-bottom: 1px solid #1e293b; }
 #viewTransactionModal .modal-content,

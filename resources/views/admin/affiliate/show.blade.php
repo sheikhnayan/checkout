@@ -22,6 +22,9 @@
     max-height: 600px;
     overflow-y: auto;
 }
+.table-responsive {
+    padding-bottom: 20px;
+}
 </style>
 @endpush
 
