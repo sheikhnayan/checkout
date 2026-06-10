@@ -5428,10 +5428,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     
                                                             <div class="form-row">
                                                                 <div class="num-guest" style="width: 100%; display: flex;">
-                                                                    <label for="">Number of Guest(s)</label>
-    
-                                                                    <input type="number" class="form-control"
-                                                                        name="transportation_guest" value="0" min="1" required
+                                                                    <label for="">Host Name</label>
+
+                                                                    <input type="text" class="form-control"
+                                                                        name="transportation_guest" placeholder="e.g. John Smith" required
                                                                         style="width: 120px; max-width: 120px; color: #fff;"  />
     
     

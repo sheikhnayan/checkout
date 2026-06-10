@@ -256,12 +256,11 @@ class TransactionController extends Controller
                             try {
                                 \Log::info('Attempting to send package SMS', ['phone' => $purchaserPhone]);
                                 $smsService = new \App\Services\TelnyxSmsService();
-                                $packageData = $this->getPackageData($slug, $request);
                                 $smsData = [
                                     'transaction_id' => $add->transaction_id,
                                     'club_name' => $website->name ?? 'Venue',
                                     'club_slug' => $website->slug ?? '',
-                                    'package_name' => $packageData['name'] ?? 'Package',
+                                    'package_name' => $cartSummary['package_name'] ?? 'Package',
                                     'quantity' => $request->input('quantity', 1),
                                     'package_use_date' => $request->input('package_use_date') ?? '',
                                     'total_amount' => $add->total,
