@@ -465,6 +465,29 @@
             }
         }
     </style>
+    <!-- reCAPTCHA v3 Script -->
+    @if(config('services.recaptcha.site_key') && config('services.recaptcha.site_key') !== 'YOUR_RECAPTCHA_SITE_KEY_HERE')
+    <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+    <script>
+        window.executeRecaptcha = function(action = 'submit') {
+            return new Promise((resolve) => {
+                if (!window.grecaptcha) {
+                    resolve(null);
+                    return;
+                }
+                grecaptcha.ready(function() {
+                    grecaptcha.execute('{{ config('services.recaptcha.site_key') }}', {action: action})
+                        .then(function(token) {
+                            resolve(token);
+                        })
+                        .catch(function() {
+                            resolve(null);
+                        });
+                });
+            });
+        };
+    </script>
+    @endif
 </head>
 <body>
     <div class="auth-left">
