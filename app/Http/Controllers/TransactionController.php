@@ -33,7 +33,12 @@ class TransactionController extends Controller
 {
     public function store($slug, Request $request)
     {
-        \Log::info('=== PACKAGE CHECKOUT STARTED ===', ['phone' => $request->input('package_phone'), 'email' => $request->input('package_email'), 'hostname' => $request->input('transportation_guest')]);
+        \Log::info('=== PACKAGE CHECKOUT STARTED ===', [
+            'phone' => $request->input('package_phone'),
+            'email' => $request->input('package_email'),
+            'hostname' => $request->input('transportation_guest'),
+            'all_request_data' => $request->all()
+        ]);
 
         $cartItems = $this->extractCartItemsFromRequest($request);
         $cartSummary = $this->summarizeCartItems($cartItems);
@@ -248,6 +253,8 @@ class TransactionController extends Controller
                         if ($purchaserEmail && filter_var($purchaserEmail, FILTER_VALIDATE_EMAIL)) {
                             \Illuminate\Support\Facades\Mail::to($purchaserEmail)->send($send_mail_purchaser);
                         }
+
+                        \Log::info('=== ABOUT TO SEND SMS ===', ['transaction_id' => $add->id, 'transaction_phone' => $add->package_phone]);
 
                         // ========== SEND SMS NOTIFICATION ==========
                         $purchaserPhone = $add->package_phone;
