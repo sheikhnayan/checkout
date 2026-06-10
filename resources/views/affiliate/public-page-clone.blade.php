@@ -6448,9 +6448,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 if (packageField && firstItem) {
                     packageField.value = firstItem.packageId || packageField.value;
                 }
-                if (guestField) {
-                    guestField.value = totalGuests || 1;
-                }
+                // guestField is now for Host Name (text field), not guest count
+                // if (guestField) {
+                //     guestField.value = totalGuests || 1;
+                // }
                 if (addonsField) {
                     addonsField.value = addonNames.join(', ');
                 }

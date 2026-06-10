@@ -7460,9 +7460,10 @@
                 if (packageField && firstItem) {
                     packageField.value = firstItem.packageId || packageField.value;
                 }
-                if (guestField) {
-                    guestField.value = totalGuests || 1;
-                }
+                // guestField is now for Host Name (text field), not guest count
+                // if (guestField) {
+                //     guestField.value = totalGuests || 1;
+                // }
                 if (addonsField) {
                     addonsField.value = addonNames.join(', ');
                 }
@@ -8676,13 +8677,13 @@
                     }
                 }
 
-                // Auto-fill empty transportation_guest field with 1 if transportation required
-                if (stepNumber === 2 && window.requiresTransportation) {
-                    const guestField = $('[name="transportation_guest"]');
-                    if (!guestField.val() || parseInt(guestField.val(), 10) < 1) {
-                        guestField.val('1');
-                    }
-                }
+                // transportation_guest is now Host Name field - don't auto-fill
+                // if (stepNumber === 2 && window.requiresTransportation) {
+                //     const guestField = $('[name="transportation_guest"]');
+                //     if (!guestField.val() || parseInt(guestField.val(), 10) < 1) {
+                //         guestField.val('1');
+                //     }
+                // }
 
                 // Check required fields
                 requiredFields.forEach(function(selector) {
