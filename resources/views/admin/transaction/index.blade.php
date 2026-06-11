@@ -1522,22 +1522,53 @@ body.modal-open .admin-mobile-menu-toggle {
                     const rows = [];
 
                     if (table && table.rows && typeof table.rows === 'function') {
-                        // Get ALL rows matching search/filter, regardless of pagination
-                        // page: 'all' ensures we get rows from ALL pages, not just current page
-                        table.rows({ search: 'applied', page: 'all' }).every(function () {
-                            const rowNode = this.node();
+                        // Get search settings from table
+                        const searchValue = table.search();
 
-                            // If checkboxes are selected, only export selected rows
-                            if (selectedOnly && !$(rowNode).find('.row-check').prop('checked')) {
-                                return true; // Continue to next row
-                            }
+                        // Try method 1: Get all row data directly from DataTables
+                        const allRowData = table.data().toArray();
 
-                            const rowData = this.data();
-                            const row = exportColumnIndexes.map(function (colIdx) {
-                                return stripHtml(rowData[colIdx] || '');
+                        if (allRowData && allRowData.length > 0) {
+                            // Process all rows from data store
+                            allRowData.forEach(function (rowData, rowIndex) {
+                                // If checkboxes selected, find and check the corresponding checkbox
+                                if (selectedOnly) {
+                                    // Try to find the corresponding DOM node
+                                    let isSelected = false;
+                                    const checkboxes = $('.row-check');
+                                    checkboxes.each(function (idx) {
+                                        const $checkbox = $(this);
+                                        const row = table.row(idx);
+                                        if (row && row.data() === rowData && $checkbox.prop('checked')) {
+                                            isSelected = true;
+                                            return false; // break
+                                        }
+                                    });
+                                    if (!isSelected) return; // Skip this row
+                                }
+
+                                const row = exportColumnIndexes.map(function (colIdx) {
+                                    return stripHtml(rowData[colIdx] || '');
+                                });
+                                rows.push(row);
                             });
-                            rows.push(row);
-                        });
+                        }
+
+                        // Fallback: if no data collected, try the rows() method
+                        if (rows.length === 0) {
+                            table.rows({ search: 'applied' }).every(function () {
+                                const rowNode = this.node();
+                                if (selectedOnly && !$(rowNode).find('.row-check').prop('checked')) {
+                                    return true;
+                                }
+
+                                const rowData = this.data();
+                                const row = exportColumnIndexes.map(function (colIdx) {
+                                    return stripHtml(rowData[colIdx] || '');
+                                });
+                                rows.push(row);
+                            });
+                        }
                     }
 
                     return { headers, rows };
