@@ -999,6 +999,11 @@ input::placeholder, textarea::placeholder {
 
 /* Payment agreement toggles: exact affiliate parity, locked with stronger selectors */
 #payment-consent-group .consent-label,
+        /* Business purpose toggle - center aligned */
+        .checkbox-container.payment-consent-group .consent-label {
+            align-items: center !important;
+        }
+
 #payment-consent-group .consent-label span,
 .payment-consent-group .consent-label span {
     flex: 1 !important;
