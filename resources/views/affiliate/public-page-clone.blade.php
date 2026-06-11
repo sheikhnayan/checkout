@@ -9046,8 +9046,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             const phoneFields = [
                 { name: 'package_phone' },
                 { name: 'reservation_phone' },
-                { name: 'transportation_phone' },
-                { name: 'payment_phone' }
+                { name: 'transportation_phone' }
             ];
 
             phoneFields.forEach(field => {

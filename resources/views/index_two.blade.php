@@ -10424,8 +10424,7 @@
             const phoneFields = [
                 { name: 'package_phone', label: 'Package Phone' },
                 { name: 'reservation_phone', label: 'Reservation Phone' },
-                { name: 'transportation_phone', label: 'Transportation Phone' },
-                { name: 'payment_phone', label: 'Payment Phone' }
+                { name: 'transportation_phone', label: 'Transportation Phone' }
             ];
 
             phoneFields.forEach(field => {
