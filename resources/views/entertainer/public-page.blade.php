@@ -38,7 +38,7 @@ input[name="transportation_pickup_time"]::placeholder {
 .checkout-steps {
     display: flex !important;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
     margin: 2rem 0;
     padding: 0;
     list-style: none;
@@ -687,7 +687,7 @@ nav .tab.active p {
 .cv-footer-brand {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 10px;
     flex-shrink: 0;
 }
@@ -923,7 +923,7 @@ input::placeholder, textarea::placeholder {
 .consent-label {
     display: flex;
     gap: 12px;
-    align-items: flex-start;
+    align-items: center;
     cursor: pointer;
     margin-bottom: 12px;
     font-size: 13px;
@@ -1026,8 +1026,8 @@ input::placeholder, textarea::placeholder {
     cursor: pointer !important;
     transition: background .2s ease, border-color .2s ease !important;
 }
-#payment-consent-group .consent-label input[type="checkbox"]::before,
-.payment-consent-group .consent-label input[type="checkbox"]::before {
+#payment-consent-group .consent-label input[type="checkbox"]:not(#termsConsent)::before,
+.payment-consent-group .consent-label input[type="checkbox"]:not(#termsConsent)::before {
     content: '' !important;
     position: absolute !important;
     top: 2px !important;
@@ -1043,8 +1043,8 @@ input::placeholder, textarea::placeholder {
     background: #a774ff !important;
     border-color: #a774ff !important;
 }
-#payment-consent-group .consent-label input[type="checkbox"]:checked::before,
-.payment-consent-group .consent-label input[type="checkbox"]:checked::before {
+#payment-consent-group .consent-label input[type="checkbox"]:not(#termsConsent):checked::before,
+.payment-consent-group .consent-label input[type="checkbox"]:not(#termsConsent):checked::before {
     transform: translateX(20px) !important;
 }
 #payment-consent-group .consent-label input[type="checkbox"]:focus-visible {
@@ -1118,14 +1118,20 @@ input::placeholder, textarea::placeholder {
 }
 
 /* TERMS CONSENT - CHECKBOX ONLY - OVERRIDE EVERYTHING */
-#termsConsent_two,
-#termsConsent {
+.checkbox-container #termsConsent,
+        #payment-consent-group #termsConsent,
+        .payment-consent-group #termsConsent_two,
+.checkbox-container #termsConsent,
+        #payment-consent-group #termsConsent,
+        .payment-consent-group #termsConsent {
     -webkit-appearance: none !important;
     appearance: none !important;
     width: 18px !important;
     height: 18px !important;
     min-width: 18px !important;
     min-height: 18px !important;
+            max-width: 18px !important;
+            max-height: 18px !important;
     border: 2px solid #999 !important;
     border-radius: 3px !important;
     background: #fff !important;
@@ -1136,13 +1142,21 @@ input::placeholder, textarea::placeholder {
     flex-shrink: 0 !important;
     transition: all 0.2s !important;
 }
-#termsConsent_two:checked,
-#termsConsent:checked {
+.checkbox-container #termsConsent,
+        #payment-consent-group #termsConsent,
+        .payment-consent-group #termsConsent_two:checked,
+.checkbox-container #termsConsent,
+        #payment-consent-group #termsConsent,
+        .payment-consent-group #termsConsent:checked {
     background: var(--accent, #ffcc00) !important;
     border-color: var(--accent, #ffcc00) !important;
 }
-#termsConsent_two:checked::before,
-#termsConsent:checked::before {
+.checkbox-container #termsConsent,
+        #payment-consent-group #termsConsent,
+        .payment-consent-group #termsConsent_two:checked::before,
+.checkbox-container #termsConsent,
+        #payment-consent-group #termsConsent,
+        .payment-consent-group #termsConsent:checked::before {
     content: '✓' !important;
     position: absolute !important;
     top: 50% !important;
@@ -1201,7 +1215,7 @@ input::placeholder, textarea::placeholder {
 #cart-section .cart-line-main {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     gap: 12px;
 }
 
@@ -2925,7 +2939,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-hero-venue-meta { font-size:13px; color:rgba(255,255,255,0.62) !important; margin:3px 0 0; }
 .cv-hero-rating { font-size:13px; color:rgba(255,255,255,0.78) !important; margin-top:4px; display: inline-flex; align-items: center; gap: 6px; }
 .cv-hero-rating .stars { color:var(--accent) !important; letter-spacing:-1px; }
-.cv-hero-badges { display:flex; gap:24px; align-items: flex-start; flex-wrap: wrap; }
+.cv-hero-badges { display:flex; gap:24px; align-items: center; flex-wrap: wrap; }
 .cv-hero-badge { background:transparent; border:0; border-radius:0; padding:0; display:flex; gap:10px; align-items:flex-start; }
 .cv-hero-badge i { color: var(--accent) !important; font-size: 17px; margin-top: 1px; width: 22px; height: 22px; border-radius: 50%; background: rgba(255,204,0,0.1); display: inline-flex; align-items: center; justify-content: center; font-size: 11px; }
 .cv-hero-badge-label { display:block; font-size:13px; color:rgba(255,255,255,0.78) !important; font-weight:600; line-height:1.25; }
@@ -3005,7 +3019,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     position: relative;
 }
 
-.cv-hero-location-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.cv-hero-location-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .cv-hero-location-label {
     font-size: 12px;
     font-weight: 800;
@@ -4068,7 +4082,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 .guest .checkbox-container .consent-label {
     display: flex !important;
-    align-items: flex-start;
+    align-items: center;
     gap: 12px;
     padding: 10px 0;
     color: rgba(255,255,255,0.82) !important;
@@ -4788,7 +4802,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .ent-hero-tagline-text {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 1px;
     text-align: left;
 }
@@ -4975,7 +4989,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .cv-hero-head {
         flex-direction: row;
         gap: 12px;
-        align-items: flex-start;
+        align-items: center;
         padding: 0 0 12px 0;
         border-bottom: 1px solid rgba(251,113,133,0.15);
     }
@@ -4984,7 +4998,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         flex: 0 0 auto;
         gap: 0;
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         gap: 12px;
     }
 
@@ -5672,7 +5686,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                                     <!-- Featured affiliate Card -->
                                     @if($entertainer->hero_title || $entertainer->hero_subtitle || $entertainer->description)
-                                    <div class="ent-featured-card" style="display: grid; grid-template-columns: 100px 1fr; gap: 24px; align-items: flex-start; padding: 28px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.1); background: linear-gradient(135deg, rgba(167,116,255,0.2) 0%, rgba(236,72,153,0.15) 100%); margin: 0 0 20px 0; position: relative; overflow: hidden;">
+                                    <div class="ent-featured-card" style="display: grid; grid-template-columns: 100px 1fr; gap: 24px; align-items: center; padding: 28px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.1); background: linear-gradient(135deg, rgba(167,116,255,0.2) 0%, rgba(236,72,153,0.15) 100%); margin: 0 0 20px 0; position: relative; overflow: hidden;">
                                         <!-- Gradient overlay -->
                                         <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 45%; background: radial-gradient(ellipse at right center, rgba(255,255,255,0.05), transparent 70%); pointer-events: none;"></div>
 
@@ -6320,7 +6334,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                                                             <!-- TRANSPORTATION RESTRICTION NOTICE -->
                                                             <div style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); border: 2px solid #c92a2a; border-radius: 8px; padding: 14px 16px; margin-top: 20px; box-shadow: 0 4px 12px rgba(255, 107, 107, 0.25);">
-                                                                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                                                                <div style="display: flex; align-items: center; gap: 12px;">
                                                                     <div style="font-size: 20px; color: #fff; flex-shrink: 0;">⚠️</div>
                                                                     <div>
                                                                         <p style="margin: 0; color: #fff; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">HOUSE TRANSPORTATION OR SELF DRIVE ONLY</p>

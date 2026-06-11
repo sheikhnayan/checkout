@@ -1084,7 +1084,7 @@
         .consent-label {
             display: flex;
             gap: 12px;
-            align-items: flex-start;
+            align-items: center;
             cursor: pointer;
             margin-bottom: 12px;
             font-size: 13px;
@@ -1109,14 +1109,18 @@
         }
 
         /* TERMS CONSENT - CHECKBOX ONLY - OVERRIDE EVERYTHING */
-        #termsConsent_two,
-        #termsConsent {
+        .checkbox-container #termsConsent_two,
+        .checkbox-container #termsConsent,
+        #payment-consent-group #termsConsent,
+        .payment-consent-group #termsConsent {
             -webkit-appearance: none !important;
             appearance: none !important;
             width: 18px !important;
             height: 18px !important;
             min-width: 18px !important;
             min-height: 18px !important;
+            max-width: 18px !important;
+            max-height: 18px !important;
             border: 2px solid #999 !important;
             border-radius: 3px !important;
             background: #fff !important;
@@ -1127,13 +1131,17 @@
             flex-shrink: 0 !important;
             transition: all 0.2s !important;
         }
-        #termsConsent_two:checked,
-        #termsConsent:checked {
+        .checkbox-container #termsConsent_two:checked,
+        .checkbox-container #termsConsent:checked,
+        #payment-consent-group #termsConsent:checked,
+        .payment-consent-group #termsConsent:checked {
             background: #ffcc00 !important;
             border-color: #ffcc00 !important;
         }
-        #termsConsent_two:checked::before,
-        #termsConsent:checked::before {
+        .checkbox-container #termsConsent_two:checked::before,
+        .checkbox-container #termsConsent:checked::before,
+        #payment-consent-group #termsConsent:checked::before,
+        .payment-consent-group #termsConsent:checked::before {
             content: '✓' !important;
             position: absolute !important;
             top: 50% !important;
@@ -1184,8 +1192,8 @@
             cursor: pointer !important;
             transition: background .2s ease, border-color .2s ease !important;
         }
-        #payment-consent-group .consent-label input[type="checkbox"]::before,
-.payment-consent-group .consent-label input[type="checkbox"]::before {
+        #payment-consent-group .consent-label input[type="checkbox"]:not(#termsConsent)::before,
+.payment-consent-group .consent-label input[type="checkbox"]:not(#termsConsent)::before {
             content: '' !important;
             position: absolute !important;
             top: 2px !important;
@@ -1201,8 +1209,8 @@
             background: #ffcc00 !important;
             border-color: #ffcc00 !important;
         }
-        #payment-consent-group .consent-label input[type="checkbox"]:checked::before,
-.payment-consent-group .consent-label input[type="checkbox"]:checked::before {
+        #payment-consent-group .consent-label input[type="checkbox"]:not(#termsConsent):checked::before,
+.payment-consent-group .consent-label input[type="checkbox"]:not(#termsConsent):checked::before {
             background: #fff !important;
             transform: translateX(20px) !important;
             box-shadow: 0 0 0 3px rgba(0,0,0,0.1) !important;
@@ -4257,7 +4265,7 @@
         }
         .guest .checkbox-container .consent-label {
             display: flex !important;
-            align-items: flex-start;
+            align-items: center;
             gap: 12px;
             padding: 10px 0;
             color: rgba(255,255,255,0.82) !important;
