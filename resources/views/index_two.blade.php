@@ -9217,7 +9217,13 @@
                         return;
                     }
 
-                    // Validation passed - prepare form and submit
+                    // Validation passed - clean card number and submit
+                    // Remove spaces and special characters from card number for Authorize.net
+                    const cardNumberField = form.querySelector('input[name="card_number"]');
+                    if (cardNumberField && cardNumberField.value) {
+                        cardNumberField.value = cardNumberField.value.replace(/\s+/g, '').replace(/[^0-9]/g, '');
+                    }
+
                     prepareCheckoutCartPayload(form);
 
                     // Submit form after a tiny delay for iOS compatibility
