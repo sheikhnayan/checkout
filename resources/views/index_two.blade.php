@@ -192,7 +192,8 @@
                 border-color: #ff6b6b !important;
             }
 
-            /* Red asterisk on required form field labels */
+            /* Red asterisk on required form field labels - currently disabled, :has() support varies */
+            /*
             .form-group > label:has(~ input[required])::after,
             .form-group > label:has(~ select[required])::after,
             .form-group > label:has(~ textarea[required])::after,
@@ -203,6 +204,7 @@
                 color: #ef4444;
                 font-weight: 700;
             }
+            */
 
             .reservation-date-error {
                 display: none;
