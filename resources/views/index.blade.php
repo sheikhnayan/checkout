@@ -25,7 +25,7 @@
 #Pick-up-time,
 input[name="transportation_pickup_time"] {
     background: #ffffff !important;
-    color: #111111 !important;
+    color: #111111 !important; required
     -webkit-text-fill-color: #111111 !important;
     border-color: #d2d7e3 !important;
 }
@@ -5829,7 +5829,7 @@ input[type="checkbox"],
                                                                     <label for="Pick-up-time">Pick-up Time</label>
                                                                     <div class="pickup-time-wrap">
                                                                         <i class="fas fa-clock pickup-time-icon"></i>
-                                                                        <input name="transportation_pickup_time" type="text" readonly
+                                                                        <input name="transportation_pickup_time" type="text" readonly required
                                                                             id="Pick-up-time"
                                                                             class="form-control"
                                                                             placeholder="Select pick-up time" />
@@ -5839,7 +5839,7 @@ input[type="checkbox"],
                                                             <div class="form-row" style="margin-top: 14px;">
                                                                 <div class="form-group" style="width: 100%;">
                                                                     <label for="address">Pick-up Location</label>
-                                                                    <input type="text" name="transportation_address"
+                                                                    <input type="text" name="transportation_address" required required
                                                                         id="address" placeholder="Enter pick-up address" />
                                                                 </div>
 
@@ -5849,7 +5849,7 @@ input[type="checkbox"],
                                                                 <div class="form-group" style="width: 100%;">
                                                                     <label for="phone">Contact Phone Number or WhatsApp</label>
                                                                     <input type="tel" name="transportation_phone" id="phone"
-                                                                        placeholder="For driver/dispatch to coordinate�pickup"  />
+                                                                        placeholder="For driver/dispatch to coordinate�pickup"   required />
                                                                 </div>
     
                                                             </div>
@@ -5859,7 +5859,7 @@ input[type="checkbox"],
                                                                     <label for="">Number of Guest(s)</label>
     
                                                                     <input type="number" class="form-control"
-                                                                        name="transportation_guest" min="1" required
+                                                                        name="transportation_guest" min="1"
                                                                         style="width: 120px; max-width: 120px; color: #fff;"  />
     
     

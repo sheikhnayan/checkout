@@ -17,7 +17,7 @@
         <title>Checkout</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css"
             integrity="sha512-fw7f+TcMjTb7bpbLJZlP8g2Y4XcCyFZW8uy8HsRZsH/SwbMw0plKHFHr99DN3l04VsYNwvzicUX/6qurvIxbxw=="
-            crossorigin="anonymous" referrerpolicy="no-referrer" />
+            crossorigin="anonymous" referrerpolicy="no-referrer"  required />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <link rel="stylesheet" href="{{ asset('styles/main.css') }}">
         <style>
@@ -392,7 +392,7 @@
                     -webkit-appearance: none !important;
                     -moz-appearance: none !important;
                     appearance: none !important;
-                    background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 15px center !important;
+                    background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"  required /></svg>') no-repeat right 15px center !important;
                     background-size: 20px !important;
                     background-color: transparent !important;
                     padding: 8px 30px 8px 15px !important;
@@ -416,7 +416,7 @@
                     -webkit-appearance: none !important;
                     -moz-appearance: none !important;
                     appearance: none !important;
-                    background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 15px center !important;
+                    background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"  required /></svg>') no-repeat right 15px center !important;
                     background-size: 20px !important;
                     background-color: transparent !important;
                     padding: 12px 45px 12px 15px !important;
@@ -433,7 +433,7 @@
                     -webkit-appearance: none !important;
                     -moz-appearance: none !important;
                     appearance: none !important;
-                    background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 15px center !important;
+                    background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"  required /></svg>') no-repeat right 15px center !important;
                     background-size: 20px !important;
                     background-color: transparent !important;
                     padding: 12px 45px 12px 15px !important;
@@ -455,7 +455,7 @@
                     -webkit-appearance: none !important;
                     -moz-appearance: none !important;
                     appearance: none !important;
-                    background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center !important;
+                    background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"  required /></svg>') no-repeat right 10px center !important;
                     background-size: 15px !important;
                     background-color: transparent !important;
                     padding: 12px 30px 12px 15px !important;
@@ -575,7 +575,7 @@
                 -moz-appearance: none !important;
                 appearance: none !important;
                 background-color: transparent !important;
-                background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"/></svg>') !important;
+                background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"  required /></svg>') !important;
                 background-repeat: no-repeat !important;
                 background-position: right 15px center !important;
                 background-size: 20px !important;
@@ -5914,7 +5914,7 @@
                                                     may vary. Reply STOP to opt out at any time.</span>
                                                 </label>
                                                 <label class="consent-label driver-notification-consent-wrap" style="display:none;">
-                                                    <input type="checkbox" id="driverNotificationConsent_two" class="driver-notification-consent-input" />
+                                                    <input type="checkbox" id="driverNotificationConsent_two" class="driver-notification-consent-input"  required />
                                                     <span>I agree to receive notifications from the driver regarding my transportation pickup.</span>
                                                 </label>
                                                 <label class="consent-label">
@@ -6211,7 +6211,7 @@
                                                 <div style="position: relative;">
                                                     <input type="text" id="shareableLink" readonly
                                                         style="width:100%;margin-top:8px;display:none;padding-right:40px;"
-                                                        />
+  required />
                                                     <div id="copyTooltip" style="position: absolute; top: -35px; right: 0; background: #d6a857; color: #1f1400; padding: 8px 12px; border-radius: 4px; font-size: 12px; display: none; white-space: nowrap; z-index: 1000;">
                                                         Link copied!
                                                     </div>
@@ -6249,7 +6249,7 @@
                                                 <div class="col-md-8 col-8" style="padding-right: 0%;">
                                                     <input type="text" id="promo_code"
                                                         style="color: #fff;"
-                                                        placeholder="Enter code" />
+                                                        placeholder="Enter code"  required />
                                                 </div>
                                                 <div class="col-md-4 col-4" style="padding-left: 0%;">
                                                     <button type="button" class="vip-btn-submit"
@@ -6402,7 +6402,7 @@
                                             <div class="checkbox-container transportaiton" id="transport-confirmation"
                                                 style="display:none">
                                                 <label>
-                                                    <input type="checkbox" id="transportation_part" />
+                                                    <input type="checkbox" id="transportation_part"  required />
                                                     {{ $data->transportation_confirmation_text ?? 'I confirm I am not arriving via Uber, Lyft, limo, taxi, ride-sharing or any other paid service. I am arriving in a personal vehicle.' }}
                                                 </label>
                                                 <div class="step-navigation" style="margin-top: 20px;">
@@ -6439,7 +6439,7 @@
                                                                             <input name="transportation_pickup_time" type="text" readonly
                                                                                 id="Pick-up-time"
                                                                                 class="form-control"
-                                                                                placeholder="Select pick-up time" />
+                                                                                placeholder="Select pick-up time" required />
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -6448,7 +6448,7 @@
                                                                         <label for="address">Pick-up Location</label>
                                                                         <input type="text"
                                                                             name="transportation_address"
-                                                                            id="address" placeholder="Enter pick-up address" />
+                                                                            id="address" placeholder="Enter pick-up address" required />
                                                                     </div>
 
                                                                 </div>
@@ -6459,7 +6459,7 @@
                                                                             WhatsApp</label>
                                                                         <input type="tel"
                                                                             name="transportation_phone" id="phone"
-                                                                            placeholder="For driver/dispatch to coordinate pickup" />
+                                                                            placeholder="For driver/dispatch to coordinate pickup"  required />
                                                                     </div>
 
                                                                 </div>
@@ -6471,8 +6471,8 @@
                                                                             Guest(s)</label>
 
                                                                         <input type="text" class="form-control"
-                                                                            name="transportation_guest" placeholder="e.g. John Smith" required
-                                                                            style="width: 120px; max-width: 120px; color: #fff;" />
+                                                                            name="transportation_guest" placeholder="e.g. John Smith"
+                                                                            style="width: 120px; max-width: 120px; color: #fff;"  required />
 
 
 
@@ -6559,15 +6559,15 @@
 
                                                             <!-- Hidden fields for phone, email, and DOB - will be auto-populated from package holder info -->
                                                             <input type="hidden" name="payment_phone"
-                                                                id="hidden_payment_phone" />
+                                                                id="hidden_payment_phone"  required />
                                                             <input type="hidden" name="payment_email"
-                                                                id="hidden_payment_email" />
+                                                                id="hidden_payment_email"  required />
                                                             <input type="hidden" name="payment_month"
-                                                                id="hidden_payment_month" />
+                                                                id="hidden_payment_month"  required />
                                                             <input type="hidden" name="payment_day"
-                                                                id="hidden_payment_day" />
+                                                                id="hidden_payment_day"  required />
                                                             <input type="hidden" name="payment_year"
-                                                                id="hidden_payment_year" />
+                                                                id="hidden_payment_year"  required />
 
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 100%;">
@@ -6722,7 +6722,7 @@
                                                         </div>
                                                         <div class="checkbox-container payment-consent-group" style="margin-top: 1.5rem;">
                                                             <label class="consent-label">
-                                                                <input type="checkbox" id="businessExpenseCheckbox" />
+                                                                <input type="checkbox" id="businessExpenseCheckbox"  required />
                                                                 <span>This purchase is for business purposes</span>
                                                             </label>
                                                         </div>
@@ -6733,13 +6733,13 @@
                                                                     <label for="business_company">Company Name</label>
                                                                     <input type="text" name="business_company"
                                                                         id="business_company"
-                                                                        placeholder="Company Name" />
+                                                                        placeholder="Company Name"  required />
                                                                 </div>
                                                                 <div class="form-group" style="width: 50%;">
                                                                     <label for="business_vat">VAT or Tax ID</label>
                                                                     <input type="text" name="business_vat"
                                                                         id="business_vat"
-                                                                        placeholder="VAT or Tax ID" />
+                                                                        placeholder="VAT or Tax ID"  required />
                                                                 </div>
                                                             </div>
                                                             <div class="form-row">
@@ -6748,7 +6748,7 @@
                                                                         Address</label>
                                                                     <input type="text" name="business_address"
                                                                         id="business_address"
-                                                                        placeholder="Business Address" />
+                                                                        placeholder="Business Address"  required />
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -6764,7 +6764,7 @@
                                                                 STOP to opt out at any time.</span>
                                                             </label>
                                                             <label class="consent-label driver-notification-consent-wrap" style="display:none;">
-                                                                <input type="checkbox" id="driverNotificationConsent" class="driver-notification-consent-input" />
+                                                                <input type="checkbox" id="driverNotificationConsent" class="driver-notification-consent-input"  required />
                                                                 <span>I agree to receive notifications from the driver regarding my transportation pickup.</span>
                                                             </label>
 
@@ -8564,7 +8564,7 @@
                         element.style.setProperty('-moz-appearance', 'none', 'important');
                         element.style.setProperty('background-color', 'transparent', 'important');
                         element.style.setProperty('appearance', 'none', 'important');
-                        element.style.setProperty('background-image', 'url("data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'white\'><path d=\'M7 10l5 5 5-5z\'/></svg>")', 'important');
+                        element.style.setProperty('background-image', 'url("data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'white\'><path d=\'M7 10l5 5 5-5z\'  required /></svg>")', 'important');
                         element.style.setProperty('background-repeat', 'no-repeat', 'important');
                         element.style.setProperty('background-position', 'right 15px center', 'important');
                         element.style.setProperty('background-size', '20px', 'important');
@@ -8647,7 +8647,7 @@
                 return String(value || '')
                     .replace(/&/g, '&amp;')
                     .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
+                    .replace(  required />/g, '&gt;')
                     .replace(/"/g, '&quot;')
                     .replace(/'/g, '&#39;');
             }
