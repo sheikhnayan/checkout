@@ -124,8 +124,9 @@
                                                 <!-- Front ID Preview -->
                                                 <div id="frontPhotoPreviewContainer" class="d-none mb-3">
                                                     <div class="fw-semibold mb-2" style="color:#86efac;"><i class="fas fa-check-circle"></i> Front of ID Captured</div>
-                                                    <div style="width:100%;max-height:280px;border-radius:8px;border:2px solid #22c55e;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                                                    <div style="width:100%;max-height:280px;border-radius:8px;border:2px solid #22c55e;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
                                                         <img id="frontPhotoPreview" style="max-width:100%;max-height:100%;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
+                                                        <button type="button" id="retakeFrontPhotoBtn" class="btn btn-sm btn-warning" style="position:absolute;bottom:10px;right:10px;z-index:10;"><i class="fas fa-camera"></i> Retake</button>
                                                     </div>
                                                     <small class="text-muted d-block mt-2" style="font-size:11px;"><i class="fas fa-info-circle"></i> Frame Reference: ID card should fill the green frame guide</small>
                                                 </div>
@@ -354,18 +355,31 @@ document.addEventListener('DOMContentLoaded', function () {
         checkInCode.value = '';
         manualCodeInput.value = '';
         stopPhotoCamera();
+
+        // COMPLETELY CLEAR ALL PHOTO DATA
         frontPhotoPreviewContainer.classList.add('d-none');
         backPhotoPreviewContainer.classList.add('d-none');
+        frontPhotoPreview.src = '';
+        backPhotoPreview.src = '';
         frontPhotoData.value = '';
         backPhotoData.value = '';
         frontPhotoCaptured = false;
         backPhotoCaptured = false;
         capturingFrontPhoto = true;
+        currentFacingMode = 'environment';
+
         capturePhotoText.textContent = 'Capture Front of ID';
         frontPhotoStatus.textContent = 'Pending';
         frontPhotoStatus.style.color = '#60a5fa';
         backPhotoStatus.textContent = 'Pending';
         backPhotoStatus.style.color = '#60a5fa';
+
+        // Reset indicators
+        document.getElementById('frontPhotoIndicator').style.opacity = '0.5';
+        document.getElementById('frontPhotoIndicator').style.borderColor = '#22c55e';
+        document.getElementById('backPhotoIndicator').style.opacity = '0.5';
+        document.getElementById('backPhotoIndicator').style.borderColor = '#64b5f6';
+
         setStatus('Ready for next ticket scan.', false);
 
         // Auto-start QR scanner
@@ -880,12 +894,39 @@ document.addEventListener('DOMContentLoaded', function () {
 
     stopPhotoCameraBtn.addEventListener('click', stopPhotoCamera);
 
-    // Retake Photos functionality
+    // Retake Photos functionality - for back photo (after both captured)
     const retakePhotosBtn = document.getElementById('retakePhotosBtn');
     if (retakePhotosBtn) {
         retakePhotosBtn.addEventListener('click', function() {
             resetPhotos();
         });
+    }
+
+    // Retake Front Photo - button on front preview
+    const retakeFrontPhotoBtn = document.getElementById('retakeFrontPhotoBtn');
+    if (retakeFrontPhotoBtn) {
+        retakeFrontPhotoBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            retakeFrontPhoto();
+        });
+    }
+
+    function retakeFrontPhoto() {
+        frontPhotoCaptured = false;
+        capturingFrontPhoto = true;
+        frontPhotoData.value = '';
+        frontPhotoPreviewContainer.classList.add('d-none');
+        frontPhotoStatus.textContent = 'Pending';
+        frontPhotoStatus.style.color = '#60a5fa';
+        document.getElementById('frontPhotoIndicator').style.opacity = '0.5';
+        document.getElementById('frontPhotoIndicator').style.borderColor = '#22c55e';
+        backPhotoCaptured = false;
+        backPhotoData.value = '';
+        backPhotoPreviewContainer.classList.add('d-none');
+        backPhotoStatus.textContent = 'Pending';
+        backPhotoStatus.style.color = '#60a5fa';
+        document.getElementById('backPhotoIndicator').style.opacity = '0.5';
+        startPhotoCamera();
     }
 
     function resetPhotos() {
