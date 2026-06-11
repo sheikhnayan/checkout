@@ -204,6 +204,29 @@
             @endif
         </table>
 
+        @if(!empty($mailPriceBreakdown))
+        <div class="section-title">Price Breakdown</div>
+        <table class="summary">
+            <tr><th>Subtotal</th><td>${{ number_format((float) (($mailPriceBreakdown['packages_subtotal'] ?? 0) + ($mailPriceBreakdown['addons_subtotal'] ?? 0)), 2) }}</td></tr>
+            @if(!empty($mailPriceBreakdown['gratuity']) && (float) ($mailPriceBreakdown['gratuity'] ?? 0) > 0)
+            <tr><th>Gratuity</th><td>${{ number_format((float) $mailPriceBreakdown['gratuity'], 2) }}</td></tr>
+            @endif
+            @if(!empty($mailPriceBreakdown['service_charge']) && (float) ($mailPriceBreakdown['service_charge'] ?? 0) > 0)
+            <tr><th>Service Charge</th><td>${{ number_format((float) $mailPriceBreakdown['service_charge'], 2) }}</td></tr>
+            @endif
+            @if(!empty($mailPriceBreakdown['sales_tax']) && (float) ($mailPriceBreakdown['sales_tax'] ?? 0) > 0)
+            <tr><th>Sales Tax</th><td>${{ number_format((float) $mailPriceBreakdown['sales_tax'], 2) }}</td></tr>
+            @endif
+            @if(!empty($mailPriceBreakdown['promo_discount']) && (float) ($mailPriceBreakdown['promo_discount'] ?? 0) > 0)
+            <tr><th>Promo Discount</th><td>-${{ number_format((float) $mailPriceBreakdown['promo_discount'], 2) }}</td></tr>
+            @endif
+            @if(!empty($mailPriceBreakdown['processing_fee']) && (float) ($mailPriceBreakdown['processing_fee'] ?? 0) > 0)
+            <tr><th>Processing Fee</th><td>${{ number_format((float) $mailPriceBreakdown['processing_fee'], 2) }}</td></tr>
+            @endif
+            <tr style="background: #f0f9ff; font-weight: 700; font-size: 16px;"><th>Total Amount</th><td>${{ number_format((float) ($mailPriceBreakdown['grand_total'] ?? $mailData['total'] ?? 0), 2) }}</td></tr>
+        </table>
+        @endif
+
         @if(!empty($mailData['ticket_qr_code']))
             <div class="section-title">Important Check-In Instructions</div>
             <p>Your confirmation includes a unique QR code for venue check-in.</p>
