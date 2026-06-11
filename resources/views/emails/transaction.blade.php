@@ -208,20 +208,20 @@
         <div class="section-title">Price Breakdown</div>
         <table class="summary">
             <tr><th>Subtotal</th><td>${{ number_format((float) (($mailPriceBreakdown['packages_subtotal'] ?? 0) + ($mailPriceBreakdown['addons_subtotal'] ?? 0)), 2) }}</td></tr>
-            @if(!empty($mailPriceBreakdown['gratuity']) && (float) ($mailPriceBreakdown['gratuity'] ?? 0) > 0)
-            <tr><th>Gratuity</th><td>${{ number_format((float) $mailPriceBreakdown['gratuity'], 2) }}</td></tr>
+            @if(!empty($mailPriceBreakdown['gratuity']['enabled']))
+            <tr><th>{{ $mailPriceBreakdown['gratuity']['name'] ?? 'Gratuity' }} ({{ number_format((float) ($mailPriceBreakdown['gratuity']['rate'] ?? 0), 2) }}%)</th><td>${{ number_format((float) ($mailPriceBreakdown['gratuity']['amount'] ?? 0), 2) }}</td></tr>
             @endif
-            @if(!empty($mailPriceBreakdown['service_charge']) && (float) ($mailPriceBreakdown['service_charge'] ?? 0) > 0)
-            <tr><th>Service Charge</th><td>${{ number_format((float) $mailPriceBreakdown['service_charge'], 2) }}</td></tr>
+            @if(!empty($mailPriceBreakdown['service_charge']['enabled']))
+            <tr><th>{{ $mailPriceBreakdown['service_charge']['name'] ?? 'Service Charge' }} ({{ number_format((float) ($mailPriceBreakdown['service_charge']['rate'] ?? 0), 2) }}%)</th><td>${{ number_format((float) ($mailPriceBreakdown['service_charge']['amount'] ?? 0), 2) }}</td></tr>
             @endif
-            @if(!empty($mailPriceBreakdown['sales_tax']) && (float) ($mailPriceBreakdown['sales_tax'] ?? 0) > 0)
-            <tr><th>Sales Tax</th><td>${{ number_format((float) $mailPriceBreakdown['sales_tax'], 2) }}</td></tr>
+            @if(!empty($mailPriceBreakdown['sales_tax']['enabled']))
+            <tr><th>{{ $mailPriceBreakdown['sales_tax']['name'] ?? 'Sales Tax' }} ({{ number_format((float) ($mailPriceBreakdown['sales_tax']['rate'] ?? 0), 2) }}%)</th><td>${{ number_format((float) ($mailPriceBreakdown['sales_tax']['amount'] ?? 0), 2) }}</td></tr>
             @endif
-            @if(!empty($mailPriceBreakdown['promo_discount']) && (float) ($mailPriceBreakdown['promo_discount'] ?? 0) > 0)
+            @if((float) ($mailPriceBreakdown['promo_discount'] ?? 0) > 0)
             <tr><th>Promo Discount</th><td>-${{ number_format((float) $mailPriceBreakdown['promo_discount'], 2) }}</td></tr>
             @endif
-            @if(!empty($mailPriceBreakdown['processing_fee']) && (float) ($mailPriceBreakdown['processing_fee'] ?? 0) > 0)
-            <tr><th>Processing Fee</th><td>${{ number_format((float) $mailPriceBreakdown['processing_fee'], 2) }}</td></tr>
+            @if(!empty($mailPriceBreakdown['processing_fee']['enabled']))
+            <tr><th>{{ $mailPriceBreakdown['processing_fee']['name'] ?? 'Processing Fee' }} @if(($mailPriceBreakdown['processing_fee']['type'] ?? 'percentage') === 'percentage')({{ number_format((float) ($mailPriceBreakdown['processing_fee']['rate'] ?? 0), 2) }}%)@endif</th><td>${{ number_format((float) ($mailPriceBreakdown['processing_fee']['amount'] ?? 0), 2) }}</td></tr>
             @endif
             <tr style="background: #f0f9ff; font-weight: 700; font-size: 16px;"><th>Total Amount</th><td>${{ number_format((float) ($mailPriceBreakdown['grand_total'] ?? $mailData['total'] ?? 0), 2) }}</td></tr>
         </table>
