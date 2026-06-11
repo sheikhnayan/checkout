@@ -1485,13 +1485,14 @@ body.modal-open .admin-mobile-menu-toggle {
                 });
 
                 // ── Export button wiring (custom, reliable across pages) ─────
-                // Dynamically get all visible columns (skip checkbox col 0, skip hidden cols)
+                // Dynamically get all visible columns (skip checkbox, hidden cols, and Action col)
                 function getExportColumnIndexes() {
                     const indexes = [];
                     $('#txnDataTable thead th').each(function (idx) {
                         const $th = $(this);
-                        // Skip checkbox column (0) and hidden columns
-                        if (idx > 0 && !$th.hasClass('d-none')) {
+                        const headerText = $th.text().trim().toLowerCase();
+                        // Skip: checkbox column (0), hidden columns, and Action column
+                        if (idx > 0 && !$th.hasClass('d-none') && headerText !== 'action') {
                             indexes.push(idx);
                         }
                     });
