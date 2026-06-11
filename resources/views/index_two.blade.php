@@ -7393,6 +7393,20 @@
                     // Prevent default and handle submission with reCAPTCHA
                     e.preventDefault();
 
+                    // Replace visible phone fields with E.164 values before submission
+                    const phoneFieldsToSync = [
+                        { visible: 'reservation_phone', e164: 'reservation_phone_e164' }
+                    ];
+
+                    phoneFieldsToSync.forEach(pair => {
+                        const e164Field = form.querySelector(`input[name="${pair.e164}"]`);
+                        const visibleField = form.querySelector(`input[name="${pair.visible}"]`);
+                        if (e164Field && visibleField && e164Field.value) {
+                            // Use E.164 format for submission
+                            visibleField.value = e164Field.value;
+                        }
+                    });
+
                     // Get reCAPTCHA token before submitting
                     if (typeof window.executeRecaptcha === 'function') {
                         window.executeRecaptcha('reservation_submit').then(function(token) {
@@ -10195,49 +10209,9 @@
 
             // Auto-format phone numbers as user types
             function initPhoneFormatters() {
-                const phoneFields = ['#reservation_phone', '#package_phone'];
-
-                phoneFields.forEach(selector => {
-                    const field = document.querySelector(selector);
-                    if (!field) return;
-
-                    field.addEventListener('input', function(e) {
-                        let value = e.target.value.replace(/\D/g, ''); // Remove all non-digits
-                        let formatted = '';
-
-                        if (value.length === 0) {
-                            formatted = '';
-                        } else if (value.length <= 3) {
-                            formatted = '(' + value;
-                        } else if (value.length <= 6) {
-                            formatted = '(' + value.slice(0, 3) + ') ' + value.slice(3);
-                        } else {
-                            formatted = '(' + value.slice(0, 3) + ') ' + value.slice(3, 6) + '-' + value.slice(6, 10);
-                        }
-
-                        e.target.value = formatted;
-                    });
-
-                    // Handle paste - strip and reformat
-                    field.addEventListener('paste', function(e) {
-                        setTimeout(() => {
-                            let value = field.value.replace(/\D/g, '');
-                            let formatted = '';
-
-                            if (value.length === 0) {
-                                formatted = '';
-                            } else if (value.length <= 3) {
-                                formatted = '(' + value;
-                            } else if (value.length <= 6) {
-                                formatted = '(' + value.slice(0, 3) + ') ' + value.slice(3);
-                            } else {
-                                formatted = '(' + value.slice(0, 3) + ') ' + value.slice(3, 6) + '-' + value.slice(6, 10);
-                            }
-
-                            field.value = formatted;
-                        }, 0);
-                    });
-                });
+                // DISABLED: Phone formatters conflict with country code picker
+                // The country code picker (validateAndFormatPhone) now handles phone validation and formatting
+                // This old formatter only worked for US numbers and was causing issues with international numbers
             }
 
             document.addEventListener('DOMContentLoaded', function() {
