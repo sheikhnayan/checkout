@@ -243,6 +243,66 @@
         </div>
     </div>
 
+    @if($transaction->package_note || $transaction->transportation_pickup_time || $transaction->transportation_address || $transaction->host_name || $transaction->transportation_note)
+    <div class="section">
+        <div class="section-title">Booking & Transportation Details</div>
+        @if($transaction->package_note)
+        <div class="info-row">
+            <span class="info-label">Booking Note</span>
+            <span class="info-value">{{ $transaction->package_note }}</span>
+        </div>
+        @endif
+        @if($transaction->transportation_pickup_time)
+        <div class="info-row">
+            <span class="info-label">Pickup Time</span>
+            <span class="info-value">{{ $transaction->transportation_pickup_time }}</span>
+        </div>
+        @endif
+        @if($transaction->transportation_address)
+        <div class="info-row">
+            <span class="info-label">Pickup Location</span>
+            <span class="info-value">{{ $transaction->transportation_address }}</span>
+        </div>
+        @endif
+        @if($transaction->host_name)
+        <div class="info-row">
+            <span class="info-label">Host Name</span>
+            <span class="info-value">{{ $transaction->host_name }}</span>
+        </div>
+        @endif
+        @if($transaction->transportation_note)
+        <div class="info-row">
+            <span class="info-label">Transportation Note</span>
+            <span class="info-value">{{ $transaction->transportation_note }}</span>
+        </div>
+        @endif
+    </div>
+    @endif
+
+    @if($transaction->business_company || $transaction->business_vat || $transaction->business_address)
+    <div class="section">
+        <div class="section-title">Business Information</div>
+        @if($transaction->business_company)
+        <div class="info-row">
+            <span class="info-label">Company Name</span>
+            <span class="info-value">{{ $transaction->business_company }}</span>
+        </div>
+        @endif
+        @if($transaction->business_vat)
+        <div class="info-row">
+            <span class="info-label">Tax ID</span>
+            <span class="info-value">{{ $transaction->business_vat }}</span>
+        </div>
+        @endif
+        @if($transaction->business_address)
+        <div class="info-row">
+            <span class="info-label">Business Address</span>
+            <span class="info-value">{{ $transaction->business_address }}</span>
+        </div>
+        @endif
+    </div>
+    @endif
+
     <!-- Items Table -->
     <div class="section">
         <div class="section-title">Order Summary</div>

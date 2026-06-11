@@ -34,7 +34,7 @@
         <div class="header">
             <h1>Transaction Details</h1>
             <p><strong>Transaction ID:</strong> {{ htmlspecialchars($transaction->transaction_id ?? '') }}</p>
-            <p><strong>Generated:</strong> {{ now()->format('M d, Y h:i A') }}</p>
+            <p><strong>Type:</strong> {{ ucfirst($transaction->type ?? 'package') }} | <strong>Generated:</strong> {{ now()->format('M d, Y h:i A') }}</p>
         </div>
 
         <div class="two-column">
@@ -62,7 +62,7 @@
                         <li class="list-group-item"><strong>Pickup Time:</strong> <span>{{ htmlspecialchars($transaction->transportation_pickup_time ?? '') }}</span></li>
                         <li class="list-group-item"><strong>Pickup Location:</strong> <span>{{ htmlspecialchars($transaction->transportation_address ?? '') }}</span></li>
                         <li class="list-group-item"><strong>Phone:</strong> <span>{{ htmlspecialchars($transaction->transportation_phone ?? '') }}</span></li>
-                        <li class="list-group-item"><strong>Host Name:</strong> <span>{{ htmlspecialchars($transaction->transportation_guest ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Host Name:</strong> <span>{{ htmlspecialchars($transaction->host_name ?? '') }}</span></li>
                         <li class="list-group-item"><strong>Note:</strong> <span>{{ htmlspecialchars($transaction->transportation_note ?? '') }}</span></li>
                     </ul>
                 </div>
@@ -95,6 +95,30 @@
                 </div>
 
             </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Purchased Items</div>
+            @php
+                $cartItems = is_array($transaction->cart_items) ? $transaction->cart_items : json_decode($transaction->cart_items ?? '[]', true);
+            @endphp
+            @if(!empty($cartItems))
+                <ul class="list-group">
+                    @foreach($cartItems as $item)
+                        <li class="list-group-item">
+                            <strong>{{ $item['package_name'] ?? 'Package' }}</strong><br>
+                            Quantity: {{ max(1, (int)($item['guests'] ?? $item['quantity'] ?? 1)) }}<br>
+                            Price: ${{ number_format((float)($item['unit_price'] ?? 0), 2) }}
+                            @if(!empty($item['addons']))
+                                <br><strong>Add-ons:</strong>
+                                @foreach($item['addons'] as $addon)
+                                    <br>&nbsp;&nbsp;• {{ $addon['name'] ?? 'Add-on' }} x{{ $addon['qty'] ?? 1 }} - ${{ number_format((float)($addon['price'] ?? 0), 2) }}
+                                @endforeach
+                            @endif
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
         </div>
 
         <div class="section">
