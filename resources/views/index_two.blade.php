@@ -8466,7 +8466,7 @@
                 const transportCountryCode = $('input[name="transportation_phone_country"]');
                 if (transportCountryCode.length) {
                     transportCountryCode.val(packageCountryCode);
-                    transportCountryCode.dataset.code = $('input[name="package_phone_country"]')[0].dataset.code;
+                    transportCountryCode[0].dataset.code = $('input[name="package_phone_country"]')[0].dataset.code;
                 }
 
                 // Copy E.164 field
