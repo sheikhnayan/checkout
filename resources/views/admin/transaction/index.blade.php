@@ -1080,7 +1080,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                         <li class="list-group-item"><strong>Total Due:</strong> <span id="modal-total_due"></span></li>
                                         <li class="list-group-item"><strong>Total Commission:</strong> <span id="modal-total_commission"></span></li>
                                         <li class="list-group-item"><strong>Commission Source:</strong> <span id="modal-commission_source"></span></li>
-                                        <li class="list-group-item" id="modal-affiliate-commission-row"><strong>affiliate Commission:</strong> <span id="modal-affiliate_commission"></span></li>
+                                        <li class="list-group-item" id="modal-affiliate-commission-row"><strong>Promoter Commission:</strong> <span id="modal-affiliate_commission"></span></li>
                                         <li class="list-group-item" id="modal-entertainer-commission-row"><strong>Entertainer Commission:</strong> <span id="modal-entertainer_commission"></span></li>
                                         <li class="list-group-item"><strong>Date (Pacific Time):</strong> <span id="modal-date"></span></li>
                                         <li class="list-group-item"><strong>Accepted Terms and Conditions:</strong> <span id="modal-terms">Yes</span></li>
@@ -1485,7 +1485,18 @@ body.modal-open .admin-mobile-menu-toggle {
                 });
 
                 // ── Export button wiring (custom, reliable across pages) ─────
-                const exportColumnIndexes = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+                // Dynamically get all visible columns (skip checkbox col 0, skip hidden cols)
+                function getExportColumnIndexes() {
+                    const indexes = [];
+                    $('#txnDataTable thead th').each(function (idx) {
+                        const $th = $(this);
+                        // Skip checkbox column (0) and hidden columns
+                        if (idx > 0 && !$th.hasClass('d-none')) {
+                            indexes.push(idx);
+                        }
+                    });
+                    return indexes;
+                }
 
                 function stripHtml(value) {
                     const tmp = document.createElement('div');
@@ -1499,6 +1510,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 }
 
                 function getExportDataset() {
+                    const exportColumnIndexes = getExportColumnIndexes();
                     const selected = $('.row-check:checked');
                     const selectedOnly = selected.length > 0;
 

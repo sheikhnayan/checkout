@@ -1017,7 +1017,7 @@ class TransactionController extends Controller
                 . ' | ' . number_format((float)($transaction->affiliate_commission_percentage ?? 0), 2) . '%'
                 . ' | $' . number_format((float)($transaction->affiliate_commission_amount ?? 0), 2)
                 . ($transaction->affiliate_commission_status ? (' | ' . strtoupper($transaction->affiliate_commission_status)) : '');
-            $html .= '<li class="list-group-item"><strong>affiliate Commission:</strong> <span>' . htmlspecialchars($affText) . '</span></li>';
+            $html .= '<li class="list-group-item"><strong>Promoter Commission:</strong> <span>' . htmlspecialchars($affText) . '</span></li>';
         }
 
         if ($entertainerName || ((float)($transaction->entertainer_commission_amount ?? 0) > 0) || ((float)($transaction->entertainer_commission_percentage ?? 0) > 0) || $transaction->entertainer_commission_status) {

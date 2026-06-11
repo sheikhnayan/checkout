@@ -260,7 +260,7 @@ class AffiliateAdminController extends Controller
         $affiliate->default_commission_percentage = $request->default_commission_percentage;
         $affiliate->save();
 
-        return redirect()->back()->with('success', 'affiliate commission updated successfully.');
+        return redirect()->back()->with('success', 'Promoter commission updated successfully.');
     }
 
     private function applyGlobalSmtp(): void
