@@ -10521,6 +10521,54 @@
             validateAndFormatPhone(phoneInput, countryCodeInput);
         }
 
+        // Country-specific phone number length requirements
+        const PHONE_LENGTH_REQUIREMENTS = {
+            '+1': { min: 10, max: 10, name: 'North America' },
+            '+880': { min: 10, max: 11, name: 'Bangladesh' },
+            '+44': { min: 9, max: 11, name: 'UK' },
+            '+33': { min: 9, max: 9, name: 'France' },
+            '+49': { min: 9, max: 11, name: 'Germany' },
+            '+39': { min: 9, max: 11, name: 'Italy' },
+            '+34': { min: 9, max: 9, name: 'Spain' },
+            '+31': { min: 9, max: 9, name: 'Netherlands' },
+            '+41': { min: 9, max: 9, name: 'Switzerland' },
+            '+43': { min: 9, max: 10, name: 'Austria' },
+            '+46': { min: 9, max: 9, name: 'Sweden' },
+            '+47': { min: 8, max: 8, name: 'Norway' },
+            '+45': { min: 8, max: 8, name: 'Denmark' },
+            '+358': { min: 9, max: 9, name: 'Finland' },
+            '+353': { min: 9, max: 10, name: 'Ireland' },
+            '+32': { min: 9, max: 9, name: 'Belgium' },
+            '+86': { min: 11, max: 11, name: 'China' },
+            '+81': { min: 10, max: 11, name: 'Japan' },
+            '+82': { min: 10, max: 11, name: 'South Korea' },
+            '+91': { min: 10, max: 10, name: 'India' },
+            '+62': { min: 10, max: 12, name: 'Indonesia' },
+            '+60': { min: 9, max: 11, name: 'Malaysia' },
+            '+66': { min: 9, max: 10, name: 'Thailand' },
+            '+65': { min: 8, max: 8, name: 'Singapore' },
+            '+61': { min: 9, max: 9, name: 'Australia' },
+            '+64': { min: 9, max: 10, name: 'New Zealand' },
+            '+27': { min: 9, max: 9, name: 'South Africa' },
+            '+55': { min: 10, max: 11, name: 'Brazil' },
+            '+52': { min: 10, max: 10, name: 'Mexico' },
+            '+54': { min: 10, max: 10, name: 'Argentina' },
+            '+56': { min: 9, max: 9, name: 'Chile' },
+            '+57': { min: 10, max: 10, name: 'Colombia' },
+            '+51': { min: 9, max: 9, name: 'Peru' },
+            '+84': { min: 9, max: 11, name: 'Vietnam' },
+            '+855': { min: 8, max: 9, name: 'Cambodia' },
+            '+663': { min: 9, max: 10, name: 'Laos' },
+            '+95': { min: 9, max: 10, name: 'Myanmar' },
+            '+970': { min: 9, max: 9, name: 'Palestine' },
+            '+972': { min: 9, max: 10, name: 'Israel' },
+            '+966': { min: 9, max: 9, name: 'Saudi Arabia' },
+            '+971': { min: 9, max: 9, name: 'UAE' },
+            '+973': { min: 8, max: 8, name: 'Bahrain' },
+            '+974': { min: 8, max: 8, name: 'Qatar' },
+            '+965': { min: 8, max: 8, name: 'Kuwait' },
+        };
+
         function validateAndFormatPhone(phoneInput, countryCodeInput) {
             let phoneValue = phoneInput.value.trim();
             const countryCode = countryCodeInput.dataset.code || '+1';
@@ -10539,8 +10587,11 @@
                 cleanNumber = digitsOnly.substring(1);
             }
 
-            // Validate minimum length (accommodates all countries: 7+ digits)
-            if (cleanNumber.length < 7) {
+            // Get country-specific requirements
+            const requirements = PHONE_LENGTH_REQUIREMENTS[countryCode] || { min: 7, max: 15, name: 'Default' };
+
+            // Validate based on country requirements
+            if (cleanNumber.length < requirements.min || cleanNumber.length > requirements.max) {
                 phoneInput.style.borderColor = '#ff6b6b';
                 return;
             }
@@ -10548,8 +10599,8 @@
             // Format to E.164
             const e164Number = countryCode + cleanNumber;
 
-            // Validate E.164 format (allows 8-15 digits for international compatibility)
-            if (!/^\+\d{8,15}$/.test(e164Number)) {
+            // Final E.164 validation (should always pass if above checks passed)
+            if (!/^\+\d{7,15}$/.test(e164Number)) {
                 phoneInput.style.borderColor = '#ff6b6b';
                 return;
             }

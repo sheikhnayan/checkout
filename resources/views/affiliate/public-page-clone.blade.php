@@ -9139,6 +9139,53 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             validateAndFormatPhoneAffiliate(phoneInput, countryCodeInput);
         }
 
+        const PHONE_LENGTH_REQUIREMENTS_AFFILIATE = {
+            '+1': { min: 10, max: 10 },
+            '+880': { min: 10, max: 11 },
+            '+44': { min: 9, max: 11 },
+            '+33': { min: 9, max: 9 },
+            '+49': { min: 9, max: 11 },
+            '+39': { min: 9, max: 11 },
+            '+34': { min: 9, max: 9 },
+            '+31': { min: 9, max: 9 },
+            '+41': { min: 9, max: 9 },
+            '+43': { min: 9, max: 10 },
+            '+46': { min: 9, max: 9 },
+            '+47': { min: 8, max: 8 },
+            '+45': { min: 8, max: 8 },
+            '+358': { min: 9, max: 9 },
+            '+353': { min: 9, max: 10 },
+            '+32': { min: 9, max: 9 },
+            '+86': { min: 11, max: 11 },
+            '+81': { min: 10, max: 11 },
+            '+82': { min: 10, max: 11 },
+            '+91': { min: 10, max: 10 },
+            '+62': { min: 10, max: 12 },
+            '+60': { min: 9, max: 11 },
+            '+66': { min: 9, max: 10 },
+            '+65': { min: 8, max: 8 },
+            '+61': { min: 9, max: 9 },
+            '+64': { min: 9, max: 10 },
+            '+27': { min: 9, max: 9 },
+            '+55': { min: 10, max: 11 },
+            '+52': { min: 10, max: 10 },
+            '+54': { min: 10, max: 10 },
+            '+56': { min: 9, max: 9 },
+            '+57': { min: 10, max: 10 },
+            '+51': { min: 9, max: 9 },
+            '+84': { min: 9, max: 11 },
+            '+855': { min: 8, max: 9 },
+            '+663': { min: 9, max: 10 },
+            '+95': { min: 9, max: 10 },
+            '+970': { min: 9, max: 9 },
+            '+972': { min: 9, max: 10 },
+            '+966': { min: 9, max: 9 },
+            '+971': { min: 9, max: 9 },
+            '+973': { min: 8, max: 8 },
+            '+974': { min: 8, max: 8 },
+            '+965': { min: 8, max: 8 },
+        };
+
         function validateAndFormatPhoneAffiliate(phoneInput, countryCodeInput) {
             let phoneValue = phoneInput.value.trim();
             const countryCode = countryCodeInput.dataset.code || '+1';
@@ -9154,14 +9201,16 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 cleanNumber = digitsOnly.substring(1);
             }
 
-            if (cleanNumber.length < 7) {
+            const requirements = PHONE_LENGTH_REQUIREMENTS_AFFILIATE[countryCode] || { min: 7, max: 15 };
+
+            if (cleanNumber.length < requirements.min || cleanNumber.length > requirements.max) {
                 phoneInput.style.borderColor = '#ff6b6b';
                 return;
             }
 
             const e164Number = countryCode + cleanNumber;
 
-            if (!/^\+\d{8,15}$/.test(e164Number)) {
+            if (!/^\+\d{7,15}$/.test(e164Number)) {
                 phoneInput.style.borderColor = '#ff6b6b';
                 return;
             }
