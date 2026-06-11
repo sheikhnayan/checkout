@@ -839,9 +839,9 @@ class TransactionController extends Controller
                                     'club_name' => $website->name ?? 'Venue',
                                     'club_slug' => $website->slug ?? '',
                                     'reservation_date' => $new->package_use_date,
-                                    'men_count' => $new->package_men ?? 0,
-                                    'women_count' => $new->package_women ?? 0,
-                                    'total_amount' => $new->total,
+                                    'men_count' => $new->men ?? $new->package_men ?? 0,
+                                    'women_count' => $new->women ?? $new->package_women ?? 0,
+                                    'total_amount' => 0,
                                     'notes' => $new->package_note ?? '',
                                 ];
                                 $result = $smsService->sendTransactionNotification($guestPhone, $smsData, 'reservation');

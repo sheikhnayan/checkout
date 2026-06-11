@@ -81,17 +81,18 @@ class TelnyxSmsService
 
         if ($type === 'reservation') {
             $reservationDate = $data['reservation_date'] ?? $data['package_use_date'] ?? 'N/A';
-            // Use package_men and package_women field names (from transaction table)
-            $menCount = isset($data['men_count']) ? $data['men_count'] : (isset($data['package_men']) ? $data['package_men'] : 0);
-            $womenCount = isset($data['women_count']) ? $data['women_count'] : (isset($data['package_women']) ? $data['package_women'] : 0);
+            $menCount = $data['men_count'] ?? 0;
+            $womenCount = $data['women_count'] ?? 0;
             $totalGuests = $menCount + $womenCount;
 
             $message = "RESERVATION CONFIRMED\n";
             $message .= "Club: {$clubName}\n";
             $message .= "Confirmation: #{$confirmationId}\n";
             $message .= "Date: {$reservationDate}\n";
-            $message .= "Guests: {$menCount} Male, {$womenCount} Female = {$totalGuests} total\n";
-            $message .= "Total: \${$totalAmount}\n\n";
+            if ($totalGuests > 0) {
+                $message .= "Guests: {$menCount} Male, {$womenCount} Female ({$totalGuests} total)\n";
+            }
+            $message .= "\n";
             $message .= "Check your email for reservation details and your QR code.\n";
             $message .= "Questions regarding your reservation? Please contact the location directly";
         } else {
