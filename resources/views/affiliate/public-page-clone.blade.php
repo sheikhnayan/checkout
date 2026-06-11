@@ -1067,45 +1067,17 @@ input::placeholder, textarea::placeholder {
     transform: translateX(20px);
 }
 
-/* CHECKBOXES: Terms Consent (square checkbox with checkmark) */
-.checkbox-container #termsConsent_two,
-.checkbox-container #termsConsent {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px !important;
-    height: 20px !important;
-    min-width: 20px;
-    min-height: 20px;
-    border: 2px solid rgba(255,255,255,0.4);
-    border-radius: 4px;
-    background: rgba(255,255,255,0.08);
-    position: relative;
+/* TERMS CONSENT - SIMPLE CHECKBOX */
+#termsConsent_two,
+#termsConsent {
+    -webkit-appearance: checkbox !important;
+    appearance: checkbox !important;
+    width: 18px !important;
+    height: 18px !important;
+    cursor: pointer !important;
     margin: 0 !important;
     padding: 0 !important;
-    flex-shrink: 0;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-.checkbox-container #termsConsent_two:hover,
-.checkbox-container #termsConsent:hover {
-    border-color: rgba(255,204,0,0.6);
-    background: rgba(255,255,255,0.12);
-}
-.checkbox-container #termsConsent_two:checked,
-.checkbox-container #termsConsent:checked {
-    background: var(--accent, #ffcc00) !important;
-    border-color: var(--accent, #ffcc00) !important;
-}
-.checkbox-container #termsConsent_two:checked::after,
-.checkbox-container #termsConsent:checked::after {
-    content: '✓';
-    position: absolute;
-    top: -3px;
-    left: 3px;
-    color: #000;
-    font-weight: bold;
-    font-size: 16px;
-    line-height: 1;
+    accent-color: var(--accent, #ffcc00) !important;
 }
 .checkbox-container input[type="checkbox"]:focus-visible {
     outline: 2px solid rgba(255,204,0,0.7);
