@@ -1515,38 +1515,40 @@ body.modal-open .admin-mobile-menu-toggle {
                     const selected = $('.row-check:checked');
                     const selectedOnly = selected.length > 0;
 
-                    // Build selected row indices if checkboxes are checked
-                    const selectedIndices = new Set();
-                    if (selectedOnly) {
-                        selected.each(function () {
-                            const $checkbox = $(this);
-                            const $row = $checkbox.closest('tr');
-                            const rowNode = $row[0];
-                            if (table && table.row) {
-                                const dtRow = table.row(rowNode);
-                                if (dtRow && dtRow.index !== undefined) {
-                                    selectedIndices.add(dtRow.index());
-                                }
-                            }
-                        });
-                    }
-
                     const headers = exportColumnIndexes.map(function (idx) {
                         return stripHtml($('#txnDataTable thead th').eq(idx).text());
                     });
 
                     const rows = [];
 
-                    if (table && table.rows && typeof table.rows === 'function') {
-                        // Get ALL rows from DataTables internal data store (not just visible page)
-                        // .rows() returns all rows, .data() gets the data, .toArray() converts to array
+                    // Get DataTable instance - try both ways
+                    let dt = table;
+                    if (!dt) {
                         try {
-                            const allRowsData = table.rows().data().toArray();
+                            dt = $.fn.dataTable.fnTables(true)[0] ? $($.fn.dataTable.fnTables(true)[0]).dataTable().api() : null;
+                        } catch (e) {
+                            // ignore
+                        }
+                    }
 
-                            allRowsData.forEach(function (rowData, rowIndex) {
-                                // If checkboxes are selected, only include selected rows
-                                if (selectedOnly && !selectedIndices.has(rowIndex)) {
-                                    return; // skip
+                    if (!dt) {
+                        try {
+                            dt = $('#txnDataTable').DataTable();
+                        } catch (e) {
+                            // ignore
+                        }
+                    }
+
+                    if (dt && dt.rows && typeof dt.rows === 'function') {
+                        try {
+                            // Get ALL rows including paginated ones
+                            dt.rows().every(function (rowIndex) {
+                                const rowNode = this.node();
+                                const rowData = this.data();
+
+                                // If checkboxes selected, only export checked rows
+                                if (selectedOnly && !$(rowNode).find('.row-check').prop('checked')) {
+                                    return true; // continue
                                 }
 
                                 const row = exportColumnIndexes.map(function (colIdx) {
