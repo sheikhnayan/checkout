@@ -1515,33 +1515,49 @@ body.modal-open .admin-mobile-menu-toggle {
                     const selected = $('.row-check:checked');
                     const selectedOnly = selected.length > 0;
 
+                    // Build selected row indices if checkboxes are checked
+                    const selectedIndices = new Set();
+                    if (selectedOnly) {
+                        selected.each(function () {
+                            const $checkbox = $(this);
+                            const $row = $checkbox.closest('tr');
+                            const rowNode = $row[0];
+                            if (table && table.row) {
+                                const dtRow = table.row(rowNode);
+                                if (dtRow && dtRow.index !== undefined) {
+                                    selectedIndices.add(dtRow.index());
+                                }
+                            }
+                        });
+                    }
+
                     const headers = exportColumnIndexes.map(function (idx) {
                         return stripHtml($('#txnDataTable thead th').eq(idx).text());
                     });
 
                     const rows = [];
 
-                    // Simple & reliable: get all rows directly from the table DOM
-                    // This works regardless of pagination because DataTables keeps all rows in DOM
-                    $('#txnDataTable tbody tr').each(function () {
-                        const $row = $(this);
+                    if (table && table.rows && typeof table.rows === 'function') {
+                        // Get ALL rows from DataTables internal data store (not just visible page)
+                        // .rows() returns all rows, .data() gets the data, .toArray() converts to array
+                        try {
+                            const allRowsData = table.rows().data().toArray();
 
-                        // If checkboxes are selected, only export checked rows
-                        if (selectedOnly && !$row.find('.row-check').prop('checked')) {
-                            return; // skip this row
+                            allRowsData.forEach(function (rowData, rowIndex) {
+                                // If checkboxes are selected, only include selected rows
+                                if (selectedOnly && !selectedIndices.has(rowIndex)) {
+                                    return; // skip
+                                }
+
+                                const row = exportColumnIndexes.map(function (colIdx) {
+                                    return stripHtml(rowData[colIdx] || '');
+                                });
+                                rows.push(row);
+                            });
+                        } catch (e) {
+                            console.error('Export error:', e);
                         }
-
-                        // Extract cell data from this row
-                        const rowData = [];
-                        exportColumnIndexes.forEach(function (colIdx) {
-                            const cellHtml = $row.find('td').eq(colIdx).html();
-                            rowData.push(stripHtml(cellHtml || ''));
-                        });
-
-                        if (rowData.length > 0) {
-                            rows.push(rowData);
-                        }
-                    });
+                    }
 
                     return { headers, rows };
                 }
