@@ -340,7 +340,7 @@ class TransactionController extends Controller
             if ($response != null) {
                 $tresponse = $response->getTransactionResponse();
                 // dd($response);
-                if ($tresponse != null & $tresponse->getResponseCode() == "1") {
+                if ($tresponse != null && $tresponse->getResponseCode() == "1") {
                     # code...
                     $tresponse = $response->getTransactionResponse();
     
