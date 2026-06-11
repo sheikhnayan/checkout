@@ -1521,36 +1521,23 @@ body.modal-open .admin-mobile-menu-toggle {
 
                     const rows = [];
 
-                    if (table && table.page && typeof table.page === 'function') {
-                        // Get current page info
-                        const pageInfo = table.page.info();
-                        const currentPage = pageInfo.page;
-                        const pageCount = pageInfo.pages;
+                    if (table && table.rows && typeof table.rows === 'function') {
+                        // Get ALL rows matching search/filter, regardless of pagination
+                        // page: 'all' ensures we get rows from ALL pages, not just current page
+                        table.rows({ search: 'applied', page: 'all' }).every(function () {
+                            const rowNode = this.node();
 
-                        // Iterate through ALL pages to collect all filtered rows
-                        for (let pageNum = 0; pageNum < pageCount; pageNum++) {
-                            // Navigate to each page (without animation)
-                            table.page(pageNum).draw(false);
+                            // If checkboxes are selected, only export selected rows
+                            if (selectedOnly && !$(rowNode).find('.row-check').prop('checked')) {
+                                return true; // Continue to next row
+                            }
 
-                            // Get rows from current page and apply search filter
-                            table.rows({ page: 'current', search: 'applied' }).every(function () {
-                                const rowNode = this.node();
-
-                                // If checkboxes are selected, only export selected rows
-                                if (selectedOnly && !$(rowNode).find('.row-check').prop('checked')) {
-                                    return true; // Continue
-                                }
-
-                                const rowData = this.data();
-                                const row = exportColumnIndexes.map(function (colIdx) {
-                                    return stripHtml(rowData[colIdx] || '');
-                                });
-                                rows.push(row);
+                            const rowData = this.data();
+                            const row = exportColumnIndexes.map(function (colIdx) {
+                                return stripHtml(rowData[colIdx] || '');
                             });
-                        }
-
-                        // Restore original page
-                        table.page(currentPage).draw(false);
+                            rows.push(row);
+                        });
                     }
 
                     return { headers, rows };
