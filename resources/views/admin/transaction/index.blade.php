@@ -1520,21 +1520,25 @@ body.modal-open .admin-mobile-menu-toggle {
                     });
 
                     const rows = [];
-                    if (table) {
-                        table.rows({ search: 'applied' }).every(function () {
+
+                    if (table && table.rows && typeof table.rows === 'function') {
+                        // Use DataTables API to get ALL rows matching the current filter/search (includes all pages, not just current page)
+                        table.rows({ search: 'applied', order: 'applied' }).every(function (rowIdx) {
                             const rowNode = this.node();
                             if (selectedOnly && !$(rowNode).find('.row-check').prop('checked')) {
-                                return;
+                                return true; // Continue to next row
                             }
 
                             const rowData = this.data();
-                            const row = exportColumnIndexes.map(function (idx) {
-                                return stripHtml(rowData[idx]);
+                            const row = exportColumnIndexes.map(function (colIdx) {
+                                return stripHtml(rowData[colIdx] || '');
                             });
                             rows.push(row);
                         });
                     } else {
-                        $('#txnDataTable tbody tr').each(function () {
+                        // Fallback: Get ALL tbody rows (DataTables keeps all in DOM even if paginated)
+                        // This iterates through ALL rows, not just visible ones on current page
+                        $('#txnDataTable tbody tr:not(.hidden)').each(function () {
                             const rowNode = $(this);
                             if (selectedOnly && !rowNode.find('.row-check').prop('checked')) {
                                 return;
