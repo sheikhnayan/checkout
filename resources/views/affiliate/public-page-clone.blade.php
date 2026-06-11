@@ -1009,13 +1009,14 @@ input::placeholder, textarea::placeholder {
 .checkbox-container label {
     display: flex;
     gap: 10px;
-    align-items: flex-start;
+    align-items: center;
     cursor: pointer;
     margin-bottom: 10px;
     font-size: 13px;
 }
 .checkbox-container label span {
     flex: 1;
+    line-height: 1.4;
 }
 
 /* TOGGLES: SMS Consent & Driver Notification */

@@ -944,14 +944,16 @@ input::placeholder, textarea::placeholder {
     border-bottom-color: #ffcc00;
     text-decoration: underline;
 }
-.consent-label input[type="checkbox"] {
+/* TERMS CONSENT CHECKBOX ONLY */
+.consent-label #termsConsent_two,
+.consent-label #termsConsent {
     -webkit-appearance: none;
     appearance: none;
     width: 20px !important;
     height: 20px !important;
     min-width: 20px;
     min-height: 20px;
-    border: 2px solid rgba(255,255,255,0.4);
+    border: 2px solid rgba(255,255,white,0.4);
     border-radius: 4px;
     background: rgba(255,255,255,0.08);
     position: relative;
@@ -961,15 +963,18 @@ input::placeholder, textarea::placeholder {
     cursor: pointer;
     transition: all 0.2s ease;
 }
-.consent-label input[type="checkbox"]:hover {
+.consent-label #termsConsent_two:hover,
+.consent-label #termsConsent:hover {
     border-color: rgba(255,204,0,0.6);
     background: rgba(255,255,255,0.12);
 }
-.consent-label input[type="checkbox"]:checked {
-    background: #ffcc00;
-    border-color: #ffcc00;
+.consent-label #termsConsent_two:checked,
+.consent-label #termsConsent:checked {
+    background: #ffcc00 !important;
+    border-color: #ffcc00 !important;
 }
-.consent-label input[type="checkbox"]:checked::after {
+.consent-label #termsConsent_two:checked::after,
+.consent-label #termsConsent:checked::after {
     content: '✓';
     position: absolute;
     top: -3px;
@@ -1055,13 +1060,14 @@ input::placeholder, textarea::placeholder {
 .checkbox-container label {
     display: flex;
     gap: 10px;
-    align-items: flex-start;
+    align-items: center;
     cursor: pointer;
     margin-bottom: 10px;
     font-size: 13px;
 }
 .checkbox-container label span {
     flex: 1;
+    line-height: 1.4;
 }
 
 /* TOGGLES: SMS Consent & Driver Notification */
@@ -1072,17 +1078,18 @@ input::placeholder, textarea::placeholder {
     -webkit-appearance: none;
     appearance: none;
     width: 46px !important;
-    height: 26px;
-    border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.28);
-    background: rgba(255,255,255,0.16);
+    height: 26px !important;
+    border-radius: 999px !important;
+    border: 1px solid rgba(255,255,255,0.28) !important;
+    background: rgba(255,255,255,0.16) !important;
     position: relative;
-    margin-top: 0 !important;
+    margin: 0 !important;
     padding: 0 !important;
     flex-shrink: 0;
     cursor: pointer;
     transition: background .2s ease, border-color .2s ease;
 }
+
 .checkbox-container #smsConsent_two::before,
 .checkbox-container #smsConsent::before,
 .checkbox-container #driverNotificationConsent_two::before,
@@ -1097,62 +1104,23 @@ input::placeholder, textarea::placeholder {
     background: #fff;
     transition: transform .2s ease;
 }
+
 .checkbox-container #smsConsent_two:checked,
 .checkbox-container #smsConsent:checked,
 .checkbox-container #driverNotificationConsent_two:checked,
 .checkbox-container #driverNotificationConsent:checked {
-    background: #ffcc00;
-    border-color: #ffcc00;
+    background: #ffcc00 !important;
+    border-color: #ffcc00 !important;
 }
+
 .checkbox-container #smsConsent_two:checked::before,
 .checkbox-container #smsConsent:checked::before,
 .checkbox-container #driverNotificationConsent_two:checked::before,
 .checkbox-container #driverNotificationConsent:checked::before {
     background: #fff;
     transform: translateX(20px);
-    box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
 }
 
-/* CHECKBOXES: Terms Consent (square checkbox with checkmark) */
-.checkbox-container #termsConsent_two,
-.checkbox-container #termsConsent {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px !important;
-    height: 20px !important;
-    min-width: 20px;
-    min-height: 20px;
-    border: 2px solid rgba(255,255,255,0.4);
-    border-radius: 4px;
-    background: rgba(255,255,255,0.08);
-    position: relative;
-    margin: 0 !important;
-    padding: 0 !important;
-    flex-shrink: 0;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-.checkbox-container #termsConsent_two:hover,
-.checkbox-container #termsConsent:hover {
-    border-color: rgba(255,204,0,0.6);
-    background: rgba(255,255,255,0.12);
-}
-.checkbox-container #termsConsent_two:checked,
-.checkbox-container #termsConsent:checked {
-    background: #ffcc00 !important;
-    border-color: #ffcc00 !important;
-}
-.checkbox-container #termsConsent_two:checked::after,
-.checkbox-container #termsConsent:checked::after {
-    content: '✓';
-    position: absolute;
-    top: -3px;
-    left: 3px;
-    color: #000;
-    font-weight: bold;
-    font-size: 16px;
-    line-height: 1;
-}
 .checkbox-container input[type="checkbox"]:focus-visible {
     outline: 2px solid rgba(255,204,0,0.7);
     outline-offset: 2px;
