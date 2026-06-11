@@ -1158,14 +1158,8 @@
             outline-offset: 2px;
         }
 
-        /* CENTER ALIGNMENT FOR CHECKBOX LABELS (TERMS CONSENT ONLY) */
+        /* CENTER ALIGNMENT FOR CHECKBOX LABELS (TERMS CONSENT ONLY) - simplified without :has() */
         .checkbox-container:not(.payment-consent-group) .consent-label {
-            align-items: center;
-        }
-        #payment-consent-group .consent-label:has(#termsConsent) {
-            align-items: center;
-        }
-        .payment-consent-group .consent-label:has(#termsConsent) {
             align-items: center;
         }
 
@@ -4286,7 +4280,8 @@
             line-height: 1.5 !important;
             margin-bottom: 0 !important;
         }
-        .guest .checkbox-container .consent-label:has(#termsConsent_two) {
+        /* Terms consent checkbox specific alignment - centered with text */
+        .guest .checkbox-container .consent-label:nth-child(3) {
             align-items: center;
         }
         .guest .checkbox-container .consent-label a { color: #c4a3ff !important; text-decoration: underline !important; }

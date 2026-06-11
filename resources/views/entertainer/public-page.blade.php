@@ -187,14 +187,14 @@ input[name="transportation_pickup_time"]::placeholder {
     border-color: #ff6b6b !important;
 }
 
-            /* Red asterisk on required form field labels - currently disabled, :has() support varies */
+            /* Red asterisk on required form field labels - currently disabled,  support varies */
             /*
-            .form-group > label:has(~ input[required])::after,
-            .form-group > label:has(~ select[required])::after,
-            .form-group > label:has(~ textarea[required])::after,
-            .form-group > label:has(~ .form-row input[required])::after,
-            .form-group > label:has(~ .form-row select[required])::after,
-            .num-guest > label:has(~ input[required])::after {
+            .form-group > label::after,
+            .form-group > label::after,
+            .form-group > label::after,
+            .form-group > label::after,
+            .form-group > label::after,
+            .num-guest > label::after {
                 content: " *";
                 color: #ef4444;
                 font-weight: 700;
@@ -997,25 +997,9 @@ input::placeholder, textarea::placeholder {
 .checkbox-container:not(.payment-consent-group) .consent-label {
     align-items: center;
 }
-#payment-consent-group .consent-label:has(#termsConsent) {
-    align-items: center;
-}
-.payment-consent-group .consent-label:has(#termsConsent) {
-    align-items: center;
-}
 
 /* Payment agreement toggles: exact affiliate parity, locked with stronger selectors */
 #payment-consent-group .consent-label,
-.payment-consent-group .consent-label {
-    display: flex !important;
-    gap: 10px !important;
-    align-items: flex-start !important;
-    cursor: pointer !important;
-    margin-bottom: 10px !important;
-    font-size: 13px !important;
-    font-family: 'Inter', sans-serif !important;
-    font-weight: 400 !important;
-}
 #payment-consent-group .consent-label span,
 .payment-consent-group .consent-label span {
     flex: 1 !important;
@@ -5586,7 +5570,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             transform: scale(0.5) !important;
             transform-origin: bottom right !important;
         }
-        .guest .checkbox-container .consent-label:has(#termsConsent_two) {
+        .guest .checkbox-container .consent-label {
             align-items: center;
         }
 

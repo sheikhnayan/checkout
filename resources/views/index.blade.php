@@ -187,14 +187,14 @@ input[name="transportation_pickup_time"]::placeholder {
     border-color: #ff6b6b !important;
 }
 
-            /* Red asterisk on required form field labels - currently disabled, :has() support varies */
+            /* Red asterisk on required form field labels - currently disabled,  support varies */
             /*
-            .form-group > label:has(~ input[required])::after,
-            .form-group > label:has(~ select[required])::after,
-            .form-group > label:has(~ textarea[required])::after,
-            .form-group > label:has(~ .form-row input[required])::after,
-            .form-group > label:has(~ .form-row select[required])::after,
-            .num-guest > label:has(~ input[required])::after {
+            .form-group > label::after,
+            .form-group > label::after,
+            .form-group > label::after,
+            .form-group > label::after,
+            .form-group > label::after,
+            .num-guest > label::after {
                 content: " *";
                 color: #ef4444;
                 font-weight: 700;
@@ -1003,12 +1003,6 @@ input::placeholder, textarea::placeholder {
 
 /* CENTER ALIGNMENT FOR CHECKBOX LABELS (TERMS CONSENT ONLY) */
 .checkbox-container:not(.payment-consent-group) .consent-label {
-    align-items: center;
-}
-#payment-consent-group .consent-label:has(#termsConsent) {
-    align-items: center;
-}
-.payment-consent-group .consent-label:has(#termsConsent) {
     align-items: center;
 }
 
@@ -4851,7 +4845,7 @@ input[type="checkbox"],
             transform: scale(0.5) !important;
             transform-origin: bottom right !important;
         }
-        .guest .checkbox-container .consent-label:has(#termsConsent_two) {
+        .guest .checkbox-container .consent-label {
             align-items: center;
         }
 
