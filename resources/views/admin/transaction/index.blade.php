@@ -1521,34 +1521,36 @@ body.modal-open .admin-mobile-menu-toggle {
 
                     const rows = [];
 
-                    if (table && table.rows && typeof table.rows === 'function') {
-                        // Use DataTables API to get ALL rows matching the current filter/search (includes all pages, not just current page)
-                        table.rows({ search: 'applied', order: 'applied' }).every(function (rowIdx) {
-                            const rowNode = this.node();
-                            if (selectedOnly && !$(rowNode).find('.row-check').prop('checked')) {
-                                return true; // Continue to next row
-                            }
+                    if (table && table.page && typeof table.page === 'function') {
+                        // Get current page info
+                        const pageInfo = table.page.info();
+                        const currentPage = pageInfo.page;
+                        const pageCount = pageInfo.pages;
 
-                            const rowData = this.data();
-                            const row = exportColumnIndexes.map(function (colIdx) {
-                                return stripHtml(rowData[colIdx] || '');
-                            });
-                            rows.push(row);
-                        });
-                    } else {
-                        // Fallback: Get ALL tbody rows (DataTables keeps all in DOM even if paginated)
-                        // This iterates through ALL rows, not just visible ones on current page
-                        $('#txnDataTable tbody tr:not(.hidden)').each(function () {
-                            const rowNode = $(this);
-                            if (selectedOnly && !rowNode.find('.row-check').prop('checked')) {
-                                return;
-                            }
+                        // Iterate through ALL pages to collect all filtered rows
+                        for (let pageNum = 0; pageNum < pageCount; pageNum++) {
+                            // Navigate to each page (without animation)
+                            table.page(pageNum).draw(false);
 
-                            const row = exportColumnIndexes.map(function (idx) {
-                                return stripHtml(rowNode.find('td').eq(idx).html());
+                            // Get rows from current page and apply search filter
+                            table.rows({ page: 'current', search: 'applied' }).every(function () {
+                                const rowNode = this.node();
+
+                                // If checkboxes are selected, only export selected rows
+                                if (selectedOnly && !$(rowNode).find('.row-check').prop('checked')) {
+                                    return true; // Continue
+                                }
+
+                                const rowData = this.data();
+                                const row = exportColumnIndexes.map(function (colIdx) {
+                                    return stripHtml(rowData[colIdx] || '');
+                                });
+                                rows.push(row);
                             });
-                            rows.push(row);
-                        });
+                        }
+
+                        // Restore original page
+                        table.page(currentPage).draw(false);
                     }
 
                     return { headers, rows };
