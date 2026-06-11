@@ -200,7 +200,6 @@ input[name="transportation_pickup_time"]::placeholder {
                 font-weight: 700;
             }
             */
-}
 
 /* Consistent button styles */
 .same-as-info, .same-as-info-transport {
