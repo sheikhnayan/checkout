@@ -9217,8 +9217,10 @@
                         return;
                     }
 
-                    // Validation passed - clean card number and submit
-                    // Remove spaces and special characters from card number for Authorize.net
+                    // Validation passed - show processing overlay
+                    showCheckoutProcessingOverlay();
+
+                    // Clean card number - remove spaces and special characters for Authorize.net
                     const cardNumberField = form.querySelector('input[name="card_number"]');
                     if (cardNumberField && cardNumberField.value) {
                         cardNumberField.value = cardNumberField.value.replace(/\s+/g, '').replace(/[^0-9]/g, '');
