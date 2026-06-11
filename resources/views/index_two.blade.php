@@ -10208,7 +10208,6 @@
                 initDateNotification();
                 initMapButton();
                 initPhoneFormatters();
-                initCountryCodePickers();
             });
         })();
         </script>
@@ -10430,6 +10429,11 @@
         }
 
         function setupCountryCodePicker(phoneInput, fieldName) {
+            // Prevent double-wrapping if already initialized
+            if (phoneInput.parentElement.classList.contains('phone-input-wrapper')) {
+                return;
+            }
+
             const wrapper = document.createElement('div');
             wrapper.className = 'phone-input-wrapper';
 
@@ -10535,8 +10539,8 @@
                 cleanNumber = digitsOnly.substring(1);
             }
 
-            // Validate minimum length (most countries min 9 digits)
-            if (cleanNumber.length < 9) {
+            // Validate minimum length (accommodates all countries: 7+ digits)
+            if (cleanNumber.length < 7) {
                 phoneInput.style.borderColor = '#ff6b6b';
                 return;
             }
@@ -10544,8 +10548,8 @@
             // Format to E.164
             const e164Number = countryCode + cleanNumber;
 
-            // Validate E.164 format
-            if (!/^\+\d{10,15}$/.test(e164Number)) {
+            // Validate E.164 format (allows 8-15 digits for international compatibility)
+            if (!/^\+\d{8,15}$/.test(e164Number)) {
                 phoneInput.style.borderColor = '#ff6b6b';
                 return;
             }

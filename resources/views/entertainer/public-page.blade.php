@@ -10315,6 +10315,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         }
 
         function setupCountryCodePickerEntertainer(phoneInput, fieldName) {
+            // Prevent double-wrapping if already initialized
+            if (phoneInput.parentElement.classList.contains('phone-input-wrapper')) {
+                return;
+            }
+
             const wrapper = document.createElement('div');
             wrapper.className = 'phone-input-wrapper';
 
@@ -10413,14 +10418,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 cleanNumber = digitsOnly.substring(1);
             }
 
-            if (cleanNumber.length < 9) {
+            if (cleanNumber.length < 7) {
                 phoneInput.style.borderColor = '#ff6b6b';
                 return;
             }
 
             const e164Number = countryCode + cleanNumber;
 
-            if (!/^\+\d{10,15}$/.test(e164Number)) {
+            if (!/^\+\d{8,15}$/.test(e164Number)) {
                 phoneInput.style.borderColor = '#ff6b6b';
                 return;
             }
