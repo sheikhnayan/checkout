@@ -922,50 +922,70 @@ input::placeholder, textarea::placeholder {
 /* Checkbox containers - unified toggle switch */
 .consent-label {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     align-items: flex-start;
     cursor: pointer;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     font-size: 13px;
+    color: rgba(255,255,255,0.9);
+    transition: color 0.2s ease;
+}
+.consent-label:hover {
+    color: rgba(255,255,255,1);
 }
 .consent-label span {
     flex: 1;
-    line-height: 1.4;
+    line-height: 1.6;
+    padding-top: 2px;
 }
-.consent-label input {
+.consent-label span a {
+    color: var(--accent, #ffcc00);
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255,204,0,0.5);
+    transition: all 0.2s ease;
+}
+.consent-label span a:hover {
+    color: #fff;
+    border-bottom-color: var(--accent, #ffcc00);
+    text-decoration: underline;
+}
+.consent-label input[type="checkbox"] {
     -webkit-appearance: none;
     appearance: none;
-    width: 46px !important;
-    height: 26px;
-    border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.28);
-    background: rgba(255,255,255,0.16);
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px;
+    min-height: 20px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-radius: 4px;
+    background: rgba(255,255,255,0.08);
     position: relative;
-    margin-top: 0 !important;
+    margin: 0 !important;
     padding: 0 !important;
     flex-shrink: 0;
     cursor: pointer;
-    transition: background .2s ease, border-color .2s ease;
+    transition: all 0.2s ease;
 }
-.consent-label input::before {
-    content: '';
+.consent-label input[type="checkbox"]:hover {
+    border-color: rgba(255,204,0,0.6);
+    background: rgba(255,255,255,0.12);
+}
+.consent-label input[type="checkbox"]:checked {
+    background: var(--accent, #ffcc00);
+    border-color: var(--accent, #ffcc00);
+}
+.consent-label input[type="checkbox"]:checked::after {
+    content: '✓';
     position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #fff;
-    transition: transform .2s ease;
+    top: -3px;
+    left: 3px;
+    color: #000;
+    font-weight: bold;
+    font-size: 16px;
+    line-height: 1;
 }
-.consent-label input:checked {
-    background: var(--accent);
-    border-color: var(--accent);
-}
-.consent-label input:checked::before {
-    transform: translateX(20px);
-}
-.consent-label input:focus-visible {
+.consent-label input[type="checkbox"]:focus-visible {
     outline: 2px solid rgba(255,204,0,0.7);
     outline-offset: 2px;
 }
@@ -6502,14 +6522,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     
                                                                 <label class="consent-label" style="margin-top: 1.4rem;">
                                                                     <input type="checkbox" id="termsConsent" required />
-                                                                    <span>I understand that all sales are final. I agree to the <a
-                                                                        target="_blank" href="{{ $data->terms }}">Terms of
-                                                                        Service</a>, and acknowledge that CartVIP is the merchant of record for this purchase.</span>
+                                                                    <span>I have read and agree to the <a
+                                                                        target="_blank" href="{{ $data->terms }}">Terms of Service</a> / <a target="_blank" href="{{ $data->terms }}">Venue Policies</a></span>
                                                                 </label>
 
-                                                                <p style="margin: 12px 0 0; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);">
+                                                                {{-- <p style="margin: 12px 0 0; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);">
                                                                     All bookings are processed through CartVIP. By completing this purchase, you acknowledge that all sales are final and non-refundable, subject to applicable law and the venue's policies, and that you agree to all venue entry requirements. You confirm that you are authorized to use this payment method and that the information provided is accurate. You understand that a valid government-issued photo ID may be required at check-in and may be photographed to verify identity, age, reservation redemption, fraud prevention, venue security, and chargeback dispute purposes. Identification records are securely stored and are never retained on the scanning device.
-                                                                </p>
+                                                                </p> --}}
                                                             </div>
 
                                                             <input type="hidden" class="package_use_date" name="package_use_date" value="">
