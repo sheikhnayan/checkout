@@ -6658,7 +6658,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                             <!-- Step Navigation -->
                                                             <div class="step-navigation">
                                                                 <button type="button" class="btn-prev" id="prev-to-transport">Previous: Transportation</button>
-                                                                <button class="submit-btn" id="submitBtn" type="submit">Complete Purchase</button>
+                                                                <button style="margin-top: 0px !important;" class="submit-btn" id="submitBtn" type="submit">Complete Purchase</button>
                                                             </div>
     
                                                         </div>

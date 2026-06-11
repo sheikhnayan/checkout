@@ -6179,7 +6179,7 @@ input[type="checkbox"],
                                                             <!-- Step Navigation -->
                                                             <div class="step-navigation">
                                                                 <button type="button" class="btn-prev" id="prev-to-transport">Previous: Transportation</button>
-                                                                <button class="submit-btn" id="submitBtn" type="submit">Complete Purchase</button>
+                                                                <button class="submit-btn" style="margin-top: 0px !important;" id="submitBtn" type="submit">Complete Purchase</button>
                                                             </div>
     
                                                         </div>
