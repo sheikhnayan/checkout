@@ -1521,55 +1521,27 @@ body.modal-open .admin-mobile-menu-toggle {
 
                     const rows = [];
 
-                    if (table && table.rows && typeof table.rows === 'function') {
-                        // Get search settings from table
-                        const searchValue = table.search();
+                    // Simple & reliable: get all rows directly from the table DOM
+                    // This works regardless of pagination because DataTables keeps all rows in DOM
+                    $('#txnDataTable tbody tr').each(function () {
+                        const $row = $(this);
 
-                        // Try method 1: Get all row data directly from DataTables
-                        const allRowData = table.data().toArray();
-
-                        if (allRowData && allRowData.length > 0) {
-                            // Process all rows from data store
-                            allRowData.forEach(function (rowData, rowIndex) {
-                                // If checkboxes selected, find and check the corresponding checkbox
-                                if (selectedOnly) {
-                                    // Try to find the corresponding DOM node
-                                    let isSelected = false;
-                                    const checkboxes = $('.row-check');
-                                    checkboxes.each(function (idx) {
-                                        const $checkbox = $(this);
-                                        const row = table.row(idx);
-                                        if (row && row.data() === rowData && $checkbox.prop('checked')) {
-                                            isSelected = true;
-                                            return false; // break
-                                        }
-                                    });
-                                    if (!isSelected) return; // Skip this row
-                                }
-
-                                const row = exportColumnIndexes.map(function (colIdx) {
-                                    return stripHtml(rowData[colIdx] || '');
-                                });
-                                rows.push(row);
-                            });
+                        // If checkboxes are selected, only export checked rows
+                        if (selectedOnly && !$row.find('.row-check').prop('checked')) {
+                            return; // skip this row
                         }
 
-                        // Fallback: if no data collected, try the rows() method
-                        if (rows.length === 0) {
-                            table.rows({ search: 'applied' }).every(function () {
-                                const rowNode = this.node();
-                                if (selectedOnly && !$(rowNode).find('.row-check').prop('checked')) {
-                                    return true;
-                                }
+                        // Extract cell data from this row
+                        const rowData = [];
+                        exportColumnIndexes.forEach(function (colIdx) {
+                            const cellHtml = $row.find('td').eq(colIdx).html();
+                            rowData.push(stripHtml(cellHtml || ''));
+                        });
 
-                                const rowData = this.data();
-                                const row = exportColumnIndexes.map(function (colIdx) {
-                                    return stripHtml(rowData[colIdx] || '');
-                                });
-                                rows.push(row);
-                            });
+                        if (rowData.length > 0) {
+                            rows.push(rowData);
                         }
-                    }
+                    });
 
                     return { headers, rows };
                 }
