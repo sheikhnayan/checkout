@@ -348,25 +348,42 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function resetResult() {
+        // STOP camera FIRST before clearing anything
+        stopPhotoCamera();
+
+        // Hide result section
         ticketResult.classList.add('d-none');
         document.getElementById('scannerSection').classList.remove('d-none');
         document.getElementById('qrCameraControlsBtn').classList.remove('d-none');
         ticketDetails.innerHTML = '';
         checkInCode.value = '';
         manualCodeInput.value = '';
-        stopPhotoCamera();
 
         // COMPLETELY CLEAR ALL PHOTO DATA
         frontPhotoPreviewContainer.classList.add('d-none');
         backPhotoPreviewContainer.classList.add('d-none');
+
+        // Explicitly clear image sources to prevent caching
         frontPhotoPreview.src = '';
+        frontPhotoPreview.removeAttribute('src');
         backPhotoPreview.src = '';
+        backPhotoPreview.removeAttribute('src');
+
+        // Clear all photo data
         frontPhotoData.value = '';
         backPhotoData.value = '';
         frontPhotoCaptured = false;
         backPhotoCaptured = false;
         capturingFrontPhoto = true;
         currentFacingMode = 'environment';
+
+        // Clear canvas completely
+        const ctx = photoCanvas.getContext('2d');
+        if (ctx) {
+            ctx.clearRect(0, 0, photoCanvas.width, photoCanvas.height);
+        }
+        photoCanvas.width = 0;
+        photoCanvas.height = 0;
 
         capturePhotoText.textContent = 'Capture Front of ID';
         frontPhotoStatus.textContent = 'Pending';
@@ -375,14 +392,20 @@ document.addEventListener('DOMContentLoaded', function () {
         backPhotoStatus.style.color = '#60a5fa';
 
         // Reset indicators
-        document.getElementById('frontPhotoIndicator').style.opacity = '0.5';
-        document.getElementById('frontPhotoIndicator').style.borderColor = '#22c55e';
-        document.getElementById('backPhotoIndicator').style.opacity = '0.5';
-        document.getElementById('backPhotoIndicator').style.borderColor = '#64b5f6';
+        const frontIndicator = document.getElementById('frontPhotoIndicator');
+        const backIndicator = document.getElementById('backPhotoIndicator');
+        if (frontIndicator) {
+            frontIndicator.style.opacity = '0.5';
+            frontIndicator.style.borderColor = '#22c55e';
+        }
+        if (backIndicator) {
+            backIndicator.style.opacity = '0.5';
+            backIndicator.style.borderColor = '#64b5f6';
+        }
 
         setStatus('Ready for next ticket scan.', false);
 
-        // Auto-start QR scanner
+        // Auto-start QR scanner after clearing
         setTimeout(function() {
             startScanner();
         }, 500);
@@ -868,16 +891,25 @@ document.addEventListener('DOMContentLoaded', function () {
             photoCameraStream = null;
         }
 
-        // Properly clear the video element
+        // COMPLETELY clear the video element and canvas
         photoCameraFeed.srcObject = null;
         photoCameraFeed.style.display = 'none';
+
+        // Clear canvas data completely
+        const ctx = photoCanvas.getContext('2d');
+        if (ctx) {
+            ctx.clearRect(0, 0, photoCanvas.width, photoCanvas.height);
+        }
+        photoCanvas.width = 0;
+        photoCanvas.height = 0;
+
         noCameraMsg.style.display = 'block';
 
         // Hide frame guide
         const idFrameGuide = document.getElementById('idFrameGuide');
         const frameGuideLabel = document.getElementById('frameGuideLabel');
-        idFrameGuide.style.display = 'none';
-        frameGuideLabel.style.display = 'none';
+        if (idFrameGuide) idFrameGuide.style.display = 'none';
+        if (frameGuideLabel) frameGuideLabel.style.display = 'none';
 
         startPhotoCameraBtn.classList.remove('d-none');
         capturePhotoBtn.classList.add('d-none');
@@ -936,9 +968,11 @@ document.addEventListener('DOMContentLoaded', function () {
         capturingFrontPhoto = true;
         currentFacingMode = 'environment';
 
-        // Clear photo data and previews
+        // COMPLETELY clear photo data and previews
         frontPhotoData.value = '';
         backPhotoData.value = '';
+        frontPhotoPreview.src = '';
+        backPhotoPreview.src = '';
         frontPhotoPreviewContainer.classList.add('d-none');
         backPhotoPreviewContainer.classList.add('d-none');
 
@@ -947,10 +981,23 @@ document.addEventListener('DOMContentLoaded', function () {
         frontPhotoStatus.style.color = '#60a5fa';
         backPhotoStatus.textContent = 'Pending';
         backPhotoStatus.style.color = '#60a5fa';
-        document.getElementById('frontPhotoIndicator').style.opacity = '0.5';
-        document.getElementById('frontPhotoIndicator').style.borderColor = '#22c55e';
-        document.getElementById('backPhotoIndicator').style.opacity = '0.5';
-        document.getElementById('backPhotoIndicator').style.borderColor = '#64b5f6';
+
+        const frontIndicator = document.getElementById('frontPhotoIndicator');
+        const backIndicator = document.getElementById('backPhotoIndicator');
+        if (frontIndicator) {
+            frontIndicator.style.opacity = '0.5';
+            frontIndicator.style.borderColor = '#22c55e';
+        }
+        if (backIndicator) {
+            backIndicator.style.opacity = '0.5';
+            backIndicator.style.borderColor = '#64b5f6';
+        }
+
+        // Clear canvas
+        const ctx = photoCanvas.getContext('2d');
+        if (ctx) {
+            ctx.clearRect(0, 0, photoCanvas.width, photoCanvas.height);
+        }
 
         // Hide current side label
         document.getElementById('currentSideLabel').style.display = 'none';
