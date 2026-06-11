@@ -244,6 +244,18 @@
                 font-size: 15px;
                 min-width: 180px;
                 text-align: center;
+                -webkit-appearance: none !important;
+                -moz-appearance: none !important;
+                appearance: none !important;
+                -webkit-user-select: none !important;
+                user-select: none !important;
+                -webkit-tap-highlight-color: transparent !important;
+                touch-action: manipulation !important;
+                position: relative !important;
+                z-index: 10 !important;
+                pointer-events: auto !important;
+                width: auto;
+                display: inline-block;
             }
 
             .btn-next:hover,
@@ -288,7 +300,12 @@
                 .btn-prev,
                 .submit-btn {
                     margin-top: 15px;
-                    min-width: 180px;
+                    min-width: 100% !important;
+                    min-height: 48px !important;
+                    padding: 14px 20px !important;
+                    font-size: 16px !important;
+                    position: relative !important;
+                    z-index: 100 !important;
                 }
 
                 .step-navigation {
@@ -9158,25 +9175,57 @@
                 }
             })();
 
-            document.getElementById('payment-form')?.addEventListener('submit', function(e) {
-                // Check SMS consent checkbox for package form
-                const smsConsentPackage = document.getElementById('smsConsent');
-                if (!smsConsentPackage || !smsConsentPackage.checked) {
-                    e.preventDefault();
-                    alert('Please agree to receive SMS communications.');
-                    return;
-                }
+            // Package form: Use click event on button (not form submit) for iOS compatibility
+            // iOS mobile Safari has issues with form submit events, but click events work reliably
+            (function() {
+                const submitBtn = document.getElementById('submitBtn');
+                if (!submitBtn) return;
 
-                // Check terms consent checkbox for package form
-                const termsConsentPackage = document.getElementById('termsConsent');
-                if (!termsConsentPackage || !termsConsentPackage.checked) {
-                    e.preventDefault();
-                    alert('Please accept the Terms of Service.');
-                    return;
-                }
+                const form = submitBtn.closest('form');
+                if (!form) return;
 
-                prepareCheckoutCartPayload(this);
-            });
+                submitBtn.addEventListener('click', function(e) {
+                    // Check SMS consent checkbox for package form
+                    const smsConsentPackage = document.getElementById('smsConsent');
+                    if (!smsConsentPackage || !smsConsentPackage.checked) {
+                        e.preventDefault();
+                        const errorMsg = document.getElementById('validation-error-msg-package') || document.createElement('div');
+                        if (!errorMsg.id) {
+                            errorMsg.id = 'validation-error-msg-package';
+                            errorMsg.style.cssText = 'color: red; padding: 10px; margin: 10px 0; font-weight: bold; text-align: center;';
+                            form.parentElement.insertBefore(errorMsg, form);
+                        }
+                        errorMsg.textContent = 'Please agree to receive SMS communications.';
+                        errorMsg.style.display = 'block';
+                        setTimeout(() => { errorMsg.style.display = 'none'; }, 5000);
+                        return;
+                    }
+
+                    // Check terms consent checkbox for package form
+                    const termsConsentPackage = document.getElementById('termsConsent');
+                    if (!termsConsentPackage || !termsConsentPackage.checked) {
+                        e.preventDefault();
+                        const errorMsg = document.getElementById('validation-error-msg-package') || document.createElement('div');
+                        if (!errorMsg.id) {
+                            errorMsg.id = 'validation-error-msg-package';
+                            errorMsg.style.cssText = 'color: red; padding: 10px; margin: 10px 0; font-weight: bold; text-align: center;';
+                            form.parentElement.insertBefore(errorMsg, form);
+                        }
+                        errorMsg.textContent = 'Please accept the Terms of Service.';
+                        errorMsg.style.display = 'block';
+                        setTimeout(() => { errorMsg.style.display = 'none'; }, 5000);
+                        return;
+                    }
+
+                    // Validation passed - prepare form and submit
+                    prepareCheckoutCartPayload(form);
+
+                    // Submit form after a tiny delay for iOS compatibility
+                    setTimeout(() => {
+                        form.submit();
+                    }, 50);
+                });
+            })();
 
             const transportationSchedule = {
                 operatingDays: @json(array_values(array_map('strtolower', (array) ($data->operating_days ?? [])))),
@@ -9449,28 +9498,45 @@
                 cardCvc.mount('#cvv');
 
                 const form = document.getElementById('payment-form');
-                form.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    prepareCheckoutCartPayload(form);
-                    showCheckoutProcessingOverlay();
+                if (form) {
+                    // Improve iOS compatibility with form submission
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
 
-                    const {
-                        token,
-                        error
-                    } = await stripe.createToken(cardNumber);
+                        // Ensure form is not already submitting
+                        if (form._isSubmitting) {
+                            return;
+                        }
+                        form._isSubmitting = true;
 
-                    if (error) {
-                        hideCheckoutProcessingOverlay();
-                        document.getElementById('card-errors').textContent = error.message;
-                    } else {
-                        const hiddenInput = document.createElement('input');
-                        hiddenInput.setAttribute('type', 'hidden');
-                        hiddenInput.setAttribute('name', 'stripeToken');
-                        hiddenInput.setAttribute('value', token.id);
-                        form.appendChild(hiddenInput);
-                        form.submit();
-                    }
-                });
+                        prepareCheckoutCartPayload(form);
+                        showCheckoutProcessingOverlay();
+
+                        // Use Promise instead of async/await for better iOS compatibility
+                        stripe.createToken(cardNumber).then(function(result) {
+                            if (result.error) {
+                                hideCheckoutProcessingOverlay();
+                                document.getElementById('card-errors').textContent = result.error.message;
+                                form._isSubmitting = false;
+                            } else {
+                                const hiddenInput = document.createElement('input');
+                                hiddenInput.setAttribute('type', 'hidden');
+                                hiddenInput.setAttribute('name', 'stripeToken');
+                                hiddenInput.setAttribute('value', result.token.id);
+                                form.appendChild(hiddenInput);
+
+                                // iOS fix: Use setTimeout to ensure form submission happens
+                                setTimeout(function() {
+                                    form.submit();
+                                }, 100);
+                            }
+                        }).catch(function(err) {
+                            hideCheckoutProcessingOverlay();
+                            document.getElementById('card-errors').textContent = 'Payment error: ' + (err.message || 'Unknown error');
+                            form._isSubmitting = false;
+                        });
+                    }, false); // Use capture phase
+                }
             </script>
         @endif
 
