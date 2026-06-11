@@ -38,7 +38,7 @@ input[name="transportation_pickup_time"]::placeholder {
 .checkout-steps {
     display: flex !important;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     margin: 2rem 0;
     padding: 0;
     list-style: none;
@@ -73,7 +73,7 @@ input[name="transportation_pickup_time"]::placeholder {
 
 .step-number {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     width: 40px;
     height: 40px;
@@ -578,7 +578,7 @@ select[id*="country"], select[id*="dob"], select[id="st-pv"] {
 nav {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     gap: 0;
     width: 100%;
     max-width: fit-content;
@@ -592,7 +592,7 @@ nav .tab {
     color: #fff;
     padding: 0px 20px;
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -681,7 +681,7 @@ nav .tab.active p {
 .cv-footer-brand {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
     flex-shrink: 0;
 }
@@ -693,7 +693,7 @@ nav .tab.active p {
     letter-spacing: .12em;
     text-transform: uppercase;
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 6px;
 }
 .cv-footer-powered::before {
@@ -747,7 +747,7 @@ nav .tab.active p {
 }
 .cv-footer-bar {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 12px;
@@ -765,7 +765,7 @@ nav .tab.active p {
     background: rgba(167,116,255,0.08);
     border: 1px solid rgba(167,116,255,0.22);
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     color: rgba(196,163,255,0.85) !important;
     text-decoration: none !important;
@@ -892,7 +892,7 @@ a {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     gap: 14px;
     transition: border-color .2s;
 }
@@ -917,7 +917,7 @@ input::placeholder, textarea::placeholder {
 .consent-label {
     display: flex;
     gap: 12px;
-    align-items: center;
+    align-items: flex-start;
     cursor: pointer;
     margin-bottom: 12px;
     font-size: 13px;
@@ -998,6 +998,17 @@ input::placeholder, textarea::placeholder {
     outline-offset: 2px;
 }
 
+/* CENTER ALIGNMENT FOR CHECKBOX LABELS (TERMS CONSENT ONLY) */
+.checkbox-container:not(.payment-consent-group) .consent-label {
+    align-items: center;
+}
+#payment-consent-group .consent-label:has(#termsConsent) {
+    align-items: center;
+}
+.payment-consent-group .consent-label:has(#termsConsent) {
+    align-items: center;
+}
+
 /* Payment agreement toggles: exact affiliate parity, locked with stronger selectors */
 #payment-consent-group .consent-label,
 .payment-consent-group .consent-label {
@@ -1069,7 +1080,7 @@ input::placeholder, textarea::placeholder {
 .checkbox-container label {
     display: flex;
     gap: 10px;
-    align-items: center;
+    align-items: flex-start;
     cursor: pointer;
     margin-bottom: 10px;
     font-size: 13px;
@@ -1179,7 +1190,7 @@ input::placeholder, textarea::placeholder {
 #cart-section .cart-line-main {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     gap: 12px;
 }
 
@@ -1268,7 +1279,7 @@ input::placeholder, textarea::placeholder {
 
 .back-home-btn {
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     gap: 8px;
     max-width: min(100%, 360px);
@@ -1373,7 +1384,7 @@ body {
     border: 2px solid var(--accent);
     background: rgba(255,255,255,0.1);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     font-size: 22px;
     font-weight: 800;
@@ -1424,7 +1435,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     text-align: center;
 }
 
@@ -1479,7 +1490,7 @@ body {
 
 .back-to-packages-btn {
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 7px;
     margin-top: 10px;
     padding: 8px 11px;
@@ -1559,7 +1570,7 @@ body {
 
 .event-capacity-chip {
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     margin-top: 8px;
     padding: 5px 10px;
@@ -1829,7 +1840,7 @@ nav .tab {
     border-radius: 10px;
     flex: 1 1 0;
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     background: transparent;
     color: var(--text-main);
@@ -1887,7 +1898,7 @@ nav .tab:hover {
     border-radius: 50%;
     background: rgba(255,255,255,0.15);
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     font-size: 14px;
     font-weight: 800;
@@ -1908,7 +1919,7 @@ nav .tab:hover {
 /* Rectangle background behind category icon (dynamic by --cat-rgb) */
 .package-category-tile-icon {
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     min-width: 36px;
     height: 32px;
@@ -1974,7 +1985,7 @@ nav .tab:hover {
 .vip-guest-control {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     justify-content: flex-start;
 }
 .vip-guest-label {
@@ -2011,7 +2022,7 @@ nav .tab:hover {
 #addonSelectionModal .addon-modal-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     gap: 16px;
     padding: 14px 16px;
     border: 1px solid rgba(255,255,255,0.12);
@@ -2054,7 +2065,7 @@ nav .tab:hover {
 
 #addonSelectionModal .addon-qty-stepper {
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 8px;
     padding: 6px;
     border-radius: 999px;
@@ -2073,7 +2084,7 @@ nav .tab:hover {
     font-size: 1.2em;
     cursor: pointer;
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     line-height: 1;
     transition: all .15s ease;
@@ -2174,7 +2185,7 @@ nav .tab:hover {
     margin-bottom: 4px;
     border-radius: 8px;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     gap: 6px;
 }
@@ -2189,12 +2200,12 @@ nav .tab:hover {
 .guest-count .counter {
     margin-top: 0;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
 }
 
 .guest-count .guest-qty-stepper {
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 4px;
     padding: 2px;
     border-radius: 999px;
@@ -2212,7 +2223,7 @@ nav .tab:hover {
     font-size: 13px;
     cursor: pointer;
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     line-height: 1;
     transition: all .15s ease;
@@ -2314,7 +2325,7 @@ nav .tab:hover {
 
 .location-contact-chip {
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 8px;
     padding: 9px 12px;
     border-radius: 10px;
@@ -2461,7 +2472,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .mobile-back-home-btn {
         width: 100%;
         display: inline-flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: center;
         gap: 7px;
         padding: 9px 12px;
@@ -2500,7 +2511,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
     .story-copy-toggle {
         display: inline-flex;
-        align-items: center;
+        align-items: flex-start;
     }
     .package-category-tiles,
     .package-category-group,
@@ -2647,14 +2658,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-nav-center {
     flex: 1;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     gap: 24px;
     min-width: 0;
 }
 .cv-nav-status {
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
     padding: 7px 16px;
     border-radius: 999px;
@@ -2686,7 +2697,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 .cv-nav-trust {
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 18px;
     font-size: 11.5px;
     color: rgba(255,255,255,0.55);
@@ -2856,7 +2867,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     color: transparent !important;
     margin: 0 0 6px;
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 6px;
 }
 .cv-hero-location-label::before {
@@ -2872,7 +2883,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-hero-location-addr { font-size: 13.5px; color: rgba(255,255,255,0.78) !important; line-height: 1.5; margin-top: 4px; }
 .cv-hero-location-badge {
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 5px;
     padding: 6px 12px;
     border-radius: 999px;
@@ -2909,7 +2920,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-hero-location-contacts { display: flex; flex-direction: column; gap: 8px; }
 .cv-hero-location-contact {
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 12px;
     font-size: 13px;
     color: rgba(255,255,255,0.92) !important;
@@ -2938,7 +2949,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     border-radius: 50%;
     background: linear-gradient(135deg, rgba(251,113,133,0.22), rgba(34,211,238,0.12));
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     flex-shrink: 0;
     box-shadow: inset 0 0 0 1px rgba(251,113,133,0.32);
@@ -3040,7 +3051,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 .events-section-container .event-card .card > .d-flex {
     padding: 18px 20px 4px;
-    align-items: center;
+    align-items: flex-start;
     gap: 12px;
 }
 .events-section-container .event-card .event-day {
@@ -3077,7 +3088,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     margin-top: 4px;
     line-height: 1.4;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 6px;
 }
 .events-section-container .event-card .event-location:first-of-type {
@@ -3098,7 +3109,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     font-weight: 800;
     font-size: 12.5px;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -3117,7 +3128,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     border-radius: 50%;
     background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%);
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     box-shadow: 0 4px 14px rgba(124,58,237,0.4);
     margin-left: auto;
@@ -3133,7 +3144,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     font-weight: 700;
     width: fit-content;
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
 }
 .events-section-container .event-capacity-chip.sold-out {
     background: rgba(255,96,96,0.14);
@@ -3258,7 +3269,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     cursor: pointer;
     width: 100%;
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     gap: 10px;
     text-transform: none;
@@ -3341,7 +3352,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     margin-bottom: 6px !important;
     line-height: 1.2 !important;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 14px;
     flex-wrap: wrap;
 }
@@ -3447,7 +3458,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     min-width: 180px !important;
     box-shadow: 0 6px 20px rgba(124,58,237,0.4) !important;
     display: inline-flex !important;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     gap: 8px;
 }
@@ -3494,7 +3505,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     transition: all .15s;
     margin-bottom: 16px;
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 6px;
     width: auto !important;
     min-width: 0 !important;
@@ -3705,7 +3716,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     margin-bottom: 18px !important;
     line-height: 1.2 !important;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 14px;
 }
 .guest .section-kicker-lg::before {
@@ -3791,7 +3802,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     letter-spacing: -0.015em !important;
     margin: 0 0 18px !important;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 14px;
 }
 .guest .guest-count .guest-list h2::before {
@@ -3831,7 +3842,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 .guest .addon-qty-stepper.guest-qty-stepper {
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
     background: rgba(0,0,0,0.4);
     border: 1px solid rgba(167,116,255,0.32);
@@ -3876,7 +3887,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 .guest .guest-section--total .addon-qty-val.guest-qty-val {
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     text-align: center;
     line-height: 1;
@@ -3946,7 +3957,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 .guest .checkbox-container .consent-label {
     display: flex !important;
-    align-items: center;
+    align-items: flex-start;
     gap: 12px;
     padding: 10px 0;
     color: rgba(255,255,255,0.82) !important;
@@ -4030,7 +4041,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     font-weight: 600;
     color: rgba(255,255,255,0.78) !important;
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 6px;
     margin-bottom: 0;
     text-transform: none;
@@ -4047,7 +4058,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     font-family: 'Times New Roman', serif;
     font-weight: 700;
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     line-height: 1;
 }
@@ -4065,7 +4076,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-deposit-due-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     font-size: 13px;
     color: rgba(255,255,255,0.72) !important;
     margin-top: 12px;
@@ -4083,7 +4094,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     background: rgba(34,197,94,0.14);
     border: 1px solid rgba(34,197,94,0.4);
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     color: #22c55e !important;
     font-size: 17px;
@@ -4192,7 +4203,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     color: rgba(255,255,255,0.42) !important;
     margin: 18px 0 12px;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
 }
 .cv-access-hint::before,
@@ -4210,7 +4221,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     border-radius: 18px;
     padding: 18px 16px 18px 50px;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 14px;
     cursor: default;
     transition: all .35s cubic-bezier(.4,0,.2,1);
@@ -4449,7 +4460,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     text-transform: uppercase;
     box-shadow: 0 4px 14px rgba(124,58,237,0.55), inset 0 1px 0 rgba(255,255,255,0.25);
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 5px;
     z-index: 2;
 }
@@ -4562,7 +4573,7 @@ input[type="checkbox"],
     font-size: 14px !important;
     color: rgba(255,255,255,0.75) !important;
     display: flex !important;
-    align-items: center;
+    align-items: flex-start;
     gap: 6px;
     padding: 6px 0;
     font-weight: 500;
@@ -4590,7 +4601,7 @@ input[type="checkbox"],
     border: 1px solid rgba(255,255,255,0.35);
     color: rgba(255,255,255,0.55);
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     line-height: 1;
     flex-shrink: 0;
@@ -4616,7 +4627,7 @@ input[type="checkbox"],
     margin: 4px -16px 4px !important;
     display: flex !important;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     color: #fff !important;
     background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)) !important;
     border-radius: 0 !important;
@@ -4719,7 +4730,7 @@ input[type="checkbox"],
     white-space: nowrap;
     cursor: pointer;
     display: inline-flex !important;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     line-height: 1;
 }
@@ -4730,7 +4741,7 @@ input[type="checkbox"],
 #cv-order-sidebar .pricing-shell .default-promo-discount {
     font-size: 14px !important;
     display: flex !important;
-    align-items: center;
+    align-items: flex-start;
     padding: 6px 0;
     color: #22c55e !important;
     font-weight: 600 !important;
@@ -4770,7 +4781,7 @@ input[type="checkbox"],
             "price guests"
             "meta button";
         gap: 8px 12px;
-        align-items: center;
+        align-items: flex-start;
         margin-top: 14px;
         padding-top: 14px;
         border-top: 1px solid rgba(255,255,255,0.08);
@@ -4836,6 +4847,9 @@ input[type="checkbox"],
             position: fixed !important;
             transform: scale(0.5) !important;
             transform-origin: bottom right !important;
+        }
+        .guest .checkbox-container .consent-label:has(#termsConsent_two) {
+            align-items: center;
         }
 
         </style>
@@ -6446,7 +6460,7 @@ input[type="checkbox"],
                 background: rgba(8, 12, 22, 0.78);
                 backdrop-filter: blur(5px);
                 display: none;
-                align-items: center;
+                align-items: flex-start;
                 justify-content: center;
                 z-index: 9999;
             }
@@ -6509,7 +6523,7 @@ input[type="checkbox"],
                 font-size: 14.5px;
                 font-weight: 700;
                 display: flex;
-                align-items: center;
+                align-items: flex-start;
                 gap: 14px;
                 min-width: 280px;
                 max-width: calc(100vw - 32px);
@@ -6529,7 +6543,7 @@ input[type="checkbox"],
                 border-radius: 50%;
                 background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
                 display: inline-flex;
-                align-items: center;
+                align-items: flex-start;
                 justify-content: center;
                 color: #fff;
                 font-size: 15px;
@@ -6550,7 +6564,7 @@ input[type="checkbox"],
                 font-size: 12px;
                 cursor: pointer;
                 display: inline-flex;
-                align-items: center;
+                align-items: flex-start;
                 justify-content: center;
                 transition: all .15s;
                 flex-shrink: 0;

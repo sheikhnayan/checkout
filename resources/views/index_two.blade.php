@@ -1084,7 +1084,7 @@
         .consent-label {
             display: flex;
             gap: 12px;
-            align-items: center;
+            align-items: flex-start;
             cursor: pointer;
             margin-bottom: 12px;
             font-size: 13px;
@@ -1154,6 +1154,17 @@
         .consent-label input[type="checkbox"]:focus-visible {
             outline: 2px solid rgba(255,204,0,0.7);
             outline-offset: 2px;
+        }
+
+        /* CENTER ALIGNMENT FOR CHECKBOX LABELS (TERMS CONSENT ONLY) */
+        .checkbox-container:not(.payment-consent-group) .consent-label {
+            align-items: center;
+        }
+        #payment-consent-group .consent-label:has(#termsConsent) {
+            align-items: center;
+        }
+        .payment-consent-group .consent-label:has(#termsConsent) {
+            align-items: center;
         }
 
         /* Payment agreement toggles: exact affiliate parity, locked with stronger selectors */
@@ -4265,13 +4276,16 @@
         }
         .guest .checkbox-container .consent-label {
             display: flex !important;
-            align-items: center;
+            align-items: flex-start;
             gap: 12px;
             padding: 10px 0;
             color: rgba(255,255,255,0.82) !important;
             font-size: 13px !important;
             line-height: 1.5 !important;
             margin-bottom: 0 !important;
+        }
+        .guest .checkbox-container .consent-label:has(#termsConsent_two) {
+            align-items: center;
         }
         .guest .checkbox-container .consent-label a { color: #c4a3ff !important; text-decoration: underline !important; }
         .guest .submit-btn { margin-top: 20px !important; width: 100% !important; min-width: 100% !important; }
