@@ -1108,17 +1108,40 @@
             text-decoration: underline;
         }
 
-        /* TERMS CONSENT - SIMPLE CHECKBOX */
+        /* TERMS CONSENT - CHECKBOX ONLY - OVERRIDE EVERYTHING */
         #termsConsent_two,
         #termsConsent {
-            -webkit-appearance: checkbox !important;
-            appearance: checkbox !important;
+            -webkit-appearance: none !important;
+            appearance: none !important;
             width: 18px !important;
             height: 18px !important;
+            min-width: 18px !important;
+            min-height: 18px !important;
+            border: 2px solid #999 !important;
+            border-radius: 3px !important;
+            background: #fff !important;
             cursor: pointer !important;
             margin: 0 !important;
             padding: 0 !important;
-            accent-color: #ffcc00 !important;
+            position: relative !important;
+            flex-shrink: 0 !important;
+            transition: all 0.2s !important;
+        }
+        #termsConsent_two:checked,
+        #termsConsent:checked {
+            background: #ffcc00 !important;
+            border-color: #ffcc00 !important;
+        }
+        #termsConsent_two:checked::before,
+        #termsConsent:checked::before {
+            content: '✓' !important;
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            color: #000 !important;
+            font-weight: bold !important;
+            font-size: 14px !important;
         }
         .consent-label input[type="checkbox"]:focus-visible {
             outline: 2px solid rgba(255,204,0,0.7);
