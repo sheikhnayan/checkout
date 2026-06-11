@@ -1225,12 +1225,16 @@
             cursor: pointer;
             margin-bottom: 10px;
             font-size: 13px;
-            line-height: 1.4;
         }
         .checkbox-container label span {
             flex: 1;
         }
-        .checkbox-container input[type="checkbox"] {
+
+        /* TOGGLES: SMS Consent & Driver Notification */
+        .checkbox-container #smsConsent_two,
+        .checkbox-container #smsConsent,
+        .checkbox-container #driverNotificationConsent_two,
+        .checkbox-container #driverNotificationConsent {
             -webkit-appearance: none;
             appearance: none;
             width: 46px !important;
@@ -1245,7 +1249,10 @@
             cursor: pointer;
             transition: background .2s ease, border-color .2s ease;
         }
-        .checkbox-container input[type="checkbox"]::before {
+        .checkbox-container #smsConsent_two::before,
+        .checkbox-container #smsConsent::before,
+        .checkbox-container #driverNotificationConsent_two::before,
+        .checkbox-container #driverNotificationConsent::before {
             content: '';
             position: absolute;
             top: 2px;
@@ -1256,12 +1263,61 @@
             background: #fff;
             transition: transform .2s ease;
         }
-        .checkbox-container input[type="checkbox"]:checked {
+        .checkbox-container #smsConsent_two:checked,
+        .checkbox-container #smsConsent:checked,
+        .checkbox-container #driverNotificationConsent_two:checked,
+        .checkbox-container #driverNotificationConsent:checked {
             background: #ffcc00;
             border-color: #ffcc00;
         }
-        .checkbox-container input[type="checkbox"]:checked::before {
-            background: #ffcc00;
+        .checkbox-container #smsConsent_two:checked::before,
+        .checkbox-container #smsConsent:checked::before,
+        .checkbox-container #driverNotificationConsent_two:checked::before,
+        .checkbox-container #driverNotificationConsent:checked::before {
+            background: #fff;
+            transform: translateX(20px);
+            box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
+        }
+
+        /* CHECKBOXES: Terms Consent (square checkbox with checkmark) */
+        .checkbox-container #termsConsent_two,
+        .checkbox-container #termsConsent {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px !important;
+            height: 20px !important;
+            min-width: 20px;
+            min-height: 20px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 4px;
+            background: rgba(255,255,255,0.08);
+            position: relative;
+            margin: 0 !important;
+            padding: 0 !important;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .checkbox-container #termsConsent_two:hover,
+        .checkbox-container #termsConsent:hover {
+            border-color: rgba(255,204,0,0.6);
+            background: rgba(255,255,255,0.12);
+        }
+        .checkbox-container #termsConsent_two:checked,
+        .checkbox-container #termsConsent:checked {
+            background: #ffcc00 !important;
+            border-color: #ffcc00 !important;
+        }
+        .checkbox-container #termsConsent_two:checked::after,
+        .checkbox-container #termsConsent:checked::after {
+            content: '✓';
+            position: absolute;
+            top: -3px;
+            left: 3px;
+            color: #000;
+            font-weight: bold;
+            font-size: 16px;
+            line-height: 1;
         }
         .checkbox-container input[type="checkbox"]:focus-visible {
             outline: 2px solid rgba(255,204,0,0.7);
