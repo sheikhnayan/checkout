@@ -93,6 +93,7 @@
 .txn-table tbody td { padding: 12px 12px; vertical-align: middle; }
 .txn-table tfoot th { padding: 10px 12px; border-top: 1px solid rgba(255,255,255,0.08); }
 .txn-order-id { font-weight: 700; color: rgba(255,255,255,0.9); font-size: 0.85rem; }
+.txn-confirmation-num { font-size: 0.75rem; color: rgba(255,255,255,0.7); max-width: 120px; word-break: break-all; }
 .txn-venue { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.9); }
 .txn-pkg-type { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
 .txn-customer-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.9); }
@@ -979,9 +980,9 @@ body.modal-open .admin-mobile-menu-toggle {
                     </tbody>
                     <tfoot>
                         <tr>
-                            <th colspan="5" class="text-end" style="color:rgba(255,255,255,0.5);font-size:0.82rem">Total:</th>
+                            <th colspan="6" class="text-end" style="color:rgba(255,255,255,0.5);font-size:0.82rem">Total:</th>
                             <th id="amount-total" style="color:#fff;font-weight:700;font-size:0.9rem"></th>
-                            <th colspan="11"></th>
+                            <th colspan="12"></th>
                         </tr>
                     </tfoot>
                 </table>
@@ -1407,11 +1408,16 @@ body.modal-open .admin-mobile-menu-toggle {
             <script>
             $(document).ready(function() {
 
-                // DataTable is DISABLED for now
-                // The table will display normally without pagination/sorting
-                // This is temporary while we fix the column structure
-                console.log('DataTable is temporarily disabled');
-                let table = null;
+                // Initialize DataTable with pagination
+                let table = $('#txnDataTable').DataTable({
+                    pageLength: 25,
+                    searching: true,
+                    ordering: true,
+                    paging: true,
+                    info: true,
+                    lengthChange: true,
+                    autoWidth: false
+                });
 
                 // ── Custom search ────────────────────────────────────────────
                 $('#txnSearch').on('keyup', function() {
