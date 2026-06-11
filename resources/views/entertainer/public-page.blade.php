@@ -38,6 +38,7 @@ input[name="transportation_pickup_time"]::placeholder {
 .checkout-steps {
     display: flex !important;
     justify-content: center;
+            align-items: center;
     align-items: flex-start;
     margin: 2rem 0;
     padding: 0;
@@ -75,6 +76,7 @@ input[name="transportation_pickup_time"]::placeholder {
     display: flex;
     align-items: flex-start;
     justify-content: center;
+            align-items: center;
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -586,6 +588,7 @@ select[id*="country"], select[id*="dob"], select[id="st-pv"] {
 nav {
     display: flex;
     justify-content: center;
+            align-items: center;
     align-items: flex-start;
     gap: 0;
     width: 100%;
@@ -602,6 +605,7 @@ nav .tab {
     display: inline-flex;
     align-items: flex-start;
     justify-content: center;
+            align-items: center;
     cursor: pointer;
     transition: all 0.3s ease;
     border-radius: 0;
@@ -775,6 +779,7 @@ nav .tab.active p {
     display: inline-flex;
     align-items: flex-start;
     justify-content: center;
+            align-items: center;
     color: rgba(196,163,255,0.85) !important;
     text-decoration: none !important;
     transition: all .15s;
@@ -830,7 +835,8 @@ nav .tab.active p {
     .cv-footer-tagline { max-width: 100%; text-align: center; }
     .cv-footer-legal,
     .cv-footer-legal-title { text-align: center; }
-    .cv-footer-bar { justify-content: center; text-align: center; flex-direction: column; gap: 10px; padding: 14px 0; }
+    .cv-footer-bar { justify-content: center;
+            align-items: center; text-align: center; flex-direction: column; gap: 10px; padding: 14px 0; }
 }
 
 /* Mobile responsive navigation */
@@ -1000,7 +1006,7 @@ input::placeholder, textarea::placeholder {
 /* Payment agreement toggles: exact affiliate parity, locked with stronger selectors */
 #payment-consent-group .consent-label,
         /* Business purpose toggle - center aligned */
-        .checkbox-container.payment-consent-group .consent-label {
+        .checkbox-container.payment-consent-group:not(#payment-consent-group) .consent-label {
             align-items: center !important;
         }
 
@@ -1275,6 +1281,7 @@ input::placeholder, textarea::placeholder {
 .step-navigation {
     display: flex !important;
     justify-content: center;
+            align-items: center;
     gap: 12px;
     flex-wrap: wrap;
     margin: 1.5rem 0;
@@ -1308,6 +1315,7 @@ input::placeholder, textarea::placeholder {
     display: inline-flex;
     align-items: flex-start;
     justify-content: center;
+            align-items: center;
     gap: 8px;
     max-width: min(100%, 360px);
     min-height: 42px;
@@ -1413,6 +1421,7 @@ body {
     display: flex;
     align-items: flex-start;
     justify-content: center;
+            align-items: center;
     font-size: 22px;
     font-weight: 800;
 }
@@ -1462,6 +1471,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
+            align-items: center;
     align-items: flex-start;
     text-align: center;
 }
@@ -1599,6 +1609,7 @@ body {
     display: inline-flex;
     align-items: flex-start;
     justify-content: center;
+            align-items: center;
     margin-top: 8px;
     padding: 5px 10px;
     border-radius: 999px;
@@ -1946,6 +1957,7 @@ nav .tab {
     display: inline-flex;
     align-items: flex-start;
     justify-content: center;
+            align-items: center;
     background: transparent;
     color: var(--text-main);
     padding: 10px 20px;
@@ -2004,6 +2016,7 @@ nav .tab:hover {
     display: inline-flex;
     align-items: flex-start;
     justify-content: center;
+            align-items: center;
     font-size: 14px;
     font-weight: 800;
     line-height: 1;
@@ -2022,6 +2035,7 @@ nav .tab:hover {
     display: inline-flex;
     align-items: flex-start;
     justify-content: center;
+            align-items: center;
     min-width: 36px;
     height: 32px;
     padding: 4px 8px;
@@ -2187,6 +2201,7 @@ nav .tab:hover {
     display: inline-flex;
     align-items: flex-start;
     justify-content: center;
+            align-items: center;
     line-height: 1;
     transition: all .15s ease;
 }
@@ -2326,6 +2341,7 @@ nav .tab:hover {
     display: inline-flex;
     align-items: flex-start;
     justify-content: center;
+            align-items: center;
     line-height: 1;
     transition: all .15s ease;
 }
@@ -2575,6 +2591,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         display: inline-flex;
         align-items: flex-start;
         justify-content: center;
+            align-items: center;
         gap: 7px;
         padding: 9px 12px;
         border: 1px solid rgba(247, 226, 180, 0.28);
@@ -2768,6 +2785,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     display: flex;
     align-items: flex-start;
     justify-content: center;
+            align-items: center;
     gap: 24px;
     min-width: 0;
 }
@@ -2943,7 +2961,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-hero-rating .stars { color:var(--accent) !important; letter-spacing:-1px; }
 .cv-hero-badges { display:flex; gap:24px; align-items: center; flex-wrap: wrap; }
 .cv-hero-badge { background:transparent; border:0; border-radius:0; padding:0; display:flex; gap:10px; align-items:flex-start; }
-.cv-hero-badge i { color: var(--accent) !important; font-size: 17px; margin-top: 1px; width: 22px; height: 22px; border-radius: 50%; background: rgba(255,204,0,0.1); display: inline-flex; align-items: center; justify-content: center; font-size: 11px; }
+.cv-hero-badge i { color: var(--accent) !important; font-size: 17px; margin-top: 1px; width: 22px; height: 22px; border-radius: 50%; background: rgba(255,204,0,0.1); display: inline-flex; align-items: center; justify-content: center;
+            align-items: center; font-size: 11px; }
 .cv-hero-badge-label { display:block; font-size:13px; color:rgba(255,255,255,0.78) !important; font-weight:600; line-height:1.25; }
 .cv-hero-badge-sub { display:block; font-size:13px; color:rgba(255,255,255,0.95) !important; margin-top:2px; line-height:1.2; font-weight: 700; }
 @media (min-width: 992px) {
@@ -3114,6 +3133,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     display: inline-flex;
     align-items: flex-start;
     justify-content: center;
+            align-items: center;
     flex-shrink: 0;
     box-shadow: inset 0 0 0 1px rgba(251,113,133,0.32);
 }
@@ -3288,6 +3308,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     display: inline-flex;
     align-items: flex-start;
     justify-content: center;
+            align-items: center;
     box-shadow: 0 4px 14px rgba(124,58,237,0.4);
     margin-left: auto;
 }
@@ -3429,6 +3450,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     display: inline-flex;
     align-items: flex-start;
     justify-content: center;
+            align-items: center;
     gap: 10px;
     text-transform: none;
     letter-spacing: 0.01em;
@@ -3618,6 +3640,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     display: inline-flex !important;
     align-items: flex-start;
     justify-content: center;
+            align-items: center;
     gap: 8px;
 }
 .btn-next:hover, .submit-btn:hover {
@@ -3998,6 +4021,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .guest .guest-section .counter {
     display: flex;
     justify-content: center;
+            align-items: center;
 }
 .guest .addon-qty-stepper.guest-qty-stepper {
     display: inline-flex;
@@ -4187,6 +4211,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     display: inline-flex;
     align-items: flex-start;
     justify-content: center;
+            align-items: center;
     line-height: 1;
 }
 .cv-deposit-box .cv-deposit-main {
@@ -4223,6 +4248,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     display: inline-flex;
     align-items: flex-start;
     justify-content: center;
+            align-items: center;
     color: #22c55e !important;
     font-size: 17px;
     flex-shrink: 0;
@@ -4311,7 +4337,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-dstep { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 8px; color: rgba(255,255,255,0.55) !important; font-size: 12px; font-weight: 600; position: relative; text-align: center; padding: 0 4px; }
 .cv-dstep::before { content: ''; position: absolute; top: 16px; left: calc(50% + 18px); right: calc(-50% + 18px); height: 2px; background: rgba(255,255,255,0.14); z-index: 0; }
 .cv-dstep:last-child::before { display: none; }
-.cv-dstep-num { width: 32px; height: 32px; border-radius: 999px; border: 1.5px solid rgba(255,255,255,0.22); display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: rgba(255,255,255,0.85) !important; background: rgba(255,255,255,0.04); position: relative; z-index: 1; transition: all .2s; }
+.cv-dstep-num { width: 32px; height: 32px; border-radius: 999px; border: 1.5px solid rgba(255,255,255,0.22); display: inline-flex; align-items: center; justify-content: center;
+            align-items: center; font-size: 13px; font-weight: 800; color: rgba(255,255,255,0.85) !important; background: rgba(255,255,255,0.04); position: relative; z-index: 1; transition: all .2s; }
 .cv-dstep.is-active .cv-dstep-num { background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%) !important; border-color: #7c3aed !important; color: #fff !important; box-shadow: 0 0 0 4px rgba(167,116,255,0.2), 0 4px 12px rgba(124,58,237,0.4); }
 .cv-dstep.is-active { color: #c4a3ff !important; }
 .cv-dstep.is-complete .cv-dstep-num { background: linear-gradient(135deg, #a774ff 0%, #5b21b6 100%) !important; border-color: #7c3aed !important; color: #fff !important; }
@@ -4485,7 +4512,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .vip-card.cv-exact-card .vip-price-tag { font-size: 30px !important; text-align: right; padding-top: 0; min-width: 0; color: #fff !important; font-weight: 700; line-height: 1.1; }
 .cv-price-meta { text-align: right; font-size: 12px; color: rgba(255,255,255,0.58) !important; margin-top: 2px; }
 .vip-card.cv-exact-card .package_number_of_guestss { width: 100% !important; min-width: 0; margin-top: 8px; }
-.vip-card.cv-exact-card .vip-btn { width: 100%; border-radius: 10px; font-weight: 800; background: var(--tier-accent, var(--accent)) !important; color: var(--tier-btn-color, #000) !important; padding: 11px 12px !important; font-size: 14px !important; display: inline-flex !important; align-items: center; justify-content: center; gap: 6px; }
+.vip-card.cv-exact-card .vip-btn { width: 100%; border-radius: 10px; font-weight: 800; background: var(--tier-accent, var(--accent)) !important; color: var(--tier-btn-color, #000) !important; padding: 11px 12px !important; font-size: 14px !important; display: inline-flex !important; align-items: center; justify-content: center;
+            align-items: center; gap: 6px; }
 .vip-card.cv-exact-card .vip-btn::after { content: '\f07a'; font-family: 'Font Awesome 6 Free'; font-weight: 900; font-size: 12px; }
 
 /* Tier 1 - Gold (Most Popular) */
@@ -4507,7 +4535,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
 /* Free Ride Included callout */
 .cv-freeride-callout { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border-radius: 14px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.08); margin: 12px 0 0; }
-.cv-freeride-callout .cv-freeride-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,204,0,0.1); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--accent) !important; font-size: 17px; }
+.cv-freeride-callout .cv-freeride-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,204,0,0.1); display: inline-flex; align-items: center; justify-content: center;
+            align-items: center; flex-shrink: 0; color: var(--accent) !important; font-size: 17px; }
 .cv-freeride-callout strong { display: block; font-size: 14px; color: var(--accent) !important; font-weight: 700; margin-bottom: 2px; }
 .cv-freeride-callout span { display: block; font-size: 12px; color: rgba(255,255,255,0.62) !important; line-height: 1.5; }
 
@@ -4517,7 +4546,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-need-help-title span { display: block; font-size: 12px; color: rgba(255,255,255,0.5) !important; margin-top: 2px; }
 .cv-need-help-actions { display: flex; gap: 18px; flex-wrap: wrap; }
 .cv-need-help-action { display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,0.85) !important; text-decoration: none !important; font-size: 13px; }
-.cv-need-help-action i { color: var(--accent) !important; font-size: 15px; width: 28px; height: 28px; border-radius: 999px; background: rgba(255,204,0,0.1); display: inline-flex; align-items: center; justify-content: center; }
+.cv-need-help-action i { color: var(--accent) !important; font-size: 15px; width: 28px; height: 28px; border-radius: 999px; background: rgba(255,204,0,0.1); display: inline-flex; align-items: center; justify-content: center;
+            align-items: center; }
 .cv-need-help-action strong { display: block; font-size: 13px; color: #fff !important; font-weight: 600; line-height: 1.1; }
 .cv-need-help-action span { display: block; font-size: 11px; color: rgba(255,255,255,0.5) !important; margin-top: 1px; }
 
@@ -4536,7 +4566,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     padding: 8px;
     box-sizing: border-box;
 }
-.cv-sidebar-venue-image-placeholder { width: 100%; height: 100px; border-radius: 12px; background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.3); font-size: 13px; margin-bottom: 12px; }
+.cv-sidebar-venue-image-placeholder { width: 100%; height: 100px; border-radius: 12px; background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center;
+            align-items: center; color: rgba(255,255,255,0.3); font-size: 13px; margin-bottom: 12px; }
 #cv-order-sidebar #cart-section #cart-list .cart-line { border: none !important; background: transparent !important; padding: 8px 0 !important; border-radius: 0 !important; margin: 0 !important; border-bottom: 1px solid rgba(255,255,255,0.07) !important; }
 #cv-order-sidebar #cart-section #cart-list .cart-line:last-child { border-bottom: none !important; }
 #cv-order-sidebar #cart-section #cart-list .cart-line-main { gap: 10px; }
@@ -4587,6 +4618,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     display: inline-flex;
     align-items: flex-start;
     justify-content: center;
+            align-items: center;
     line-height: 1;
     flex-shrink: 0;
     margin-left: 4px;
@@ -4716,6 +4748,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     display: inline-flex !important;
     align-items: flex-start;
     justify-content: center;
+            align-items: center;
     line-height: 1;
 }
 #cv-order-sidebar .dynamic-price.col-md-6 #applyPromoBtn:hover,
@@ -4768,6 +4801,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     display: flex;
     align-items: flex-start;
     justify-content: center;
+            align-items: center;
     background: transparent;
     border-radius: 0;
 }
@@ -4792,6 +4826,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     display: flex;
     align-items: flex-start;
     justify-content: center;
+            align-items: center;
     gap: 8px;
 }
 
@@ -5313,7 +5348,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .ent-mc-slide { flex: 0 0 100%; scroll-snap-align: start; width: 100%; aspect-ratio: 16 / 9; border: none; padding: 0; background: rgba(255,255,255,0.04); cursor: pointer; overflow: hidden; position: relative; transition: transform 0.3s ease; border-radius: 0; }
 .ent-mc-slide img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; transition: transform .35s ease; user-select: none; }
 .ent-mc-slide:hover img { transform: scale(1.08); }
-.ent-mc-dots { display: flex; justify-content: center; gap: 8px; padding: 12px 0 4px; }
+.ent-mc-dots { display: flex; justify-content: center;
+            align-items: center; gap: 8px; padding: 12px 0 4px; }
 .ent-mc-dot { width: 8px; height: 8px; border-radius: 50%; border: none; background: rgba(255,255,255,0.25); cursor: pointer; transition: background .2s, width .25s, border-radius .25s; padding: 0; }
 .ent-mc-dot.is-active { background: #efbe6f; width: 22px; border-radius: 4px; }
 
@@ -5331,7 +5367,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .ent-dg-item::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1) 0%, transparent 70%); pointer-events: none; z-index: 1; transition: opacity 0.3s ease; opacity: 0; }
 .ent-dg-item:hover::before { opacity: 1; }
 .ent-dg-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.4s ease, saturate 0.3s ease; filter: saturate(1.05); }
-.ent-dg-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(167,116,255,0.28) 0%, rgba(239,190,111,0.16) 100%); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .3s ease; z-index: 2; }
+.ent-dg-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(167,116,255,0.28) 0%, rgba(239,190,111,0.16) 100%); display: flex; align-items: center; justify-content: center;
+            align-items: center; opacity: 0; transition: opacity .3s ease; z-index: 2; }
 .ent-dg-overlay i { color: #fff; font-size: 28px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.8)); transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .ent-dg-item:hover { border-color: rgba(239,190,111,0.4); box-shadow: 0 8px 32px rgba(167,116,255,0.2), inset 0 1px 1px rgba(255,255,255,0.1); transform: translateY(-4px); }
 .ent-dg-item:hover img { transform: scale(1.08) rotate(0.5deg); filter: brightness(0.85) saturate(1.2); }
@@ -5350,10 +5387,12 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .ent-mgc-track { display: flex; flex-direction: row; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; height: auto; gap: 0; padding: 0; user-select: none; cursor: grab; scroll-behavior: smooth; }
 .ent-mgc-track::-webkit-scrollbar { display: none; }
 .ent-mgc-track.is-dragging { cursor: grabbing; scroll-behavior: auto; }
-.ent-mgc-slide { flex: 0 0 100%; scroll-snap-align: start; width: 100%; height: auto; min-height: 400px; border: none; padding: 0; background: transparent; cursor: pointer; overflow: hidden; border-radius: 0; position: relative; transition: transform 0.3s ease; display: flex; align-items: center; justify-content: center; }
+.ent-mgc-slide { flex: 0 0 100%; scroll-snap-align: start; width: 100%; height: auto; min-height: 400px; border: none; padding: 0; background: transparent; cursor: pointer; overflow: hidden; border-radius: 0; position: relative; transition: transform 0.3s ease; display: flex; align-items: center; justify-content: center;
+            align-items: center; }
 .ent-mgc-slide img { width: 100%; height: auto; max-height: 500px; object-fit: contain; display: block; pointer-events: none; transition: transform .35s ease, filter .3s ease; }
 .ent-mgc-slide:hover img { transform: scale(1.08); filter: brightness(0.9); }
-.ent-mgc-dots { display: flex; justify-content: center; gap: 8px; padding: 12px 0; flex-wrap: wrap; }
+.ent-mgc-dots { display: flex; justify-content: center;
+            align-items: center; gap: 8px; padding: 12px 0; flex-wrap: wrap; }
 .ent-mgc-dot { width: 8px; height: 8px; border-radius: 50%; border: none; background: rgba(255,255,255,0.25); cursor: pointer; transition: background .2s, width .25s, border-radius .25s; padding: 0; }
 .ent-mgc-dot.is-active { background: #efbe6f; width: 22px; border-radius: 4px; }
 
@@ -5362,7 +5401,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .ent-dgc-item { position: relative; overflow: hidden; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.5); cursor: pointer; aspect-ratio: 1/1; padding: 0; transition: all 0.3s ease; }
 .ent-dgc-item img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.3s ease, filter 0.3s ease; }
 .ent-dgc-item:hover img { transform: scale(1.08); filter: brightness(0.9); }
-.ent-dgc-item > div { position: absolute; inset: 0; background: rgba(0,0,0,0); display: flex; align-items: center; justify-content: center; transition: background 0.3s ease; }
+.ent-dgc-item > div { position: absolute; inset: 0; background: rgba(0,0,0,0); display: flex; align-items: center; justify-content: center;
+            align-items: center; transition: background 0.3s ease; }
 .ent-dgc-item:hover > div { background: rgba(0,0,0,0.3); }
 .ent-dgc-item:hover i { opacity: 1; }
 .ent-dgc-item i { opacity: 0; transition: opacity 0.3s ease; }
@@ -5465,6 +5505,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     display: flex;
     align-items: flex-start;
     justify-content: center;
+            align-items: center;
     background: rgba(0, 0, 0, 0.3);
     border-radius: 12px;
     overflow: hidden;
@@ -5502,6 +5543,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .ent-gallery-carousel-indicators {
     display: flex;
     justify-content: center;
+            align-items: center;
     gap: 6px;
     margin-top: 16px;
     flex-wrap: wrap;
@@ -5657,12 +5699,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     @if($entertainer->facebook_url || $entertainer->instagram_url)
                                         <div class="ent-social-links" style="display: flex; gap: 8px; margin-top: 6px;">
                                             @if($entertainer->facebook_url)
-                                                <a href="{{ $entertainer->facebook_url }}" target="_blank" rel="noopener noreferrer" class="ent-social-link" style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; text-decoration: none; transition: all 0.2s ease;" title="Facebook">
+                                                <a href="{{ $entertainer->facebook_url }}" target="_blank" rel="noopener noreferrer" class="ent-social-link" style="display: inline-flex; align-items: center; justify-content: center;
+            align-items: center; width: 36px; height: 36px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; text-decoration: none; transition: all 0.2s ease;" title="Facebook">
                                                     <i class="fab fa-facebook-f" style="font-size: 15px;"></i>
                                                 </a>
                                             @endif
                                             @if($entertainer->instagram_url)
-                                                <a href="{{ $entertainer->instagram_url }}" target="_blank" rel="noopener noreferrer" class="ent-social-link" style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; text-decoration: none; transition: all 0.2s ease;" title="Instagram">
+                                                <a href="{{ $entertainer->instagram_url }}" target="_blank" rel="noopener noreferrer" class="ent-social-link" style="display: inline-flex; align-items: center; justify-content: center;
+            align-items: center; width: 36px; height: 36px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; text-decoration: none; transition: all 0.2s ease;" title="Instagram">
                                                     <i class="fab fa-instagram" style="font-size: 15px;"></i>
                                                 </a>
                                             @endif
@@ -5696,7 +5740,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 45%; background: radial-gradient(ellipse at right center, rgba(255,255,255,0.05), transparent 70%); pointer-events: none;"></div>
 
                                         <!-- Icon -->
-                                        <div style="display: flex; align-items: center; justify-content: center; width: 100px; height: 100px; background: rgba(255,255,255,0.06); border-radius: 12px; border: 1.5px solid rgba(167,116,255,0.6); position: relative; z-index: 1; flex-shrink: 0;">
+                                        <div style="display: flex; align-items: center; justify-content: center;
+            align-items: center; width: 100px; height: 100px; background: rgba(255,255,255,0.06); border-radius: 12px; border: 1.5px solid rgba(167,116,255,0.6); position: relative; z-index: 1; flex-shrink: 0;">
                                             @php
                                                 $featuredIcon = $entertainer->featured_icon ?? 'fa-star';
                                             @endphp
@@ -5769,10 +5814,12 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     @endforeach
                                 </div>
                                 @if(count($entertainer->gallery_images) > 1)
-                                    <button class="ent-hero-carousel-prev" id="entHeroCarouselPrev" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); border: none; color: #fff; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: background 0.2s;">
+                                    <button class="ent-hero-carousel-prev" id="entHeroCarouselPrev" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); border: none; color: #fff; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            align-items: center; z-index: 10; transition: background 0.2s;">
                                         <i class="fas fa-chevron-up" style="font-size: 16px;"></i>
                                     </button>
-                                    <button class="ent-hero-carousel-next" id="entHeroCarouselNext" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); border: none; color: #fff; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: background 0.2s;">
+                                    <button class="ent-hero-carousel-next" id="entHeroCarouselNext" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); border: none; color: #fff; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            align-items: center; z-index: 10; transition: background 0.2s;">
                                         <i class="fas fa-chevron-down" style="font-size: 16px;"></i>
                                     </button>
                                 @endif
@@ -5789,13 +5836,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 <button type="button" class="ent-mgc-slide js-checkout-gallery-trigger"
                                         data-gallery-src="{{ asset('uploads/' . $galleryImage) }}"
                                         data-gallery-alt="Gallery image {{ $loop->iteration }}"
-                                        style="flex: 0 0 100%; scroll-snap-align: start; width: 100%; height: auto; min-height: 400px; border: none; padding: 0; background: transparent; cursor: pointer; overflow: hidden; border-radius: 0; position: relative; display: flex; align-items: center; justify-content: center;">
+                                        style="flex: 0 0 100%; scroll-snap-align: start; width: 100%; height: auto; min-height: 400px; border: none; padding: 0; background: transparent; cursor: pointer; overflow: hidden; border-radius: 0; position: relative; display: flex; align-items: center; justify-content: center;
+            align-items: center;">
                                     <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image" style="width: 100%; height: auto; max-height: 500px; object-fit: contain;">
                                 </button>
                             @endforeach
                         </div>
                         @if(count($entertainer->gallery_images) > 1)
-                            <div class="ent-mgc-dots" id="entMgcDots" style="display: flex; justify-content: center; gap: 8px; padding: 12px 0; flex-wrap: wrap;">
+                            <div class="ent-mgc-dots" id="entMgcDots" style="display: flex; justify-content: center;
+            align-items: center; gap: 8px; padding: 12px 0; flex-wrap: wrap;">
                                 @foreach($entertainer->gallery_images as $galleryImage)
                                     <button type="button" class="ent-mgc-dot{{ $loop->first ? ' is-active' : '' }}" data-slide="{{ $loop->index }}" style="width: 8px; height: 8px; border-radius: 50%; border: none; background: rgba(255,255,255,0.25); cursor: pointer; padding: 0; transition: background .2s, width .25s;"></button>
                                 @endforeach
@@ -5811,7 +5860,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     data-gallery-alt="Gallery image {{ $loop->iteration }}"
                                     style="position: relative; overflow: hidden; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.5); cursor: pointer; aspect-ratio: 1/1;">
                                 <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image" style="width: 100%; height: 100%; object-fit: contain;">
-                                <div style="position: absolute; inset: 0; background: rgba(0,0,0,0); display: flex; align-items: center; justify-content: center; transition: background 0.3s ease;">
+                                <div style="position: absolute; inset: 0; background: rgba(0,0,0,0); display: flex; align-items: center; justify-content: center;
+            align-items: center; transition: background 0.3s ease;">
                                     <i class="fas fa-expand-alt" style="color: #fff; font-size: 20px; opacity: 0;"></i>
                                 </div>
                             </button>
@@ -6892,6 +6942,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 display: none;
                 align-items: flex-start;
                 justify-content: center;
+            align-items: center;
                 z-index: 9999;
             }
 
@@ -6975,6 +7026,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 display: inline-flex;
                 align-items: flex-start;
                 justify-content: center;
+            align-items: center;
                 color: #fff;
                 font-size: 15px;
                 flex-shrink: 0;
@@ -6996,6 +7048,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 display: inline-flex;
                 align-items: flex-start;
                 justify-content: center;
+            align-items: center;
                 transition: all .15s;
                 flex-shrink: 0;
             }

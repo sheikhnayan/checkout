@@ -1175,8 +1175,8 @@
             font-family: 'Inter', sans-serif !important;
             font-weight: 400 !important;
         }
-        /* Business purpose toggle - center aligned */
-        .checkbox-container.payment-consent-group .consent-label {
+        /* Business purpose toggle - center aligned with text */
+        .checkbox-container.payment-consent-group:not(#payment-consent-group) .consent-label {
             align-items: center !important;
         }
 
@@ -1410,6 +1410,7 @@
         .step-navigation {
             display: flex !important;
             justify-content: center;
+            align-items: center;
             gap: 12px;
             flex-wrap: wrap;
             margin: 1.5rem 0;
