@@ -610,6 +610,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         <tr>
                             <th><input type="checkbox" id="selectAll"></th>
                             <th>Order ID</th>
+                            <th>Confirmation #</th>
                             <th>Event / Package</th>
                             <th>Source</th>
                             <th>Customer</th>
@@ -708,6 +709,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         <tr data-row-id="{{ $item->id }}" data-row-error="{{ $rowError ?? '' }}">
                             <td><input type="checkbox" class="row-check" value="{{ $item->id }}"></td>
                             <td class="txn-order-id">#{{ str_pad($item->id, 3, '0', STR_PAD_LEFT) }}</td>
+                            <td class="txn-confirmation-num">{{ $item->transaction_id ?? 'N/A' }}</td>
                             <td class="txn-pkg-name">
                                 <div style="font-size:0.95rem;font-weight:600;margin-bottom:8px;">{{ $venueName }}</div>
                                 @if($packageDetails->count() > 1)
