@@ -9251,6 +9251,22 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         prepareCheckoutCartPayload(form);
                         showCheckoutProcessingOverlay();
 
+                        // Replace visible phone fields with E.164 values before submission
+                        const phoneFieldsToSync = [
+                            { visible: 'package_phone', e164: 'package_phone_e164' },
+                            { visible: 'reservation_phone', e164: 'reservation_phone_e164' },
+                            { visible: 'transportation_phone', e164: 'transportation_phone_e164' }
+                        ];
+
+                        phoneFieldsToSync.forEach(pair => {
+                            const e164Field = form.querySelector(`input[name="${pair.e164}"]`);
+                            const visibleField = form.querySelector(`input[name="${pair.visible}"]`);
+                            if (e164Field && visibleField && e164Field.value) {
+                                // Use E.164 format for submission
+                                visibleField.value = e164Field.value;
+                            }
+                        });
+
                         const {token, error} = await stripe.createToken(cardNumber);
 
                         if (error) {

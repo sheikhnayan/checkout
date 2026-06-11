@@ -8383,14 +8383,30 @@
 
             // Copy package holder info to transportation info
             $(document).on('click', '.same-as-info-transport', function() {
-                // Copy phone number
-                $('input[name="transportation_phone"]').val($('input[name="package_phone"]').val());
+                // Copy phone number (use E.164 if available)
+                const e164Phone = $('input[name="package_phone_e164"]').val();
+                $('input[name="transportation_phone"]').val(e164Phone ? e164Phone.replace(/^\+\d+/, '') : $('input[name="package_phone"]').val());
+
                 // Copy country code selector
                 const packageCountryCode = $('input[name="package_phone_country"]').val();
                 const transportCountryCode = $('input[name="transportation_phone_country"]');
                 if (transportCountryCode.length) {
                     transportCountryCode.val(packageCountryCode);
                     transportCountryCode.dataset.code = $('input[name="package_phone_country"]')[0].dataset.code;
+                }
+
+                // Copy E.164 field
+                const packageE164 = $('input[name="package_phone_e164"]').val();
+                if (packageE164) {
+                    let transportE164 = $('input[name="transportation_phone_e164"]');
+                    if (!transportE164.length) {
+                        transportE164 = $('<input>').attr({
+                            'type': 'hidden',
+                            'name': 'transportation_phone_e164'
+                        });
+                        $('input[name="transportation_phone"]').parent().append(transportE164);
+                    }
+                    transportE164.val(packageE164);
                 }
             });
             // Populate country select
@@ -9340,6 +9356,22 @@
                     }
 
                     prepareCheckoutCartPayload(form);
+
+                    // Replace visible phone fields with E.164 values before submission
+                    const phoneFieldsToSync = [
+                        { visible: 'package_phone', e164: 'package_phone_e164' },
+                        { visible: 'reservation_phone', e164: 'reservation_phone_e164' },
+                        { visible: 'transportation_phone', e164: 'transportation_phone_e164' }
+                    ];
+
+                    phoneFieldsToSync.forEach(pair => {
+                        const e164Field = form.querySelector(`input[name="${pair.e164}"]`);
+                        const visibleField = form.querySelector(`input[name="${pair.visible}"]`);
+                        if (e164Field && visibleField && e164Field.value) {
+                            // Use E.164 format for submission
+                            visibleField.value = e164Field.value;
+                        }
+                    });
 
                     // Submit form after a tiny delay for iOS compatibility
                     setTimeout(() => {
