@@ -7766,7 +7766,9 @@ input[type="checkbox"],
 
             // Auto-populate hidden payment fields when moving to payment step
             function populatePaymentFields() {
-                $('#hidden_payment_phone').val($('input[name="package_phone"]').val());
+                // Use E.164 format from hidden field for SMS
+                const e164Phone = $('input[name="package_phone_e164"]').val() || $('input[name="package_phone"]').val();
+                $('#hidden_payment_phone').val(e164Phone);
                 $('#hidden_payment_email').val($('input[name="package_email"]').val());
                 $('#hidden_payment_month').val($('select[name="package_month"]').val());
                 $('#hidden_payment_day').val($('select[name="package_day"]').val());
@@ -9776,6 +9778,8 @@ input[type="checkbox"],
 
             if (!phoneValue) {
                 phoneInput.style.borderColor = '';
+                const hiddenField = document.querySelector(`input[name="${phoneInput.name}_e164"]`);
+                if (hiddenField) hiddenField.value = '';
                 return;
             }
 
@@ -9799,8 +9803,19 @@ input[type="checkbox"],
                 return;
             }
 
-            phoneInput.value = e164Number;
+            // Keep ONLY numbers in the visible input field, store E.164 in hidden field
+            phoneInput.value = cleanNumber;
             phoneInput.style.borderColor = '#51cf66';
+
+            // Create or update hidden field with E.164 format for SMS
+            let hiddenField = document.querySelector(`input[name="${phoneInput.name}_e164"]`);
+            if (!hiddenField) {
+                hiddenField = document.createElement('input');
+                hiddenField.type = 'hidden';
+                hiddenField.name = `${phoneInput.name}_e164`;
+                phoneInput.parentElement.appendChild(hiddenField);
+            }
+            hiddenField.value = e164Number;
         }
 
         document.addEventListener('DOMContentLoaded', function() {
