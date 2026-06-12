@@ -454,7 +454,7 @@
         @if($transaction->transportation_pickup_time)
         <div class="info-row">
             <span class="info-label">Pickup Time</span>
-            <span class="info-value">{{ $transaction->transportation_pickup_time }}</span>
+            <span class="info-value">{{ \Carbon\Carbon::createFromFormat('H:i', $transaction->transportation_pickup_time)->format('h:i A') }}</span>
         </div>
         @endif
         @if($transaction->transportation_address)
