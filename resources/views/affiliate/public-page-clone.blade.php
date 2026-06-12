@@ -2506,7 +2506,17 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .aff-display-copy { font-size: 11px; }
 
     /* Mobile form layout: stack fields vertically */
+    .form-row {
+        flex-direction: column !important;
+    }
     .form-row .form-group {
+        width: 100% !important;
+    }
+    .guest .form-row {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+    .guest .form-row .form-group {
         width: 100% !important;
     }
 }
