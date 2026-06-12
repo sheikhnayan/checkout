@@ -75,47 +75,8 @@ class TelnyxSmsService
      */
     private function formatTransactionMessage($data, $type)
     {
-        $clubName = $data['club_name'] ?? $data['website_name'] ?? 'Your Venue';
-        $confirmationId = $data['transaction_id'] ?? 'Pending';
-        $totalAmount = $data['total_amount'] ?? $data['total'] ?? '0.00';
-
-        if ($type === 'reservation') {
-            $reservationDate = $data['reservation_date'] ?? $data['package_use_date'] ?? 'N/A';
-
-            // Format date to "Month Day, Year" format (e.g., June 25, 2026)
-            try {
-                $dateObj = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $reservationDate);
-                $formattedDate = $dateObj->format('F j, Y');
-            } catch (\Exception $e) {
-                $formattedDate = $reservationDate;
-            }
-
-            $message = "RESERVATION CONFIRMED\n\n";
-            $message .= "Venue: {$clubName}\n";
-            $message .= "Confirmation: #{$confirmationId}\n";
-            $message .= "Date: {$formattedDate}\n\n";
-            $message .= "Your reservation details and QR code have been emailed to you. Please check your inbox and spam folder if needed.\n\n";
-            $message .= "Questions? Contact the venue directly.";
-        } else {
-            // Package type
-            $packageCount = $data['quantity'] ?? $data['package_count'] ?? 1;
-            $packageDate = $data['reservation_date'] ?? $data['package_use_date'] ?? 'N/A';
-
-            // Format date to "Month Day, Year" format (e.g., June 25, 2026)
-            try {
-                $dateObj = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $packageDate);
-                $formattedDate = $dateObj->format('F j, Y');
-            } catch (\Exception $e) {
-                $formattedDate = $packageDate;
-            }
-
-            $message = "PURCHASE CONFIRMED\n\n";
-            $message .= "Venue: {$clubName}\n";
-            $message .= "Confirmation: #{$confirmationId}\n";
-            $message .= "Date: {$formattedDate}\n\n";
-            $message .= "Your purchase details and QR code have been emailed to you. Please check your inbox and spam folder if needed.\n\n";
-            $message .= "Questions? Contact the venue directly.";
-        }
+        // Same message for both reservation and package types
+        $message = "CartVIP: Your reservation has been received. Check your email for details. Reply STOP to opt out.";
 
         // Telnyx supports up to 1,600 characters (SMS will be concatenated if longer)
         return substr($message, 0, 1600);
