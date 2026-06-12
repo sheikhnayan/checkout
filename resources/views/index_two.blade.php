@@ -5875,7 +5875,7 @@
                                                     may vary. Reply STOP to opt out at any time.</span>
                                                 </label>
                                                 {{-- <label class="consent-label driver-notification-consent-wrap" style="display:none;">
-                                                    <input type="checkbox" id="driverNotificationConsent_two" class="driver-notification-consent-input"  required />
+                                                    <input type="checkbox" id="driverNotificationConsent_two" class="driver-notification-consent-input" />
                                                     <span>I agree to receive notifications from the driver regarding my transportation pickup.</span>
                                                 </label> --}}
                                                 <label class="consent-label">
@@ -6725,7 +6725,7 @@
                                                                 STOP to opt out at any time.</span>
                                                             </label>
                                                             <label class="consent-label driver-notification-consent-wrap" style="display:none;">
-                                                                <input type="checkbox" id="driverNotificationConsent" class="driver-notification-consent-input"  required />
+                                                                <input type="checkbox" id="driverNotificationConsent" class="driver-notification-consent-input" />
                                                                 <span>I agree to receive notifications from the driver regarding my transportation pickup.</span>
                                                             </label>
 
