@@ -8409,7 +8409,8 @@
             $(document).on('click', '.same-as-info-transport', function() {
                 // Copy phone number (use E.164 if available)
                 const e164Phone = $('input[name="package_phone_e164"]').val();
-                $('input[name="transportation_phone"]').val(e164Phone ? e164Phone.replace(/^\+\d+/, '') : $('input[name="package_phone"]').val());
+                const transportPhoneInput = $('input[name="transportation_phone"]');
+                transportPhoneInput.val(e164Phone ? e164Phone.replace(/^\+\d+/, '') : $('input[name="package_phone"]').val());
 
                 // Copy country code selector
                 const packageCountryCode = $('input[name="package_phone_country"]').val();
@@ -8431,6 +8432,11 @@
                         $('input[name="transportation_phone"]').parent().append(transportE164);
                     }
                     transportE164.val(packageE164);
+                }
+
+                // Trigger validation and formatting for transportation phone
+                if (transportPhoneInput.length && transportCountryCode.length) {
+                    validateAndFormatPhone(transportPhoneInput[0], transportCountryCode[0]);
                 }
             });
             // Populate country select

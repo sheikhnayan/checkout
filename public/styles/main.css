@@ -468,6 +468,14 @@ main {
       margin-right: 12px;
     }
 
+    #driverNotificationConsent{
+        margin-right: 12px;
+    }
+
+    #smsConsent{
+        margin-right: 12px;
+    }
+
     .termsConsent {
       width: 20px;
       height: 20px;

@@ -8182,14 +8182,36 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             
             // Copy package holder info to transportation info
             $(document).on('click', '.same-as-info-transport', function () {
-                // Copy phone number
-                $('input[name="transportation_phone"]').val($('input[name="package_phone"]').val());
+                // Copy phone number (use E.164 if available)
+                const e164Phone = $('input[name="package_phone_e164"]').val();
+                const transportPhoneInput = $('input[name="transportation_phone"]');
+                transportPhoneInput.val(e164Phone ? e164Phone.replace(/^\+\d+/, '') : $('input[name="package_phone"]').val());
+
                 // Copy country code selector
                 const packageCountryCode = $('input[name="package_phone_country"]').val();
                 const transportCountryCode = $('input[name="transportation_phone_country"]');
                 if (transportCountryCode.length) {
                     transportCountryCode.val(packageCountryCode);
                     transportCountryCode[0].dataset.code = $('input[name="package_phone_country"]')[0].dataset.code;
+                }
+
+                // Copy E.164 field
+                const packageE164 = $('input[name="package_phone_e164"]').val();
+                if (packageE164) {
+                    let transportE164 = $('input[name="transportation_phone_e164"]');
+                    if (!transportE164.length) {
+                        transportE164 = $('<input>').attr({
+                            'type': 'hidden',
+                            'name': 'transportation_phone_e164'
+                        });
+                        $('input[name="transportation_phone"]').parent().append(transportE164);
+                    }
+                    transportE164.val(packageE164);
+                }
+
+                // Trigger validation and formatting for transportation phone
+                if (transportPhoneInput.length && transportCountryCode.length) {
+                    validateAndFormatPhoneEntertainer(transportPhoneInput[0], transportCountryCode[0]);
                 }
             });
             // Populate country select
