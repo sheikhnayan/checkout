@@ -2794,6 +2794,11 @@
             .guest .form-row .form-group {
                 width: 100% !important;
             }
+
+            /* Hide phone formatting note on mobile */
+            .phone-note {
+                display: none !important;
+            }
         }
 
         @media(max-width:576px) {
@@ -5782,7 +5787,7 @@
                                                         <label for="phone">Phone Number</label>
                                                         <input type="tel" name="reservation_phone" id="reservation_phone"
                                                             placeholder="(555) 123-4567" required />
-                                                        <div style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 4px;">Phone number formatting may vary by country. Your number will still be processed correctly.</div>
+                                                        <div class="phone-note" style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 4px;">Phone formatting may vary by country. International SMS delivery is not guaranteed.</div>
                                                     </div>
                                                     <div class="form-group" style="width: 50%;">
                                                         <label for="email">Email</label>
@@ -6322,7 +6327,7 @@
                                                                     <input type="tel" id="package_phone"
                                                                         name="package_phone"
                                                                         placeholder="(555) 123-4567" required />
-                                                                    <div style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 4px;">Phone number formatting may vary by country. Your number will still be processed correctly.</div>
+                                                                    <div class="phone-note" style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 4px;">Phone formatting may vary by country. International SMS delivery is not guaranteed.</div>
                                                                 </div>
                                                                 <div class="form-group" style="width: 50%;">
                                                                     <label for="email">Email</label>
@@ -6439,7 +6444,7 @@
                                                                         <input type="tel"
                                                                             name="transportation_phone" id="phone"
                                                                             placeholder="For driver/dispatch to coordinate pickup"  required />
-                                                                        <div style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 4px;">Phone number formatting may vary by country. Your number will still be processed correctly.</div>
+                                                                        <div class="phone-note" style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 4px;">Phone formatting may vary by country. International SMS delivery is not guaranteed.</div>
                                                                     </div>
 
                                                                 </div>
