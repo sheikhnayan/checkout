@@ -142,7 +142,7 @@
                                                 <div id="frontPhotoPreviewContainer" class="d-none mb-3">
                                                     <div class="fw-semibold mb-2" style="color:#86efac;"><i class="fas fa-check-circle"></i> Front of ID Captured</div>
                                                     <div style="width:100%;max-height:280px;border-radius:8px;border:2px solid #22c55e;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
-                                                        <img id="frontPhotoPreview" style="max-width:100%;max-height:100%;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
+                                                        <img id="frontPhotoPreview" style="max-width:100%;max-height:100%;cursor:pointer;" onclick="if(this.src &amp;&amp; this.src.indexOf('data:image')===0){window.open(this.src,'_blank');}" title="Click to view larger">
                                                         <button type="button" id="retakeFrontPhotoBtn" class="btn btn-sm" style="position:absolute;bottom:10px;right:10px;z-index:10;background:#8b5cf6;color:#fff;border:none;"><i class="fas fa-camera"></i> Retake</button>
                                                     </div>
                                                     <small class="text-muted d-block mt-2" style="font-size:11px;"><i class="fas fa-info-circle"></i> Frame Reference: ID card should fill the green frame guide</small>
@@ -152,7 +152,7 @@
                                                 <div id="backPhotoPreviewContainer" class="d-none mb-3">
                                                     <div class="fw-semibold mb-2" style="color:#90caf9;"><i class="fas fa-check-circle"></i> Back of ID Captured</div>
                                                     <div style="width:100%;max-height:280px;border-radius:8px;border:2px solid #3b82f6;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
-                                                        <img id="backPhotoPreview" style="max-width:100%;max-height:100%;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
+                                                        <img id="backPhotoPreview" style="max-width:100%;max-height:100%;cursor:pointer;" onclick="if(this.src &amp;&amp; this.src.indexOf('data:image')===0){window.open(this.src,'_blank');}" title="Click to view larger">
                                                         <button type="button" id="retakeBackPhotoBtn" class="btn btn-sm" style="position:absolute;bottom:10px;right:10px;z-index:10;"><i class="fas fa-camera"></i> Retake Back</button>
                                                     </div>
                                                     <small class="text-muted d-block mt-2" style="font-size:11px;"><i class="fas fa-info-circle"></i> Frame Reference: ID card should fill the green frame guide</small>
@@ -171,7 +171,7 @@
                                             </div>
                                         </div>
 
-                                        <form method="POST" action="{{ route('admin.transaction.scan.check-in') }}" id="checkInForm" class="d-flex flex-wrap gap-2">
+                                        <form method="POST" action="{{ route('admin.transaction.scan.check-in') }}" id="checkInForm" class="d-flex flex-wrap gap-2 mt-4 pt-4" style="border-top:1px solid #334155;">
                                             @csrf
                                             <input type="hidden" name="ticket_qr_code" id="checkInCode">
                                             <input type="hidden" name="photo_data_front" id="frontPhotoData">
