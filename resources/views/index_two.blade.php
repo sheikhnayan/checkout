@@ -6438,7 +6438,6 @@
                                                                         <input type="tel"
                                                                             name="transportation_phone" id="phone"
                                                                             placeholder="For driver/dispatch to coordinate pickup"  required />
-                                                                        <div class="phone-note" style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 4px;">Phone formatting may vary by country. International SMS delivery is not guaranteed.</div>
                                                                     </div>
 
                                                                 </div>
@@ -6962,7 +6961,7 @@
                         </div>
                         <div class="modal-body" id="addonSelectionModalBody"></div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-secondary" id="addonModalNoAddonsBtn">No Add-ons</button>
                             <button type="button" class="btn" id="addonModalConfirmBtn">Confirm & Add to Cart</button>
                         </div>
                     </div>
@@ -8782,6 +8781,28 @@
                     window.pendingPackageSelection = null;
                 });
 
+                // No Add-ons button - adds package without any selected add-ons
+                $('#addonModalNoAddonsBtn').on('click', function() {
+                    if (!window.pendingPackageSelection) {
+                        return;
+                    }
+
+                    let selection = window.pendingPackageSelection;
+                    let selectedAddons = []; // Empty array - no add-ons selected
+
+                    window.addPackageToCart(selection.packageId, selection.packageName, selection.packagePrice, selection.guests, selectedAddons, selection.transportation, selection.isMultiple);
+                    $('#package_id').val(selection.packageId);
+
+                    $('.dynamic-price').show();
+                    $('.default-price').hide();
+                    $('#checkout-steps').show();
+                    syncTransportationStateFromCart();
+                    showStep(1);
+
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('addonSelectionModal')).hide();
+                    window.pendingPackageSelection = null;
+                });
+
                 $(document).on('click', '#addonSelectionModalBody .addon-qty-dec', function() {
                     let id = $(this).data('id');
                     let valEl = $('#addonSelectionModalBody .addon-qty-val[data-id="' + id + '"]');
@@ -10497,8 +10518,8 @@
         function initCountryCodePickers() {
             const phoneFields = [
                 { name: 'package_phone', label: 'Package Phone' },
-                { name: 'reservation_phone', label: 'Reservation Phone' },
-                { name: 'transportation_phone', label: 'Transportation Phone' }
+                { name: 'reservation_phone', label: 'Reservation Phone' }
+                // Note: transportation_phone is excluded intentionally - it's a simple phone field for driver contact only
             ];
 
             phoneFields.forEach(field => {

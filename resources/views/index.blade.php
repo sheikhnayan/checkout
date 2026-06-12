@@ -5848,8 +5848,7 @@ input[type="checkbox"],
                                                                 <div class="form-group" style="width: 100%;">
                                                                     <label for="phone">Contact Phone Number or WhatsApp</label>
                                                                     <input type="tel" name="transportation_phone" id="phone"
-                                                                    <div class="phone-note" style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 4px;">Phone formatting may vary by country. International SMS delivery is not guaranteed.</div>
-                                                                        placeholder="For driver/dispatch to coordinateï¿½pickup"   required />
+                                                                        placeholder="For driver/dispatch to coordinate pickup"   required />
                                                                 </div>
     
                                                             </div>
@@ -6302,7 +6301,7 @@ input[type="checkbox"],
                             </div>
                             <div class="modal-body" id="addonSelectionModalBody"></div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-secondary" id="addonModalNoAddonsBtn">No Add-ons</button>
                                 <button type="button" class="btn" id="addonModalConfirmBtn" style="background:var(--aff-accent);color:#000;font-weight:700;">Confirm & Add to Cart</button>
                             </div>
                         </div>
@@ -8193,6 +8192,42 @@ input[type="checkbox"],
                     });
                 });
 
+                // No Add-ons button - adds package without any selected add-ons
+                $('#addonModalNoAddonsBtn').on('click', function() {
+                    if (!window.pendingPackageSelection) {
+                        return;
+                    }
+
+                    var selection = window.pendingPackageSelection;
+                    var selectedAddons = []; // Empty array - no add-ons selected
+
+                    window.addPackageToCart(
+                        selection.packageId,
+                        selection.packageName,
+                        selection.packagePrice,
+                        selection.guests,
+                        selectedAddons,
+                        selection.transportation,
+                        selection.isMultiple
+                    ).then(function(added) {
+                        if (!added) {
+                            return;
+                        }
+
+                        $('#package_id').val(selection.packageId);
+                        $('#addons').val(selectedAddons.map(function(addon) { return addon.id; }).join(','));
+                        $('.package_number_of_guest').val(selection.guests);
+                        $('.dynamic-price').show();
+                        $('.default-price').hide();
+                        $('#checkout-steps').show();
+                        syncTransportationStateFromCart();
+                        showStep(1);
+
+                        bootstrap.Modal.getOrCreateInstance(document.getElementById('addonSelectionModal')).hide();
+                        window.pendingPackageSelection = null;
+                    });
+                });
+
                 $(document).on('click', '#addonSelectionModalBody .addon-qty-dec', function() {
                     var id = $(this).data('id');
                     var valEl = $('#addonSelectionModalBody .addon-qty-val[data-id="' + id + '"]');
@@ -9982,5 +10017,7 @@ input[type="checkbox"],
     </body>
 
     </html>
+
+
 
 
