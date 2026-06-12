@@ -8268,15 +8268,13 @@ input[type="checkbox"],
                     }
                 }
 
-                // On mobile, scroll to the top of the new step
-                if (window.innerWidth < 992) {
-                    setTimeout(function() {
-                        var el = document.getElementById('section-' + stepNumber);
-                        if (el) {
-                            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
-                    }, 50);
-                }
+                // Scroll to the top of the new step on all devices
+                setTimeout(function() {
+                    var el = document.getElementById('section-' + stepNumber);
+                    if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 50);
             }
             
             function validateStep(stepNumber) {
