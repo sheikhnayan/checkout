@@ -7969,7 +7969,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
             // Auto-populate hidden payment fields when moving to payment step
             function populatePaymentFields() {
-                $('#hidden_payment_phone').val($('input[name="package_phone"]').val());
+                const e164Phone = $('input[name="package_phone_e164"]').val() || $('input[name="package_phone"]').val();
+                $('#hidden_payment_phone').val(e164Phone);
                 $('#hidden_payment_email').val($('input[name="package_email"]').val());
                 $('#hidden_payment_month').val($('select[name="package_month"]').val());
                 $('#hidden_payment_day').val($('select[name="package_day"]').val());
@@ -9138,6 +9139,22 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         prepareCheckoutCartPayload(form);
                         showCheckoutProcessingOverlay();
 
+                        // Replace visible phone fields with E.164 values before submission
+                        const phoneFieldsToSync = [
+                            { visible: 'package_phone', e164: 'package_phone_e164' },
+                            { visible: 'reservation_phone', e164: 'reservation_phone_e164' },
+                            { visible: 'transportation_phone', e164: 'transportation_phone_e164' }
+                        ];
+
+                        phoneFieldsToSync.forEach(pair => {
+                            const e164Field = form.querySelector(`input[name="${pair.e164}"]`);
+                            const visibleField = form.querySelector(`input[name="${pair.visible}"]`);
+                            if (e164Field && visibleField && e164Field.value) {
+                                // Use E.164 format for submission
+                                visibleField.value = e164Field.value;
+                            }
+                        });
+
                         const {token, error} = await stripe.createToken(cardNumber);
 
                         if (error) {
@@ -9993,6 +10010,590 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 initPhoneFormatters();
             });
         })();
+        </script>
+
+        <style>
+            /* ===== Country Code Picker Styles ===== */
+            .phone-input-wrapper {
+                display: flex;
+                gap: 8px;
+                align-items: stretch;
+            }
+
+            .country-code-input {
+                flex: 0 0 120px;
+                position: relative;
+            }
+
+            .country-code-field {
+                width: 100%;
+                padding: 10px 12px;
+                border: 1px solid rgba(255,255,255,0.2);
+                background: rgba(255,255,255,0.05);
+                border-radius: 8px;
+                color: #fff;
+                font-size: 14px;
+                transition: border-color 0.3s;
+            }
+
+            .country-code-field:focus {
+                outline: none;
+                border-color: rgba(255,255,255,0.4);
+                background: rgba(255,255,255,0.08);
+            }
+
+            .country-code-dropdown {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                max-height: 250px;
+                overflow-y: auto;
+                background: rgba(20,20,30,0.98);
+                border: 1px solid rgba(255,255,255,0.2);
+                border-radius: 8px;
+                z-index: 1000;
+                display: none;
+                margin-top: 4px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            }
+
+            .country-code-dropdown.active {
+                display: block;
+            }
+
+            .country-option {
+                padding: 10px 12px;
+                cursor: pointer;
+                border-bottom: 1px solid rgba(255,255,255,0.05);
+                font-size: 13px;
+                color: rgba(255,255,255,0.8);
+                transition: background-color 0.2s;
+            }
+
+            .country-option:hover {
+                background: rgba(255,255,255,0.1);
+                color: #fff;
+            }
+
+            .country-option.selected {
+                background: rgba(124,92,255,0.2);
+                color: #fff;
+                font-weight: 600;
+            }
+
+            .flag-icon {
+                display: inline-block;
+                width: 20px;
+                height: 14px;
+                margin-right: 8px;
+                border-radius: 2px;
+                vertical-align: middle;
+                line-height: 14px;
+                text-align: center;
+                font-size: 12px;
+            }
+
+            .phone-number-input {
+                flex: 1;
+            }
+
+            .phone-validation-message {
+                font-size: 12px;
+                color: #ff6b6b;
+                margin-top: 4px;
+                display: none;
+            }
+
+            .phone-validation-message.valid {
+                color: #51cf66;
+                display: block;
+            }
+
+            .phone-validation-message.invalid {
+                color: #ff6b6b;
+                display: block;
+            }
+        </style>
+
+        <script>
+        // ===== COUNTRY CODE PICKER - COMPREHENSIVE SOLUTION =====
+        const COUNTRIES_AFFILIATE = [
+            { name: 'Afghanistan', code: '+93', flag: 'ðŸ‡¦ðŸ‡«' },
+            { name: 'Albania', code: '+355', flag: 'ðŸ‡¦ðŸ‡±' },
+            { name: 'Algeria', code: '+213', flag: 'ðŸ‡©ðŸ‡¿' },
+            { name: 'Andorra', code: '+376', flag: 'ðŸ‡¦ðŸ‡©' },
+            { name: 'Angola', code: '+244', flag: 'ðŸ‡¦ðŸ‡´' },
+            { name: 'Argentina', code: '+54', flag: 'ðŸ‡¦ðŸ‡·' },
+            { name: 'Armenia', code: '+374', flag: 'ðŸ‡¦ðŸ‡²' },
+            { name: 'Australia', code: '+61', flag: 'ðŸ‡¦ðŸ‡º' },
+            { name: 'Austria', code: '+43', flag: 'ðŸ‡¦ðŸ‡¹' },
+            { name: 'Azerbaijan', code: '+994', flag: 'ðŸ‡¦ðŸ‡¿' },
+            { name: 'Bahamas', code: '+1-242', flag: 'ðŸ‡§ðŸ‡¸' },
+            { name: 'Bahrain', code: '+973', flag: 'ðŸ‡§ðŸ‡­' },
+            { name: 'Bangladesh', code: '+880', flag: 'ðŸ‡§ðŸ‡©' },
+            { name: 'Barbados', code: '+1-246', flag: 'ðŸ‡§ðŸ‡§' },
+            { name: 'Belarus', code: '+375', flag: 'ðŸ‡§ðŸ‡¾' },
+            { name: 'Belgium', code: '+32', flag: 'ðŸ‡§ðŸ‡ª' },
+            { name: 'Belize', code: '+501', flag: 'ðŸ‡§ðŸ‡¿' },
+            { name: 'Benin', code: '+229', flag: 'ðŸ‡§ðŸ‡¯' },
+            { name: 'Bhutan', code: '+975', flag: 'ðŸ‡§ðŸ‡¹' },
+            { name: 'Bolivia', code: '+591', flag: 'ðŸ‡§ðŸ‡´' },
+            { name: 'Bosnia & Herzegovina', code: '+387', flag: 'ðŸ‡§ðŸ‡¦' },
+            { name: 'Botswana', code: '+267', flag: 'ðŸ‡§ðŸ‡¼' },
+            { name: 'Brazil', code: '+55', flag: 'ðŸ‡§ðŸ‡·' },
+            { name: 'Brunei', code: '+673', flag: 'ðŸ‡§ðŸ‡³' },
+            { name: 'Bulgaria', code: '+359', flag: 'ðŸ‡§ðŸ‡¬' },
+            { name: 'Burkina Faso', code: '+226', flag: 'ðŸ‡§ðŸ‡«' },
+            { name: 'Burundi', code: '+257', flag: 'ðŸ‡§ðŸ‡®' },
+            { name: 'Cambodia', code: '+855', flag: 'ðŸ‡°ðŸ‡­' },
+            { name: 'Cameroon', code: '+237', flag: 'ðŸ‡¨ðŸ‡²' },
+            { name: 'Canada', code: '+1', flag: 'ðŸ‡¨ðŸ‡¦' },
+            { name: 'Cape Verde', code: '+238', flag: 'ðŸ‡¨ðŸ‡»' },
+            { name: 'Central African Republic', code: '+236', flag: 'ðŸ‡¨ðŸ‡«' },
+            { name: 'Chad', code: '+235', flag: 'ðŸ‡¹ðŸ‡©' },
+            { name: 'Chile', code: '+56', flag: 'ðŸ‡¨ðŸ‡±' },
+            { name: 'China', code: '+86', flag: 'ðŸ‡¨ðŸ‡³' },
+            { name: 'Colombia', code: '+57', flag: 'ðŸ‡¨ðŸ‡´' },
+            { name: 'Comoros', code: '+269', flag: 'ðŸ‡°ðŸ‡²' },
+            { name: 'Congo', code: '+242', flag: 'ðŸ‡¨ðŸ‡¬' },
+            { name: 'Costa Rica', code: '+506', flag: 'ðŸ‡¨ðŸ‡·' },
+            { name: 'Croatia', code: '+385', flag: 'ðŸ‡­ðŸ‡·' },
+            { name: 'Cuba', code: '+53', flag: 'ðŸ‡¨ðŸ‡º' },
+            { name: 'Cyprus', code: '+357', flag: 'ðŸ‡¨ðŸ‡¾' },
+            { name: 'Czech Republic', code: '+420', flag: 'ðŸ‡¨ðŸ‡¿' },
+            { name: 'Denmark', code: '+45', flag: 'ðŸ‡©ðŸ‡°' },
+            { name: 'Djibouti', code: '+253', flag: 'ðŸ‡©ðŸ‡¯' },
+            { name: 'Dominica', code: '+1-767', flag: 'ðŸ‡©ðŸ‡²' },
+            { name: 'Dominican Republic', code: '+1-809', flag: 'ðŸ‡©ðŸ‡´' },
+            { name: 'Ecuador', code: '+593', flag: 'ðŸ‡ªðŸ‡¨' },
+            { name: 'Egypt', code: '+20', flag: 'ðŸ‡ªðŸ‡¬' },
+            { name: 'El Salvador', code: '+503', flag: 'ðŸ‡¸ðŸ‡»' },
+            { name: 'Equatorial Guinea', code: '+240', flag: 'ðŸ‡¬ðŸ‡¶' },
+            { name: 'Eritrea', code: '+291', flag: 'ðŸ‡ªðŸ‡·' },
+            { name: 'Estonia', code: '+372', flag: 'ðŸ‡ªðŸ‡ª' },
+            { name: 'Ethiopia', code: '+251', flag: 'ðŸ‡ªðŸ‡¹' },
+            { name: 'Fiji', code: '+679', flag: 'ðŸ‡«ðŸ‡¯' },
+            { name: 'Finland', code: '+358', flag: 'ðŸ‡«ðŸ‡®' },
+            { name: 'France', code: '+33', flag: 'ðŸ‡«ðŸ‡·' },
+            { name: 'Gabon', code: '+241', flag: 'ðŸ‡¬ðŸ‡¦' },
+            { name: 'Gambia', code: '+220', flag: 'ðŸ‡¬ðŸ‡²' },
+            { name: 'Georgia', code: '+995', flag: 'ðŸ‡¬ðŸ‡ª' },
+            { name: 'Germany', code: '+49', flag: 'ðŸ‡©ðŸ‡ª' },
+            { name: 'Ghana', code: '+233', flag: 'ðŸ‡¬ðŸ‡­' },
+            { name: 'Greece', code: '+30', flag: 'ðŸ‡¬ðŸ‡·' },
+            { name: 'Grenada', code: '+1-473', flag: 'ðŸ‡¬ðŸ‡©' },
+            { name: 'Guatemala', code: '+502', flag: 'ðŸ‡¬ðŸ‡¹' },
+            { name: 'Guinea', code: '+224', flag: 'ðŸ‡¬ðŸ‡³' },
+            { name: 'Guinea-Bissau', code: '+245', flag: 'ðŸ‡¬ðŸ‡¼' },
+            { name: 'Guyana', code: '+592', flag: 'ðŸ‡¬ðŸ‡¾' },
+            { name: 'Haiti', code: '+509', flag: 'ðŸ‡­ðŸ‡¹' },
+            { name: 'Honduras', code: '+504', flag: 'ðŸ‡­ðŸ‡³' },
+            { name: 'Hong Kong', code: '+852', flag: 'ðŸ‡­ðŸ‡°' },
+            { name: 'Hungary', code: '+36', flag: 'ðŸ‡­ðŸ‡º' },
+            { name: 'Iceland', code: '+354', flag: 'ðŸ‡®ðŸ‡¸' },
+            { name: 'India', code: '+91', flag: 'ðŸ‡®ðŸ‡³' },
+            { name: 'Indonesia', code: '+62', flag: 'ðŸ‡®ðŸ‡©' },
+            { name: 'Iran', code: '+98', flag: 'ðŸ‡®ðŸ‡·' },
+            { name: 'Iraq', code: '+964', flag: 'ðŸ‡®ðŸ‡¶' },
+            { name: 'Ireland', code: '+353', flag: 'ðŸ‡®ðŸ‡ª' },
+            { name: 'Israel', code: '+972', flag: 'ðŸ‡®ðŸ‡±' },
+            { name: 'Italy', code: '+39', flag: 'ðŸ‡®ðŸ‡¹' },
+            { name: 'Jamaica', code: '+1-876', flag: 'ðŸ‡¯ðŸ‡²' },
+            { name: 'Japan', code: '+81', flag: 'ðŸ‡¯ðŸ‡µ' },
+            { name: 'Jordan', code: '+962', flag: 'ðŸ‡¯ðŸ‡´' },
+            { name: 'Kazakhstan', code: '+7', flag: 'ðŸ‡°ðŸ‡¿' },
+            { name: 'Kenya', code: '+254', flag: 'ðŸ‡°ðŸ‡ª' },
+            { name: 'Kiribati', code: '+686', flag: 'ðŸ‡°ðŸ‡®' },
+            { name: 'Kosovo', code: '+383', flag: 'ðŸ‡½ðŸ‡°' },
+            { name: 'Kuwait', code: '+965', flag: 'ðŸ‡°ðŸ‡¼' },
+            { name: 'Kyrgyzstan', code: '+996', flag: 'ðŸ‡°ðŸ‡¬' },
+            { name: 'Laos', code: '+856', flag: 'ðŸ‡±ðŸ‡¦' },
+            { name: 'Latvia', code: '+371', flag: 'ðŸ‡±ðŸ‡»' },
+            { name: 'Lebanon', code: '+961', flag: 'ðŸ‡±ðŸ‡§' },
+            { name: 'Lesotho', code: '+266', flag: 'ðŸ‡±ðŸ‡¸' },
+            { name: 'Liberia', code: '+231', flag: 'ðŸ‡±ðŸ‡·' },
+            { name: 'Libya', code: '+218', flag: 'ðŸ‡±ðŸ‡¾' },
+            { name: 'Liechtenstein', code: '+423', flag: 'ðŸ‡±ðŸ‡®' },
+            { name: 'Lithuania', code: '+370', flag: 'ðŸ‡±ðŸ‡¹' },
+            { name: 'Luxembourg', code: '+352', flag: 'ðŸ‡±ðŸ‡º' },
+            { name: 'Macau', code: '+853', flag: 'ðŸ‡²ðŸ‡´' },
+            { name: 'Madagascar', code: '+261', flag: 'ðŸ‡²ðŸ‡¬' },
+            { name: 'Malawi', code: '+265', flag: 'ðŸ‡²ðŸ‡¼' },
+            { name: 'Malaysia', code: '+60', flag: 'ðŸ‡²ðŸ‡¾' },
+            { name: 'Maldives', code: '+960', flag: 'ðŸ‡²ðŸ‡»' },
+            { name: 'Mali', code: '+223', flag: 'ðŸ‡²ðŸ‡±' },
+            { name: 'Malta', code: '+356', flag: 'ðŸ‡²ðŸ‡¹' },
+            { name: 'Marshall Islands', code: '+692', flag: 'ðŸ‡²ðŸ‡­' },
+            { name: 'Mauritania', code: '+222', flag: 'ðŸ‡²ðŸ‡·' },
+            { name: 'Mauritius', code: '+230', flag: 'ðŸ‡²ðŸ‡º' },
+            { name: 'Mexico', code: '+52', flag: 'ðŸ‡²ðŸ‡½' },
+            { name: 'Micronesia', code: '+691', flag: 'ðŸ‡«ðŸ‡²' },
+            { name: 'Moldova', code: '+373', flag: 'ðŸ‡²ðŸ‡©' },
+            { name: 'Monaco', code: '+377', flag: 'ðŸ‡²ðŸ‡¨' },
+            { name: 'Mongolia', code: '+976', flag: 'ðŸ‡²ðŸ‡³' },
+            { name: 'Montenegro', code: '+382', flag: 'ðŸ‡²ðŸ‡ª' },
+            { name: 'Morocco', code: '+212', flag: 'ðŸ‡²ðŸ‡¦' },
+            { name: 'Mozambique', code: '+258', flag: 'ðŸ‡²ðŸ‡¿' },
+            { name: 'Myanmar', code: '+95', flag: 'ðŸ‡²ðŸ‡²' },
+            { name: 'Namibia', code: '+264', flag: 'ðŸ‡³ðŸ‡¦' },
+            { name: 'Nauru', code: '+674', flag: 'ðŸ‡³ðŸ‡·' },
+            { name: 'Nepal', code: '+977', flag: 'ðŸ‡³ðŸ‡µ' },
+            { name: 'Netherlands', code: '+31', flag: 'ðŸ‡³ðŸ‡±' },
+            { name: 'New Zealand', code: '+64', flag: 'ðŸ‡³ðŸ‡¿' },
+            { name: 'Nicaragua', code: '+505', flag: 'ðŸ‡³ðŸ‡®' },
+            { name: 'Niger', code: '+227', flag: 'ðŸ‡³ðŸ‡ª' },
+            { name: 'Nigeria', code: '+234', flag: 'ðŸ‡³ðŸ‡¬' },
+            { name: 'North Korea', code: '+850', flag: 'ðŸ‡°ðŸ‡µ' },
+            { name: 'North Macedonia', code: '+389', flag: 'ðŸ‡²ðŸ‡°' },
+            { name: 'Norway', code: '+47', flag: 'ðŸ‡³ðŸ‡´' },
+            { name: 'Oman', code: '+968', flag: 'ðŸ‡´ðŸ‡²' },
+            { name: 'Pakistan', code: '+92', flag: 'ðŸ‡µðŸ‡°' },
+            { name: 'Palau', code: '+680', flag: 'ðŸ‡µðŸ‡¼' },
+            { name: 'Palestine', code: '+970', flag: 'ðŸ‡µðŸ‡¸' },
+            { name: 'Panama', code: '+507', flag: 'ðŸ‡µðŸ‡¦' },
+            { name: 'Papua New Guinea', code: '+675', flag: 'ðŸ‡µðŸ‡¬' },
+            { name: 'Paraguay', code: '+595', flag: 'ðŸ‡µðŸ‡¾' },
+            { name: 'Peru', code: '+51', flag: 'ðŸ‡µðŸ‡ª' },
+            { name: 'Philippines', code: '+63', flag: 'ðŸ‡µðŸ‡­' },
+            { name: 'Poland', code: '+48', flag: 'ðŸ‡µðŸ‡±' },
+            { name: 'Portugal', code: '+351', flag: 'ðŸ‡µðŸ‡¹' },
+            { name: 'Qatar', code: '+974', flag: 'ðŸ‡¶ðŸ‡¦' },
+            { name: 'Romania', code: '+40', flag: 'ðŸ‡·ðŸ‡´' },
+            { name: 'Russia', code: '+7', flag: 'ðŸ‡·ðŸ‡º' },
+            { name: 'Rwanda', code: '+250', flag: 'ðŸ‡·ðŸ‡¼' },
+            { name: 'Saint Kitts & Nevis', code: '+1-869', flag: 'ðŸ‡°ðŸ‡³' },
+            { name: 'Saint Lucia', code: '+1-758', flag: 'ðŸ‡±ðŸ‡¨' },
+            { name: 'Saint Vincent & Grenadines', code: '+1-784', flag: 'ðŸ‡»ðŸ‡¨' },
+            { name: 'Samoa', code: '+685', flag: 'ðŸ‡¼ðŸ‡¸' },
+            { name: 'San Marino', code: '+378', flag: 'ðŸ‡¸ðŸ‡²' },
+            { name: 'Sao Tome & Principe', code: '+239', flag: 'ðŸ‡¸ðŸ‡¹' },
+            { name: 'Saudi Arabia', code: '+966', flag: 'ðŸ‡¸ðŸ‡¦' },
+            { name: 'Senegal', code: '+221', flag: 'ðŸ‡¸ðŸ‡³' },
+            { name: 'Serbia', code: '+381', flag: 'ðŸ‡·ðŸ‡¸' },
+            { name: 'Seychelles', code: '+248', flag: 'ðŸ‡¸ðŸ‡¨' },
+            { name: 'Sierra Leone', code: '+232', flag: 'ðŸ‡¸ðŸ‡±' },
+            { name: 'Singapore', code: '+65', flag: 'ðŸ‡¸ðŸ‡¬' },
+            { name: 'Slovakia', code: '+421', flag: 'ðŸ‡¸ðŸ‡°' },
+            { name: 'Slovenia', code: '+386', flag: 'ðŸ‡¸ðŸ‡®' },
+            { name: 'Solomon Islands', code: '+677', flag: 'ðŸ‡¸ðŸ‡§' },
+            { name: 'Somalia', code: '+252', flag: 'ðŸ‡¸ðŸ‡´' },
+            { name: 'South Africa', code: '+27', flag: 'ðŸ‡¿ðŸ‡¦' },
+            { name: 'South Korea', code: '+82', flag: 'ðŸ‡°ðŸ‡·' },
+            { name: 'South Sudan', code: '+211', flag: 'ðŸ‡¸ðŸ‡¸' },
+            { name: 'Spain', code: '+34', flag: 'ðŸ‡ªðŸ‡¸' },
+            { name: 'Sri Lanka', code: '+94', flag: 'ðŸ‡±ðŸ‡°' },
+            { name: 'Sudan', code: '+249', flag: 'ðŸ‡¸ðŸ‡©' },
+            { name: 'Suriname', code: '+597', flag: 'ðŸ‡¸ðŸ‡·' },
+            { name: 'Sweden', code: '+46', flag: 'ðŸ‡¸ðŸ‡ª' },
+            { name: 'Switzerland', code: '+41', flag: 'ðŸ‡¨ðŸ‡­' },
+            { name: 'Syria', code: '+963', flag: 'ðŸ‡¸ðŸ‡¾' },
+            { name: 'Taiwan', code: '+886', flag: 'ðŸ‡¹ðŸ‡¼' },
+            { name: 'Tajikistan', code: '+992', flag: 'ðŸ‡¹ðŸ‡¯' },
+            { name: 'Tanzania', code: '+255', flag: 'ðŸ‡¹ðŸ‡¿' },
+            { name: 'Thailand', code: '+66', flag: 'ðŸ‡¹ðŸ‡­' },
+            { name: 'Timor-Leste', code: '+670', flag: 'ðŸ‡¹ðŸ‡±' },
+            { name: 'Togo', code: '+228', flag: 'ðŸ‡¹ðŸ‡¬' },
+            { name: 'Tonga', code: '+676', flag: 'ðŸ‡¹ðŸ‡´' },
+            { name: 'Trinidad & Tobago', code: '+1-868', flag: 'ðŸ‡¹ðŸ‡¹' },
+            { name: 'Tunisia', code: '+216', flag: 'ðŸ‡¹ðŸ‡³' },
+            { name: 'Turkey', code: '+90', flag: 'ðŸ‡¹ðŸ‡·' },
+            { name: 'Turkmenistan', code: '+993', flag: 'ðŸ‡¹ðŸ‡²' },
+            { name: 'Tuvalu', code: '+688', flag: 'ðŸ‡¹ðŸ‡»' },
+            { name: 'Uganda', code: '+256', flag: 'ðŸ‡ºðŸ‡¬' },
+            { name: 'Ukraine', code: '+380', flag: 'ðŸ‡ºðŸ‡¦' },
+            { name: 'United Arab Emirates', code: '+971', flag: 'ðŸ‡¦ðŸ‡ª' },
+            { name: 'United Kingdom', code: '+44', flag: 'ðŸ‡¬ðŸ‡§' },
+            { name: 'United States', code: '+1', flag: 'ðŸ‡ºðŸ‡¸' },
+            { name: 'Uruguay', code: '+598', flag: 'ðŸ‡ºðŸ‡¾' },
+            { name: 'Uzbekistan', code: '+998', flag: 'ðŸ‡ºðŸ‡¿' },
+            { name: 'Vanuatu', code: '+678', flag: 'ðŸ‡»ðŸ‡º' },
+            { name: 'Vatican City', code: '+379', flag: 'ðŸ‡»ðŸ‡¦' },
+            { name: 'Venezuela', code: '+58', flag: 'ðŸ‡»ðŸ‡ª' },
+            { name: 'Vietnam', code: '+84', flag: 'ðŸ‡»ðŸ‡³' },
+            { name: 'Yemen', code: '+967', flag: 'ðŸ‡¾ðŸ‡ª' },
+            { name: 'Zambia', code: '+260', flag: 'ðŸ‡¿ðŸ‡²' },
+            { name: 'Zimbabwe', code: '+263', flag: 'ðŸ‡¿ðŸ‡¼' }
+        ];
+
+        function initCountryCodePickersAffiliate() {
+            const phoneFields = [
+                { name: 'package_phone' },
+                { name: 'reservation_phone' },
+                { name: 'transportation_phone' }
+            ];
+
+            phoneFields.forEach(field => {
+                const input = document.querySelector(`input[name="${field.name}"]`);
+                if (input) {
+                    setupCountryCodePickerAffiliate(input, field.name);
+                }
+            });
+        }
+        .guest .checkbox-container .consent-label {
+            align-items: center;
+        }
+
+        function setupCountryCodePickerAffiliate(phoneInput, fieldName) {
+            // Prevent double-wrapping if already initialized
+            if (phoneInput.parentElement.classList.contains('phone-input-wrapper')) {
+                return;
+            }
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'phone-input-wrapper';
+
+            const countryCodeDiv = document.createElement('div');
+            countryCodeDiv.className = 'country-code-input';
+
+            const countryCodeInput = document.createElement('input');
+            countryCodeInput.className = 'country-code-field';
+            countryCodeInput.type = 'text';
+            countryCodeInput.placeholder = 'ðŸ‡ºðŸ‡¸ +1';
+            countryCodeInput.name = `${fieldName}_country`;
+            countryCodeInput.setAttribute('data-phone-field', fieldName);
+            countryCodeInput.setAttribute('autocomplete', 'off');
+
+            const dropdown = document.createElement('div');
+            dropdown.className = 'country-code-dropdown';
+
+            COUNTRIES_AFFILIATE.forEach(country => {
+                const option = document.createElement('div');
+                option.className = 'country-option';
+                option.innerHTML = `<span class="flag-icon">${country.flag}</span>${country.code} ${country.name}`;
+                option.setAttribute('data-code', country.code);
+                option.setAttribute('data-flag', country.flag);
+                option.addEventListener('click', () => selectCountryAffiliate(countryCodeInput, option, country, phoneInput));
+                dropdown.appendChild(option);
+            });
+
+            countryCodeDiv.appendChild(countryCodeInput);
+            countryCodeDiv.appendChild(dropdown);
+
+            const usOption = COUNTRIES_AFFILIATE.find(c => c.code === '+1' && c.name === 'United States');
+            if (usOption) {
+                countryCodeInput.value = `${usOption.flag} ${usOption.code}`;
+                countryCodeInput.dataset.code = usOption.code;
+            }
+
+            phoneInput.parentElement.insertBefore(wrapper, phoneInput);
+            wrapper.appendChild(countryCodeDiv);
+            wrapper.appendChild(phoneInput);
+
+            countryCodeInput.addEventListener('focus', () => {
+                dropdown.classList.add('active');
+                countryCodeInput.select();
+            });
+
+            countryCodeInput.addEventListener('input', (e) => {
+                const searchValue = e.target.value.toLowerCase();
+                const options = dropdown.querySelectorAll('.country-option');
+                options.forEach(option => {
+                    const text = option.textContent.toLowerCase();
+                    option.style.display = text.includes(searchValue) ? 'block' : 'none';
+                });
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!countryCodeDiv.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                }
+            });
+
+            phoneInput.addEventListener('input', () => {
+                validateAndFormatPhoneAffiliate(phoneInput, countryCodeInput);
+            });
+
+            phoneInput.addEventListener('blur', () => {
+                validateAndFormatPhoneAffiliate(phoneInput, countryCodeInput);
+            });
+        }
+
+        function selectCountryAffiliate(countryCodeInput, optionEl, country, phoneInput) {
+            countryCodeInput.value = `${country.flag} ${country.code}`;
+            countryCodeInput.dataset.code = country.code;
+
+            const dropdown = countryCodeInput.nextElementSibling;
+            dropdown.querySelectorAll('.country-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            optionEl.classList.add('selected');
+            dropdown.classList.remove('active');
+
+            validateAndFormatPhoneAffiliate(phoneInput, countryCodeInput);
+        }
+
+        const PHONE_LENGTH_REQUIREMENTS_AFFILIATE = {
+            '+1': { min: 10, max: 10 },
+            '+880': { min: 10, max: 11 },
+            '+44': { min: 9, max: 11 },
+            '+33': { min: 9, max: 9 },
+            '+49': { min: 9, max: 11 },
+            '+39': { min: 9, max: 11 },
+            '+34': { min: 9, max: 9 },
+            '+31': { min: 9, max: 9 },
+            '+41': { min: 9, max: 9 },
+            '+43': { min: 9, max: 10 },
+            '+46': { min: 9, max: 9 },
+            '+47': { min: 8, max: 8 },
+            '+45': { min: 8, max: 8 },
+            '+358': { min: 9, max: 9 },
+            '+353': { min: 9, max: 10 },
+            '+32': { min: 9, max: 9 },
+            '+86': { min: 11, max: 11 },
+            '+81': { min: 10, max: 11 },
+            '+82': { min: 10, max: 11 },
+            '+91': { min: 10, max: 10 },
+            '+62': { min: 10, max: 12 },
+            '+60': { min: 9, max: 11 },
+            '+66': { min: 9, max: 10 },
+            '+65': { min: 8, max: 8 },
+            '+61': { min: 9, max: 9 },
+            '+64': { min: 9, max: 10 },
+            '+27': { min: 9, max: 9 },
+            '+55': { min: 10, max: 11 },
+            '+52': { min: 10, max: 10 },
+            '+54': { min: 10, max: 10 },
+            '+56': { min: 9, max: 9 },
+            '+57': { min: 10, max: 10 },
+            '+51': { min: 9, max: 9 },
+            '+84': { min: 9, max: 11 },
+            '+855': { min: 8, max: 9 },
+            '+663': { min: 9, max: 10 },
+            '+95': { min: 9, max: 10 },
+            '+970': { min: 9, max: 9 },
+            '+972': { min: 9, max: 10 },
+            '+966': { min: 9, max: 9 },
+            '+971': { min: 9, max: 9 },
+            '+973': { min: 8, max: 8 },
+            '+974': { min: 8, max: 8 },
+            '+965': { min: 8, max: 8 },
+        };
+
+        function formatPhoneNumberAffiliate(digits, countryCode) {
+            if (countryCode === '+1' || countryCode === '+7') {
+                if (digits.length <= 3) return digits;
+                if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+                return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+            } else if (countryCode === '+44') {
+                if (digits.length <= 4) return digits;
+                if (digits.length <= 7) return `${digits.slice(0, 4)} ${digits.slice(4)}`;
+                return `${digits.slice(0, 4)} ${digits.slice(4, 7)} ${digits.slice(7)}`;
+            } else if (countryCode === '+880') {
+                if (digits.length <= 4) return digits;
+                return `${digits.slice(0, 4)} ${digits.slice(4)}`;
+            } else {
+                if (digits.length <= 4) return digits;
+                let formatted = '';
+                for (let i = 0; i < digits.length; i += 4) {
+                    if (formatted) formatted += ' ';
+                    formatted += digits.slice(i, i + 4);
+                }
+                return formatted;
+            }
+        }
+
+        // Detect the country whose dial code is the longest prefix of the typed digits.
+        function detectCountryFromDigitsAffiliate(digits) {
+            if (!digits) return null;
+            let best = null;
+            let bestLen = 0;
+            COUNTRIES_AFFILIATE.forEach(function (country) {
+                const cc = country.code.replace(/\D/g, '');
+                if (cc && digits.startsWith(cc) && cc.length > bestLen) {
+                    best = country;
+                    bestLen = cc.length;
+                }
+            });
+            return best;
+        }
+
+        function validateAndFormatPhoneAffiliate(phoneInput, countryCodeInput) {
+            let phoneValue = phoneInput.value.trim();
+            let countryCode = countryCodeInput.dataset.code || '+1';
+
+            // If the user typed a leading "+<country code>" directly into the number box,
+            // detect the country, sync the flag/dropdown to it, and strip the code from the
+            // national number so the flag and the number stay in sync.
+            if (phoneValue.startsWith('+')) {
+                const typedDigits = phoneValue.replace(/\D/g, '');
+                const detected = detectCountryFromDigitsAffiliate(typedDigits);
+                if (detected) {
+                    countryCodeInput.value = `${detected.flag} ${detected.code}`;
+                    countryCodeInput.dataset.code = detected.code;
+                    countryCode = detected.code;
+                    const ccDigits = detected.code.replace(/\D/g, '');
+                    const nationalDigits = typedDigits.startsWith(ccDigits) ? typedDigits.substring(ccDigits.length) : typedDigits;
+                    phoneInput.value = nationalDigits;
+                    phoneValue = nationalDigits;
+                } else {
+                    // Incomplete country code still being typed (e.g. "+3") — leave it so the
+                    // user can finish, and don't format/validate yet.
+                    phoneInput.style.borderColor = '';
+                    phoneInput.classList.remove('is-invalid', 'is-valid');
+                    return;
+                }
+            }
+
+            const requirements = PHONE_LENGTH_REQUIREMENTS_AFFILIATE[countryCode] || { min: 7, max: 15 };
+            phoneInput.dataset.maxDigits = requirements.max;
+
+            if (!phoneValue) {
+                phoneInput.style.borderColor = '';
+                phoneInput.classList.remove('is-invalid', 'is-valid');
+                const hiddenField = document.querySelector(`input[name="${phoneInput.name}_e164"]`);
+                if (hiddenField) hiddenField.value = '';
+                return;
+            }
+
+            let digitsOnly = phoneValue.replace(/\D/g, '');
+            const maxDigits = parseInt(phoneInput.dataset.maxDigits || requirements.max);
+            if (digitsOnly.length > maxDigits) {
+                digitsOnly = digitsOnly.substring(0, maxDigits);
+            }
+
+            let cleanNumber = digitsOnly;
+            if (countryCode === '+1' && digitsOnly.startsWith('1')) {
+                cleanNumber = digitsOnly.substring(1);
+            }
+
+            phoneInput.value = formatPhoneNumberAffiliate(cleanNumber, countryCode);
+
+            if (cleanNumber.length < requirements.min || cleanNumber.length > requirements.max) {
+                phoneInput.style.borderColor = '#ff6b6b';
+                phoneInput.classList.add('is-invalid');
+                phoneInput.classList.remove('is-valid');
+                return;
+            }
+
+            const e164Number = countryCode + cleanNumber;
+
+            if (!/^\+\d{7,15}$/.test(e164Number)) {
+                phoneInput.style.borderColor = '#ff6b6b';
+                phoneInput.classList.add('is-invalid');
+                phoneInput.classList.remove('is-valid');
+                return;
+            }
+
+            phoneInput.style.borderColor = '#51cf66';
+            phoneInput.classList.remove('is-invalid');
+            phoneInput.classList.add('is-valid');
+
+            let hiddenField = document.querySelector(`input[name="${phoneInput.name}_e164"]`);
+            if (!hiddenField) {
+                hiddenField = document.createElement('input');
+                hiddenField.type = 'hidden';
+                hiddenField.name = `${phoneInput.name}_e164`;
+                phoneInput.parentElement.appendChild(hiddenField);
+            }
+            hiddenField.value = e164Number;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                initCountryCodePickersAffiliate();
+            }, 500);
+        });
         </script>
 
     </body>

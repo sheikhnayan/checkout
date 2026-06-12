@@ -9948,9 +9948,47 @@ input[type="checkbox"],
             }
         }
 
+        // Detect the country whose dial code is the longest prefix of the typed digits.
+        function detectCountryFromDigitsIndex(digits) {
+            if (!digits) return null;
+            let best = null;
+            let bestLen = 0;
+            COUNTRIES_INDEX.forEach(function (country) {
+                const cc = country.code.replace(/\D/g, '');
+                if (cc && digits.startsWith(cc) && cc.length > bestLen) {
+                    best = country;
+                    bestLen = cc.length;
+                }
+            });
+            return best;
+        }
+
         function validateAndFormatPhoneIndex(phoneInput, countryCodeInput) {
             let phoneValue = phoneInput.value.trim();
-            const countryCode = countryCodeInput.dataset.code || '+1';
+            let countryCode = countryCodeInput.dataset.code || '+1';
+
+            // If the user typed a leading "+<country code>" directly into the number box,
+            // detect the country, sync the flag/dropdown to it, and strip the code from the
+            // national number so the flag and the number stay in sync.
+            if (phoneValue.startsWith('+')) {
+                const typedDigits = phoneValue.replace(/\D/g, '');
+                const detected = detectCountryFromDigitsIndex(typedDigits);
+                if (detected) {
+                    countryCodeInput.value = `${detected.flag} ${detected.code}`;
+                    countryCodeInput.dataset.code = detected.code;
+                    countryCode = detected.code;
+                    const ccDigits = detected.code.replace(/\D/g, '');
+                    const nationalDigits = typedDigits.startsWith(ccDigits) ? typedDigits.substring(ccDigits.length) : typedDigits;
+                    phoneInput.value = nationalDigits;
+                    phoneValue = nationalDigits;
+                } else {
+                    // Incomplete country code still being typed (e.g. "+3") — leave it so the
+                    // user can finish, and don't format/validate yet.
+                    phoneInput.style.borderColor = '';
+                    phoneInput.classList.remove('is-invalid', 'is-valid');
+                    return;
+                }
+            }
 
             const requirements = PHONE_LENGTH_REQUIREMENTS_INDEX[countryCode] || { min: 7, max: 15 };
             phoneInput.dataset.maxDigits = requirements.max;
