@@ -7360,37 +7360,42 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             
             // Copy package holder info to transportation info
             $(document).on('click', '.same-as-info-transport', function () {
-                // Copy phone number (use E.164 if available)
-                const e164Phone = $('input[name="package_phone_e164"]').val();
-                const transportPhoneInput = $('input[name="transportation_phone"]');
-                transportPhoneInput.val(e164Phone ? e164Phone.replace(/^\+\d+/, '') : $('input[name="package_phone"]').val());
+                // Get references
+                const transportPhoneInput = $('input[name="transportation_phone"]')[0];
+                const transportCountryCode = $('input[name="transportation_phone_country"]')[0];
+                const packagePhoneInput = $('input[name="package_phone"]')[0];
+                const packageCountryCode = $('input[name="package_phone_country"]')[0];
 
-                // Copy country code selector
-                const packageCountryCode = $('input[name="package_phone_country"]').val();
-                const transportCountryCode = $('input[name="transportation_phone_country"]');
-                if (transportCountryCode.length) {
-                    transportCountryCode.val(packageCountryCode);
-                    transportCountryCode[0].dataset.code = $('input[name="package_phone_country"]')[0].dataset.code;
+                if (!transportPhoneInput || !transportCountryCode || !packageCountryCode) {
+                    console.warn('Missing fields for copy operation');
+                    return;
                 }
+
+                // Copy phone number
+                const packagePhoneValue = packagePhoneInput ? packagePhoneInput.value : '';
+                transportPhoneInput.value = packagePhoneValue;
+
+                // Copy country code - both the display value and the dataset code
+                transportCountryCode.value = packageCountryCode.value;
+                transportCountryCode.dataset.code = packageCountryCode.dataset.code;
 
                 // Copy E.164 field
-                const packageE164 = $('input[name="package_phone_e164"]').val();
-                if (packageE164) {
-                    let transportE164 = $('input[name="transportation_phone_e164"]');
-                    if (!transportE164.length) {
-                        transportE164 = $('<input>').attr({
-                            'type': 'hidden',
-                            'name': 'transportation_phone_e164'
-                        });
-                        $('input[name="transportation_phone"]').parent().append(transportE164);
+                const packageE164Field = $('input[name="package_phone_e164"]')[0];
+                let transportE164Field = $('input[name="transportation_phone_e164"]')[0];
+
+                if (packageE164Field && packageE164Field.value) {
+                    if (!transportE164Field) {
+                        transportE164Field = document.createElement('input');
+                        transportE164Field.type = 'hidden';
+                        transportE164Field.name = 'transportation_phone_e164';
+                        transportPhoneInput.parentElement.appendChild(transportE164Field);
                     }
-                    transportE164.val(packageE164);
+                    transportE164Field.value = packageE164Field.value;
                 }
 
-                // Trigger validation and formatting for transportation phone
-                if (transportPhoneInput.length && transportCountryCode.length) {
-                    validateAndFormatPhoneAffiliate(transportPhoneInput[0], transportCountryCode[0]);
-                }
+                // Trigger change event and validation
+                $(transportPhoneInput).trigger('input').trigger('change');
+                $(transportCountryCode).trigger('change');
             });
             // Populate country select
             function populateCountrySelect(selectId) {
