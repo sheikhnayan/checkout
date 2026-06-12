@@ -465,21 +465,21 @@ main {
     #termsConsent {
       width: 20px;
       height: 20px;
-      margin-right: 12px;
+      margin-right: 12px !important;
     }
 
     #driverNotificationConsent{
-        margin-right: 12px;
+        margin-right: 12px !important;
     }
 
     #smsConsent{
-        margin-right: 12px;
+        margin-right: 12px !important;
     }
 
     .termsConsent {
       width: 20px;
       height: 20px;
-      margin-right: 12px;
+      margin-right: 12px !important;
     }
 
     .addons h5::after {
