@@ -5443,16 +5443,23 @@ input[type="checkbox"],
                                                         $catRgbStr = "$cr,$cg,$cb";
                                                     }
                                                 @endphp
-                                                <div class="package-category-wrap">
-                                                    <button
-                                                        type="button"
-                                                        class="package-category-tile{{ $catRgbStr ? ' has-cat-color' : '' }}"
-                                                        @if($catRgbStr) style="--cat-rgb: {{ $catRgbStr }}" @endif
-                                                        data-target="#category-group-{{ $category['id'] }}"
-                                                    >
+                                                <button
+                                                    type="button"
+                                                    class="package-category-tile{{ $catRgbStr ? ' has-cat-color' : '' }}"
+                                                    @if($catRgbStr) style="--cat-rgb: {{ $catRgbStr }}" @endif
+                                                    data-target="#category-group-{{ $category['id'] }}"
+                                                >
                                                     @if(!empty($category['icon']))
                                                         <i class="fas {{ $category['icon'] }} package-category-tile-icon"></i>
                                                     @endif
+                                                    <span class="package-category-name">{{ $category['name'] }}</span>
+                                                    <span class="package-category-indicator">+</span>
+                                                </button>
+                                            @endforeach
+                                        </div>
+
+                                        @foreach ($packageCategories as $category)
+                                            <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: none;">
                                                 @foreach ($category['packages'] as $item)
                                                     @php
                                                         $pkgGuestCap = max(1, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 1));
