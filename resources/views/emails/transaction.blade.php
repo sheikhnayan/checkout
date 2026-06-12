@@ -74,7 +74,7 @@
             @endif
             @if($guestCount > 0)
             @if($isReservationType && ($menCount > 0 || $womenCount > 0))
-            <tr><th>Guest Breakdown</th><td><strong>{{ $menCount }} Men + {{ $womenCount }} Women = {{ $guestCount }} Total Guests</strong></td></tr>
+            <tr><th>Guest Breakdown</th><td><strong>{{ $menCount }} Male + {{ $womenCount }} Female = {{ $guestCount }} Total Guests</strong></td></tr>
             @else
             <tr><th>Guest Count</th><td>{{ $guestCount }}</td></tr>
             @endif
@@ -168,7 +168,7 @@
             @endif
             @if($guestCount > 0)
             @if($isReservationType && ($menCount > 0 || $womenCount > 0))
-            <tr><th>Guest Breakdown</th><td><strong>{{ $menCount }} Men + {{ $womenCount }} Women = {{ $guestCount }} Total Guests</strong></td></tr>
+            <tr><th>Guest Breakdown</th><td><strong>{{ $menCount }} Male + {{ $womenCount }} Female = {{ $guestCount }} Total Guests</strong></td></tr>
             @else
             <tr><th>Guest Count</th><td>{{ $guestCount }}</td></tr>
             @endif
