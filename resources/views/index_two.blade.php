@@ -10644,6 +10644,44 @@
             '+965': { min: 8, max: 8, name: 'Kuwait' },
         };
 
+        function formatPhoneNumber(digits, countryCode) {
+            // Format based on country code
+            if (countryCode === '+1' || countryCode === '+7') {
+                // US/Canada/Russia: (XXX) XXX-XXXX
+                if (digits.length <= 3) return digits;
+                if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+                return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+            } else if (countryCode === '+44') {
+                // UK: +44 XXXX XXX XXXX
+                if (digits.length <= 4) return digits;
+                if (digits.length <= 7) return `${digits.slice(0, 4)} ${digits.slice(4)}`;
+                return `${digits.slice(0, 4)} ${digits.slice(4, 7)} ${digits.slice(7)}`;
+            } else if (countryCode === '+880') {
+                // Bangladesh: XXXX XXXXXX or XXXX XXXXX
+                if (digits.length <= 4) return digits;
+                return `${digits.slice(0, 4)} ${digits.slice(4)}`;
+            } else if (countryCode === '+86') {
+                // China: XXXX XXXX XXXX
+                if (digits.length <= 4) return digits;
+                if (digits.length <= 8) return `${digits.slice(0, 4)} ${digits.slice(4)}`;
+                return `${digits.slice(0, 4)} ${digits.slice(4, 8)} ${digits.slice(8)}`;
+            } else if (countryCode === '+81') {
+                // Japan: XX-XXXX-XXXX
+                if (digits.length <= 2) return digits;
+                if (digits.length <= 6) return `${digits.slice(0, 2)}-${digits.slice(2)}`;
+                return `${digits.slice(0, 2)}-${digits.slice(2, 6)}-${digits.slice(6)}`;
+            } else {
+                // Default: just return digits, split every 4 digits
+                if (digits.length <= 4) return digits;
+                let formatted = '';
+                for (let i = 0; i < digits.length; i += 4) {
+                    if (formatted) formatted += ' ';
+                    formatted += digits.slice(i, i + 4);
+                }
+                return formatted;
+            }
+        }
+
         function validateAndFormatPhone(phoneInput, countryCodeInput) {
             let phoneValue = phoneInput.value.trim();
             const countryCode = countryCodeInput.dataset.code || '+1';
@@ -10677,8 +10715,8 @@
                 cleanNumber = digitsOnly.substring(1);
             }
 
-            // Display formatted number (only digits, no special chars)
-            phoneInput.value = cleanNumber;
+            // Display formatted number with proper formatting
+            phoneInput.value = formatPhoneNumber(cleanNumber, countryCode);
 
             // Check if number is valid length
             if (cleanNumber.length < requirements.min) {
