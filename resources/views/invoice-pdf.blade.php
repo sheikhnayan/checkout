@@ -162,7 +162,7 @@
     $reservationDateFormatted = 'N/A';
     if (!empty($reservationDateRaw)) {
         try {
-            $reservationDateFormatted = \Carbon\Carbon::parse($reservationDateRaw)->format('M d, Y');
+            $reservationDateFormatted = \Carbon\Carbon::parse($reservationDateRaw)->setTimezone('America/Los_Angeles')->format('M d, Y');
         } catch (\Throwable $e) {
             $reservationDateFormatted = (string) $reservationDateRaw;
         }
@@ -411,7 +411,7 @@
             </div>
             <div class="info-row">
                 <span class="info-label">Payment Date</span>
-                <span class="info-value">{{ $transaction->updated_at->format('M d, Y h:i A') }}</span>
+                <span class="info-value">{{ $transaction->updated_at->setTimezone('America/Los_Angeles')->format('M d, Y h:i A') }}</span>
             </div>
             @if($transaction->type === 'package' && $transaction->event)
             <div class="info-row">

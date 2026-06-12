@@ -31,7 +31,7 @@
     $reservationDateFormatted = 'N/A';
     if (!empty($reservationDateRaw)) {
         try {
-            $reservationDateFormatted = \Carbon\Carbon::parse($reservationDateRaw)->format('M d, Y');
+            $reservationDateFormatted = \Carbon\Carbon::parse($reservationDateRaw)->setTimezone('America/Los_Angeles')->format('M d, Y');
         } catch (\Throwable $e) {
             $reservationDateFormatted = (string) $reservationDateRaw;
         }
