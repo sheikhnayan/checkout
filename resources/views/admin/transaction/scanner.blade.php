@@ -13,8 +13,8 @@
                                 <p class="text-muted mb-0">Scan customer QR tickets and confirm check-in at the door.</p>
                             </div>
                             <div class="d-flex gap-2" id="qrCameraControlsBtn">
-                                <button id="startScannerBtn" class="btn btn-primary">Start Camera</button>
-                                <button id="stopScannerBtn" class="btn btn-outline-danger" disabled>Stop Camera</button>
+                                <button id="startScannerBtn" class="btn" style="background:#3b82f6;color:#fff;border:none;">Start Camera</button>
+                                <button id="stopScannerBtn" class="btn" style="background:#ef4444;color:#fff;border:none;" disabled>Stop Camera</button>
                             </div>
                         </div>
 
@@ -39,7 +39,7 @@
                                     <label for="manualCode" class="form-label fw-semibold">Manual Ticket Code <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Enter or paste a ticket code manually to look up purchase details without using the camera scanner."></i></label>
                                     <div class="input-group mb-3">
                                         <input type="text" id="manualCode" class="form-control" placeholder="Paste or type ticket code">
-                                        <button class="btn btn-info" type="button" id="manualLookupBtn">Verify</button>
+                                        <button type="button" id="manualLookupBtn" class="btn" style="background:#06b6d4;color:#fff;border:none;">Verify</button>
                                     </div>
 
                                     <div id="scanStatus" class="small text-muted mb-3">Waiting for scan...</div>
@@ -134,8 +134,9 @@
                                                 <!-- Back ID Preview -->
                                                 <div id="backPhotoPreviewContainer" class="d-none mb-3">
                                                     <div class="fw-semibold mb-2" style="color:#90caf9;"><i class="fas fa-check-circle"></i> Back of ID Captured</div>
-                                                    <div style="width:100%;max-height:280px;border-radius:8px;border:2px solid #3b82f6;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                                                    <div style="width:100%;max-height:280px;border-radius:8px;border:2px solid #3b82f6;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
                                                         <img id="backPhotoPreview" style="max-width:100%;max-height:100%;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
+                                                        <button type="button" id="retakeBackPhotoBtn" class="btn btn-sm" style="position:absolute;bottom:10px;right:10px;z-index:10;background:#ec4899;color:#fff;border:none;"><i class="fas fa-camera"></i> Retake</button>
                                                     </div>
                                                     <small class="text-muted d-block mt-2" style="font-size:11px;"><i class="fas fa-info-circle"></i> Frame Reference: ID card should fill the green frame guide</small>
                                                     <small class="text-success d-block mt-2"><i class="fas fa-check-double"></i> Both photos ready to submit</small>
@@ -146,9 +147,9 @@
 
                                                 <!-- Photo Capture Controls (Moved to Bottom) -->
                                                 <div class="btn-group w-100 mb-3 gap-2" role="group" style="display: flex; flex-wrap: wrap;">
-                                                    <button type="button" id="startPhotoCameraBtn" class="btn btn-primary" style="flex:1;min-width:150px;">Start Camera</button>
-                                                    <button type="button" id="capturePhotoBtn" class="btn btn-success d-none" style="flex:1;min-width:150px;"><span id="capturePhotoText">Capture Photo</span></button>
-                                                    <button type="button" id="stopPhotoCameraBtn" class="btn btn-danger d-none" style="flex:1;min-width:150px;">Stop Camera</button>
+                                                    <button type="button" id="startPhotoCameraBtn" class="btn d-none" style="flex:1;min-width:150px;background:#f59e0b;color:#fff;border:none;">Start Camera</button>
+                                                    <button type="button" id="capturePhotoBtn" class="btn d-none" style="flex:1;min-width:150px;background:#10b981;color:#fff;border:none;"><span id="capturePhotoText">Capture Photo</span></button>
+                                                    <button type="button" id="stopPhotoCameraBtn" class="btn d-none" style="flex:1;min-width:150px;background:#ef4444;color:#fff;border:none;">Stop Camera</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -158,7 +159,7 @@
                                             <input type="hidden" name="ticket_qr_code" id="checkInCode">
                                             <input type="hidden" name="photo_data_front" id="frontPhotoData">
                                             <input type="hidden" name="photo_data_back" id="backPhotoData">
-                                            <button type="submit" id="checkInBtn" class="btn btn-success px-4">Check In</button>
+                                            <button type="submit" id="checkInBtn" class="btn px-4" style="background:#14b8a6;color:#fff;border:none;">Check In</button>
                                             <button type="button" id="cancelBtn" class="btn px-4" style="background:#6b7280;color:#fff;border:none;">Cancel</button>
                                         </form>
                                     </div>
@@ -942,6 +943,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    const retakeBackPhotoBtn = document.getElementById('retakeBackPhotoBtn');
+    if (retakeBackPhotoBtn) {
+        retakeBackPhotoBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            retakeBackPhoto();
+        });
+    }
+
     function retakeFrontPhoto() {
         frontPhotoCaptured = false;
         capturingFrontPhoto = true;
@@ -957,6 +966,18 @@ document.addEventListener('DOMContentLoaded', function () {
         backPhotoStatus.textContent = 'Pending';
         backPhotoStatus.style.color = '#60a5fa';
         document.getElementById('backPhotoIndicator').style.opacity = '0.5';
+        startPhotoCamera();
+    }
+
+    function retakeBackPhoto() {
+        backPhotoCaptured = false;
+        capturingFrontPhoto = false;
+        backPhotoData.value = '';
+        backPhotoPreviewContainer.classList.add('d-none');
+        backPhotoStatus.textContent = 'Pending';
+        backPhotoStatus.style.color = '#60a5fa';
+        document.getElementById('backPhotoIndicator').style.opacity = '0.5';
+        document.getElementById('backPhotoIndicator').style.borderColor = '#64b5f6';
         startPhotoCamera();
     }
 
