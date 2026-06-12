@@ -2795,9 +2795,11 @@
                 width: 100% !important;
             }
 
-            /* Hide phone formatting note on mobile */
+            /* Reduce phone formatting note size on mobile */
             .phone-note {
-                display: none !important;
+                font-size: 0.65rem !important;
+                margin-top: 2px !important;
+                line-height: 1.3 !important;
             }
         }
 
