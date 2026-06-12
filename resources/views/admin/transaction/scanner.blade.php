@@ -171,13 +171,15 @@
                                             </div>
                                         </div>
 
-                                        <form method="POST" action="{{ route('admin.transaction.scan.check-in') }}" id="checkInForm" class="d-flex flex-wrap gap-2 mt-4 pt-4" style="border-top:1px solid #334155;">
+                                        <form method="POST" action="{{ route('admin.transaction.scan.check-in') }}" id="checkInForm" class="mt-4 pt-4" style="border-top:1px solid #334155;">
                                             @csrf
                                             <input type="hidden" name="ticket_qr_code" id="checkInCode">
                                             <input type="hidden" name="photo_data_front" id="frontPhotoData">
                                             <input type="hidden" name="photo_data_back" id="backPhotoData">
-                                            <button type="submit" id="checkInBtn" class="btn btn-success px-4">Check In</button>
-                                            <button type="button" id="cancelBtn" class="btn px-4" style="background:#6b7280;color:#fff;border:none;">Cancel</button>
+                                            <div class="d-grid gap-2 d-md-flex">
+                                                <button type="submit" id="checkInBtn" class="btn btn-success btn-lg px-4 py-3 fw-bold">Check In</button>
+                                                <button type="button" id="cancelBtn" class="btn btn-lg px-4" style="background:#6b7280;color:#fff;border:none;">Cancel</button>
+                                            </div>
                                         </form>
                                     </div>
                                 </div>
