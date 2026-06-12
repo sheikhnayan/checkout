@@ -199,6 +199,7 @@
                             <tr>
                                 <th style="width:30px;"><input type="checkbox" id="selectAllTxn"></th>
                                 <th>Confirmation #</th>
+                                <th>Booking Date</th>
                                 <th>Package/Event</th>
                                 <th>Payment Status</th>
                                 <th>Due Amount</th>
@@ -206,7 +207,6 @@
                                 <th>Reservation Date</th>
                                 <th>Entry Status</th>
                                 <th>Commission</th>
-                                <th>Booking Date</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -272,6 +272,7 @@
                                 <tr data-transaction-id="{{ $transaction->id }}">
                                     <td><input type="checkbox" class="txn-row-check" value="{{ $transaction->id }}"></td>
                                     <td><strong>#{{ str_pad($transaction->id, 3, '0', STR_PAD_LEFT) }}</strong></td>
+                                    <td><small>{{ optional($transaction->created_at)->format('M d, Y') }}</small></td>
                                     <td>
                                         <div style="font-weight:600;margin-bottom:6px;">{{ optional($transaction->website)->name ?? 'N/A' }}</div>
                                         <div style="font-size:0.85rem;">{{ $transaction->type === 'package' ? ($transaction->package_table_label ?: 'Package') : 'Reservation' }}</div>
@@ -322,7 +323,6 @@
                                         @endif
                                     </td>
                                     <td style="font-weight:600;font-size:0.9rem;">{{ $commissionText }}</td>
-                                    <td><small>{{ optional($transaction->created_at)->format('M d, Y') }}</small></td>
                                     <td>
                                         <button type="button" class="btn btn-sm btn-outline-primary" title="View Details" data-bs-toggle="modal" data-bs-target="#transactionModal" onclick="loadTransactionDetails({{ $transaction->id }})">
                                             <i class="fas fa-eye"></i>

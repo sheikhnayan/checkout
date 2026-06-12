@@ -611,6 +611,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         <tr>
                             <th><input type="checkbox" id="selectAll"></th>
                             <th>Order ID</th>
+                            <th>Sale Date</th>
                             <th>Confirmation #</th>
                             <th>Event / Package</th>
                             <th>Source</th>
@@ -622,7 +623,6 @@ body.modal-open .admin-mobile-menu-toggle {
                             <th>Reservation Date</th>
                             <th>Entry Status</th>
                             <th>Commission</th>
-                            <th>Sale Date</th>
                             <th>Action</th>
                             <th class="d-none">_website</th>
                             <th class="d-none">_type</th>
@@ -710,6 +710,10 @@ body.modal-open .admin-mobile-menu-toggle {
                         <tr data-row-id="{{ $item->id }}" data-row-error="{{ $rowError ?? '' }}">
                             <td><input type="checkbox" class="row-check" value="{{ $item->id }}"></td>
                             <td class="txn-order-id">#{{ str_pad($item->id, 3, '0', STR_PAD_LEFT) }}</td>
+                            <td>
+                                <div class="txn-date-main">{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('M d, Y') }}</div>
+                                <div class="txn-date-time">{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('h:i A') }}</div>
+                            </td>
                             <td class="txn-confirmation-num">{{ $item->transaction_id ?? 'N/A' }}</td>
                             <td class="txn-pkg-name">
                                 <div style="font-size:0.85rem;font-weight:600;margin-bottom:8px;">{{ $venueName }}</div>
@@ -871,10 +875,6 @@ body.modal-open .admin-mobile-menu-toggle {
                                 <div style="font-weight:600;">{{ $commissionText }}</div>
                             </td>
                             <td>
-                                <div class="txn-date-main">{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('M d, Y') }}</div>
-                                <div class="txn-date-time">{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('h:i A') }}</div>
-                            </td>
-                            <td>
                                 <div class="d-flex align-items-center gap-1">
                                     <button type="button" class="txn-action-eye view-btn"
                                         data-bs-toggle="modal" data-bs-target="#viewTransactionModal"
@@ -980,9 +980,9 @@ body.modal-open .admin-mobile-menu-toggle {
                     </tbody>
                     <tfoot>
                         <tr>
-                            <th colspan="6" class="text-end" style="color:rgba(255,255,255,0.5);font-size:0.82rem">Total:</th>
+                            <th colspan="7" class="text-end" style="color:rgba(255,255,255,0.5);font-size:0.82rem">Total:</th>
                             <th id="amount-total" style="color:#fff;font-weight:700;font-size:0.9rem"></th>
-                            <th colspan="12"></th>
+                            <th colspan="11"></th>
                         </tr>
                     </tfoot>
                 </table>
