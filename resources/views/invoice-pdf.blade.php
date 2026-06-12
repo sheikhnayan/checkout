@@ -442,7 +442,7 @@
         </div>
     </div>
 
-    @if($transaction->package_note || $transaction->transportation_pickup_time || $transaction->transportation_address || $transaction->host_name || $transaction->transportation_note)
+    @if($transaction->package_note || $transaction->transportation_pickup_time || $transaction->transportation_address || $transaction->transportation_phone || $transaction->host_name || $transaction->transportation_note)
     <div class="section">
         <div class="section-title">Booking & Transportation Details</div>
         @if($transaction->package_note)
@@ -461,6 +461,12 @@
         <div class="info-row">
             <span class="info-label">Pickup Location</span>
             <span class="info-value">{{ $transaction->transportation_address }}</span>
+        </div>
+        @endif
+        @if($transaction->transportation_phone)
+        <div class="info-row">
+            <span class="info-label">Contact Phone</span>
+            <span class="info-value">{{ $transaction->transportation_phone }}</span>
         </div>
         @endif
         @if($transaction->host_name)

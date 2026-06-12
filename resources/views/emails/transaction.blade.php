@@ -82,10 +82,7 @@
             @if(!empty($mailData['package_note']))
             <tr><th>Booking Note</th><td>{{ $mailData['package_note'] }}</td></tr>
             @endif
-            @if(!empty($mailData['transportation_note']))
-            <tr><th>Transportation Note</th><td>{{ $mailData['transportation_note'] }}</td></tr>
-            @endif
-            @if(!empty($mailData['transportation_pickup_time']) || !empty($mailData['transportation_address']) || !empty($mailData['transportation_guest']))
+            @if(!empty($mailData['transportation_pickup_time']) || !empty($mailData['transportation_address']) || !empty($mailData['transportation_phone']) || !empty($mailData['transportation_guest']) || !empty($mailData['transportation_note']))
             <tr><th colspan="2" style="background: #dbeafe; padding: 14px; border-radius: 6px;"><strong>Transportation Details</strong></th></tr>
             @if(!empty($mailData['transportation_pickup_time']))
             <tr><th>Pickup Time</th><td>{{ $mailData['transportation_pickup_time'] }}</td></tr>
@@ -93,8 +90,14 @@
             @if(!empty($mailData['transportation_address']))
             <tr><th>Pickup Location</th><td>{{ $mailData['transportation_address'] }}</td></tr>
             @endif
+            @if(!empty($mailData['transportation_phone']))
+            <tr><th>Contact Phone</th><td>{{ $mailData['transportation_phone'] }}</td></tr>
+            @endif
             @if(!empty($mailData['host_name']))
             <tr><th>Host Name</th><td>{{ $mailData['host_name'] }}</td></tr>
+            @endif
+            @if(!empty($mailData['transportation_note']))
+            <tr><th>Transportation Note</th><td>{{ $mailData['transportation_note'] }}</td></tr>
             @endif
             @endif
             @if(!empty($mailData['business_company']) || !empty($mailData['business_vat']) || !empty($mailData['business_address']))
@@ -175,10 +178,7 @@
             @if(!empty($mailData['package_note']))
             <tr><th>Booking Note</th><td>{{ $mailData['package_note'] }}</td></tr>
             @endif
-            @if(!empty($mailData['transportation_note']))
-            <tr><th>Transportation Note</th><td>{{ $mailData['transportation_note'] }}</td></tr>
-            @endif
-            @if(!empty($mailData['transportation_pickup_time']) || !empty($mailData['transportation_address']) || !empty($mailData['transportation_guest']))
+            @if(!empty($mailData['transportation_pickup_time']) || !empty($mailData['transportation_address']) || !empty($mailData['transportation_phone']) || !empty($mailData['transportation_guest']) || !empty($mailData['transportation_note']))
             <tr><th colspan="2" style="background: #dbeafe; padding: 14px; border-radius: 6px;"><strong>Transportation Details</strong></th></tr>
             @if(!empty($mailData['transportation_pickup_time']))
             <tr><th>Pickup Time</th><td>{{ $mailData['transportation_pickup_time'] }}</td></tr>
@@ -186,8 +186,14 @@
             @if(!empty($mailData['transportation_address']))
             <tr><th>Pickup Location</th><td>{{ $mailData['transportation_address'] }}</td></tr>
             @endif
+            @if(!empty($mailData['transportation_phone']))
+            <tr><th>Contact Phone</th><td>{{ $mailData['transportation_phone'] }}</td></tr>
+            @endif
             @if(!empty($mailData['host_name']))
             <tr><th>Host Name</th><td>{{ $mailData['host_name'] }}</td></tr>
+            @endif
+            @if(!empty($mailData['transportation_note']))
+            <tr><th>Transportation Note</th><td>{{ $mailData['transportation_note'] }}</td></tr>
             @endif
             @endif
             @if(!empty($mailData['business_company']) || !empty($mailData['business_vat']) || !empty($mailData['business_address']))
