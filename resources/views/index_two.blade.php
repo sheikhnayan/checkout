@@ -1110,57 +1110,11 @@
             text-decoration: underline;
         }
 
-        /* TERMS CONSENT - CHECKBOX ONLY - OVERRIDE EVERYTHING */
-        .checkbox-container #termsConsent_two,
-        .checkbox-container #termsConsent,
-        #payment-consent-group #termsConsent,
-        .payment-consent-group #termsConsent {
-            -webkit-appearance: none !important;
-            appearance: none !important;
-            width: 18px !important;
-            height: 18px !important;
-            min-width: 18px !important;
-            min-height: 18px !important;
-            max-width: 18px !important;
-            max-height: 18px !important;
-            border: 2px solid #999 !important;
-            border-radius: 3px !important;
-            background: #fff !important;
-            cursor: pointer !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            position: relative !important;
-            flex-shrink: 0 !important;
-            transition: all 0.2s !important;
-        }
-        .checkbox-container #termsConsent_two:checked,
-        .checkbox-container #termsConsent:checked,
-        #payment-consent-group #termsConsent:checked,
-        .payment-consent-group #termsConsent:checked {
-            background: #ffcc00 !important;
-            border-color: #ffcc00 !important;
-        }
-        .checkbox-container #termsConsent_two:checked::before,
-        .checkbox-container #termsConsent:checked::before,
-        #payment-consent-group #termsConsent:checked::before,
-        .payment-consent-group #termsConsent:checked::before {
-            content: '✓' !important;
-            position: absolute !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            color: #000 !important;
-            font-weight: bold !important;
-            font-size: 14px !important;
-        }
+        /* TERMS CONSENT - SAME TOGGLE AS OTHER CONSENTS */
+        /* No special styling - let it be a toggle like the rest */
         .consent-label input[type="checkbox"]:focus-visible {
             outline: 2px solid rgba(255,204,0,0.7);
             outline-offset: 2px;
-        }
-
-        /* CENTER ALIGNMENT FOR CHECKBOX LABELS (TERMS CONSENT ONLY) - simplified without :has() */
-        .checkbox-container:not(.payment-consent-group) .consent-label {
-            align-items: center;
         }
 
         /* Payment agreement toggles: exact affiliate parity, locked with stronger selectors */
@@ -1174,10 +1128,6 @@
             font-size: 13px !important;
             font-family: 'Inter', sans-serif !important;
             font-weight: 400 !important;
-        }
-        /* Business purpose toggle - center aligned with text */
-        .checkbox-container.payment-consent-group:not(#payment-consent-group) .consent-label {
-            align-items: center !important;
         }
 
         #payment-consent-group .consent-label span,
@@ -1204,8 +1154,8 @@
             cursor: pointer !important;
             transition: background .2s ease, border-color .2s ease !important;
         }
-        #payment-consent-group .consent-label input[type="checkbox"]:not(#termsConsent)::before,
-.payment-consent-group .consent-label input[type="checkbox"]:not(#termsConsent)::before {
+        #payment-consent-group .consent-label input[type="checkbox"]::before,
+.payment-consent-group .consent-label input[type="checkbox"]::before {
             content: '' !important;
             position: absolute !important;
             top: 2px !important;
@@ -1221,8 +1171,8 @@
             background: #ffcc00 !important;
             border-color: #ffcc00 !important;
         }
-        #payment-consent-group .consent-label input[type="checkbox"]:not(#termsConsent):checked::before,
-.payment-consent-group .consent-label input[type="checkbox"]:not(#termsConsent):checked::before {
+        #payment-consent-group .consent-label input[type="checkbox"]:checked::before,
+.payment-consent-group .consent-label input[type="checkbox"]:checked::before {
             background: #fff !important;
             transform: translateX(20px) !important;
             box-shadow: 0 0 0 3px rgba(0,0,0,0.1) !important;

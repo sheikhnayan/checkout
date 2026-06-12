@@ -954,11 +954,6 @@ input::placeholder, textarea::placeholder {
     outline-offset: 2px;
 }
 
-/* CENTER ALIGNMENT FOR CHECKBOX LABELS (TERMS CONSENT ONLY) */
-.checkbox-container:not(.payment-consent-group) .consent-label {
-    align-items: center;
-}
-
 /* Payment agreement toggles: exact affiliate parity, locked with stronger selectors */
 #payment-consent-group .consent-label span {
     flex: 1 !important;
@@ -982,7 +977,7 @@ input::placeholder, textarea::placeholder {
     cursor: pointer !important;
     transition: background .2s ease, border-color .2s ease !important;
 }
-#payment-consent-group .consent-label input[type="checkbox"]:not(#termsConsent)::before {
+#payment-consent-group .consent-label input[type="checkbox"]::before {
     content: '' !important;
     position: absolute !important;
     top: 2px !important;
@@ -997,7 +992,7 @@ input::placeholder, textarea::placeholder {
     background: #ffcc00 !important;
     border-color: #ffcc00 !important;
 }
-#payment-consent-group .consent-label input[type="checkbox"]:not(#termsConsent):checked::before {
+#payment-consent-group .consent-label input[type="checkbox"]:checked::before {
     transform: translateX(20px) !important;
 }
 #payment-consent-group .consent-label input[type="checkbox"]:focus-visible {
@@ -1070,55 +1065,8 @@ input::placeholder, textarea::placeholder {
     transform: translateX(20px);
 }
 
-/* TERMS CONSENT - CHECKBOX ONLY - OVERRIDE EVERYTHING */
-.checkbox-container #termsConsent,
-        #payment-consent-group #termsConsent,
-        .payment-consent-group #termsConsent_two,
-.checkbox-container #termsConsent,
-        #payment-consent-group #termsConsent,
-        .payment-consent-group #termsConsent {
-    -webkit-appearance: none !important;
-    appearance: none !important;
-    width: 18px !important;
-    height: 18px !important;
-    min-width: 18px !important;
-    min-height: 18px !important;
-            max-width: 18px !important;
-            max-height: 18px !important;
-    border: 2px solid #999 !important;
-    border-radius: 3px !important;
-    background: #fff !important;
-    cursor: pointer !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    position: relative !important;
-    flex-shrink: 0 !important;
-    transition: all 0.2s !important;
-}
-.checkbox-container #termsConsent,
-        #payment-consent-group #termsConsent,
-        .payment-consent-group #termsConsent_two:checked,
-.checkbox-container #termsConsent,
-        #payment-consent-group #termsConsent,
-        .payment-consent-group #termsConsent:checked {
-    background: var(--accent, #ffcc00) !important;
-    border-color: var(--accent, #ffcc00) !important;
-}
-.checkbox-container #termsConsent,
-        #payment-consent-group #termsConsent,
-        .payment-consent-group #termsConsent_two:checked::before,
-.checkbox-container #termsConsent,
-        #payment-consent-group #termsConsent,
-        .payment-consent-group #termsConsent:checked::before {
-    content: '✓' !important;
-    position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    color: #000 !important;
-    font-weight: bold !important;
-    font-size: 14px !important;
-}
+/* TERMS CONSENT - SAME TOGGLE AS OTHER CONSENTS */
+/* No special styling - let it be a toggle like the rest */
 .checkbox-container input[type="checkbox"]:focus-visible {
     outline: 2px solid rgba(255,204,0,0.7);
     outline-offset: 2px;
