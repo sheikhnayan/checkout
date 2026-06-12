@@ -2636,6 +2636,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .location-map-wrap iframe { min-height: 260px; }
     .ent-display-title { margin: 2px 0 4px; }
     .ent-display-copy { font-size: 11px; }
+
+    /* Mobile form layout: stack fields vertically */
+    .form-row .form-group {
+        width: 100% !important;
+    }
 }
 
 

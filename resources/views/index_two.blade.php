@@ -2779,6 +2779,11 @@
             .location-map-wrap iframe { min-height: 260px; }
             .aff-display-title { margin: 2px 0 4px; }
             .aff-display-copy { font-size: 11px; }
+
+            /* Mobile form layout: stack fields vertically */
+            .form-row .form-group {
+                width: 100% !important;
+            }
         }
 
         @media(max-width:576px) {
