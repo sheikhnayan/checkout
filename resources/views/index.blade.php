@@ -8288,14 +8288,13 @@ input[type="checkbox"],
                         '[name="package_year"]'
                     );
                 } else if (stepNumber === 2 && window.requiresTransportation) {
-                    // Transportation form validation disabled - allow form to proceed
-                    // requiredFields.push(
-                    //     '[name="package_use_date"]',
-                    //     '[name="transportation_pickup_time"]',
-                    //     '[name="transportation_address"]',
-                    //     '[name="transportation_phone"]',
-                    //     '[name="transportation_guest"]'
-                    // );
+                    requiredFields.push(
+                        '[name="package_use_date"]',
+                        '[name="transportation_pickup_time"]',
+                        '[name="transportation_address"]',
+                        '[name="transportation_phone"]',
+                        '[name="transportation_guest"]'
+                    );
                 } else if (stepNumber === 2 && !window.requiresTransportation) {
                     // Validate transportation confirmation checkbox
                     if (!$('#transportation_part').is(':checked')) {
