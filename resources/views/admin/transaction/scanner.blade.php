@@ -107,6 +107,9 @@
                                                     <strong id="currentSideText" style="color:#86efac;">📷 Capturing Front of ID</strong>
                                                 </div>
 
+                                                <!-- Start Camera button placed ABOVE the camera so it is immediately visible without scrolling -->
+                                                <button type="button" id="startPhotoCameraBtn" class="btn btn-lg w-100 mb-3 fw-bold" style="padding-top:14px;padding-bottom:14px;"><i class="fas fa-camera me-1"></i> Start Camera</button>
+
                                                 <div class="border-2 rounded-3 p-0 mb-3" style="width:100%;height:300px;overflow:hidden;background:#000;border-color:#3b82f6;position:relative;">
                                                     <video id="photoCameraFeed" style="width:100%;height:100%;object-fit:cover;display:none;background:#000;"></video>
                                                     <canvas id="photoCanvas" style="display:none;"></canvas>
@@ -136,6 +139,10 @@
                                                     #photoFlash.flashing {
                                                         animation: flash 0.3s ease-out;
                                                     }
+                                                    @keyframes noticePop {
+                                                        from { transform: scale(0.6); opacity: 0; }
+                                                        to { transform: scale(1); opacity: 1; }
+                                                    }
                                                 </style>
 
                                                 <!-- Front ID Preview -->
@@ -162,9 +169,8 @@
                                                     </button>
                                                 </div>
 
-                                                <!-- Photo Capture Controls (Moved to Bottom) -->
+                                                <!-- Photo Capture Controls (Capture stays at the bottom, below the camera) -->
                                                 <div class="btn-group w-100 mb-3 gap-2" role="group" style="display: flex; flex-wrap: wrap;">
-                                                    <button type="button" id="startPhotoCameraBtn" class="btn btn-primary" style="flex:1;min-width:150px;">Start Camera</button>
                                                     <button type="button" id="capturePhotoBtn" class="btn btn-success d-none" style="flex:1;min-width:150px;"><span id="capturePhotoText">Capture Photo</span></button>
                                                     <button type="button" id="stopPhotoCameraBtn" class="btn btn-danger d-none" style="flex:1;min-width:150px;">Stop Camera</button>
                                                 </div>
@@ -335,9 +341,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 var menCount = parseInt(transaction.men_count || 0);
                 var womenCount = parseInt(transaction.women_count || 0);
                 var totalGuests = parseInt(transaction.total_guests || 0);
-                var menLabel = menCount === 1 ? 'Man' : 'Men';
-                var womenLabel = womenCount === 1 ? 'Woman' : 'Women';
-                return '<div><strong>Guests:</strong> <span style="font-weight:700;color:#fbbf24;">' + menCount + ' ' + menLabel + ' + ' + womenCount + ' ' + womenLabel + ' = ' + totalGuests + ' Total</span></div>';
+                // Show the Male/Female breakdown only when we actually have one (reservations).
+                // Packages have no gender split, so just show the total instead of "0 Male 0 Female".
+                if (menCount > 0 || womenCount > 0) {
+                    return '<div><strong>Guests:</strong> <span style="font-weight:700;color:#fbbf24;">' + menCount + ' Male + ' + womenCount + ' Female = ' + totalGuests + ' Total</span></div>';
+                }
+                return '<div><strong>Guests:</strong> <span style="font-weight:700;color:#fbbf24;">' + totalGuests + ' Total</span></div>';
             })(),
             '<div><strong>Event Date (PST):</strong> ' + (transaction.package_use_date || '-') + '</div>',
             packageListHtml,
@@ -348,13 +357,16 @@ document.addEventListener('DOMContentLoaded', function () {
         checkInCode.value = transaction.ticket_qr_code || '';
         checkInBtn.disabled = !!transaction.checked_in_status;
         if (transaction.checked_in_status) {
+            alreadyCheckedIn = true;
             checkInBtn.textContent = 'Already Checked In';
             checkInBtn.classList.remove('btn-success', 'btn-secondary');
             checkInBtn.classList.add('btn-danger');
         } else {
+            alreadyCheckedIn = false;
             checkInBtn.textContent = 'Check In';
             checkInBtn.classList.add('btn-success');
             checkInBtn.classList.remove('btn-secondary', 'btn-danger');
+            updateCheckInButtonState(); // disabled until BOTH ID photos are captured
         }
 
         ticketResult.classList.remove('d-none');
@@ -511,6 +523,17 @@ document.addEventListener('DOMContentLoaded', function () {
     let backPhotoCaptured = false;
     let capturingFrontPhoto = true; // Start with front photo
     let currentFacingMode = 'environment'; // Default to back camera
+    let alreadyCheckedIn = false; // True when the scanned ticket was already checked in
+
+    // Check-In can only be submitted once BOTH ID photos are captured.
+    function updateCheckInButtonState() {
+        if (alreadyCheckedIn) return; // keep the "Already Checked In" disabled state
+        var ready = frontPhotoCaptured && backPhotoCaptured;
+        checkInBtn.disabled = !ready;
+        checkInBtn.style.opacity = ready ? '' : '0.5';
+        checkInBtn.style.cursor = ready ? '' : 'not-allowed';
+        checkInBtn.title = ready ? '' : 'Capture both the front and back ID photos to enable check-in';
+    }
 
     startPhotoCameraBtn.addEventListener('click', async function() {
         try {
@@ -801,6 +824,7 @@ document.addEventListener('DOMContentLoaded', function () {
             capturePhotoBtn.textContent = 'Capture Photo';
             capturePhotoBtn.classList.remove('btn-warning');
             capturePhotoBtn.classList.add('btn-success');
+            updateCheckInButtonState();
             return;
         }
 
@@ -856,11 +880,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Hide capture button while preparing for back camera
                 capturePhotoBtn.classList.add('d-none');
 
-                // Show notice to prepare for back photo
+                // Show a beautiful "get ready" notice OVERLAID on the camera itself
+                const cameraContainer = photoCameraFeed.parentElement;
                 const backPhotoNotice = document.createElement('div');
                 backPhotoNotice.id = 'backPhotoNotice';
-                backPhotoNotice.innerHTML = '<div style="background:#3b82f6;color:#fff;padding:16px;border-radius:8px;margin-bottom:16px;text-align:center;font-size:16px;font-weight:600;"><i class="fas fa-arrow-right"></i> <strong>Get Ready!</strong> Prepare to photograph the back of your ID card...</div>';
-                capturePhotoBtn.parentNode.insertBefore(backPhotoNotice, capturePhotoBtn);
+                backPhotoNotice.style.cssText = 'position:absolute;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,0.82);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);padding:16px;';
+                backPhotoNotice.innerHTML = '<div style="text-align:center;color:#fff;padding:22px 26px;background:linear-gradient(135deg,#3b82f6,#6366f1);border-radius:18px;box-shadow:0 12px 34px rgba(0,0,0,0.5);max-width:90%;animation:noticePop 0.45s ease-out;">' +
+                    '<div style="font-size:40px;margin-bottom:10px;line-height:1;"><i class="fas fa-id-card"></i> <i class="fas fa-sync-alt fa-spin" style="font-size:26px;opacity:0.9;"></i></div>' +
+                    '<div style="font-size:19px;font-weight:800;letter-spacing:0.3px;margin-bottom:6px;">Get Ready!</div>' +
+                    '<div style="font-size:14px;opacity:0.95;line-height:1.5;">Flip the ID card over —<br>capturing the <strong>BACK</strong> next</div>' +
+                    '</div>';
+                cameraContainer.appendChild(backPhotoNotice);
 
                 // Auto-switch to back camera after 3 seconds
                 setTimeout(function() {
@@ -914,6 +944,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 }, 100);
             }, 600);
         }
+
+        // Enable Check-In only when both photos are present
+        updateCheckInButtonState();
     });
 
     function stopPhotoCamera() {
@@ -995,6 +1028,7 @@ document.addEventListener('DOMContentLoaded', function () {
         capturePhotoBtn.classList.add('btn-success');
         capturePhotoBtn.disabled = false;
 
+        updateCheckInButtonState(); // front no longer captured -> block check-in
         startPhotoCameraBtn.click();
     }
 
@@ -1030,6 +1064,7 @@ document.addEventListener('DOMContentLoaded', function () {
         capturePhotoBtn.classList.add('btn-success');
         capturePhotoBtn.disabled = false;
 
+        updateCheckInButtonState(); // back no longer captured -> block check-in
         // Restart the camera for the back capture
         startPhotoCameraBtn.click();
     }
@@ -1084,6 +1119,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Show photo capture section
         photoCaptureSection.style.display = '';
 
+        updateCheckInButtonState(); // both photos cleared -> block check-in
         // Restart camera
         startPhotoCameraBtn.click();
     }

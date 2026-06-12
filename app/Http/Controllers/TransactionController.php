@@ -1269,9 +1269,11 @@ class TransactionController extends Controller
             ]];
         }
 
-        // Get men and women counts
-        $menCount = (int) ($transaction->package_men ?? $transaction->men ?? 0);
-        $womenCount = (int) ($transaction->package_women ?? $transaction->women ?? 0);
+        // Get men and women counts. Reservations store the gender split in `men`/`women`;
+        // packages only store a total. Use `?:` so a phantom/zero column never masks the
+        // real value (`??` would keep a stored 0 instead of falling through).
+        $menCount = (int) ($transaction->men ?: $transaction->package_men ?: 0);
+        $womenCount = (int) ($transaction->women ?: $transaction->package_women ?: 0);
 
         // Calculate total guests from men + women, or use stored total
         $totalGuests = $menCount + $womenCount;
