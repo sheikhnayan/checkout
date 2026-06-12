@@ -5024,13 +5024,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                             <div class="checkbox-container">
                                                 <label class="consent-label">
                                                     <input type="checkbox" id="smsConsent_two" required />
-                                                    <span>I agree to receive SMS communications from {{ $data->name }} regarding my
-                                                    upcoming reservation. Message and data rates may apply. Messaging frequency
-                                                    may vary. Reply STOP to opt out at any time.</span>
-                                                </label>
-                                                <label class="consent-label driver-notification-consent-wrap" style="display:none;">
-                                                    <input type="checkbox" id="driverNotificationConsent_two" class="driver-notification-consent-input" />
-                                                    <span>I agree to receive notifications from the driver regarding my transportation pickup.</span>
+                                                    <span>I agree to receive SMS communications regarding my reservation, transportation updates, VIP services, and related notifications. Message and data rates may apply. Messaging frequency may vary. Reply STOP to opt out at any time.</span>
                                                 </label>
                                                 <label class="consent-label">
                                                     <input type="checkbox" id="termsConsent_two" required />
@@ -5735,7 +5729,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                         </div>
                                                                 @endif
                                                             </div>
-                                                            <div class="checkbox-container payment-consent-group" style="margin-top: 1.5rem;">
+                                                            <div class="checkbox-container payment-consent-group" style="margin-top: 1.5rem; display: none;">
                                                                 <label class="consent-label">
                                                                     <input type="checkbox" id="businessExpenseCheckbox" />
                                                                     <span>This purchase is for business purposes</span>
@@ -5763,18 +5757,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                             <div class="checkbox-container payment-consent-group" id="payment-consent-group">
                                                                 <label class="consent-label">
                                                                     <input type="checkbox" id="smsConsent" required />
-                                                                    <span>I agree to receive SMS communications from
-                                                                    {{ $data->name }}
-                                                                    regarding my upcoming
-                                                                    reservation. Message and data rates may apply. Messaging
-                                                                    frequency may vary. Reply
-                                                                    STOP to opt out at any time.</span>
+                                                                    <span>I agree to receive SMS communications regarding my reservation, transportation updates, VIP services, and related notifications. Message and data rates may apply. Messaging frequency may vary. Reply STOP to opt out at any time.</span>
                                                                 </label>
-                                                                <label class="consent-label driver-notification-consent-wrap" style="display:none;">
-                                                                    <input type="checkbox" id="driverNotificationConsent" class="driver-notification-consent-input" />
-                                                                    <span>I agree to receive notifications from the driver regarding my transportation pickup.</span>
-                                                                </label>
-    
+
                                                                 <label class="consent-label" style="margin-top: 1.4rem;">
                                                                     <input type="checkbox" id="termsConsent" required />
                                                                     <span>I have read and agree to the <a
@@ -8347,6 +8332,39 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     e.preventDefault();
                     return;
                 }
+
+                // Check SMS consent checkbox for payment form
+                const smsConsentPackage = document.getElementById('smsConsent');
+                if (!smsConsentPackage || !smsConsentPackage.checked) {
+                    e.preventDefault();
+                    const errorMsg = document.getElementById('validation-error-msg-package') || document.createElement('div');
+                    if (!errorMsg.id) {
+                        errorMsg.id = 'validation-error-msg-package';
+                        errorMsg.style.cssText = 'color: #ff6b6b; padding: 12px; margin: 10px 0; font-weight: 600; text-align: center; background: rgba(255, 107, 107, 0.1); border-radius: 6px; border-left: 4px solid #ff6b6b;';
+                        this.parentElement.insertBefore(errorMsg, this);
+                    }
+                    errorMsg.textContent = 'Please agree to receive SMS communications regarding your reservation, transportation updates, VIP services, and related notifications.';
+                    errorMsg.style.display = 'block';
+                    errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+
+                // Check terms consent checkbox for payment form
+                const termsConsentPackage = document.getElementById('termsConsent');
+                if (!termsConsentPackage || !termsConsentPackage.checked) {
+                    e.preventDefault();
+                    const errorMsg = document.getElementById('validation-error-msg-package') || document.createElement('div');
+                    if (!errorMsg.id) {
+                        errorMsg.id = 'validation-error-msg-package';
+                        errorMsg.style.cssText = 'color: #ff6b6b; padding: 12px; margin: 10px 0; font-weight: 600; text-align: center; background: rgba(255, 107, 107, 0.1); border-radius: 6px; border-left: 4px solid #ff6b6b;';
+                        this.parentElement.insertBefore(errorMsg, this);
+                    }
+                    errorMsg.textContent = 'Please accept the Terms of Service.';
+                    errorMsg.style.display = 'block';
+                    errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+
                 prepareCheckoutCartPayload(this);
             });
 
@@ -9423,5 +9441,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     </body>
 
     </html>
+
 
 

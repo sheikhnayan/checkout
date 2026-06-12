@@ -5892,16 +5892,8 @@
                                             <div class="checkbox-container">
                                                 <label class="consent-label">
                                                     <input type="checkbox" id="smsConsent_two" required />
-                                                    <span>I agree to receive SMS communications from {{ $data->name }}
-                                                    regarding my
-                                                    upcoming reservation. Message and data rates may apply. Messaging
-                                                    frequency
-                                                    may vary. Reply STOP to opt out at any time.</span>
+                                                    <span>I agree to receive SMS communications regarding my reservation, transportation updates, VIP services, and related notifications. Message and data rates may apply. Messaging frequency may vary. Reply STOP to opt out at any time.</span>
                                                 </label>
-                                                {{-- <label class="consent-label driver-notification-consent-wrap" style="display:none;">
-                                                    <input type="checkbox" id="driverNotificationConsent_two" class="driver-notification-consent-input" />
-                                                    <span>I agree to receive notifications from the driver regarding my transportation pickup.</span>
-                                                </label> --}}
                                                 <label class="consent-label">
                                                     <input type="checkbox" id="termsConsent_two" required />
                                                     <span>I have read and agree to the <a
@@ -6707,9 +6699,9 @@
                                                                         </div>
                                                             @endif
                                                         </div>
-                                                        <div class="checkbox-container payment-consent-group" style="margin-top: 1.5rem;">
+                                                        <div class="checkbox-container payment-consent-group" style="margin-top: 1.5rem; display: none;">
                                                             <label class="consent-label">
-                                                                <input type="checkbox" id="businessExpenseCheckbox"  required />
+                                                                <input type="checkbox" id="businessExpenseCheckbox" />
                                                                 <span>This purchase is for business purposes</span>
                                                             </label>
                                                         </div>
@@ -6743,16 +6735,7 @@
                                                         <div class="checkbox-container payment-consent-group" id="payment-consent-group">
                                                             <label class="consent-label">
                                                                 <input type="checkbox" id="smsConsent" required />
-                                                                <span>I agree to receive SMS communications from
-                                                                {{ $data->name }}
-                                                                regarding my upcoming
-                                                                reservation. Message and data rates may apply. Messaging
-                                                                frequency may vary. Reply
-                                                                STOP to opt out at any time.</span>
-                                                            </label>
-                                                            <label class="consent-label driver-notification-consent-wrap" style="display:none;">
-                                                                <input type="checkbox" id="driverNotificationConsent" class="driver-notification-consent-input" />
-                                                                <span>I agree to receive notifications from the driver regarding my transportation pickup.</span>
+                                                                <span>I agree to receive SMS communications regarding my reservation, transportation updates, VIP services, and related notifications. Message and data rates may apply. Messaging frequency may vary. Reply STOP to opt out at any time.</span>
                                                             </label>
 
                                                             <label class="consent-label" style="margin-top: 1.4rem;">
@@ -7416,7 +7399,7 @@
                     const smsConsent = document.getElementById('smsConsent_two');
                     if (!smsConsent || !smsConsent.checked) {
                         hasError = true;
-                        errorMessage = 'Please agree to receive SMS communications.';
+                        errorMessage = 'Please agree to receive SMS communications regarding your reservation, transportation updates, VIP services, and related notifications.';
                     }
 
                     // Check terms consent checkbox
@@ -7429,8 +7412,16 @@
                     if (hasError) {
                         e.preventDefault();
                         e.stopPropagation();
-                        // Show error alert
-                        alert(errorMessage);
+                        // Show error message instead of alert
+                        const errorMsg = document.getElementById('validation-error-msg-reservation') || document.createElement('div');
+                        if (!errorMsg.id) {
+                            errorMsg.id = 'validation-error-msg-reservation';
+                            errorMsg.style.cssText = 'color: #ff6b6b; padding: 12px; margin: 10px 0; font-weight: 600; text-align: center; background: rgba(255, 107, 107, 0.1); border-radius: 6px; border-left: 4px solid #ff6b6b;';
+                            form.parentElement.insertBefore(errorMsg, form);
+                        }
+                        errorMsg.textContent = errorMessage;
+                        errorMsg.style.display = 'block';
+                        errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         return;
                     }
 
@@ -9390,12 +9381,12 @@
                         const errorMsg = document.getElementById('validation-error-msg-package') || document.createElement('div');
                         if (!errorMsg.id) {
                             errorMsg.id = 'validation-error-msg-package';
-                            errorMsg.style.cssText = 'color: red; padding: 10px; margin: 10px 0; font-weight: bold; text-align: center;';
+                            errorMsg.style.cssText = 'color: #ff6b6b; padding: 12px; margin: 10px 0; font-weight: 600; text-align: center; background: rgba(255, 107, 107, 0.1); border-radius: 6px; border-left: 4px solid #ff6b6b;';
                             form.parentElement.insertBefore(errorMsg, form);
                         }
-                        errorMsg.textContent = 'Please agree to receive SMS communications.';
+                        errorMsg.textContent = 'Please agree to receive SMS communications regarding your reservation, transportation updates, VIP services, and related notifications.';
                         errorMsg.style.display = 'block';
-                        setTimeout(() => { errorMsg.style.display = 'none'; }, 5000);
+                        errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         return;
                     }
 
@@ -9406,12 +9397,12 @@
                         const errorMsg = document.getElementById('validation-error-msg-package') || document.createElement('div');
                         if (!errorMsg.id) {
                             errorMsg.id = 'validation-error-msg-package';
-                            errorMsg.style.cssText = 'color: red; padding: 10px; margin: 10px 0; font-weight: bold; text-align: center;';
+                            errorMsg.style.cssText = 'color: #ff6b6b; padding: 12px; margin: 10px 0; font-weight: 600; text-align: center; background: rgba(255, 107, 107, 0.1); border-radius: 6px; border-left: 4px solid #ff6b6b;';
                             form.parentElement.insertBefore(errorMsg, form);
                         }
                         errorMsg.textContent = 'Please accept the Terms of Service.';
                         errorMsg.style.display = 'block';
-                        setTimeout(() => { errorMsg.style.display = 'none'; }, 5000);
+                        errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         return;
                     }
 
