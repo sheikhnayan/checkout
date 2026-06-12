@@ -975,6 +975,16 @@ document.addEventListener('DOMContentLoaded', function () {
         backPhotoStatus.textContent = 'Pending';
         backPhotoStatus.style.color = '#60a5fa';
         document.getElementById('backPhotoIndicator').style.opacity = '0.5';
+        document.getElementById('backPhotoIndicator').style.borderColor = '#64b5f6';
+
+        // Hide the back "capturing" label and reset the capture button back to capture mode
+        // (otherwise it keeps the "✕ Delete Back Photo" label from the previous back capture)
+        document.getElementById('currentSideLabel').style.display = 'none';
+        capturePhotoBtn.textContent = 'Capture Photo';
+        capturePhotoBtn.classList.remove('btn-warning');
+        capturePhotoBtn.classList.add('btn-success');
+        capturePhotoBtn.disabled = false;
+
         startPhotoCameraBtn.click();
     }
 
