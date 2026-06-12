@@ -1743,7 +1743,19 @@ body.modal-open .admin-mobile-menu-toggle {
                 $('#modal-package_note').text($(this).data('package_note'));
                 $('#modal-host_name').text($(this).data('host_name'));
                 $('#modal-package_number_of_guest').text($(this).data('package_number_of_guest'));
-                $('#modal-transportation_pickup_time').text($(this).data('transportation_pickup_time'));
+                // Format pickup time to 12-hour format
+                var pickupTime = $(this).data('transportation_pickup_time');
+                if (pickupTime) {
+                    var timeParts = pickupTime.split(':');
+                    var hours = parseInt(timeParts[0], 10);
+                    var minutes = timeParts[1] || '00';
+                    var ampm = hours >= 12 ? 'PM' : 'AM';
+                    hours = hours % 12 || 12;
+                    var formattedTime = (hours < 10 ? '0' : '') + hours + ':' + minutes + ' ' + ampm;
+                    $('#modal-transportation_pickup_time').text(formattedTime);
+                } else {
+                    $('#modal-transportation_pickup_time').text(pickupTime);
+                }
                 $('#modal-transportation_address').text($(this).data('transportation_address'));
                 $('#modal-transportation_phone').text($(this).data('transportation_phone'));
                 $('#modal-transportation_guest').text($(this).data('transportation_guest'));
