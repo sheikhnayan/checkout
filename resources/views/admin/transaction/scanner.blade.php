@@ -1,6 +1,23 @@
 @extends('admin.main')
 
 @section('content')
+<style>
+    /* Distinct color per action button on the scanner page.
+       The admin theme forces .btn-primary/.btn-success/.btn-warning/.btn-info all to the
+       yellow accent colour, so we override each button by ID with !important here. */
+    #startScannerBtn      { background:#2563eb !important; border-color:#2563eb !important; color:#fff !important; }
+    #stopScannerBtn       { background:#dc2626 !important; border-color:#dc2626 !important; color:#fff !important; }
+    #manualLookupBtn      { background:#0891b2 !important; border-color:#0891b2 !important; color:#fff !important; }
+    #startPhotoCameraBtn  { background:#4f46e5 !important; border-color:#4f46e5 !important; color:#fff !important; }
+    #capturePhotoBtn      { background:#0d9488 !important; border-color:#0d9488 !important; color:#fff !important; }
+    #stopPhotoCameraBtn   { background:#ea580c !important; border-color:#ea580c !important; color:#fff !important; }
+    #checkInBtn           { background:#16a34a !important; border-color:#16a34a !important; color:#fff !important; }
+    #cancelBtn            { background:#6b7280 !important; border-color:#6b7280 !important; color:#fff !important; }
+    #retakeFrontPhotoBtn  { background:#8b5cf6 !important; border-color:#8b5cf6 !important; color:#fff !important; }
+    #retakeBackPhotoBtn   { background:#d97706 !important; border-color:#d97706 !important; color:#fff !important; }
+    #retakePhotosBtn      { background:#db2777 !important; border-color:#db2777 !important; color:#fff !important; }
+    #cameraSwitchBtn      { background:#0ea5e9 !important; border-color:#0ea5e9 !important; color:#fff !important; }
+</style>
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="row g-3">
@@ -13,8 +30,8 @@
                                 <p class="text-muted mb-0">Scan customer QR tickets and confirm check-in at the door.</p>
                             </div>
                             <div class="d-flex gap-2" id="qrCameraControlsBtn">
-                                <button id="startScannerBtn" class="btn" style="background:#3b82f6;color:#fff;border:none;">Start Camera</button>
-                                <button id="stopScannerBtn" class="btn" style="background:#ef4444;color:#fff;border:none;" disabled>Stop Camera</button>
+                                <button id="startScannerBtn" class="btn btn-primary">Start Camera</button>
+                                <button id="stopScannerBtn" class="btn btn-outline-danger" disabled>Stop Camera</button>
                             </div>
                         </div>
 
@@ -39,7 +56,7 @@
                                     <label for="manualCode" class="form-label fw-semibold">Manual Ticket Code <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Enter or paste a ticket code manually to look up purchase details without using the camera scanner."></i></label>
                                     <div class="input-group mb-3">
                                         <input type="text" id="manualCode" class="form-control" placeholder="Paste or type ticket code">
-                                        <button type="button" id="manualLookupBtn" class="btn" style="background:#06b6d4;color:#fff;border:none;">Verify</button>
+                                        <button class="btn btn-info" type="button" id="manualLookupBtn">Verify</button>
                                     </div>
 
                                     <div id="scanStatus" class="small text-muted mb-3">Waiting for scan...</div>
@@ -136,7 +153,7 @@
                                                     <div class="fw-semibold mb-2" style="color:#90caf9;"><i class="fas fa-check-circle"></i> Back of ID Captured</div>
                                                     <div style="width:100%;max-height:280px;border-radius:8px;border:2px solid #3b82f6;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
                                                         <img id="backPhotoPreview" style="max-width:100%;max-height:100%;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
-                                                        <button type="button" id="retakeBackPhotoBtn" class="btn btn-sm" style="position:absolute;bottom:10px;right:10px;z-index:10;background:#ec4899;color:#fff;border:none;"><i class="fas fa-camera"></i> Retake</button>
+                                                        <button type="button" id="retakeBackPhotoBtn" class="btn btn-sm" style="position:absolute;bottom:10px;right:10px;z-index:10;"><i class="fas fa-camera"></i> Retake Back</button>
                                                     </div>
                                                     <small class="text-muted d-block mt-2" style="font-size:11px;"><i class="fas fa-info-circle"></i> Frame Reference: ID card should fill the green frame guide</small>
                                                     <small class="text-success d-block mt-2"><i class="fas fa-check-double"></i> Both photos ready to submit</small>
@@ -147,9 +164,9 @@
 
                                                 <!-- Photo Capture Controls (Moved to Bottom) -->
                                                 <div class="btn-group w-100 mb-3 gap-2" role="group" style="display: flex; flex-wrap: wrap;">
-                                                    <button type="button" id="startPhotoCameraBtn" class="btn d-none" style="flex:1;min-width:150px;background:#f59e0b;color:#fff;border:none;">Start Camera</button>
-                                                    <button type="button" id="capturePhotoBtn" class="btn d-none" style="flex:1;min-width:150px;background:#10b981;color:#fff;border:none;"><span id="capturePhotoText">Capture Photo</span></button>
-                                                    <button type="button" id="stopPhotoCameraBtn" class="btn d-none" style="flex:1;min-width:150px;background:#ef4444;color:#fff;border:none;">Stop Camera</button>
+                                                    <button type="button" id="startPhotoCameraBtn" class="btn btn-primary" style="flex:1;min-width:150px;">Start Camera</button>
+                                                    <button type="button" id="capturePhotoBtn" class="btn btn-success d-none" style="flex:1;min-width:150px;"><span id="capturePhotoText">Capture Photo</span></button>
+                                                    <button type="button" id="stopPhotoCameraBtn" class="btn btn-danger d-none" style="flex:1;min-width:150px;">Stop Camera</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -159,7 +176,7 @@
                                             <input type="hidden" name="ticket_qr_code" id="checkInCode">
                                             <input type="hidden" name="photo_data_front" id="frontPhotoData">
                                             <input type="hidden" name="photo_data_back" id="backPhotoData">
-                                            <button type="submit" id="checkInBtn" class="btn px-4" style="background:#14b8a6;color:#fff;border:none;">Check In</button>
+                                            <button type="submit" id="checkInBtn" class="btn btn-success px-4">Check In</button>
                                             <button type="button" id="cancelBtn" class="btn px-4" style="background:#6b7280;color:#fff;border:none;">Cancel</button>
                                         </form>
                                     </div>
@@ -943,14 +960,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    const retakeBackPhotoBtn = document.getElementById('retakeBackPhotoBtn');
-    if (retakeBackPhotoBtn) {
-        retakeBackPhotoBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            retakeBackPhoto();
-        });
-    }
-
     function retakeFrontPhoto() {
         frontPhotoCaptured = false;
         capturingFrontPhoto = true;
@@ -966,19 +975,43 @@ document.addEventListener('DOMContentLoaded', function () {
         backPhotoStatus.textContent = 'Pending';
         backPhotoStatus.style.color = '#60a5fa';
         document.getElementById('backPhotoIndicator').style.opacity = '0.5';
-        startPhotoCamera();
+        startPhotoCameraBtn.click();
+    }
+
+    // Retake Back Photo ONLY - button on back preview (keeps the front photo intact)
+    const retakeBackPhotoBtn = document.getElementById('retakeBackPhotoBtn');
+    if (retakeBackPhotoBtn) {
+        retakeBackPhotoBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            retakeBackPhoto();
+        });
     }
 
     function retakeBackPhoto() {
+        // Only reset the back side - leave the front photo as captured
         backPhotoCaptured = false;
-        capturingFrontPhoto = false;
+        capturingFrontPhoto = false; // we are re-capturing the back side
         backPhotoData.value = '';
+        backPhotoPreview.src = '';
         backPhotoPreviewContainer.classList.add('d-none');
         backPhotoStatus.textContent = 'Pending';
         backPhotoStatus.style.color = '#60a5fa';
-        document.getElementById('backPhotoIndicator').style.opacity = '0.5';
+        document.getElementById('backPhotoIndicator').style.opacity = '1';
         document.getElementById('backPhotoIndicator').style.borderColor = '#64b5f6';
-        startPhotoCamera();
+
+        // Show the "capturing back" label
+        document.getElementById('currentSideLabel').style.display = 'block';
+        document.getElementById('currentSideText').textContent = '📷 Capturing Back of ID - Please flip the card';
+        document.getElementById('currentSideText').style.color = '#90caf9';
+
+        // Reset capture button back to capture mode
+        capturePhotoBtn.textContent = 'Capture Photo';
+        capturePhotoBtn.classList.remove('btn-warning');
+        capturePhotoBtn.classList.add('btn-success');
+        capturePhotoBtn.disabled = false;
+
+        // Restart the camera for the back capture
+        startPhotoCameraBtn.click();
     }
 
     function resetPhotos() {
