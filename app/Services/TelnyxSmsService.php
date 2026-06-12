@@ -81,32 +81,40 @@ class TelnyxSmsService
 
         if ($type === 'reservation') {
             $reservationDate = $data['reservation_date'] ?? $data['package_use_date'] ?? 'N/A';
-            $menCount = $data['men_count'] ?? 0;
-            $womenCount = $data['women_count'] ?? 0;
-            $totalGuests = $menCount + $womenCount;
 
-            $message = "RESERVATION CONFIRMED\n";
-            $message .= "Club: {$clubName}\n";
-            $message .= "Confirmation: #{$confirmationId}\n";
-            $message .= "Date: {$reservationDate}\n";
-            if ($totalGuests > 0) {
-                $message .= "Guests: {$menCount} Male, {$womenCount} Female ({$totalGuests} total)\n";
+            // Format date to "Month Day, Year" format (e.g., June 25, 2026)
+            try {
+                $dateObj = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $reservationDate);
+                $formattedDate = $dateObj->format('F j, Y');
+            } catch (\Exception $e) {
+                $formattedDate = $reservationDate;
             }
-            $message .= "\n";
-            $message .= "Check your email for reservation details and your QR code.\n";
-            $message .= "Questions regarding your reservation? Please contact the location directly";
+
+            $message = "RESERVATION CONFIRMED\n\n";
+            $message .= "Venue: {$clubName}\n";
+            $message .= "Confirmation: #{$confirmationId}\n";
+            $message .= "Date: {$formattedDate}\n\n";
+            $message .= "Your reservation details and QR code have been emailed to you. Please check your inbox and spam folder if needed.\n\n";
+            $message .= "Questions? Contact the venue directly.";
         } else {
             // Package type
             $packageCount = $data['quantity'] ?? $data['package_count'] ?? 1;
+            $packageDate = $data['reservation_date'] ?? $data['package_use_date'] ?? 'N/A';
 
-            $message = "RESERVATION CONFIRMED\n";
-            $message .= "Club: {$clubName}\n";
+            // Format date to "Month Day, Year" format (e.g., June 25, 2026)
+            try {
+                $dateObj = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $packageDate);
+                $formattedDate = $dateObj->format('F j, Y');
+            } catch (\Exception $e) {
+                $formattedDate = $packageDate;
+            }
+
+            $message = "PURCHASE CONFIRMED\n\n";
+            $message .= "Venue: {$clubName}\n";
             $message .= "Confirmation: #{$confirmationId}\n";
-            $message .= "Date: " . ($data['reservation_date'] ?? $data['package_use_date'] ?? 'N/A') . "\n";
-            $message .= "Total Packages: {$packageCount} total\n";
-            $message .= "Total: \${$totalAmount}\n\n";
-            $message .= "Check your email for reservation details and your QR code.\n";
-            $message .= "Questions regarding your reservation? Please contact the location directly";
+            $message .= "Date: {$formattedDate}\n\n";
+            $message .= "Your purchase details and QR code have been emailed to you. Please check your inbox and spam folder if needed.\n\n";
+            $message .= "Questions? Contact the venue directly.";
         }
 
         // Telnyx supports up to 1,600 characters (SMS will be concatenated if longer)

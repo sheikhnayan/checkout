@@ -69,44 +69,39 @@ class AlowareSmsService
 
         if ($type === 'reservation') {
             $reservationDate = $data['reservation_date'] ?? $data['package_use_date'] ?? 'N/A';
-            $menCount = $data['men_count'] ?? 0;
-            $womenCount = $data['women_count'] ?? 0;
-            $totalGuests = $menCount + $womenCount;
+
+            // Format date to "Month Day, Year" format (e.g., June 25, 2026)
+            try {
+                $dateObj = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $reservationDate);
+                $formattedDate = $dateObj->format('F j, Y');
+            } catch (\Exception $e) {
+                $formattedDate = $reservationDate;
+            }
 
             $message = "RESERVATION CONFIRMED\n\n";
-            $message .= "Club: {$clubName}\n";
+            $message .= "Venue: {$clubName}\n";
             $message .= "Confirmation: #{$confirmationId}\n";
-            $message .= "Date: {$reservationDate}\n";
-            $message .= "Guests: {$menCount} Men + {$womenCount} Women = {$totalGuests} Total\n";
-            $message .= "Total: \${$totalAmount}\n\n";
-
-            if (!empty($data['notes'])) {
-                $message .= "Notes: {$data['notes']}\n\n";
-            }
-
-            $message .= "Your reservation is confirmed!\n";
-            $message .= "View Details: {$this->getClubLink($data)}\n";
-            $message .= "Questions? Contact {$clubName}";
+            $message .= "Date: {$formattedDate}\n\n";
+            $message .= "Your reservation details and QR code have been emailed to you. Please check your inbox and spam folder if needed.\n\n";
+            $message .= "Questions? Contact the venue directly.";
         } else {
             // Package type
-            $packageName = $data['package_name'] ?? 'Package';
-            $quantity = $data['quantity'] ?? 1;
+            $packageDate = $data['reservation_date'] ?? $data['package_use_date'] ?? 'N/A';
 
-            $message = "BOOKING CONFIRMED\n\n";
-            $message .= "Club: {$clubName}\n";
-            $message .= "Confirmation: #{$confirmationId}\n";
-            $message .= "Package: {$packageName}\n";
-            $message .= "Quantity: {$quantity}\n";
-            $message .= "Total: \${$totalAmount}\n\n";
-
-            if (!empty($data['package_date']) || !empty($data['event_date'])) {
-                $eventDate = $data['package_date'] ?? $data['event_date'] ?? 'N/A';
-                $message .= "Event Date: {$eventDate}\n\n";
+            // Format date to "Month Day, Year" format (e.g., June 25, 2026)
+            try {
+                $dateObj = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $packageDate);
+                $formattedDate = $dateObj->format('F j, Y');
+            } catch (\Exception $e) {
+                $formattedDate = $packageDate;
             }
 
-            $message .= "Your booking is confirmed!\n";
-            $message .= "View Details: {$this->getClubLink($data)}\n";
-            $message .= "Questions? Contact {$clubName}";
+            $message = "PURCHASE CONFIRMED\n\n";
+            $message .= "Venue: {$clubName}\n";
+            $message .= "Confirmation: #{$confirmationId}\n";
+            $message .= "Date: {$formattedDate}\n\n";
+            $message .= "Your purchase details and QR code have been emailed to you. Please check your inbox and spam folder if needed.\n\n";
+            $message .= "Questions? Contact the venue directly.";
         }
 
         // Keep message under 160 characters if possible, but Aloware handles longer messages
