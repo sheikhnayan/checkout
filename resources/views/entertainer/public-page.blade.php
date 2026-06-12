@@ -1076,7 +1076,9 @@ input::placeholder, textarea::placeholder {
 .checkbox-container #smsConsent_two,
 .checkbox-container #smsConsent,
 .checkbox-container #driverNotificationConsent_two,
-.checkbox-container #driverNotificationConsent {
+.checkbox-container #driverNotificationConsent,
+.checkbox-container #termsConsent_two,
+.checkbox-container #termsConsent {
     -webkit-appearance: none;
     appearance: none;
     width: 46px !important;
@@ -1094,7 +1096,9 @@ input::placeholder, textarea::placeholder {
 .checkbox-container #smsConsent_two::before,
 .checkbox-container #smsConsent::before,
 .checkbox-container #driverNotificationConsent_two::before,
-.checkbox-container #driverNotificationConsent::before {
+.checkbox-container #driverNotificationConsent::before,
+.checkbox-container #termsConsent_two::before,
+.checkbox-container #termsConsent::before {
     content: '';
     position: absolute;
     top: 2px;
@@ -1108,14 +1112,18 @@ input::placeholder, textarea::placeholder {
 .checkbox-container #smsConsent_two:checked,
 .checkbox-container #smsConsent:checked,
 .checkbox-container #driverNotificationConsent_two:checked,
-.checkbox-container #driverNotificationConsent:checked {
+.checkbox-container #driverNotificationConsent:checked,
+.checkbox-container #termsConsent_two:checked,
+.checkbox-container #termsConsent:checked {
     background: var(--accent);
     border-color: var(--accent);
 }
 .checkbox-container #smsConsent_two:checked::before,
 .checkbox-container #smsConsent:checked::before,
 .checkbox-container #driverNotificationConsent_two:checked::before,
-.checkbox-container #driverNotificationConsent:checked::before {
+.checkbox-container #driverNotificationConsent:checked::before,
+.checkbox-container #termsConsent_two:checked::before,
+.checkbox-container #termsConsent:checked::before {
     background: #fff;
     transform: translateX(20px);
 }

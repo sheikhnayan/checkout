@@ -1204,7 +1204,9 @@
         .checkbox-container #smsConsent_two,
         .checkbox-container #smsConsent,
         .checkbox-container #driverNotificationConsent_two,
-        .checkbox-container #driverNotificationConsent {
+        .checkbox-container #driverNotificationConsent,
+        .checkbox-container #termsConsent_two,
+        .checkbox-container #termsConsent {
             -webkit-appearance: none;
             appearance: none;
             width: 46px !important;
@@ -1224,7 +1226,9 @@
         .checkbox-container #smsConsent_two::before,
         .checkbox-container #smsConsent::before,
         .checkbox-container #driverNotificationConsent_two::before,
-        .checkbox-container #driverNotificationConsent::before {
+        .checkbox-container #driverNotificationConsent::before,
+        .checkbox-container #termsConsent_two::before,
+        .checkbox-container #termsConsent::before {
             content: '';
             position: absolute;
             top: 2px;
@@ -1240,7 +1244,9 @@
         .checkbox-container #smsConsent_two:checked,
         .checkbox-container #smsConsent:checked,
         .checkbox-container #driverNotificationConsent_two:checked,
-        .checkbox-container #driverNotificationConsent:checked {
+        .checkbox-container #driverNotificationConsent:checked,
+        .checkbox-container #termsConsent_two:checked,
+        .checkbox-container #termsConsent:checked {
             background: #ffcc00 !important;
             border-color: #ffcc00 !important;
         }
@@ -1248,7 +1254,9 @@
         .checkbox-container #smsConsent_two:checked::before,
         .checkbox-container #smsConsent:checked::before,
         .checkbox-container #driverNotificationConsent_two:checked::before,
-        .checkbox-container #driverNotificationConsent:checked::before {
+        .checkbox-container #driverNotificationConsent:checked::before,
+        .checkbox-container #termsConsent_two:checked::before,
+        .checkbox-container #termsConsent:checked::before {
             background: #fff;
             transform: translateX(20px);
         }
@@ -5866,10 +5874,10 @@
                                                     frequency
                                                     may vary. Reply STOP to opt out at any time.</span>
                                                 </label>
-                                                <label class="consent-label driver-notification-consent-wrap" style="display:none;">
+                                                {{-- <label class="consent-label driver-notification-consent-wrap" style="display:none;">
                                                     <input type="checkbox" id="driverNotificationConsent_two" class="driver-notification-consent-input"  required />
                                                     <span>I agree to receive notifications from the driver regarding my transportation pickup.</span>
-                                                </label>
+                                                </label> --}}
                                                 <label class="consent-label">
                                                     <input type="checkbox" id="termsConsent_two" required />
                                                     <span>I have read and agree to the <a
