@@ -173,7 +173,7 @@
     <div class="header">
         <div class="header-content">
             <h1 class="header-title">INVOICE</h1>
-            <p class="header-subtitle">Transaction ID: {{ $transaction->transaction_id }}</p>
+            <p class="header-subtitle">Confirmation ID: {{ $transaction->transaction_id }}</p>
         </div>
         @if(($showQrInPdf ?? true) && $transaction->ticket_qr_code)
         <div class="header-qr">

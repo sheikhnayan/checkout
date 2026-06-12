@@ -10648,16 +10648,28 @@
             let phoneValue = phoneInput.value.trim();
             const countryCode = countryCodeInput.dataset.code || '+1';
 
+            // Get country-specific requirements
+            const requirements = PHONE_LENGTH_REQUIREMENTS[countryCode] || { min: 7, max: 15, name: 'Default' };
+
+            // Set maxlength to prevent typing too many digits
+            phoneInput.maxLength = requirements.max;
+
             if (!phoneValue) {
                 phoneInput.style.borderColor = '';
+                phoneInput.classList.remove('is-invalid', 'is-valid');
                 // Clear E.164 hidden field
                 const hiddenField = document.querySelector(`input[name="${phoneInput.name}_e164"]`);
                 if (hiddenField) hiddenField.value = '';
                 return;
             }
 
-            // Remove all non-digits
-            const digitsOnly = phoneValue.replace(/\D/g, '');
+            // Remove all non-digits (allow only numbers)
+            let digitsOnly = phoneValue.replace(/\D/g, '');
+
+            // Enforce maxlength by truncating if needed
+            if (digitsOnly.length > requirements.max) {
+                digitsOnly = digitsOnly.substring(0, requirements.max);
+            }
 
             // Remove leading 1 if it's a North American number (already in country code)
             let cleanNumber = digitsOnly;
@@ -10665,27 +10677,39 @@
                 cleanNumber = digitsOnly.substring(1);
             }
 
-            // Get country-specific requirements
-            const requirements = PHONE_LENGTH_REQUIREMENTS[countryCode] || { min: 7, max: 15, name: 'Default' };
+            // Display formatted number (only digits, no special chars)
+            phoneInput.value = cleanNumber;
 
-            // Validate based on country requirements
-            if (cleanNumber.length < requirements.min || cleanNumber.length > requirements.max) {
+            // Check if number is valid length
+            if (cleanNumber.length < requirements.min) {
                 phoneInput.style.borderColor = '#ff6b6b';
+                phoneInput.classList.add('is-invalid');
+                phoneInput.classList.remove('is-valid');
                 return;
             }
 
-            // Format to E.164
+            if (cleanNumber.length > requirements.max) {
+                phoneInput.style.borderColor = '#ff6b6b';
+                phoneInput.classList.add('is-invalid');
+                phoneInput.classList.remove('is-valid');
+                return;
+            }
+
+            // Valid! Format to E.164
             const e164Number = countryCode + cleanNumber;
 
-            // Final E.164 validation (should always pass if above checks passed)
+            // Final E.164 validation
             if (!/^\+\d{7,15}$/.test(e164Number)) {
                 phoneInput.style.borderColor = '#ff6b6b';
+                phoneInput.classList.add('is-invalid');
+                phoneInput.classList.remove('is-valid');
                 return;
             }
 
-            // Valid! Keep ONLY numbers in the visible input field, store E.164 in hidden field
-            phoneInput.value = cleanNumber;
+            // Valid - set green border
             phoneInput.style.borderColor = '#51cf66';
+            phoneInput.classList.remove('is-invalid');
+            phoneInput.classList.add('is-valid');
 
             // Create or update hidden field with E.164 format for SMS
             let hiddenField = document.querySelector(`input[name="${phoneInput.name}_e164"]`);

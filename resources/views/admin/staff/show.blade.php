@@ -329,7 +329,7 @@ window.loadTransactionDetails = function(transactionId) {
 
 window.downloadTransactionPdf = function() {
     if (!currentTransactionId) {
-        alert('Unable to download: Transaction ID not found');
+        alert('Unable to download: Confirmation ID not found');
         return;
     }
 

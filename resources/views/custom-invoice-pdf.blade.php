@@ -165,7 +165,7 @@
     <div class="header">
         <div class="header-content">
             <h1 class="header-title">INVOICE</h1>
-            <p class="header-subtitle">Invoice #{{ $invoice->id }} | Transaction ID: {{ $transaction->transaction_id }}</p>
+            <p class="header-subtitle">Invoice #{{ $invoice->id }} | Confirmation ID: {{ $transaction->transaction_id }}</p>
         </div>
         @if($transaction && $transaction->ticket_qr_code)
         <div class="header-qr">

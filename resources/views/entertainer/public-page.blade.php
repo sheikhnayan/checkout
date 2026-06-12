@@ -10582,23 +10582,33 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             let phoneValue = phoneInput.value.trim();
             const countryCode = countryCodeInput.dataset.code || '+1';
 
+            const requirements = PHONE_LENGTH_REQUIREMENTS_ENTERTAINER[countryCode] || { min: 7, max: 15 };
+            phoneInput.maxLength = requirements.max;
+
             if (!phoneValue) {
                 phoneInput.style.borderColor = '';
+                phoneInput.classList.remove('is-invalid', 'is-valid');
                 const hiddenField = document.querySelector(`input[name="${phoneInput.name}_e164"]`);
                 if (hiddenField) hiddenField.value = '';
                 return;
             }
 
-            const digitsOnly = phoneValue.replace(/\D/g, '');
+            let digitsOnly = phoneValue.replace(/\D/g, '');
+            if (digitsOnly.length > requirements.max) {
+                digitsOnly = digitsOnly.substring(0, requirements.max);
+            }
+
             let cleanNumber = digitsOnly;
             if (countryCode === '+1' && digitsOnly.startsWith('1')) {
                 cleanNumber = digitsOnly.substring(1);
             }
 
-            const requirements = PHONE_LENGTH_REQUIREMENTS_ENTERTAINER[countryCode] || { min: 7, max: 15 };
+            phoneInput.value = cleanNumber;
 
             if (cleanNumber.length < requirements.min || cleanNumber.length > requirements.max) {
                 phoneInput.style.borderColor = '#ff6b6b';
+                phoneInput.classList.add('is-invalid');
+                phoneInput.classList.remove('is-valid');
                 return;
             }
 
@@ -10606,14 +10616,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
             if (!/^\+\d{7,15}$/.test(e164Number)) {
                 phoneInput.style.borderColor = '#ff6b6b';
+                phoneInput.classList.add('is-invalid');
+                phoneInput.classList.remove('is-valid');
                 return;
             }
 
-            // Keep ONLY numbers in the visible input field, store E.164 in hidden field
-            phoneInput.value = cleanNumber;
             phoneInput.style.borderColor = '#51cf66';
+            phoneInput.classList.remove('is-invalid');
+            phoneInput.classList.add('is-valid');
 
-            // Create or update hidden field with E.164 format for SMS
             let hiddenField = document.querySelector(`input[name="${phoneInput.name}_e164"]`);
             if (!hiddenField) {
                 hiddenField = document.createElement('input');

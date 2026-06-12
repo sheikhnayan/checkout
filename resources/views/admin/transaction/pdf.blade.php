@@ -33,7 +33,7 @@
     <div class="container">
         <div class="header">
             <h1>Transaction Details</h1>
-            <p><strong>Transaction ID:</strong> {{ htmlspecialchars($transaction->transaction_id ?? '') }}</p>
+            <p><strong>Confirmation ID:</strong> {{ htmlspecialchars($transaction->transaction_id ?? '') }}</p>
             <p><strong>Type:</strong> {{ ucfirst($transaction->type ?? 'package') }} | <strong>Generated:</strong> {{ now()->format('M d, Y h:i A') }}</p>
         </div>
 

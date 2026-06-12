@@ -24,7 +24,7 @@
 </head>
 <body>
 @php
-    $confirmationNumber = $mailData['transaction_id'] ?? ($transaction->transaction_id ?? 'Pending');
+    $confirmationNumber = $mailData['confirmation_id'] ?? ($transaction->transaction_id ?? 'Pending');
     $venueName = $clubName ?: ($mailData['website_name'] ?? 'Venue');
     $guestName = trim(($mailData['package_first_name'] ?? '') . ' ' . ($mailData['package_last_name'] ?? '')) ?: 'N/A';
     $reservationDateRaw = $mailData['package_use_date'] ?? $mailData['reservation_date'] ?? null;

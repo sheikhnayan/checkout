@@ -304,7 +304,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ticketDetails.innerHTML = [
             '<div><strong>Purchase Type:</strong> <span style="color:#60a5fa;font-weight:700;">' + (transaction.type || 'Unknown') + '</span></div>',
             '<div><strong>Order:</strong> #' + transaction.id + '</div>',
-            '<div><strong>Transaction ID:</strong> ' + (transaction.transaction_id || '-') + '</div>',
+            '<div><strong>Confirmation ID:</strong> ' + (transaction.transaction_id || '-') + '</div>',
             '<div><strong>Name:</strong> ' + (transaction.guest_name || '-') + '</div>',
             '<div><strong>Email:</strong> ' + (transaction.package_email || '-') + '</div>',
             '<div><strong>Phone:</strong> ' + (transaction.package_phone || '-') + '</div>',

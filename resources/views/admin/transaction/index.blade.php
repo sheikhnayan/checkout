@@ -1031,7 +1031,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             <div class="row">
                                 <div class="col-md-6">
                                     <ul class="list-group">
-                                        <li class="list-group-item"><strong>Transaction ID:</strong> <span id="modal-transaction_id"></span></li>
+                                        <li class="list-group-item"><strong>Confirmation ID:</strong> <span id="modal-transaction_id"></span></li>
                                         <li class="list-group-item"><strong>IP Address:</strong> <span id="modal-ip_address"></span></li>
                                         <li class="list-group-item"><strong>Order Items:</strong> <span id="modal-package_id"></span></li>
                                         <li class="list-group-item"><strong>Package Date Of Use:</strong> <span id="modal-package_date_of_use"></span></li>
@@ -1733,7 +1733,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 $('#modal-package_men_guest').text($(this).data('men'));
                 $('#modal-package_women_guest').text($(this).data('women'));
 
-                $('#modal-transaction_id').text($(this).data('transaction_id'));
+                $('#modal-transaction_id').text($(this).data('confirmation_id'));
                 $('#modal-package_id').text($(this).data('package_id'));
                 $('#modal-package_first_name').text($(this).data('package_first_name'));
                 $('#modal-package_last_name').text($(this).data('package_last_name'));
