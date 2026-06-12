@@ -107,8 +107,8 @@
 .badge-completed { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.25); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; padding: 4px 10px; border-radius: 20px; }
 .badge-canceled  { background: rgba(239,68,68,0.15);  color: #f87171; border: 1px solid rgba(239,68,68,0.25);  font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
 .badge-refunded  { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
-.badge-checkin-yes { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.2); font-size: 0.7rem; padding: 3px 9px; border-radius: 6px; }
-.badge-checkin-no  { background: rgba(107,114,128,0.15); color: #9ca3af; border: 1px solid rgba(107,114,128,0.2); font-size: 0.7rem; padding: 3px 9px; border-radius: 6px; }
+.badge-checkin-yes { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.2); font-size: 0.65rem; padding: 3px 8px; border-radius: 6px; white-space: nowrap; display: inline-block; }
+.badge-checkin-no  { background: rgba(107,114,128,0.15); color: #9ca3af; border: 1px solid rgba(107,114,128,0.2); font-size: 0.65rem; padding: 3px 8px; border-radius: 6px; white-space: nowrap; display: inline-block; }
 .txn-action-eye { background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.2); color: #818cf8; border-radius: 8px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.82rem; transition: background 0.2s; cursor: pointer; }
 .txn-action-eye:hover { background: rgba(99,102,241,0.28); color: #a5b4fc; }
 .txn-action-more { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.55); border-radius: 8px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.82rem; transition: background 0.2s; }
@@ -712,7 +712,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td class="txn-order-id">#{{ str_pad($item->id, 3, '0', STR_PAD_LEFT) }}</td>
                             <td class="txn-confirmation-num">{{ $item->transaction_id ?? 'N/A' }}</td>
                             <td class="txn-pkg-name">
-                                <div style="font-size:0.95rem;font-weight:600;margin-bottom:8px;">{{ $venueName }}</div>
+                                <div style="font-size:0.85rem;font-weight:600;margin-bottom:8px;">{{ $venueName }}</div>
                                 @if($packageDetails->count() > 1)
                                     <button type="button" class="btn btn-sm btn-link-package" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-cart-items='@json($cartItems)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' style="font-size:0.85rem;">{{ $packageDetails->count() }} Packages</button>
                                 @else
