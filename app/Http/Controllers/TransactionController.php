@@ -1412,8 +1412,12 @@ class TransactionController extends Controller
             $photoStatus = ' (Both ID photos captured).';
         }
 
+        $guestName = trim(($transaction->package_first_name ?? '') . ' ' . ($transaction->package_last_name ?? ''));
+
         return redirect()->route('admin.transaction.scan')
-            ->with('success', 'Check-in completed for ticket #' . $transaction->ticket_qr_code . $photoStatus);
+            ->with('success', 'Check-in completed for ticket #' . $transaction->ticket_qr_code . $photoStatus)
+            ->with('checked_in_success', true)
+            ->with('checked_in_name', $guestName);
     }
 
     private function extractCartItemsFromRequest(Request $request): array

@@ -35,11 +35,32 @@
                             </div>
                         </div>
 
-                        @if(session('success'))
+                        @if(session('success') && !session('checked_in_success'))
                             <div class="alert alert-success">{{ session('success') }}</div>
                         @endif
                         @if(session('error'))
                             <div class="alert alert-danger">{{ session('error') }}</div>
+                        @endif
+
+                        {{-- Post check-in notice: lets the door staff check in another guest or leave for the dashboard --}}
+                        @if(session('checked_in_success'))
+                        <div id="checkinDoneModal" style="position:fixed;inset:0;z-index:1080;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,0.72);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);padding:16px;">
+                            <div style="max-width:430px;width:100%;background:#0f172a;border:1px solid #22c55e;border-radius:18px;padding:30px 26px;text-align:center;color:#e2e8f0;box-shadow:0 20px 60px rgba(0,0,0,0.55);animation:noticePop 0.4s ease-out;">
+                                <div style="font-size:58px;color:#22c55e;line-height:1;margin-bottom:12px;"><i class="fas fa-check-circle"></i></div>
+                                <h4 style="color:#86efac;font-weight:800;margin-bottom:6px;">Checked In!</h4>
+                                <p style="font-size:14px;color:#cbd5e1;margin-bottom:24px;">
+                                    @if(session('checked_in_name'))
+                                        <strong>{{ session('checked_in_name') }}</strong> has been checked in successfully.
+                                    @else
+                                        Guest has been checked in successfully.
+                                    @endif
+                                </p>
+                                <div class="d-grid gap-2">
+                                    <button type="button" class="btn btn-success btn-lg fw-bold" onclick="document.getElementById('checkinDoneModal').remove();"><i class="fas fa-qrcode me-1"></i> Check In Another Guest</button>
+                                    <a href="{{ route('admin.index') }}" class="btn btn-lg" style="background:#475569;color:#fff;border:none;"><i class="fas fa-gauge-high me-1"></i> Go to Dashboard</a>
+                                </div>
+                            </div>
+                        </div>
                         @endif
 
                         <!-- QR Scanner & Manual Input Section (Hidden when transaction found) -->
