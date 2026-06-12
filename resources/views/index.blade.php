@@ -5821,8 +5821,7 @@ input[type="checkbox"],
 
                                                         <!-- Left: Form Fields -->
                                                         <div class="form-left">
-                                                        
-                                                            <button type="button" class="same-as-info-transport">Same as package holder information</button>
+
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 100%;">
                                                                     <label for="Pick-up-time">Pick-up Time</label>

@@ -39,7 +39,7 @@
                                     <label for="manualCode" class="form-label fw-semibold">Manual Ticket Code <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Enter or paste a ticket code manually to look up purchase details without using the camera scanner."></i></label>
                                     <div class="input-group mb-3">
                                         <input type="text" id="manualCode" class="form-control" placeholder="Paste or type ticket code">
-                                        <button class="btn btn-outline-secondary" type="button" id="manualLookupBtn">Verify</button>
+                                        <button class="btn btn-info" type="button" id="manualLookupBtn">Verify</button>
                                     </div>
 
                                     <div id="scanStatus" class="small text-muted mb-3">Waiting for scan...</div>
@@ -126,7 +126,7 @@
                                                     <div class="fw-semibold mb-2" style="color:#86efac;"><i class="fas fa-check-circle"></i> Front of ID Captured</div>
                                                     <div style="width:100%;max-height:280px;border-radius:8px;border:2px solid #22c55e;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
                                                         <img id="frontPhotoPreview" style="max-width:100%;max-height:100%;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
-                                                        <button type="button" id="retakeFrontPhotoBtn" class="btn btn-sm btn-warning" style="position:absolute;bottom:10px;right:10px;z-index:10;"><i class="fas fa-camera"></i> Retake</button>
+                                                        <button type="button" id="retakeFrontPhotoBtn" class="btn btn-sm" style="position:absolute;bottom:10px;right:10px;z-index:10;background:#8b5cf6;color:#fff;border:none;"><i class="fas fa-camera"></i> Retake</button>
                                                     </div>
                                                     <small class="text-muted d-block mt-2" style="font-size:11px;"><i class="fas fa-info-circle"></i> Frame Reference: ID card should fill the green frame guide</small>
                                                 </div>
@@ -139,7 +139,7 @@
                                                     </div>
                                                     <small class="text-muted d-block mt-2" style="font-size:11px;"><i class="fas fa-info-circle"></i> Frame Reference: ID card should fill the green frame guide</small>
                                                     <small class="text-success d-block mt-2"><i class="fas fa-check-double"></i> Both photos ready to submit</small>
-                                                    <button type="button" id="retakePhotosBtn" class="btn btn-warning btn-sm mt-3">
+                                                    <button type="button" id="retakePhotosBtn" class="btn btn-sm mt-3" style="background:#8b5cf6;color:#fff;border:none;">
                                                         <i class="fas fa-camera"></i> Retake Photos
                                                     </button>
                                                 </div>
@@ -159,7 +159,7 @@
                                             <input type="hidden" name="photo_data_front" id="frontPhotoData">
                                             <input type="hidden" name="photo_data_back" id="backPhotoData">
                                             <button type="submit" id="checkInBtn" class="btn btn-success px-4">Check In</button>
-                                            <button type="button" id="cancelBtn" class="btn btn-outline-secondary px-4">Cancel</button>
+                                            <button type="button" id="cancelBtn" class="btn px-4" style="background:#6b7280;color:#fff;border:none;">Cancel</button>
                                         </form>
                                     </div>
                                 </div>
@@ -462,9 +462,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    cancelBtn.addEventListener('click', async function () {
-        resetResult();
-        await startScanner();
+    cancelBtn.addEventListener('click', function () {
+        location.reload();
     });
 
     // ========== PHOTO CAPTURE FUNCTIONALITY ==========
