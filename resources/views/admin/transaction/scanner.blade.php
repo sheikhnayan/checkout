@@ -840,37 +840,49 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('frontPhotoIndicator').style.opacity = '1';
             document.getElementById('frontPhotoIndicator').style.borderColor = '#86efac';
 
-            // Hide capture button while preparing for back camera
-            capturePhotoBtn.classList.add('d-none');
-
-            // Show notice to prepare for back photo
-            const backPhotoNotice = document.createElement('div');
-            backPhotoNotice.id = 'backPhotoNotice';
-            backPhotoNotice.innerHTML = '<div style="background:#3b82f6;color:#fff;padding:16px;border-radius:8px;margin-bottom:16px;text-align:center;font-size:16px;font-weight:600;"><i class="fas fa-arrow-right"></i> <strong>Get Ready!</strong> Prepare to photograph the back of your ID card...</div>';
-            capturePhotoBtn.parentNode.insertBefore(backPhotoNotice, capturePhotoBtn);
-
-            // Auto-switch to back camera after 3 seconds
-            setTimeout(function() {
-                capturePhotoBtn.classList.remove('d-none');
-                if (backPhotoNotice && backPhotoNotice.parentNode) {
-                    backPhotoNotice.remove();
-                }
-
-                capturingFrontPhoto = false;
-
-                // Update indicator
-                document.getElementById('backPhotoIndicator').style.opacity = '1';
-                document.getElementById('currentSideLabel').style.display = 'block';
-                document.getElementById('currentSideText').textContent = '📷 Capturing Back of ID - Please flip the card';
-                document.getElementById('currentSideText').style.color = '#90caf9';
-
-                // Stop current camera and start back camera
-                stopPhotoCameraBtn.click();
-
+            if (backPhotoCaptured) {
+                // Front-only retake: the back photo already exists, so DON'T auto-switch to
+                // the back capture. Just finish and keep the existing back photo intact.
+                document.getElementById('currentSideLabel').style.display = 'none';
                 setTimeout(function() {
-                    startPhotoCameraBtn.click();
-                }, 300);
-            }, 3000);
+                    stopPhotoCamera();
+                    setTimeout(function() {
+                        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                    }, 100);
+                }, 600);
+            } else {
+                // Hide capture button while preparing for back camera
+                capturePhotoBtn.classList.add('d-none');
+
+                // Show notice to prepare for back photo
+                const backPhotoNotice = document.createElement('div');
+                backPhotoNotice.id = 'backPhotoNotice';
+                backPhotoNotice.innerHTML = '<div style="background:#3b82f6;color:#fff;padding:16px;border-radius:8px;margin-bottom:16px;text-align:center;font-size:16px;font-weight:600;"><i class="fas fa-arrow-right"></i> <strong>Get Ready!</strong> Prepare to photograph the back of your ID card...</div>';
+                capturePhotoBtn.parentNode.insertBefore(backPhotoNotice, capturePhotoBtn);
+
+                // Auto-switch to back camera after 3 seconds
+                setTimeout(function() {
+                    capturePhotoBtn.classList.remove('d-none');
+                    if (backPhotoNotice && backPhotoNotice.parentNode) {
+                        backPhotoNotice.remove();
+                    }
+
+                    capturingFrontPhoto = false;
+
+                    // Update indicator
+                    document.getElementById('backPhotoIndicator').style.opacity = '1';
+                    document.getElementById('currentSideLabel').style.display = 'block';
+                    document.getElementById('currentSideText').textContent = '📷 Capturing Back of ID - Please flip the card';
+                    document.getElementById('currentSideText').style.color = '#90caf9';
+
+                    // Stop current camera and start back camera
+                    stopPhotoCameraBtn.click();
+
+                    setTimeout(function() {
+                        startPhotoCameraBtn.click();
+                    }, 300);
+                }, 3000);
+            }
         } else {
             // Capture back of ID
             backPhotoData.value = croppedImageData;
@@ -969,13 +981,9 @@ document.addEventListener('DOMContentLoaded', function () {
         frontPhotoStatus.style.color = '#60a5fa';
         document.getElementById('frontPhotoIndicator').style.opacity = '0.5';
         document.getElementById('frontPhotoIndicator').style.borderColor = '#22c55e';
-        backPhotoCaptured = false;
-        backPhotoData.value = '';
-        backPhotoPreviewContainer.classList.add('d-none');
-        backPhotoStatus.textContent = 'Pending';
-        backPhotoStatus.style.color = '#60a5fa';
-        document.getElementById('backPhotoIndicator').style.opacity = '0.5';
-        document.getElementById('backPhotoIndicator').style.borderColor = '#64b5f6';
+        // NOTE: do NOT reset the back photo here - retaking the front must keep the back
+        // photo that was already captured (the capture handler detects backPhotoCaptured
+        // and finishes instead of auto-switching to the back again).
 
         // Hide the back "capturing" label and reset the capture button back to capture mode
         // (otherwise it keeps the "✕ Delete Back Photo" label from the previous back capture)
