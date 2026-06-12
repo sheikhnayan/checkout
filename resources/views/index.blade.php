@@ -9892,7 +9892,7 @@ input[type="checkbox"],
             const countryCode = countryCodeInput.dataset.code || '+1';
 
             const requirements = PHONE_LENGTH_REQUIREMENTS_INDEX[countryCode] || { min: 7, max: 15 };
-            phoneInput.maxLength = requirements.max;
+            phoneInput.dataset.maxDigits = requirements.max;
 
             if (!phoneValue) {
                 phoneInput.style.borderColor = '';
@@ -9903,8 +9903,9 @@ input[type="checkbox"],
             }
 
             let digitsOnly = phoneValue.replace(/\D/g, '');
-            if (digitsOnly.length > requirements.max) {
-                digitsOnly = digitsOnly.substring(0, requirements.max);
+            const maxDigits = parseInt(phoneInput.dataset.maxDigits || requirements.max);
+            if (digitsOnly.length > maxDigits) {
+                digitsOnly = digitsOnly.substring(0, maxDigits);
             }
 
             let cleanNumber = digitsOnly;

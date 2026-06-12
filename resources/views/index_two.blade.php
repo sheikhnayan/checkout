@@ -10689,8 +10689,8 @@
             // Get country-specific requirements
             const requirements = PHONE_LENGTH_REQUIREMENTS[countryCode] || { min: 7, max: 15, name: 'Default' };
 
-            // Set maxlength to prevent typing too many digits
-            phoneInput.maxLength = requirements.max;
+            // Store max digits in dataset for JavaScript validation instead of HTML maxLength
+            phoneInput.dataset.maxDigits = requirements.max;
 
             if (!phoneValue) {
                 phoneInput.style.borderColor = '';
@@ -10704,9 +10704,10 @@
             // Remove all non-digits (allow only numbers)
             let digitsOnly = phoneValue.replace(/\D/g, '');
 
-            // Enforce maxlength by truncating if needed
-            if (digitsOnly.length > requirements.max) {
-                digitsOnly = digitsOnly.substring(0, requirements.max);
+            // Enforce max digits by truncating if needed (don't include formatting chars)
+            const maxDigits = parseInt(phoneInput.dataset.maxDigits || requirements.max);
+            if (digitsOnly.length > maxDigits) {
+                digitsOnly = digitsOnly.substring(0, maxDigits);
             }
 
             // Remove leading 1 if it's a North American number (already in country code)
