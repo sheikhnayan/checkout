@@ -1216,6 +1216,7 @@
             background: rgba(255,255,255,0.16) !important;
             position: relative;
             margin: 0 !important;
+            margin-right: 12px !important;
             padding: 0 !important;
             flex-shrink: 0;
             cursor: pointer;
