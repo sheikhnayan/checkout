@@ -8624,13 +8624,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         '[name="package_year"]'
                     );
                 } else if (stepNumber === 2 && window.requiresTransportation) {
-                    requiredFields.push(
-                        '[name="package_use_date"]',
-                        '[name="transportation_pickup_time"]',
-                        '[name="transportation_address"]',
-                        '[name="transportation_phone"]',
-                        '[name="transportation_guest"]'
-                    );
+                    // Transportation form validation disabled - allow form to proceed
+                    // requiredFields.push(
+                    //     '[name="package_use_date"]',
+                    //     '[name="transportation_pickup_time"]',
+                    //     '[name="transportation_address"]',
+                    //     '[name="transportation_phone"]',
+                    //     '[name="transportation_guest"]'
+                    // );
                 } else if (stepNumber === 2 && !window.requiresTransportation) {
                     // Validate transportation confirmation checkbox
                     if (!$('#transportation_part').is(':checked')) {
@@ -9233,7 +9234,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
             function validateTransportationScheduleClient() {
                 const pickupTimeField = $('[name="transportation_pickup_time"]');
+                const pickupLocationField = $('[name="transportation_address"]');
+                const contactPhoneField = $('[name="transportation_phone"]');
                 const pickupTime = pickupTimeField.val().trim();
+                const pickupLocation = pickupLocationField.val().trim();
+                const contactPhone = contactPhoneField.val().trim();
 
                 if (!pickupTime) {
                     pickupTimeField.addClass('required-field');
@@ -9250,6 +9255,24 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         valid: false,
                         field: pickupTimeField,
                         message: 'Pickup time must be within the club operating hours.'
+                    };
+                }
+
+                if (!pickupLocation) {
+                    pickupLocationField.addClass('required-field');
+                    return {
+                        valid: false,
+                        field: pickupLocationField,
+                        message: 'Please enter the pick-up location.'
+                    };
+                }
+
+                if (!contactPhone) {
+                    contactPhoneField.addClass('required-field');
+                    return {
+                        valid: false,
+                        field: contactPhoneField,
+                        message: 'Please enter your contact phone number.'
                     };
                 }
 
