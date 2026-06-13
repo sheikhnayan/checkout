@@ -8274,11 +8274,22 @@
                 }
                 
                 // Business expense checkbox handler
+                function setBusinessFieldsRequired(on) {
+                    ['business_company', 'business_vat', 'business_address'].forEach(function (n) {
+                        var el = document.querySelector('[name="' + n + '"]');
+                        if (el) { if (on) { el.setAttribute('required', 'required'); } else { el.removeAttribute('required'); } }
+                    });
+                }
+                // Business fields start hidden, so they must not be required until the box is checked
+                // (a required field inside a display:none container blocks form submission).
+                setBusinessFieldsRequired($('#businessExpenseCheckbox').is(':checked'));
                 $('#businessExpenseCheckbox').on('change', function() {
                     if ($(this).is(':checked')) {
                         $('#businessFields').slideDown();
+                        setBusinessFieldsRequired(true);
                     } else {
                         $('#businessFields').slideUp();
+                        setBusinessFieldsRequired(false);
                     }
                 });
             });
