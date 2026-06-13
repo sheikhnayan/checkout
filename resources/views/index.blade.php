@@ -1824,14 +1824,14 @@ nav .tab:hover {
 
 /* Package category tabs - vibrant purple */
 .package-category-tiles {
-    display: flex;
+    display: flex !important;
     gap: 10px;
     flex-wrap: wrap;
     margin-bottom: 18px;
 }
-.package-category-wrap { flex: 1 1 auto; min-width: 0; }
 .package-category-tile {
-    width: 100%;
+    flex: 1 1 auto;
+    min-width: 0;
     background: rgba(167,116,255,0.08) !important;
     color: rgba(255,255,255,0.88) !important;
     border: 1px solid rgba(167,116,255,0.35) !important;
@@ -1845,18 +1845,20 @@ nav .tab:hover {
     cursor: pointer;
     transition: all .2s;
     text-align: left !important;
+    box-shadow: none !important;
 }
 .package-category-tile:hover {
     background: rgba(167,116,255,0.16) !important;
     border-color: rgba(167,116,255,0.6) !important;
     color: #fff !important;
     transform: translateY(-1px);
+    filter: none !important;
 }
 .package-category-tile.active {
     background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%) !important;
     color: #fff !important;
     border-color: #7c3aed !important;
-    box-shadow: 0 4px 14px rgba(124,58,237,0.4);
+    box-shadow: 0 4px 14px rgba(124,58,237,0.4) !important;
 }
 .package-category-tile .package-category-indicator {
     width: 22px;
@@ -1930,7 +1932,7 @@ nav .tab:hover {
 
 @media (max-width: 767px) {
     .package-category-tiles { flex-direction: column; }
-    .package-category-wrap { width: 100%; }
+    .package-category-tile { width: 100%; }
 }
 
 .vip-card.selected {
@@ -5586,14 +5588,13 @@ input[type="checkbox"],
                                                                 data-transportation="{{ $item->transportation }}"
                                                                 data-service_charge="{{ $data->service_charge_fee ?? 10}}"
                                                                 data-default-label="Add to Cart"
-                                                                @disabled(!empty($event->is_sold_out))>{{ !empty($event->is_sold_out) ? 'Sold Out' : 'Add to Cart' }}</button>
+                                                                >Add to Cart</button>
                                                             <small class="package-guest-error" style="display:none;color:#ff6b6b;font-size:11px;line-height:1.35;margin-top:4px;"></small>
                                                             <div class="package-soldout" style="display:none;color:#ff2b2b;font-size:12px;font-weight:700;line-height:1.35;margin-top:4px;">Sold Out!</div>
                                                         </div>
                                                     </div>
                                                 @endforeach
-                                                    </div>
-                                                </div>
+                                            </div>
                                         @endforeach
                                     @else
                                         <p style="opacity:.6;">No packages are available yet.</p>
@@ -8087,14 +8088,10 @@ input[type="checkbox"],
 
                 $(document).on('click', '.package-category-tile', function() {
                     var $tile = $(this);
-                    var $target = $tile.closest('.package-category-wrap').find('.package-category-group').first();
+                    var targetSelector = String($tile.data('target') || '');
+                    var targetId = targetSelector.replace(/^#/, '');
+                    var $target = targetId ? $('#' + targetId) : $();
                     var isOpen = $tile.hasClass('active');
-
-                    if (!$target.length) {
-                        var targetSelector = String($tile.data('target') || '');
-                        var targetId = targetSelector.replace(/^#/, '');
-                        $target = targetId ? $('#' + targetId) : $();
-                    }
 
                     $('.package-category-tile').removeClass('active');
                     $('.package-category-group').stop(true, true).slideUp(180);
