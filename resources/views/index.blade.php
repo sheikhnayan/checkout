@@ -3492,7 +3492,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     color: #c4a3ff !important;
     border: 1px solid rgba(167,116,255,0.4) !important;
     border-radius: 10px !important;
-    padding: 9px 16px !important;
+    padding: 14px 16px !important;
     font-size: 12.5px !important;
     font-weight: 700 !important;
     cursor: pointer;
