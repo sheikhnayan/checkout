@@ -6230,7 +6230,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                         <input name="transportation_pickup_time" type="text" readonly
                                                                             id="Pick-up-time"
                                                                             class="form-control"
-                                                                            placeholder="Select pick-up time" />
+                                                                            placeholder="Select pick-up time" required />
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -6247,7 +6247,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 <div class="form-group" style="width: 100%;">
                                                                     <label for="phone">Contact Phone Number or WhatsApp</label>
                                                                     <input type="tel" name="transportation_phone" id="phone"
-                                                                        placeholder="For driver/dispatch to coordinate�pickup"  />
+                                                                        placeholder="For driver/dispatch to coordinate pickup" required />
                                                                 </div>
     
                                                             </div>
