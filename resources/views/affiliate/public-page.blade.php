@@ -6483,7 +6483,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                         </div>
                                                                 @endif
                                                             </div>
-                                                            <div class="checkbox-container payment-consent-group" style="margin-top: 1.5rem;">
+                                                            <div class="checkbox-container payment-consent-group" style="margin-top: 1.5rem; display: none;">
                                                                 <label class="consent-label">
                                                                     <input type="checkbox" id="businessExpenseCheckbox" />
                                                                     <span>This purchase is for business purposes</span>
@@ -6512,23 +6512,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                             <div class="checkbox-container payment-consent-group" id="payment-consent-group">
                                                                 <label class="consent-label">
                                                                     <input type="checkbox" id="smsConsent" required />
-                                                                    <span>I agree to receive SMS communications from
-                                                                    {{ $data->name }}
-                                                                    regarding my upcoming
-                                                                    reservation. Message and data rates may apply. Messaging
-                                                                    frequency may vary. Reply
-                                                                    STOP to opt out at any time.</span>
+                                                                    <span>I agree to receive SMS communications regarding my reservation, transportation updates, VIP services, and related notifications. Message and data rates may apply. Messaging frequency may vary. Reply STOP to opt out at any time.</span>
                                                                 </label>
-                                                                <label class="consent-label driver-notification-consent-wrap" style="display:none;">
-                                                                    <input type="checkbox" id="driverNotificationConsent" class="driver-notification-consent-input" />
-                                                                    <span>I agree to receive notifications from the driver regarding my transportation pickup.</span>
-                                                                </label>
-    
+
                                                                 <label class="consent-label" style="margin-top: 1.4rem;">
                                                                     <input type="checkbox" id="termsConsent" required />
-                                                                    <span>I understand that all sales are final. I agree to the <a
-                                                                        target="_blank" href="{{ $data->terms }}">Terms of
-                                                                        Service</a>, and acknowledge that CartVIP is the merchant of record for this purchase.</span>
+                                                                    <span>I have read and agree to the <a
+                                                                        target="_blank" href="{{ $data->terms }}">Terms of Service</a> / <a target="_blank" href="{{ $data->terms }}">Venue Policies</a></span>
                                                                 </label>
 
                                                                 {{-- <p style="margin: 12px 0 0; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);">
