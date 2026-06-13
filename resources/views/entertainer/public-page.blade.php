@@ -1,4 +1,4 @@
-﻿@php
+@php
     $brandPrimary = '#a774ff';
     $brandSecondary = '#7c3aed';
     $brandGradient = 'linear-gradient(135deg, #f7e2b4 0%, #7c3aed 52%, #a774ff 100%)';
@@ -6288,7 +6288,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                             <!-- Transportation confirmation checkbox -->
                                             <div class="checkbox-container transportaiton" id="transport-confirmation" style="display:none">
                                                 <label>
-                                                    <input type="checkbox" id="transportation_part" />
+                                                    <input type="checkbox" id="transportation_part"  required />
                                                     {{ $data->transportation_confirmation_text ?? 'I confirm I am not arriving via Uber, Lyft, limo, taxi, ride-sharing or any other paid service. I am arriving in a personal vehicle.' }}
                                                 </label>
                                                 <div class="step-navigation" style="margin-top: 20px;">
@@ -6324,7 +6324,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                             <div class="form-row" style="margin-top: 14px;">
                                                                 <div class="form-group" style="width: 100%;">
                                                                     <label for="address">Pick-up Location</label>
-                                                                    <input type="text" name="transportation_address" required required
+                                                                    <input type="text" name="transportation_address" required
                                                                         id="address" placeholder="Enter pick-up address" />
                                                                 </div>
 
@@ -6344,9 +6344,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 <div class="num-guest" style="width: 100%; display: flex;">
                                                                     <label for="">Number of Guest(s)</label>
     
-                                                                    <input type="number" class="form-control"
-                                                                        name="transportation_guest" min="1"
-                                                                        style="width: 120px; max-width: 120px; color: #fff;"  />
+                                                                    <input type="text" class="form-control"
+                                                                        name="transportation_guest" placeholder="e.g. John Smith"
+                                                                        style="width: 120px; max-width: 120px; color: #fff;"  required />
     
     
     
@@ -6361,8 +6361,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                                                             <!-- TRANSPORTATION RESTRICTION NOTICE -->
                                                             <div style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); border: 2px solid #c92a2a; border-radius: 8px; padding: 14px 16px; margin-top: 20px; box-shadow: 0 4px 12px rgba(255, 107, 107, 0.25);">
-                                                                <div style="display: flex; align-items: center; gap: 12px;">
-                                                                    <div style="font-size: 20px; color: #fff; flex-shrink: 0;">âš ï¸</div>
+                                                                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                                                                    <div style="font-size: 20px; color: #fff; flex-shrink: 0;">⚠️</div>
                                                                     <div>
                                                                         <p style="margin: 0; color: #fff; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">HOUSE TRANSPORTATION OR SELF DRIVE ONLY</p>
                                                                         <p style="margin: 6px 0 0 0; color: rgba(255,255,255,0.9); font-size: 12px; line-height: 1.4;">Uber, Lyft, taxi, limo & ride-sharing are NOT permitted.</p>
@@ -6427,11 +6427,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                             </div>
     
                                                             <!-- Hidden fields for phone, email, and DOB - will be auto-populated from package holder info -->
-                                                            <input type="hidden" name="payment_phone" id="hidden_payment_phone" />
-                                                            <input type="hidden" name="payment_email" id="hidden_payment_email" />
-                                                            <input type="hidden" name="payment_month" id="hidden_payment_month" />
-                                                            <input type="hidden" name="payment_day" id="hidden_payment_day" />
-                                                            <input type="hidden" name="payment_year" id="hidden_payment_year" />
+                                                            <input type="hidden" name="payment_phone" id="hidden_payment_phone"  required />
+                                                            <input type="hidden" name="payment_email" id="hidden_payment_email"  required />
+                                                            <input type="hidden" name="payment_month" id="hidden_payment_month"  required />
+                                                            <input type="hidden" name="payment_day" id="hidden_payment_day"  required />
+                                                            <input type="hidden" name="payment_year" id="hidden_payment_year"  required />
     
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 100%;">
@@ -6581,17 +6581,17 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     <div class="form-row">
         <div class="form-group" style="width: 50%;">
             <label for="business_company">Company Name</label>
-            <input type="text" name="business_company" id="business_company" placeholder="Company Name" />
+            <input type="text" name="business_company" id="business_company" placeholder="Company Name"  required />
         </div>
         <div class="form-group" style="width: 50%;">
             <label for="business_vat">VAT or Tax ID</label>
-            <input type="text" name="business_vat" id="business_vat" placeholder="VAT or Tax ID" />
+            <input type="text" name="business_vat" id="business_vat" placeholder="VAT or Tax ID"  required />
         </div>
     </div>
     <div class="form-row">
         <div class="form-group" style="width: 100%;">
             <label for="business_address">Business Address</label>
-            <input type="text" name="business_address" id="business_address" placeholder="Business Address" />
+            <input type="text" name="business_address" id="business_address" placeholder="Business Address"  required />
         </div>
     </div>
     </div>
@@ -6614,7 +6614,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 </p> --}}
                                                             </div>
 
-                                                            <input type="hidden" class="package_use_date" name="package_use_date" value="">
+                                                            <input type="hidden" class="package_use_date" name="package_use_date" value="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('Y-m-d') }}">
                                                             <input type="hidden" class="promo_code" name="promo_code">
                                                             <input type="hidden" class="discounted_amount" name="discounted_amount">
                                                             
