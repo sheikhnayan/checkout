@@ -31,6 +31,109 @@ use Stripe;
 
 class TransactionController extends Controller
 {
+    /**
+     * Parse a money amount that may arrive with thousands separators, a currency
+     * symbol or stray whitespace (e.g. "16,000.00" or "$1,234.50") into a clean
+     * float rounded to 2 decimals. CRITICAL: a raw (float) cast of "16,000.00"
+     * silently yields 16, so every amount MUST pass through here before charging.
+     */
+    private function sanitizeAmount($value): float
+    {
+        if (is_int($value) || is_float($value)) {
+            return round((float) $value, 2);
+        }
+        // Strip everything except digits, dot and minus (removes commas, $, spaces).
+        $clean = preg_replace('/[^0-9.\-]/', '', (string) $value);
+        if ($clean === '' || !is_numeric($clean)) {
+            return 0.0;
+        }
+        return round((float) $clean, 2);
+    }
+
+    /**
+     * Resolve the Authorize.Net environment URL, honoring the per-website sandbox
+     * toggle, then the global setting, defaulting to sandbox when neither is
+     * configured (same precedence used by CustomInvoiceController).
+     */
+    private function authorizeNetEnvironment($website, $setting): string
+    {
+        $useSandbox = $website->sandbox_mode ?? null;
+        if ($useSandbox === null) {
+            $useSandbox = $setting->sandbox_mode ?? null;
+        }
+        if ($useSandbox === null) {
+            $useSandbox = true;
+        }
+
+        return $useSandbox
+            ? \net\authorize\api\constants\ANetEnvironment::SANDBOX
+            : \net\authorize\api\constants\ANetEnvironment::PRODUCTION;
+    }
+
+    /**
+     * Interpret an Authorize.Net createTransaction response into a normalized
+     * outcome so the checkout flow does not have to re-derive the two-layer
+     * response semantics each time.
+     *
+     * responseCode: 1 = approved, 2 = declined, 3 = error, 4 = held for review.
+     * Both 1 and 4 mean the card WAS charged/authorized — 4 is held by the Fraud
+     * Detection Suite and settles on approval, so it must be treated as a
+     * (pending) success, never as a failure (that is how double charges happen).
+     */
+    private function interpretAuthorizeNetResponse($response): array
+    {
+        $out = [
+            'ok' => false,            // true when money was taken (approved or held)
+            'held' => false,          // true for responseCode 4 (under review)
+            'response_code' => null,  // '1'..'4'
+            'trans_id' => null,
+            'avs' => null,
+            'cvv' => null,
+            'message' => 'Payment could not be processed. You have not been charged.',
+        ];
+
+        if ($response === null) {
+            return $out;
+        }
+
+        $tresponse = $response->getTransactionResponse();
+
+        if ($tresponse === null) {
+            // No transactionResponse -> request-level failure (bad credentials,
+            // malformed request, etc.). Use the top-level message if present.
+            $messages = $response->getMessages();
+            if ($messages !== null && $messages->getMessage() !== null && count($messages->getMessage()) > 0) {
+                $out['message'] = $messages->getMessage()[0]->getText();
+            }
+            return $out;
+        }
+
+        $code = (string) $tresponse->getResponseCode();
+        $out['response_code'] = $code;
+        $out['trans_id'] = $tresponse->getTransId();
+        $out['avs'] = $tresponse->getAvsResultCode();
+        $out['cvv'] = $tresponse->getCvvResultCode();
+
+        if ($code === '1' || $code === '4') {
+            $out['ok'] = true;
+            $out['held'] = ($code === '4');
+            $tmsgs = $tresponse->getMessages();
+            if ($tmsgs !== null && count($tmsgs) > 0) {
+                $out['message'] = $tmsgs[0]->getDescription();
+            } else {
+                $out['message'] = $out['held'] ? 'Your order is being reviewed.' : 'Approved.';
+            }
+            return $out;
+        }
+
+        // Declined (2) or error (3): the real reason lives in the transactionResponse errors.
+        $errors = $tresponse->getErrors();
+        if ($errors !== null && count($errors) > 0) {
+            $out['message'] = $errors[0]->getErrorText();
+        }
+        return $out;
+    }
+
     public function store($slug, Request $request)
     {
 
@@ -90,6 +193,19 @@ class TransactionController extends Controller
         $w = Website::find($request->website_id);
         [$validatedPromoCodeId, $validatedDiscountAmount] = $this->resolveValidatedPromoForCheckout($request, $w);
 
+        // Idempotency guard: stop a rapid double-submit / refresh-resubmit from
+        // charging the card twice. Keyed on the order signature and held briefly;
+        // it auto-expires so a legitimate retry (e.g. after a decline) still works.
+        $idempotencyKey = 'checkout_lock:' . md5(
+            $request->website_id . '|'
+            . strtolower((string) $request->input('package_email')) . '|'
+            . $this->sanitizeAmount($request->total) . '|'
+            . json_encode($request->input('cart_items'))
+        );
+        if (! \Illuminate\Support\Facades\Cache::add($idempotencyKey, 1, 20)) {
+            return back()->with('error', 'Your previous order is still being processed. Please wait a few seconds before trying again.');
+        }
+
         if ($w->payment_method == 'stripe') {
             # code...
 
@@ -105,12 +221,27 @@ class TransactionController extends Controller
             Stripe\Stripe::setApiKey($secret);
 
                         // 3️⃣ Create a one‑time token from the raw card data
-                        $charge = Stripe\Charge::create ([
-                                "amount" => $request->total * 100,
+                        // Sanitize amount ("16,000.00" -> 16000.00, not 16) and send
+                        // integer cents to Stripe.
+                        $stripeAmount = $this->sanitizeAmount($request->total);
+                        if ($stripeAmount <= 0) {
+                            return back()->with('error', 'Invalid order amount. You have not been charged. Please refresh the page and try again.');
+                        }
+
+                        try {
+                            $charge = Stripe\Charge::create([
+                                "amount" => (int) round($stripeAmount * 100),
                                 "currency" => "usd",
                                 "source" => $request->stripeToken,
                                 "description" => "Payment fit"
-                        ]);
+                            ]);
+                        } catch (\Stripe\Exception\CardException $e) {
+                            \Log::warning('Stripe card declined', ['website_id' => $request->website_id, 'message' => $e->getMessage()]);
+                            return back()->with('error', 'Payment failed: ' . $e->getMessage());
+                        } catch (\Throwable $e) {
+                            \Log::error('Stripe charge error', ['website_id' => $request->website_id, 'error' => $e->getMessage()]);
+                            return back()->with('error', 'We could not process your card. You have NOT been charged. Please try again.');
+                        }
 
     
                     $transaction_id = $charge->id;
@@ -119,6 +250,9 @@ class TransactionController extends Controller
     
                     $add = new Transaction();
                     $add->transaction_id = $transaction_id;
+                    // Stripe charges are captured immediately on success (no held state).
+                    $add->payment_status = 'approved';
+                    $add->gateway_response_code = 'stripe_succeeded';
                     $add->ticket_qr_code = $this->generateTicketQrCode();
                     $add->package_first_name = $request->input('package_first_name');
                     $add->ip_address = $ipAddress;
@@ -270,10 +404,10 @@ class TransactionController extends Controller
                             \Log::error('SMS failed: ' . $e->getMessage());
                         }
                     } catch (\Throwable $th) {
+                        // The card is already charged and the order saved at this point —
+                        // a confirmation-email failure must NOT bounce the customer back to
+                        // checkout (which risks a double charge). Log and continue.
                         report($th);
-                        throw ValidationException::withMessages([
-                            'email' => 'Email delivery failed: ' . $th->getMessage(),
-                        ]);
                     }
 
 
@@ -324,32 +458,65 @@ class TransactionController extends Controller
     
             $transactionRequestType->setTransactionType("authCaptureTransaction");
     
-            $amount = number_format((float)$request->total, 2, '.', '');
-            $transactionRequestType->setAmount($amount);
-            // $transactionRequestType->setAmount("10.00");
+            // Sanitize the amount: a raw (float) cast of "16,000.00" silently
+            // becomes 16, so strip separators/symbols first, then send a plain
+            // 2-decimal string with no thousands separator to Authorize.Net.
+            $amount = $this->sanitizeAmount($request->total);
+            if ($amount <= 0) {
+                return back()->with('error', 'Invalid order amount. You have not been charged. Please refresh the page and try again.');
+            }
+            $transactionRequestType->setAmount(number_format($amount, 2, '.', ''));
             $transactionRequestType->setPayment($payment);
     
             $requests = new AnetAPI\CreateTransactionRequest();
             $requests->setMerchantAuthentication($merchantAuthentication);
-            $requests->setRefId("ref" . time());
+            $requests->setRefId('ref' . uniqid());
             $requests->setTransactionRequest($transactionRequestType);
     
             $controller = new AnetController\CreateTransactionController($requests);
-            $response = $controller->executeWithApiResponse(\net\authorize\api\constants\ANetEnvironment::SANDBOX);
-    
+            try {
+                $response = $controller->executeWithApiResponse($this->authorizeNetEnvironment($w, $setting));
+            } catch (\Throwable $gatewayException) {
+                \Log::error('Authorize.Net gateway call failed', [
+                    'website_id' => $request->website_id,
+                    'error' => $gatewayException->getMessage(),
+                ]);
+                return back()->with('error', 'We could not reach the payment processor. You have NOT been charged. Please try again in a moment.');
+            }
+
+            // Normalize the two-layer Authorize.Net response once. responseCode
+            // 1 = approved, 4 = held for review (both took the money), 2 = declined,
+            // 3 = error. Log every outcome for disputes/debugging.
+            $anet = $this->interpretAuthorizeNetResponse($response);
+            \Log::info('Authorize.Net charge result', [
+                'website_id' => $request->website_id,
+                'response_code' => $anet['response_code'],
+                'trans_id' => $anet['trans_id'],
+                'avs' => $anet['avs'],
+                'cvv' => $anet['cvv'],
+                'amount' => $amount,
+                'ok' => $anet['ok'],
+                'held' => $anet['held'],
+            ]);
+
             if ($response != null) {
                 $tresponse = $response->getTransactionResponse();
-                // dd($response);
-                if ($tresponse != null && $tresponse->getResponseCode() == "1") {
-                    # code...
-                    $tresponse = $response->getTransactionResponse();
-    
-                    $transaction_id = $tresponse->getTransId();
-    
+                if ($anet['ok']) {
+                    // Approved (1) or held-for-review (4). In both cases the card
+                    // was charged/authorized, so the order MUST be recorded. Held
+                    // orders are saved as 'under_review' and settle on approval.
+                    $transaction_id = $anet['trans_id'];
+
                     $ipAddress = $request->ip();
-    
+
                     $add = new Transaction();
                     $add->transaction_id = $transaction_id;
+                    // Gateway outcome (responseCode 4 = held by Fraud Detection Suite -> under_review).
+                    $add->payment_status = $anet['held'] ? 'under_review' : 'approved';
+                    $add->gateway_response_code = $anet['response_code'];
+                    $add->gateway_avs_result = $anet['avs'];
+                    $add->gateway_cvv_result = $anet['cvv'];
+                    $add->gateway_message = $anet['message'];
                     $add->ticket_qr_code = $this->generateTicketQrCode();
                     $add->package_first_name = $request->input('package_first_name');
                     $add->ip_address = $ipAddress;
@@ -512,11 +679,21 @@ class TransactionController extends Controller
                         ->with('transaction', $add->fresh())
                         ->with('website', $website)
                         ->with('paymentType', 'full');
-                }else{
-                    return back()->with('error', "Payment failed: ". $response->getMessages()->getMessage()[0]->getText());
+                } else {
+                    // Declined (2) or error (3): show the real transactionResponse
+                    // reason (NOT the top-level "Successful." message).
+                    \Log::warning('Authorize.Net charge not approved', [
+                        'website_id' => $request->website_id,
+                        'response_code' => $anet['response_code'],
+                        'message' => $anet['message'],
+                    ]);
+                    return back()->with('error', 'Payment failed: ' . $anet['message']);
                 }
-            }else{
-                return back()->with('error', "Payment failed: ". $response->getMessages()->getMessage()[0]->getText());
+            } else {
+                \Log::error('Authorize.Net returned a null response (no charge made)', [
+                    'website_id' => $request->website_id,
+                ]);
+                return back()->with('error', 'Payment failed: ' . $anet['message']);
             }
         }
         
@@ -527,17 +704,19 @@ class TransactionController extends Controller
 
     public function test()
     {
-        // Minimal test: send to a hardcoded address using default SMTP config
-        // dd('Test method called. About to send test mail...');
+        // Local-only mail debug helper. Never expose dd()/test mail in production.
+        if (! app()->environment('local')) {
+            abort(404);
+        }
         try {
             $mailData = [ 'type' => 'package' ];
             $send_mail = new \App\Mail\TransactionMail($mailData);
             $send_mail->subject('Test Mail - ' . now());
-            $to = 'nman0171@gmail.com'; // <-- change to your real email for testing
+            $to = 'nman0171@gmail.com';
             Mail::to($to)->send($send_mail);
-            dd('Test mail sent to ' . $to);
+            return response('Test mail sent to ' . $to);
         } catch (\Throwable $th) {
-            dd('Exception: ' . $th->getMessage());
+            return response('Exception: ' . $th->getMessage(), 500);
         }
     }
 

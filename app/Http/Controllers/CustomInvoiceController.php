@@ -567,7 +567,11 @@ class CustomInvoiceController extends Controller
         if ($response != null) {
             if ($response->getMessages()->getResultCode() == "Ok") {
                 $tresponse = $response->getTransactionResponse();
-                if ($tresponse != null && $tresponse->getMessages() != null) {
+                $rc = $tresponse != null ? (string) $tresponse->getResponseCode() : null;
+                // responseCode 1 = approved, 4 = held for review (money taken in both
+                // cases). 2 = declined, 3 = error -> fall through to the error handler
+                // below. A top-level resultCode of "Ok" alone does NOT mean approved.
+                if ($tresponse != null && ($rc === '1' || $rc === '4')) {
                     // Update invoice status based on payment type
                     $status = $paymentType === 'full' ? 'paid' : 'sent';
                     
