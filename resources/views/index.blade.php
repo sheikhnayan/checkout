@@ -3984,6 +3984,25 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-checkout-body.is-guest-mode .cv-sidebar { display: none !important; }
 .cv-checkout-body.is-guest-mode .cv-main-col { max-width: 100% !important; width: 100%; }
 .cv-checkout-body.is-guest-mode ~ * { width: 100%; }
+/* Bulletproof desktop layout: explicitly pin the two columns so the Order Summary
+   always sits in the right column (top row), regardless of any stray grid item or
+   auto-placement quirk. Scoped to desktop and to non-guest mode. */
+@media (min-width: 992px) {
+    #cv-checkout-layout:not(.is-guest-mode) {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) 440px !important;
+        align-items: start !important;
+    }
+    #cv-checkout-layout:not(.is-guest-mode) > .cv-main-col {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+        min-width: 0 !important;
+    }
+    #cv-checkout-layout:not(.is-guest-mode) > #cv-order-sidebar {
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+    }
+}
 .is-guest-mode {
     width: 100% !important;
     max-width: 100% !important;
@@ -9246,12 +9265,11 @@ input[type="checkbox"],
                             stepsAnchor.parentNode.insertBefore(sidebar, stepsAnchor);
                         }
                     } else {
-                        if (sidebar.parentNode !== originalParent) {
-                            if (originalNext && originalNext.parentNode === originalParent) {
-                                originalParent.insertBefore(sidebar, originalNext);
-                            } else {
-                                originalParent.appendChild(sidebar);
-                            }
+                        // Desktop: the sidebar must live inside the checkout grid so it renders
+                        // in the right column. Force it back regardless of the captured parent.
+                        var grid = document.getElementById('cv-checkout-layout');
+                        if (grid && sidebar.parentNode !== grid) {
+                            grid.appendChild(sidebar);
                         }
                     }
                 }
