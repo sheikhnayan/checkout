@@ -467,7 +467,29 @@ class TransactionController extends Controller
             }
             $transactionRequestType->setAmount(number_format($amount, 2, '.', ''));
             $transactionRequestType->setPayment($payment);
-    
+
+            // Billing address for AVS (Address Verification Service). Without the
+            // street + ZIP, Authorize.Net returns AVS code "U", and fraud filters
+            // set to reject "unavailable" will decline/hold legitimate cards.
+            $billTo = new AnetAPI\CustomerAddressType();
+            $billTo->setFirstName((string) $request->input('payment_first_name'));
+            $billTo->setLastName((string) $request->input('payment_last_name'));
+            $billTo->setAddress((string) $request->input('payment_address'));
+            $billTo->setCity((string) $request->input('payment_city'));
+            $billTo->setState((string) $request->input('payment_state'));
+            $billTo->setZip((string) $request->input('payment_zip_code'));
+            $billTo->setCountry((string) $request->input('payment_country'));
+            $transactionRequestType->setBillTo($billTo);
+
+            // Extra signals for the Advanced Fraud Detection Suite so legitimate
+            // orders are less likely to be held for review.
+            $transactionRequestType->setCustomerIP($request->ip());
+            if ($request->filled('payment_email')) {
+                $customerData = new AnetAPI\CustomerDataType();
+                $customerData->setEmail((string) $request->input('payment_email'));
+                $transactionRequestType->setCustomer($customerData);
+            }
+
             $requests = new AnetAPI\CreateTransactionRequest();
             $requests->setMerchantAuthentication($merchantAuthentication);
             $requests->setRefId('ref' . uniqid());

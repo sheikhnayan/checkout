@@ -532,9 +532,14 @@ class CustomInvoiceController extends Controller
         $paymentOne = new AnetAPI\PaymentType();
         $paymentOne->setCreditCard($charge);
 
+        // Billing address for AVS — street + ZIP are what the issuer actually
+        // verifies. Without them Authorize.Net returns AVS code "U".
         $billTo = new AnetAPI\CustomerAddressType();
         $billTo->setFirstName($request->firstName ?? '');
         $billTo->setLastName($request->lastName ?? '');
+        $billTo->setAddress((string) $request->input('billing_address', ''));
+        $billTo->setZip((string) $request->input('billing_zip', ''));
+        $billTo->setCountry((string) $request->input('billing_country', 'US'));
 
         $transactionRequestType = new AnetAPI\TransactionRequestType();
         $transactionRequestType->setTransactionType("authCaptureTransaction");

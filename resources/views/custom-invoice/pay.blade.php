@@ -403,6 +403,20 @@
                                     <input type="text" name="cvv" class="form-control" placeholder="123" required>
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label>Billing Address</label>
+                                <input type="text" name="billing_address" class="form-control" placeholder="Street address" required>
+                            </div>
+                            <div class="form-row" style="display: flex; gap: 15px;">
+                                <div class="form-group" style="flex: 1;">
+                                    <label>Billing ZIP</label>
+                                    <input type="text" name="billing_zip" class="form-control" placeholder="ZIP / Postal code" required>
+                                </div>
+                                <div class="form-group" style="flex: 1;">
+                                    <label>Country</label>
+                                    <input type="text" name="billing_country" class="form-control" placeholder="US" value="US" required>
+                                </div>
+                            </div>
                             <button type="submit" class="pay-button" id="pay-btn">
                                 <i class="fas fa-lock"></i> <span id="pay-btn-text">Pay ${{ number_format($invoice->refundable > 0 ? $invoice->refundable : $invoice->total, 2) }} Securely</span>
                             </button>
