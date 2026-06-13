@@ -8970,6 +8970,34 @@
                 //     alertMessage = 'Please complete the required transportation details before proceeding.';
                 // }
 
+                // Require a valid country code selection on any visible phone country-code picker.
+                // The picker's code box is a searchable text input; if the user typed search text and
+                // did not pick a country (or typed an invalid code), block until a valid code is chosen.
+                if (isValid) {
+                    var __ccFields = document.querySelectorAll('.country-code-field');
+                    for (var __ci = 0; __ci < __ccFields.length; __ci++) {
+                        var __cc = __ccFields[__ci];
+                        if (__cc.offsetParent === null) continue; // not visible in the current step
+                        var __ccWrap = __cc.closest('.country-code-input');
+                        if (!__ccWrap) continue;
+                        var __opts = __ccWrap.querySelectorAll('.country-option');
+                        if (!__opts.length) continue; // fail-safe: nothing to validate against
+                        var __ccVal = (__cc.value || '').trim();
+                        var __ccOk = false;
+                        for (var __oi = 0; __oi < __opts.length; __oi++) {
+                            if ((__opts[__oi].getAttribute('data-flag') + ' ' + __opts[__oi].getAttribute('data-code')) === __ccVal) { __ccOk = true; break; }
+                        }
+                        if (!__ccOk) {
+                            __cc.style.borderColor = '#ff6b6b';
+                            isValid = false;
+                            firstInvalidField = $(__cc);
+                            alertMessage = 'Please select a valid country code from the list (search and click your country, or type the full +code in the phone box).';
+                            break;
+                        }
+                        __cc.style.borderColor = '';
+                    }
+                }
+
                 if (!isValid) {
                     alert(alertMessage);
                     if (firstInvalidField && firstInvalidField.length) {
