@@ -4954,7 +4954,22 @@ input[type="checkbox"],
                                 : $eventStart->format('l, F d, Y'))
                             : '';
                         $eventDateOptions = [];
-                        if ($eventStart) {
+                        $specificEventDates = is_array($event->event_dates ?? null) ? array_values(array_filter($event->event_dates)) : [];
+                        if (!empty($specificEventDates)) {
+                            // Only the specific dates chosen on the event create/edit page (not the whole range)
+                            foreach ($specificEventDates as $specificDate) {
+                                try {
+                                    $sd = \Carbon\Carbon::parse($specificDate)->startOfDay();
+                                } catch (\Throwable $e) {
+                                    continue;
+                                }
+                                $eventDateOptions[] = [
+                                    'value' => $sd->format('Y-m-d'),
+                                    'label' => $sd->format('l, F d, Y'),
+                                ];
+                            }
+                        } elseif ($eventStart) {
+                            // Legacy fallback: events without specific dates use the start..end range
                             $dateCursor = $eventStart->copy()->startOfDay();
                             $dateEnd = ($eventEnd ?: $eventStart)->copy()->startOfDay();
                             while ($dateCursor->lte($dateEnd)) {
