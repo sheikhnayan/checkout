@@ -91,6 +91,11 @@ class PaymentSettingsController extends Controller
             }
         }
 
+        // An unchecked checkbox is not submitted, so set the per-website sandbox
+        // flag explicitly: checked => sandbox (true), unchecked => live (false).
+        // This makes it possible to actually switch a club OFF sandbox from the UI.
+        $validated['sandbox_mode'] = $request->boolean('sandbox_mode');
+
         // Update website with payment settings
         $website->update($validated);
 

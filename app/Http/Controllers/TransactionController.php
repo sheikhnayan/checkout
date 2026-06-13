@@ -55,14 +55,21 @@ class TransactionController extends Controller
      * toggle, then the global setting, defaulting to sandbox when neither is
      * configured (same precedence used by CustomInvoiceController).
      */
-    private function authorizeNetEnvironment($website, $setting): string
+    private function authorizeNetEnvironment($website, $setting, bool $usesGlobalKeys = false): string
     {
-        $useSandbox = $website->sandbox_mode ?? null;
-        if ($useSandbox === null) {
+        // The environment must match the keys being used. A club on the GLOBAL
+        // keys obeys the GLOBAL sandbox toggle; a club on its OWN keys obeys its
+        // own per-website toggle (falling back to global, then sandbox).
+        if ($usesGlobalKeys) {
             $useSandbox = $setting->sandbox_mode ?? null;
+        } else {
+            $useSandbox = $website->sandbox_mode ?? null;
+            if ($useSandbox === null) {
+                $useSandbox = $setting->sandbox_mode ?? null;
+            }
         }
         if ($useSandbox === null) {
-            $useSandbox = true;
+            $useSandbox = true; // safe default: sandbox
         }
 
         return $useSandbox
@@ -432,13 +439,15 @@ class TransactionController extends Controller
             $w = Website::find($request->website_id);
 
             if ($w->authorize_app_key != null) {
-                # code...
+                // Club uses its own Authorize.Net account.
                 $app = $w->authorize_app_key;
                 $secret = $w->authorize_secret_key;
+                $usesGlobalKeys = false;
             } else {
-                # code...
+                // Club uses the global Authorize.Net account.
                 $app = $setting->authorize_key;
                 $secret = $setting->authorize_secret;
+                $usesGlobalKeys = true;
             }
             
 
@@ -497,7 +506,7 @@ class TransactionController extends Controller
     
             $controller = new AnetController\CreateTransactionController($requests);
             try {
-                $response = $controller->executeWithApiResponse($this->authorizeNetEnvironment($w, $setting));
+                $response = $controller->executeWithApiResponse($this->authorizeNetEnvironment($w, $setting, $usesGlobalKeys));
             } catch (\Throwable $gatewayException) {
                 \Log::error('Authorize.Net gateway call failed', [
                     'website_id' => $request->website_id,

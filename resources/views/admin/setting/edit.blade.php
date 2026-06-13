@@ -136,6 +136,27 @@ label{
                                                         <input type="text" name="stripe_secret" value="{{ $data->stripe_secret }}" class="form-control" id="stripe_secret" placeholder="Stripe Secret Key" required>
                                                     </div>
                                                 </div>
+
+                                                <div class="col-md-12">
+                                                    <div class="mb-3 p-3" style="border:1px solid #e5e7eb; border-radius:8px; background:#f9fafb;">
+                                                        <label class="form-label d-block mb-2">
+                                                            Payment Gateway Mode
+                                                            <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Controls the Authorize.Net / Stripe environment for clubs that use the GLOBAL keys above. Sandbox = test only, no real charges. Uncheck to process REAL payments. A per-club override on the website Payment Settings page still takes precedence."></i>
+                                                        </label>
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox" role="switch" name="sandbox_mode" id="sandbox_mode" value="1" @checked(old('sandbox_mode', $data->sandbox_mode ?? true))>
+                                                            <label class="form-check-label" for="sandbox_mode">
+                                                                Sandbox (test) mode — <strong>uncheck to go LIVE</strong> and process real payments
+                                                            </label>
+                                                        </div>
+                                                        <small class="d-block mt-2">
+                                                            Current global mode:
+                                                            <strong class="{{ ($data->sandbox_mode ?? true) ? 'text-warning' : 'text-success' }}">
+                                                                {{ ($data->sandbox_mode ?? true) ? 'SANDBOX (test)' : 'LIVE (real charges)' }}
+                                                            </strong>
+                                                        </small>
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             <button type="submit" class="btn btn-primary">Submit</button>

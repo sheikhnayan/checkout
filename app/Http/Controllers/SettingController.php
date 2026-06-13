@@ -73,6 +73,9 @@ class SettingController extends Controller
         $data->authorize_secret = $request->authorize_secret;
         $data->stripe_key = $request->stripe_key;
         $data->stripe_secret = $request->stripe_secret;
+        // Global Live/Sandbox toggle. An unchecked checkbox is not submitted, so
+        // read it explicitly: checked => sandbox (true), unchecked => live (false).
+        $data->sandbox_mode = $request->boolean('sandbox_mode');
         $data->update();
 
         return back();

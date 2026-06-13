@@ -12,10 +12,12 @@ class Setting extends Model
         'stripe_key',
         'stripe_secret',
         'payment_method',
+        'sandbox_mode',
         'affiliate_withdraw_charge',
     ];
 
     protected $casts = [
         'affiliate_withdraw_charge' => 'decimal:2',
+        'sandbox_mode' => 'boolean',
     ];
 }
