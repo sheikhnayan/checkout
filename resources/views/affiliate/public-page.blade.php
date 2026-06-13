@@ -6202,7 +6202,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                             <div class="checkbox-container transportaiton" id="transport-confirmation" style="display:none">
                                                 <label>
                                                     <input type="checkbox" id="transportation_part"  required />
-                                                    {{ $data->transportation_confirmation_text ?? 'I confirm I am not arriving via Uber, Lyft, limo, taxi, ride-sharing or any other paid service. I am arriving in a personal vehicle.' }}
+                                                    {{ $data->transportation_confirmation_text ?? 'I confirm I am arriving in a personal vehicle or approved venue transportation. I am not arriving via Uber, Lyft, taxi, limousine, ride-share, or any other third-party transportation service.' }}
                                                 </label>
                                                 <div class="step-navigation" style="margin-top: 20px;">
                                                     <button type="button" class="btn-prev" id="prev-to-package">Previous: Package Details</button>

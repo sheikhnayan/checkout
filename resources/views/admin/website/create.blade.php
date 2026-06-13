@@ -422,7 +422,7 @@ label{
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
                                                         <label for="transportation_confirmation_text" class="form-label">Transportation Confirmation Text <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The legal confirmation text shown to customers next to the transportation arrival checkbox at checkout."></i></label>
-                                                        <textarea name="transportation_confirmation_text" class="form-control" id="transportation_confirmation_text" rows="3" placeholder="Transportation confirmation checkbox text">I confirm I am not arriving via Uber, Lyft, limo, taxi, ride-sharing or any other paid service. I am arriving in a personal vehicle.</textarea>
+                                                        <textarea name="transportation_confirmation_text" class="form-control" id="transportation_confirmation_text" rows="3" placeholder="Transportation confirmation checkbox text">I confirm I am arriving in a personal vehicle or approved venue transportation. I am not arriving via Uber, Lyft, taxi, limousine, ride-share, or any other third-party transportation service.</textarea>
                                                     </div>
                                                 </div>
 

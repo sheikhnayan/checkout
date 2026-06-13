@@ -6381,7 +6381,7 @@
                                                 style="display:none">
                                                 <label>
                                                     <input type="checkbox" id="transportation_part"  required />
-                                                    {{ $data->transportation_confirmation_text ?? 'I confirm I am not arriving via Uber, Lyft, limo, taxi, ride-sharing or any other paid service. I am arriving in a personal vehicle.' }}
+                                                    {{ $data->transportation_confirmation_text ?? 'I confirm I am arriving in a personal vehicle or approved venue transportation. I am not arriving via Uber, Lyft, taxi, limousine, ride-share, or any other third-party transportation service.' }}
                                                 </label>
                                                 <div class="step-navigation" style="margin-top: 20px;">
                                                     <button type="button" class="btn-prev"
