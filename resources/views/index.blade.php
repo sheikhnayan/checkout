@@ -5784,9 +5784,8 @@ input[type="checkbox"],
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 50%;">
                                                                     <label for="phone">Phone Number</label>
-                                                                    <input type="tel" id="package_phone" name="package_phone"
+                                                                    <input type="tel" id="package_phone" name="package_phone" placeholder="(555) 123-4567" required />
                                                                     <div class="phone-note" style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 4px;">Phone formatting may vary by country. International SMS delivery is not guaranteed.</div>
-                                                                        placeholder="(555) 123-4567" required />
                                                                 </div>
                                                                 <div class="form-group" style="width: 50%;">
                                                                     <label for="email">Email</label>
