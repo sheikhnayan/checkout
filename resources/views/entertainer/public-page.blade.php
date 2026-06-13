@@ -4110,6 +4110,25 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-checkout-body.is-guest-mode .cv-sidebar { display: none !important; }
 .cv-checkout-body.is-guest-mode .cv-main-col { max-width: 100% !important; width: 100%; }
 .cv-checkout-body.is-guest-mode ~ * { width: 100%; }
+/* Bulletproof desktop layout: explicitly pin the two columns so the Order Summary
+   always sits in the right column (top row), regardless of any stray grid item or
+   auto-placement quirk. Scoped to desktop and to non-guest mode. */
+@media (min-width: 992px) {
+    #cv-checkout-layout:not(.is-guest-mode) {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) 440px !important;
+        align-items: start !important;
+    }
+    #cv-checkout-layout:not(.is-guest-mode) > .cv-main-col {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+        min-width: 0 !important;
+    }
+    #cv-checkout-layout:not(.is-guest-mode) > #cv-order-sidebar {
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+    }
+}
 .is-guest-mode {
     width: 100% !important;
     max-width: 100% !important;
@@ -4828,8 +4847,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
 @media (min-width: 992px) {
     .cv-main-col #cart-section,
-    .cv-main-col .pricing-shell { display: none !important; }
+    .cv-main-col .pricing-shell,
+    .cv-main-col #shareLinkContainer { display: none !important; }
 }
+
+/* Shareable link styled for the order-summary sidebar (it's moved there by JS) */
+#cv-order-sidebar #shareLinkContainer { margin-top:0; margin-bottom:10px; }
+#cv-order-sidebar #generateShareLink { font-size:12px; padding:6px 12px; border-radius:8px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); color:rgba(255,255,255,.7) !important; cursor:pointer; transition:all .15s; }
+#cv-order-sidebar #generateShareLink:hover { background:rgba(255,255,255,.11); }
 
 @media (max-width: 1199px) {
     .cv-checkout-body { grid-template-columns: minmax(0,1fr) 400px; gap: 20px; }
@@ -9600,12 +9625,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             stepsAnchor.parentNode.insertBefore(sidebar, stepsAnchor);
                         }
                     } else {
-                        if (sidebar.parentNode !== originalParent) {
-                            if (originalNext && originalNext.parentNode === originalParent) {
-                                originalParent.insertBefore(sidebar, originalNext);
-                            } else {
-                                originalParent.appendChild(sidebar);
-                            }
+                        // Desktop: the sidebar must live inside the checkout grid so it renders
+                        // in the right column. Force it back regardless of the captured parent.
+                        var grid = document.getElementById('cv-checkout-layout');
+                        if (grid && sidebar.parentNode !== grid) {
+                            grid.appendChild(sidebar);
                         }
                     }
                 }
@@ -9870,8 +9894,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                 var cartSection = document.getElementById('cart-section');
                 var pricingShell = document.querySelector('.pricing-shell');
+                var shareContainer = document.getElementById('shareLinkContainer');
                 if (cartSection) sidebarBody.appendChild(cartSection);
                 if (pricingShell) sidebarBody.appendChild(pricingShell);
+                if (shareContainer) sidebarBody.appendChild(shareContainer);
 
                 // Move the promo code section to AFTER the deposit box so it sits below the Due Today box.
                 var depositBox = document.getElementById('cv-deposit-box');
