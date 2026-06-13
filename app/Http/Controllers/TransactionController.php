@@ -430,11 +430,28 @@ class TransactionController extends Controller
 
         } else {
             # code...
-            $cardNumber = $request->input('card_number');
-            $date = \Carbon\Carbon::parse($request->input('card_month').'/'.$request->input('card_year'))->format('m/y');
-            // dd($date);
-            $expirationDate = $date;
-            $cvv = $request->input('card_cvv');
+            // Strip spaces/formatting so the gateway gets clean digits. The card
+            // number is space-grouped in the UI; the CVV has no input mask, so a
+            // stray space could otherwise slip through. Keep them as STRINGS — an
+            // int cast would drop a leading-zero CVV such as "012" -> 12.
+            $cardNumber = preg_replace('/\D/', '', (string) $request->input('card_number'));
+            // Build the expiration as YYYY-MM from the raw month/year digits. Do NOT
+            // use Carbon::parse("MM/YY") — it reads e.g. "06/28" as June 28 of the
+            // CURRENT year, so the YEAR comes out wrong. A wrong expiration makes the
+            // issuer's CVV2 check fail even when the customer's CVV is correct, because
+            // CVV2 is derived from card number + expiration + service code.
+            $expMonth = str_pad(preg_replace('/\D/', '', (string) $request->input('card_month')), 2, '0', STR_PAD_LEFT);
+            $expYear  = preg_replace('/\D/', '', (string) $request->input('card_year'));
+            if (strlen($expYear) === 2) {
+                $expYear = '20' . $expYear;
+            }
+            $expirationDate = (strlen($expYear) === 4 && (int) $expMonth >= 1 && (int) $expMonth <= 12)
+                ? ($expYear . '-' . $expMonth)
+                : null;
+            if (empty($expirationDate)) {
+                return back()->with('error', 'Invalid card expiration date. You have not been charged. Please re-check your card details and try again.');
+            }
+            $cvv = preg_replace('/\D/', '', (string) $request->input('card_cvv'));
 
             $w = Website::find($request->website_id);
 
