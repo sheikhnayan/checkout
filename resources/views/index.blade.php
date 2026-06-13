@@ -4774,8 +4774,14 @@ input[type="checkbox"],
 
 @media (min-width: 992px) {
     .cv-main-col #cart-section,
-    .cv-main-col .pricing-shell { display: none !important; }
+    .cv-main-col .pricing-shell,
+    .cv-main-col #shareLinkContainer { display: none !important; }
 }
+
+/* Shareable link styled for the order-summary sidebar (it's moved there by JS) */
+#cv-order-sidebar #shareLinkContainer { margin-top:0; margin-bottom:10px; }
+#cv-order-sidebar #generateShareLink { font-size:12px; padding:6px 12px; border-radius:8px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); color:rgba(255,255,255,.7) !important; cursor:pointer; transition:all .15s; }
+#cv-order-sidebar #generateShareLink:hover { background:rgba(255,255,255,.11); }
 
 @media (max-width: 1199px) {
     .cv-checkout-body { grid-template-columns: minmax(0,1fr) 400px; gap: 20px; }
@@ -9414,8 +9420,10 @@ input[type="checkbox"],
 
                 var cartSection = document.getElementById('cart-section');
                 var pricingShell = document.querySelector('.pricing-shell');
+                var shareContainer = document.getElementById('shareLinkContainer');
                 if (cartSection) sidebarBody.appendChild(cartSection);
                 if (pricingShell) sidebarBody.appendChild(pricingShell);
+                if (shareContainer) sidebarBody.appendChild(shareContainer);
 
                 // Move the promo code section to AFTER the deposit box so it sits below the Due Today box.
                 var depositBox = document.getElementById('cv-deposit-box');
