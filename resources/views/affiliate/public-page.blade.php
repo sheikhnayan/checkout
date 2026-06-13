@@ -6511,7 +6511,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 </p> --}}
                                                             </div>
 
-                                                            <input type="hidden" class="package_use_date" name="package_use_date" value="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('Y-m-d') }}">
+                                                            <input type="hidden" class="package_use_date" name="package_use_date" value="">
                                                             <input type="hidden" class="promo_code" name="promo_code">
                                                             <input type="hidden" class="discounted_amount" name="discounted_amount">
                                                             
