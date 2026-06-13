@@ -480,10 +480,10 @@ class TransactionController extends Controller
                             \Illuminate\Support\Facades\Mail::to($purchaserEmail)->send($send_mail_purchaser);
                         }
                     } catch (\Throwable $th) {
+                        // The transaction is already saved and the card already charged at this
+                        // point — a confirmation-email rendering/delivery problem must NOT bounce
+                        // the customer back to checkout (which risks a double charge). Log and continue.
                         report($th);
-                        throw ValidationException::withMessages([
-                            'email' => 'Email delivery failed: ' . $th->getMessage(),
-                        ]);
                     }
 
                     // ========== SEND SMS NOTIFICATION ==========

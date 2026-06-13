@@ -9888,8 +9888,8 @@ input[type="checkbox"],
         function initCountryCodePickersIndex() {
             const phoneFields = [
                 { name: 'package_phone' },
-                { name: 'reservation_phone' },
-                { name: 'transportation_phone' }
+                { name: 'reservation_phone' }
+                // Note: transportation_phone is excluded intentionally - it's a simple phone field for driver contact only
             ];
 
             phoneFields.forEach(field => {
