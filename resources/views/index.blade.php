@@ -6802,6 +6802,31 @@ input[type="checkbox"],
                         errorMessage = 'Please accept the Terms of Service.';
                     }
 
+                    // Require a valid country code selection on the reservation phone picker.
+                    // The picker's code box is a searchable text input; block submit if the user typed
+                    // search text without picking a country (or typed an invalid code).
+                    var __ccFields = form.querySelectorAll('.country-code-field');
+                    for (var __ci = 0; __ci < __ccFields.length; __ci++) {
+                        var __cc = __ccFields[__ci];
+                        if (__cc.offsetParent === null) continue;
+                        var __ccWrap = __cc.closest('.country-code-input');
+                        if (!__ccWrap) continue;
+                        var __opts = __ccWrap.querySelectorAll('.country-option');
+                        if (!__opts.length) continue; // fail-safe: nothing to validate against
+                        var __ccVal = (__cc.value || '').trim();
+                        var __ccOk = false;
+                        for (var __oi = 0; __oi < __opts.length; __oi++) {
+                            if ((__opts[__oi].getAttribute('data-flag') + ' ' + __opts[__oi].getAttribute('data-code')) === __ccVal) { __ccOk = true; break; }
+                        }
+                        if (!__ccOk) {
+                            __cc.style.borderColor = '#ff6b6b';
+                            hasError = true;
+                            errorMessage = 'Please select a valid country code from the list (search and click your country, or type the full +code in the phone box).';
+                            break;
+                        }
+                        __cc.style.borderColor = '';
+                    }
+
                     if (hasError) {
                         e.preventDefault();
                         e.stopPropagation();
