@@ -7361,6 +7361,20 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     setBusinessFieldsRequired(false);
                 }
             });
+
+            // Multi-step form safety: the instant "Complete Purchase" is clicked, drop `required`
+            // from any field that is currently hidden so native validation can never block
+            // submission with "An invalid form control is not focusable".
+            (function () {
+                var purchaseBtn = document.getElementById('submitBtn');
+                if (purchaseBtn) {
+                    purchaseBtn.addEventListener('click', function () {
+                        document.querySelectorAll('#payment-form [required]').forEach(function (el) {
+                            if (el.offsetParent === null) { el.removeAttribute('required'); }
+                        });
+                    }, true);
+                }
+            })();
         </script>
 
         <script>
