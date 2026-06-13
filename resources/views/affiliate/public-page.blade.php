@@ -10380,9 +10380,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 }
             });
         }
-        .guest .checkbox-container .consent-label {
-            align-items: center;
-        }
 
         function setupCountryCodePickerAffiliate(phoneInput, fieldName) {
             // Prevent double-wrapping if already initialized
