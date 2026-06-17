@@ -430,7 +430,7 @@
 
         .btn-primary {
             background: #0066cc;
-            color: white;
+            color: white !important;
         }
 
         .btn-primary:hover:not(:disabled) {
@@ -444,7 +444,7 @@
 
         .btn-secondary {
             background: #6b7280;
-            color: white;
+            color: white !important;
         }
 
         .loading {

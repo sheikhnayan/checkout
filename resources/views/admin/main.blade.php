@@ -473,6 +473,9 @@
       /* W-9 preview: solid black backdrop so the page behind isn't visible while it's open */
       body.w9-modal-open .modal-backdrop { opacity: 1 !important; background-color: #000 !important; }
 
+      /* Keep the W-9 modal title readable on the dark header (the injected form CSS forces text black) */
+      #w9Modal .modal-title { color: #fff !important; }
+
       .layout-menu .layout-menu-toggle.menu-link {
         display: none !important;
       }
