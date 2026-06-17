@@ -3,10 +3,24 @@
 @section('content')
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
-        <div class="card p-4">
+        <div class="card p-4 mb-4">
             <h4 class="mb-2">Promoter Wallet</h4>
-            <p><strong>Current Balance:</strong> ${{ number_format($affiliate->wallet_balance, 2) }}</p>
+            <p class="mb-0"><strong>Current Balance:</strong> ${{ number_format($affiliate->wallet_balance, 2) }}</p>
+        </div>
 
+        <div class="card p-4 mb-4">
+            <h5 class="mb-3">Transactions</h5>
+            @include('partials.transaction-table', [
+                'transactions'    => $bookingTransactions,
+                'tableId'         => 'affiliateWalletTransactionTable',
+                'detailsBase'     => url('/affiliate-portal/transaction'),
+                'commissionField' => 'affiliate',
+                'emptyText'       => 'No transactions yet.',
+            ])
+        </div>
+
+        <div class="card p-4">
+            <h5 class="mb-3">Wallet Activity</h5>
             <table class="table table-bordered">
                 <thead>
                     <tr>

@@ -438,6 +438,7 @@ Route::group(['prefix'=> 'affiliate-portal', 'as' => 'affiliate.portal.', 'middl
     Route::get('/settings', [AffiliatePortalController::class, 'settings'])->name('settings');
     Route::post('/settings', [AffiliatePortalController::class, 'updateSettings'])->name('settings.update');
     Route::get('/wallet', [AffiliatePortalController::class, 'wallet'])->name('wallet');
+    Route::get('/transaction/{id}/details', [TransactionController::class, 'portalDetails'])->name('transaction.details');
     // Withdraw
     Route::get('/withdraw', [WithdrawController::class, 'index'])->name('withdraw');
     Route::post('/withdraw/request', [WithdrawController::class, 'storeRequest'])->name('withdraw.request');
@@ -453,6 +454,7 @@ Route::group(['prefix'=> 'entertainer-portal', 'as' => 'entertainer.portal.', 'm
     Route::get('/settings', [EntertainerPortalController::class, 'settings'])->name('settings');
     Route::post('/settings', [EntertainerPortalController::class, 'updateSettings'])->name('settings.update');
     Route::get('/wallet', [EntertainerPortalController::class, 'wallet'])->name('wallet');
+    Route::get('/transaction/{id}/details', [TransactionController::class, 'portalDetails'])->name('transaction.details');
     // Withdraw
     Route::get('/withdraw', [WithdrawController::class, 'index'])->name('withdraw');
     Route::post('/withdraw/request', [WithdrawController::class, 'storeRequest'])->name('withdraw.request');

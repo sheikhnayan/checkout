@@ -1163,7 +1163,14 @@ class TransactionController extends Controller
             }
         }
 
-        // Format data for modal display
+        return response($this->buildDetailsHtml($transaction), 200, ['Content-Type' => 'text/html']);
+    }
+
+    /**
+     * Build the transaction details HTML (shared by the admin and portal detail modals).
+     */
+    private function buildDetailsHtml(Transaction $transaction): string
+    {
         $affiliateName = $transaction->affiliate ? ($transaction->affiliate->display_name ?: optional($transaction->affiliate->user)->name) : '';
         $entertainerName = $transaction->entertainer ? ($transaction->entertainer->display_name ?: optional($transaction->entertainer->user)->name) : '';
 
@@ -1276,7 +1283,25 @@ class TransactionController extends Controller
                     </div>
                 </div>';
 
-        return response($html, 200, ['Content-Type' => 'text/html']);
+        return $html;
+    }
+
+    /**
+     * Portal-facing transaction details — affiliate/entertainer may view only their own.
+     */
+    public function portalDetails($id)
+    {
+        $user = auth()->user();
+        $transaction = Transaction::with(['event', 'package', 'affiliate.user', 'entertainer.user'])->findOrFail($id);
+
+        $ownsViaAffiliate = $user && $user->affiliate && (int) $transaction->affiliate_id === (int) $user->affiliate->id;
+        $ownsViaEntertainer = $user && $user->entertainer && (int) $transaction->entertainer_id === (int) $user->entertainer->id;
+
+        if (!$ownsViaAffiliate && !$ownsViaEntertainer) {
+            abort(403, 'Access denied.');
+        }
+
+        return response($this->buildDetailsHtml($transaction), 200, ['Content-Type' => 'text/html']);
     }
 
     public function update($id, $status)

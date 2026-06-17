@@ -6,6 +6,7 @@ use App\Models\Affiliate;
 use App\Models\AffiliatePackage;
 use App\Models\AffiliateWebsite;
 use App\Models\Package;
+use App\Models\Transaction;
 use App\Models\Website;
 use App\Services\CommissionLifecycleRunner;
 use Illuminate\Http\Request;
@@ -273,7 +274,11 @@ class AffiliatePortalController extends Controller
 
         $affiliate = $this->getAffiliateOrAbort();
         $transactions = $affiliate->walletTransactions()->latest()->paginate(20);
+        $bookingTransactions = Transaction::where('affiliate_id', $affiliate->id)
+            ->with(['website', 'event', 'package'])
+            ->latest()
+            ->get();
 
-        return view('affiliate.wallet', compact('affiliate', 'transactions'));
+        return view('affiliate.wallet', compact('affiliate', 'transactions', 'bookingTransactions'));
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Entertainer;
 use App\Models\EntertainerPackage;
 use App\Models\Package;
+use App\Models\Transaction;
 use App\Services\CommissionLifecycleRunner;
 use Illuminate\Http\Request;
 
@@ -251,7 +252,11 @@ class EntertainerPortalController extends Controller
 
         $entertainer = $this->getEntertainerOrAbort();
         $transactions = $entertainer->walletTransactions()->latest()->paginate(20);
+        $bookingTransactions = Transaction::where('entertainer_id', $entertainer->id)
+            ->with(['website', 'event', 'package'])
+            ->latest()
+            ->get();
 
-        return view('entertainer.wallet', compact('entertainer', 'transactions'));
+        return view('entertainer.wallet', compact('entertainer', 'transactions', 'bookingTransactions'));
     }
 }
