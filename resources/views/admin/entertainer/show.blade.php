@@ -414,10 +414,15 @@ window.downloadTransactionPdf = function() {
 
 // Checkbox functionality
 document.addEventListener('DOMContentLoaded', function() {
-    // Reset the W-9 preview on close so its full-page styles don't leak into the page
+    // W-9 preview: black out the background while open, and reset on close so its
+    // full-page styles don't leak into the page.
     var w9ModalEl = document.getElementById('w9Modal');
     if (w9ModalEl) {
+        w9ModalEl.addEventListener('show.bs.modal', function() {
+            document.body.classList.add('w9-modal-open');
+        });
         w9ModalEl.addEventListener('hidden.bs.modal', function() {
+            document.body.classList.remove('w9-modal-open');
             var w9Body = document.getElementById('w9ModalBody');
             if (w9Body) {
                 w9Body.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';

@@ -467,6 +467,12 @@
         box-shadow: 0 10px 24px rgba(105, 108, 255, 0.28);
       }
 
+      /* Don't let the fixed mobile menu toggle overlap an open modal's close button */
+      body.modal-open .admin-mobile-menu-toggle { display: none !important; }
+
+      /* W-9 preview: solid black backdrop so the page behind isn't visible while it's open */
+      body.w9-modal-open .modal-backdrop { opacity: 1 !important; background-color: #000 !important; }
+
       .layout-menu .layout-menu-toggle.menu-link {
         display: none !important;
       }
