@@ -912,10 +912,24 @@ class TransactionController extends Controller
             }
         }
 
-        return $query
+        $transactions = $query
             ->with(['event', 'package', 'website', 'affiliate.user', 'entertainer.user'])
             ->latest()
             ->get();
+
+        // Attach the canonical, accurate price breakdown to each transaction so the
+        // package details modal can show the full charges / total breakdown.
+        $transactions->each(function ($transaction) {
+            try {
+                $transaction->price_breakdown = $transaction->website
+                    ? $this->buildPackagePriceBreakdown($transaction, $transaction->website)
+                    : null;
+            } catch (\Throwable $e) {
+                $transaction->price_breakdown = null;
+            }
+        });
+
+        return $transactions;
     }
 
     public function reservation_store($slug, Request $request)

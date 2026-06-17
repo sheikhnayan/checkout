@@ -718,7 +718,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td class="txn-pkg-name">
                                 <div style="font-size:0.85rem;font-weight:600;margin-bottom:8px;">{{ $venueName }}</div>
                                 @if($packageDetails->count() > 1)
-                                    <button type="button" class="btn btn-sm btn-link-package" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-cart-items='@json($cartItems)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' style="font-size:0.85rem;">{{ $packageDetails->count() }} Packages</button>
+                                    <button type="button" class="btn btn-sm btn-link-package" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-cart-items='@json($cartItems)' data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' style="font-size:0.85rem;">{{ $packageDetails->count() }} Packages</button>
                                 @else
                                     <div style="font-size:0.85rem;">{{ $packageDetailsText }}</div>
                                 @endif
@@ -2007,6 +2007,52 @@ body.modal-open .admin-mobile-menu-toggle {
                     html += '<div style="color:#e0e7ff;margin-bottom:6px;">👨 Males: <span style="font-weight:600;color:#fbbf24;">' + menCount + '</span></div>';
                     html += '<div style="color:#e0e7ff;margin-bottom:6px;">👩 Females: <span style="font-weight:600;color:#fbbf24;">' + womenCount + '</span></div>';
                     html += '<div style="color:#e0e7ff;border-top:1px solid rgba(255,255,255,0.1);padding-top:8px;margin-top:8px;font-weight:600;">Total: <span style="color:#fbbf24;">' + totalGuests + ' guests</span></div>';
+                    html += '</div>';
+                }
+
+                // Full price / purchase breakdown (server-computed, matches what the customer was charged)
+                var breakdown = $(this).data('breakdown');
+                if (breakdown && typeof breakdown === 'object') {
+                    var money = function(v){ var n = parseFloat(v); return '$' + (isNaN(n) ? 0 : n).toFixed(2); };
+                    var line = function(label, value, opts){
+                        opts = opts || {};
+                        var valColor = opts.color || '#e0e7ff';
+                        var weight = opts.weight || '500';
+                        var topBorder = opts.border ? 'border-top:1px solid rgba(255,255,255,0.15);margin-top:6px;padding-top:10px;' : '';
+                        var labelColor = opts.muted ? 'rgba(148,163,184,0.7)' : '#94a3b8';
+                        return '<div style="display:flex;justify-content:space-between;gap:16px;margin-bottom:8px;' + topBorder + '">'
+                            + '<span style="color:' + labelColor + ';">' + label + '</span>'
+                            + '<span style="color:' + valColor + ';font-weight:' + weight + ';white-space:nowrap;">' + value + '</span></div>';
+                    };
+
+                    html += '<h6 style="color:#e0e7ff;margin-top:20px;margin-bottom:12px;font-weight:700;"><i class="fas fa-receipt"></i> Price Breakdown</h6>';
+                    html += '<div style="background:#1e293b;border:1px solid rgba(255,255,255,0.1);padding:14px;border-radius:8px;">';
+
+                    html += line('Items Subtotal', money(breakdown.items_subtotal));
+                    if (parseFloat(breakdown.promo_discount) > 0) {
+                        html += line('Discount', '-' + money(breakdown.promo_discount), {color:'#34d399'});
+                    }
+                    if (breakdown.service_charge && breakdown.service_charge.enabled) {
+                        html += line(breakdown.service_charge.name || 'Service Charge', money(breakdown.service_charge.amount));
+                    }
+                    if (breakdown.gratuity && breakdown.gratuity.enabled) {
+                        html += line(breakdown.gratuity.name || 'Gratuity', money(breakdown.gratuity.amount));
+                    }
+                    if (breakdown.sales_tax && breakdown.sales_tax.enabled) {
+                        html += line(breakdown.sales_tax.name || 'Sales Tax', money(breakdown.sales_tax.amount));
+                    }
+                    if (breakdown.processing_fee && breakdown.processing_fee.enabled) {
+                        html += line('Processing Fee', money(breakdown.processing_fee.amount));
+                    }
+                    html += line('Grand Total', money(breakdown.grand_total), {color:'#fbbf24', weight:'700', border:true});
+                    if (breakdown.refundable && breakdown.refundable.enabled && parseFloat(breakdown.refundable.amount) > 0) {
+                        html += line((breakdown.refundable.name || 'Non-refundable Deposit') + ' (incl. in total)', money(breakdown.refundable.amount), {muted:true});
+                    }
+                    html += line('Amount Paid', money(breakdown.amount_paid_now), {color:'#34d399', weight:'600'});
+                    if (parseFloat(breakdown.remaining_due) > 0) {
+                        html += line('Remaining Due', money(breakdown.remaining_due), {color:'#ef4444', weight:'600'});
+                    }
+
                     html += '</div>';
                 }
 
