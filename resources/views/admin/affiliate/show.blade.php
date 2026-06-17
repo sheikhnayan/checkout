@@ -437,6 +437,30 @@ window.downloadTransactionPdf = function() {
 
 // Checkbox functionality
 document.addEventListener('DOMContentLoaded', function() {
+    // Make any column/cell in a transaction row open the details modal
+    const txnTable = document.getElementById('affiliateTransactionTable');
+    if (txnTable) {
+        txnTable.querySelectorAll('tbody tr[data-transaction-id]').forEach(r => r.style.cursor = 'pointer');
+        txnTable.addEventListener('click', function(e) {
+            if (e.target.closest('a, button, input, select, label, .dropdown')) return;
+            const row = e.target.closest('tr[data-transaction-id]');
+            if (!row) return;
+            const viewBtn = row.querySelector('button[data-bs-target="#transactionModal"]');
+            if (viewBtn) viewBtn.click();
+        });
+
+        // Preserve horizontal scroll position when the details modal opens/closes
+        const scrollBox = txnTable.closest('.table-responsive');
+        const detailsModal = document.getElementById('transactionModal');
+        if (scrollBox && detailsModal) {
+            let savedLeft = 0;
+            detailsModal.addEventListener('show.bs.modal', function() { savedLeft = scrollBox.scrollLeft; });
+            detailsModal.addEventListener('hidden.bs.modal', function() {
+                requestAnimationFrame(function() { scrollBox.scrollLeft = savedLeft; });
+            });
+        }
+    }
+
     const selectAllCheckbox = document.getElementById('selectAllTxn');
     const rowCheckboxes = document.querySelectorAll('.txn-row-check');
     const exportBtn = document.getElementById('exportSelectedBtn');

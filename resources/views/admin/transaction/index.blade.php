@@ -1713,7 +1713,33 @@ body.modal-open .admin-mobile-menu-toggle {
             }); // end document.ready
             </script>
 
+            <style>tr[data-row-id]{cursor:pointer;}</style>
             <script>
+            // Make any column/cell in a transaction row open the details modal
+            // (clicks on interactive controls keep their own behavior)
+            $(document).on('click', 'tr[data-row-id]', function(e) {
+                if ($(e.target).closest('a, button, input, select, label, .dropdown').length) return;
+                const rowViewBtn = this.querySelector('.view-btn');
+                if (rowViewBtn) rowViewBtn.click();
+            });
+
+            // Preserve the table's horizontal scroll position when the details modal
+            // opens/closes (Bootstrap returns focus to the far-right view button on close,
+            // which would otherwise scroll the table all the way to the right).
+            (function() {
+                const viewModal = document.getElementById('viewTransactionModal');
+                const scrollBox = document.querySelector('tr[data-row-id]')
+                    ? document.querySelector('tr[data-row-id]').closest('.table-responsive')
+                    : null;
+                if (viewModal && scrollBox) {
+                    let savedLeft = 0;
+                    viewModal.addEventListener('show.bs.modal', function() { savedLeft = scrollBox.scrollLeft; });
+                    viewModal.addEventListener('hidden.bs.modal', function() {
+                        requestAnimationFrame(function() { scrollBox.scrollLeft = savedLeft; });
+                    });
+                }
+            })();
+
             $(document).on('click', '.view-btn', function() {
                 const transactionId = $(this).data('id');
 
@@ -1733,7 +1759,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 $('#modal-package_men_guest').text($(this).data('men'));
                 $('#modal-package_women_guest').text($(this).data('women'));
 
-                $('#modal-transaction_id').text($(this).data('confirmation_id'));
+                $('#modal-transaction_id').text($(this).data('transaction_id'));
                 $('#modal-package_id').text($(this).data('package_id'));
                 $('#modal-package_first_name').text($(this).data('package_first_name'));
                 $('#modal-package_last_name').text($(this).data('package_last_name'));
