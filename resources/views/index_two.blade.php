@@ -5643,6 +5643,19 @@
                             <div class="cv-dstep" id="cv-dstep-3" data-step="3"><span class="cv-dstep-num">3</span><span>Select Package</span></div>
                             <div class="cv-dstep" id="cv-dstep-4" data-step="4"><span class="cv-dstep-num">4</span><span>Review &amp; Pay</span></div>
                         </div>
+                        @if ($data->reservation == 1)
+                        <style>
+                            #cv-checkout-steps-res { display: none; }
+                            .cv-desktop-steps-res { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+                            .cv-checkout-body.is-guest-mode #cv-checkout-steps { display: none !important; }
+                            .cv-checkout-body.is-guest-mode #cv-checkout-steps-res { display: grid !important; }
+                        </style>
+                        <div class="cv-desktop-steps cv-desktop-steps-res" id="cv-checkout-steps-res">
+                            <div class="cv-dstep is-active" id="cv-rstep-1" data-step="1"><span class="cv-dstep-num">1</span><span>Choose Date</span></div>
+                            <div class="cv-dstep" id="cv-rstep-2" data-step="2"><span class="cv-dstep-num">2</span><span>Your Details</span></div>
+                            <div class="cv-dstep" id="cv-rstep-3" data-step="3"><span class="cv-dstep-num">3</span><span>Submit</span></div>
+                        </div>
+                        @endif
 
                         @if ($data->reservation == 1)
                             <div class="cv-access-hint">Choose one to continue<span class="cv-access-hint-dot"></span></div>
@@ -10272,8 +10285,42 @@
                 else if (!accessDone) stepEls[1].classList.add('is-active');
                 else if (!cartDone) stepEls[2].classList.add('is-active');
                 else stepEls[3].classList.add('is-active');
+
+                if (typeof updateReservationSteps === 'function') updateReservationSteps();
             }
             window.updateCheckoutSteps = updateCheckoutSteps;
+
+            // Reservation (guest) flow has its own 3-step indicator: Choose Date -> Your Details -> Submit
+            function updateReservationSteps() {
+                var stepEls = [
+                    document.getElementById('cv-rstep-1'),
+                    document.getElementById('cv-rstep-2'),
+                    document.getElementById('cv-rstep-3')
+                ];
+                if (!stepEls[0]) return;
+
+                stepEls.forEach(function(s) {
+                    if (s) s.classList.remove('is-active', 'is-complete');
+                });
+
+                var dateInput = document.getElementById('package_use_date');
+                var dateDone = !!(dateInput && dateInput.value && dateInput.value.trim() !== '');
+
+                var form = document.querySelector('.guest form');
+                var detailsDone = !!form;
+                ['reservation_first_name', 'reservation_last_name', 'reservation_phone', 'reservation_email'].forEach(function(n) {
+                    var el = form && form.querySelector('[name="' + n + '"]');
+                    if (!el || !el.value || el.value.trim() === '') detailsDone = false;
+                });
+
+                if (dateDone) stepEls[0].classList.add('is-complete');
+                if (dateDone && detailsDone) stepEls[1].classList.add('is-complete');
+
+                if (!dateDone) stepEls[0].classList.add('is-active');
+                else if (!detailsDone) stepEls[1].classList.add('is-active');
+                else stepEls[2].classList.add('is-active');
+            }
+            window.updateReservationSteps = updateReservationSteps;
 
             function initCheckoutSteps() {
                 if (!document.getElementById('cv-dstep-1')) return;
@@ -10327,6 +10374,13 @@
                         updateCheckoutSteps();
                     }
                 });
+
+                var guestForm = document.querySelector('.guest form');
+                if (guestForm) {
+                    guestForm.addEventListener('input', updateReservationSteps);
+                    guestForm.addEventListener('change', updateReservationSteps);
+                }
+                updateReservationSteps();
             }
 
             /* ===== Map Button Handler ===== */
