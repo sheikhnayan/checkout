@@ -535,6 +535,27 @@
             }
         }
 
+        @media (max-width: 768px) {
+            body { padding: 8px !important; }
+            .page-wrapper { gap: 12px; }
+            .admin-header {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 12px !important;
+            }
+            .admin-status { flex-wrap: wrap; width: 100%; }
+            .action-buttons { flex-wrap: wrap; }
+            .form-document { padding: 16px !important; }
+            /* Stack every two-column grid so nothing overflows the viewport */
+            .tin-section,
+            .signature-section,
+            .id-photos-grid,
+            .form-header,
+            .form-document [style*="1fr 1fr"] {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
         @media print {
             .admin-header { display: none; }
             body { background: white; padding: 0; }
