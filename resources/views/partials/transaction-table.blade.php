@@ -125,7 +125,7 @@
                     @endphp
                     <tr data-transaction-id="{{ $transaction->id }}" data-date="{{ optional($transaction->created_at)->format('Y-m-d') }}">
                         <td><input type="checkbox" class="txn-row-check" value="{{ $transaction->id }}"></td>
-                        <td><strong>#{{ str_pad($transaction->id, 3, '0', STR_PAD_LEFT) }}</strong></td>
+                        <td><strong>{{ $transaction->transaction_id ?? 'N/A' }}</strong></td>
                         <td><small>{{ optional($transaction->created_at)->format('M d, Y') }}</small></td>
                         <td>
                             <div style="font-weight:600;margin-bottom:6px;">{{ optional($transaction->website)->name ?? 'N/A' }}</div>
