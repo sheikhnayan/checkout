@@ -1254,7 +1254,7 @@ class TransactionController extends Controller
 
         $source = 'Direct';
         if ($affiliateName) {
-            $source = 'affiliate - ' . $affiliateName;
+            $source = 'Promoter - ' . $affiliateName;
         } elseif ($entertainerName) {
             $source = 'Entertainer - ' . $entertainerName;
         }

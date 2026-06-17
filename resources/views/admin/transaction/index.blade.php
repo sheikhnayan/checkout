@@ -1839,7 +1839,7 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 var source = 'Direct';
                 if (affiliateName) {
-                    source = 'affiliate - ' + affiliateName;
+                    source = 'Promoter - ' + affiliateName;
                 } else if (entertainerName) {
                     source = 'Entertainer - ' + entertainerName;
                 }
