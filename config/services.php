@@ -69,4 +69,10 @@ return [
         'default_country_code' => env('TELNYX_DEFAULT_COUNTRY_CODE', '1'), // 1=US, 44=UK, 33=France, 52=Mexico, 61=Australia, 971=UAE, etc
     ],
 
+    'clublifter' => [
+        'key' => env('CLUBLIFTER_API_KEY'),
+        'base_url' => env('CLUBLIFTER_BASE_URL', 'https://www.clublifter.com'),
+        'enabled' => env('CLUBLIFTER_ENABLED', true),
+    ],
+
 ];

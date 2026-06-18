@@ -317,6 +317,9 @@ class TransactionController extends Controller
                     $add->save();
                     $this->incrementPromoUsage($validatedPromoCodeId);
                     $this->applyReferralCommission($request, $add, (float) ($cartSummary['commission_base_amount'] ?? 0));
+
+                    // ClubLifter: for package purchases that include transportation, send the booking to their API.
+                    $this->sendClubLifterScheduleAfterResponse($add);
     
                     try {
                         //code...
@@ -622,6 +625,9 @@ class TransactionController extends Controller
                     $add->save();
                     $this->incrementPromoUsage($validatedPromoCodeId);
                     $this->applyReferralCommission($request, $add, (float) ($cartSummary['commission_base_amount'] ?? 0));
+
+                    // ClubLifter: for package purchases that include transportation, send the booking to their API.
+                    $this->sendClubLifterScheduleAfterResponse($add);
     
                     try {
                         //code...
@@ -2698,6 +2704,170 @@ class TransactionController extends Controller
             'amount_paid_now' => round($amountPaidNow, 2),
             'remaining_due' => round($remainingDue, 2),
         ];
+    }
+
+    /**
+     * For a package transaction that includes transportation, send the booking to ClubLifter.
+     * Runs after the HTTP response so it never adds latency to or breaks the checkout flow.
+     */
+    private function sendClubLifterScheduleAfterResponse(Transaction $add): void
+    {
+        try {
+            $payload = $this->buildClubLifterSchedulePayload($add);
+            if (empty($payload)) {
+                return;
+            }
+
+            $txnId = $add->id;
+            app()->terminating(function () use ($payload, $txnId) {
+                try {
+                    $result = app(\App\Services\ClubLifterService::class)->schedule($payload);
+                    if (is_array($result) && ! empty($result['customer_id'])) {
+                        \Log::info('ClubLifter booking created', [
+                            'transaction_id' => $txnId,
+                            'clublifter_customer_id' => $result['customer_id'],
+                        ]);
+                    }
+                } catch (\Throwable $e) {
+                    \Log::warning('ClubLifter schedule (deferred) failed', [
+                        'transaction_id' => $txnId,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            });
+        } catch (\Throwable $e) {
+            \Log::warning('ClubLifter schedule build failed', ['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Build the ClubLifter /schedule payload from a package transaction.
+     * Returns null when the transaction is not an eligible transport package
+     * (so the caller skips the API call entirely).
+     */
+    private function buildClubLifterSchedulePayload(Transaction $add): ?array
+    {
+        if (($add->type ?? null) !== 'package') {
+            return null;
+        }
+
+        // Only transport packages (a pickup address was provided) go to /schedule.
+        $pickupAddress = trim((string) ($add->transportation_address ?? ''));
+        if ($pickupAddress === '') {
+            return null;
+        }
+
+        // pickup_datetime is required and must be exactly MM/DD/YYYY HH:MM AM/PM.
+        $pickupDateTime = $this->formatClubLifterDateTime($add->package_use_date, $add->transportation_pickup_time);
+        if ($pickupDateTime === null) {
+            return null;
+        }
+
+        $name = trim((string) ($add->package_first_name ?? '') . ' ' . (string) ($add->package_last_name ?? ''));
+        if ($name === '') {
+            $name = 'Guest';
+        }
+
+        $payload = [
+            'customer_name'   => $name,
+            'pickup_address'  => $pickupAddress,
+            'pickup_datetime' => $pickupDateTime,
+        ];
+
+        if (! empty($add->package_phone)) {
+            $payload['customer_phone'] = (string) $add->package_phone;
+        }
+
+        $extraPhones = [];
+        if (! empty($add->transportation_phone) && $add->transportation_phone !== $add->package_phone) {
+            $extraPhones[] = (string) $add->transportation_phone;
+        }
+        if (! empty($extraPhones)) {
+            $payload['extra_phones'] = $extraPhones;
+        }
+
+        $destination = $add->website_id ? optional(\App\Models\Website::find($add->website_id))->name : null;
+        if (! empty($destination)) {
+            $payload['destination'] = $destination;
+        }
+
+        $packageName = $this->resolveClubLifterPackageName($add);
+        if (! empty($packageName)) {
+            $payload['package'] = $packageName;
+        }
+
+        if (! empty($add->package_number_of_guest)) {
+            $payload['guests'] = (int) $add->package_number_of_guest;
+        }
+
+        $details = trim((string) ($add->transportation_note ?? ''));
+        if ($details === '') {
+            $details = trim((string) ($add->package_note ?? ''));
+        }
+        if ($details !== '') {
+            $payload['details'] = $details;
+        }
+
+        return $payload;
+    }
+
+    /** Format a date + time string into ClubLifter's required MM/DD/YYYY HH:MM AM/PM. */
+    private function formatClubLifterDateTime($date, $time): ?string
+    {
+        if (empty($date)) {
+            return null;
+        }
+
+        try {
+            $dt = $date instanceof \Carbon\Carbon ? $date->copy() : \Carbon\Carbon::parse((string) $date);
+
+            $timeStr = trim((string) $time);
+            if ($timeStr !== '') {
+                try {
+                    $t = \Carbon\Carbon::parse($timeStr);
+                    $dt->setTime((int) $t->format('H'), (int) $t->format('i'), 0);
+                } catch (\Throwable $e) {
+                    // Keep the date's existing time if the pickup time can't be parsed.
+                }
+            }
+
+            return $dt->format('m/d/Y h:i A');
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    /** Resolve a human package name to send to ClubLifter (cart items first, then fallbacks). */
+    private function resolveClubLifterPackageName(Transaction $add): ?string
+    {
+        try {
+            $items = $this->normalizeStoredCartItems($add->cart_items);
+            $names = [];
+            foreach ($items as $item) {
+                $n = trim((string) ($item['package_name'] ?? ''));
+                if ($n !== '') {
+                    $names[] = $n;
+                }
+            }
+            if (! empty($names)) {
+                return implode(', ', array_values(array_unique($names)));
+            }
+        } catch (\Throwable $e) {
+            // fall through to fallbacks
+        }
+
+        if (! empty($add->package_table_label)) {
+            return (string) $add->package_table_label;
+        }
+
+        if (! empty($add->package_id)) {
+            $package = \App\Models\Package::find($add->package_id);
+            if ($package && ! empty($package->name)) {
+                return (string) $package->name;
+            }
+        }
+
+        return null;
     }
 
     private function normalizeStoredCartItems($rawCartItems): array
