@@ -6701,7 +6701,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                     <div class="cv-sidebar-venue-row" style="border-bottom:none; padding-bottom:0; margin-bottom:14px;">
                         <div style="flex:1; min-width:0;">
-                            <div class="cv-sidebar-venue-name">{{ $data->name }}</div>
+                            <div class="cv-sidebar-venue-name"></div>
                             <div class="cv-sidebar-venue-date" id="cv-sidebar-date">
                                 <i class="fas fa-calendar-alt" style="margin-right:4px;opacity:.6;"></i>Select a date above
                             </div>
@@ -9962,6 +9962,17 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 function filterPackages() {
                     var locationId = String(locationFilter.value || '').trim();
                     console.log('Filter called with locationId:', locationId);
+
+                    // Order summary venue name follows the selected club (empty until one is chosen)
+                    var venueNameEl = document.querySelector('.cv-sidebar-venue-name');
+                    if (venueNameEl) {
+                        if (!locationId) {
+                            venueNameEl.textContent = '';
+                        } else {
+                            var clubCard = document.querySelector('[id^="pkg-card-"][data-club-id="' + locationId + '"]');
+                            venueNameEl.textContent = clubCard ? (clubCard.getAttribute('data-club-name') || '') : '';
+                        }
+                    }
                     var packageHeader = document.querySelector('.ent-package-header-gated');
 
                     if (!locationId) {
