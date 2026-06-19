@@ -10060,12 +10060,13 @@ input[type="checkbox"],
             wrapper.appendChild(countryCodeDiv);
             wrapper.appendChild(phoneInput);
 
-            countryCodeInput.addEventListener('focus', () => {
+            countryCodeInput.addEventListener('click', () => {
                 dropdown.classList.add('active');
                 countryCodeInput.select();
             });
 
             countryCodeInput.addEventListener('input', (e) => {
+                dropdown.classList.add('active');
                 const searchValue = e.target.value.toLowerCase();
                 const options = dropdown.querySelectorAll('.country-option');
                 options.forEach(option => {
