@@ -10963,4 +10963,39 @@
         </script>
 
 
+    <script>
+    (function () {
+        // Checkout UX: Enter advances to the next field instead of submitting the form.
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Enter' && e.keyCode !== 13) return;
+            if (e.defaultPrevented) return; // a field-specific handler already dealt with Enter
+            var el = e.target;
+            if (!el) return;
+            var tag = (el.tagName || '').toLowerCase();
+            var type = ((el.getAttribute && el.getAttribute('type')) || '').toLowerCase();
+            if (tag === 'textarea' || tag === 'button' || tag === 'a') return; // keep normal behavior
+            if (type === 'submit' || type === 'button') return;
+            var form = el.form || (el.closest ? el.closest('form') : null);
+            if (!form) return; // only intercept fields inside a form
+
+            e.preventDefault(); // stop the implicit form submission
+
+            var fields = Array.prototype.filter.call(
+                form.querySelectorAll('input, select, textarea, button'),
+                function (node) {
+                    if (node.disabled || node.type === 'hidden' || node.tabIndex === -1) return false;
+                    return node.offsetParent !== null || node.getClientRects().length > 0;
+                }
+            );
+            var idx = fields.indexOf(el);
+            if (idx > -1 && idx < fields.length - 1) {
+                var next = fields[idx + 1];
+                next.focus();
+                if (typeof next.select === 'function') { try { next.select(); } catch (err) {} }
+            } else if (typeof el.blur === 'function') {
+                el.blur();
+            }
+        });
+    })();
+    </script>
     </html>
