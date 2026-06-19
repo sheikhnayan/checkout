@@ -10505,6 +10505,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 countryCodeInput.select();
             });
 
+            // Close the list whenever focus leaves the field (tab / enter / click away),
+            // but not when the blur is caused by clicking an option inside the list.
+            dropdown.addEventListener('mousedown', () => { dropdown.dataset.keepOpen = '1'; });
+            countryCodeInput.addEventListener('blur', () => {
+                if (dropdown.dataset.keepOpen === '1') { dropdown.dataset.keepOpen = ''; return; }
+                dropdown.classList.remove('active');
+            });
+
             countryCodeInput.addEventListener('input', (e) => {
                 dropdown.classList.add('active');
                 const searchValue = e.target.value.toLowerCase();
