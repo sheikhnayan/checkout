@@ -33,44 +33,114 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        $credentials = $request->only('email', 'password');
-        
-        if (Auth::attempt($credentials, $request->filled('remember'))) {
-            $request->session()->regenerate();
+        $email = $request->input('email');
+        $password = $request->input('password');
+        $remember = $request->filled('remember');
 
-            $user = Auth::user();
-            if ($user && $user->isAffiliate()) {
-                $affiliate = $user->affiliate;
-                if (!$affiliate || $affiliate->status !== 'approved' || !$affiliate->is_active) {
-                    Auth::logout();
-                    $request->session()->invalidate();
-                    $request->session()->regenerateToken();
+        // An email may now belong to more than one website-admin account.
+        $users = User::where('email', $email)->get();
+        $matching = $users->filter(function ($u) use ($password) {
+            return !empty($u->password) && Hash::check($password, $u->password);
+        })->values();
 
-                    return back()->withErrors([
-                        'email' => 'Your promoter application is still under review. We will notify you once approved.',
-                    ])->onlyInput('email');
-                }
-            }
-
-            if ($user && $user->isEntertainer()) {
-                $entertainer = $user->entertainer;
-                if (!$entertainer || $entertainer->status !== 'approved' || !$entertainer->is_active) {
-                    Auth::logout();
-                    $request->session()->invalidate();
-                    $request->session()->regenerateToken();
-
-                    return back()->withErrors([
-                        'email' => 'Your entertainer application is still under review. We will notify you once approved.',
-                    ])->onlyInput('email');
-                }
-            }
-
-            return $this->redirectByUserType($user);
+        if ($matching->isEmpty()) {
+            return back()->withErrors([
+                'email' => 'The provided credentials do not match our records.',
+            ])->onlyInput('email');
         }
 
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->onlyInput('email');
+        // If this email administers multiple websites, let them choose which one to manage.
+        $websiteAdmins = $matching->where('user_type', 'website_user')->values();
+        if ($websiteAdmins->count() > 1) {
+            $request->session()->put('login_select', [
+                'ids' => $websiteAdmins->pluck('id')->map(fn ($v) => (int) $v)->all(),
+                'remember' => $remember,
+            ]);
+            return redirect()->route('login.select-website');
+        }
+
+        return $this->completeLogin($request, $matching->first(), $remember);
+    }
+
+    /**
+     * Finish logging in a chosen user (shared by the direct and website-selection paths).
+     */
+    private function completeLogin(Request $request, User $user, bool $remember)
+    {
+        Auth::login($user, $remember);
+        $request->session()->regenerate();
+
+        if ($user->isAffiliate()) {
+            $affiliate = $user->affiliate;
+            if (!$affiliate || $affiliate->status !== 'approved' || !$affiliate->is_active) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()->withErrors([
+                    'email' => 'Your promoter application is still under review. We will notify you once approved.',
+                ])->onlyInput('email');
+            }
+        }
+
+        if ($user->isEntertainer()) {
+            $entertainer = $user->entertainer;
+            if (!$entertainer || $entertainer->status !== 'approved' || !$entertainer->is_active) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()->withErrors([
+                    'email' => 'Your entertainer application is still under review. We will notify you once approved.',
+                ])->onlyInput('email');
+            }
+        }
+
+        return $this->redirectByUserType($user);
+    }
+
+    /**
+     * Show the "which website do you want to manage?" selection after a verified login.
+     */
+    public function showWebsiteSelect(Request $request)
+    {
+        $select = $request->session()->get('login_select');
+        if (empty($select['ids'])) {
+            return redirect()->route('login');
+        }
+
+        $accounts = User::whereIn('id', $select['ids'])->with('website')->get();
+        if ($accounts->count() < 2) {
+            $request->session()->forget('login_select');
+            return redirect()->route('login');
+        }
+
+        return view('auth.select-website', ['accounts' => $accounts]);
+    }
+
+    /**
+     * Log the user in as the chosen website-admin account.
+     */
+    public function selectWebsite(Request $request)
+    {
+        $request->validate(['user_id' => 'required|integer']);
+
+        $select = $request->session()->get('login_select');
+        $allowed = array_map('intval', $select['ids'] ?? []);
+
+        if (empty($allowed) || !in_array((int) $request->input('user_id'), $allowed, true)) {
+            return redirect()->route('login')->withErrors([
+                'email' => 'Your session expired. Please log in again.',
+            ]);
+        }
+
+        $user = User::find($request->input('user_id'));
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $request->session()->forget('login_select');
+        return $this->completeLogin($request, $user, !empty($select['remember']));
     }
 
     /**
@@ -126,10 +196,13 @@ class AuthController extends Controller
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function (User $user, string $password) {
+                $hash = Hash::make($password);
                 $user->forceFill([
-                    'password' => Hash::make($password),
+                    'password' => $hash,
                     'remember_token' => Str::random(60),
                 ])->save();
+                // Keep every website-admin row that shares this email in sync.
+                User::where('email', $user->email)->where('id', '!=', $user->id)->update(['password' => $hash]);
             }
         );
 

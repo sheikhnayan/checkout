@@ -126,6 +126,39 @@ class WebsiteController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+    /**
+     * Live check for the website-admin email field:
+     *   blocked = used by another account type (affiliate/entertainer/etc.)
+     *   reuse   = already a website admin elsewhere -> reuse their password (hide password field)
+     *   new     = not used -> a password is required
+     */
+    public function checkAdminEmail(Request $request)
+    {
+        $email = trim((string) $request->query('email', ''));
+        if ($email === '') {
+            return response()->json(['status' => 'new']);
+        }
+
+        if (User::where('email', $email)->where('user_type', '!=', 'website_user')->exists()) {
+            return response()->json([
+                'status' => 'blocked',
+                'message' => 'This email is already registered to another account type and cannot be used as a website admin.',
+            ]);
+        }
+
+        $excludeWebsiteId = $request->query('website_id');
+        $admin = User::where('email', $email)
+            ->where('user_type', 'website_user')
+            ->when($excludeWebsiteId, fn ($q) => $q->where('website_id', '!=', $excludeWebsiteId))
+            ->first();
+
+        if ($admin) {
+            return response()->json(['status' => 'reuse', 'name' => $admin->name]);
+        }
+
+        return response()->json(['status' => 'new']);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -141,8 +174,8 @@ class WebsiteController extends Controller
             'guest_tab_subtitle' => 'nullable|string|max:120',
             'package_tab_subtitle' => 'nullable|string|max:120',
             'website_admin_name' => 'required|string|max:255',
-            'website_admin_email' => 'required|email|max:255|unique:users,email',
-            'website_admin_password' => 'required|string|min:8|confirmed',
+            'website_admin_email' => 'required|email|max:255',
+            'website_admin_password' => 'nullable|string|min:8|confirmed',
             'payment_methods' => 'nullable|array',
             'payment_methods.*' => 'in:visa,mastercard,amex,google_pay,apple_pay',
             'operating_days' => 'nullable|array',
@@ -150,6 +183,22 @@ class WebsiteController extends Controller
             'operating_start_time' => 'nullable|date_format:H:i',
             'operating_end_time' => 'nullable|date_format:H:i',
         ]);
+
+        // Website admins (user_type = website_user) may reuse an email across websites; block
+        // emails already used by any other account type, and reuse the existing password hash.
+        $adminEmail = $request->website_admin_email;
+        if (User::where('email', $adminEmail)->where('user_type', '!=', 'website_user')->exists()) {
+            return back()->withInput()->withErrors([
+                'website_admin_email' => 'This email is already registered to another account type and cannot be used as a website admin.',
+            ]);
+        }
+        $existingWebsiteAdmin = User::where('email', $adminEmail)->where('user_type', 'website_user')->first();
+        if (!$existingWebsiteAdmin && !$request->filled('website_admin_password')) {
+            return back()->withInput()->withErrors([
+                'website_admin_password' => 'A password is required for a new website admin.',
+            ]);
+        }
+        $adminPasswordHash = $existingWebsiteAdmin ? $existingWebsiteAdmin->password : Hash::make($request->website_admin_password);
 
         Permission::syncFromAdminRoutes();
 
@@ -293,7 +342,7 @@ class WebsiteController extends Controller
         User::create([
             'name' => $request->website_admin_name,
             'email' => $request->website_admin_email,
-            'password' => Hash::make($request->website_admin_password),
+            'password' => $adminPasswordHash,
             'website_id' => $add->id,
             'website_role_id' => $websiteAdminRole->id,
             'user_type' => 'website_user',
@@ -384,12 +433,7 @@ class WebsiteController extends Controller
 
         $request->validate([
             'website_admin_name' => 'required|string|max:255',
-            'website_admin_email' => [
-                'required',
-                'email',
-                'max:255',
-                Rule::unique('users', 'email')->ignore(optional($websiteAdminUser)->id),
-            ],
+            'website_admin_email' => 'required|email|max:255',
             'website_admin_password' => 'nullable|string|min:8|confirmed',
             'google_analytics_id' => 'nullable|string|max:64|regex:/^[A-Za-z0-9_-]+$/',
             'hero_badge_1_label' => 'nullable|string|max:80',
@@ -554,14 +598,40 @@ class WebsiteController extends Controller
             $email->save();
         }
 
+        $adminEmail = $request->website_admin_email;
+
+        // Block emails already used by any other account type.
+        if (User::where('email', $adminEmail)
+                ->where('user_type', '!=', 'website_user')
+                ->when($websiteAdminUser, fn ($q) => $q->where('id', '!=', $websiteAdminUser->id))
+                ->exists()) {
+            return back()->withInput()->withErrors([
+                'website_admin_email' => 'This email is already registered to another account type and cannot be used as a website admin.',
+            ]);
+        }
+
+        // A website admin with this email on another website shares the same password.
+        $sharedWebsiteAdmin = User::where('email', $adminEmail)
+            ->where('user_type', 'website_user')
+            ->when($websiteAdminUser, fn ($q) => $q->where('id', '!=', $websiteAdminUser->id))
+            ->first();
+
         if ($websiteAdminUser) {
             $websiteAdminUser->name = $request->website_admin_name;
-            $websiteAdminUser->email = $request->website_admin_email;
-            if ($request->filled('website_admin_password')) {
+            $websiteAdminUser->email = $adminEmail;
+            if ($sharedWebsiteAdmin) {
+                $websiteAdminUser->password = $sharedWebsiteAdmin->password; // align to the shared password
+            } elseif ($request->filled('website_admin_password')) {
                 $websiteAdminUser->password = Hash::make($request->website_admin_password);
             }
             $websiteAdminUser->save();
         } else {
+            if (!$sharedWebsiteAdmin && !$request->filled('website_admin_password')) {
+                return back()->withInput()->withErrors([
+                    'website_admin_password' => 'A password is required for a new website admin.',
+                ]);
+            }
+
             $websiteAdminRole = WebsiteRole::where('website_id', $add->id)
                 ->where('is_website_admin', true)
                 ->orderBy('id')
@@ -569,8 +639,8 @@ class WebsiteController extends Controller
 
             User::create([
                 'name' => $request->website_admin_name,
-                'email' => $request->website_admin_email,
-                'password' => Hash::make($request->website_admin_password ?: str()->random(16)),
+                'email' => $adminEmail,
+                'password' => $sharedWebsiteAdmin ? $sharedWebsiteAdmin->password : Hash::make($request->website_admin_password),
                 'website_id' => $add->id,
                 'website_role_id' => optional($websiteAdminRole)->id,
                 'user_type' => 'website_user',

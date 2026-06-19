@@ -927,6 +927,57 @@
                     $(previewSel).attr('class', 'fas ' + val);
                 }
             });
+
+            // If the admin email belongs to a website admin on another website, hide the password
+            // fields (they keep their existing password). If used by another account type, warn.
+            (function initWebsiteAdminEmailCheck() {
+                var emailInput = document.getElementById('website_admin_email');
+                var passInput = document.getElementById('website_admin_password');
+                var confirmInput = document.getElementById('website_admin_password_confirmation');
+                if (!emailInput || !passInput || !confirmInput) return;
+
+                var passCol = passInput.closest('.col-md-6');
+                var confirmCol = confirmInput.closest('.col-md-6');
+                var checkUrl = "{{ route('admin.website.check-admin-email') }}";
+                var websiteId = "{{ $data->id }}";
+                var debounce;
+
+                var note = document.createElement('small');
+                note.id = 'website_admin_email_note';
+                note.style.display = 'none';
+                note.style.marginTop = '4px';
+                emailInput.parentNode.appendChild(note);
+
+                function showFields(show) {
+                    if (passCol) passCol.style.display = show ? '' : 'none';
+                    if (confirmCol) confirmCol.style.display = show ? '' : 'none';
+                }
+                function apply(status, name) {
+                    if (status === 'reuse') {
+                        passInput.value = ''; confirmInput.value = '';
+                        showFields(false);
+                        note.style.display = 'block'; note.style.color = '#16a34a';
+                        note.textContent = 'Existing admin' + (name ? ' (' + name + ')' : '') + ' — they will sign in with their current password.';
+                    } else if (status === 'blocked') {
+                        showFields(true);
+                        note.style.display = 'block'; note.style.color = '#dc2626';
+                        note.textContent = 'This email is already registered to another account type and cannot be used as a website admin.';
+                    } else {
+                        showFields(true);
+                        note.style.display = 'none'; note.textContent = '';
+                    }
+                }
+                function check() {
+                    var email = (emailInput.value || '').trim();
+                    if (!email || email.indexOf('@') === -1) { apply('new'); return; }
+                    fetch(checkUrl + '?email=' + encodeURIComponent(email) + '&website_id=' + encodeURIComponent(websiteId), { headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }, credentials: 'same-origin' })
+                        .then(function (r) { return r.json(); })
+                        .then(function (d) { apply(d && d.status ? d.status : 'new', d ? d.name : null); })
+                        .catch(function () {});
+                }
+                emailInput.addEventListener('input', function () { clearTimeout(debounce); debounce = setTimeout(check, 400); });
+                emailInput.addEventListener('blur', check);
+            })();
             </script>
 @endsection
 

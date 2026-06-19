@@ -29,8 +29,11 @@ class ProfileController extends Controller
         ]);
 
         $user = Auth::user();
-        $user->password = Hash::make($request->password);
+        $hash = Hash::make($request->password);
+        $user->password = $hash;
         $user->save();
+        // Keep every website-admin row that shares this email in sync (one email may manage several websites).
+        \App\Models\User::where('email', $user->email)->where('id', '!=', $user->id)->update(['password' => $hash]);
 
         return redirect()->back()->with('success', 'Password updated successfully!');
     }

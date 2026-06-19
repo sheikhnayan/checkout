@@ -44,6 +44,8 @@ use App\Http\Controllers\ReportController;
 // Authentication Routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/login/select-website', [AuthController::class, 'showWebsiteSelect'])->name('login.select-website');
+Route::post('/login/select-website', [AuthController::class, 'selectWebsite'])->name('login.select-website.submit');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/logout', [AuthController::class, 'logout']);
 Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
@@ -193,6 +195,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
 
     Route::group(['prefix'=> 'website', 'as' => 'website.'], function () {
         Route::get('/', [WebsiteController::class,'index'])->name('index');
+        Route::get('/check-admin-email', [WebsiteController::class,'checkAdminEmail'])->name('check-admin-email');
         Route::post('/archive/{id}', [WebsiteController::class,'archive'])->name('archive');
         Route::post('/unarchive/{id}', [WebsiteController::class,'unarchive'])->name('unarchive');
         Route::post('/toggle-status/{id}', [WebsiteController::class,'toggleStatus'])->name('toggle-status');
