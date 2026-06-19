@@ -8800,7 +8800,12 @@
                                 addons: Array.isArray(res) ? res : []
                             };
 
-                            openAddonSelectionModal(window.pendingPackageSelection);
+                            // No add-ons to offer: add the package straight to the cart (skip the modal).
+                            if ((window.pendingPackageSelection.addons || []).length === 0) {
+                                $('#addonModalNoAddonsBtn').trigger('click');
+                            } else {
+                                openAddonSelectionModal(window.pendingPackageSelection);
+                            }
                         }
                     });
                 });
