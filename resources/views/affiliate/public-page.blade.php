@@ -10774,6 +10774,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         }
 
         function submitCheckoutAjax(form) {
+            // Show the same processing loader used by the package checkout (covers the reservation form too).
+            if (typeof showCheckoutProcessingOverlay === 'function') { try { showCheckoutProcessingOverlay(); } catch (e) {} }
             // Retries append a fresh Stripe token each time; only send the latest.
             var tokens = form.querySelectorAll('input[name="stripeToken"]');
             for (var i = 0; i < tokens.length - 1; i++) {
