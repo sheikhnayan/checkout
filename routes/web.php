@@ -176,10 +176,12 @@ Route::get('/{slug}/auto-discounts', [FrontendController::class, 'autoDiscounts'
 
 Route::get('/{slug}/package/{packageId}/capacity', [FrontendController::class, 'checkPackageCapacity'])->name('package.capacity');
 
-Route::post('/{slug}/checkout/store', [TransactionController::class, 'store'])->name('checkout.store');
+Route::post('/{slug}/checkout/store', [TransactionController::class, 'store'])
+    ->middleware(\App\Http\Middleware\CheckoutAjaxResponse::class)
+    ->name('checkout.store');
 
 Route::post('/{slug}/reservation/store', [TransactionController::class, 'reservation_store'])
-    ->middleware(['throttle:10,60', \App\Http\Middleware\HandleThrottleResponse::class])
+    ->middleware([\App\Http\Middleware\CheckoutAjaxResponse::class, 'throttle:10,60', \App\Http\Middleware\HandleThrottleResponse::class])
     ->name('reservations.store');
 
 // Cart sharing routes

@@ -10727,6 +10727,91 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
     <script>
     (function () {
+        // AJAX checkout/reservation submit: on a server error keep the page state and show
+        // the same notification (no reload); on success navigate to thank-you as usual.
+        function isCheckoutForm(form) {
+            var a = (form.getAttribute('action') || '');
+            return a.indexOf('/checkout/store') !== -1
+                || a.indexOf('/reservation/store') !== -1
+                || a.indexOf('/reservations/store') !== -1;
+        }
+
+        function restoreButtons() {
+            try { if (typeof hideCheckoutProcessingOverlay === 'function') hideCheckoutProcessingOverlay(); } catch (e) {}
+            var overlay = document.getElementById('checkout-processing-overlay');
+            if (overlay) { overlay.classList.remove('is-visible'); overlay.setAttribute('aria-hidden', 'true'); }
+            ['submitBtn', 'submitBtn_two'].forEach(function (id) {
+                var b = document.getElementById(id);
+                if (b) {
+                    b.disabled = false;
+                    if (b.dataset && b.dataset.defaultText) { b.textContent = b.dataset.defaultText; }
+                }
+            });
+        }
+
+        function showCheckoutError(message) {
+            restoreButtons();
+            var prev = document.getElementById('cv-ajax-error-alert');
+            if (prev && prev.parentNode) prev.parentNode.removeChild(prev);
+            var alertEl = document.createElement('div');
+            alertEl.className = 'alert alert-danger';
+            alertEl.setAttribute('role', 'alert');
+            alertEl.id = 'cv-ajax-error-alert';
+            alertEl.textContent = message || 'Something went wrong. Please try again.';
+            var container = document.querySelector('header .container') || document.body;
+            container.insertBefore(alertEl, container.firstChild);
+            try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); }
+        }
+
+        function extractError(json) {
+            if (!json) return null;
+            if (json.error) return json.error;
+            if (json.errors && typeof json.errors === 'object') {
+                var keys = Object.keys(json.errors);
+                if (keys.length) { var v = json.errors[keys[0]]; return Array.isArray(v) ? v[0] : v; }
+            }
+            return json.message || null;
+        }
+
+        function submitCheckoutAjax(form) {
+            // Retries append a fresh Stripe token each time; only send the latest.
+            var tokens = form.querySelectorAll('input[name="stripeToken"]');
+            for (var i = 0; i < tokens.length - 1; i++) {
+                if (tokens[i].parentNode) tokens[i].parentNode.removeChild(tokens[i]);
+            }
+            fetch(form.getAttribute('action'), {
+                method: 'POST',
+                body: new FormData(form),
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                credentials: 'same-origin'
+            }).then(function (res) {
+                return res.text().then(function (t) { try { return JSON.parse(t); } catch (e) { return null; } });
+            }).then(function (json) {
+                if (json && json.success && json.redirect) { window.location.href = json.redirect; return; }
+                showCheckoutError(extractError(json));
+            }).catch(function () {
+                showCheckoutError('Network error. Please check your connection and try again.');
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            Array.prototype.forEach.call(document.querySelectorAll('form'), function (form) {
+                if (!isCheckoutForm(form)) return;
+                // Programmatic submits (Stripe + reservation call form.submit() after their checks).
+                form.submit = function () { submitCheckoutAjax(form); };
+                // Native submits that passed every existing validation handler (e.g. Authorize.Net).
+                form.addEventListener('submit', function (e) {
+                    if (e.defaultPrevented) return; // an existing handler is already handling it
+                    e.preventDefault();
+                    submitCheckoutAjax(form);
+                });
+            });
+        });
+    })();
+    </script>
+
+    <script>
+    (function () {
         // Checkout UX: Enter advances to the next field instead of submitting the form.
         document.addEventListener('keydown', function (e) {
             if (e.key !== 'Enter' && e.keyCode !== 13) return;
