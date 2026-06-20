@@ -33,16 +33,15 @@ class CustomInvoiceController extends Controller
                                     })
                                     ->latest()
                                     ->get();
-        } elseif ($user->isWebsiteUser() && $user->website_id) {
-            $invoices = CustomInvoice::where('website_id', $user->website_id)
+        } else {
+            // Non-admins are scoped to the website(s) they can access (manager → allocated sites).
+            $invoices = CustomInvoice::whereIn('website_id', $this->currentAccessibleWebsiteIds())
                                     ->when(!$includeArchived, function ($query) {
                                         $query->whereNull('archived_at');
                                     })
                                     ->with(['items'])
                                     ->latest()
                                     ->get();
-        } else {
-            $invoices = collect();
         }
 
         return view('admin.custom-invoice.index', compact('invoices', 'includeArchived'));
@@ -55,10 +54,11 @@ class CustomInvoiceController extends Controller
     {
         $user = auth()->user();
         
-        if ($user->isWebsiteUser()) {
-            $websites = Website::where('id', $user->website_id)->get();
-        } else {
+        if ($user->isAdmin()) {
             $websites = Website::all();
+        } else {
+            // Non-admins are scoped to the website(s) they can access (manager → allocated sites).
+            $websites = Website::whereIn('id', $this->currentAccessibleWebsiteIds())->get();
         }
 
         return view('admin.custom-invoice.create', compact('websites'));
@@ -83,9 +83,7 @@ class CustomInvoiceController extends Controller
         ]);
 
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $request->website_id != $user->website_id) {
-            abort(403, 'Unauthorized');
-        }
+        $this->authorizeWebsiteAccess($request->website_id, 'Unauthorized');
 
         $invoice = new CustomInvoice();
         $invoice->user_id = $user->id;
@@ -143,9 +141,7 @@ class CustomInvoiceController extends Controller
     {
         $user = auth()->user();
         
-        if ($user->isWebsiteUser() && $customInvoice->website_id != $user->website_id) {
-            abort(403, 'Unauthorized');
-        }
+        $this->authorizeWebsiteAccess($customInvoice->website_id, 'Unauthorized');
 
         return view('admin.custom-invoice.show', compact('customInvoice'));
     }
@@ -157,9 +153,7 @@ class CustomInvoiceController extends Controller
     {
         $user = auth()->user();
         
-        if ($user->isWebsiteUser() && $customInvoice->website_id != $user->website_id) {
-            abort(403, 'Unauthorized');
-        }
+        $this->authorizeWebsiteAccess($customInvoice->website_id, 'Unauthorized');
 
         if ($customInvoice->archived_at) {
             return redirect()->back()->with('error', 'Archived invoices cannot be edited. Please restore it first.');
@@ -169,9 +163,9 @@ class CustomInvoiceController extends Controller
             return redirect()->back()->with('error', 'Can only edit draft invoices!');
         }
 
-        $websites = $user->isWebsiteUser() 
-                    ? Website::where('id', $user->website_id)->get() 
-                    : Website::all();
+        $websites = $user->isAdmin()
+                    ? Website::all()
+                    : Website::whereIn('id', $this->currentAccessibleWebsiteIds())->get();
 
         return view('admin.custom-invoice.edit', compact('customInvoice', 'websites'));
     }
@@ -183,9 +177,7 @@ class CustomInvoiceController extends Controller
     {
         $user = auth()->user();
         
-        if ($user->isWebsiteUser() && $customInvoice->website_id != $user->website_id) {
-            abort(403, 'Unauthorized');
-        }
+        $this->authorizeWebsiteAccess($customInvoice->website_id, 'Unauthorized');
 
         if ($customInvoice->archived_at) {
             return redirect()->back()->with('error', 'Archived invoices cannot be updated. Please restore it first.');
@@ -239,9 +231,7 @@ class CustomInvoiceController extends Controller
     {
         $user = auth()->user();
         
-        if ($user->isWebsiteUser() && $customInvoice->website_id != $user->website_id) {
-            abort(403, 'Unauthorized');
-        }
+        $this->authorizeWebsiteAccess($customInvoice->website_id, 'Unauthorized');
 
         if ($customInvoice->archived_at) {
             return redirect()->back()->with('error', 'Archived invoices cannot be sent. Please restore it first.');
@@ -276,9 +266,7 @@ class CustomInvoiceController extends Controller
     {
         $user = auth()->user();
         
-        if ($user->isWebsiteUser() && $customInvoice->website_id != $user->website_id) {
-            abort(403, 'Unauthorized');
-        }
+        $this->authorizeWebsiteAccess($customInvoice->website_id, 'Unauthorized');
 
         if ($customInvoice->status === 'paid') {
             return redirect()->back()->with('error', 'Cannot delete paid invoices!');
@@ -295,9 +283,7 @@ class CustomInvoiceController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->isWebsiteUser() && $customInvoice->website_id != $user->website_id) {
-            abort(403, 'Unauthorized');
-        }
+        $this->authorizeWebsiteAccess($customInvoice->website_id, 'Unauthorized');
 
         if ($customInvoice->archived_at) {
             return redirect()->back()->with('info', 'Invoice is already archived.');
@@ -316,9 +302,7 @@ class CustomInvoiceController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->isWebsiteUser() && $customInvoice->website_id != $user->website_id) {
-            abort(403, 'Unauthorized');
-        }
+        $this->authorizeWebsiteAccess($customInvoice->website_id, 'Unauthorized');
 
         if (!$customInvoice->archived_at) {
             return redirect()->back()->with('info', 'Invoice is not archived.');

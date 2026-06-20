@@ -48,11 +48,9 @@ class WebsiteController extends Controller
         
         if ($user->isAdmin()) {
             $data = Website::all();
-        } elseif ($user->isWebsiteUser() && $user->website_id) {
-            // Website users can only see their own website
-            $data = Website::where('id', $user->website_id)->get();
         } else {
-            $data = collect();
+            // Non-admins are scoped to the website(s) they can access (manager → allocated sites).
+            $data = Website::whereIn('id', $this->currentAccessibleWebsiteIds())->get();
         }
 
         return view('admin.website.index', compact('data'));
@@ -64,9 +62,7 @@ class WebsiteController extends Controller
         $data = Website::where('id',$id)->first();
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $data->id != $user->website_id) {
-            abort(403, 'Access denied. You can only manage your own website.');
-        }
+        $this->authorizeWebsiteAccess($data->id, 'Access denied. You can only manage your own website.');
         
         $data->is_archieved = 1;
         $data->status = 0;
@@ -81,9 +77,7 @@ class WebsiteController extends Controller
         $data = Website::where('id',$id)->first();
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $data->id != $user->website_id) {
-            abort(403, 'Access denied. You can only manage your own website.');
-        }
+        $this->authorizeWebsiteAccess($data->id, 'Access denied. You can only manage your own website.');
         
         $data->is_archieved = 0;
         $data->status = 1;
@@ -98,9 +92,7 @@ class WebsiteController extends Controller
         $data = Website::findOrFail($id);
 
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $data->id != $user->website_id) {
-            abort(403, 'Access denied. You can only manage your own website.');
-        }
+        $this->authorizeWebsiteAccess($data->id, 'Access denied. You can only manage your own website.');
 
         $data->status = $data->status == 1 ? 0 : 1;
         $data->save();
@@ -409,9 +401,7 @@ class WebsiteController extends Controller
             ->first();
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $data->id != $user->website_id) {
-            abort(403, 'Access denied. You can only edit your own website.');
-        }
+        $this->authorizeWebsiteAccess($data->id, 'Access denied. You can only edit your own website.');
         
         return view('admin.website.edit', compact('data', 'websiteAdminUser', 'stockPaymentLogos', 'selectedPaymentMethodKeys'));
     }
@@ -453,9 +443,7 @@ class WebsiteController extends Controller
         ]);
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $add->id != $user->website_id) {
-            abort(403, 'Access denied. You can only update your own website.');
-        }
+        $this->authorizeWebsiteAccess($add->id, 'Access denied. You can only update your own website.');
         
         // dd($request->all());
         $add->name = $request->name;

@@ -42,11 +42,9 @@ class PackageController extends Controller
         
         if ($user->isAdmin()) {
             $data = Website::where('is_archieved',0)->get();
-        } elseif ($user->isWebsiteUser() && $user->website_id) {
-            // Website users can only see their own website
-            $data = Website::where('id', $user->website_id)->where('is_archieved',0)->get();
         } else {
-            $data = collect();
+            // Non-admins are scoped to the website(s) they can access (manager → allocated sites).
+            $data = Website::whereIn('id', $this->currentAccessibleWebsiteIds())->where('is_archieved',0)->get();
         }
 
         return view('admin.package.index', compact('data'));
@@ -99,9 +97,7 @@ class PackageController extends Controller
         $user = auth()->user();
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $id != $user->website_id) {
-            abort(403, 'Access denied. You can only create packages for your own website.');
-        }
+        $this->authorizeWebsiteAccess($id, 'Access denied. You can only create packages for your own website.');
         
         [$events, $addons, $categories] = $this->packageFormDependencies((int) $id);
 
@@ -142,6 +138,16 @@ class PackageController extends Controller
             if ($selectedWebsiteId <= 0 || !$websiteOptions->contains('id', $selectedWebsiteId)) {
                 $selectedWebsiteId = null;
             }
+        } elseif ($user->isManager()) {
+            $canSelectWebsite = true;
+            $websiteOptions = Website::whereIn('id', $this->currentAccessibleWebsiteIds())
+                ->where('is_archieved', 0)
+                ->orderBy('name')
+                ->get(['id', 'name']);
+            $selectedWebsiteId = (int) $request->query('website_id', 0);
+            if ($selectedWebsiteId <= 0 || !$websiteOptions->contains('id', $selectedWebsiteId)) {
+                $selectedWebsiteId = null;
+            }
         } elseif ($user->isWebsiteUser() && $user->website_id) {
             $selectedWebsiteId = (int) $user->website_id;
         } else {
@@ -172,9 +178,7 @@ class PackageController extends Controller
         $user = auth()->user();
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $request->website_id != $user->website_id) {
-            abort(403, 'Access denied. You can only create packages for your own website.');
-        }
+        $this->authorizeWebsiteAccess($request->website_id, 'Access denied. You can only create packages for your own website.');
         
         $validated = $this->validatePackagePayload($request, true);
 
@@ -197,6 +201,7 @@ class PackageController extends Controller
         $validated = $this->validatePackagePayload($request, true, true);
         [$affiliateId, $entertainerId, $selectAllAffiliate, $selectAllEntertainer] = $this->normalizeTargetIds($request);
         $websiteId = $this->resolveTargetedPackageWebsiteId($audience, $request, $entertainerId);
+        $this->authorizeWebsiteAccess($websiteId, 'Access denied. You can only create packages for your own website.');
 
         $this->validateTargetSelection($audience, $affiliateId, $entertainerId, $websiteId, $selectAllAffiliate, $selectAllEntertainer);
 
@@ -220,9 +225,7 @@ class PackageController extends Controller
         $user = auth()->user();
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $id != $user->website_id) {
-            abort(403, 'Access denied. You can only view packages for your own website.');
-        }
+        $this->authorizeWebsiteAccess($id, 'Access denied. You can only view packages for your own website.');
         
         $data = Package::with('category')
             ->clubVisible()
@@ -297,9 +300,7 @@ class PackageController extends Controller
         }
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
-            abort(403, 'Access denied. You can only edit packages for your own website.');
-        }
+        $this->authorizeWebsiteAccess($data->website_id, 'Access denied. You can only edit packages for your own website.');
 
         [$events, $addons, $categories] = $this->packageFormDependencies((int) $data->website_id);
 
@@ -387,9 +388,7 @@ class PackageController extends Controller
         }
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
-            abort(403, 'Access denied. You can only update packages for your own website.');
-        }
+        $this->authorizeWebsiteAccess($data->website_id, 'Access denied. You can only update packages for your own website.');
         
         $this->validatePackagePayload($request);
         $this->fillPackageFromRequest($data, $request, (int) $data->website_id, Package::AUDIENCE_CLUB);
@@ -435,9 +434,7 @@ class PackageController extends Controller
         $user = auth()->user();
         $websiteIdInt = (int) $websiteId;
 
-        if ($user->isWebsiteUser() && $websiteIdInt !== (int) $user->website_id) {
-            abort(403, 'Access denied.');
-        }
+        $this->authorizeWebsiteAccess($websiteIdInt, 'Access denied.');
 
         $validated = $request->validate([
             'ordered_ids' => 'required|array|min:1',
@@ -748,9 +745,7 @@ class PackageController extends Controller
 
     private function authorizePackageManagement(Package $package, $user): void
     {
-        if ($user->isWebsiteUser() && $package->website_id != $user->website_id) {
-            abort(403, 'Access denied. You can only manage packages for your own website.');
-        }
+        $this->authorizeWebsiteAccess($package->website_id, 'Access denied. You can only manage packages for your own website.');
 
         if (in_array($package->audience, [Package::AUDIENCE_AFFILIATE, Package::AUDIENCE_ENTERTAINER], true)) {
             $this->ensureTargetedPackagePermission($package);
@@ -775,8 +770,8 @@ class PackageController extends Controller
                 return;
             }
 
-            if ($user && $user->isWebsiteUser()) {
-                if ($package && (int) $package->website_id !== (int) $user->website_id) {
+            if ($user && ($user->isWebsiteUser() || $user->isManager())) {
+                if ($package && !in_array((int) $package->website_id, $user->accessibleWebsiteIds(), true)) {
                     abort(403, 'Access denied. You can only manage entertainer packages for your own club.');
                 }
 

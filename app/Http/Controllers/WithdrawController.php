@@ -349,7 +349,7 @@ class WithdrawController extends Controller
     public function adminEntertainers(Request $request)
     {
         $user = auth()->user();
-        if (!$user->isAdmin() && !$user->isWebsiteUser()) {
+        if (!$user->isAdmin() && !$user->isWebsiteUser() && !$user->isManager()) {
             abort(403);
         }
 
@@ -358,8 +358,8 @@ class WithdrawController extends Controller
             ->where('owner_type', 'entertainer');
 
         // Website users only see their website's requests
-        if ($user->isWebsiteUser() && $user->website_id) {
-            $query->where('website_id', $user->website_id);
+        if (!$user->isAdmin()) {
+            $query->whereIn('website_id', $user->accessibleWebsiteIds());
         }
 
         if ($status !== 'all') {
@@ -389,7 +389,7 @@ class WithdrawController extends Controller
     public function adminEntertainerStatus(Request $request, int $id)
     {
         $user = auth()->user();
-        if (!$user->isAdmin() && !$user->isWebsiteUser()) {
+        if (!$user->isAdmin() && !$user->isWebsiteUser() && !$user->isManager()) {
             abort(403);
         }
 
@@ -399,8 +399,8 @@ class WithdrawController extends Controller
         ]);
 
         $query = WithdrawRequest::where('owner_type', 'entertainer');
-        if ($user->isWebsiteUser() && $user->website_id) {
-            $query->where('website_id', $user->website_id);
+        if (!$user->isAdmin()) {
+            $query->whereIn('website_id', $user->accessibleWebsiteIds());
         }
         $wr = $query->findOrFail($id);
 
@@ -439,7 +439,7 @@ class WithdrawController extends Controller
     public function adminEntertainerCharge(Request $request)
     {
         $user = auth()->user();
-        if (!$user->isAdmin() && !($user->isWebsiteUser() && $user->website_id)) {
+        if (!$user->isAdmin() && !($user->isWebsiteUser() && $user->website_id) && !$user->isManager()) {
             abort(403);
         }
 
@@ -450,7 +450,7 @@ class WithdrawController extends Controller
 
         // Super admin can update any website; website user only their own
         $websiteId = (int) $request->website_id;
-        if ($user->isWebsiteUser() && $user->website_id !== $websiteId) {
+        if (!$user->isAdmin() && !in_array($websiteId, $user->accessibleWebsiteIds(), true)) {
             abort(403);
         }
 

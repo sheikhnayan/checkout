@@ -28,16 +28,15 @@ class IncidentController extends Controller
                     $website->incident_count = Incident::where('website_id', $website->id)->count();
                     return $website;
                 });
-        } elseif ($user->isWebsiteUser() && $user->website_id) {
-            $websites = Website::where('id', $user->website_id)
+        } else {
+            // Non-admins are scoped to the website(s) they can access (manager → allocated sites).
+            $websites = Website::whereIn('id', $this->currentAccessibleWebsiteIds())
                 ->where('is_archieved', 0)
                 ->get()
                 ->map(function (Website $website) {
                     $website->incident_count = Incident::where('website_id', $website->id)->count();
                     return $website;
                 });
-        } else {
-            $websites = collect();
         }
 
         return view('admin.incident.index', compact('websites'));
@@ -398,7 +397,8 @@ class IncidentController extends Controller
             return;
         }
 
-        if ($user->isWebsiteUser() && (int) $user->website_id === $websiteId) {
+        // Website user / bouncer / manager may access websites they're scoped to.
+        if (in_array($websiteId, $user->accessibleWebsiteIds(), true)) {
             return;
         }
 

@@ -18,11 +18,9 @@ class AddonController extends Controller
         
         if ($user->isAdmin()) {
             $data = Website::where('is_archieved',0)->get();
-        } elseif ($user->isWebsiteUser() && $user->website_id) {
-            // Website users can only see their own website
-            $data = Website::where('id', $user->website_id)->where('is_archieved',0)->get();
         } else {
-            $data = collect();
+            // Non-admins are scoped to the website(s) they can access (manager → allocated sites).
+            $data = Website::whereIn('id', $this->currentAccessibleWebsiteIds())->where('is_archieved',0)->get();
         }
 
         return view('admin.addon.index', compact('data'));
@@ -34,9 +32,7 @@ class AddonController extends Controller
         $data = GeneralAddon::where('id',$id)->first();
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
-            abort(403, 'Access denied. You can only manage addons for your own website.');
-        }
+        $this->authorizeWebsiteAccess($data->website_id, 'Access denied. You can only manage addons for your own website.');
         
         $data->is_archieved = 1;
         $data->status = 0;
@@ -54,9 +50,7 @@ class AddonController extends Controller
         $data = GeneralAddon::where('id',$id)->first();
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
-            abort(403, 'Access denied. You can only manage addons for your own website.');
-        }
+        $this->authorizeWebsiteAccess($data->website_id, 'Access denied. You can only manage addons for your own website.');
         
         $data->is_archieved = 0;
         $data->status = 1;
@@ -76,9 +70,7 @@ class AddonController extends Controller
         $user = auth()->user();
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $id != $user->website_id) {
-            abort(403, 'Access denied. You can only create addons for your own website.');
-        }
+        $this->authorizeWebsiteAccess($id, 'Access denied. You can only create addons for your own website.');
         
         return view('admin.addon.create', compact('id',));
     }
@@ -91,9 +83,7 @@ class AddonController extends Controller
         $user = auth()->user();
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $request->website_id != $user->website_id) {
-            abort(403, 'Access denied. You can only create addons for your own website.');
-        }
+        $this->authorizeWebsiteAccess($request->website_id, 'Access denied. You can only create addons for your own website.');
         
         // dd($request->all());
         $add = new GeneralAddon;
@@ -115,9 +105,7 @@ class AddonController extends Controller
         $user = auth()->user();
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $id != $user->website_id) {
-            abort(403, 'Access denied. You can only view addons for your own website.');
-        }
+        $this->authorizeWebsiteAccess($id, 'Access denied. You can only view addons for your own website.');
         
         $data = GeneralAddon::where('website_id', $id)->get();
 
@@ -135,9 +123,7 @@ class AddonController extends Controller
         $data = GeneralAddon::find($id);
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
-            abort(403, 'Access denied. You can only edit addons for your own website.');
-        }
+        $this->authorizeWebsiteAccess($data->website_id, 'Access denied. You can only edit addons for your own website.');
 
         return view('admin.addon.edit', compact('data', 'id'));
     }
@@ -151,9 +137,7 @@ class AddonController extends Controller
         $add = GeneralAddon::findOrFail($id);
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $add->website_id != $user->website_id) {
-            abort(403, 'Access denied. You can only update addons for your own website.');
-        }
+        $this->authorizeWebsiteAccess($add->website_id, 'Access denied. You can only update addons for your own website.');
 
         // dd($request->all());
 
@@ -183,9 +167,7 @@ class AddonController extends Controller
            $user = auth()->user();
            $data = GeneralAddon::findOrFail($id);
 
-           if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
-              abort(403, 'Access denied. You can only delete addons for your own website.');
-           }
+           $this->authorizeWebsiteAccess($data->website_id, 'Access denied. You can only delete addons for your own website.');
 
            $website_id = $data->website_id;
 
@@ -202,9 +184,7 @@ class AddonController extends Controller
         $user = auth()->user();
         $data = GeneralAddon::findOrFail($id);
 
-        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
-            abort(403, 'Access denied. You can only manage addons for your own website.');
-        }
+        $this->authorizeWebsiteAccess($data->website_id, 'Access denied. You can only manage addons for your own website.');
 
         $data->status = (string) ((int) $data->status === 1 ? 0 : 1);
         $data->save();

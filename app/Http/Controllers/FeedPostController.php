@@ -370,7 +370,7 @@ class FeedPostController extends Controller
         $this->ensureWebsiteAccess($feedPost->website_id);
 
         $user = auth()->user();
-        if (!$user || (!$user->isAdmin() && !$user->isWebsiteUser())) {
+        if (!$user || (!$user->isAdmin() && !$user->isWebsiteUser() && !$user->isManager())) {
             abort(403, 'Only super admin or club admin can approve entertainer posts.');
         }
     }

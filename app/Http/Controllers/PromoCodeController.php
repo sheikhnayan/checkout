@@ -27,11 +27,9 @@ class PromoCodeController extends Controller
                 ->whereIn('audience', [PromoCode::AUDIENCE_AFFILIATE, PromoCode::AUDIENCE_ENTERTAINER])
                 ->orderByDesc('id')
                 ->get();
-        } elseif ($user->isWebsiteUser() && $user->website_id) {
-            // Website users can only see their own website
-            $data = Website::where('id', $user->website_id)->where('is_archieved',0)->get();
         } else {
-            $data = collect();
+            // Non-admins are scoped to the website(s) they can access (manager → allocated sites).
+            $data = Website::whereIn('id', $this->currentAccessibleWebsiteIds())->where('is_archieved',0)->get();
         }
 
         return view('admin.promo_code.index', compact('data', 'targetedPromos'));
@@ -43,9 +41,7 @@ class PromoCodeController extends Controller
         $data = PromoCode::where('id',$id)->first();
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
-            abort(403, 'Access denied. You can only manage promo codes for your own website.');
-        }
+        $this->authorizeWebsiteAccess($data->website_id, 'Access denied. You can only manage promo codes for your own website.');
 
         $this->ensureTargetedPromoPermission($data);
         
@@ -61,9 +57,7 @@ class PromoCodeController extends Controller
         $data = PromoCode::where('id',$id)->first();
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
-            abort(403, 'Access denied. You can only manage promo codes for your own website.');
-        }
+        $this->authorizeWebsiteAccess($data->website_id, 'Access denied. You can only manage promo codes for your own website.');
 
         $this->ensureTargetedPromoPermission($data);
         
@@ -81,9 +75,7 @@ class PromoCodeController extends Controller
         $user = auth()->user();
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $id != $user->website_id) {
-            abort(403, 'Access denied. You can only create promo codes for your own website.');
-        }
+        $this->authorizeWebsiteAccess($id, 'Access denied. You can only create promo codes for your own website.');
 
         $promoAudience = PromoCode::AUDIENCE_CLUB;
         $title = 'Club Promo Code';
@@ -114,6 +106,17 @@ class PromoCodeController extends Controller
             if ($user->isAdmin()) {
                 $canSelectWebsite = true;
                 $websiteOptions = Website::where('is_archieved', 0)
+                    ->orderBy('name')
+                    ->get(['id', 'name']);
+
+                $selectedWebsiteId = (int) $request->query('website_id', 0);
+                if ($selectedWebsiteId <= 0 || !$websiteOptions->contains('id', $selectedWebsiteId)) {
+                    $selectedWebsiteId = null;
+                }
+            } elseif ($user->isManager()) {
+                $canSelectWebsite = true;
+                $websiteOptions = Website::whereIn('id', $this->currentAccessibleWebsiteIds())
+                    ->where('is_archieved', 0)
                     ->orderBy('name')
                     ->get(['id', 'name']);
 
@@ -152,9 +155,7 @@ class PromoCodeController extends Controller
         $user = auth()->user();
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $request->website_id != $user->website_id) {
-            abort(403, 'Access denied. You can only create promo codes for your own website.');
-        }
+        $this->authorizeWebsiteAccess($request->website_id, 'Access denied. You can only create promo codes for your own website.');
 
         $audience = (string) $request->input('audience', PromoCode::AUDIENCE_CLUB);
         $this->ensureTargetedPromoPermission(null, $audience);
@@ -250,9 +251,7 @@ class PromoCodeController extends Controller
         $user = auth()->user();
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $id != $user->website_id) {
-            abort(403, 'Access denied. You can only view promo codes for your own website.');
-        }
+        $this->authorizeWebsiteAccess($id, 'Access denied. You can only view promo codes for your own website.');
         
         $data = PromoCode::where('website_id', $id)
         ->with(['affiliate.user', 'entertainer.user'])
@@ -272,9 +271,7 @@ class PromoCodeController extends Controller
         $data = PromoCode::find($id);
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
-            abort(403, 'Access denied. You can only edit promo codes for your own website.');
-        }
+        $this->authorizeWebsiteAccess($data->website_id, 'Access denied. You can only edit promo codes for your own website.');
 
         $this->ensureTargetedPromoPermission($data);
 
@@ -299,9 +296,7 @@ class PromoCodeController extends Controller
         $add = PromoCode::findOrFail($id);
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $add->website_id != $user->website_id) {
-            abort(403, 'Access denied. You can only update promo codes for your own website.');
-        }
+        $this->authorizeWebsiteAccess($add->website_id, 'Access denied. You can only update promo codes for your own website.');
 
         $audience = (string) $add->audience;
         $this->ensureTargetedPromoPermission($add, $audience);
@@ -412,8 +407,8 @@ class PromoCodeController extends Controller
                 return;
             }
 
-            if ($user && $user->isWebsiteUser()) {
-                if ($promo && (int) $promo->website_id !== (int) $user->website_id) {
+            if ($user && ($user->isWebsiteUser() || $user->isManager())) {
+                if ($promo && !in_array((int) $promo->website_id, $user->accessibleWebsiteIds(), true)) {
                     abort(403, 'Access denied. You can only manage entertainer promo codes for your own club.');
                 }
 

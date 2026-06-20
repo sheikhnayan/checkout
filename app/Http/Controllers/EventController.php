@@ -20,11 +20,9 @@ class EventController extends Controller
         
         if ($user->isAdmin()) {
             $data = Website::where('is_archieved',0)->get();
-        } elseif ($user->isWebsiteUser() && $user->website_id) {
-            // Website users can only see their own website
-            $data = Website::where('id', $user->website_id)->where('is_archieved',0)->get();
         } else {
-            $data = collect();
+            // Non-admins are scoped to the website(s) they can access (manager → allocated sites).
+            $data = Website::whereIn('id', $this->currentAccessibleWebsiteIds())->where('is_archieved',0)->get();
         }
 
         return view('admin.event.index', compact('data'));
@@ -36,9 +34,7 @@ class EventController extends Controller
         $data = Event::where('id',$id)->first();
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
-            abort(403, 'Access denied. You can only manage events for your own website.');
-        }
+        $this->authorizeWebsiteAccess($data->website_id, 'Access denied. You can only manage events for your own website.');
         
         $data->is_archieved = 1;
         $data->update();
@@ -52,9 +48,7 @@ class EventController extends Controller
         $data = Event::where('id',$id)->first();
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
-            abort(403, 'Access denied. You can only manage events for your own website.');
-        }
+        $this->authorizeWebsiteAccess($data->website_id, 'Access denied. You can only manage events for your own website.');
         
         $data->is_archieved = 0;
         $data->update();
@@ -71,9 +65,7 @@ class EventController extends Controller
         $websiteId = (int) $id;
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $websiteId != (int) $user->website_id) {
-            abort(403, 'Access denied. You can only create events for your own website.');
-        }
+        $this->authorizeWebsiteAccess($websiteId, 'Access denied. You can only create events for your own website.');
 
         $packages = Package::where('website_id', $websiteId)
             ->clubVisible()
@@ -102,9 +94,7 @@ class EventController extends Controller
         }
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $websiteId != (int) $user->website_id) {
-            abort(403, 'Access denied. You can only create events for your own website.');
-        }
+        $this->authorizeWebsiteAccess($websiteId, 'Access denied. You can only create events for your own website.');
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -213,9 +203,7 @@ class EventController extends Controller
         $user = auth()->user();
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $id != $user->website_id) {
-            abort(403, 'Access denied. You can only view events for your own website.');
-        }
+        $this->authorizeWebsiteAccess($id, 'Access denied. You can only view events for your own website.');
         
         $data = Event::where('website_id', $id)->get();
 
@@ -233,9 +221,7 @@ class EventController extends Controller
         $data = Event::find($id);
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $data->website_id != $user->website_id) {
-            abort(403, 'Access denied. You can only edit events for your own website.');
-        }
+        $this->authorizeWebsiteAccess($data->website_id, 'Access denied. You can only edit events for your own website.');
 
         $packages = Package::where('website_id', $data->website_id)
             ->clubVisible()
@@ -266,9 +252,7 @@ class EventController extends Controller
         $add = Event::findOrFail($id);
         
         // Check authorization for website users
-        if ($user->isWebsiteUser() && $add->website_id != $user->website_id) {
-            abort(403, 'Access denied. You can only update events for your own website.');
-        }
+        $this->authorizeWebsiteAccess($add->website_id, 'Access denied. You can only update events for your own website.');
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',

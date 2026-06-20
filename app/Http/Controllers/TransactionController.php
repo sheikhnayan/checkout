@@ -1133,26 +1133,11 @@ class TransactionController extends Controller
     {
         $user = auth()->user();
         $transaction = Transaction::with(['event', 'package'])->findOrFail($id);
-        
-        // Check if user has access to this transaction
-        if ($user->isWebsiteUser() && $user->website_id) {
-            $hasAccess = false;
-            
-            // Check if transaction belongs to user's website through event
-            if ($transaction->event && $transaction->event->website_id == $user->website_id) {
-                $hasAccess = true;
-            }
-            
-            // Check if transaction belongs to user's website through package
-            if ($transaction->package && $transaction->package->website_id == $user->website_id) {
-                $hasAccess = true;
-            }
-            
-            if (!$hasAccess) {
-                abort(403, 'Access denied. You do not have permission to view this transaction.');
-            }
+
+        if (!$this->userHasWebsiteAccessToTransaction($user, $transaction)) {
+            abort(403, 'Access denied. You do not have permission to view this transaction.');
         }
-        
+
         return view('admin.transaction.show', compact('transaction'));
     }
 
@@ -1161,23 +1146,8 @@ class TransactionController extends Controller
         $user = auth()->user();
         $transaction = Transaction::with(['event', 'package'])->findOrFail($id);
 
-        // Check if user has access to this transaction
-        if ($user->isWebsiteUser() && $user->website_id) {
-            $hasAccess = false;
-
-            // Check if transaction belongs to user's website through event
-            if ($transaction->event && $transaction->event->website_id == $user->website_id) {
-                $hasAccess = true;
-            }
-
-            // Check if transaction belongs to user's website through package
-            if ($transaction->package && $transaction->package->website_id == $user->website_id) {
-                $hasAccess = true;
-            }
-
-            if (!$hasAccess) {
-                abort(403, 'Access denied.');
-            }
+        if (!$this->userHasWebsiteAccessToTransaction($user, $transaction)) {
+            abort(403, 'Access denied.');
         }
 
         return response($this->buildDetailsHtml($transaction), 200, ['Content-Type' => 'text/html']);
@@ -1324,27 +1294,12 @@ class TransactionController extends Controller
     public function update($id, $status)
     {
         $user = auth()->user();
-        $change = Transaction::findOrFail($id);
-        
-        // Check if user has access to this transaction
-        if ($user->isWebsiteUser() && $user->website_id) {
-            $hasAccess = false;
-            
-            // Check if transaction belongs to user's website through event
-            if ($change->event && $change->event->website_id == $user->website_id) {
-                $hasAccess = true;
-            }
-            
-            // Check if transaction belongs to user's website through package
-            if ($change->package && $change->package->website && $change->package->website->id == $user->website_id) {
-                $hasAccess = true;
-            }
-            
-            if (!$hasAccess) {
-                abort(403, 'Access denied. You do not have permission to modify this transaction.');
-            }
+        $change = Transaction::with(['event', 'package'])->findOrFail($id);
+
+        if (!$this->userHasWebsiteAccessToTransaction($user, $change)) {
+            abort(403, 'Access denied. You do not have permission to modify this transaction.');
         }
-        
+
         $previousStatus = (string) $change->status;
         $change->status = $status;
         $change->update();
@@ -1386,12 +1341,12 @@ class TransactionController extends Controller
 
     public function viewCheckinPhoto($transactionId)
     {
-        // Security: Only allow authenticated admin users to view photos
-        if (!auth()->check() || !auth()->user()->hasRole('admin')) {
+        $transaction = Transaction::with(['event', 'package'])->findOrFail($transactionId);
+
+        // Only back-office users scoped to this transaction's website may view the photo.
+        if (!$this->userHasWebsiteAccessToTransaction(auth()->user(), $transaction)) {
             abort(403, 'Unauthorized access to check-in photos.');
         }
-
-        $transaction = Transaction::findOrFail($transactionId);
 
         if (!$transaction->checkin_photo_path) {
             abort(404, 'No photo available for this check-in.');
@@ -1412,12 +1367,12 @@ class TransactionController extends Controller
 
     public function getIdPhotos($transactionId)
     {
-        // Security: Only allow authenticated admin/staff users to view photos
-        if (!auth()->check() || !in_array(auth()->user()->user_type, ['admin', 'website_user'])) {
+        $transaction = Transaction::with(['event', 'package'])->findOrFail($transactionId);
+
+        // Only back-office users scoped to this transaction's website may view ID photos.
+        if (!$this->userHasWebsiteAccessToTransaction(auth()->user(), $transaction)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
-
-        $transaction = Transaction::findOrFail($transactionId);
 
         $frontPhotoUrl = null;
         $backPhotoUrl = null;
@@ -1440,12 +1395,12 @@ class TransactionController extends Controller
 
     public function getIdPhoto($transactionId, $side)
     {
-        // Security: Only allow authenticated admin/staff users to view photos
-        if (!auth()->check() || !in_array(auth()->user()->user_type, ['admin', 'website_user'])) {
+        $transaction = Transaction::with(['event', 'package'])->findOrFail($transactionId);
+
+        // Only back-office users scoped to this transaction's website may view ID photos.
+        if (!$this->userHasWebsiteAccessToTransaction(auth()->user(), $transaction)) {
             abort(403, 'Unauthorized access to ID photos.');
         }
-
-        $transaction = Transaction::findOrFail($transactionId);
 
         $photoPath = null;
         if ($side === 'front' && $transaction->checkin_photo_front_path) {
@@ -2492,6 +2447,41 @@ class TransactionController extends Controller
         }
     }
 
+    /**
+     * Website IDs a transaction is associated with (its own, plus its event's and package's).
+     */
+    private function transactionWebsiteIds(Transaction $transaction): array
+    {
+        return array_values(array_unique(array_filter([
+            $transaction->website_id !== null ? (int) $transaction->website_id : null,
+            $transaction->event ? (int) $transaction->event->website_id : null,
+            $transaction->package ? (int) $transaction->package->website_id : null,
+        ], fn ($v) => $v !== null)));
+    }
+
+    /**
+     * Whether a back-office user (admin / website user / bouncer / manager) may access a
+     * transaction, scoped to the website(s) they are allowed to manage.
+     * Admin → all. Manager → allocated sites. Website user / bouncer → their site.
+     */
+    private function userHasWebsiteAccessToTransaction($user, Transaction $transaction): bool
+    {
+        if (!$user) {
+            return false;
+        }
+        if ($user->isAdmin()) {
+            return true;
+        }
+        if (!$user->isWebsiteUser() && !$user->isBouncer() && !$user->isManager()) {
+            return false;
+        }
+        $allowed = $user->accessibleWebsiteIds();
+        if (empty($allowed)) {
+            return false;
+        }
+        return (bool) array_intersect($this->transactionWebsiteIds($transaction), $allowed);
+    }
+
     private function scannerTransactionQuery()
     {
         $user = auth()->user();
@@ -3197,19 +3187,17 @@ class TransactionController extends Controller
             abort(401);
         }
 
-        if ($user->user_type === 'admin') {
+        // Admin and website-scoped back-office users (website user / bouncer / manager).
+        if ($this->userHasWebsiteAccessToTransaction($user, $transaction)) {
             return;
         }
 
-        if ($user->user_type === 'website_user' && $user->website_id === $transaction->website_id) {
+        // Affiliates and entertainers may download PDFs for their own transactions.
+        if ($user->isAffiliate() && $user->affiliate && (int) $user->affiliate->id === (int) $transaction->affiliate_id) {
             return;
         }
 
-        if ($user->user_type === 'affiliate' && $user->affiliate_id === $transaction->affiliate_id) {
-            return;
-        }
-
-        if ($user->user_type === 'entertainer' && $user->entertainer_id === $transaction->entertainer_id) {
+        if ($user->isEntertainer() && $user->entertainer && (int) $user->entertainer->id === (int) $transaction->entertainer_id) {
             return;
         }
 

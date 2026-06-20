@@ -14,10 +14,9 @@ class CheckoutPopupController extends Controller
 
         if ($user->isAdmin()) {
             $data = Website::where('is_archieved', 0)->orderBy('name')->get();
-        } elseif ($user->isWebsiteUser() && $user->website_id) {
-            $data = Website::where('id', $user->website_id)->where('is_archieved', 0)->orderBy('name')->get();
         } else {
-            $data = collect();
+            // Non-admins are scoped to the website(s) they can access (manager → allocated sites).
+            $data = Website::whereIn('id', $this->currentAccessibleWebsiteIds())->where('is_archieved', 0)->orderBy('name')->get();
         }
 
         return view('admin.popup.index', compact('data'));
@@ -27,9 +26,7 @@ class CheckoutPopupController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->isWebsiteUser() && (int) $id !== (int) $user->website_id) {
-            abort(403, 'Access denied. You can only view popups for your own website.');
-        }
+        $this->authorizeWebsiteAccess((int) $id, 'Access denied. You can only view popups for your own website.');
 
         $data = CheckoutPopup::where('website_id', $id)->orderByDesc('id')->get();
         $website = Website::findOrFail($id);
@@ -42,9 +39,7 @@ class CheckoutPopupController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->isWebsiteUser() && (int) $id !== (int) $user->website_id) {
-            abort(403, 'Access denied. You can only create popups for your own website.');
-        }
+        $this->authorizeWebsiteAccess((int) $id, 'Access denied. You can only create popups for your own website.');
 
         $website = Website::findOrFail($id);
 
@@ -58,9 +53,7 @@ class CheckoutPopupController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->isWebsiteUser() && (int) $request->website_id !== (int) $user->website_id) {
-            abort(403, 'Access denied. You can only create popups for your own website.');
-        }
+        $this->authorizeWebsiteAccess((int) $request->website_id, 'Access denied. You can only create popups for your own website.');
 
         $validated = $request->validate([
             'website_id' => 'required|integer|exists:websites,id',
@@ -105,9 +98,7 @@ class CheckoutPopupController extends Controller
         $popup = CheckoutPopup::findOrFail($id);
         $user = auth()->user();
 
-        if ($user->isWebsiteUser() && (int) $popup->website_id !== (int) $user->website_id) {
-            abort(403, 'Access denied. You can only edit popups for your own website.');
-        }
+        $this->authorizeWebsiteAccess((int) $popup->website_id, 'Access denied. You can only edit popups for your own website.');
 
         return view('admin.popup.edit', compact('popup'));
     }
@@ -117,9 +108,7 @@ class CheckoutPopupController extends Controller
         $popup = CheckoutPopup::findOrFail($id);
         $user = auth()->user();
 
-        if ($user->isWebsiteUser() && (int) $popup->website_id !== (int) $user->website_id) {
-            abort(403, 'Access denied. You can only update popups for your own website.');
-        }
+        $this->authorizeWebsiteAccess((int) $popup->website_id, 'Access denied. You can only update popups for your own website.');
 
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
@@ -160,9 +149,7 @@ class CheckoutPopupController extends Controller
         $popup = CheckoutPopup::findOrFail($id);
         $user = auth()->user();
 
-        if ($user->isWebsiteUser() && (int) $popup->website_id !== (int) $user->website_id) {
-            abort(403, 'Access denied. You can only manage popups for your own website.');
-        }
+        $this->authorizeWebsiteAccess((int) $popup->website_id, 'Access denied. You can only manage popups for your own website.');
 
         $popup->is_archieved = true;
         $popup->save();
@@ -175,9 +162,7 @@ class CheckoutPopupController extends Controller
         $popup = CheckoutPopup::findOrFail($id);
         $user = auth()->user();
 
-        if ($user->isWebsiteUser() && (int) $popup->website_id !== (int) $user->website_id) {
-            abort(403, 'Access denied. You can only manage popups for your own website.');
-        }
+        $this->authorizeWebsiteAccess((int) $popup->website_id, 'Access denied. You can only manage popups for your own website.');
 
         $popup->is_archieved = false;
         $popup->save();

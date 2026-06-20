@@ -115,11 +115,7 @@ class PaymentSettingsController extends Controller
             return true;
         }
 
-        // Website user can only edit their assigned website
-        if ($user->isWebsiteUser()) {
-            return $user->website_id === $website->id;
-        }
-
-        return false;
+        // Website user / bouncer / manager can edit the website(s) they're scoped to.
+        return in_array((int) $website->id, $user->accessibleWebsiteIds(), true);
     }
 }

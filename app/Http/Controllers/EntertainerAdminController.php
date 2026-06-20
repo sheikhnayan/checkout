@@ -17,7 +17,7 @@ class EntertainerAdminController extends Controller
     private function currentUser()
     {
         $user = auth()->user();
-        if (!$user || (!$user->isAdmin() && !$user->isWebsiteUser())) {
+        if (!$user || (!$user->isAdmin() && !$user->isWebsiteUser() && !$user->isManager())) {
             abort(403, 'Only super admin or club admin can manage entertainers.');
         }
 
@@ -28,8 +28,9 @@ class EntertainerAdminController extends Controller
     {
         $user = $this->currentUser();
 
-        if ($user->isWebsiteUser()) {
-            $query->where('website_id', (int) $user->website_id);
+        // Non-admins are scoped to the website(s) they can access (manager → allocated sites).
+        if (!$user->isAdmin()) {
+            $query->whereIn('website_id', $user->accessibleWebsiteIds());
         }
 
         return $query;
@@ -42,7 +43,7 @@ class EntertainerAdminController extends Controller
             return;
         }
 
-        if ((int) $user->website_id !== (int) $entertainer->website_id) {
+        if (!in_array((int) $entertainer->website_id, $user->accessibleWebsiteIds(), true)) {
             abort(403, 'You can only manage entertainers from your own club.');
         }
     }

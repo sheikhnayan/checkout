@@ -11,9 +11,7 @@ class PackageCategoryController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->isWebsiteUser() && $websiteId != $user->website_id) {
-            abort(403);
-        }
+        $this->authorizeWebsiteAccess($websiteId, 'Access denied.');
 
         $request->validate([
             'name' => 'required|string|max:191',
@@ -51,9 +49,7 @@ class PackageCategoryController extends Controller
         $category = PackageCategory::findOrFail($id);
         $user = auth()->user();
 
-        if ($user->isWebsiteUser() && $category->website_id != $user->website_id) {
-            abort(403);
-        }
+        $this->authorizeWebsiteAccess($category->website_id, 'Access denied.');
 
         $request->validate([
             'name' => 'required|string|max:191',
@@ -83,9 +79,7 @@ class PackageCategoryController extends Controller
         $category = PackageCategory::findOrFail($id);
         $user = auth()->user();
 
-        if ($user->isWebsiteUser() && $category->website_id != $user->website_id) {
-            abort(403);
-        }
+        $this->authorizeWebsiteAccess($category->website_id, 'Access denied.');
 
         $category->is_archieved = 1;
         $category->save();
@@ -99,9 +93,7 @@ class PackageCategoryController extends Controller
         $category = PackageCategory::findOrFail($id);
         $user = auth()->user();
 
-        if ($user->isWebsiteUser() && $category->website_id != $user->website_id) {
-            abort(403);
-        }
+        $this->authorizeWebsiteAccess($category->website_id, 'Access denied.');
 
         $category->is_archieved = 0;
         $category->save();
@@ -115,9 +107,7 @@ class PackageCategoryController extends Controller
         $category = PackageCategory::findOrFail($id);
         $user = auth()->user();
 
-        if ($user->isWebsiteUser() && $category->website_id != $user->website_id) {
-            abort(403);
-        }
+        $this->authorizeWebsiteAccess($category->website_id, 'Access denied.');
 
         $websiteId = $category->website_id;
         $category->delete();
@@ -130,9 +120,7 @@ class PackageCategoryController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->isWebsiteUser() && (int) $websiteId !== (int) $user->website_id) {
-            abort(403);
-        }
+        $this->authorizeWebsiteAccess((int) $websiteId, 'Access denied.');
 
         $validated = $request->validate([
             'ordered_ids' => 'required|array|min:1',
