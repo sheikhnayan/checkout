@@ -168,7 +168,19 @@ class User extends Authenticatable
             return false;
         }
 
-        return $role->permissions()->where('key', $routeName)->exists();
+        if ($role->permissions()->where('key', $routeName)->exists()) {
+            return true;
+        }
+
+        // The scanner page is implied by either of its in-page actions, so granting
+        // "Lookup Ticket" or "Confirm Check-In" is enough to open the scanner screen.
+        if ($routeName === 'admin.transaction.scan') {
+            return $role->permissions()
+                ->whereIn('key', ['admin.transaction.scan.lookup', 'admin.transaction.scan.check-in'])
+                ->exists();
+        }
+
+        return false;
     }
 
     public function firstAccessibleAdminRoute(): string

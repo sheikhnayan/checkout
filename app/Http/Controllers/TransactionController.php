@@ -835,6 +835,17 @@ class TransactionController extends Controller
                         $subQuery->where('website_id', $user->website_id);
                     });
             });
+        } elseif ($user->isManager()) {
+            $ids = $user->accessibleWebsiteIds();
+            $query = Transaction::query()->where(function($query) use ($ids) {
+                $query->whereIn('website_id', $ids)
+                    ->orWhereHas('event', function($subQuery) use ($ids) {
+                        $subQuery->whereIn('website_id', $ids);
+                    })
+                    ->orWhereHas('package', function($subQuery) use ($ids) {
+                        $subQuery->whereIn('website_id', $ids);
+                    });
+            });
         } else {
             return collect();
         }
@@ -2476,7 +2487,7 @@ class TransactionController extends Controller
     private function ensureScannerAccess(): void
     {
         $user = auth()->user();
-        if (!$user || (!$user->isAdmin() && !$user->isWebsiteUser() && !$user->isBouncer())) {
+        if (!$user || (!$user->isAdmin() && !$user->isWebsiteUser() && !$user->isBouncer() && !$user->isManager())) {
             abort(403, 'Access denied.');
         }
     }
@@ -2487,14 +2498,17 @@ class TransactionController extends Controller
 
         $query = Transaction::query()->with(['website', 'event', 'package']);
 
-        if ($user && ($user->isWebsiteUser() || $user->isBouncer()) && $user->website_id) {
-            $query->where(function ($scopedQuery) use ($user) {
-                $scopedQuery->where('website_id', $user->website_id)
-                    ->orWhereHas('event', function ($eventQuery) use ($user) {
-                        $eventQuery->where('website_id', $user->website_id);
+        // Non-admins are scoped to the website(s) they can access
+        // (website user / bouncer → their site, manager → allocated sites).
+        if ($user && !$user->isAdmin()) {
+            $ids = $user->accessibleWebsiteIds();
+            $query->where(function ($scopedQuery) use ($ids) {
+                $scopedQuery->whereIn('website_id', $ids)
+                    ->orWhereHas('event', function ($eventQuery) use ($ids) {
+                        $eventQuery->whereIn('website_id', $ids);
                     })
-                    ->orWhereHas('package', function ($packageQuery) use ($user) {
-                        $packageQuery->where('website_id', $user->website_id);
+                    ->orWhereHas('package', function ($packageQuery) use ($ids) {
+                        $packageQuery->whereIn('website_id', $ids);
                     });
             });
         }
