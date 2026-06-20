@@ -12,7 +12,16 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
-class RbacAccessAndMenuTest extends TestCase
+/**
+ * Regression guard for multi-tenant "manager" scoping.
+ *
+ * These lock in the access-control fixes so they cannot silently break:
+ *  - accessibleWebsiteIds() returns the correct website set per user type
+ *  - a manager can reach the ticket scanner when permitted (the original bug)
+ *  - the permission middleware still blocks a manager without the permission
+ *  - opening the scanner is implied by the Lookup Ticket / Confirm Check-In permissions
+ */
+class ManagerScopingTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -22,136 +31,92 @@ class RbacAccessAndMenuTest extends TestCase
         $this->truncateCoreTables();
 
         $this->seedPermissionKeys([
-            'admin.website-users.index' => false,
-            'admin.website-roles.index' => false,
             'admin.transaction.index' => false,
             'admin.transaction.scan' => false,
-            'admin.website.index' => true,
+            'admin.transaction.scan.lookup' => false,
+            'admin.transaction.scan.check-in' => false,
         ]);
     }
 
-    public function test_super_admin_has_full_route_access_including_super_only_routes(): void
+    public function test_accessible_website_ids_are_scoped_per_user_type(): void
     {
-        $admin = User::factory()->create([
-            'user_type' => 'admin',
-        ]);
+        $a = $this->createWebsite();
+        $b = $this->createWebsite();
+        $c = $this->createWebsite();
 
-        $this->actingAs($admin)
-            ->get(route('admin.transaction.scan'))
-            ->assertOk();
+        // Admin → every website.
+        $admin = User::factory()->create(['user_type' => 'admin']);
+        $this->assertEqualsCanonicalizing([$a->id, $b->id, $c->id], $admin->accessibleWebsiteIds());
 
-        $this->actingAs($admin)
-            ->get(route('admin.website.index'))
-            ->assertOk();
+        // Website user → only their single site.
+        $websiteUser = User::factory()->create(['user_type' => 'website_user', 'website_id' => $b->id]);
+        $this->assertSame([$b->id], $websiteUser->accessibleWebsiteIds());
+
+        // Manager → only their allocated sites (a + c), never b.
+        $manager = User::factory()->create(['user_type' => 'manager', 'website_id' => null]);
+        $manager->managedWebsites()->attach([$a->id, $c->id]);
+        $this->assertEqualsCanonicalizing([$a->id, $c->id], $manager->accessibleWebsiteIds());
+
+        // Manager with no allocation → empty set (fail-closed, never "all").
+        $orphan = User::factory()->create(['user_type' => 'manager', 'website_id' => null]);
+        $this->assertSame([], $orphan->accessibleWebsiteIds());
     }
 
-    public function test_website_user_is_limited_by_assigned_permissions_and_super_admin_guard(): void
-    {
-        $website = $this->createWebsite();
-
-        $role = $this->createRole($website, [
-            'admin.transaction.scan',
-        ]);
-
-        $websiteUser = User::factory()->create([
-            'user_type' => 'website_user',
-            'website_id' => $website->id,
-            'website_role_id' => $role->id,
-        ]);
-
-        $this->actingAs($websiteUser)
-            ->get(route('admin.transaction.scan'))
-            ->assertOk();
-
-        $this->actingAs($websiteUser)
-            ->get(route('admin.website.index'))
-            ->assertForbidden();
-
-        $this->actingAs($websiteUser)
-            ->get(route('admin.transaction.index'))
-            ->assertForbidden();
-    }
-
-    public function test_website_admin_user_is_still_permission_bound_by_route_permission_middleware(): void
+    public function test_manager_can_open_the_scanner_when_granted(): void
     {
         $website = $this->createWebsite();
-
-        $allowedAdminRole = $this->createRole(
-            $website,
-            [
-                'admin.website-users.index',
-            ],
-            true
-        );
-
-        $websiteAdminWithPermission = User::factory()->create([
-            'user_type' => 'website_user',
-            'website_id' => $website->id,
-            'website_role_id' => $allowedAdminRole->id,
-        ]);
-
-        $this->actingAs($websiteAdminWithPermission)
-            ->get(route('admin.website-users.index'))
-            ->assertOk();
-
-        $blockedAdminRole = $this->createRole($website, [], true);
-
-        $websiteAdminWithoutPermission = User::factory()->create([
-            'user_type' => 'website_user',
-            'website_id' => $website->id,
-            'website_role_id' => $blockedAdminRole->id,
-        ]);
-
-        $this->actingAs($websiteAdminWithoutPermission)
-            ->get(route('admin.website-users.index'))
-            ->assertForbidden();
-    }
-
-    public function test_sidebar_only_shows_menu_items_for_granted_permissions(): void
-    {
-        $website = $this->createWebsite();
-
-        $limitedRole = $this->createRole($website, [
-            'admin.transaction.index',
-        ]);
-
-        $limitedUser = User::factory()->create([
-            'user_type' => 'website_user',
-            'website_id' => $website->id,
-            'website_role_id' => $limitedRole->id,
-        ]);
-
-        $this->actingAs($limitedUser)
-            ->get(route('admin.profile.edit'))
-            ->assertOk()
-            ->assertSee('Transactions', false)
-            ->assertDontSee('Ticket Scanner', false)
-            ->assertDontSee('Website Users', false)
-            ->assertDontSee('Website Roles', false)
-            ->assertDontSee('Platform Settings', false);
-
-        $managerRole = $this->createRole($website, [
-            'admin.website-users.index',
-            'admin.website-roles.index',
-            'admin.transaction.index',
-            'admin.transaction.scan',
-        ]);
+        $role = $this->createRole($website, ['admin.transaction.scan']);
 
         $manager = User::factory()->create([
-            'user_type' => 'website_user',
-            'website_id' => $website->id,
-            'website_role_id' => $managerRole->id,
+            'user_type' => 'manager',
+            'website_id' => null,
+            'website_role_id' => $role->id,
         ]);
+        $manager->managedWebsites()->attach([$website->id]);
 
         $this->actingAs($manager)
-            ->get(route('admin.profile.edit'))
-            ->assertOk()
-            ->assertSee('Website Users', false)
-            ->assertSee('Website Roles', false)
-            ->assertSee('Transactions', false)
-            ->assertSee('Ticket Scanner', false)
-            ->assertDontSee('Platform Settings', false)
-            ->assertDontSee('Websites', false);
+            ->get(route('admin.transaction.scan'))
+            ->assertOk();
+    }
+
+    public function test_manager_without_scanner_permission_is_forbidden(): void
+    {
+        $website = $this->createWebsite();
+        $role = $this->createRole($website, ['admin.transaction.index']); // no scan permission
+
+        $manager = User::factory()->create([
+            'user_type' => 'manager',
+            'website_id' => null,
+            'website_role_id' => $role->id,
+        ]);
+        $manager->managedWebsites()->attach([$website->id]);
+
+        $this->actingAs($manager)
+            ->get(route('admin.transaction.scan'))
+            ->assertForbidden();
+    }
+
+    public function test_scanner_page_is_implied_by_lookup_or_checkin_permission(): void
+    {
+        $website = $this->createWebsite();
+
+        // Role granted only "Lookup Ticket" — should still imply the scanner page.
+        $lookupOnly = $this->createRole($website, ['admin.transaction.scan.lookup']);
+        $manager = User::factory()->create([
+            'user_type' => 'manager',
+            'website_id' => null,
+            'website_role_id' => $lookupOnly->id,
+        ]);
+        $this->assertTrue($manager->hasRoutePermission('admin.transaction.scan'));
+
+        // Role with none of the scanner permissions — no implied access.
+        $noScan = $this->createRole($website, ['admin.transaction.index']);
+        $other = User::factory()->create([
+            'user_type' => 'manager',
+            'website_id' => null,
+            'website_role_id' => $noScan->id,
+        ]);
+        $this->assertFalse($other->hasRoutePermission('admin.transaction.scan'));
     }
 
     private function ensureMinimalSchema(): void
@@ -219,7 +184,17 @@ class RbacAccessAndMenuTest extends TestCase
             });
         }
 
-        // The admin sidebar renders a pending-feed-post badge, so rendered views need this table.
+        if (!Schema::hasTable('manager_websites')) {
+            Schema::create('manager_websites', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('user_id');
+                $table->unsignedBigInteger('website_id');
+                $table->timestamps();
+                $table->unique(['user_id', 'website_id']);
+            });
+        }
+
+        // The admin sidebar renders a pending-feed-post badge, so the view needs this table.
         if (!Schema::hasTable('feed_posts')) {
             Schema::create('feed_posts', function (Blueprint $table) {
                 $table->id();
@@ -232,6 +207,7 @@ class RbacAccessAndMenuTest extends TestCase
 
     private function truncateCoreTables(): void
     {
+        DB::table('manager_websites')->delete();
         DB::table('permission_website_role')->delete();
         DB::table('permissions')->delete();
         DB::table('users')->delete();
@@ -246,7 +222,7 @@ class RbacAccessAndMenuTest extends TestCase
                 ['key' => $key],
                 [
                     'name' => $key,
-                    'module' => 'rbac-test',
+                    'module' => 'manager-test',
                     'description' => $key,
                     'is_super_admin_only' => (bool) $isSuperAdminOnly,
                 ]
@@ -268,8 +244,8 @@ class RbacAccessAndMenuTest extends TestCase
     {
         $role = WebsiteRole::create([
             'website_id' => $website->id,
-            'name' => $isWebsiteAdmin ? 'Website Admin ' . Str::random(4) : 'Staff ' . Str::random(4),
-            'slug' => ($isWebsiteAdmin ? 'website-admin-' : 'staff-') . Str::lower(Str::random(8)),
+            'name' => 'Manager Role ' . Str::random(4),
+            'slug' => 'manager-role-' . Str::lower(Str::random(8)),
             'description' => 'Test role',
             'is_website_admin' => $isWebsiteAdmin,
             'is_system' => false,

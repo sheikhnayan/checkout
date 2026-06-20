@@ -3167,7 +3167,7 @@ class TransactionController extends Controller
 
     public function downloadPdf($id)
     {
-        $transaction = Transaction::with(['website', 'affiliate.user', 'entertainer.user'])->findOrFail($id);
+        $transaction = Transaction::with(['website', 'event', 'package', 'affiliate.user', 'entertainer.user'])->findOrFail($id);
 
         $this->ensureCanAccess($transaction);
 
