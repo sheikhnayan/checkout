@@ -6,9 +6,9 @@
 
 | Platform | Built To Date | Hours |
 |---|---|---:|
-| CartVIP | Events & venue checkout platform | **2,935** |
-| James Website Builder | Fundraising & no-code website-builder SaaS | **4,860** |
-| | **Combined engineering effort** | **7,795** |
+| CartVIP | Events & venue checkout platform | **1,675** |
+| James Website Builder | Fundraising & no-code website-builder SaaS | **2,785** |
+| | **Combined engineering effort** | **4,460** |
 
 > Every feature is listed with the estimated engineering hours required to build it. Hours are derived from the functionality present in the delivered platforms; build dates are taken from each system's internal records. Section 1 describes the method used. Full line-item detail for each platform is in that platform's own document.
 
@@ -38,71 +38,71 @@ This section describes how the hour figures were produced, how the build timelin
 
 | | CartVIP | James Website Builder | Combined |
 |---|---:|---:|---:|
-| Delivered engineering hours | 2,935 | 4,860 | **7,795** |
+| Delivered engineering hours | 1,675 | 2,785 | **4,460** |
 | Feature modules | 40+ | 55+ | **95+** |
 | Distinct data entities | 44 | 70+ | **114+** |
 | Database schema updates | 160+ | 180+ | **340+** |
 
 ---
 
-## 3. CartVIP — Module Breakdown — **2,935 hrs**
+## 3. CartVIP — Module Breakdown — **1,675 hrs**
 
 *Events & venue checkout platform. Build window: Jul 2025 → Jun 2026.*
 
 | Phase | Period | Module Group | Hours |
 |---|---|---|---:|
-| P0 | Jul 2025 | Project setup & admin foundation | 80 |
-| P1 | Jul–Sep 2025 | Core multi-tenant checkout (CartVIP MVP) | 620 |
-| P2 | Oct–Nov 2025 | Branding, customization & reservations | 180 |
-| P3 | Nov 2025–Jan 2026 | Custom invoicing | 110 |
-| P4 | Jan–Feb 2026 | Shared cart & checkout popups | 70 |
-| P5 | Mar 2026 | Affiliate system | 300 |
-| P6 | Mar–Apr 2026 | Entertainer system | 165 |
-| P7 | Mar–Apr 2026 | Social feed / roll call | 210 |
-| P8 | Apr 2026 | Job marketplace | 100 |
-| P9 | Apr–May 2026 | RBAC & multi-user admin | 140 |
-| P10 | Apr–May 2026 | Incident reporting & witness statements | 130 |
-| P11 | Apr–May 2026 | Withdrawals & payouts | 90 |
-| P12 | May 2026 | Advanced packages, targeting & analytics | 160 |
-| P13 | May–Jun 2026 | Reporting & analytics suite | 140 |
-| P14 | Jun 2026 | Compliance & operations (W-9, scanning, SMS) | 240 |
-| CC | Ongoing | Cross-cutting (QA, bug-fixing, DevOps) | 200 |
-| | | **CartVIP Total** | **2,935** |
+| P0 | Jul 2025 | Project setup & admin foundation | 45 |
+| P1 | Jul–Sep 2025 | Core multi-tenant checkout (CartVIP MVP) | 360 |
+| P2 | Oct–Nov 2025 | Branding, customization & reservations | 100 |
+| P3 | Nov 2025–Jan 2026 | Custom invoicing | 60 |
+| P4 | Jan–Feb 2026 | Shared cart & checkout popups | 40 |
+| P5 | Mar 2026 | Affiliate system | 170 |
+| P6 | Mar–Apr 2026 | Entertainer system | 95 |
+| P7 | Mar–Apr 2026 | Social feed / roll call | 120 |
+| P8 | Apr 2026 | Job marketplace | 60 |
+| P9 | Apr–May 2026 | RBAC & multi-user admin | 80 |
+| P10 | Apr–May 2026 | Incident reporting & witness statements | 70 |
+| P11 | Apr–May 2026 | Withdrawals & payouts | 50 |
+| P12 | May 2026 | Advanced packages, targeting & analytics | 90 |
+| P13 | May–Jun 2026 | Reporting & analytics suite | 80 |
+| P14 | Jun 2026 | Compliance & operations (W-9, scanning, SMS) | 135 |
+| CC | Ongoing | Cross-cutting (QA, bug-fixing, DevOps) | 120 |
+| | | **CartVIP Total** | **1,675** |
 
 **Capabilities.** Multi-tenant venue pages with multiple checkout templates · package & add-on selection with a fee engine (service charge, gratuity, sales tax, processing fee) · Stripe & Authorize.Net payments · reservations/deposits, shared carts, checkout popups · affiliate & entertainer marketplaces with portals, wallets and commissions · social feed / roll call · job marketplace · role-based access control with website & manager users · transaction management with QR scanning, check-in and ID capture · incident reporting with witness statements & audit logs · custom invoicing · withdrawals & payouts · reporting suite with exports · W-9 tax compliance · SMS, OAuth login, bot prevention.
 
 ---
 
-## 4. James Website Builder — Module Breakdown — **4,860 hrs**
+## 4. James Website Builder — Module Breakdown — **2,785 hrs**
 
 *Multi-tenant fundraising & no-code site-building SaaS. Build window: May 2025 → Jun 2026.*
 
 | Phase | Period | Module Group | Hours |
 |---|---|---|---:|
-| P0 | May 2025 | Template & builder foundation | 110 |
-| P1 | May–Jun 2025 | Core platform & multi-tenant foundation | 360 |
-| P2 | Jun–Aug 2025 | Page & site builder | 420 |
-| P3 | Jun–Jul 2025 | Donations, tax receipts & multi-rail payments | 380 |
-| P4 | Aug–Oct 2025 | Tickets & events | 220 |
-| P5 | Jul–Aug 2025 | Auctions & live bidding | 180 |
-| P6 | Sep–Nov 2025 | Investments / real-estate offerings | 320 |
-| P7 | Aug–Oct 2025 | Sponsors, newsletter & QR donations | 130 |
-| P8 | Sep–Oct 2025 | Analytics suite | 260 |
-| P9 | Oct 2025 | Payment funnel analytics | 150 |
-| P10 | Oct–Nov 2025 | Heatmaps & session recording | 240 |
-| P11 | Sep–Nov 2025 | A/B testing | 200 |
-| P12 | Nov 2025 | Cohort analysis | 160 |
-| P13 | Nov–Dec 2025 | Fraud detection | 190 |
-| P14 | Nov–Dec 2025 | Reporting & scheduled exports | 200 |
-| P15 | Dec 2025 | Push notifications | 120 |
-| P16 | Dec 2025 | Crypto payments | 110 |
-| P17 | Dec 2025 | Roles, permissions & user management | 180 |
-| P18 | Dec 2025–Jan 2026 | Teachers / students module | 140 |
-| P19 | Jan–Mar 2026 | Dynamic email system & preferences | 170 |
-| P20 | Feb–Mar 2026 | Menu builder & builder upgrades | 160 |
-| P21 | Apr–Jun 2026 | SaaS multi-tenant hardening | 220 |
-| CC | Ongoing | Cross-cutting (QA, bug-fixing, DevOps) | 240 |
-| | | **James Website Builder Total** | **4,860** |
+| P0 | May 2025 | Template & builder foundation | 65 |
+| P1 | May–Jun 2025 | Core platform & multi-tenant foundation | 210 |
+| P2 | Jun–Aug 2025 | Page & site builder | 240 |
+| P3 | Jun–Jul 2025 | Donations, tax receipts & multi-rail payments | 215 |
+| P4 | Aug–Oct 2025 | Tickets & events | 125 |
+| P5 | Jul–Aug 2025 | Auctions & live bidding | 105 |
+| P6 | Sep–Nov 2025 | Investments / real-estate offerings | 185 |
+| P7 | Aug–Oct 2025 | Sponsors, newsletter & QR donations | 80 |
+| P8 | Sep–Oct 2025 | Analytics suite | 150 |
+| P9 | Oct 2025 | Payment funnel analytics | 85 |
+| P10 | Oct–Nov 2025 | Heatmaps & session recording | 135 |
+| P11 | Sep–Nov 2025 | A/B testing | 110 |
+| P12 | Nov 2025 | Cohort analysis | 90 |
+| P13 | Nov–Dec 2025 | Fraud detection | 110 |
+| P14 | Nov–Dec 2025 | Reporting & scheduled exports | 115 |
+| P15 | Dec 2025 | Push notifications | 70 |
+| P16 | Dec 2025 | Crypto payments | 65 |
+| P17 | Dec 2025 | Roles, permissions & user management | 105 |
+| P18 | Dec 2025–Jan 2026 | Teachers / students module | 80 |
+| P19 | Jan–Mar 2026 | Dynamic email system & preferences | 95 |
+| P20 | Feb–Mar 2026 | Menu builder & builder upgrades | 90 |
+| P21 | Apr–Jun 2026 | SaaS multi-tenant hardening | 120 |
+| CC | Ongoing | Cross-cutting (QA, bug-fixing, DevOps) | 140 |
+| | | **James Website Builder Total** | **2,785** |
 
 **Capabilities.** Multi-tenant fundraising sites with a drag-and-drop page, header, footer & menu builder · one-time & recurring donations, tipping, tax receipts · ticketed events and live auctions with real-time bidding · investment / real-estate offerings with investor profiles and live market data · Stripe, Authorize.Net & Coinbase (crypto) payments plus ACH/wire/mailed-check payouts · analytics (visitors, funnels, heatmaps, session recording, A/B testing, cohort/retention) · configurable fraud detection · role-based access control · per-website email system · push notifications · QR-code donations · scheduled Excel/PDF reporting.
 
@@ -149,5 +149,4 @@ AI features are planned for **James Website Builder** as the next phase. The ite
 
 ---
 
-> **Rate note:** apply your blended hourly rate to the **7,795** combined total (and to the AI estimate range) to produce the dollar-denominated figure. Full per-feature line items for each platform are in the CartVIP and James Website Builder documents.
-</content>
+> **Rate note:** apply your blended hourly rate to the **4,460** combined total (and to the AI estimate range) to produce the dollar-denominated figure. Full per-feature line items for each platform are in the CartVIP and James Website Builder documents.

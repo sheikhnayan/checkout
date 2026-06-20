@@ -954,10 +954,10 @@
                 }
                 function apply(status, name) {
                     if (status === 'reuse') {
-                        passInput.value = ''; confirmInput.value = '';
-                        showFields(false);
-                        note.style.display = 'block'; note.style.color = '#16a34a';
-                        note.textContent = 'Existing admin' + (name ? ' (' + name + ')' : '') + ' — they will sign in with their current password.';
+                        // Shared admin: keep the password field available — a new password updates every site.
+                        showFields(true);
+                        note.style.display = 'block'; note.style.color = '#0d6efd';
+                        note.textContent = 'This email also administers other website(s). Enter a new password to update it for all of them, or leave blank to keep the current one.';
                     } else if (status === 'blocked') {
                         showFields(true);
                         note.style.display = 'block'; note.style.color = '#dc2626';
@@ -977,6 +977,7 @@
                 }
                 emailInput.addEventListener('input', function () { clearTimeout(debounce); debounce = setTimeout(check, 400); });
                 emailInput.addEventListener('blur', check);
+                check(); // run on load so a shared-admin note shows immediately
             })();
             </script>
 @endsection

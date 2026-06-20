@@ -619,12 +619,21 @@ class WebsiteController extends Controller
         if ($websiteAdminUser) {
             $websiteAdminUser->name = $request->website_admin_name;
             $websiteAdminUser->email = $adminEmail;
-            if ($sharedWebsiteAdmin) {
-                $websiteAdminUser->password = $sharedWebsiteAdmin->password; // align to the shared password
-            } elseif ($request->filled('website_admin_password')) {
-                $websiteAdminUser->password = Hash::make($request->website_admin_password);
+
+            if ($request->filled('website_admin_password')) {
+                // A newly entered password wins and is mirrored to every row sharing this email.
+                $hash = Hash::make($request->website_admin_password);
+                $websiteAdminUser->password = $hash;
+                $websiteAdminUser->save();
+                User::where('email', $adminEmail)
+                    ->where('id', '!=', $websiteAdminUser->id)
+                    ->update(['password' => $hash]);
+            } else {
+                if ($sharedWebsiteAdmin) {
+                    $websiteAdminUser->password = $sharedWebsiteAdmin->password; // keep the shared password
+                }
+                $websiteAdminUser->save();
             }
-            $websiteAdminUser->save();
         } else {
             if (!$sharedWebsiteAdmin && !$request->filled('website_admin_password')) {
                 return back()->withInput()->withErrors([
@@ -637,14 +646,25 @@ class WebsiteController extends Controller
                 ->orderBy('id')
                 ->first();
 
-            User::create([
+            $hash = $request->filled('website_admin_password')
+                ? Hash::make($request->website_admin_password)
+                : $sharedWebsiteAdmin->password;
+
+            $newAdmin = User::create([
                 'name' => $request->website_admin_name,
                 'email' => $adminEmail,
-                'password' => $sharedWebsiteAdmin ? $sharedWebsiteAdmin->password : Hash::make($request->website_admin_password),
+                'password' => $hash,
                 'website_id' => $add->id,
                 'website_role_id' => optional($websiteAdminRole)->id,
                 'user_type' => 'website_user',
             ]);
+
+            if ($request->filled('website_admin_password')) {
+                // Keep any other rows for this email in sync with the new password.
+                User::where('email', $adminEmail)
+                    ->where('id', '!=', $newAdmin->id)
+                    ->update(['password' => $hash]);
+            }
         }
 
         $add->update();
