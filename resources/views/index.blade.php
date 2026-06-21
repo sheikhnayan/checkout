@@ -4086,6 +4086,22 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     from { opacity: 0; transform: translateY(-4px); }
     to { opacity: 1; transform: translateY(0); }
 }
+@media (max-width: 767.98px) {
+    [data-tip]:hover::after,
+    [data-tip][data-tip-open="1"]::after,
+    [data-tip]:focus-visible::after {
+        min-width: 0;
+        width: min(280px, calc(100vw - 24px));
+        max-width: calc(100vw - 24px);
+        left: max(-120px, calc(12px - 50vw));
+    }
+
+    [data-tip]:hover::before,
+    [data-tip][data-tip-open="1"]::before,
+    [data-tip]:focus-visible::before {
+        left: 10px;
+    }
+}
 
 /* Hide the redundant breakdown lines the user wants removed */
 #cv-order-sidebar #cart-total,
