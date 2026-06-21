@@ -534,6 +534,7 @@ class PackageController extends Controller
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
             'description' => 'required|string',
+            'tooltip' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
             'mobile_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
             'remove_image' => 'nullable|boolean',
@@ -589,6 +590,7 @@ class PackageController extends Controller
         }
         $package->price = $request->price;
         $package->description = $request->description;
+        $package->tooltip = trim((string) $request->input('tooltip', '')) ?: null;
         $package->package_features = $this->normalizePackageFeatures(
             (array) $request->input('package_feature_text', []),
             (array) $request->input('package_feature_icon', [])

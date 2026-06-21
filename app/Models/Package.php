@@ -11,6 +11,7 @@ class Package extends Model
         'sort_order',
         'price',
         'description',
+        'tooltip',
         'image',
         'mobile_image',
         'package_features',

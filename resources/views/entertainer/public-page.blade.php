@@ -4249,6 +4249,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 /* ===== Custom hover tooltip system (data-tip) ===== */
 [data-tip] { position: relative; }
 [data-tip]:hover::after,
+[data-tip][data-tip-open="1"]::after,
 [data-tip]:focus-visible::after {
     content: attr(data-tip);
     position: absolute;
@@ -4274,6 +4275,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     animation: cvTipFadeIn .15s ease-out forwards;
 }
 [data-tip]:hover::before,
+[data-tip][data-tip-open="1"]::before,
 [data-tip]:focus-visible::before {
     content: '';
     position: absolute;
@@ -4289,6 +4291,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 [data-tip-right]:hover::after { left: auto; right: 0; }
 [data-tip-right]:hover::before { left: auto; right: 14px; }
+[data-tip-right][data-tip-open="1"]::after { left: auto; right: 0; }
+[data-tip-right][data-tip-open="1"]::before { left: auto; right: 14px; }
 @keyframes cvTipFadeIn {
     from { opacity: 0; transform: translateY(-4px); }
     to { opacity: 1; transform: translateY(0); }
@@ -4500,6 +4504,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-pkg-title-row { display: flex; align-items: center; gap: 10px; }
 .cv-pkg-title-icon { font-size: 22px; flex-shrink: 0; color: var(--tier-accent, #fff) !important; }
 .cv-pkg-title { font-size: 26px; font-weight: 700; line-height: 1.2; color: var(--tier-accent, #fff) !important; letter-spacing: -0.01em; }
+.cv-package-tooltip-trigger { background: transparent; cursor: pointer; padding: 0; }
 .cv-pkg-sub { font-size: 12.5px; color: rgba(255,255,255,0.62) !important; display: inline-flex; align-items: center; gap: 6px; }
 .cv-pkg-sub i { font-size: 12px; opacity: .7; }
 .cv-pkg-desc { font-size: 13px; color: rgba(255,255,255,0.62) !important; line-height: 1.5; margin: 0; }
@@ -6001,6 +6006,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                         $tierIndex = ($loop->index % 4) + 1;
                                                         $tierIcons = [1 => 'fa-crown', 2 => 'fa-star', 3 => 'fa-gem', 4 => 'fa-fire'];
                                                         $tierIcon = $tierIcons[$tierIndex] ?? 'fa-crown';
+                                                        $packageTooltip = trim(strip_tags((string) ($item->tooltip ?? '')));
                                                     @endphp
                                                     <div class="vip-card cv-exact-card cv-tier-{{ $tierIndex }}" id="pkg-card-{{ $item->id }}" data-package-name="{{ $item->name }}" data-club-name="{{ $item->website->name ?? '' }}" data-location="{{ $item->website->location ?? '' }}" data-club-id="{{ $item->website->id ?? '' }}">
                                                         <div class="cv-pkg-media-wrap">
@@ -6017,6 +6023,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                             <div class="cv-pkg-title-row">
                                                                 <i class="fas {{ $tierIcon }} cv-pkg-title-icon"></i>
                                                                 <div class="cv-pkg-title">{{ $item->name }}</div>
+                                                                @if($packageTooltip !== '')
+                                                                    <button type="button" class="cv-row-info-icon cv-package-tooltip-trigger" data-tip="{{ $packageTooltip }}" aria-label="Package info for {{ $item->name }}">i</button>
+                                                                @endif
                                                             </div>
                                                             @if($item->website && $item->website->name)
                                                                 <div class="cv-club-name-badge" style="font-size: 12px; color: rgba(255,255,255,0.65); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="<strong>{{ $item->website->name }}</strong><br><small>{{ $item->website->location ?? 'Location not specified' }}</small>"><i class="fas fa-map-marker-alt" style="opacity: 0.7;"></i>{{ $item->website->name }}</div>
@@ -7229,6 +7238,42 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 // Re-inject after JS moves pricing-shell into the sidebar.
                 setTimeout(inject, 50);
                 setTimeout(inject, 500);
+            })();
+
+            (function () {
+                var triggerSelector = '.cv-package-tooltip-trigger[data-tip]';
+
+                function closeAll(exceptNode) {
+                    document.querySelectorAll(triggerSelector + '[data-tip-open="1"]').forEach(function (node) {
+                        if (exceptNode && node === exceptNode) {
+                            return;
+                        }
+                        node.removeAttribute('data-tip-open');
+                    });
+                }
+
+                document.addEventListener('click', function (event) {
+                    var trigger = event.target.closest(triggerSelector);
+                    if (!trigger) {
+                        closeAll(null);
+                        return;
+                    }
+
+                    var isOpen = trigger.getAttribute('data-tip-open') === '1';
+                    closeAll(trigger);
+
+                    if (!isOpen) {
+                        trigger.setAttribute('data-tip-open', '1');
+                    } else {
+                        trigger.removeAttribute('data-tip-open');
+                    }
+                });
+
+                document.addEventListener('keydown', function (event) {
+                    if (event.key === 'Escape') {
+                        closeAll(null);
+                    }
+                });
             })();
         </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

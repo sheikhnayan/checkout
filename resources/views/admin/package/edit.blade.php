@@ -414,6 +414,13 @@ label{
                                                     </div>
                                                 </div>
 
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label for="tooltip" class="form-label">Package Tooltip <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Shown beside the package title as an info icon on checkout."></i></label>
+                                                        <textarea name="tooltip" class="form-control" id="tooltip" rows="2" placeholder="Short info shown when customers click the i icon">{{ old('tooltip', $data->tooltip) }}</textarea>
+                                                    </div>
+                                                </div>
+
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="image" class="form-label">Package Image (Desktop/Default) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional package-specific image. If empty, checkout uses club logo."></i></label>

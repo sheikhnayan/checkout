@@ -4893,6 +4893,7 @@
         /* ===== Custom hover tooltip system (data-tip) ===== */
         [data-tip] { position: relative; }
         [data-tip]:hover::after,
+        [data-tip][data-tip-open="1"]::after,
         [data-tip]:focus-visible::after {
             content: attr(data-tip);
             position: absolute;
@@ -4918,6 +4919,7 @@
             animation: cvTipFadeIn .15s ease-out forwards;
         }
         [data-tip]:hover::before,
+        [data-tip][data-tip-open="1"]::before,
         [data-tip]:focus-visible::before {
             content: '';
             position: absolute;
@@ -4933,6 +4935,8 @@
         }
         [data-tip-right]:hover::after { left: auto; right: 0; }
         [data-tip-right]:hover::before { left: auto; right: 14px; }
+        [data-tip-right][data-tip-open="1"]::after { left: auto; right: 0; }
+        [data-tip-right][data-tip-open="1"]::before { left: auto; right: 14px; }
         @keyframes cvTipFadeIn {
             from { opacity: 0; transform: translateY(-4px); }
             to { opacity: 1; transform: translateY(0); }
@@ -5092,6 +5096,8 @@
             color: var(--tier-accent, #fff) !important;
             letter-spacing: -0.01em;
         }
+
+        .cv-package-tooltip-trigger { background: transparent; cursor: pointer; padding: 0; }
 
         .cv-pkg-sub {
             font-size: 12.5px;
@@ -5903,6 +5909,7 @@
                                                         $fallbackVisual = $data->logo ? asset('uploads/' . $data->logo) : asset('images/logo.png');
                                                         $packageVisual = !empty($item->image) ? asset('uploads/' . $item->image) : $fallbackVisual;
                                                         $packageMobileVisual = !empty($item->mobile_image) ? asset('uploads/' . $item->mobile_image) : $packageVisual;
+                                                        $packageTooltip = trim(strip_tags((string) ($item->tooltip ?? '')));
                                                     @endphp
                                                     <div class="vip-card cv-tier-{{ $pkgTierIdx }} cv-exact-card" id="pkg-card-{{ $item->id }}">
                                                         <div class="cv-pkg-media-wrap">
@@ -5919,6 +5926,9 @@
                                                             <div class="cv-pkg-title-row">
                                                                 <i class="{{ $pkgTierIcon }} cv-pkg-title-icon"></i>
                                                                 <div class="cv-pkg-title">{{ $item->name }}</div>
+                                                                @if($packageTooltip !== '')
+                                                                    <button type="button" class="cv-row-info-icon cv-package-tooltip-trigger" data-tip="{{ $packageTooltip }}" aria-label="Package info for {{ $item->name }}">i</button>
+                                                                @endif
                                                             </div>
                                                             @if($pkgIsTicket)
                                                                 <span class="cv-pkg-sub"><i class="fas fa-ticket-alt"></i>1 ticket per person</span>
@@ -7198,6 +7208,42 @@
                 }
                 setTimeout(inject, 50);
                 setTimeout(inject, 500);
+            })();
+
+            (function () {
+                var triggerSelector = '.cv-package-tooltip-trigger[data-tip]';
+
+                function closeAll(exceptNode) {
+                    document.querySelectorAll(triggerSelector + '[data-tip-open="1"]').forEach(function (node) {
+                        if (exceptNode && node === exceptNode) {
+                            return;
+                        }
+                        node.removeAttribute('data-tip-open');
+                    });
+                }
+
+                document.addEventListener('click', function (event) {
+                    var trigger = event.target.closest(triggerSelector);
+                    if (!trigger) {
+                        closeAll(null);
+                        return;
+                    }
+
+                    var isOpen = trigger.getAttribute('data-tip-open') === '1';
+                    closeAll(trigger);
+
+                    if (!isOpen) {
+                        trigger.setAttribute('data-tip-open', '1');
+                    } else {
+                        trigger.removeAttribute('data-tip-open');
+                    }
+                });
+
+                document.addEventListener('keydown', function (event) {
+                    if (event.key === 'Escape') {
+                        closeAll(null);
+                    }
+                });
             })();
         </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
