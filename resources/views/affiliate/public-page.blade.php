@@ -228,12 +228,6 @@ input[name="transportation_pickup_time"]::placeholder {
     font-size: 15px;
     min-width: 180px;
     text-align: center;
-    -webkit-appearance: none;
-    appearance: none;
-    touch-action: manipulation;
-    user-select: none;
-    -webkit-user-select: none;
-    pointer-events: auto !important;
 }
 
 .btn-next:hover, .submit-btn:hover {
@@ -877,7 +871,7 @@ a {
 }
 
 /* ===================================================
-   affiliate PAGE DESIGN SYSTEM
+   AFFILIATE PAGE DESIGN SYSTEM
    =================================================== */
 :root {
     --accent:    {{ $brandPrimary }};
@@ -955,6 +949,15 @@ input::placeholder, textarea::placeholder {
     width: 20px;
     height: 20px;
     border-radius: 50%;
+    backgroun}
+.consent-label input::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
     background: #fff;
     transition: transform .2s ease;
 }
@@ -971,8 +974,7 @@ input::placeholder, textarea::placeholder {
 }
 
 /* Payment agreement toggles: exact affiliate parity, locked with stronger selectors */
-#payment-consent-group .consent-label,
-.payment-consent-group .consent-label {
+#payment-consent-group .consent-label {
     display: flex !important;
     gap: 10px !important;
     align-items: flex-start !important;
@@ -982,15 +984,13 @@ input::placeholder, textarea::placeholder {
     font-family: 'Inter', sans-serif !important;
     font-weight: 400 !important;
 }
-#payment-consent-group .consent-label span,
-.payment-consent-group .consent-label span {
+#payment-consent-group .consent-label span {
     flex: 1 !important;
     line-height: 1.4 !important;
     font-size: 13px !important;
     font-family: 'Inter', sans-serif !important;
 }
-#payment-consent-group .consent-label input[type="checkbox"],
-.payment-consent-group .consent-label input[type="checkbox"] {
+#payment-consent-group .consent-label input[type="checkbox"] {
     -webkit-appearance: none !important;
     appearance: none !important;
     width: 46px !important;
@@ -1005,26 +1005,18 @@ input::placeholder, textarea::placeholder {
     flex-shrink: 0 !important;
     cursor: pointer !important;
     transition: background .2s ease, border-color .2s ease !important;
-}
-#payment-consent-group .consent-label input[type="checkbox"]::before,
-.payment-consent-group .consent-label input[type="checkbox"]::before {
-    content: '' !important;
-    position: absolute !important;
-    top: 2px !important;
-    left: 2px !important;
+!important;
     width: 20px !important;
     height: 20px !important;
     border-radius: 50% !important;
     background: #fff !important;
     transition: transform .2s ease !important;
 }
-#payment-consent-group .consent-label input[type="checkbox"]:checked,
-.payment-consent-group .consent-label input[type="checkbox"]:checked {
+#payment-consent-group .consent-label input[type="checkbox"]:checked {
     background: #ffcc00 !important;
     border-color: #ffcc00 !important;
 }
-#payment-consent-group .consent-label input[type="checkbox"]:checked::before,
-.payment-consent-group .consent-label input[type="checkbox"]:checked::before {
+#payment-consent-group .consent-label input[type="checkbox"]:checked::before {
     transform: translateX(20px) !important;
 }
 #payment-consent-group .consent-label input[type="checkbox"]:focus-visible {
@@ -1527,14 +1519,11 @@ body {
 }
 
 #package_use_date {
-    position: relative !important;
-    -webkit-appearance: none !important;
-    -moz-appearance: none !important;
-    appearance: none !important;
     color: #f5f8ff !important;
+    -webkit-text-fill-color: #f5f8ff !important;
     font-weight: 600;
     opacity: 1 !important;
-    text-shadow: none !important;
+    text-shadow: 0 0 0 #f5f8ff;
 }
 
 #package_use_date[readonly],
@@ -1543,80 +1532,6 @@ body {
     -webkit-text-fill-color: #f5f8ff !important;
     opacity: 1 !important;
     text-shadow: 0 0 0 #f5f8ff;
-}
-
-#package_use_date::placeholder {
-    color: rgba(255, 255, 255, 0.7) !important;
-    -webkit-text-fill-color: rgba(255, 255, 255, 0.7) !important;
-    opacity: 1 !important;
-}
-
-#package_use_date::-webkit-input-placeholder {
-    color: rgba(255, 255, 255, 0.7) !important;
-    -webkit-text-fill-color: rgba(255, 255, 255, 0.7) !important;
-    opacity: 1 !important;
-}
-
-#package_use_date::-moz-placeholder {
-    color: rgba(255, 255, 255, 0.7) !important;
-    opacity: 1 !important;
-}
-
-#package_use_date:-ms-input-placeholder {
-    color: rgba(255, 255, 255, 0.7) !important;
-    opacity: 1 !important;
-}
-
-#package_use_date:focus {
-    outline: none !important;
-    border-color: #a774ff !important;
-}
-
-#package_use_date::-webkit-calendar-picker-indicator {
-    display: none !important;
-    opacity: 0 !important;
-    width: 0 !important;
-    height: 0 !important;
-}
-
-/* Mobile responsive date input fixes */
-@media (max-width: 768px) {
-    #package_use_date {
-        font-size: 16px !important;
-        padding: 12px 40px 12px 15px !important;
-        min-height: 45px !important;
-        -webkit-appearance: none !important;
-    }
-}
-
-/* iOS Safari specific date input fixes */
-@supports (-webkit-touch-callout: none) {
-    #package_use_date {
-        -webkit-appearance: none !important;
-        color: #f5f8ff !important;
-        font-size: 16px !important;
-        padding: 12px 40px 12px 15px !important;
-        min-height: 45px !important;
-    }
-
-    #package_use_date::placeholder {
-        color: rgba(255, 255, 255, 0.7) !important;
-        -webkit-text-fill-color: rgba(255, 255, 255, 0.7) !important;
-        opacity: 1 !important;
-    }
-
-    #package_use_date::-webkit-input-placeholder {
-        color: rgba(255, 255, 255, 0.7) !important;
-        -webkit-text-fill-color: rgba(255, 255, 255, 0.7) !important;
-        opacity: 1 !important;
-    }
-
-    #package_use_date::-webkit-calendar-picker-indicator {
-        display: none !important;
-        opacity: 0 !important;
-        width: 0 !important;
-        height: 0 !important;
-    }
 }
 
 .flatpickr-calendar {
@@ -1883,9 +1798,9 @@ nav .tab:hover {
 .package-category-wrap { flex: 1 1 auto; min-width: 0; margin-bottom: 12px; }
 .package-category-tile {
     width: 100%;
-    background: rgba(167,116,255,0.16) !important;
-    color: #fff !important;
-    border: 1px solid rgba(167,116,255,0.6) !important;
+    background: rgba(167,116,255,0.08) !important;
+    color: rgba(255,255,255,0.88) !important;
+    border: 1px solid rgba(167,116,255,0.35) !important;
     border-radius: 12px !important;
     padding: 13px 18px !important;
     font-size: 14px !important;
@@ -1898,8 +1813,8 @@ nav .tab:hover {
     text-align: left !important;
 }
 .package-category-tile:hover {
-    background: rgba(167,116,255,0.22) !important;
-    border-color: rgba(167,116,255,0.75) !important;
+    background: rgba(167,116,255,0.16) !important;
+    border-color: rgba(167,116,255,0.6) !important;
     color: #fff !important;
     transform: translateY(-1px);
 }
@@ -1929,9 +1844,12 @@ nav .tab:hover {
 }
 .package-category-tile-icon {
     font-size: 13px;
-    opacity: 1;
+    opacity: 0.85;
     margin-right: 7px;
     flex-shrink: 0;
+}
+/* Rectangle background behind category icon (dynamic by --cat-rgb) */
+.package-category-tile-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1939,8 +1857,7 @@ nav .tab:hover {
     height: 32px;
     padding: 4px 8px;
     border-radius: 8px;
-    background: rgba(255,255,255,0.25);
-    border: 1px solid rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.03);
     box-shadow: none;
     transition: all .18s;
 }
@@ -1952,22 +1869,24 @@ nav .tab:hover {
 .package-category-tile.has-cat-color.active .package-category-tile-icon {
     background: linear-gradient(135deg, rgba(var(--cat-rgb), 0.95) 0%, rgba(var(--cat-rgb), 0.75) 100%) !important;
     color: #fff !important;
-    box-shadow: 0 4px 12px rgba(var(--cat-rgb), 0.18) !important;
+    box-shadow: 0 4px 12px    background: rgba(167,116,255,0.16) !important;
+    color: #fff !important;
+    border: 1px solid rgba(167,116,255,0.6) !important;
+    border-radius: 12px !important;
+    padding: 13px 18px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    cursor: pointer;
+    transition: all .2s;
+    text-align: left !important;
 }
-.package-category-tile[style*="255,204,0"] .package-category-tile-icon,
-.package-category-tile.has-cat-color[style*="255,204,0"] .package-category-tile-icon {
-    color: #000 !important;
-}
-/* Category color override when --cat-rgb is set */
-.package-category-tile.has-cat-color {
-    background: rgba(var(--cat-rgb), 0.08) !important;
-    border-color: rgba(var(--cat-rgb), 0.35) !important;
-}
-.package-category-tile.has-cat-color:hover {
-    background: rgba(var(--cat-rgb), 0.16) !important;
-    border-color: rgba(var(--cat-rgb), 0.6) !important;
-}
-.package-category-tile.has-cat-color.active {
+.package-category-tile:hover {
+    background: rgba(167,116,255,0.22) !important;
+    border-color: rgba(167,116,255,0.75) !important;
+as-cat-color.active {
     background: linear-gradient(135deg, rgba(var(--cat-rgb), 0.95) 0%, rgba(var(--cat-rgb), 0.75) 100%) !important;
     border-color: rgba(var(--cat-rgb), 1) !important;
     box-shadow: 0 4px 14px rgba(var(--cat-rgb), 0.4) !important;
@@ -2009,8 +1928,9 @@ nav .tab:hover {
 }
 .package_number_of_guestss {
     width: 80px !important;
-    min-width: 80px;
-    padding: 5px 8px !important;
+    mi    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.2);
+ortant;
     margin-bottom: 0 !important;
     text-align: center;
 }
@@ -2803,14 +2723,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         grid-column: 1 / -1;
         grid-row: 1;
     }
-    .aff-hero-left-column {
+    .cv-hero-bottom {
         grid-column: 1;
         grid-row: 2;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-    .cv-hero-bottom {
         gap: 12px !important;
         margin: 0 !important;
     }
@@ -2818,16 +2733,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         display: flex !important;
         grid-column: 2;
         grid-row: 1 / -1;
-        flex: 0 0 auto;
-        width: 340px;
-        height: 100%;
-        position: relative;
-    }
-}
-
-@media (max-width: 1199px) {
-    .aff-hero-gallery-carousel {
-        display: none !important;
     }
 }
 
@@ -2859,11 +2764,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-hero-badge i { color: var(--accent) !important; font-size: 17px; margin-top: 1px; width: 22px; height: 22px; border-radius: 50%; background: rgba(255,204,0,0.1); display: inline-flex; align-items: center; justify-content: center; font-size: 11px; }
 .cv-hero-badge-label { display:block; font-size:13px; color:rgba(255,255,255,0.78) !important; font-weight:600; line-height:1.25; }
 .cv-hero-badge-sub { display:block; font-size:13px; color:rgba(255,255,255,0.95) !important; margin-top:2px; line-height:1.2; font-weight: 700; }
-@media (min-width: 992px) {
-    .cv-hero-venue-avatar { width: 140px; height: 140px; }
-    .cv-hero-venue-initial { width: 140px; height: 140px; font-size: 48px; }
-}
-
 @media (max-width: 991px) {
     .cv-hero-head { flex-direction: column; gap: 14px; }
     .cv-hero-badges { width: 100%; gap: 18px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 4px; padding-top: 14px; }
@@ -2871,7 +2771,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .cv-hero-badge-label, .cv-hero-badge-sub { font-size: 12px; }
 }
 .cv-hero-content { max-width:680px; flex: 1; min-width: 0; }
-.aff-kicker { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.16em; color: var(--accent) !important; text-transform: uppercase; margin-bottom: 4px; }
+.aff-kicker { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.16em; color: var(--accent) !important; text-transform: uppercase; margin-bottom: 12px; }
 .cv-hero-title { font-size:clamp(36px, 4vw, 60px); line-height:1.08; letter-spacing:-0.02em; color:#fff !important; font-weight:800; margin:0 0 14px; }
 .cv-hero-title-accent { color: var(--accent) !important; }
 .cv-hero-subtitle { max-width:560px; font-size:15px; line-height:1.55; color:rgba(255,255,255,0.72) !important; margin-bottom:18px; }
@@ -4028,25 +3928,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-checkout-body.is-guest-mode .cv-sidebar { display: none !important; }
 .cv-checkout-body.is-guest-mode .cv-main-col { max-width: 100% !important; width: 100%; }
 .cv-checkout-body.is-guest-mode ~ * { width: 100%; }
-/* Bulletproof desktop layout: explicitly pin the two columns so the Order Summary
-   always sits in the right column (top row), regardless of any stray grid item or
-   auto-placement quirk. Scoped to desktop and to non-guest mode. */
-@media (min-width: 992px) {
-    #cv-checkout-layout:not(.is-guest-mode) {
-        display: grid !important;
-        grid-template-columns: minmax(0, 1fr) 440px !important;
-        align-items: start !important;
-    }
-    #cv-checkout-layout:not(.is-guest-mode) > .cv-main-col {
-        grid-column: 1 !important;
-        grid-row: 1 !important;
-        min-width: 0 !important;
-    }
-    #cv-checkout-layout:not(.is-guest-mode) > #cv-order-sidebar {
-        grid-column: 2 !important;
-        grid-row: 1 !important;
-    }
-}
 .is-guest-mode {
     width: 100% !important;
     max-width: 100% !important;
@@ -4392,7 +4273,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     text-transform: uppercase;
     box-shadow: 0 4px 14px rgba(124,58,237,0.55), inset 0 1px 0 rgba(255,255,255,0.25);
     display: inline-flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 5px;
     z-index: 2;
 }
@@ -4403,22 +4284,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     font-size: 9px;
     color: #fff;
 }
-/* Tier-specific: make badge text dark on gold tier (VIP) */
-.vip-card.cv-exact-card.cv-tier-1 .cv-popular-pill {
-    color: #000 !important;
-    border-color: rgba(0,0,0,0.12) !important;
-}
-.vip-card.cv-exact-card.cv-tier-1 .cv-popular-pill::before {
-    color: #000 !important;
-}
-.vip-card.cv-exact-card .vip-card-main { display: flex; flex-direction: column; justify-content: flex-start; gap: 6px; min-width: 0; }
+.vip-card.cv-exact-card .vip-card-main { display: flex !important; flex-direction: column !important; justify-content: space-between !important; gap: 6px; min-width: 0; height: 100% !important; padding: 0 !important; }
 .cv-pkg-title-row { display: flex; align-items: center; gap: 10px; }
 .cv-pkg-title-icon { font-size: 22px; flex-shrink: 0; color: var(--tier-accent, #fff) !important; }
 .cv-pkg-title { font-size: 26px; font-weight: 700; line-height: 1.2; color: var(--tier-accent, #fff) !important; letter-spacing: -0.01em; }
 .cv-pkg-sub { font-size: 12.5px; color: rgba(255,255,255,0.62) !important; display: inline-flex; align-items: center; gap: 6px; }
 .cv-pkg-sub i { font-size: 12px; opacity: .7; }
 .cv-pkg-desc { font-size: 13px; color: rgba(255,255,255,0.62) !important; line-height: 1.5; margin: 0; }
-.cv-pkg-features { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 6px; }
+.cv-pkg-features { display: flex !important; flex-wrap: wrap; gap: 14px; padding-top: 12px !important; margin-left: auto !important; margin-right: auto !important; border-top: 1px solid rgba(255,255,255,0.08); }
 .cv-pkg-feature { font-size: 11.5px; color: rgba(255,255,255,0.65) !important; display: inline-flex; align-items: center; gap: 5px; }
 .cv-pkg-feature i { color: var(--tier-accent, rgba(255,255,255,0.76)) !important; font-size: 11px; opacity: .9; }
 .vip-card.cv-exact-card .vip-card-side { display: flex; flex-direction: column; justify-content: space-between; align-items: stretch; gap: 6px; grid-template-columns: none !important; flex: initial; text-align: right; }
@@ -4433,8 +4306,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .vip-card.cv-exact-card.cv-tier-1::before { background: radial-gradient(ellipse at right center, rgba(255,204,0,0.12), transparent 70%); }
 
 /* Tier 2 - Purple */
-.vip-card.cv-exact-card.cv-tier-2 { --tier-accent: #a774ff; --tier-btn-color: #fff; border-color: rgba(167,116,255,0.55) !important; background: linear-gradient(180deg, rgba(36,18,58,0.85), rgba(18,10,32,0.95)) !important; }
-.vip-card.cv-exact-card.cv-tier-2::before { background: radial-gradient(ellipse at right center, rgba(167,116,255,0.14), transparent 70%); }
+.vip-card.cv-ex.vip-card.cv-exact-card .vip-card-main { display: flex !important; flex-direction: column !important; justify-content: flex-start !important; gap: 6px; min-width: 0; height: 100% !important; padding: 0 !important; }
+.cv-exact-card.cv-tier-2::before { background: radial-gradient(ellipse at right center, rgba(167,116,255,0.14), transparent 70%); }
 
 /* Tier 3 - Silver/Diamond (dark) */
 .vip-card.cv-exact-card.cv-tier-3 { --tier-accent: #e8e8ea; --tier-btn-color: #000; border-color: rgba(232,232,234,0.35) !important; background: linear-gradient(180deg, rgba(16,18,28,0.92), rgba(8,10,16,0.96)) !important; }
@@ -4672,104 +4545,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 #cv-order-sidebar .pricing-shell .default-promo-discount span { margin-left: auto; }
 
-/* Features Grid and Tagline Box - Desktop & Mobile */
-.aff-hero-features {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    padding: 12px 0;
-    border-bottom: 1px solid rgba(251,113,133,0.15);
-    width: 100%;
-}
-
-.aff-hero-feature {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 6px;
-    text-align: center;
-    background: transparent;
-    border: none;
-    border-radius: 0;
-    transition: all 0.3s ease;
-}
-
-.aff-hero-feature:hover {
-    background: transparent;
-    border-color: transparent;
-}
-
-.aff-hero-feature-icon {
-    font-size: 24px;
-    color: var(--accent);
-    width: auto;
-    height: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border-radius: 0;
-}
-
-.aff-hero-feature-label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.8);
-    line-height: 1.2;
-}
-
-.aff-hero-tagline {
-    padding: 10px 12px;
-    border: 1.5px solid;
-    border-image: linear-gradient(135deg, rgba(251,113,133,0.7) 0%, rgba(167,116,255,0.7) 100%) 1;
-    border-radius: 10px;
-    background: linear-gradient(135deg, rgba(251,113,133,0.06), rgba(167,116,255,0.06));
-    text-align: center;
-    margin: 8px 0 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.aff-hero-tagline i {
-    color: var(--accent);
-    font-size: 16px;
-    flex-shrink: 0;
-}
-
-.aff-hero-tagline-text {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1px;
-    text-align: left;
-}
-
-.aff-hero-tagline-main {
-    font-size: 12px;
-    font-weight: 800;
-    color: #fff;
-}
-
-.aff-hero-tagline-sub {
-    font-size: 10px;
-    color: rgba(255,255,255,0.65);
-}
-
 @media (min-width: 992px) {
     .cv-main-col #cart-section,
-    .cv-main-col .pricing-shell,
-    .cv-main-col #shareLinkContainer { display: none !important; }
+    .cv-main-col .pricing-shell { display: none !important; }
 }
-
-/* Shareable link styled for the order-summary sidebar (it's moved there by JS) */
-#cv-order-sidebar #shareLinkContainer { margin-top:0; margin-bottom:10px; }
-#cv-order-sidebar #generateShareLink { font-size:12px; padding:6px 12px; border-radius:8px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); color:rgba(255,255,255,.7) !important; cursor:pointer; transition:all .15s; }
-#cv-order-sidebar #generateShareLink:hover { background:rgba(255,255,255,.11); }
 
 @media (max-width: 1199px) {
     .cv-checkout-body { grid-template-columns: minmax(0,1fr) 400px; gap: 20px; }
@@ -4785,7 +4564,135 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .vip-card.cv-exact-card { grid-template-columns: 1fr; gap: 14px; padding: 14px !important; }
     .vip-card.cv-exact-card .cv-pkg-media-wrap { min-height: 80px; height: 80px; border-radius: 10px; overflow: hidden; }
     .vip-card.cv-exact-card .cv-pkg-media { width: 100%; height: 100%; object-fit: cover; }
-    .vip-card.cv-exact-card .vip-card-main { display: flex; flex-direction: column; justify-content: flex-start; }
+    .vip-card.cv-exact-card .cv-pkg-title-row { margin-top: 0; }
+    .vip-card.cv-exact-card .cv-pkg-title { font-size: 22px !important; }
+    .vip-card.cv-exact-card .cv-pkg-desc { font-size: 13px !important; line-height: 1.5; }
+    .vip-card.cv-exact-card .cv-pkg-features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px 10px; margin-top: auto; padding-top: 14px; flex-wrap: wrap; }
+    .vip-card.cv-exact-card .cv-pkg-feature { flex: 0 0 auto; font-size: 10.5px !important; flex-direction: column; align-items: center; gap: 3px; text-align: center; }
+    .vip-card.cv-exact-card .cv-pkg-feature i { font-size: 15px !important; margin-bottom: 1px; }
+    .vip-card.cv-exact-card .vip-card-side {
+        display: grid !important;
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+            "price guests"
+            "meta button";
+        gap: 8px 12px;
+        align-items: center;
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid rgba(255,255,255,0.08);
+        text-align: left;
+    }
+    .vip-card.cv-exact-card .vip-price-tag {
+        grid-area: price;
+        text-align: left !important;
+        font-size: 28px !important;
+    }
+    .vip-card.cv-exact-card .cv-price-meta {
+        grid-area: meta;
+        text-align: left !important;
+        font-size: 11.5px !important;
+        margin-top: -4px !important;
+    }
+    .vip-card.cv-exact-card .package-guest-input-wrap {
+        grid-area: guests;
+        width: 100%;
+    }
+    .vip-card.cv-exact-card .package_number_of_guestss { margin-top: 0 !important; min-height: 38px !important; padding-top: 0px !important; padding-bottom: 0px !important;}
+    .vip-card.cv-exact-card .vip-btn {
+        grid-area: button;
+        margin: 0 !important;
+        min-width: 150px;
+        padding: 10px 20px !important;
+    }
+    .vip-card.cv-exact-card .package-guest-error,
+    .vip-card.cv-exact-card .package-soldout {
+        grid-column: 1 / -1;
+        margin-top: 4px;
+    }
+    .cv-popular-pill { top: 8px; left: 8px; font-size: 9px; padding: 4px 9px; }
+    .cv-access-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 767px) {
+    .cv-top-nav {
+        padding: 0 12px !important;
+        min-height: 56px !important;
+        gap: 8px !important;
+    }
+    .cv-nav-logo-img { height: 28px; max-width: 100px; }
+    .cv-nav-back { display: flex !important; padding: 7px 12px !important; font-size: 12px !important; gap: 6px !important; }
+    .cv-nav-back span { display: inline; }
+    .cv-hamburger { display: none !important; }
+    .mobile-top-actions { display: none !important; }
+    .aff-hero.cv-venue-header .aff-hero-badges { order: 3; width: 100%; margin-top: 8px; }
+    .aff-nav-badges {
+        gap: 10px !important;
+        flex-wrap: nowrap !important;
+        width: auto !important;
+        margin-left: auto !important;
+        margin-right: 0 !important;
+        overflow: hidden;
+    }
+    .aff-nav-badge {
+        font-size: 9px !important;
+        white-space: normal !important;
+        flex: 0 1 auto !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+        line-height: 1.1 !important;
+    }
+    .aff-nav-badge i {
+        font-size: 12px !important;
+        flex-shrink: 0;
+    }
+    .aff-nav-badge span {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0 !important;
+    }
+    .aff-nav-badge span span {
+        display: block !important;
+        font-weight: 400 !important;
+        font-size: 8px !important;
+    }
+
+    /* Mobile Hero Section - Vibrant CartVIP Design */
+    .cv-hero-stage {
+        min-height: auto;
+        padding: 18px !important;
+        background-size: cover;
+        background-position: center;
+        border-radius: 18px !important;
+        border: 1px solid rgba(251,113,133,0.25) !important;
+        overflow: hidden;
+        background: linear-gradient(135deg, rgba(251,113,133,0.08) 0%, rgba(167,116,255,0.05) 100%), linear-gradient(to bottom, rgba(255,255,255,0.02) 0%, rgba(0,0,0,0.3) 100%) !important;
+    }
+
+    .cv-hero-stage::before {
+        display: none !important;
+    }
+
+    .cv-hero-inner {
+        flex-direction: column;
+        gap: 0;
+        padding: 0;
+    }
+
+    /* Profile Photo Section with Vibrant Border */
+    .cv-hero-head {
+        flex-direction: row;
+        gap: 12px;
+        align-items: flex-start;
+        padding: 0 0 12px 0;
+        border-bottom: 1px solid rgba(251,113,133,0.15);
+    }
+
+    .cv-hero-venue {
+        flex: 0 0 auto;
+        g    .vip-card.cv-exact-card .vip-card-main { display: flex; flex-direction: column; justify-content: flex-start; }
     .vip-card.cv-exact-card .cv-pkg-title-row { margin-top: 0; }
     .vip-card.cv-exact-card .cv-pkg-title { font-size: 22px !important; }
     .vip-card.cv-exact-card .cv-pkg-desc { font-size: 13px !important; line-height: 1.5; }
@@ -4837,7 +4744,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 
 @media (max-width: 767px) {
-    /* Featured affiliate Card - Mobile */
+    /* Featured Affiliate Card - Mobile */
     .aff-featured-card {
         grid-template-columns: 100px 1fr !important;
         gap: 16px !important;
@@ -5085,7 +4992,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         display: flex !important;
     }
 
-    /* affiliate PACKAGES Section Header */
+    /* AFFILIATE PACKAGES Section Header */
     .section-kicker-lg {
         font-size: 13px !important;
         font-weight: 800 !important;
@@ -5146,118 +5053,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .vip-card.cv-exact-card .cv-pkg-title { font-size: 22px !important; }
     .vip-card.cv-exact-card .cv-pkg-desc { font-size: 13px !important; line-height: 1.5; }
     .vip-card.cv-exact-card .cv-pkg-features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px 10px; margin-top: 40px !important; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; }
-    .vip-card.cv-exact-card .cv-pkg-feature { flex: 0 0 auto; font-size: 10.5px !important; flex-direction: column; align-items: center; gap: 3px; text-align: center; }
-    .vip-card.cv-exact-card .cv-pkg-feature i { font-size: 15px !important; margin-bottom: 1px; }
-    .vip-card.cv-exact-card .vip-card-side {
-        display: grid !important;
-        grid-template-columns: 1fr auto;
-        grid-template-areas:
-            "price guests"
-            "meta button";
-        gap: 8px 12px;
-        align-items: center;
-        margin-top: 14px;
-        padding-top: 14px;
-        border-top: 1px solid rgba(255,255,255,0.08);
-        text-align: left;
-    }
-    .vip-card.cv-exact-card .vip-price-tag {
-        grid-area: price;
-        text-align: left !important;
-        font-size: 28px !important;
-    }
-    .vip-card.cv-exact-card .cv-price-meta {
-        grid-area: meta;
-        text-align: left !important;
-        font-size: 11.5px !important;
-        margin-top: -4px !important;
-    }
-    .vip-card.cv-exact-card .package-guest-input-wrap {
-        grid-area: guests;
-        width: 100%;
-    }
-    .vip-card.cv-exact-card .package_number_of_guestss { margin-top: 0 !important; min-height: 38px !important; padding-top: 0px !important; padding-bottom: 0px !important;}
-    .vip-card.cv-exact-card .vip-btn {
-        grid-area: button;
-        margin: 0 !important;
-        min-width: 150px;
-        padding: 10px 20px !important;
-    }
-    .vip-card.cv-exact-card .package-guest-error,
-    .vip-card.cv-exact-card .package-soldout {
-        grid-column: 1 / -1;
-        margin-top: 4px;
-    }
-
-    /* Features Grid Section - Mobile */
-    /* (Global styles applied above, mobile can override if needed) */
-
-    /* Show Category Tabs and groups on Mobile */
-    .package-category-tiles {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 12px !important;
-    }
-
-    .package-category-wrap {
-        display: block !important;
-        width: 100% !important;
-    }
-
-    .aff-location-gated {
-        display: block !important;
-    }
-
-    /* Final Tagline Box - Mobile */
-    /* (Global styles applied above, mobile can override if needed) */
-
-    /* Date Input Placeholder - Mobile */
-    #package_use_date {
-        font-size: 16px !important;
-        padding: 12px 14px !important;
-    }
-
-    #package_use_date::placeholder {
-        color: rgba(255, 255, 255, 0.7) !important;
-        -webkit-text-fill-color: rgba(255, 255, 255, 0.7) !important;
-        opacity: 1 !important;
-    }
-
-    #package_use_date::-webkit-input-placeholder {
-        color: rgba(255, 255, 255, 0.7) !important;
-        -webkit-text-fill-color: rgba(255, 255, 255, 0.7) !important;
-        opacity: 1 !important;
-    }
-
-    #package_use_date::-moz-placeholder {
-        color: rgba(255, 255, 255, 0.7) !important;
-        opacity: 1 !important;
-    }
-
-    #package_use_date:-ms-input-placeholder {
-        color: rgba(255, 255, 255, 0.7) !important;
-        opacity: 1 !important;
-    }
-}
-@media (max-width: 420px) {
-    .cv-nav-back { padding: 6px 10px !important; font-size: 11.5px !important; }
-    .cv-nav-back i { font-size: 10px; }
-    .cv-nav-logo-img { height: 80px; max-width: 110px; }
-}
-
-@media (min-width: 992px) {
-    .aff-hero.cv-venue-header { display: none; }
-    .aff-mobile-carousel { display: none !important; }
-    .aff-desktop-gallery { display: block !important; }
-}
-
-/* ===== Mobile Gallery Carousel ===== */
-.aff-mobile-carousel { margin-top: 16px; margin-bottom: 16px; position: relative; user-select: none; }
-.aff-mc-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; border-radius: 14px; overflow: hidden; cursor: grab; transition: scroll-behavior 0.3s ease; }
-.aff-mc-track::-webkit-scrollbar { display: none; }
-.aff-mc-track.is-dragging { cursor: grabbing; scroll-behavior: auto; }
-.aff-mc-slide { flex: 0 0 100%; scroll-snap-align: start; width: 100%; aspect-ratio: 16 / 9; border: none; padding: 0; background: rgba(255,255,255,0.04); cursor: pointer; overflow: hidden; position: relative; transition: transform 0.3s ease; border-radius: 0; }
-.aff-mc-slide img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; transition: transform .35s ease; user-select: none; }
+5s ease; user-select: none; }
 .aff-mc-slide:hover img { transform: scale(1.08); }
 .aff-mc-dots { display: flex; justify-content: center; gap: 8px; padding: 12px 0 4px; }
 .aff-mc-dot { width: 8px; height: 8px; border-radius: 50%; border: none; background: rgba(255,255,255,0.25); cursor: pointer; transition: background .2s, width .25s, border-radius .25s; padding: 0; }
@@ -5319,17 +5115,16 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     appearance: none !important;
 }
 .aff-date-input::placeholder {
-    color: rgba(255, 255, 255, 0.7) !important;
+    color: rgba(255, 255, 255, 0.5) !important;
     opacity: 1 !important;
-    -webkit-text-fill-color: rgba(255, 255, 255, 0.7) !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.5) !important;
 }
 .aff-date-input::-webkit-input-placeholder {
-    color: rgba(255, 255, 255, 0.7) !important;
-    -webkit-text-fill-color: rgba(255, 255, 255, 0.7) !important;
+    color: rgba(255, 255, 255, 0.5) !important;
     opacity: 1 !important;
 }
 .aff-date-input::-moz-placeholder {
-    color: rgba(255, 255, 255, 0.7) !important;
+    color: rgba(255, 255, 255, 0.5) !important;
     opacity: 1 !important;
 }
 
@@ -5378,13 +5173,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     position: relative;
     z-index: 1;
     border-radius: 10px;
-}
-
-/* Hide glow border in desktop view */
-@media (min-width: 992px) {
-    .aff-profile-story-btn::before {
-        display: none !important;
-    }
 }
 
 /* ===== Gallery Modal ===== */
@@ -5511,16 +5299,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
 }
 
-        /* Scale down reCAPTCHA badge */
-        .grecaptcha-badge {
-            z-index: 9999 !important;
-            bottom: 10px !important;
-            right: 10px !important;
-            position: fixed !important;
-            transform: scale(0.5) !important;
-            transform-origin: bottom right !important;
-        }
-
         </style>
         @php
             $gaMeasurementId = preg_replace('/[^A-Za-z0-9_-]/', '', (string) ($data->google_analytics_id ?? ''));
@@ -5615,95 +5393,70 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             </div>
                         </div>
 
-                        <!-- Left Column: Content, Features, Tagline -->
-                        <div class="aff-hero-left-column">
-                            <div class="cv-hero-bottom">
-                                <div class="cv-hero-content">
-                                    <div class="aff-kicker">affiliate Packages</div>
-                                    @php
-                                        $heroTitle = $affiliate->hero_title ?: ($affiliate->display_name ?: $affiliate->user->name);
-                                        $titleWords = preg_split('/\s+/', trim($heroTitle));
-                                        $heroLastWord = '';
-                                        if (count($titleWords) > 1) {
-                                            $heroLastWord = array_pop($titleWords);
-                                            $heroTitleLead = implode(' ', $titleWords);
-                                        } else {
-                                            $heroTitleLead = $heroTitle;
-                                        }
-                                    @endphp
-
-                                    <!-- Featured affiliate Card -->
-                                    @if($affiliate->hero_title || $affiliate->hero_subtitle || $affiliate->description)
-                                    <div class="aff-featured-card" style="display: grid; grid-template-columns: 100px 1fr; gap: 24px; align-items: flex-start; padding: 28px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.1); background: linear-gradient(135deg, rgba(167,116,255,0.2) 0%, rgba(236,72,153,0.15) 100%); margin: 0 0 20px 0; position: relative; overflow: hidden;">
-                                        <!-- Gradient overlay -->
-                                        <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 45%; background: radial-gradient(ellipse at right center, rgba(255,255,255,0.05), transparent 70%); pointer-events: none;"></div>
-
-                                        <!-- Icon -->
-                                        <div style="display: flex; align-items: center; justify-content: center; width: 100px; height: 100px; background: rgba(255,255,255,0.06); border-radius: 12px; border: 1.5px solid rgba(167,116,255,0.6); position: relative; z-index: 1; flex-shrink: 0;">
-                                            @php
-                                                $featuredIcon = $affiliate->featured_icon ?? 'fa-star';
-                                            @endphp
-                                            <i class="fas {{ $featuredIcon }}" style="font-size: 48px; background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"></i>
-                                        </div>
-
-                                        <!-- Content -->
-                                        <div style="position: relative; z-index: 1; padding-top: 4px;">
-                                            @if($affiliate->hero_title)
-                                                <h2 style="font-size: 36px; font-weight: 700; color: #fff; margin: 0 0 8px 0; letter-spacing: -0.01em;">{{ $affiliate->hero_title }}</h2>
-                                            @endif
-                                            @if($affiliate->hero_subtitle)
-                                                <p style="font-size: 14px; color: #a774ff; margin: 0 0 12px 0; font-weight: 500; padding-bottom: 12px; border-bottom: 1px solid rgba(167,116,255,0.3);">{{ $affiliate->hero_subtitle }}</p>
-                                            @endif
-                                            @if($affiliate->description)
-                                                <p style="font-size: 15px; color: rgba(255,255,255,0.8); margin: 0; line-height: 1.6;">{{ $affiliate->description }}</p>
-                                            @endif
-                                        </div>
+                        <div class="cv-hero-bottom">
+                            <div class="cv-hero-content">
+                                <div class="aff-kicker">Affiliate Packages</div>
+                                @php
+                                    $heroTitle = $affiliate->hero_title ?: ($affiliate->display_name ?: $affiliate->user->name);
+                                    $titleWords = preg_split('/\s+/', trim($heroTitle));
+                                    $heroLastWord = '';
+                                    if (count($titleWords) > 1) {
+                                        $heroLastWord = array_pop($titleWords);
+                                        $heroTitleLead = implode(' ', $titleWords);
+                                    } else {
+                                        $heroTitleLead = $heroTitle;
+                                    }
+                                @endphp
+                                <h1 class="cv-hero-title">{{ $heroTitleLead }}@if($heroLastWord) <span class="cv-hero-title-accent">{{ $heroLastWord }}</span>@endif</h1>
+                                <p class="cv-hero-subtitle">{{ $affiliate->hero_subtitle ?: 'Browse our premium collection' }}</p>
+                                @if(!empty($affiliate->description))
+                                    <div class="aff-display-copy" style="margin-bottom:16px;">
+                                        {{ $affiliate->description }}
                                     </div>
-                                    @endif
-                                </div>
-                            </div>
-
-                            <!-- Features Section -->
-                            <div class="aff-hero-features">
-                                <div class="aff-hero-feature">
-                                    <div class="aff-hero-feature-icon">
-                                        <i class="fas fa-gem"></i>
-                                    </div>
-                                    <div class="aff-hero-feature-label">Premium<br>Quality</div>
-                                </div>
-                                <div class="aff-hero-feature">
-                                    <div class="aff-hero-feature-icon">
-                                        <i class="fas fa-bolt"></i>
-                                    </div>
-                                    <div class="aff-hero-feature-label">Fast<br>Delivery</div>
-                                </div>
-                                <div class="aff-hero-feature">
-                                    <div class="aff-hero-feature-icon">
-                                        <i class="fas fa-shield"></i>
-                                    </div>
-                                    <div class="aff-hero-feature-label">Secure<br>Payments</div>
-                                </div>
-                                <div class="aff-hero-feature">
-                                    <div class="aff-hero-feature-icon">
-                                        <i class="fas fa-headset"></i>
-                                    </div>
-                                    <div class="aff-hero-feature-label">Dedicated<br>Support</div>
-                                </div>
-                            </div>
-
-                            <!-- Final Tagline Box -->
-                            <div class="aff-hero-tagline">
-                                <i class="fas fa-shield-alt"></i>
-                                <div class="aff-hero-tagline-text">
-                                    <div class="aff-hero-tagline-main">Trusted. Verified. Premium.</div>
-                                    <div class="aff-hero-tagline-sub">Partner with confidence.</div>
-                                </div>
+                                @endif
                             </div>
                         </div>
 
-                        <!-- Right Column: Gallery (Desktop Only) -->
+                        <!-- Features Section - Mobile Only -->
+                        <div class="aff-hero-features" style="display: none;">
+                            <div class="aff-hero-feature">
+                                <div class="aff-hero-feature-icon">
+                                    <i class="fas fa-crown"></i>
+                                </div>
+                                <div class="aff-hero-feature-label">Premium<br>Quality</div>
+                            </div>
+                            <div class="aff-hero-feature">
+                                <div class="aff-hero-feature-icon">
+                                    <i class="fas fa-bolt"></i>
+                                </div>
+                                <div class="aff-hero-feature-label">Fast<br>Delivery</div>
+                            </div>
+                            <div class="aff-hero-feature">
+                                <div class="aff-hero-feature-icon">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                                <div class="aff-hero-feature-label">Secure<br>Payments</div>
+                            </div>
+                            <div class="aff-hero-feature">
+                                <div class="aff-hero-feature-icon">
+                                    <i class="fas fa-headset"></i>
+                                </div>
+                                <div class="aff-hero-feature-label">Dedicated<br>Support</div>
+                            </div>
+                        </div>
+
+                        <!-- Final Tagline Box - Mobile Only -->
+                        <div class="aff-hero-tagline" style="display: none;">
+                            <i class="fas fa-shield-alt"></i>
+                            <div class="aff-hero-tagline-text">
+                                <div class="aff-hero-tagline-main">Trusted. Verified. Premium.</div>
+                                <div class="aff-hero-tagline-sub">Partner with confidence.</div>
+                            </div>
+                        </div>
+
+                        <!-- Desktop Gallery Carousel (Right side) -->
                         @if(!empty($affiliate->gallery_images))
-                            <div class="aff-hero-gallery-carousel">
+                            <div class="aff-hero-gallery-carousel" style="display: none; flex: 0 0 auto; width: 340px; height: 100%; position: relative;">
                                 <div class="aff-hero-carousel-track" id="affHeroCarouselTrack" style="display: flex; flex-direction: column; height: 100%; position: relative; overflow: hidden; border-radius: 12px;">
                                     @foreach($affiliate->gallery_images as $galleryImage)
                                         <div class="aff-hero-carousel-item" style="display: none; width: 100%; height: 100%; flex: 0 0 100%;">
@@ -5822,7 +5575,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         <small id="package_use_date_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
                                     </div>
 
-                                    <!-- Search & Location Filters for affiliate -->
+                                    <!-- Search & Location Filters for Affiliate -->
                                     <div class="aff-location-selector" style="margin-bottom: 24px;">
                                         <label style="display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .6px; opacity: .68; font-weight: 700; margin: 0 0 8px 0;">Choose Your Location</label>
                                         <select id="package-location-filter-main" class="aff-location-mobile-select" style="width: 100%; min-height: 48px; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.2) !important; border-radius: 10px !important; color: #fff !important; padding: 12px 14px !important; font-size: 14px; font-weight: 600; -webkit-appearance: none; -moz-appearance: none; appearance: none;">
@@ -5897,9 +5650,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 <source media="(max-width: 767px)" srcset="{{ $packageMobileVisual }}">
                                                                 <img src="{{ $packageVisual }}" alt="{{ $item->name }}" class="cv-pkg-media">
                                                             </picture>
-                                                            @if ((int) ($item->is_most_popular ?? 0) === 1)
-                                                                <span class="cv-popular-pill">MOST POPULAR</span>
-                                                            @endif
                                                         </div>
 
                                                         <div class="vip-card-main">
@@ -5998,7 +5748,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                     </select>
                                                                 @endif
                                                             </div>
-                                                            <button type="button" class="vip-btn btn-{{ $item->id }} mt-2"
+                                                            <button type="button" class="vip-btn btn-{{ $item->id }} mt-2" style="background-color: {{ $brandPrimary }} !important;"
                                                                 data-id="{{ $item->id }}" data-name="{{ $item->name }}" data-price="{{ $item->price }}"
                                                                 data-gratuity="{{ $data->gratuity_fee }}"
                                                                 data-refundable="{{ $data->refundable_fee }}"
@@ -6055,7 +5805,95 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                 @endif
 
                                                 @if ($data->gratuity_name != 0)
-                                                    <div style="font-size: 16px;" class="default-gratuity" data-tip="Supports venue staff and hospitality service. Calculated based on subtotal.">
+                                                    <div style="font-size: 16px;" class="default-gratuity" data-tip="Supports venue staff and hospitality service for your experience.">
+                                                        <span>{{ $data->gratuity_name ?? 'Gratuity Fee' }}</span> <span>$0.00</span></div>
+                                                @else
+                                                    <div class="default-gratuity"></div>
+                                                @endif
+
+                                                <div style="font-size: 16px; font-weight: bold; display: none"
+                                                    class="default-total"><span>Total</span> <span>$0.00</span></div>
+                                            </div>
+
+
+
+                                            <div class="default-deposit" style="border-top: unset !important; background: transparent !important; padding: 21px 29px !important;"><span>Total</span><span>$0.00</span></div>
+                                            @if ($data->refundable_fee > 0)
+                                                <div style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;"
+                                                    class="vip-price default-refundable">
+                                                    {{ $data->refundable_name ?? 'Non Refundable Processing Fees' }}:
+                                                    <span class="refundable-amount">$0.00</span><span class="pay-now-tag">(Pay Now)</span></div>
+                                                <div style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;"
+                                                    class="vip-price default-due">DUE ON ARRIVAL: <span class="due-amount">$0.00</span></div>
+                                            @endif
+
+                                            @if ($data->sales_tax_name == 0)
+                                                <div style="font-size: 10px; font-weight: 700; color: {{ $brandSecondary }} !important;"
+                                                    class="vip-price"><span>*No sales tax applied. Services sold are not subject to sales tax under Nevada law. Please consult a tax advisor for your local region�if�applicable.</span></div>
+                                            @endif
+                                        </div>
+                                        <div class="col-md-6 dynamic-price" style="display: none;">
+                                            <label
+                                                style="color: rgba(255,255,255,0.7); font-size: 13.5px;">{{ $data->promo_code_name ?: 'Have a promo code?' }}</label>
+                                            <div class="row">
+                                                <div class="col-md-8 col-8" style="padding-right: 0%;">
+                                                    <input type="text" id="promo_code" style="color: #fff;"
+                                                        placeholder="Enter code" />
+                                                </div>
+                                                <div class="col-md-4 col-4" style="padding-left: 0%;">
+                                                    <button type="button" class="vip-btn-submit"
+                                                        id="applyPromoBtn">Apply</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Step Progress Indicator -->
+                                    <ul class="checkout-steps" id="checkout-steps" style="display: none;">
+                                        <li class="step active" id="step-1">
+                                            <div class="step-number">1</div>
+                                            <p class="step-title">Package Details</p>
+                                        </li>
+                                        <li class="step" id="step-2">
+                                            <div class="step-number">2</div>
+                                            <p class="step-title">Transportation</p>
+                                        </li>
+                                        <li class="step" id="step-3">
+                                            <div class="step-number">3</div>
+                                            <p class="step-title">Payment</p>
+                                        </li>
+                                    </ul>
+
+                                    <div style="display:none; margin: 10px 5px 14px; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);" class="dynamic-price">
+                                        This experience is fulfilled by the venue. Entry is subject to venue rules including minimum age requirements (18+ or 21+ depending on venue), valid ID, and dress code.
+                                    </div>
+
+                                    <form action="{{ route('checkout.store', ['slug' => $data->slug]) }}" id="payment-form" method="post">
+                                        @csrf
+                                        
+
+
+                                        
+                                        <!-- Step 1: Package Holder Info -->
+                                        <section class="checkout-section holder-info dynamic-price mt-4" id="section-1" style="display: none; width: 100%;">
+                                            <div class="">
+                                                <div class="row">
+    
+                                                    <div class="col-md-12">
+    
+                                                        <h2 style="margin-bottom: 35px;">Personal details <span style="font-size: 1rem;"> Is this package being purchased for someone else? If so enter their legal name here (must present ID upon entry): </span></h2>
+    
+                                                        <!-- Left: Form Fields -->
+                                                        <div class="form-left">
+    
+                                                            <div class="form-row">
+                                                                <div class="form-group" style="width: 50%;">
+                                                                    <label for="firstName">First Name</label>
+                                                                    <input type="text" id="firstName"
+                                                                        name="package_first_name" placeholder="First Name"
+                                                                        required />
+                                                                </div>
+                                                      <div style="font-size: 16px;" class="default-gratuity" data-tip="Supports venue staff and hospitality service. Calculated based on subtotal.">
                                                         <span>{{ $data->gratuity_name ?? 'Gratuity Fee' }}</span> <span>$0.00</span></div>
                                                 @else
                                                     <div class="default-gratuity"></div>
@@ -6154,8 +5992,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 50%;">
                                                                     <label for="phone">Phone Number</label>
-                                                                    <input type="tel" id="package_phone" name="package_phone"
-                                                                        placeholder="(555) 123-4567" required />
+                                                                    <input type="tel" id="phone" name="package_phone"
+                                                                        placeholder="Phone Number" required />
                                                                 </div>
                                                                 <div class="form-group" style="width: 50%;">
                                                                     <label for="email">Email</label>
@@ -6163,7 +6001,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                         placeholder="sample@sample.com" required />
                                                                 </div>
                                                             </div>
-
+    
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 100%;">
                                                                     <label for="dob-month">Date of Birth</label>
@@ -6189,13 +6027,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 <textarea id="note" name="package_note"
                                                                     placeholder="Your occasion or special request?"></textarea>
                                                             </div>
-                                                            <div class="form-group">
-                                                                <label for="host">Host Name</label>
-                                                                <input id="host" name="host_name"
-                                                                    placeholder="Enter host name (optional)">
-                                                            </div>
                                                         </div>
-
+    
                                                     </div>
                                                 </div>
                                             </div>
@@ -6212,8 +6045,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                             <!-- Transportation confirmation checkbox -->
                                             <div class="checkbox-container transportaiton" id="transport-confirmation" style="display:none">
                                                 <label>
-                                                    <input type="checkbox" id="transportation_part"  required />
-                                                    {{ $data->transportation_confirmation_text ?? 'I confirm I am arriving in a personal vehicle or approved venue transportation. I am not arriving via Uber, Lyft, taxi, limousine, ride-share, or any other third-party transportation service.' }}
+                                                    <input type="checkbox" id="transportation_part" />
+                                                    {{ $data->transportation_confirmation_text ?? 'I confirm I am not arriving via Uber, Lyft, limo, taxi, ride-sharing or any other paid service. I am arriving in a personal vehicle.' }}
                                                 </label>
                                                 <div class="step-navigation" style="margin-top: 20px;">
                                                     <button type="button" class="btn-prev" id="prev-to-package">Previous: Package Details</button>
@@ -6227,12 +6060,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                 <div class="row">
     
                                                     <div class="col-md-12">
-
+    
                                                         <h2 style="margin-bottom: 35px;">Transportation</h2>
-
+    
                                                         <!-- Left: Form Fields -->
                                                         <div class="form-left">
-
+                                                        
+                                                            <button type="button" class="same-as-info-transport">Same as package holder information</button>
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 100%;">
                                                                     <label for="Pick-up-time">Pick-up Time</label>
@@ -6241,7 +6075,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                         <input name="transportation_pickup_time" type="text" readonly
                                                                             id="Pick-up-time"
                                                                             class="form-control"
-                                                                            placeholder="Select pick-up time" required />
+                                                                            placeholder="Select pick-up time" />
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -6249,7 +6083,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 <div class="form-group" style="width: 100%;">
                                                                     <label for="address">Pick-up Location</label>
                                                                     <input type="text" name="transportation_address"
-                                                                        id="address" placeholder="Enter pick-up address" required />
+                                                                        id="address" placeholder="Enter pick-up address" />
                                                                 </div>
 
                                                             </div>
@@ -6258,7 +6092,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 <div class="form-group" style="width: 100%;">
                                                                     <label for="phone">Contact Phone Number or WhatsApp</label>
                                                                     <input type="tel" name="transportation_phone" id="phone"
-                                                                        placeholder="For driver/dispatch to coordinate pickup" required />
+                                                                        placeholder="For driver/dispatch to coordinate�pickup"  />
                                                                 </div>
     
                                                             </div>
@@ -6267,8 +6101,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 <div class="num-guest" style="width: 100%; display: flex;">
                                                                     <label for="">Number of Guest(s)</label>
     
-                                                                    <input type="text" class="form-control"
-                                                                        name="transportation_guest" placeholder="e.g. John Smith" required
+                                                                    <input type="number" class="form-control"
+                                                                        name="transportation_guest" value="0" min="1" required
                                                                         style="width: 120px; max-width: 120px; color: #fff;"  />
     
     
@@ -6281,22 +6115,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 <textarea name="transportation_note" id="note"
                                                                     placeholder="If any"></textarea>
                                                             </div>
-
-                                                            <!-- TRANSPORTATION RESTRICTION NOTICE -->
-                                                            <div style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); border: 2px solid #c92a2a; border-radius: 8px; padding: 14px 16px; margin-top: 20px; box-shadow: 0 4px 12px rgba(255, 107, 107, 0.25);">
-                                                                <div style="display: flex; align-items: flex-start; gap: 12px;">
-                                                                    <div style="font-size: 20px; color: #fff; flex-shrink: 0;">⚠️</div>
-                                                                    <div>
-                                                                        <p style="margin: 0; color: #fff; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">HOUSE TRANSPORTATION OR SELF DRIVE ONLY</p>
-                                                                        <p style="margin: 6px 0 0 0; color: rgba(255,255,255,0.9); font-size: 12px; line-height: 1.4;">Uber, Lyft, taxi, limo & ride-sharing are NOT permitted.</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-
+                                            
                                             <!-- Step Navigation -->
                                             <div class="step-navigation">
                                                 <button type="button" class="btn-prev" id="prev-to-package-from-form">Previous: Package Details</button>
@@ -6350,11 +6173,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                             </div>
     
                                                             <!-- Hidden fields for phone, email, and DOB - will be auto-populated from package holder info -->
-                                                            <input type="hidden" name="payment_phone" id="hidden_payment_phone" required />
-                                                            <input type="hidden" name="payment_email" id="hidden_payment_email" required />
-                                                            <input type="hidden" name="payment_month" id="hidden_payment_month" required />
-                                                            <input type="hidden" name="payment_day" id="hidden_payment_day" required />
-                                                            <input type="hidden" name="payment_year" id="hidden_payment_year" required />
+                                                            <input type="hidden" name="payment_phone" id="hidden_payment_phone" />
+                                                            <input type="hidden" name="payment_email" id="hidden_payment_email" />
+                                                            <input type="hidden" name="payment_month" id="hidden_payment_month" />
+                                                            <input type="hidden" name="payment_day" id="hidden_payment_day" />
+                                                            <input type="hidden" name="payment_year" id="hidden_payment_year" />
     
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 100%;">
@@ -6494,7 +6317,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                         </div>
                                                                 @endif
                                                             </div>
-                                                            <div class="checkbox-container payment-consent-group" style="margin-top: 1.5rem; display: none;">
+                                                            <div class="checkbox-container" style="margin-top: 1.5rem;">
                                                                 <label class="consent-label">
                                                                     <input type="checkbox" id="businessExpenseCheckbox" />
                                                                     <span>This purchase is for business purposes</span>
@@ -6504,37 +6327,55 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     <div class="form-row">
         <div class="form-group" style="width: 50%;">
             <label for="business_company">Company Name</label>
-            <input type="text" name="business_company" id="business_company" placeholder="Company Name" required />
+            <input type="text" name="business_company" id="business_company" placeholder="Company Name" />
         </div>
         <div class="form-group" style="width: 50%;">
             <label for="business_vat">VAT or Tax ID</label>
-            <input type="text" name="business_vat" id="business_vat" placeholder="VAT or Tax ID" required />
+            <input type="text" name="business_vat" id="business_vat" placeholder="VAT or Tax ID" />
         </div>
     </div>
     <div class="form-row">
         <div class="form-group" style="width: 100%;">
             <label for="business_address">Business Address</label>
-            <input type="text" name="business_address" id="business_address" placeholder="Business Address" required />
+            <input type="text" name="business_address" id="business_address" placeholder="Business Address" />
         </div>
     </div>
+    <div class="form-row">
+        <div class="form-group" style="width: 100%;">
+            <label for="business_purpose">Purpose of Purchase</label>
+            <input type="text" name="business_purpose" id="business_purpose" placeholder="e.g. team event, client entertainment" />
+        </div>
     </div>
 </div>
     
                                                             <div class="checkbox-container payment-consent-group" id="payment-consent-group">
                                                                 <label class="consent-label">
                                                                     <input type="checkbox" id="smsConsent" required />
-                                                                    <span>I agree to receive SMS communications regarding my reservation, transportation updates, VIP services, and related notifications. Message and data rates may apply. Messaging frequency may vary. Reply STOP to opt out at any time.</span>
+                                                                    <span>I agree to receive SMS communications from
+                                                                    {{ $data->name }}
+                                                                    regarding my upcoming
+                                                                    reservation. Message and data rates may apply. Messaging
+                                                                    frequency may vary. Reply
+                                                                    STOP to opt out at any time.</span>
                                                                 </label>
-
+                                                                <label class="consent-label driver-notification-consent-wrap" style="display:none;">
+                                                                    <input type="checkbox" id="driverNotificationConsent" class="driver-notification-consent-input" />
+                                                                    <span>I agree to receive notifications from the driver regarding my transportation pickup.</span>
+                                                                </label>
+    
                                                                 <label class="consent-label" style="margin-top: 1.4rem;">
                                                                     <input type="checkbox" id="termsConsent" required />
-                                                                    <span>I have read and agree to the <a
-                                                                        target="_blank" href="{{ $data->terms }}">Terms of Service</a> / <a target="_blank" href="{{ $data->terms }}">Venue Policies</a></span>
+                                                                    <span>I understand that all sales are final. I agree to the <a
+                                                                        target="_blank" href="{{ $data->terms }}">Terms of
+                                                                        Service</a>, and acknowledge that CartVIP is the merchant of record for this purchase.</span>
                                                                 </label>
 
-                                                                {{-- <p style="margin: 12px 0 0; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);">
-                                                                    All bookings are processed through CartVIP. By completing this purchase, you acknowledge that all sales are final and non-refundable, subject to applicable law and the venue's policies, and that you agree to all venue entry requirements. You confirm that you are authorized to use this payment method and that the information provided is accurate. You understand that a valid government-issued photo ID may be required at check-in and may be photographed to verify identity, age, reservation redemption, fraud prevention, venue security, and chargeback dispute purposes. Identification records are securely stored and are never retained on the scanning device.
-                                                                </p> --}}
+                                                                <p style="margin: 12px 0 0; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);">
+                                                                    All bookings are processed by CartVIP. By completing this purchase, you agree to our no-refund policy and venue entry requirements.
+                                                                </p>
+                                                                <p style="margin: 8px 0 0; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.72);">
+                                                                    By completing this purchase, you confirm you are authorized to use this payment method and agree not to initiate a chargeback without contacting CartVIP first.
+                                                                </p>
                                                             </div>
 
                                                             <input type="hidden" class="package_use_date" name="package_use_date" value="">
@@ -6544,7 +6385,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                             <!-- Step Navigation -->
                                                             <div class="step-navigation">
                                                                 <button type="button" class="btn-prev" id="prev-to-transport">Previous: Transportation</button>
-                                                                <button class="submit-btn" style="margin-top: 0px !important;" id="submitBtn" type="submit">Complete Purchase</button>
+                                                                <button class="submit-btn" id="submitBtn" type="submit">Complete Purchase</button>
                                                             </div>
     
                                                         </div>
@@ -6588,7 +6429,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                     <div class="cv-sidebar-venue-row" style="border-bottom:none; padding-bottom:0; margin-bottom:14px;">
                         <div style="flex:1; min-width:0;">
-                            <div class="cv-sidebar-venue-name"></div>
+                            <div class="cv-sidebar-venue-name">{{ $data->name }}</div>
                             <div class="cv-sidebar-venue-date" id="cv-sidebar-date">
                                 <i class="fas fa-calendar-alt" style="margin-right:4px;opacity:.6;"></i>Select a date above
                             </div>
@@ -6677,7 +6518,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             </div>
                             <div class="modal-body" id="addonSelectionModalBody"></div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" id="addonModalNoAddonsBtn">No add-ons</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No add-ons</button>
                                 <button type="button" class="btn" id="addonModalConfirmBtn" style="background:var(--aff-accent);color:#000;font-weight:700;">Confirm & Add to Cart</button>
                             </div>
                         </div>
@@ -7160,38 +7001,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             // --- End Shareable Link Logic ---
 
                 // --- End Shareable Link Refinement ---
-            function setBusinessFieldsRequired(on) {
-                ['business_company', 'business_vat', 'business_address'].forEach(function (n) {
-                    var el = document.querySelector('[name="' + n + '"]');
-                    if (el) { if (on) { el.setAttribute('required', 'required'); } else { el.removeAttribute('required'); } }
-                });
-            }
-            // Business fields start hidden, so they must not be required until the box is checked
-            // (a required field inside a display:none container blocks form submission).
-            setBusinessFieldsRequired($('#businessExpenseCheckbox').is(':checked'));
             $('#businessExpenseCheckbox').on('change', function () {
                 if ($(this).is(':checked')) {
                     $('#businessFields').slideDown();
-                    setBusinessFieldsRequired(true);
                 } else {
                     $('#businessFields').slideUp();
-                    setBusinessFieldsRequired(false);
                 }
             });
-
-            // Multi-step form safety: the instant "Complete Purchase" is clicked, drop `required`
-            // from any field that is currently hidden so native validation can never block
-            // submission with "An invalid form control is not focusable".
-            (function () {
-                var purchaseBtn = document.getElementById('submitBtn');
-                if (purchaseBtn) {
-                    purchaseBtn.addEventListener('click', function () {
-                        document.querySelectorAll('#payment-form [required]').forEach(function (el) {
-                            if (el.offsetParent === null) { el.removeAttribute('required'); }
-                        });
-                    }, true);
-                }
-            })();
         </script>
 
         <script>
@@ -7318,9 +7134,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     transportationAddressField.prop('required', true).attr('aria-required', 'true');
                     transportationPickupTimeField.prop('required', true).attr('aria-required', 'true');
                     transportationGuestField.prop('required', true).attr('aria-required', 'true');
-                    if (!Number.isFinite(parseInt(transportationGuestField.val(), 10)) || parseInt(transportationGuestField.val(), 10) < 1) {
-                        transportationGuestField.val('1');
-                    }
                     pickupDateField.prop('required', true).attr('aria-required', 'true');
                     driverNotificationConsentWrap.css('display', 'flex');
                     driverNotificationConsentInputs.prop('required', true).attr('aria-required', 'true');
@@ -8019,8 +7832,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
             // Auto-populate hidden payment fields when moving to payment step
             function populatePaymentFields() {
-                const e164Phone = $('input[name="package_phone_e164"]').val() || $('input[name="package_phone"]').val();
-                $('#hidden_payment_phone').val(e164Phone);
+                $('#hidden_payment_phone').val($('input[name="package_phone"]').val());
                 $('#hidden_payment_email').val($('input[name="package_email"]').val());
                 $('#hidden_payment_month').val($('select[name="package_month"]').val());
                 $('#hidden_payment_day').val($('select[name="package_day"]').val());
@@ -8277,12 +8089,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 addons: Array.isArray(res) ? res : []
                             };
 
-                            // No add-ons to offer: add the package straight to the cart (skip the modal).
-                            if ((window.pendingPackageSelection.addons || []).length === 0) {
-                                $('#addonModalNoAddonsBtn').trigger('click');
-                            } else {
-                                openAddonSelectionModal(window.pendingPackageSelection);
-                            }
+                            openAddonSelectionModal(window.pendingPackageSelection);
                         }
                     });
                 });
@@ -8308,41 +8115,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             });
                         }
                     });
-
-                    window.addPackageToCart(
-                        selection.packageId,
-                        selection.packageName,
-                        selection.packagePrice,
-                        selection.guests,
-                        selectedAddons,
-                        selection.transportation,
-                        selection.isMultiple
-                    ).then(function(added) {
-                        if (!added) {
-                            return;
-                        }
-
-                        $('#package_id').val(selection.packageId);
-                        $('#addons').val(selectedAddons.map(function(addon) { return addon.id; }).join(','));
-                        $('.package_number_of_guest').val(selection.guests);
-                        $('.dynamic-price').show();
-                        $('.default-price').hide();
-                        $('#checkout-steps').show();
-                        syncTransportationStateFromCart();
-                        showStep(1);
-
-                        bootstrap.Modal.getOrCreateInstance(document.getElementById('addonSelectionModal')).hide();
-                        window.pendingPackageSelection = null;
-                    });
-                });
-
-                $('#addonModalNoAddonsBtn').on('click', function() {
-                    if (!window.pendingPackageSelection) {
-                        return;
-                    }
-
-                    var selection = window.pendingPackageSelection;
-                    var selectedAddons = []; // Empty array - no add-ons selected
 
                     window.addPackageToCart(
                         selection.packageId,
@@ -8446,13 +8218,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     }
                 }
 
-                // Scroll to the top of the new step on all devices
-                setTimeout(function() {
-                    var el = document.getElementById('section-' + stepNumber);
-                    if (el) {
-                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                }, 50);
+                // On mobile, scroll to the top of the new step
+                if (window.innerWidth < 992) {
+                    setTimeout(function() {
+                        var el = document.getElementById('section-' + stepNumber);
+                        if (el) {
+                            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }, 50);
+                }
             }
             
             function validateStep(stepNumber) {
@@ -8473,14 +8247,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         '[name="package_year"]'
                     );
                 } else if (stepNumber === 2 && window.requiresTransportation) {
-                    // Transportation form validation disabled - allow form to proceed
-                    // requiredFields.push(
-                    //     '[name="package_use_date"]',
-                    //     '[name="transportation_pickup_time"]',
-                    //     '[name="transportation_address"]',
-                    //     '[name="transportation_phone"]',
-                    //     '[name="transportation_guest"]'
-                    // );
+                    // Validate transportation form
+                    requiredFields.push(
+                        '[name="package_use_date"]',
+                        '[name="transportation_pickup_time"]',
+                        '[name="transportation_address"]',
+                        '[name="transportation_phone"]',
+                        '[name="transportation_guest"]'
+                    );
                 } else if (stepNumber === 2 && !window.requiresTransportation) {
                     // Validate transportation confirmation checkbox
                     if (!$('#transportation_part').is(':checked')) {
@@ -8488,15 +8262,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         return false;
                     }
                 }
-
-                // Auto-fill empty transportation_guest field with 1 if transportation required
-                if (stepNumber === 2 && window.requiresTransportation) {
-                    const guestField = $('[name="transportation_guest"]');
-                    if (!guestField.val() || parseInt(guestField.val(), 10) < 1) {
-                        guestField.val('1');
-                    }
-                }
-
+                
                 // Check required fields
                 requiredFields.forEach(function(selector) {
                     const field = $(selector);
@@ -8520,48 +8286,19 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     }
                 }
 
-                // Transportation validation removed - allow form to proceed
-                // if (stepNumber === 2 && window.requiresTransportation) {
-                //     const transportationGuestField = $('[name="transportation_guest"]');
-                //     const transportationGuestValue = parseInt(transportationGuestField.val(), 10);
-                //     if (!Number.isFinite(transportationGuestValue) || transportationGuestValue < 1) {
-                //         transportationGuestField.addClass('required-field');
-                //         isValid = false;
-                //         firstInvalidField = firstInvalidField || transportationGuestField;
-                //         alertMessage = 'Please enter Number of Guest(s) in Transportation (minimum 1).';
-                //     }
-                // }
-
-                // if (!isValid && stepNumber === 2 && window.requiresTransportation && alertMessage === 'Please fill in all required fields.') {
-                //     alertMessage = 'Please complete the required transportation details before proceeding.';
-                // }
-
-                // Require a valid country code selection on any visible phone country-code picker.
-                // The picker's code box is a searchable text input; if the user typed search text and
-                // did not pick a country (or typed an invalid code), block until a valid code is chosen.
-                if (isValid) {
-                    var __ccFields = document.querySelectorAll('.country-code-field');
-                    for (var __ci = 0; __ci < __ccFields.length; __ci++) {
-                        var __cc = __ccFields[__ci];
-                        if (__cc.offsetParent === null) continue; // not visible in the current step
-                        var __ccWrap = __cc.closest('.country-code-input');
-                        if (!__ccWrap) continue;
-                        var __opts = __ccWrap.querySelectorAll('.country-option');
-                        if (!__opts.length) continue; // fail-safe: nothing to validate against
-                        var __ccVal = (__cc.value || '').trim();
-                        var __ccOk = false;
-                        for (var __oi = 0; __oi < __opts.length; __oi++) {
-                            if ((__opts[__oi].getAttribute('data-flag') + ' ' + __opts[__oi].getAttribute('data-code')) === __ccVal) { __ccOk = true; break; }
-                        }
-                        if (!__ccOk) {
-                            __cc.style.borderColor = '#ff6b6b';
-                            isValid = false;
-                            firstInvalidField = $(__cc);
-                            alertMessage = 'Please select a valid country code from the list (search and click your country, or type the full +code in the phone box).';
-                            break;
-                        }
-                        __cc.style.borderColor = '';
+                if (stepNumber === 2 && window.requiresTransportation) {
+                    const transportationGuestField = $('[name="transportation_guest"]');
+                    const transportationGuestValue = parseInt(transportationGuestField.val(), 10);
+                    if (!Number.isFinite(transportationGuestValue) || transportationGuestValue < 1) {
+                        transportationGuestField.addClass('required-field');
+                        isValid = false;
+                        firstInvalidField = firstInvalidField || transportationGuestField;
+                        alertMessage = 'Please enter Number of Guest(s) in Transportation (minimum 1).';
                     }
+                }
+                
+                if (!isValid && stepNumber === 2 && window.requiresTransportation && alertMessage === 'Please fill in all required fields.') {
+                    alertMessage = 'Please complete the required transportation details before proceeding.';
                 }
 
                 if (!isValid) {
@@ -8620,168 +8357,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 $(document).on('input change', 'input, select, textarea', function() {
                     $(this).removeClass('required-field');
                 });
-            });
-            
-        </script>
-
-        <input type="hidden" id="gratuity" value="{{ $data->gratuity_fee }}">
-
-        <input type="hidden" id="refundable" value="{{ $data->refundable_fee }}">
-
-        <input type="hidden" id="sales_tax" value="{{ $data->sales_tax_fee ?? 10}}">
-
-        <input type="hidden" id="service_charge" value="{{ $data->service_charge_fee ?? 10}}">
-
-        <input type="hidden" id="processing_fee" value="{{ (float) ($data->processing_fee ?? 0) }}">
-
-        <input type="hidden" id="processing_fee_type" value="{{ $data->processing_fee_type ?? 'percentage' }}">
-
-        <script>
-            function openModal() {
-                // Get the description from the clicked addon
-                const description = event.target.closest('.addon-item').querySelector('label').getAttribute('data-description');
-                const title = event.target.closest('.addon-item').querySelector('label').getAttribute('data-title');
-
-                $('.modal-title').text(title);
-                $('.modal-body').html(`<p style="color: #000 !important;">${description}</p>`);
-                $('.modal').modal('show');
-
-            }
-
-            function openPackageModal() {
-
-                // Get the description from the clicked package
-                const description = event.target.closest('.vip-card').querySelector('.items').getAttribute('data-description');
-                const title = event.target.closest('.vip-card').querySelector('.items').getAttribute('data-title');
-
-                $('.modal-title').text(title);
-                $('.modal-body').html(`<p style="color: #000 !important;">${description}</p>`);
-                $('.modal').modal('show');
-
-            }
-
-            function addToTotal(price, name, id) {
-                // This function is now handled by cart system
-                // Keeping for backward compatibility
-            }
-
-            function transportation(){
-                console.log('sss');
-                if (event.target.checked) {
-                    $('.transport').show();
-                }else{
-                    $('.transport').hide();
-                }
-            }
-        </script>
-
-        <script>
-            $('.package_number_of_guestss').on('change', function() {
-                var $field = $(this);
-                var selectedValue = parseInt($field.val(), 10) || 1;
-                var packageId = $field.data('id');
-                var useDate = (typeof window.getSelectedUseDate === 'function')
-                    ? window.getSelectedUseDate()
-                    : String($('#package_use_date').val() || $('.package_use_date').val() || '').trim();
-
-                $.get('/' + @json($data->slug) + '/package/' + packageId + '/capacity', {
-                    use_date: useDate,
-                    requested_quantity: selectedValue
-                }).done(function(response) {
-                    var maxSelectable = parseInt(response.max_select, 10);
-                    if (!Number.isFinite(maxSelectable)) {
-                        maxSelectable = parseInt(response.capacity, 10) || 1;
-                    }
-
-                    if (selectedValue > maxSelectable) {
-                        if (typeof window.updateGuestSelectOptions === 'function') {
-                            window.updateGuestSelectOptions($field, maxSelectable, response.message || 'Sold Out!');
-                        }
-                        if (typeof window.showGuestFieldError === 'function') {
-                            window.showGuestFieldError($field, response.message || 'The selected quantity is not available for this date.');
-                        }
-                        return;
-                    }
-
-                    if (typeof window.clearGuestFieldError === 'function') {
-                        window.clearGuestFieldError($field);
-                    }
-                    $('.package_number_of_guest').val(String(selectedValue));
-
-                    var pkg = window.cart.find(function(p) { return String(p.packageId) === String(packageId); });
-                    if (pkg) {
-                        pkg.guests = selectedValue;
-                        pkg.isMultiple = (typeof window.parseMultipleFlag === 'function')
-                            ? window.parseMultipleFlag($field.data('multiple'))
-                            : ($field.data('multiple') === true || $field.data('multiple') === 1 || $field.data('multiple') === '1' || $field.data('multiple') === 'true');
-                        window.renderCart();
-                        window.calculateCartTotal();
-                    }
-
-                    syncEventCapacityUi();
-                }).fail(function() {
-                    if (typeof window.showGuestFieldError === 'function') {
-                        window.showGuestFieldError($field, 'Could not verify availability right now. Please try again.');
-                    }
-                });
-            });
-
-            $(document).on('input', '.package_number_of_guestss[type="number"]', function() {
-                var $field = $(this);
-                var entered = parseInt($field.val(), 10);
-                var maxAllowed = parseInt($field.attr('max'), 10);
-
-                if (!Number.isFinite(entered) || entered < 1) {
-                    $field.val('1');
-                    return;
-                }
-
-                if (Number.isFinite(maxAllowed) && maxAllowed > 0 && entered > maxAllowed) {
-                    $field.val(String(maxAllowed));
-                }
-            });
-        </script>
-
-
-
-        <script>
-            // Coupon logic for cart
-            $('#applyPromoBtn').on('click', function() {
-                let code = $('#promo_code').val().trim();
-                if (!code) return;
-
-                var promoSource = @json(!empty($affiliateReferral) ? 'affiliate' : 'club');
-                var ownerSlug = @json(!empty($affiliateReferral) ? $affiliateReferral->slug : '');
-                var cartItems = Array.isArray(window.cart) ? window.cart : [];
-                var packageIds = [];
-                var subtotal = 0;
-                var totalQty = 0;
-
-                cartItems.forEach(function(pkg) {
-                    var pkgId = parseInt(pkg.packageId, 10) || 0;
-                    if (pkgId > 0 && packageIds.indexOf(pkgId) === -1) {
-                        packageIds.push(pkgId);
-                    }
-
-                    var guests = parseInt(pkg.guests, 10) || 1;
-                    var billableGuests = (pkg.isMultiple === true || pkg.isMultiple === 1 || pkg.isMultiple === '1') ? guests : 1;
-                    subtotal += (parseFloat(pkg.packagePrice) || 0) * billableGuests;
-                    subtotal += (pkg.addons || []).reduce(function(sum, addon) { return sum + (parseFloat(addon.price) || 0); }, 0);
-                    totalQty += guests;
-                });
-
-                $.get('/' + @json($data->slug) + '/check/' + encodeURIComponent(code), {
-                    source: promoSource,
-                    owner_slug: ownerSlug,
-                    package_ids: packageIds.join(','),
-                    subtotal: subtotal.toFixed(2),
-                    total_qty: totalQty
-                }, function(res) {
-                    if (res.valid === false || res.valid === "false") {
-                        window.cartCoupon = null;
-                        alert(res.message || 'Invalid promo code');
-                        window.calculateCartTotal();
-                    } else {
+               } else {
                         window.cartCoupon = {
                             code: code,
                             id: res.id,
@@ -8908,7 +8484,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 minDate: "today",
                 allowInput: false,
                 clickOpens: true,
-                disableMobile: true,
                 onChange: function(selectedDates, dateStr) {
                     document.getElementById('package_use_date').value = dateStr;
                 }
@@ -9039,23 +8614,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     e.preventDefault();
                     return;
                 }
-
-                // Check SMS consent checkbox
-                const smsConsentPackage = document.getElementById('smsConsent');
-                if (!smsConsentPackage || !smsConsentPackage.checked) {
-                    e.preventDefault();
-                    alert('Please agree to receive SMS communications.');
-                    return;
-                }
-
-                // Check terms consent checkbox
-                const termsConsentPackage = document.getElementById('termsConsent');
-                if (!termsConsentPackage || !termsConsentPackage.checked) {
-                    e.preventDefault();
-                    alert('Please accept the Terms of Service.');
-                    return;
-                }
-
                 prepareCheckoutCartPayload(this);
             });
 
@@ -9170,8 +8728,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 }
 
                 el.type = 'text';
+                el.setAttribute('readonly', 'readonly');
                 if (typeof flatpickr === 'undefined') {
                     el.type = 'time';
+                    el.removeAttribute('readonly');
                     if (minT) el.min = minT;
                     if (maxT) el.max = maxT;
                     el.step = 900;
@@ -9183,7 +8743,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     noCalendar: true,
                     time_24hr: false,
                     minuteIncrement: 15,
-                    dateFormat: 'h:i K',
+                    dateFormat: 'H:i',
                     allowInput: false,
                     onChange: function () {
                         $(el).removeClass('required-field');
@@ -9254,22 +8814,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                         prepareCheckoutCartPayload(form);
                         showCheckoutProcessingOverlay();
-
-                        // Replace visible phone fields with E.164 values before submission
-                        const phoneFieldsToSync = [
-                            { visible: 'package_phone', e164: 'package_phone_e164' },
-                            { visible: 'reservation_phone', e164: 'reservation_phone_e164' },
-                            { visible: 'transportation_phone', e164: 'transportation_phone_e164' }
-                        ];
-
-                        phoneFieldsToSync.forEach(pair => {
-                            const e164Field = form.querySelector(`input[name="${pair.e164}"]`);
-                            const visibleField = form.querySelector(`input[name="${pair.visible}"]`);
-                            if (e164Field && visibleField && e164Field.value) {
-                                // Use E.164 format for submission
-                                visibleField.value = e164Field.value;
-                            }
-                        });
 
                         const {token, error} = await stripe.createToken(cardNumber);
 
@@ -9375,11 +8919,12 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             stepsAnchor.parentNode.insertBefore(sidebar, stepsAnchor);
                         }
                     } else {
-                        // Desktop: the sidebar must live inside the checkout grid so it renders
-                        // in the right column. Force it back regardless of the captured parent.
-                        var grid = document.getElementById('cv-checkout-layout');
-                        if (grid && sidebar.parentNode !== grid) {
-                            grid.appendChild(sidebar);
+                        if (sidebar.parentNode !== originalParent) {
+                            if (originalNext && originalNext.parentNode === originalParent) {
+                                originalParent.insertBefore(sidebar, originalNext);
+                            } else {
+                                originalParent.appendChild(sidebar);
+                            }
                         }
                     }
                 }
@@ -9568,7 +9113,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             </div>
         </div>
 
-        <!-- affiliate Gallery Carousel Modal -->
+        <!-- Affiliate Gallery Carousel Modal -->
         <div class="modal fade" id="affGalleryModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content aff-gallery-modal-content">
@@ -9644,10 +9189,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                 var cartSection = document.getElementById('cart-section');
                 var pricingShell = document.querySelector('.pricing-shell');
-                var shareContainer = document.getElementById('shareLinkContainer');
                 if (cartSection) sidebarBody.appendChild(cartSection);
                 if (pricingShell) sidebarBody.appendChild(pricingShell);
-                if (shareContainer) sidebarBody.appendChild(shareContainer);
 
                 // Move the promo code section to AFTER the deposit box so it sits below the Due Today box.
                 var depositBox = document.getElementById('cv-deposit-box');
@@ -9673,17 +9216,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 function filterPackages() {
                     var locationId = String(locationFilter.value || '').trim();
                     console.log('Filter called with locationId:', locationId);
-
-                    // Order summary venue name follows the selected club (empty until one is chosen)
-                    var venueNameEl = document.querySelector('.cv-sidebar-venue-name');
-                    if (venueNameEl) {
-                        if (!locationId) {
-                            venueNameEl.textContent = '';
-                        } else {
-                            var clubCard = document.querySelector('[id^="pkg-card-"][data-club-id="' + locationId + '"]');
-                            venueNameEl.textContent = clubCard ? (clubCard.getAttribute('data-club-name') || '') : '';
-                        }
-                    }
                     var packageHeader = document.querySelector('.aff-package-header-gated');
 
                     if (!locationId) {
@@ -10079,52 +9611,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             }
 
 
-            // Auto-format phone numbers as user types
-            function initPhoneFormatters() {
-                const phoneFields = ['#package_phone'];
-
-                phoneFields.forEach(selector => {
-                    const field = document.querySelector(selector);
-                    if (!field) return;
-
-                    field.addEventListener('input', function(e) {
-                        let value = e.target.value.replace(/\D/g, '');
-                        let formatted = '';
-
-                        if (value.length === 0) {
-                            formatted = '';
-                        } else if (value.length <= 3) {
-                            formatted = '(' + value;
-                        } else if (value.length <= 6) {
-                            formatted = '(' + value.slice(0, 3) + ') ' + value.slice(3);
-                        } else {
-                            formatted = '(' + value.slice(0, 3) + ') ' + value.slice(3, 6) + '-' + value.slice(6, 10);
-                        }
-
-                        e.target.value = formatted;
-                    });
-
-                    field.addEventListener('paste', function(e) {
-                        setTimeout(() => {
-                            let value = field.value.replace(/\D/g, '');
-                            let formatted = '';
-
-                            if (value.length === 0) {
-                                formatted = '';
-                            } else if (value.length <= 3) {
-                                formatted = '(' + value;
-                            } else if (value.length <= 6) {
-                                formatted = '(' + value.slice(0, 3) + ') ' + value.slice(3);
-                            } else {
-                                formatted = '(' + value.slice(0, 3) + ') ' + value.slice(3, 6) + '-' + value.slice(6, 10);
-                            }
-
-                            field.value = formatted;
-                        }, 0);
-                    });
-                });
-            }
-
             document.addEventListener('DOMContentLoaded', function() {
                 initSidebar();
                 initPackageSearch();
@@ -10135,723 +9621,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 initHamburger();
                 initCheckoutSteps();
                 initDateNotification();
-                initPhoneFormatters();
             });
         })();
         </script>
 
-        <style>
-            /* ===== Country Code Picker Styles ===== */
-            .phone-input-wrapper {
-                display: flex;
-                gap: 8px;
-                align-items: stretch;
-            }
-
-            .country-code-input {
-                flex: 0 0 120px;
-                position: relative;
-            }
-
-            .country-code-field {
-                width: 100%;
-                padding: 10px 12px;
-                border: 1px solid rgba(255,255,255,0.2);
-                background: rgba(255,255,255,0.05);
-                border-radius: 8px;
-                color: #fff;
-                font-size: 14px;
-                transition: border-color 0.3s;
-            }
-
-            .country-code-field:focus {
-                outline: none;
-                border-color: rgba(255,255,255,0.4);
-                background: rgba(255,255,255,0.08);
-            }
-
-            .country-code-dropdown {
-                position: absolute;
-                top: 100%;
-                left: 0;
-                width: 100%;
-                max-height: 250px;
-                overflow-y: auto;
-                background: rgba(20,20,30,0.98);
-                border: 1px solid rgba(255,255,255,0.2);
-                border-radius: 8px;
-                z-index: 1000;
-                display: none;
-                margin-top: 4px;
-                box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            }
-
-            .country-code-dropdown.active {
-                display: block;
-            }
-
-            .country-option {
-                padding: 10px 12px;
-                cursor: pointer;
-                border-bottom: 1px solid rgba(255,255,255,0.05);
-                font-size: 13px;
-                color: rgba(255,255,255,0.8);
-                transition: background-color 0.2s;
-            }
-
-            .country-option:hover {
-                background: rgba(255,255,255,0.1);
-                color: #fff;
-            }
-
-            .country-option.selected {
-                background: rgba(124,92,255,0.2);
-                color: #fff;
-                font-weight: 600;
-            }
-
-            .flag-icon {
-                display: inline-block;
-                width: 20px;
-                height: 14px;
-                margin-right: 8px;
-                border-radius: 2px;
-                vertical-align: middle;
-                line-height: 14px;
-                text-align: center;
-                font-size: 12px;
-            }
-
-            .phone-number-input {
-                flex: 1;
-            }
-
-            .phone-validation-message {
-                font-size: 12px;
-                color: #ff6b6b;
-                margin-top: 4px;
-                display: none;
-            }
-
-            .phone-validation-message.valid {
-                color: #51cf66;
-                display: block;
-            }
-
-            .phone-validation-message.invalid {
-                color: #ff6b6b;
-                display: block;
-            }
-        </style>
-
-        <script>
-        // ===== COUNTRY CODE PICKER - COMPREHENSIVE SOLUTION =====
-        const COUNTRIES_AFFILIATE = [
-            { name: 'Afghanistan', code: '+93', flag: '🇦🇫' },
-            { name: 'Albania', code: '+355', flag: '🇦🇱' },
-            { name: 'Algeria', code: '+213', flag: '🇩🇿' },
-            { name: 'Andorra', code: '+376', flag: '🇦🇩' },
-            { name: 'Angola', code: '+244', flag: '🇦🇴' },
-            { name: 'Argentina', code: '+54', flag: '🇦🇷' },
-            { name: 'Armenia', code: '+374', flag: '🇦🇲' },
-            { name: 'Australia', code: '+61', flag: '🇦🇺' },
-            { name: 'Austria', code: '+43', flag: '🇦🇹' },
-            { name: 'Azerbaijan', code: '+994', flag: '🇦🇿' },
-            { name: 'Bahamas', code: '+1-242', flag: '🇧🇸' },
-            { name: 'Bahrain', code: '+973', flag: '🇧🇭' },
-            { name: 'Bangladesh', code: '+880', flag: '🇧🇩' },
-            { name: 'Barbados', code: '+1-246', flag: '🇧🇧' },
-            { name: 'Belarus', code: '+375', flag: '🇧🇾' },
-            { name: 'Belgium', code: '+32', flag: '🇧🇪' },
-            { name: 'Belize', code: '+501', flag: '🇧🇿' },
-            { name: 'Benin', code: '+229', flag: '🇧🇯' },
-            { name: 'Bhutan', code: '+975', flag: '🇧🇹' },
-            { name: 'Bolivia', code: '+591', flag: '🇧🇴' },
-            { name: 'Bosnia & Herzegovina', code: '+387', flag: '🇧🇦' },
-            { name: 'Botswana', code: '+267', flag: '🇧🇼' },
-            { name: 'Brazil', code: '+55', flag: '🇧🇷' },
-            { name: 'Brunei', code: '+673', flag: '🇧🇳' },
-            { name: 'Bulgaria', code: '+359', flag: '🇧🇬' },
-            { name: 'Burkina Faso', code: '+226', flag: '🇧🇫' },
-            { name: 'Burundi', code: '+257', flag: '🇧🇮' },
-            { name: 'Cambodia', code: '+855', flag: '🇰🇭' },
-            { name: 'Cameroon', code: '+237', flag: '🇨🇲' },
-            { name: 'Canada', code: '+1', flag: '🇨🇦' },
-            { name: 'Cape Verde', code: '+238', flag: '🇨🇻' },
-            { name: 'Central African Republic', code: '+236', flag: '🇨🇫' },
-            { name: 'Chad', code: '+235', flag: '🇹🇩' },
-            { name: 'Chile', code: '+56', flag: '🇨🇱' },
-            { name: 'China', code: '+86', flag: '🇨🇳' },
-            { name: 'Colombia', code: '+57', flag: '🇨🇴' },
-            { name: 'Comoros', code: '+269', flag: '🇰🇲' },
-            { name: 'Congo', code: '+242', flag: '🇨🇬' },
-            { name: 'Costa Rica', code: '+506', flag: '🇨🇷' },
-            { name: 'Croatia', code: '+385', flag: '🇭🇷' },
-            { name: 'Cuba', code: '+53', flag: '🇨🇺' },
-            { name: 'Cyprus', code: '+357', flag: '🇨🇾' },
-            { name: 'Czech Republic', code: '+420', flag: '🇨🇿' },
-            { name: 'Denmark', code: '+45', flag: '🇩🇰' },
-            { name: 'Djibouti', code: '+253', flag: '🇩🇯' },
-            { name: 'Dominica', code: '+1-767', flag: '🇩🇲' },
-            { name: 'Dominican Republic', code: '+1-809', flag: '🇩🇴' },
-            { name: 'Ecuador', code: '+593', flag: '🇪🇨' },
-            { name: 'Egypt', code: '+20', flag: '🇪🇬' },
-            { name: 'El Salvador', code: '+503', flag: '🇸🇻' },
-            { name: 'Equatorial Guinea', code: '+240', flag: '🇬🇶' },
-            { name: 'Eritrea', code: '+291', flag: '🇪🇷' },
-            { name: 'Estonia', code: '+372', flag: '🇪🇪' },
-            { name: 'Ethiopia', code: '+251', flag: '🇪🇹' },
-            { name: 'Fiji', code: '+679', flag: '🇫🇯' },
-            { name: 'Finland', code: '+358', flag: '🇫🇮' },
-            { name: 'France', code: '+33', flag: '🇫🇷' },
-            { name: 'Gabon', code: '+241', flag: '🇬🇦' },
-            { name: 'Gambia', code: '+220', flag: '🇬🇲' },
-            { name: 'Georgia', code: '+995', flag: '🇬🇪' },
-            { name: 'Germany', code: '+49', flag: '🇩🇪' },
-            { name: 'Ghana', code: '+233', flag: '🇬🇭' },
-            { name: 'Greece', code: '+30', flag: '🇬🇷' },
-            { name: 'Grenada', code: '+1-473', flag: '🇬🇩' },
-            { name: 'Guatemala', code: '+502', flag: '🇬🇹' },
-            { name: 'Guinea', code: '+224', flag: '🇬🇳' },
-            { name: 'Guinea-Bissau', code: '+245', flag: '🇬🇼' },
-            { name: 'Guyana', code: '+592', flag: '🇬🇾' },
-            { name: 'Haiti', code: '+509', flag: '🇭🇹' },
-            { name: 'Honduras', code: '+504', flag: '🇭🇳' },
-            { name: 'Hong Kong', code: '+852', flag: '🇭🇰' },
-            { name: 'Hungary', code: '+36', flag: '🇭🇺' },
-            { name: 'Iceland', code: '+354', flag: '🇮🇸' },
-            { name: 'India', code: '+91', flag: '🇮🇳' },
-            { name: 'Indonesia', code: '+62', flag: '🇮🇩' },
-            { name: 'Iran', code: '+98', flag: '🇮🇷' },
-            { name: 'Iraq', code: '+964', flag: '🇮🇶' },
-            { name: 'Ireland', code: '+353', flag: '🇮🇪' },
-            { name: 'Israel', code: '+972', flag: '🇮🇱' },
-            { name: 'Italy', code: '+39', flag: '🇮🇹' },
-            { name: 'Jamaica', code: '+1-876', flag: '🇯🇲' },
-            { name: 'Japan', code: '+81', flag: '🇯🇵' },
-            { name: 'Jordan', code: '+962', flag: '🇯🇴' },
-            { name: 'Kazakhstan', code: '+7', flag: '🇰🇿' },
-            { name: 'Kenya', code: '+254', flag: '🇰🇪' },
-            { name: 'Kiribati', code: '+686', flag: '🇰🇮' },
-            { name: 'Kosovo', code: '+383', flag: '🇽🇰' },
-            { name: 'Kuwait', code: '+965', flag: '🇰🇼' },
-            { name: 'Kyrgyzstan', code: '+996', flag: '🇰🇬' },
-            { name: 'Laos', code: '+856', flag: '🇱🇦' },
-            { name: 'Latvia', code: '+371', flag: '🇱🇻' },
-            { name: 'Lebanon', code: '+961', flag: '🇱🇧' },
-            { name: 'Lesotho', code: '+266', flag: '🇱🇸' },
-            { name: 'Liberia', code: '+231', flag: '🇱🇷' },
-            { name: 'Libya', code: '+218', flag: '🇱🇾' },
-            { name: 'Liechtenstein', code: '+423', flag: '🇱🇮' },
-            { name: 'Lithuania', code: '+370', flag: '🇱🇹' },
-            { name: 'Luxembourg', code: '+352', flag: '🇱🇺' },
-            { name: 'Macau', code: '+853', flag: '🇲🇴' },
-            { name: 'Madagascar', code: '+261', flag: '🇲🇬' },
-            { name: 'Malawi', code: '+265', flag: '🇲🇼' },
-            { name: 'Malaysia', code: '+60', flag: '🇲🇾' },
-            { name: 'Maldives', code: '+960', flag: '🇲🇻' },
-            { name: 'Mali', code: '+223', flag: '🇲🇱' },
-            { name: 'Malta', code: '+356', flag: '🇲🇹' },
-            { name: 'Marshall Islands', code: '+692', flag: '🇲🇭' },
-            { name: 'Mauritania', code: '+222', flag: '🇲🇷' },
-            { name: 'Mauritius', code: '+230', flag: '🇲🇺' },
-            { name: 'Mexico', code: '+52', flag: '🇲🇽' },
-            { name: 'Micronesia', code: '+691', flag: '🇫🇲' },
-            { name: 'Moldova', code: '+373', flag: '🇲🇩' },
-            { name: 'Monaco', code: '+377', flag: '🇲🇨' },
-            { name: 'Mongolia', code: '+976', flag: '🇲🇳' },
-            { name: 'Montenegro', code: '+382', flag: '🇲🇪' },
-            { name: 'Morocco', code: '+212', flag: '🇲🇦' },
-            { name: 'Mozambique', code: '+258', flag: '🇲🇿' },
-            { name: 'Myanmar', code: '+95', flag: '🇲🇲' },
-            { name: 'Namibia', code: '+264', flag: '🇳🇦' },
-            { name: 'Nauru', code: '+674', flag: '🇳🇷' },
-            { name: 'Nepal', code: '+977', flag: '🇳🇵' },
-            { name: 'Netherlands', code: '+31', flag: '🇳🇱' },
-            { name: 'New Zealand', code: '+64', flag: '🇳🇿' },
-            { name: 'Nicaragua', code: '+505', flag: '🇳🇮' },
-            { name: 'Niger', code: '+227', flag: '🇳🇪' },
-            { name: 'Nigeria', code: '+234', flag: '🇳🇬' },
-            { name: 'North Korea', code: '+850', flag: '🇰🇵' },
-            { name: 'North Macedonia', code: '+389', flag: '🇲🇰' },
-            { name: 'Norway', code: '+47', flag: '🇳🇴' },
-            { name: 'Oman', code: '+968', flag: '🇴🇲' },
-            { name: 'Pakistan', code: '+92', flag: '🇵🇰' },
-            { name: 'Palau', code: '+680', flag: '🇵🇼' },
-            { name: 'Palestine', code: '+970', flag: '🇵🇸' },
-            { name: 'Panama', code: '+507', flag: '🇵🇦' },
-            { name: 'Papua New Guinea', code: '+675', flag: '🇵🇬' },
-            { name: 'Paraguay', code: '+595', flag: '🇵🇾' },
-            { name: 'Peru', code: '+51', flag: '🇵🇪' },
-            { name: 'Philippines', code: '+63', flag: '🇵🇭' },
-            { name: 'Poland', code: '+48', flag: '🇵🇱' },
-            { name: 'Portugal', code: '+351', flag: '🇵🇹' },
-            { name: 'Qatar', code: '+974', flag: '🇶🇦' },
-            { name: 'Romania', code: '+40', flag: '🇷🇴' },
-            { name: 'Russia', code: '+7', flag: '🇷🇺' },
-            { name: 'Rwanda', code: '+250', flag: '🇷🇼' },
-            { name: 'Saint Kitts & Nevis', code: '+1-869', flag: '🇰🇳' },
-            { name: 'Saint Lucia', code: '+1-758', flag: '🇱🇨' },
-            { name: 'Saint Vincent & Grenadines', code: '+1-784', flag: '🇻🇨' },
-            { name: 'Samoa', code: '+685', flag: '🇼🇸' },
-            { name: 'San Marino', code: '+378', flag: '🇸🇲' },
-            { name: 'Sao Tome & Principe', code: '+239', flag: '🇸🇹' },
-            { name: 'Saudi Arabia', code: '+966', flag: '🇸🇦' },
-            { name: 'Senegal', code: '+221', flag: '🇸🇳' },
-            { name: 'Serbia', code: '+381', flag: '🇷🇸' },
-            { name: 'Seychelles', code: '+248', flag: '🇸🇨' },
-            { name: 'Sierra Leone', code: '+232', flag: '🇸🇱' },
-            { name: 'Singapore', code: '+65', flag: '🇸🇬' },
-            { name: 'Slovakia', code: '+421', flag: '🇸🇰' },
-            { name: 'Slovenia', code: '+386', flag: '🇸🇮' },
-            { name: 'Solomon Islands', code: '+677', flag: '🇸🇧' },
-            { name: 'Somalia', code: '+252', flag: '🇸🇴' },
-            { name: 'South Africa', code: '+27', flag: '🇿🇦' },
-            { name: 'South Korea', code: '+82', flag: '🇰🇷' },
-            { name: 'South Sudan', code: '+211', flag: '🇸🇸' },
-            { name: 'Spain', code: '+34', flag: '🇪🇸' },
-            { name: 'Sri Lanka', code: '+94', flag: '🇱🇰' },
-            { name: 'Sudan', code: '+249', flag: '🇸🇩' },
-            { name: 'Suriname', code: '+597', flag: '🇸🇷' },
-            { name: 'Sweden', code: '+46', flag: '🇸🇪' },
-            { name: 'Switzerland', code: '+41', flag: '🇨🇭' },
-            { name: 'Syria', code: '+963', flag: '🇸🇾' },
-            { name: 'Taiwan', code: '+886', flag: '🇹🇼' },
-            { name: 'Tajikistan', code: '+992', flag: '🇹🇯' },
-            { name: 'Tanzania', code: '+255', flag: '🇹🇿' },
-            { name: 'Thailand', code: '+66', flag: '🇹🇭' },
-            { name: 'Timor-Leste', code: '+670', flag: '🇹🇱' },
-            { name: 'Togo', code: '+228', flag: '🇹🇬' },
-            { name: 'Tonga', code: '+676', flag: '🇹🇴' },
-            { name: 'Trinidad & Tobago', code: '+1-868', flag: '🇹🇹' },
-            { name: 'Tunisia', code: '+216', flag: '🇹🇳' },
-            { name: 'Turkey', code: '+90', flag: '🇹🇷' },
-            { name: 'Turkmenistan', code: '+993', flag: '🇹🇲' },
-            { name: 'Tuvalu', code: '+688', flag: '🇹🇻' },
-            { name: 'Uganda', code: '+256', flag: '🇺🇬' },
-            { name: 'Ukraine', code: '+380', flag: '🇺🇦' },
-            { name: 'United Arab Emirates', code: '+971', flag: '🇦🇪' },
-            { name: 'United Kingdom', code: '+44', flag: '🇬🇧' },
-            { name: 'United States', code: '+1', flag: '🇺🇸' },
-            { name: 'Uruguay', code: '+598', flag: '🇺🇾' },
-            { name: 'Uzbekistan', code: '+998', flag: '🇺🇿' },
-            { name: 'Vanuatu', code: '+678', flag: '🇻🇺' },
-            { name: 'Vatican City', code: '+379', flag: '🇻🇦' },
-            { name: 'Venezuela', code: '+58', flag: '🇻🇪' },
-            { name: 'Vietnam', code: '+84', flag: '🇻🇳' },
-            { name: 'Yemen', code: '+967', flag: '🇾🇪' },
-            { name: 'Zambia', code: '+260', flag: '🇿🇲' },
-            { name: 'Zimbabwe', code: '+263', flag: '🇿🇼' }
-        ];
-
-        function initCountryCodePickersAffiliate() {
-            const phoneFields = [
-                { name: 'package_phone' },
-                { name: 'reservation_phone' }
-                // Note: transportation_phone is excluded intentionally - it's a simple phone field for driver contact only
-            ];
-
-            phoneFields.forEach(field => {
-                const input = document.querySelector(`input[name="${field.name}"]`);
-                if (input) {
-                    setupCountryCodePickerAffiliate(input, field.name);
-                }
-            });
-        }
-
-        function setupCountryCodePickerAffiliate(phoneInput, fieldName) {
-            // Prevent double-wrapping if already initialized
-            if (phoneInput.parentElement.classList.contains('phone-input-wrapper')) {
-                return;
-            }
-
-            const wrapper = document.createElement('div');
-            wrapper.className = 'phone-input-wrapper';
-
-            const countryCodeDiv = document.createElement('div');
-            countryCodeDiv.className = 'country-code-input';
-
-            const countryCodeInput = document.createElement('input');
-            countryCodeInput.className = 'country-code-field';
-            countryCodeInput.type = 'text';
-            countryCodeInput.placeholder = '🇺🇸 +1';
-            countryCodeInput.name = `${fieldName}_country`;
-            countryCodeInput.setAttribute('data-phone-field', fieldName);
-            countryCodeInput.setAttribute('autocomplete', 'off');
-
-            const dropdown = document.createElement('div');
-            dropdown.className = 'country-code-dropdown';
-
-            COUNTRIES_AFFILIATE.forEach(country => {
-                const option = document.createElement('div');
-                option.className = 'country-option';
-                option.innerHTML = `<span class="flag-icon">${country.flag}</span>${country.code} ${country.name}`;
-                option.setAttribute('data-code', country.code);
-                option.setAttribute('data-flag', country.flag);
-                option.addEventListener('click', () => selectCountryAffiliate(countryCodeInput, option, country, phoneInput));
-                dropdown.appendChild(option);
-            });
-
-            countryCodeDiv.appendChild(countryCodeInput);
-            countryCodeDiv.appendChild(dropdown);
-
-            const usOption = COUNTRIES_AFFILIATE.find(c => c.code === '+1' && c.name === 'United States');
-            if (usOption) {
-                countryCodeInput.value = `${usOption.flag} ${usOption.code}`;
-                countryCodeInput.dataset.code = usOption.code;
-            }
-
-            phoneInput.parentElement.insertBefore(wrapper, phoneInput);
-            wrapper.appendChild(countryCodeDiv);
-            wrapper.appendChild(phoneInput);
-
-            countryCodeInput.addEventListener('click', () => {
-                dropdown.classList.add('active');
-                countryCodeInput.select();
-            });
-
-            // Close the list whenever focus leaves the field (tab / enter / click away),
-            // but not when the blur is caused by clicking an option inside the list.
-            dropdown.addEventListener('mousedown', () => { dropdown.dataset.keepOpen = '1'; });
-            countryCodeInput.addEventListener('blur', () => {
-                if (dropdown.dataset.keepOpen === '1') { dropdown.dataset.keepOpen = ''; return; }
-                dropdown.classList.remove('active');
-            });
-
-            countryCodeInput.addEventListener('input', (e) => {
-                dropdown.classList.add('active');
-                const searchValue = e.target.value.toLowerCase();
-                const options = dropdown.querySelectorAll('.country-option');
-                options.forEach(option => {
-                    const text = option.textContent.toLowerCase();
-                    option.style.display = text.includes(searchValue) ? 'block' : 'none';
-                });
-            });
-
-            document.addEventListener('click', (e) => {
-                if (!countryCodeDiv.contains(e.target)) {
-                    dropdown.classList.remove('active');
-                }
-            });
-
-            phoneInput.addEventListener('input', () => {
-                validateAndFormatPhoneAffiliate(phoneInput, countryCodeInput);
-            });
-
-            phoneInput.addEventListener('blur', () => {
-                validateAndFormatPhoneAffiliate(phoneInput, countryCodeInput);
-            });
-        }
-
-        function selectCountryAffiliate(countryCodeInput, optionEl, country, phoneInput) {
-            countryCodeInput.value = `${country.flag} ${country.code}`;
-            countryCodeInput.dataset.code = country.code;
-
-            const dropdown = countryCodeInput.nextElementSibling;
-            dropdown.querySelectorAll('.country-option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-            optionEl.classList.add('selected');
-            dropdown.classList.remove('active');
-
-            validateAndFormatPhoneAffiliate(phoneInput, countryCodeInput);
-        }
-
-        const PHONE_LENGTH_REQUIREMENTS_AFFILIATE = {
-            '+1': { min: 10, max: 10 },
-            '+880': { min: 10, max: 11 },
-            '+44': { min: 9, max: 11 },
-            '+33': { min: 9, max: 9 },
-            '+49': { min: 9, max: 11 },
-            '+39': { min: 9, max: 11 },
-            '+34': { min: 9, max: 9 },
-            '+31': { min: 9, max: 9 },
-            '+41': { min: 9, max: 9 },
-            '+43': { min: 9, max: 10 },
-            '+46': { min: 9, max: 9 },
-            '+47': { min: 8, max: 8 },
-            '+45': { min: 8, max: 8 },
-            '+358': { min: 9, max: 9 },
-            '+353': { min: 9, max: 10 },
-            '+32': { min: 9, max: 9 },
-            '+86': { min: 11, max: 11 },
-            '+81': { min: 10, max: 11 },
-            '+82': { min: 10, max: 11 },
-            '+91': { min: 10, max: 10 },
-            '+62': { min: 10, max: 12 },
-            '+60': { min: 9, max: 11 },
-            '+66': { min: 9, max: 10 },
-            '+65': { min: 8, max: 8 },
-            '+61': { min: 9, max: 9 },
-            '+64': { min: 9, max: 10 },
-            '+27': { min: 9, max: 9 },
-            '+55': { min: 10, max: 11 },
-            '+52': { min: 10, max: 10 },
-            '+54': { min: 10, max: 10 },
-            '+56': { min: 9, max: 9 },
-            '+57': { min: 10, max: 10 },
-            '+51': { min: 9, max: 9 },
-            '+84': { min: 9, max: 11 },
-            '+855': { min: 8, max: 9 },
-            '+663': { min: 9, max: 10 },
-            '+95': { min: 9, max: 10 },
-            '+970': { min: 9, max: 9 },
-            '+972': { min: 9, max: 10 },
-            '+966': { min: 9, max: 9 },
-            '+971': { min: 9, max: 9 },
-            '+973': { min: 8, max: 8 },
-            '+974': { min: 8, max: 8 },
-            '+965': { min: 8, max: 8 },
-        };
-
-        function formatPhoneNumberAffiliate(digits, countryCode) {
-            if (countryCode === '+1' || countryCode === '+7') {
-                if (digits.length <= 3) return digits;
-                if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-                return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-            } else if (countryCode === '+44') {
-                if (digits.length <= 4) return digits;
-                if (digits.length <= 7) return `${digits.slice(0, 4)} ${digits.slice(4)}`;
-                return `${digits.slice(0, 4)} ${digits.slice(4, 7)} ${digits.slice(7)}`;
-            } else if (countryCode === '+880') {
-                if (digits.length <= 4) return digits;
-                return `${digits.slice(0, 4)} ${digits.slice(4)}`;
-            } else {
-                if (digits.length <= 4) return digits;
-                let formatted = '';
-                for (let i = 0; i < digits.length; i += 4) {
-                    if (formatted) formatted += ' ';
-                    formatted += digits.slice(i, i + 4);
-                }
-                return formatted;
-            }
-        }
-
-        // Detect the country whose dial code is the longest prefix of the typed digits.
-        function detectCountryFromDigitsAffiliate(digits) {
-            if (!digits) return null;
-            let best = null;
-            let bestLen = 0;
-            COUNTRIES_AFFILIATE.forEach(function (country) {
-                const cc = country.code.replace(/\D/g, '');
-                if (cc && digits.startsWith(cc) && cc.length > bestLen) {
-                    best = country;
-                    bestLen = cc.length;
-                }
-            });
-            return best;
-        }
-
-        function validateAndFormatPhoneAffiliate(phoneInput, countryCodeInput) {
-            let phoneValue = phoneInput.value.trim();
-            let countryCode = countryCodeInput.dataset.code || '+1';
-
-            // If the user typed a leading "+<country code>" directly into the number box,
-            // detect the country, sync the flag/dropdown to it, and strip the code from the
-            // national number so the flag and the number stay in sync.
-            if (phoneValue.startsWith('+')) {
-                const typedDigits = phoneValue.replace(/\D/g, '');
-                const detected = detectCountryFromDigitsAffiliate(typedDigits);
-                if (detected) {
-                    countryCodeInput.value = `${detected.flag} ${detected.code}`;
-                    countryCodeInput.dataset.code = detected.code;
-                    countryCode = detected.code;
-                    const ccDigits = detected.code.replace(/\D/g, '');
-                    const nationalDigits = typedDigits.startsWith(ccDigits) ? typedDigits.substring(ccDigits.length) : typedDigits;
-                    phoneInput.value = nationalDigits;
-                    phoneValue = nationalDigits;
-                } else {
-                    // Incomplete country code still being typed (e.g. "+3") — leave it so the
-                    // user can finish, and don't format/validate yet.
-                    phoneInput.style.borderColor = '';
-                    phoneInput.classList.remove('is-invalid', 'is-valid');
-                    return;
-                }
-            }
-
-            const requirements = PHONE_LENGTH_REQUIREMENTS_AFFILIATE[countryCode] || { min: 7, max: 15 };
-            phoneInput.dataset.maxDigits = requirements.max;
-
-            if (!phoneValue) {
-                phoneInput.style.borderColor = '';
-                phoneInput.classList.remove('is-invalid', 'is-valid');
-                const hiddenField = document.querySelector(`input[name="${phoneInput.name}_e164"]`);
-                if (hiddenField) hiddenField.value = '';
-                return;
-            }
-
-            let digitsOnly = phoneValue.replace(/\D/g, '');
-            const maxDigits = parseInt(phoneInput.dataset.maxDigits || requirements.max);
-            if (digitsOnly.length > maxDigits) {
-                digitsOnly = digitsOnly.substring(0, maxDigits);
-            }
-
-            let cleanNumber = digitsOnly;
-            if (countryCode === '+1' && digitsOnly.startsWith('1')) {
-                cleanNumber = digitsOnly.substring(1);
-            }
-
-            phoneInput.value = formatPhoneNumberAffiliate(cleanNumber, countryCode);
-
-            if (cleanNumber.length < requirements.min || cleanNumber.length > requirements.max) {
-                phoneInput.style.borderColor = '#ff6b6b';
-                phoneInput.classList.add('is-invalid');
-                phoneInput.classList.remove('is-valid');
-                return;
-            }
-
-            const e164Number = countryCode + cleanNumber;
-
-            if (!/^\+\d{7,15}$/.test(e164Number)) {
-                phoneInput.style.borderColor = '#ff6b6b';
-                phoneInput.classList.add('is-invalid');
-                phoneInput.classList.remove('is-valid');
-                return;
-            }
-
-            phoneInput.style.borderColor = '#51cf66';
-            phoneInput.classList.remove('is-invalid');
-            phoneInput.classList.add('is-valid');
-
-            let hiddenField = document.querySelector(`input[name="${phoneInput.name}_e164"]`);
-            if (!hiddenField) {
-                hiddenField = document.createElement('input');
-                hiddenField.type = 'hidden';
-                hiddenField.name = `${phoneInput.name}_e164`;
-                phoneInput.parentElement.appendChild(hiddenField);
-            }
-            hiddenField.value = e164Number;
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(() => {
-                initCountryCodePickersAffiliate();
-            }, 500);
-        });
-        </script>
-
-    <script>
-    (function () {
-        // AJAX checkout/reservation submit: on a server error keep the page state and show
-        // the same notification (no reload); on success navigate to thank-you as usual.
-        function isCheckoutForm(form) {
-            var a = (form.getAttribute('action') || '');
-            return a.indexOf('/checkout/store') !== -1
-                || a.indexOf('/reservation/store') !== -1
-                || a.indexOf('/reservations/store') !== -1;
-        }
-
-        function restoreButtons() {
-            try { if (typeof hideCheckoutProcessingOverlay === 'function') hideCheckoutProcessingOverlay(); } catch (e) {}
-            var overlay = document.getElementById('checkout-processing-overlay');
-            if (overlay) { overlay.classList.remove('is-visible'); overlay.setAttribute('aria-hidden', 'true'); }
-            ['submitBtn', 'submitBtn_two'].forEach(function (id) {
-                var b = document.getElementById(id);
-                if (b) {
-                    b.disabled = false;
-                    if (b.dataset && b.dataset.defaultText) { b.textContent = b.dataset.defaultText; }
-                }
-            });
-        }
-
-        function showCheckoutError(message) {
-            restoreButtons();
-            var prev = document.getElementById('cv-ajax-error-alert');
-            if (prev && prev.parentNode) prev.parentNode.removeChild(prev);
-            var alertEl = document.createElement('div');
-            alertEl.className = 'alert alert-danger';
-            alertEl.setAttribute('role', 'alert');
-            alertEl.id = 'cv-ajax-error-alert';
-            alertEl.textContent = message || 'Something went wrong. Please try again.';
-            var container = document.querySelector('header .container') || document.body;
-            container.insertBefore(alertEl, container.firstChild);
-            try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); }
-        }
-
-        function extractError(json) {
-            if (!json) return null;
-            if (json.error) return json.error;
-            if (json.errors && typeof json.errors === 'object') {
-                var keys = Object.keys(json.errors);
-                if (keys.length) { var v = json.errors[keys[0]]; return Array.isArray(v) ? v[0] : v; }
-            }
-            return json.message || null;
-        }
-
-        function submitCheckoutAjax(form) {
-            // Show the same processing loader used by the package checkout (covers the reservation form too).
-            if (typeof showCheckoutProcessingOverlay === 'function') { try { showCheckoutProcessingOverlay(); } catch (e) {} }
-            // Retries append a fresh Stripe token each time; only send the latest.
-            var tokens = form.querySelectorAll('input[name="stripeToken"]');
-            for (var i = 0; i < tokens.length - 1; i++) {
-                if (tokens[i].parentNode) tokens[i].parentNode.removeChild(tokens[i]);
-            }
-            fetch(form.getAttribute('action'), {
-                method: 'POST',
-                body: new FormData(form),
-                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
-                credentials: 'same-origin'
-            }).then(function (res) {
-                return res.text().then(function (t) { try { return JSON.parse(t); } catch (e) { return null; } });
-            }).then(function (json) {
-                if (json && json.success && json.redirect) { window.location.href = json.redirect; return; }
-                showCheckoutError(extractError(json));
-            }).catch(function () {
-                showCheckoutError('Network error. Please check your connection and try again.');
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            Array.prototype.forEach.call(document.querySelectorAll('form'), function (form) {
-                if (!isCheckoutForm(form)) return;
-                // Programmatic submits (Stripe + reservation call form.submit() after their checks).
-                form.submit = function () { submitCheckoutAjax(form); };
-                // Native submits that passed every existing validation handler (e.g. Authorize.Net).
-                form.addEventListener('submit', function (e) {
-                    if (e.defaultPrevented) return; // an existing handler is already handling it
-                    e.preventDefault();
-                    submitCheckoutAjax(form);
-                });
-            });
-        });
-    })();
-    </script>
-
-    <script>
-    (function () {
-        // Checkout UX: Enter advances to the next field instead of submitting the form.
-        document.addEventListener('keydown', function (e) {
-            if (e.key !== 'Enter' && e.keyCode !== 13) return;
-            if (e.defaultPrevented) return; // a field-specific handler already dealt with Enter
-            var el = e.target;
-            if (!el) return;
-            var tag = (el.tagName || '').toLowerCase();
-            var type = ((el.getAttribute && el.getAttribute('type')) || '').toLowerCase();
-            if (tag === 'textarea' || tag === 'button' || tag === 'a') return; // keep normal behavior
-            if (type === 'submit' || type === 'button') return;
-            var form = el.form || (el.closest ? el.closest('form') : null);
-            if (!form) return; // only intercept fields inside a form
-
-            e.preventDefault(); // stop the implicit form submission
-
-            var fields = Array.prototype.filter.call(
-                form.querySelectorAll('input, select, textarea, button'),
-                function (node) {
-                    if (node.disabled || node.type === 'hidden' || node.tabIndex === -1) return false;
-                    return node.offsetParent !== null || node.getClientRects().length > 0;
-                }
-            );
-            var idx = fields.indexOf(el);
-            if (idx > -1 && idx < fields.length - 1) {
-                var next = fields[idx + 1];
-                next.focus();
-                if (typeof next.select === 'function') { try { next.select(); } catch (err) {} }
-            } else if (typeof el.blur === 'function') {
-                el.blur();
-            }
-        });
-    })();
-    </script>
     </body>
 
     </html>

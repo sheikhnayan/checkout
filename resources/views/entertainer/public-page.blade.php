@@ -6380,8 +6380,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 <div class="num-guest" style="width: 100%; display: flex;">
                                                                     <label for="">Number of Guest(s)</label>
     
-                                                                    <input type="text" class="form-control"
-                                                                        name="transportation_guest" placeholder="e.g. John Smith"
+                                                                    <input type="number" class="form-control"
+                                                                        name="transportation_guest" value="0" min="1"
                                                                         style="width: 120px; max-width: 120px; color: #fff;"  required />
     
     
@@ -7537,9 +7537,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     transportationAddressField.prop('required', true).attr('aria-required', 'true');
                     transportationPickupTimeField.prop('required', true).attr('aria-required', 'true');
                     transportationGuestField.prop('required', true).attr('aria-required', 'true');
-                    if (!Number.isFinite(parseInt(transportationGuestField.val(), 10)) || parseInt(transportationGuestField.val(), 10) < 1) {
-                        transportationGuestField.val('1');
-                    }
                     pickupDateField.prop('required', true).attr('aria-required', 'true');
                     driverNotificationConsentWrap.css('display', 'flex');
                     driverNotificationConsentInputs.prop('required', true).attr('aria-required', 'true');
@@ -8729,27 +8726,19 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         '[name="package_year"]'
                     );
                 } else if (stepNumber === 2 && window.requiresTransportation) {
-                    // Transportation form validation disabled - allow form to proceed
-                    // requiredFields.push(
-                    //     '[name="package_use_date"]',
-                    //     '[name="transportation_pickup_time"]',
-                    //     '[name="transportation_address"]',
-                    //     '[name="transportation_phone"]',
-                    //     '[name="transportation_guest"]'
-                    // );
+                    // Validate transportation form
+                    requiredFields.push(
+                        '[name="package_use_date"]',
+                        '[name="transportation_pickup_time"]',
+                        '[name="transportation_address"]',
+                        '[name="transportation_phone"]',
+                        '[name="transportation_guest"]'
+                    );
                 } else if (stepNumber === 2 && !window.requiresTransportation) {
                     // Validate transportation confirmation checkbox
                     if (!$('#transportation_part').is(':checked')) {
                         alert('Please confirm your transportation arrangement.');
                         return false;
-                    }
-                }
-
-                // Auto-fill empty transportation_guest field with 1 if transportation required
-                if (stepNumber === 2 && window.requiresTransportation) {
-                    const guestField = $('[name="transportation_guest"]');
-                    if (!guestField.val() || parseInt(guestField.val(), 10) < 1) {
-                        guestField.val('1');
                     }
                 }
 
@@ -8776,21 +8765,20 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     }
                 }
 
-                // Transportation validation removed - allow form to proceed
-                // if (stepNumber === 2 && window.requiresTransportation) {
-                //     const transportationGuestField = $('[name="transportation_guest"]');
-                //     const transportationGuestValue = parseInt(transportationGuestField.val(), 10);
-                //     if (!Number.isFinite(transportationGuestValue) || transportationGuestValue < 1) {
-                //         transportationGuestField.addClass('required-field');
-                //         isValid = false;
-                //         firstInvalidField = firstInvalidField || transportationGuestField;
-                //         alertMessage = 'Please enter Number of Guest(s) in Transportation (minimum 1).';
-                //     }
-                // }
+                if (stepNumber === 2 && window.requiresTransportation) {
+                    const transportationGuestField = $('[name="transportation_guest"]');
+                    const transportationGuestValue = parseInt(transportationGuestField.val(), 10);
+                    if (!Number.isFinite(transportationGuestValue) || transportationGuestValue < 1) {
+                        transportationGuestField.addClass('required-field');
+                        isValid = false;
+                        firstInvalidField = firstInvalidField || transportationGuestField;
+                        alertMessage = 'Please enter Number of Guest(s) in Transportation (minimum 1).';
+                    }
+                }
 
-                // if (!isValid && stepNumber === 2 && window.requiresTransportation && alertMessage === 'Please fill in all required fields.') {
-                //     alertMessage = 'Please complete the required transportation details before proceeding.';
-                // }
+                if (!isValid && stepNumber === 2 && window.requiresTransportation && alertMessage === 'Please fill in all required fields.') {
+                    alertMessage = 'Please complete the required transportation details before proceeding.';
+                }
 
                 // Require a valid country code selection on any visible phone country-code picker.
                 // The picker's code box is a searchable text input; if the user typed search text and
