@@ -5094,13 +5094,6 @@ input[type="checkbox"],
                         </style>
                         <div class="cv-access-grid">
                             @if ($data->reservation == 1)
-                                    <button type="button" class="cv-access-card cv-access-tab" data-name="guest">
-                                    <span class="cv-ac-icon-wrap"><i class="fas {{ $data->guest_tab_icon ?? 'fa-car-side' }}"></i></span>
-                                    <span class="cv-ac-body">
-                                        <strong>{{ $data->guest_list_button_text ?? 'Free Ride & Entry' }}</strong>
-                                        <span style="color: #fff !important;">{{ $data->guest_tab_subtitle ?? 'Complimentary ride and general entry' }}</span>
-                                    </span>
-                                </button>
                                     <button type="button" class="cv-access-card cv-access-tab is-active" data-name="package">
                                     @if(!empty($data->package_tab_ribbon))
                                         <span class="cv-ac-ribbon">{{ $data->package_tab_ribbon }}</span>
@@ -5110,6 +5103,13 @@ input[type="checkbox"],
                                     <span class="cv-ac-body">
                                         <strong>{{ $data->package_button_text ?? 'VIP Packages' }}</strong>
                                         <span style="color: #fff !important;">{{ $data->package_tab_subtitle ?? 'VIP table packages &amp; experiences' }}</span>
+                                    </span>
+                                </button>
+                                    <button type="button" class="cv-access-card cv-access-tab" data-name="guest">
+                                    <span class="cv-ac-icon-wrap"><i class="fas {{ $data->guest_tab_icon ?? 'fa-car-side' }}"></i></span>
+                                    <span class="cv-ac-body">
+                                        <strong>{{ $data->guest_list_button_text ?? 'Free Ride & Entry' }}</strong>
+                                        <span style="color: #fff !important;">{{ $data->guest_tab_subtitle ?? 'Complimentary ride and general entry' }}</span>
                                     </span>
                                 </button>
                             @else
