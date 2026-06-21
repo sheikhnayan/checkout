@@ -5114,6 +5114,56 @@
         }
 
         .cv-package-tooltip-trigger { background: transparent; cursor: pointer; padding: 0; }
+        .cv-package-tooltip-trigger::before,
+        .cv-package-tooltip-trigger::after { content: none !important; display: none !important; }
+        .cv-tooltip-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(6, 8, 18, 0.72);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 12000;
+            padding: 16px;
+        }
+        .cv-tooltip-modal-overlay.is-open { display: flex; }
+        .cv-tooltip-modal {
+            width: min(520px, calc(100vw - 32px));
+            max-height: min(80vh, 680px);
+            overflow: auto;
+            background: linear-gradient(180deg, rgba(28,20,52,0.98), rgba(14,8,28,0.99));
+            border: 1px solid rgba(167,116,255,0.35);
+            border-radius: 14px;
+            box-shadow: 0 18px 48px rgba(0,0,0,0.58);
+            color: #fff;
+        }
+        .cv-tooltip-modal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+        }
+        .cv-tooltip-modal-title { font-size: 14px; font-weight: 700; margin: 0; }
+        .cv-tooltip-modal-close {
+            background: transparent;
+            color: rgba(255,255,255,0.8);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            width: 30px;
+            height: 30px;
+            line-height: 1;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .cv-tooltip-modal-body {
+            padding: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.94);
+            white-space: pre-wrap;
+        }
 
         .cv-pkg-sub {
             font-size: 12.5px;
@@ -7229,35 +7279,69 @@
             (function () {
                 var triggerSelector = '.cv-package-tooltip-trigger[data-tip]';
 
-                function closeAll(exceptNode) {
-                    document.querySelectorAll(triggerSelector + '[data-tip-open="1"]').forEach(function (node) {
-                        if (exceptNode && node === exceptNode) {
-                            return;
-                        }
-                        node.removeAttribute('data-tip-open');
-                    });
+                function ensureModal() {
+                    var existing = document.getElementById('cv-package-tooltip-modal');
+                    if (existing) {
+                        return existing;
+                    }
+
+                    var overlay = document.createElement('div');
+                    overlay.id = 'cv-package-tooltip-modal';
+                    overlay.className = 'cv-tooltip-modal-overlay';
+                    overlay.innerHTML = ''
+                        + '<div class="cv-tooltip-modal" role="dialog" aria-modal="true" aria-labelledby="cvTooltipModalTitle">'
+                        + '  <div class="cv-tooltip-modal-head">'
+                        + '    <h4 class="cv-tooltip-modal-title" id="cvTooltipModalTitle">Package Info</h4>'
+                        + '    <button type="button" class="cv-tooltip-modal-close" aria-label="Close">&times;</button>'
+                        + '  </div>'
+                        + '  <div class="cv-tooltip-modal-body" id="cvTooltipModalBody"></div>'
+                        + '</div>';
+
+                    document.body.appendChild(overlay);
+                    return overlay;
+                }
+
+                function closeModal() {
+                    var modal = document.getElementById('cv-package-tooltip-modal');
+                    if (!modal) {
+                        return;
+                    }
+                    modal.classList.remove('is-open');
+                }
+
+                function openModal(title, text) {
+                    var modal = ensureModal();
+                    var titleEl = modal.querySelector('#cvTooltipModalTitle');
+                    var bodyEl = modal.querySelector('#cvTooltipModalBody');
+
+                    titleEl.textContent = title || 'Package Info';
+                    bodyEl.textContent = text || '';
+                    modal.classList.add('is-open');
                 }
 
                 document.addEventListener('click', function (event) {
                     var trigger = event.target.closest(triggerSelector);
-                    if (!trigger) {
-                        closeAll(null);
+                    if (trigger) {
+                        event.preventDefault();
+                        var tooltipText = (trigger.getAttribute('data-tip') || '').trim();
+                        var label = trigger.getAttribute('aria-label') || 'Package info';
+                        openModal(label, tooltipText);
                         return;
                     }
 
-                    var isOpen = trigger.getAttribute('data-tip-open') === '1';
-                    closeAll(trigger);
+                    var modal = document.getElementById('cv-package-tooltip-modal');
+                    if (!modal || !modal.classList.contains('is-open')) {
+                        return;
+                    }
 
-                    if (!isOpen) {
-                        trigger.setAttribute('data-tip-open', '1');
-                    } else {
-                        trigger.removeAttribute('data-tip-open');
+                    if (event.target === modal || event.target.closest('.cv-tooltip-modal-close')) {
+                        closeModal();
                     }
                 });
 
                 document.addEventListener('keydown', function (event) {
                     if (event.key === 'Escape') {
-                        closeAll(null);
+                        closeModal();
                     }
                 });
             })();
