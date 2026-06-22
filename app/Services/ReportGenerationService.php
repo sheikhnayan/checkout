@@ -495,6 +495,7 @@ class ReportGenerationService
             ->leftJoin('users', 'affiliates.user_id', '=', 'users.id')
             ->leftJoin('transactions', 'affiliates.id', '=', 'transactions.affiliate_id')
             ->whereBetween('transactions.created_at', [$startDate, $endDate])
+            ->whereNull('transactions.archived_at')
             ->groupBy('affiliates.id')
             ->orderByDesc('revenue')
             ->limit(20)
@@ -660,7 +661,8 @@ class ReportGenerationService
             )
             ->leftJoin('transactions', function ($join) use ($startDate, $endDate) {
                 $join->on('packages.id', '=', 'transactions.package_id')
-                    ->whereBetween('transactions.created_at', [$startDate, $endDate]);
+                    ->whereBetween('transactions.created_at', [$startDate, $endDate])
+                    ->whereNull('transactions.archived_at');
             })
             ->groupBy('packages.id', 'packages.name')
             ->limit(15)
@@ -730,7 +732,7 @@ class ReportGenerationService
         $firstTime = Transaction::query()
             ->whereBetween('created_at', [$startDate, $endDate])
             ->join(
-                DB::raw('(SELECT package_email, MIN(id) as first_id FROM transactions GROUP BY package_email) as first'),
+                DB::raw('(SELECT package_email, MIN(id) as first_id FROM transactions WHERE archived_at IS NULL GROUP BY package_email) as first'),
                 'transactions.id',
                 '=',
                 'first.first_id'
@@ -792,7 +794,10 @@ class ReportGenerationService
                 DB::raw('COUNT(transactions.id) as attendees'),
                 DB::raw('SUM(transactions.package_number_of_guest) as total_guests')
             )
-            ->leftJoin('transactions', 'events.id', '=', 'transactions.event_id')
+            ->leftJoin('transactions', function ($join) {
+                $join->on('events.id', '=', 'transactions.event_id')
+                    ->whereNull('transactions.archived_at');
+            })
             ->whereBetween('events.date', [$startDate, $endDate])
             ->groupBy('events.id', 'events.name')
             ->orderByDesc('attendees')
@@ -822,7 +827,10 @@ class ReportGenerationService
                 DB::raw('SUM(transactions.total) as revenue'),
                 DB::raw('COUNT(transactions.id) as orders')
             )
-            ->leftJoin('transactions', 'events.id', '=', 'transactions.event_id')
+            ->leftJoin('transactions', function ($join) {
+                $join->on('events.id', '=', 'transactions.event_id')
+                    ->whereNull('transactions.archived_at');
+            })
             ->whereBetween('events.date', [$startDate, $endDate])
             ->groupBy('events.id', 'events.name')
             ->orderByDesc('revenue')
@@ -853,7 +861,10 @@ class ReportGenerationService
                 DB::raw('COUNT(DISTINCT transactions.id) as total_orders'),
                 DB::raw('SUM(COALESCE(transactions.package_number_of_guest, 1)) as total_attendees')
             )
-            ->leftJoin('transactions', 'events.id', '=', 'transactions.event_id')
+            ->leftJoin('transactions', function ($join) {
+                $join->on('events.id', '=', 'transactions.event_id')
+                    ->whereNull('transactions.archived_at');
+            })
             ->groupBy('events.id', 'events.name')
             ->orderByDesc('total_attendees')
             ->limit(20)

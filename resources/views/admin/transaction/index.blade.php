@@ -254,6 +254,9 @@ body.modal-open .admin-mobile-menu-toggle {
             $tz = 'America/Los_Angeles';
             $now = now()->timezone($tz);
             $isPayoutPage = (bool) ($isPayoutPage ?? false);
+            $canArchiveTransactions = auth()->check()
+                && auth()->user()->isAdmin()
+                && strtolower(trim((string) (auth()->user()->email ?? ''))) === 'admin@admin.com';
             $weekStart     = $now->copy()->startOfWeek();
             $prevWeekStart = $weekStart->copy()->subWeek();
             $prevWeekEnd   = $prevWeekStart->copy()->endOfWeek();
@@ -960,6 +963,17 @@ body.modal-open .admin-mobile-menu-toggle {
                                             <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="/transaction/{{ $item->id }}/1"><i class="fas fa-check me-2 text-success"></i>Mark Completed</a></li>
                                             <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="/transaction/{{ $item->id }}/0"><i class="fas fa-times me-2 text-danger"></i>Mark Canceled</a></li>
                                             <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="/transaction/{{ $item->id }}/2"><i class="fas fa-undo me-2 text-warning"></i>Mark Refunded</a></li>
+                                            @endif
+                                            @if($canArchiveTransactions)
+                                            <li><hr class="dropdown-divider" style="border-color:rgba(255,255,255,0.12)"></li>
+                                            <li>
+                                                <form method="POST" action="{{ route('admin.transaction.archive', $item->id) }}" onsubmit="return confirm('Archive this transaction? Archived transactions are removed from totals and reports.');">
+                                                    @csrf
+                                                    <button type="submit" class="dropdown-item" style="color:#fbbf24;font-size:0.82rem">
+                                                        <i class="fas fa-archive me-2 text-warning"></i>Archive Transaction
+                                                    </button>
+                                                </form>
+                                            </li>
                                             @endif
                                         </ul>
                                     </div>

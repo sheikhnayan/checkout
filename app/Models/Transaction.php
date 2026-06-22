@@ -3,11 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Schema;
 use App\Models\Affiliate;
 use App\Models\Entertainer;
 
 class Transaction extends Model
 {
+    private const EXCLUDE_ARCHIVED_SCOPE = 'exclude_archived_transactions';
+
+    private static ?bool $hasArchivedAtColumn = null;
+
     public const COMMISSION_STATUS_PENDING = 'pending';
     public const COMMISSION_STATUS_APPROVED = 'approved';
     public const COMMISSION_STATUS_PAID = 'paid';
@@ -24,7 +30,30 @@ class Transaction extends Model
         'entertainer_commission_hold_until' => 'datetime',
         'entertainer_commission_approved_at' => 'datetime',
         'entertainer_commission_reversed_at' => 'datetime',
+        'archived_at' => 'datetime',
     ];
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope(self::EXCLUDE_ARCHIVED_SCOPE, function (Builder $builder) {
+            if (!self::supportsArchiving()) {
+                return;
+            }
+
+            $builder->whereNull($builder->getModel()->getTable() . '.archived_at');
+        });
+    }
+
+    private static function supportsArchiving(): bool
+    {
+        if (self::$hasArchivedAtColumn !== null) {
+            return self::$hasArchivedAtColumn;
+        }
+
+        self::$hasArchivedAtColumn = Schema::hasColumn('transactions', 'archived_at');
+
+        return self::$hasArchivedAtColumn;
+    }
 
     public function affiliate()
     {
@@ -108,6 +137,17 @@ class Transaction extends Model
     public function getHasMultiplePackagesAttribute(): bool
     {
         return $this->package_table_label === 'Multiple';
+    }
+
+    public function scopeWithArchived(Builder $query): Builder
+    {
+        return $query->withoutGlobalScope(self::EXCLUDE_ARCHIVED_SCOPE);
+    }
+
+    public function scopeOnlyArchived(Builder $query): Builder
+    {
+        return $query->withoutGlobalScope(self::EXCLUDE_ARCHIVED_SCOPE)
+            ->whereNotNull('archived_at');
     }
 
     private function normalizeMultiValuePackageField($value): array

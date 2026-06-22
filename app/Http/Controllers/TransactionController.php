@@ -1312,6 +1312,35 @@ class TransactionController extends Controller
         return back();
     }
 
+    public function archive($id)
+    {
+        $this->ensureTransactionArchiver();
+
+        $transaction = Transaction::withArchived()
+            ->with(['event', 'package'])
+            ->findOrFail($id);
+
+        if ($transaction->archived_at) {
+            return back()->with('info', 'Transaction is already archived.');
+        }
+
+        $transaction->archived_at = now();
+        $transaction->archived_by_user_id = auth()->id();
+        $transaction->save();
+
+        return back()->with('success', 'Transaction archived successfully.');
+    }
+
+    private function ensureTransactionArchiver(): void
+    {
+        $user = auth()->user();
+        $email = strtolower(trim((string) ($user->email ?? '')));
+
+        if (!$user || !$user->isAdmin() || $email !== 'admin@admin.com') {
+            abort(403, 'Only admin@admin.com can archive transactions.');
+        }
+    }
+
     /**
      * Show thank you page after successful payment
      */
