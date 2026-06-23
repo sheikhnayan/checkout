@@ -1275,18 +1275,18 @@ class TransactionController extends Controller
         $html .= $row('Amount Due', $esc($money($transaction->due ?? 0)));
         $html .= '</div></div>';
 
-        $html .= '<div class="col-md-6"><div class="txn-detail-card"><div class="txn-detail-title">Source & Commission</div>';
+        $html .= '<div class="col-md-6"><div class="txn-detail-card"><div class="txn-detail-title">Source & Fee</div>';
         $html .= $row('Source', $esc($source));
         $html .= $row('Type', $esc($transaction->type ?: 'N/A'));
         $html .= $row('Event ID', $esc($transaction->event_id ?: 'N/A'));
-        $html .= $row('Total Commission', $esc($money($totalCommission)));
+        $html .= $row('Total Fee', $esc($money($totalCommission)));
 
         if ($affiliateName || ((float) ($transaction->affiliate_commission_amount ?? 0) > 0) || ((float) ($transaction->affiliate_commission_percentage ?? 0) > 0) || $transaction->affiliate_commission_status) {
             $affText = ($affiliateName ?: 'N/A')
                 . ' | ' . number_format((float) ($transaction->affiliate_commission_percentage ?? 0), 2) . '%'
                 . ' | ' . $money($transaction->affiliate_commission_amount ?? 0)
                 . ($transaction->affiliate_commission_status ? (' | ' . strtoupper((string) $transaction->affiliate_commission_status)) : '');
-            $html .= $row('Promoter Commission', $esc($affText));
+            $html .= $row('Promoter Fee', $esc($affText));
         }
 
         if ($entertainerName || ((float) ($transaction->entertainer_commission_amount ?? 0) > 0) || ((float) ($transaction->entertainer_commission_percentage ?? 0) > 0) || $transaction->entertainer_commission_status) {
@@ -1294,7 +1294,7 @@ class TransactionController extends Controller
                 . ' | ' . number_format((float) ($transaction->entertainer_commission_percentage ?? 0), 2) . '%'
                 . ' | ' . $money($transaction->entertainer_commission_amount ?? 0)
                 . ($transaction->entertainer_commission_status ? (' | ' . strtoupper((string) $transaction->entertainer_commission_status)) : '');
-            $html .= $row('Entertainer Commission', $esc($entText));
+            $html .= $row('Entertainer Fee', $esc($entText));
         }
 
         $html .= $row('IP Address', $esc($transaction->ip_address ?: ''));

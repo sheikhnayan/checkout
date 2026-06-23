@@ -477,7 +477,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 <div class="txn-stat-card">
                     <div class="txn-stat-icon" style="background:rgba(249,115,22,0.15);color:#f97316"><i class="fas fa-clock"></i></div>
                     <div>
-                        <div class="txn-stat-label">Pending Commission</div>
+                        <div class="txn-stat-label">Pending Fee</div>
                         <div class="txn-stat-value">${{ number_format($pendingCommission, 2) }}</div>
                         <div class="txn-stat-note">Awaiting hold period</div>
                     </div>
@@ -532,7 +532,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     </div>
                     <div class="d-flex flex-wrap gap-4 mb-3">
                         <div class="txn-chart-legend"><span style="background:#7c3aed"></span>Revenue</div>
-                        <div class="txn-chart-legend"><span style="background:#f59e0b"></span>Commission</div>
+                        <div class="txn-chart-legend"><span style="background:#f59e0b"></span>Fee</div>
                     </div>
                     <canvas id="txnLineChart" style="max-height:220px"></canvas>
                 </div>
@@ -680,7 +680,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 <div class="txn-stat-card">
                     <div class="txn-stat-icon" style="background:rgba(249,115,22,0.2);">⏳</div>
                     <div>
-                        <div class="txn-stat-label">Pending Commission</div>
+                        <div class="txn-stat-label">Pending Fee</div>
                         <div class="txn-stat-value">${{ number_format($pendingCommission, 2) }}</div>
                     </div>
                 </div>
@@ -717,12 +717,12 @@ body.modal-open .admin-mobile-menu-toggle {
                             <th>Reservation Status</th>
                             <th>Reservation Date</th>
                             <th>Entry Status</th>
-                            <th>Commission</th>
+                            <th>Fee</th>
                             <th>Action</th>
                             <th class="d-none">_website</th>
                             <th class="d-none">_type</th>
                             <th class="d-none">_promoter</th>
-                            <th class="d-none">_commission_available</th>
+                            <th class="d-none">_fee_available</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1311,7 +1311,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                 yAxisID: 'yRevenue'
                             },
                             {
-                                label: 'Commission ($)',
+                                label: 'Fee ($)',
                                 data: chartData.map(d => d.commission),
                                 borderColor: '#f59e0b',
                                 backgroundColor: 'rgba(245,158,11,0.08)',
@@ -2016,17 +2016,17 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 html += '<div class="col-md-6">';
                 html += '<div class="txn-detail-card">';
-                html += '<div class="txn-detail-title">Source & Commission</div>';
+                html += '<div class="txn-detail-title">Source & Fee</div>';
                 html += row('Source', source);
                 html += row('Type', $(this).data('type') || 'N/A');
                 html += row('Event ID', $(this).data('event_id') || 'N/A');
                 html += row('Add-ons', $(this).data('addons') || 'N/A');
-                html += row('Total Commission', money($(this).data('total_commission') || 0));
+                html += row('Total Fee', money($(this).data('total_commission') || 0));
                 if (affiliateName || affAmt > 0 || affPct > 0 || affStatus) {
-                    html += row('Promoter Commission', (affiliateName || 'N/A') + ' | ' + affPct.toFixed(2) + '% | ' + money(affAmt) + (affStatus ? (' | ' + affStatus.toUpperCase()) : '') + (affHold ? (' | ' + affHold) : ''));
+                    html += row('Promoter Fee', (affiliateName || 'N/A') + ' | ' + affPct.toFixed(2) + '% | ' + money(affAmt) + (affStatus ? (' | ' + affStatus.toUpperCase()) : '') + (affHold ? (' | ' + affHold) : ''));
                 }
                 if (entertainerName || entAmt > 0 || entPct > 0 || entStatus) {
-                    html += row('Entertainer Commission', (entertainerName || 'N/A') + ' | ' + entPct.toFixed(2) + '% | ' + money(entAmt) + (entStatus ? (' | ' + entStatus.toUpperCase()) : '') + (entHold ? (' | ' + entHold) : ''));
+                    html += row('Entertainer Fee', (entertainerName || 'N/A') + ' | ' + entPct.toFixed(2) + '% | ' + money(entAmt) + (entStatus ? (' | ' + entStatus.toUpperCase()) : '') + (entHold ? (' | ' + entHold) : ''));
                 }
                 html += row('IP Address', $(this).data('ip_address') || '');
                 html += '</div>';

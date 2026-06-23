@@ -62,7 +62,7 @@
                     <th>Reservation Status</th>
                     <th>Reservation Date</th>
                     <th>Entry Status</th>
-                    <th>Commission</th>
+                    <th>Fee</th>
                     <th>Actions</th>
                 </tr>
             </thead>
