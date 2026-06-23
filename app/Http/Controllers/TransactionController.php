@@ -822,9 +822,10 @@ class TransactionController extends Controller
     private function getAccessibleTransactionList(Request $request, ?callable $queryMutator = null)
     {
         $user = auth()->user();
+        $showArchivedOnly = $request->boolean('archived') && $this->canManageArchivedTransactions($user);
 
         if ($user->isAdmin()) {
-            $query = Transaction::query();
+            $query = $showArchivedOnly ? Transaction::onlyArchived() : Transaction::query();
         } elseif ($user->isWebsiteUser() && $user->website_id) {
             $query = Transaction::query()->where(function($query) use ($user) {
                 $query->where('website_id', $user->website_id)
@@ -1294,7 +1295,7 @@ class TransactionController extends Controller
     public function update($id, $status)
     {
         $user = auth()->user();
-        $change = Transaction::with(['event', 'package'])->findOrFail($id);
+        $change = Transaction::withArchived()->with(['event', 'package'])->findOrFail($id);
 
         if (!$this->userHasWebsiteAccessToTransaction($user, $change)) {
             abort(403, 'Access denied. You do not have permission to modify this transaction.');
@@ -1331,12 +1332,88 @@ class TransactionController extends Controller
         return back()->with('success', 'Transaction archived successfully.');
     }
 
+    public function bulkArchive(Request $request)
+    {
+        $this->ensureTransactionArchiver();
+
+        $validated = $request->validate([
+            'transaction_ids' => ['required', 'array', 'min:1'],
+            'transaction_ids.*' => ['integer'],
+        ]);
+
+        $ids = collect($validated['transaction_ids'] ?? [])->map(fn ($id) => (int) $id)->unique()->values();
+        if ($ids->isEmpty()) {
+            return back()->with('error', 'No transactions selected.');
+        }
+
+        $updated = Transaction::withArchived()
+            ->whereIn('id', $ids->all())
+            ->whereNull('archived_at')
+            ->update([
+                'archived_at' => now(),
+                'archived_by_user_id' => auth()->id(),
+                'updated_at' => now(),
+            ]);
+
+        return back()->with('success', $updated . ' transaction(s) archived successfully.');
+    }
+
+    public function unarchive($id)
+    {
+        $this->ensureTransactionArchiver();
+
+        $transaction = Transaction::withArchived()->findOrFail($id);
+        if (!$transaction->archived_at) {
+            return back()->with('info', 'Transaction is not archived.');
+        }
+
+        $transaction->archived_at = null;
+        $transaction->archived_by_user_id = null;
+        $transaction->save();
+
+        return back()->with('success', 'Transaction unarchived successfully.');
+    }
+
+    public function bulkUnarchive(Request $request)
+    {
+        $this->ensureTransactionArchiver();
+
+        $validated = $request->validate([
+            'transaction_ids' => ['required', 'array', 'min:1'],
+            'transaction_ids.*' => ['integer'],
+        ]);
+
+        $ids = collect($validated['transaction_ids'] ?? [])->map(fn ($id) => (int) $id)->unique()->values();
+        if ($ids->isEmpty()) {
+            return back()->with('error', 'No transactions selected.');
+        }
+
+        $updated = Transaction::withArchived()
+            ->whereIn('id', $ids->all())
+            ->whereNotNull('archived_at')
+            ->update([
+                'archived_at' => null,
+                'archived_by_user_id' => null,
+                'updated_at' => now(),
+            ]);
+
+        return back()->with('success', $updated . ' transaction(s) unarchived successfully.');
+    }
+
+    private function canManageArchivedTransactions($user): bool
+    {
+        if (!$user || !$user->isAdmin()) {
+            return false;
+        }
+
+        return strtolower(trim((string) ($user->email ?? ''))) === 'admin@admin.com';
+    }
+
     private function ensureTransactionArchiver(): void
     {
         $user = auth()->user();
-        $email = strtolower(trim((string) ($user->email ?? '')));
 
-        if (!$user || !$user->isAdmin() || $email !== 'admin@admin.com') {
+        if (!$this->canManageArchivedTransactions($user)) {
             abort(403, 'Only admin@admin.com can archive transactions.');
         }
     }

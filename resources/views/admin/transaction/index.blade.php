@@ -245,6 +245,56 @@ body.modal-open .admin-mobile-menu-toggle {
     font-size: 0.9rem;
     color: #bfdbfe;
 }
+
+#viewTransactionModal .txn-detail-card {
+    background: #1e293b;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+
+#viewTransactionModal .txn-detail-title {
+    color: #e0e7ff;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+#viewTransactionModal .txn-detail-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    font-size: 0.85rem;
+    padding: 5px 0;
+    border-bottom: 1px dashed rgba(255,255,255,0.08);
+}
+
+#viewTransactionModal .txn-detail-row:last-child {
+    border-bottom: none;
+}
+
+#viewTransactionModal .txn-detail-label {
+    color: #94a3b8;
+}
+
+#viewTransactionModal .txn-detail-value {
+    color: #e2e8f0;
+    font-weight: 600;
+    text-align: right;
+}
+
+#viewTransactionModal .txn-status-pill {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+#viewTransactionModal .txn-status-completed { background: rgba(16,185,129,0.2); color: #34d399; }
+#viewTransactionModal .txn-status-canceled { background: rgba(239,68,68,0.2); color: #f87171; }
+#viewTransactionModal .txn-status-refunded { background: rgba(245,158,11,0.2); color: #fbbf24; }
+#viewTransactionModal .txn-status-unknown { background: rgba(107,114,128,0.2); color: #cbd5e1; }
 </style>
     <!-- Content wrapper -->
     <div class="content-wrapper">
@@ -257,6 +307,7 @@ body.modal-open .admin-mobile-menu-toggle {
             $canArchiveTransactions = auth()->check()
                 && auth()->user()->isAdmin()
                 && strtolower(trim((string) (auth()->user()->email ?? ''))) === 'admin@admin.com';
+            $isArchivedView = request()->boolean('archived') && $canArchiveTransactions;
             $weekStart     = $now->copy()->startOfWeek();
             $prevWeekStart = $weekStart->copy()->subWeek();
             $prevWeekEnd   = $prevWeekStart->copy()->endOfWeek();
@@ -517,8 +568,49 @@ body.modal-open .admin-mobile-menu-toggle {
                             <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expPrint" href="#"><i class="fas fa-print me-2"></i>Print</a></li>
                         </ul>
                     </div>
+                    @if($canArchiveTransactions)
+                    <button type="button" id="selectAllPagesBtn" class="txn-export-btn btn">
+                        <i class="fas fa-check-square me-2"></i>Select All Pages
+                    </button>
+                    <button type="button" id="clearSelectionBtn" class="txn-export-btn btn">
+                        <i class="fas fa-square me-2"></i>Clear Selection
+                    </button>
+                    @if($isArchivedView)
+                    <button type="button" id="bulkUnarchiveBtn" class="txn-export-btn btn" style="border-color:rgba(16,185,129,0.35);color:#34d399;">
+                        <i class="fas fa-box-open me-2"></i>Unarchive Selected
+                    </button>
+                    <a href="{{ route('admin.transaction.index') }}" class="txn-export-btn btn" style="text-decoration:none;">
+                        <i class="fas fa-list me-2"></i>Back To Active
+                    </a>
+                    @else
+                    <button type="button" id="bulkArchiveBtn" class="txn-export-btn btn" style="border-color:rgba(245,158,11,0.35);color:#fbbf24;">
+                        <i class="fas fa-archive me-2"></i>Archive Selected
+                    </button>
+                    <a href="{{ route('admin.transaction.index', array_merge(request()->except('page'), ['archived' => 1])) }}" class="txn-export-btn btn" style="text-decoration:none;">
+                        <i class="fas fa-box-open me-2"></i>View Archived
+                    </a>
+                    @endif
+                    <span id="selectionCount" style="font-size:0.8rem;color:rgba(255,255,255,0.65);">0 selected</span>
+                    @endif
                 </div>
             </div>
+
+            @if($isArchivedView)
+            <div class="mb-3" style="background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);padding:10px 12px;border-radius:10px;color:#fcd34d;font-size:0.85rem;">
+                Archived transactions view. Totals and reports elsewhere still exclude these transactions.
+            </div>
+            @endif
+
+            @if($canArchiveTransactions)
+            <form id="bulkArchiveForm" method="POST" action="{{ route('admin.transaction.bulk-archive') }}" class="d-none">
+                @csrf
+                <div id="bulkArchiveInputs"></div>
+            </form>
+            <form id="bulkUnarchiveForm" method="POST" action="{{ route('admin.transaction.bulk-unarchive') }}" class="d-none">
+                @csrf
+                <div id="bulkUnarchiveInputs"></div>
+            </form>
+            @endif
 
             {{-- Filters row (toggled) --}}
             <div class="row g-3 mb-3" id="txnFiltersRow" style="display:flex">
@@ -720,11 +812,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td class="txn-confirmation-num">{{ $item->transaction_id ?? 'N/A' }}</td>
                             <td class="txn-pkg-name">
                                 <div style="font-size:0.85rem;font-weight:600;margin-bottom:8px;">{{ $venueName }}</div>
-                                @if($packageDetails->count() > 1)
-                                    <button type="button" class="btn btn-sm btn-link-package" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-cart-items='@json($cartItems)' data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' style="font-size:0.85rem;">{{ $packageDetails->count() }} Packages</button>
-                                @else
-                                    <div style="font-size:0.85rem;">{{ $packageDetailsText }}</div>
-                                @endif
+                                <button type="button" class="btn btn-sm btn-link-package" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-cart-items='@json($cartItems)' data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" style="font-size:0.85rem;">{{ max(1, $packageDetails->count()) }} {{ max(1, $packageDetails->count()) === 1 ? 'Package' : 'Packages' }}</button>
                             </td>
                             <td>
                                 @php
@@ -955,6 +1043,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                             <i class="fas fa-ellipsis-v"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end" style="background:#1e293b;border:1px solid rgba(255,255,255,0.1)">
+                                            @if(!$isArchivedView)
                                             @if($item->type === 'package')
                                             <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="/admins/transaction/change/{{ $item->id }}/1"><i class="fas fa-check me-2 text-success"></i>Mark Completed</a></li>
                                             <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="/admins/transaction/change/{{ $item->id }}/0"><i class="fas fa-times me-2 text-danger"></i>Mark Canceled</a></li>
@@ -964,16 +1053,28 @@ body.modal-open .admin-mobile-menu-toggle {
                                             <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="/transaction/{{ $item->id }}/0"><i class="fas fa-times me-2 text-danger"></i>Mark Canceled</a></li>
                                             <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="/transaction/{{ $item->id }}/2"><i class="fas fa-undo me-2 text-warning"></i>Mark Refunded</a></li>
                                             @endif
+                                            @endif
                                             @if($canArchiveTransactions)
                                             <li><hr class="dropdown-divider" style="border-color:rgba(255,255,255,0.12)"></li>
-                                            <li>
-                                                <form method="POST" action="{{ route('admin.transaction.archive', $item->id) }}" onsubmit="return confirm('Archive this transaction? Archived transactions are removed from totals and reports.');">
-                                                    @csrf
-                                                    <button type="submit" class="dropdown-item" style="color:#fbbf24;font-size:0.82rem">
-                                                        <i class="fas fa-archive me-2 text-warning"></i>Archive Transaction
-                                                    </button>
-                                                </form>
-                                            </li>
+                                            @if($isArchivedView)
+                                                <li>
+                                                    <form method="POST" action="{{ route('admin.transaction.unarchive', $item->id) }}" onsubmit="return confirm('Unarchive this transaction?');">
+                                                        @csrf
+                                                        <button type="submit" class="dropdown-item" style="color:#34d399;font-size:0.82rem">
+                                                            <i class="fas fa-box-open me-2 text-success"></i>Unarchive Transaction
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            @else
+                                                <li>
+                                                    <form method="POST" action="{{ route('admin.transaction.archive', $item->id) }}" onsubmit="return confirm('Archive this transaction? Archived transactions are removed from totals and reports.');">
+                                                        @csrf
+                                                        <button type="submit" class="dropdown-item" style="color:#fbbf24;font-size:0.82rem">
+                                                            <i class="fas fa-archive me-2 text-warning"></i>Archive Transaction
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            @endif
                                             @endif
                                         </ul>
                                     </div>
@@ -1018,112 +1119,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body" id="transaction-modal-content">
-                            <!-- ID Verification Photos Section -->
-                            <div class="mb-4" id="modal-id-photos-section" style="display:none;">
-                                <h6 class="mb-3" style="color:#f8fafc;">📸 ID Verification Photos</h6>
-                                <div class="row g-2">
-                                    <div class="col-md-6" id="modal-front-photo-container" style="display:none;">
-                                        <div class="card bg-dark border-info">
-                                            <div class="card-header p-2 bg-info bg-opacity-25" style="border-bottom:1px solid #0066cc;">
-                                                <small class="text-info"><strong>Front of ID</strong></small>
-                                            </div>
-                                            <img id="modal-front-id-photo" style="width:100%;max-height:250px;object-fit:cover;border-radius:4px;margin:8px;">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6" id="modal-back-photo-container" style="display:none;">
-                                        <div class="card bg-dark border-secondary">
-                                            <div class="card-header p-2 bg-secondary bg-opacity-25" style="border-bottom:1px solid #666;">
-                                                <small class="text-secondary"><strong>Back of ID</strong></small>
-                                            </div>
-                                            <img id="modal-back-id-photo" style="width:100%;max-height:250px;object-fit:cover;border-radius:4px;margin:8px;">
-                                        </div>
-                                    </div>
-                                </div>
-                                <hr style="border-color:rgba(255,255,255,0.1);margin:12px 0;">
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <ul class="list-group">
-                                        <li class="list-group-item"><strong>Confirmation ID:</strong> <span id="modal-transaction_id"></span></li>
-                                        <li class="list-group-item"><strong>IP Address:</strong> <span id="modal-ip_address"></span></li>
-                                        <li class="list-group-item"><strong>Order Items:</strong> <span id="modal-package_id"></span></li>
-                                        <li class="list-group-item"><strong>Package Date Of Use:</strong> <span id="modal-package_date_of_use"></span></li>
-                                        <li class="list-group-item"><strong>First Name:</strong> <span id="modal-package_first_name"></span></li>
-                                        <li class="list-group-item"><strong>Last Name:</strong> <span id="modal-package_last_name"></span></li>
-                                        <li class="list-group-item"><strong>Phone:</strong> <span id="modal-package_phone"></span></li>
-                                        <li class="list-group-item"><strong>Email:</strong> <span id="modal-package_email"></span></li>
-                                        <li class="list-group-item"><strong>DOB:</strong> <span id="modal-package_dob"></span></li>
-                                        <li class="list-group-item"><strong>Note:</strong> <span id="modal-package_note"></span></li>
-                                        <li class="list-group-item"><strong>Host Name:</strong> <span id="modal-host_name"></span></li>
-                                        <li class="list-group-item"><strong>Number of Guests:</strong> <span id="modal-package_number_of_guest"></span></li>
-                                        <li class="list-group-item"><strong>Male Guests:</strong> <span id="modal-package_men_guest"></span></li>
-                                        <li class="list-group-item"><strong>Female Guests:</strong> <span id="modal-package_women_guest"></span></li>
-                                        <li class="list-group-item"><strong>Transportation Pickup Time:</strong> <span id="modal-transportation_pickup_time"></span></li>
-                                        <li class="list-group-item"><strong>Transportation Address:</strong> <span id="modal-transportation_address"></span></li>
-                                        <li class="list-group-item"><strong>Transportation Phone:</strong> <span id="modal-transportation_phone"></span></li>
-                                        <li class="list-group-item"><strong>Transportation Guest:</strong> <span id="modal-transportation_guest"></span></li>
-                                        <li class="list-group-item"><strong>Transportation Note:</strong> <span id="modal-transportation_note"></span></li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-6">
-                                    <ul class="list-group">
-                                        <li class="list-group-item"><strong>Payment First Name:</strong> <span id="modal-payment_first_name"></span></li>
-                                        <li class="list-group-item"><strong>Payment Last Name:</strong> <span id="modal-payment_last_name"></span></li>
-                                        <li class="list-group-item"><strong>Payment Phone:</strong> <span id="modal-payment_phone"></span></li>
-                                        <li class="list-group-item"><strong>Payment Email:</strong> <span id="modal-payment_email"></span></li>
-                                        <li class="list-group-item"><strong>Payment Address:</strong> <span id="modal-payment_address"></span></li>
-                                        <li class="list-group-item"><strong>Payment City:</strong> <span id="modal-payment_city"></span></li>
-                                        <li class="list-group-item"><strong>Payment State:</strong> <span id="modal-payment_state"></span></li>
-                                        <li class="list-group-item"><strong>Payment Country:</strong> <span id="modal-payment_country"></span></li>
-                                        <li class="list-group-item"><strong>Payment DOB:</strong> <span id="modal-payment_dob"></span></li>
-                                        <li class="list-group-item"><strong>Payment Zip Code:</strong> <span id="modal-payment_zip_code"></span></li>
-                                        <li class="list-group-item"><strong>Business Company Name:</strong> <span id="modal-business_company"></span></li>
-                                        <li class="list-group-item"><strong>Business Vat Number:</strong> <span id="modal-business_vat"></span></li>
-                                        <li class="list-group-item"><strong>Business Address:</strong> <span id="modal-business_address"></span></li>
-                                        <li class="list-group-item"><strong>Type:</strong> <span id="modal-type"></span></li>
-                                        <li class="list-group-item"><strong>Status:</strong> <span id="modal-status-badge"></span></li>
-                                        <li class="list-group-item"><strong>Website ID:</strong> <span id="modal-website_id"></span></li>
-                                        <li class="list-group-item"><strong>Event ID:</strong> <span id="modal-event_id"></span></li>
-                                        <li class="list-group-item"><strong>Add-ons:</strong> <span id="modal-addons"></span></li>
-                                        <li class="list-group-item"><strong>Promo Code:</strong> <span id="modal-promo_code"></span></li>
-                                        <li class="list-group-item"><strong>Discounted Amount:</strong> <span id="modal-discounted_amount"></span></li>
-                                        <li class="list-group-item"><strong>Total Amount:</strong> <span id="modal-sub_total"></span></li>
-                                        <li class="list-group-item"><strong>Gratuity:</strong> <span id="modal-gratuity"></span></li>
-                                        <li class="list-group-item"><strong>Service Charge:</strong> <span id="modal-service_charge"></span></li>
-                                        <li class="list-group-item"><strong>Processing Fee:</strong> <span id="modal-processing_fee"></span></li>
-                                        <li class="list-group-item"><strong>Non refundable deposit:</strong> <span id="modal-refundable"></span></li>
-                                        <li class="list-group-item"><strong>Total Amount Paid:</strong> <span id="modal-total"></span></li>
-                                        <li class="list-group-item"><strong>Total Due:</strong> <span id="modal-total_due"></span></li>
-                                        <li class="list-group-item"><strong>Total Commission:</strong> <span id="modal-total_commission"></span></li>
-                                        <li class="list-group-item"><strong>Commission Source:</strong> <span id="modal-commission_source"></span></li>
-                                        <li class="list-group-item" id="modal-affiliate-commission-row"><strong>Promoter Commission:</strong> <span id="modal-affiliate_commission"></span></li>
-                                        <li class="list-group-item" id="modal-entertainer-commission-row"><strong>Entertainer Commission:</strong> <span id="modal-entertainer_commission"></span></li>
-                                        <li class="list-group-item"><strong>Date (Pacific Time):</strong> <span id="modal-date"></span></li>
-                                        <li class="list-group-item"><strong>Accepted Terms and Conditions:</strong> <span id="modal-terms">Yes</span></li>
-                                        <li class="list-group-item"><strong>Accepted SMS:</strong> <span id="modal-sms">Yes</span></li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <!-- Check-In Photos Section -->
-                            <div id="checkinPhotosSection" class="d-none mt-4">
-                                <h6 style="color:#e2e8f0;margin-bottom:16px;"><i class="fas fa-camera-alt"></i> Check-In ID Photos</h6>
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <div id="frontPhotoContainer" class="d-none">
-                                            <h6 style="color:#86efac;font-size:12px;margin-bottom:8px;">📷 Front of ID</h6>
-                                            <img id="modal-checkin-photo-front" style="width:100%;border-radius:8px;border:1px solid #334155;max-height:300px;object-fit:cover;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div id="backPhotoContainer" class="d-none">
-                                            <h6 style="color:#90caf9;font-size:12px;margin-bottom:8px;">📷 Back of ID</h6>
-                                            <img id="modal-checkin-photo-back" style="width:100%;border-radius:8px;border:1px solid #334155;max-height:300px;object-fit:cover;cursor:pointer;" onclick="window.open(this.src, '_blank');" title="Click to view larger">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <div id="transactionDetailsContent"></div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -1700,9 +1696,126 @@ body.modal-open .admin-mobile-menu-toggle {
                 $('#expPdf').on('click', function(e) { e.preventDefault(); exportPdf(); });
                 $('#expPrint').on('click', function(e) { e.preventDefault(); printTable(); });
 
-                // ── Select all ───────────────────────────────────────────────
+                // ── Selection across all DataTable pages ───────────────────
+                const selectedTransactionIds = new Set();
+
+                function getFilteredRowNodes() {
+                    if (!table) return $();
+                    return $(table.rows({ search: 'applied' }).nodes());
+                }
+
+                function applyCheckedStateToVisibleRows() {
+                    if (!table) return;
+                    table.rows({ page: 'current' }).every(function () {
+                        const rowNode = this.node();
+                        const checkbox = $(rowNode).find('.row-check');
+                        if (!checkbox.length) return;
+
+                        const id = String(checkbox.val() || '');
+                        checkbox.prop('checked', selectedTransactionIds.has(id));
+                    });
+                }
+
+                function updateSelectionUi() {
+                    const filteredRows = getFilteredRowNodes();
+                    const filteredCheckboxes = filteredRows.find('.row-check');
+                    const filteredCount = filteredCheckboxes.length;
+                    const checkedFilteredCount = filteredCheckboxes.filter(':checked').length;
+
+                    const selectAll = $('#selectAll');
+                    if (filteredCount === 0) {
+                        selectAll.prop('checked', false).prop('indeterminate', false);
+                    } else if (checkedFilteredCount === 0) {
+                        selectAll.prop('checked', false).prop('indeterminate', false);
+                    } else if (checkedFilteredCount === filteredCount) {
+                        selectAll.prop('checked', true).prop('indeterminate', false);
+                    } else {
+                        selectAll.prop('checked', false).prop('indeterminate', true);
+                    }
+
+                    $('#selectionCount').text(selectedTransactionIds.size + ' selected');
+                }
+
+                function setFilteredRowsChecked(checked) {
+                    const filteredRows = getFilteredRowNodes();
+                    const checkboxes = filteredRows.find('.row-check');
+
+                    checkboxes.each(function () {
+                        const id = String($(this).val() || '');
+                        $(this).prop('checked', checked);
+                        if (!id) return;
+                        if (checked) selectedTransactionIds.add(id);
+                        else selectedTransactionIds.delete(id);
+                    });
+
+                    updateSelectionUi();
+                }
+
+                function fillBulkFormInputs(containerSelector, ids) {
+                    const container = $(containerSelector);
+                    container.empty();
+
+                    ids.forEach(function (id) {
+                        $('<input>', {
+                            type: 'hidden',
+                            name: 'transaction_ids[]',
+                            value: id,
+                        }).appendTo(container);
+                    });
+                }
+
+                $(document).on('change', '.row-check', function() {
+                    const id = String($(this).val() || '');
+                    if (!id) return;
+
+                    if ($(this).is(':checked')) selectedTransactionIds.add(id);
+                    else selectedTransactionIds.delete(id);
+
+                    updateSelectionUi();
+                });
+
                 $('#selectAll').on('change', function() {
-                    $('.row-check').prop('checked', this.checked);
+                    setFilteredRowsChecked(this.checked);
+                });
+
+                $('#selectAllPagesBtn').on('click', function() {
+                    setFilteredRowsChecked(true);
+                });
+
+                $('#clearSelectionBtn').on('click', function() {
+                    selectedTransactionIds.clear();
+                    $('.row-check').prop('checked', false);
+                    updateSelectionUi();
+                });
+
+                $('#bulkArchiveBtn').on('click', function() {
+                    const ids = Array.from(selectedTransactionIds);
+                    if (!ids.length) {
+                        alert('Select at least one transaction to archive.');
+                        return;
+                    }
+
+                    if (!confirm('Archive ' + ids.length + ' selected transaction(s)? Archived transactions are excluded from totals and reports.')) {
+                        return;
+                    }
+
+                    fillBulkFormInputs('#bulkArchiveInputs', ids);
+                    $('#bulkArchiveForm').trigger('submit');
+                });
+
+                $('#bulkUnarchiveBtn').on('click', function() {
+                    const ids = Array.from(selectedTransactionIds);
+                    if (!ids.length) {
+                        alert('Select at least one transaction to unarchive.');
+                        return;
+                    }
+
+                    if (!confirm('Unarchive ' + ids.length + ' selected transaction(s)?')) {
+                        return;
+                    }
+
+                    fillBulkFormInputs('#bulkUnarchiveInputs', ids);
+                    $('#bulkUnarchiveForm').trigger('submit');
                 });
 
                 // ── Running total ────────────────────────────────────────────
@@ -1720,8 +1833,13 @@ body.modal-open .admin-mobile-menu-toggle {
                     $('#amount-total').text('$' + total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
                 }
                 if (table) {
-                    table.on('draw', updateTotal);
+                    table.on('draw', function() {
+                        applyCheckedStateToVisibleRows();
+                        updateSelectionUi();
+                        updateTotal();
+                    });
                     updateTotal();
+                    updateSelectionUi();
                 }
 
             }); // end document.ready
@@ -1756,91 +1874,56 @@ body.modal-open .admin-mobile-menu-toggle {
 
             $(document).on('click', '.view-btn', function() {
                 const transactionId = $(this).data('id');
+                var money = function(v){
+                    var n = parseFloat(v || 0);
+                    return '$' + (isNaN(n) ? 0 : n).toFixed(2);
+                };
 
-                // Hide old photo loading section (we use checkinPhotosSection instead)
-                $('#modal-id-photos-section').hide();
-
-                // Add click handlers to photos for instant display
-                $(document).on('click', '#modal-front-id-photo, #modal-back-id-photo', function() {
-                    const imgSrc = $(this).attr('src');
-                    const imgLabel = $(this).closest('[id*="container"]').find('.fw-semibold').text() || 'Photo';
-                    window.open(imgSrc, '_blank');
-                });
-
-                $('#modal-package_date_of_use').text($(this).data('package_use_date'));
-                $('#modal-promo_code').text($(this).data('promo_code'));
-                $('#modal-discounted_amount').text($(this).data('discounted_amount'));
-                $('#modal-package_men_guest').text($(this).data('men'));
-                $('#modal-package_women_guest').text($(this).data('women'));
-
-                $('#modal-transaction_id').text($(this).data('transaction_id'));
-                $('#modal-package_id').text($(this).data('package_id'));
-                $('#modal-package_first_name').text($(this).data('package_first_name'));
-                $('#modal-package_last_name').text($(this).data('package_last_name'));
-                $('#modal-package_phone').text($(this).data('package_phone'));
-                $('#modal-package_email').text($(this).data('package_email'));
-                $('#modal-package_dob').text($(this).data('package_dob'));
-                $('#modal-package_note').text($(this).data('package_note'));
-                $('#modal-host_name').text($(this).data('host_name'));
-                $('#modal-package_number_of_guest').text($(this).data('package_number_of_guest'));
-                // Format pickup time to 12-hour format
-                var pickupTime = $(this).data('transportation_pickup_time');
-                if (pickupTime) {
-                    var timeParts = pickupTime.split(':');
+                var formatPickupTime = function(timeValue) {
+                    var raw = String(timeValue || '').trim();
+                    if (!raw || raw.indexOf(':') === -1) {
+                        return raw || 'N/A';
+                    }
+                    var timeParts = raw.split(':');
                     var hours = parseInt(timeParts[0], 10);
                     var minutes = timeParts[1] || '00';
+                    if (isNaN(hours)) {
+                        return raw;
+                    }
                     var ampm = hours >= 12 ? 'PM' : 'AM';
                     hours = hours % 12 || 12;
-                    var formattedTime = (hours < 10 ? '0' : '') + hours + ':' + minutes + ' ' + ampm;
-                    $('#modal-transportation_pickup_time').text(formattedTime);
-                } else {
-                    $('#modal-transportation_pickup_time').text(pickupTime);
-                }
-                $('#modal-transportation_address').text($(this).data('transportation_address'));
-                $('#modal-transportation_phone').text($(this).data('transportation_phone'));
-                $('#modal-transportation_guest').text($(this).data('transportation_guest'));
-                $('#modal-transportation_note').text($(this).data('transportation_note'));
-                $('#modal-payment_first_name').text($(this).data('payment_first_name'));
-                $('#modal-payment_last_name').text($(this).data('payment_last_name'));
-                $('#modal-payment_phone').text($(this).data('payment_phone'));
-                $('#modal-payment_email').text($(this).data('payment_email'));
-                $('#modal-payment_address').text($(this).data('payment_address'));
-                $('#modal-payment_city').text($(this).data('payment_city'));
-                $('#modal-payment_state').text($(this).data('payment_state'));
-                $('#modal-payment_country').text($(this).data('payment_country'));
-                $('#modal-payment_dob').text($(this).data('payment_dob'));
-                $('#modal-payment_zip_code').text($(this).data('payment_zip_code'));
-                $('#modal-type').text($(this).data('type'));
+                    return (hours < 10 ? '0' : '') + hours + ':' + minutes + ' ' + ampm;
+                };
+
+                var esc = function(value) {
+                    return String(value == null ? '' : value)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&#39;');
+                };
+
                 var status = $(this).data('status');
-                var badge = '';
+                var statusText = 'Unknown';
+                var statusClass = 'txn-status-unknown';
                 if (status == 1 || status === 'Completed' || status === 'Approved') {
-                    badge = '<span class="badge bg-success">Completed</span>';
+                    statusText = 'Completed';
+                    statusClass = 'txn-status-completed';
                 } else if (status == 0 || status === 'Canceled' || status === '0') {
-                    badge = '<span class="badge bg-danger">Canceled</span>';
+                    statusText = 'Canceled';
+                    statusClass = 'txn-status-canceled';
                 } else if (status == 2 || status === 'Refunded') {
-                    badge = '<span class="badge bg-warning text-dark">Refunded</span>';
-                } else {
-                    badge = '<span class="badge bg-secondary">Unknown</span>';
+                    statusText = 'Refunded';
+                    statusClass = 'txn-status-refunded';
                 }
-                $('#modal-status-badge').html(badge);
-                $('#modal-website_id').text($(this).data('website_id'));
-                $('#modal-ip_address').text($(this).data('ip_address'));
-                $('#modal-event_id').text($(this).data('event_id'));
-                $('#modal-addons').text($(this).data('addons'));
-                $('#modal-sub_total').text($(this).data('subtotal'));
-                $('#modal-business_company').text($(this).data('business_company'));
-                $('#modal-business_vat').text($(this).data('business_vat'));
-                $('#modal-business_address').text($(this).data('business_address'));
-                $('#modal-refundable').text($(this).data('refundable'));
-                $('#modal-gratuity').text($(this).data('gratuity'));
-                $('#modal-service_charge').text('$' + ($(this).data('service_charge') || '0.00'));
-                $('#modal-processing_fee').text('$' + ($(this).data('processing_fee') || '0.00'));
-                $('#modal-total').text($(this).data('total'));
-                $('#modal-total_due').text($(this).data('due'));
-                $('#modal-date').text($(this).data('date'));
 
                 var affiliateName = String($(this).data('affiliate_name') || '').trim();
                 var entertainerName = String($(this).data('entertainer_name') || '').trim();
+                var source = 'Direct';
+                if (affiliateName) source = 'Promoter - ' + affiliateName;
+                else if (entertainerName) source = 'Entertainer - ' + entertainerName;
+
                 var affPct = parseFloat($(this).data('affiliate_commission_percentage')) || 0;
                 var affAmt = parseFloat($(this).data('affiliate_commission_amount')) || 0;
                 var affStatus = String($(this).data('affiliate_commission_status') || '').trim();
@@ -1849,88 +1932,130 @@ body.modal-open .admin-mobile-menu-toggle {
                 var entAmt = parseFloat($(this).data('entertainer_commission_amount')) || 0;
                 var entStatus = String($(this).data('entertainer_commission_status') || '').trim();
                 var entHold = String($(this).data('entertainer_commission_hold_until') || '').trim();
-                var totalCommission = parseFloat($(this).data('total_commission')) || 0;
 
-                var source = 'Direct';
-                if (affiliateName) {
-                    source = 'Promoter - ' + affiliateName;
-                } else if (entertainerName) {
-                    source = 'Entertainer - ' + entertainerName;
-                }
+                var businessInfo = [
+                    $(this).data('business_company'),
+                    $(this).data('business_vat'),
+                    $(this).data('business_address')
+                ].filter(function(v){ return String(v || '').trim() !== ''; }).join(' | ');
 
-                $('#modal-total_commission').text('$' + totalCommission.toFixed(2));
-                $('#modal-commission_source').text(source);
+                var amountPaid = parseFloat($(this).data('total') || 0);
+                var totalAmount = parseFloat($(this).data('subtotal') || 0);
+                var dueAmount = parseFloat($(this).data('due') || 0);
 
+                var frontPath = String($(this).data('checkin_photo_front') || '').trim();
+                var backPath = String($(this).data('checkin_photo_back') || '').trim();
+                var frontPhotoUrl = frontPath ? '{{ route("admin.transaction.id-photo", ["transactionId" => "ID", "side" => "front"]) }}'.replace('ID', transactionId) : '';
+                var backPhotoUrl = backPath ? '{{ route("admin.transaction.id-photo", ["transactionId" => "ID", "side" => "back"]) }}'.replace('ID', transactionId) : '';
+
+                var row = function(label, value) {
+                    return '<div class="txn-detail-row"><span class="txn-detail-label">' + esc(label) + '</span><span class="txn-detail-value">' + esc(value) + '</span></div>';
+                };
+
+                var html = '';
+
+                html += '<div class="txn-detail-card">';
+                html += '<div class="d-flex flex-wrap align-items-center justify-content-between gap-2">';
+                html += '<div class="txn-detail-title mb-0">Transaction #' + esc($(this).data('transaction_id') || transactionId) + '</div>';
+                html += '<span class="txn-status-pill ' + statusClass + '">' + esc(statusText) + '</span>';
+                html += '</div>';
+                html += '<div style="margin-top:8px;color:#94a3b8;font-size:0.82rem;">' + esc($(this).data('date') || '') + ' | ' + esc($(this).data('website_id') || '') + '</div>';
+                html += '</div>';
+
+                html += '<div class="row g-3">';
+                html += '<div class="col-md-6">';
+                html += '<div class="txn-detail-card">';
+                html += '<div class="txn-detail-title">Guest & Reservation</div>';
+                html += row('Guest', ($(this).data('package_first_name') || '') + ' ' + ($(this).data('package_last_name') || ''));
+                html += row('Email', $(this).data('package_email') || '');
+                html += row('Phone', $(this).data('package_phone') || '');
+                html += row('DOB', $(this).data('package_dob') || 'N/A');
+                html += row('Order Items', $(this).data('package_id') || '');
+                html += row('Date Of Use', $(this).data('package_use_date') || '');
+                html += row('Guests', ($(this).data('package_number_of_guest') || '0') + ' (M: ' + ($(this).data('men') || 0) + ', W: ' + ($(this).data('women') || 0) + ')');
+                html += row('Host Name', $(this).data('host_name') || 'N/A');
+                html += row('Notes', $(this).data('package_note') || 'N/A');
+                html += '</div>';
+                html += '</div>';
+
+                html += '<div class="col-md-6">';
+                html += '<div class="txn-detail-card">';
+                html += '<div class="txn-detail-title">Payment & Charges</div>';
+                html += row('Payment Name', ($(this).data('payment_first_name') || '') + ' ' + ($(this).data('payment_last_name') || ''));
+                html += row('Payment Email', $(this).data('payment_email') || '');
+                html += row('Payment Phone', $(this).data('payment_phone') || 'N/A');
+                html += row('Payment Address', [$(this).data('payment_address'), $(this).data('payment_city'), $(this).data('payment_state'), $(this).data('payment_zip_code')].filter(Boolean).join(', '));
+                html += row('Payment Country', $(this).data('payment_country') || 'N/A');
+                html += row('Payment DOB', $(this).data('payment_dob') || 'N/A');
+                html += row('Promo Code', $(this).data('promo_code') || 'N/A');
+                html += row('Discounted Amount', money($(this).data('discounted_amount') || 0));
+                html += row('Subtotal', money(totalAmount));
+                html += row('Gratuity', money($(this).data('gratuity') || 0));
+                html += row('Service Charge', money($(this).data('service_charge') || 0));
+                html += row('Processing Fee', money($(this).data('processing_fee') || 0));
+                html += row('Non Refundable Deposit', money($(this).data('refundable') || 0));
+                html += row('Amount Paid', money(amountPaid));
+                html += row('Amount Due', money(dueAmount));
+                html += '</div>';
+                html += '</div>';
+
+                html += '<div class="col-md-6">';
+                html += '<div class="txn-detail-card">';
+                html += '<div class="txn-detail-title">Source & Commission</div>';
+                html += row('Source', source);
+                html += row('Type', $(this).data('type') || 'N/A');
+                html += row('Event ID', $(this).data('event_id') || 'N/A');
+                html += row('Add-ons', $(this).data('addons') || 'N/A');
+                html += row('Total Commission', money($(this).data('total_commission') || 0));
                 if (affiliateName || affAmt > 0 || affPct > 0 || affStatus) {
-                    var affText = (affiliateName || 'N/A')
-                        + ' | ' + affPct.toFixed(2) + '%'
-                        + ' | $' + affAmt.toFixed(2)
-                        + (affStatus ? (' | ' + affStatus.toUpperCase()) : '')
-                        + (affHold ? (' | Hold Until: ' + affHold) : '');
-                    $('#modal-affiliate_commission').text(affText);
-                    $('#modal-affiliate-commission-row').show();
-                } else {
-                    $('#modal-affiliate-commission-row').hide();
+                    html += row('Promoter Commission', (affiliateName || 'N/A') + ' | ' + affPct.toFixed(2) + '% | ' + money(affAmt) + (affStatus ? (' | ' + affStatus.toUpperCase()) : '') + (affHold ? (' | ' + affHold) : ''));
                 }
-
                 if (entertainerName || entAmt > 0 || entPct > 0 || entStatus) {
-                    var entText = (entertainerName || 'N/A')
-                        + ' | ' + entPct.toFixed(2) + '%'
-                        + ' | $' + entAmt.toFixed(2)
-                        + (entStatus ? (' | ' + entStatus.toUpperCase()) : '')
-                        + (entHold ? (' | Hold Until: ' + entHold) : '');
-                    $('#modal-entertainer_commission').text(entText);
-                    $('#modal-entertainer-commission-row').show();
-                } else {
-                    $('#modal-entertainer-commission-row').hide();
+                    html += row('Entertainer Commission', (entertainerName || 'N/A') + ' | ' + entPct.toFixed(2) + '% | ' + money(entAmt) + (entStatus ? (' | ' + entStatus.toUpperCase()) : '') + (entHold ? (' | ' + entHold) : ''));
+                }
+                html += row('IP Address', $(this).data('ip_address') || '');
+                html += '</div>';
+                html += '</div>';
+
+                html += '<div class="col-md-6">';
+                html += '<div class="txn-detail-card">';
+                html += '<div class="txn-detail-title">Transport & Business</div>';
+                html += row('Pickup Time', formatPickupTime($(this).data('transportation_pickup_time')));
+                html += row('Transport Phone', $(this).data('transportation_phone') || 'N/A');
+                html += row('Transport Address', $(this).data('transportation_address') || 'N/A');
+                html += row('Transport Note', $(this).data('transportation_note') || 'N/A');
+                html += row('Terms Accepted', 'Yes');
+                html += row('SMS Accepted', 'Yes');
+                html += row('Business Info', businessInfo || 'N/A');
+                html += '</div>';
+                html += '</div>';
+                html += '</div>';
+
+                if (frontPhotoUrl || backPhotoUrl) {
+                    html += '<div class="txn-detail-card mt-3">';
+                    html += '<div class="txn-detail-title">Check-In ID Photos</div>';
+                    html += '<div class="row g-3">';
+                    if (frontPhotoUrl) {
+                        html += '<div class="col-md-6"><div style="color:#86efac;font-size:12px;margin-bottom:6px;">Front Of ID</div><img src="' + frontPhotoUrl + '" style="width:100%;border-radius:8px;border:1px solid #334155;max-height:280px;object-fit:cover;cursor:pointer;" onclick="window.open(this.src, \"_blank\")"></div>';
+                    }
+                    if (backPhotoUrl) {
+                        html += '<div class="col-md-6"><div style="color:#93c5fd;font-size:12px;margin-bottom:6px;">Back Of ID</div><img src="' + backPhotoUrl + '" style="width:100%;border-radius:8px;border:1px solid #334155;max-height:280px;object-fit:cover;cursor:pointer;" onclick="window.open(this.src, \"_blank\")"></div>';
+                    }
+                    html += '</div>';
+                    html += '</div>';
                 }
 
-                // Handle check-in photos
-                var checkinPhotosSection = $('#checkinPhotosSection');
-                var frontPhotoContainer = $('#frontPhotoContainer');
-                var backPhotoContainer = $('#backPhotoContainer');
-
-                var hasFrontPhoto = String($(this).data('checkin_photo_front') || '').trim().length > 0;
-                var hasBackPhoto = String($(this).data('checkin_photo_back') || '').trim().length > 0;
-
-                if (hasFrontPhoto || hasBackPhoto) {
-                    checkinPhotosSection.removeClass('d-none');
-
-                    if (hasFrontPhoto) {
-                        var frontPhotoUrl = '{{ route("admin.transaction.id-photo", ["transactionId" => "ID", "side" => "front"]) }}'.replace('ID', transactionId);
-                        $('#modal-checkin-photo-front').attr('src', frontPhotoUrl);
-                        frontPhotoContainer.removeClass('d-none');
-                    } else {
-                        frontPhotoContainer.addClass('d-none');
-                    }
-
-                    if (hasBackPhoto) {
-                        var backPhotoUrl = '{{ route("admin.transaction.id-photo", ["transactionId" => "ID", "side" => "back"]) }}'.replace('ID', transactionId);
-                        $('#modal-checkin-photo-back').attr('src', backPhotoUrl);
-                        backPhotoContainer.removeClass('d-none');
-                    } else {
-                        backPhotoContainer.addClass('d-none');
-                    }
-                } else {
-                    checkinPhotosSection.addClass('d-none');
-                }
+                $('#transactionDetailsContent').html(html);
             });
             </script>
 
             <script>
             $(document).on('click', '#download-transaction-pdf', function() {
                 var rows = [];
-                $('#transaction-modal-content ul.list-group').each(function() {
-                    $(this).find('li').each(function() {
-                        var label = $(this).find('strong').text().replace(':', '').trim();
-                        var value = '';
-                        if ($(this).find('span').attr('id') === 'modal-status-badge') {
-                            value = $(this).find('span .badge').text().trim();
-                        } else {
-                            value = $(this).find('span').text().trim();
-                        }
-                        rows.push([label, value]);
-                    });
+                $('#transactionDetailsContent .txn-detail-row').each(function() {
+                    var label = $(this).find('.txn-detail-label').text().trim();
+                    var value = $(this).find('.txn-detail-value').text().trim();
+                    rows.push([label, value]);
                 });
                 var { jsPDF } = window.jspdf;
                 var doc = new jsPDF();

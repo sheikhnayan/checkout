@@ -298,7 +298,10 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::get('/', [TransactionController::class,'index'])->name('index');
         Route::get('/affiliate', [TransactionController::class,'affiliateIndex'])->name('affiliate');
         Route::get('/entertainer', [TransactionController::class,'entertainerIndex'])->name('entertainer');
+        Route::post('/bulk-archive', [TransactionController::class, 'bulkArchive'])->name('bulk-archive');
+        Route::post('/bulk-unarchive', [TransactionController::class, 'bulkUnarchive'])->name('bulk-unarchive');
         Route::post('/{id}/archive', [TransactionController::class, 'archive'])->name('archive');
+        Route::post('/{id}/unarchive', [TransactionController::class, 'unarchive'])->name('unarchive');
         Route::get('/show/{id}', [TransactionController::class,'show'])->name('show');
         Route::get('/{id}/details', [TransactionController::class,'details'])->name('details');
         Route::get('/change/{id}/{status}', [TransactionController::class,'update'])->name('update');
