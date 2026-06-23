@@ -1161,84 +1161,38 @@ class TransactionController extends Controller
     {
         $affiliateName = $transaction->affiliate ? ($transaction->affiliate->display_name ?: optional($transaction->affiliate->user)->name) : '';
         $entertainerName = $transaction->entertainer ? ($transaction->entertainer->display_name ?: optional($transaction->entertainer->user)->name) : '';
+        $esc = static function ($value): string {
+            return htmlspecialchars((string) ($value ?? ''), ENT_QUOTES, 'UTF-8');
+        };
 
-        $html = '<div class="row">
-                    <div class="col-md-6">
-                        <ul class="list-group">
-                            <li class="list-group-item"><strong>Transaction ID:</strong> <span>' . htmlspecialchars($transaction->transaction_id ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>IP Address:</strong> <span>' . htmlspecialchars($transaction->ip_address ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Order Items:</strong> <span>' . htmlspecialchars($transaction->package_table_label ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Package Date Of Use:</strong> <span>' . htmlspecialchars($transaction->package_use_date ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>First Name:</strong> <span>' . htmlspecialchars($transaction->package_first_name ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Last Name:</strong> <span>' . htmlspecialchars($transaction->package_last_name ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Phone:</strong> <span>' . htmlspecialchars($transaction->package_phone ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Email:</strong> <span>' . htmlspecialchars($transaction->package_email ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>DOB:</strong> <span>' . htmlspecialchars($transaction->package_dob ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Note:</strong> <span>' . htmlspecialchars($transaction->package_note ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Number of Guests:</strong> <span>' . htmlspecialchars($transaction->package_number_of_guest ?? '') . '</span></li>';
+        $money = static function ($value): string {
+            return '$' . number_format((float) ($value ?? 0), 2);
+        };
 
-        // Show guest breakdown for reservation types
-        if (strtolower($transaction->type ?? '') === 'reservation') {
-            $menCount = (int)($transaction->package_men ?? 0);
-            $womenCount = (int)($transaction->package_women ?? 0);
-            if ($menCount > 0 || $womenCount > 0) {
-                $totalGuests = $menCount + $womenCount;
-                $html .= '<li class="list-group-item"><strong>Guest Breakdown:</strong> <span style="font-weight: bold; color: #fbbf24;">' . htmlspecialchars($menCount . ' Men + ' . $womenCount . ' Women = ' . $totalGuests . ' Total') . '</span></li>';
-            }
+        $pickupRaw = trim((string) ($transaction->transportation_pickup_time ?? ''));
+        $pickupFormatted = $pickupRaw;
+        if ($pickupRaw !== '' && strpos($pickupRaw, ':') !== false) {
+            $parts = explode(':', $pickupRaw);
+            $hours = isset($parts[0]) ? (int) $parts[0] : 0;
+            $minutes = isset($parts[1]) ? $parts[1] : '00';
+            $ampm = $hours >= 12 ? 'PM' : 'AM';
+            $hours = $hours % 12 ?: 12;
+            $pickupFormatted = sprintf('%02d:%s %s', $hours, $minutes, $ampm);
         }
-
-        $html .= '<li class="list-group-item"><strong>Male Guests:</strong> <span>' . htmlspecialchars($transaction->package_men ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Female Guests:</strong> <span>' . htmlspecialchars($transaction->package_women ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Transportation Pickup Time:</strong> <span>' . htmlspecialchars($transaction->transportation_pickup_time ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Transportation Address:</strong> <span>' . htmlspecialchars($transaction->transportation_address ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Transportation Phone:</strong> <span>' . htmlspecialchars($transaction->transportation_phone ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Transportation Guest:</strong> <span>' . htmlspecialchars($transaction->transportation_guest ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Transportation Note:</strong> <span>' . htmlspecialchars($transaction->transportation_note ?? '') . '</span></li>
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <ul class="list-group">
-                            <li class="list-group-item"><strong>Payment First Name:</strong> <span>' . htmlspecialchars($transaction->payment_first_name ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Payment Last Name:</strong> <span>' . htmlspecialchars($transaction->payment_last_name ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Payment Phone:</strong> <span>' . htmlspecialchars($transaction->payment_phone ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Payment Email:</strong> <span>' . htmlspecialchars($transaction->payment_email ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Payment Address:</strong> <span>' . htmlspecialchars($transaction->payment_address ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Payment City:</strong> <span>' . htmlspecialchars($transaction->payment_city ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Payment State:</strong> <span>' . htmlspecialchars($transaction->payment_state ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Payment Country:</strong> <span>' . htmlspecialchars($transaction->payment_country ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Payment DOB:</strong> <span>' . htmlspecialchars($transaction->payment_dob ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Payment Zip Code:</strong> <span>' . htmlspecialchars($transaction->payment_zip_code ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Business Company Name:</strong> <span>' . htmlspecialchars($transaction->business_company ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Business Vat Number:</strong> <span>' . htmlspecialchars($transaction->business_vat ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Business Address:</strong> <span>' . htmlspecialchars($transaction->business_address ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Business Purpose:</strong> <span>' . htmlspecialchars($transaction->business_purpose ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Type:</strong> <span>' . htmlspecialchars($transaction->type ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Status:</strong> <span>';
 
         $status = $transaction->status;
+        $statusText = 'Unknown';
+        $statusClass = 'txn-status-unknown';
         if ($status == 1 || $status === 'Completed' || $status === 'Approved') {
-            $html .= '<span class="badge bg-success">Completed</span>';
+            $statusText = 'Completed';
+            $statusClass = 'txn-status-completed';
         } elseif ($status == 0 || $status === 'Canceled' || $status === '0') {
-            $html .= '<span class="badge bg-danger">Canceled</span>';
+            $statusText = 'Canceled';
+            $statusClass = 'txn-status-canceled';
         } elseif ($status == 2 || $status === 'Refunded') {
-            $html .= '<span class="badge bg-warning text-dark">Refunded</span>';
-        } else {
-            $html .= '<span class="badge bg-secondary">Unknown</span>';
+            $statusText = 'Refunded';
+            $statusClass = 'txn-status-refunded';
         }
-
-        $html .= '</span></li>
-                            <li class="list-group-item"><strong>Website ID:</strong> <span>' . htmlspecialchars($transaction->website_id ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Event ID:</strong> <span>' . htmlspecialchars($transaction->event_id ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Promo Code:</strong> <span>' . htmlspecialchars($transaction->promo_code ?? '') . '</span></li>
-                            <li class="list-group-item"><strong>Discounted Amount:</strong> <span>$' . number_format((float)($transaction->discount ?? 0), 2) . '</span></li>
-                            <li class="list-group-item"><strong>Total Amount:</strong> <span>$' . number_format((float)($transaction->sub_total ?? 0), 2) . '</span></li>
-                            <li class="list-group-item"><strong>Gratuity:</strong> <span>$' . number_format((float)($transaction->gratuity ?? 0), 2) . '</span></li>
-                            <li class="list-group-item"><strong>Non refundable deposit:</strong> <span>$' . number_format((float)($transaction->refundable ?? 0), 2) . '</span></li>
-                            <li class="list-group-item"><strong>Total Amount Paid:</strong> <span>$' . number_format((float)($transaction->total ?? 0), 2) . '</span></li>
-                            <li class="list-group-item"><strong>Total Due:</strong> <span>$' . number_format((float)($transaction->due ?? 0), 2) . '</span></li>';
-
-        $totalCommission = (float)($transaction->affiliate_commission_amount ?? 0) + (float)($transaction->entertainer_commission_amount ?? 0);
-        $html .= '<li class="list-group-item"><strong>Total Commission:</strong> <span>$' . number_format($totalCommission, 2) . '</span></li>';
 
         $source = 'Direct';
         if ($affiliateName) {
@@ -1246,30 +1200,119 @@ class TransactionController extends Controller
         } elseif ($entertainerName) {
             $source = 'Entertainer - ' . $entertainerName;
         }
-        $html .= '<li class="list-group-item"><strong>Commission Source:</strong> <span>' . htmlspecialchars($source) . '</span></li>';
 
-        if ($affiliateName || ((float)($transaction->affiliate_commission_amount ?? 0) > 0) || ((float)($transaction->affiliate_commission_percentage ?? 0) > 0) || $transaction->affiliate_commission_status) {
+        $totalCommission = (float) ($transaction->affiliate_commission_amount ?? 0) + (float) ($transaction->entertainer_commission_amount ?? 0);
+        $businessInfo = implode(' | ', array_values(array_filter([
+            $transaction->business_company ?? null,
+            $transaction->business_vat ?? null,
+            $transaction->business_address ?? null,
+        ], static fn ($v) => trim((string) $v) !== '')));
+
+        $row = static function (string $label, string $value): string {
+            return '<div class="txn-detail-row"><span class="txn-detail-label">' . $label . '</span><span class="txn-detail-value">' . $value . '</span></div>';
+        };
+
+        $dateText = $transaction->created_at
+            ? $transaction->created_at->timezone('America/Los_Angeles')->format('M d, Y h:i A')
+            : '';
+
+        $html = '';
+        $html .= '<style>
+            #transactionModal .txn-detail-card { background:#1e293b; border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:12px; margin-bottom:12px; }
+            #transactionModal .txn-detail-title { color:#e0e7ff; font-weight:700; margin-bottom:10px; }
+            #transactionModal .txn-detail-row { display:flex; justify-content:space-between; gap:14px; font-size:0.85rem; padding:5px 0; border-bottom:1px dashed rgba(255,255,255,0.08); }
+            #transactionModal .txn-detail-row:last-child { border-bottom:none; }
+            #transactionModal .txn-detail-label { color:#94a3b8; }
+            #transactionModal .txn-detail-value { color:#e2e8f0; font-weight:600; text-align:right; }
+            #transactionModal .txn-status-pill { padding:4px 10px; border-radius:999px; font-size:0.75rem; font-weight:700; letter-spacing:0.04em; }
+            #transactionModal .txn-status-completed { background:rgba(16,185,129,0.2); color:#34d399; }
+            #transactionModal .txn-status-canceled { background:rgba(239,68,68,0.2); color:#f87171; }
+            #transactionModal .txn-status-refunded { background:rgba(245,158,11,0.2); color:#fbbf24; }
+            #transactionModal .txn-status-unknown { background:rgba(107,114,128,0.2); color:#cbd5e1; }
+        </style>';
+
+        $html .= '<div class="txn-detail-card">';
+        $html .= '<div class="d-flex flex-wrap align-items-center justify-content-between gap-2">';
+        $html .= '<div class="txn-detail-title mb-0">Transaction #' . $esc($transaction->transaction_id ?: $transaction->id) . '</div>';
+        $html .= '<span class="txn-status-pill ' . $statusClass . '">' . $esc($statusText) . '</span>';
+        $html .= '</div>';
+        $html .= '<div style="margin-top:8px;color:#94a3b8;font-size:0.82rem;">' . $esc($dateText) . ' | ' . $esc($transaction->website_id) . '</div>';
+        $html .= '</div>';
+
+        $html .= '<div class="row g-3">';
+
+        $html .= '<div class="col-md-6"><div class="txn-detail-card"><div class="txn-detail-title">Guest & Reservation</div>';
+        $html .= $row('Guest', $esc(trim(($transaction->package_first_name ?? '') . ' ' . ($transaction->package_last_name ?? ''))));
+        $html .= $row('Email', $esc($transaction->package_email));
+        $html .= $row('Phone', $esc($transaction->package_phone));
+        $html .= $row('DOB', $esc($transaction->package_dob ?: 'N/A'));
+        $html .= $row('Order Items', $esc($transaction->package_table_label));
+        $html .= $row('Date Of Use', $esc($transaction->package_use_date));
+        $html .= $row('Guests', $esc((string) ($transaction->package_number_of_guest ?? 0) . ' (M: ' . (int) ($transaction->package_men ?? 0) . ', W: ' . (int) ($transaction->package_women ?? 0) . ')'));
+        $html .= $row('Notes', $esc($transaction->package_note ?: 'N/A'));
+        $html .= '</div></div>';
+
+        $html .= '<div class="col-md-6"><div class="txn-detail-card"><div class="txn-detail-title">Payment & Charges</div>';
+        $html .= $row('Payment Name', $esc(trim(($transaction->payment_first_name ?? '') . ' ' . ($transaction->payment_last_name ?? ''))));
+        $html .= $row('Payment Email', $esc($transaction->payment_email));
+        $html .= $row('Payment Phone', $esc($transaction->payment_phone ?: 'N/A'));
+        $html .= $row('Payment Address', $esc(implode(', ', array_values(array_filter([
+            $transaction->payment_address ?? null,
+            $transaction->payment_city ?? null,
+            $transaction->payment_state ?? null,
+            $transaction->payment_zip_code ?? null,
+        ], static fn ($v) => trim((string) $v) !== '')))));
+        $html .= $row('Payment Country', $esc($transaction->payment_country ?: 'N/A'));
+        $html .= $row('Payment DOB', $esc($transaction->payment_dob ?: 'N/A'));
+        $html .= $row('Promo Code', $esc($transaction->promo_code ?: 'N/A'));
+        $html .= $row('Discounted Amount', $esc($money($transaction->discount ?? 0)));
+        $html .= $row('Subtotal', $esc($money($transaction->sub_total ?? 0)));
+        $html .= $row('Gratuity', $esc($money($transaction->gratuity ?? 0)));
+        $html .= $row('Service Charge', $esc($money($transaction->service_charge ?? 0)));
+        $html .= $row('Processing Fee', $esc($money($transaction->processing_fee ?? 0)));
+        $html .= $row('Non Refundable Deposit', $esc($money($transaction->refundable ?? 0)));
+        $html .= $row('Amount Paid', $esc($money($transaction->total ?? 0)));
+        $html .= $row('Amount Due', $esc($money($transaction->due ?? 0)));
+        $html .= '</div></div>';
+
+        $html .= '<div class="col-md-6"><div class="txn-detail-card"><div class="txn-detail-title">Source & Commission</div>';
+        $html .= $row('Source', $esc($source));
+        $html .= $row('Type', $esc($transaction->type ?: 'N/A'));
+        $html .= $row('Event ID', $esc($transaction->event_id ?: 'N/A'));
+        $html .= $row('Total Commission', $esc($money($totalCommission)));
+
+        if ($affiliateName || ((float) ($transaction->affiliate_commission_amount ?? 0) > 0) || ((float) ($transaction->affiliate_commission_percentage ?? 0) > 0) || $transaction->affiliate_commission_status) {
             $affText = ($affiliateName ?: 'N/A')
-                . ' | ' . number_format((float)($transaction->affiliate_commission_percentage ?? 0), 2) . '%'
-                . ' | $' . number_format((float)($transaction->affiliate_commission_amount ?? 0), 2)
-                . ($transaction->affiliate_commission_status ? (' | ' . strtoupper($transaction->affiliate_commission_status)) : '');
-            $html .= '<li class="list-group-item"><strong>Promoter Commission:</strong> <span>' . htmlspecialchars($affText) . '</span></li>';
+                . ' | ' . number_format((float) ($transaction->affiliate_commission_percentage ?? 0), 2) . '%'
+                . ' | ' . $money($transaction->affiliate_commission_amount ?? 0)
+                . ($transaction->affiliate_commission_status ? (' | ' . strtoupper((string) $transaction->affiliate_commission_status)) : '');
+            $html .= $row('Promoter Commission', $esc($affText));
         }
 
-        if ($entertainerName || ((float)($transaction->entertainer_commission_amount ?? 0) > 0) || ((float)($transaction->entertainer_commission_percentage ?? 0) > 0) || $transaction->entertainer_commission_status) {
+        if ($entertainerName || ((float) ($transaction->entertainer_commission_amount ?? 0) > 0) || ((float) ($transaction->entertainer_commission_percentage ?? 0) > 0) || $transaction->entertainer_commission_status) {
             $entText = ($entertainerName ?: 'N/A')
-                . ' | ' . number_format((float)($transaction->entertainer_commission_percentage ?? 0), 2) . '%'
-                . ' | $' . number_format((float)($transaction->entertainer_commission_amount ?? 0), 2)
-                . ($transaction->entertainer_commission_status ? (' | ' . strtoupper($transaction->entertainer_commission_status)) : '');
-            $html .= '<li class="list-group-item"><strong>Entertainer Commission:</strong> <span>' . htmlspecialchars($entText) . '</span></li>';
+                . ' | ' . number_format((float) ($transaction->entertainer_commission_percentage ?? 0), 2) . '%'
+                . ' | ' . $money($transaction->entertainer_commission_amount ?? 0)
+                . ($transaction->entertainer_commission_status ? (' | ' . strtoupper((string) $transaction->entertainer_commission_status)) : '');
+            $html .= $row('Entertainer Commission', $esc($entText));
         }
 
-        $html .= '<li class="list-group-item"><strong>Date (Pacific Time):</strong> <span>' . ($transaction->created_at ? $transaction->created_at->timezone('America/Los_Angeles')->format('M d, Y h:i A') : '') . '</span></li>
-                            <li class="list-group-item"><strong>Accepted Terms and Conditions:</strong> <span>Yes</span></li>
-                            <li class="list-group-item"><strong>Accepted SMS:</strong> <span>Yes</span></li>
-                        </ul>
-                    </div>
-                </div>';
+        $html .= $row('IP Address', $esc($transaction->ip_address ?: ''));
+        $html .= '</div></div>';
+
+        $html .= '<div class="col-md-6"><div class="txn-detail-card"><div class="txn-detail-title">Transport & Business</div>';
+        $html .= $row('Pickup Time', $esc($pickupFormatted ?: 'N/A'));
+        $html .= $row('Transport Phone', $esc($transaction->transportation_phone ?: 'N/A'));
+        $html .= $row('Transport Address', $esc($transaction->transportation_address ?: 'N/A'));
+        $html .= $row('Transport Guest', $esc($transaction->transportation_guest ?: 'N/A'));
+        $html .= $row('Transport Note', $esc($transaction->transportation_note ?: 'N/A'));
+        $html .= $row('Business Info', $esc($businessInfo !== '' ? $businessInfo : 'N/A'));
+        $html .= $row('Business Purpose', $esc($transaction->business_purpose ?: 'N/A'));
+        $html .= $row('Terms Accepted', 'Yes');
+        $html .= $row('SMS Accepted', 'Yes');
+        $html .= '</div></div>';
+
+        $html .= '</div>';
 
         return $html;
     }
