@@ -2212,6 +2212,11 @@ class TransactionController extends Controller
         $transaction->save();
 
         if ($commissionAmount > 0) {
+            $publicTransactionId = trim((string) ($transaction->transaction_id ?? ''));
+            if ($publicTransactionId === '') {
+                $publicTransactionId = (string) $transaction->id;
+            }
+
             AffiliateWalletTransaction::create([
                 'affiliate_id' => $affiliate->id,
                 'transaction_id' => $transaction->id,
@@ -2219,7 +2224,7 @@ class TransactionController extends Controller
                 'status' => 'pending',
                 'amount' => $commissionAmount,
                 'balance_after' => (float) $affiliate->wallet_balance,
-                'description' => 'Commission pending hold period for purchase #' . $transaction->id,
+                'description' => 'Commission pending hold period for purchase #' . $publicTransactionId,
                 'meta' => [
                     'package_id' => $packageId,
                     'website_id' => $transaction->website_id,
@@ -2279,6 +2284,11 @@ class TransactionController extends Controller
         $transaction->save();
 
         if ($commissionAmount > 0) {
+            $publicTransactionId = trim((string) ($transaction->transaction_id ?? ''));
+            if ($publicTransactionId === '') {
+                $publicTransactionId = (string) $transaction->id;
+            }
+
             EntertainerWalletTransaction::create([
                 'entertainer_id' => $entertainer->id,
                 'transaction_id' => $transaction->id,
@@ -2286,7 +2296,7 @@ class TransactionController extends Controller
                 'status' => 'pending',
                 'amount' => $commissionAmount,
                 'balance_after' => (float) $entertainer->wallet_balance,
-                'description' => 'Commission pending hold period for purchase #' . $transaction->id,
+                'description' => 'Commission pending hold period for purchase #' . $publicTransactionId,
                 'meta' => [
                     'package_id' => $packageId,
                     'website_id' => $transaction->website_id,
@@ -2370,6 +2380,11 @@ class TransactionController extends Controller
         $affiliate->wallet_balance = $newBalance;
         $affiliate->save();
 
+        $publicTransactionId = trim((string) ($transaction->transaction_id ?? ''));
+        if ($publicTransactionId === '') {
+            $publicTransactionId = (string) $transaction->id;
+        }
+
         AffiliateWalletTransaction::create([
             'affiliate_id' => $affiliate->id,
             'transaction_id' => $transaction->id,
@@ -2377,7 +2392,7 @@ class TransactionController extends Controller
             'status' => 'credited',
             'amount' => $commissionAmount,
             'balance_after' => $newBalance,
-            'description' => 'Commission approved after hold period for purchase #' . $transaction->id,
+            'description' => 'Commission approved after hold period for purchase #' . $publicTransactionId,
             'meta' => [
                 'website_id' => $transaction->website_id,
                 'commission_percentage' => (float) ($transaction->affiliate_commission_percentage ?? 0),
@@ -2419,6 +2434,11 @@ class TransactionController extends Controller
         $entertainer->wallet_balance = $newBalance;
         $entertainer->save();
 
+        $publicTransactionId = trim((string) ($transaction->transaction_id ?? ''));
+        if ($publicTransactionId === '') {
+            $publicTransactionId = (string) $transaction->id;
+        }
+
         EntertainerWalletTransaction::create([
             'entertainer_id' => $entertainer->id,
             'transaction_id' => $transaction->id,
@@ -2426,7 +2446,7 @@ class TransactionController extends Controller
             'status' => 'credited',
             'amount' => $commissionAmount,
             'balance_after' => $newBalance,
-            'description' => 'Commission approved after hold period for purchase #' . $transaction->id,
+            'description' => 'Commission approved after hold period for purchase #' . $publicTransactionId,
             'meta' => [
                 'website_id' => $transaction->website_id,
                 'commission_percentage' => (float) ($transaction->entertainer_commission_percentage ?? 0),

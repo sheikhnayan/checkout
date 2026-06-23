@@ -251,7 +251,14 @@ class EntertainerPortalController extends Controller
         app(CommissionLifecycleRunner::class)->runSafely();
 
         $entertainer = $this->getEntertainerOrAbort();
-        $transactions = $entertainer->walletTransactions()->latest()->paginate(20);
+        $transactions = $entertainer->walletTransactions()
+            ->with('transaction')
+            ->where(function ($query) {
+                $query->whereNull('transaction_id')
+                    ->orWhereHas('transaction');
+            })
+            ->latest()
+            ->paginate(20);
         $bookingTransactions = Transaction::where('entertainer_id', $entertainer->id)
             ->with(['website', 'event', 'package'])
             ->latest()

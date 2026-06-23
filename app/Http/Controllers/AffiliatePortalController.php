@@ -273,7 +273,14 @@ class AffiliatePortalController extends Controller
         app(CommissionLifecycleRunner::class)->runSafely();
 
         $affiliate = $this->getAffiliateOrAbort();
-        $transactions = $affiliate->walletTransactions()->latest()->paginate(20);
+        $transactions = $affiliate->walletTransactions()
+            ->with('transaction')
+            ->where(function ($query) {
+                $query->whereNull('transaction_id')
+                    ->orWhereHas('transaction');
+            })
+            ->latest()
+            ->paginate(20);
         $bookingTransactions = Transaction::where('affiliate_id', $affiliate->id)
             ->with(['website', 'event', 'package'])
             ->latest()

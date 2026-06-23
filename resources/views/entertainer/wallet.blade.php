@@ -33,10 +33,30 @@
                 </thead>
                 <tbody>
                     @forelse($transactions as $item)
+                        @php
+                            $linkedTransaction = $item->transaction;
+                            $displayTransactionId = $linkedTransaction->transaction_id ?? $item->transaction_id;
+                            $descriptionText = (string) ($item->description ?? '');
+                            $hasPurchaseRef = preg_match('/purchase\s*#\d+/i', $descriptionText) === 1;
+                        @endphp
                         <tr>
                             <td>{{ $item->created_at->format('M d, Y H:i') }}</td>
                             <td>{{ ucfirst($item->type) }}</td>
-                            <td>{{ $item->description }}</td>
+                            <td>
+                                @if($linkedTransaction && $displayTransactionId && $hasPurchaseRef)
+                                    {!! preg_replace(
+                                        '/purchase\s*#\d+/i',
+                                        'purchase <a href="#" class="wallet-transaction-link" data-table-id="entertainerWalletTransactionTable" data-transaction-row-id="' . e($linkedTransaction->id) . '">#' . e($displayTransactionId) . '</a>',
+                                        e($descriptionText),
+                                        1
+                                    ) !!}
+                                @elseif($linkedTransaction && $displayTransactionId)
+                                    {{ $descriptionText }}
+                                    <span class="ms-1">(<a href="#" class="wallet-transaction-link" data-table-id="entertainerWalletTransactionTable" data-transaction-row-id="{{ $linkedTransaction->id }}">#{{ $displayTransactionId }}</a>)</span>
+                                @else
+                                    {{ $item->description }}
+                                @endif
+                            </td>
                             <td>${{ number_format($item->amount, 2) }}</td>
                             <td>${{ number_format($item->balance_after, 2) }}</td>
                         </tr>
@@ -51,3 +71,19 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('click', function (e) {
+    var link = e.target.closest('.wallet-transaction-link');
+    if (!link) return;
+    e.preventDefault();
+
+    var tableId = link.getAttribute('data-table-id');
+    var rowId = link.getAttribute('data-transaction-row-id');
+    if (!tableId || !rowId || typeof window.focusWalletTransactionRow !== 'function') return;
+
+    window.focusWalletTransactionRow(tableId, rowId);
+});
+</script>
+@endpush

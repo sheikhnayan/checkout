@@ -17,9 +17,14 @@
 
 <style>
 #{{ $tableId }} tbody tr[data-transaction-id]{cursor:pointer;}
+#{{ $tableId }} tbody tr.txn-row-flash{animation: walletTxnRowFlash 2.2s ease-in-out;}
 #{{ $tableId }}_wrap .txn-controls{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;margin-bottom:14px;}
 #{{ $tableId }}_wrap .txn-controls label{display:block;font-size:0.72rem;font-weight:600;opacity:0.7;margin-bottom:3px;}
 #{{ $tableId }}_wrap .txn-controls .form-control-sm{min-width:140px;}
+@keyframes walletTxnRowFlash {
+    0% { background-color: rgba(59,130,246,0.38); }
+    100% { background-color: transparent; }
+}
 </style>
 
 <div id="{{ $tableId }}_wrap">
@@ -370,6 +375,33 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     applyFilters();
+
+    window.focusWalletTransactionRow = window.focusWalletTransactionRow || function (targetTableId, transactionRowId) {
+        if (targetTableId !== '{{ $tableId }}') return;
+
+        var targetId = String(transactionRowId || '');
+        if (!targetId) return;
+
+        var targetRow = txnTable.querySelector('tbody tr[data-transaction-id="' + targetId + '"]');
+        if (!targetRow) return;
+
+        if (fromEl) fromEl.value = '';
+        if (toEl) toEl.value = '';
+        if (searchEl) searchEl.value = '';
+        applyFilters();
+
+        targetRow = txnTable.querySelector('tbody tr[data-transaction-id="' + targetId + '"]');
+        if (!targetRow) return;
+
+        targetRow.classList.remove('txn-row-flash');
+        void targetRow.offsetWidth;
+        targetRow.classList.add('txn-row-flash');
+
+        targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        var wrapTop = wrap.getBoundingClientRect().top + window.scrollY - 30;
+        window.scrollTo({ top: wrapTop, behavior: 'smooth' });
+    };
 });
 </script>
 @endpush
