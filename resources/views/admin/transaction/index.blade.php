@@ -1418,6 +1418,14 @@ body.modal-open .admin-mobile-menu-toggle {
             <script>
             $(document).ready(function() {
 
+                const actionColumnIndex = $('#txnDataTable thead th').filter(function() {
+                    return $(this).text().trim().toLowerCase() === 'action';
+                }).first().index();
+                const nonOrderableTargets = [0];
+                if (actionColumnIndex >= 0) {
+                    nonOrderableTargets.push(actionColumnIndex);
+                }
+
                 // Initialize DataTable with pagination
                 let table = $('#txnDataTable').DataTable({
                     pageLength: 25,
@@ -1426,7 +1434,14 @@ body.modal-open .admin-mobile-menu-toggle {
                     paging: true,
                     info: true,
                     lengthChange: true,
-                    autoWidth: false
+                    autoWidth: false,
+                    columnDefs: [
+                        { orderable: false, targets: nonOrderableTargets }
+                    ]
+                });
+
+                $('#txnDataTable thead').on('click mousedown', '#selectAll', function(e) {
+                    e.stopPropagation();
                 });
 
                 // ── Custom search ────────────────────────────────────────────
