@@ -6,6 +6,7 @@ use App\Models\Website;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Schema;
 
 class PaymentSettingsController extends Controller
 {
@@ -92,9 +93,14 @@ class PaymentSettingsController extends Controller
         }
 
         // An unchecked checkbox is not submitted, so set the per-website sandbox
-        // flag explicitly: checked => sandbox (true), unchecked => live (false).
-        // This makes it possible to actually switch a club OFF sandbox from the UI.
-        $validated['sandbox_mode'] = $request->boolean('sandbox_mode');
+        // flag explicitly when the column exists: checked => sandbox (true),
+        // unchecked => live (false). If the column is missing in an older DB
+        // schema, skip it to keep current flow working.
+        if (Schema::hasColumn('websites', 'sandbox_mode')) {
+            $validated['sandbox_mode'] = $request->boolean('sandbox_mode');
+        } else {
+            unset($validated['sandbox_mode']);
+        }
 
         // Update website with payment settings
         $website->update($validated);
