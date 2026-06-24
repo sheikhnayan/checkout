@@ -17,7 +17,7 @@
         <title>Checkout</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css"
             integrity="sha512-fw7f+TcMjTb7bpbLJZlP8g2Y4XcCyFZW8uy8HsRZsH/SwbMw0plKHFHr99DN3l04VsYNwvzicUX/6qurvIxbxw=="
-            crossorigin="anonymous" referrerpolicy="no-referrer" />
+            crossorigin="anonymous" referrerpolicy="no-referrer"  required />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <link rel="stylesheet" href="{{ asset('styles/main.css') }}">
         <style>
@@ -192,7 +192,8 @@
                 border-color: #ff6b6b !important;
             }
 
-            /* Red asterisk on required form field labels */
+            /* Red asterisk on required form field labels - currently disabled, :has() support varies */
+            /*
             .form-group > label:has(~ input[required])::after,
             .form-group > label:has(~ select[required])::after,
             .form-group > label:has(~ textarea[required])::after,
@@ -203,6 +204,7 @@
                 color: #ef4444;
                 font-weight: 700;
             }
+            */
 
             .reservation-date-error {
                 display: none;
@@ -244,6 +246,18 @@
                 font-size: 15px;
                 min-width: 180px;
                 text-align: center;
+                -webkit-appearance: none !important;
+                -moz-appearance: none !important;
+                appearance: none !important;
+                -webkit-user-select: none !important;
+                user-select: none !important;
+                -webkit-tap-highlight-color: transparent !important;
+                touch-action: manipulation !important;
+                position: relative !important;
+                z-index: 10 !important;
+                pointer-events: auto !important;
+                width: auto;
+                display: inline-block;
             }
 
             .btn-next:hover,
@@ -288,7 +302,12 @@
                 .btn-prev,
                 .submit-btn {
                     margin-top: 15px;
-                    min-width: 180px;
+                    min-width: 100% !important;
+                    min-height: 48px !important;
+                    padding: 14px 20px !important;
+                    font-size: 16px !important;
+                    position: relative !important;
+                    z-index: 100 !important;
                 }
 
                 .step-navigation {
@@ -375,7 +394,7 @@
                     -webkit-appearance: none !important;
                     -moz-appearance: none !important;
                     appearance: none !important;
-                    background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 15px center !important;
+                    background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"  required /></svg>') no-repeat right 15px center !important;
                     background-size: 20px !important;
                     background-color: transparent !important;
                     padding: 8px 30px 8px 15px !important;
@@ -399,7 +418,7 @@
                     -webkit-appearance: none !important;
                     -moz-appearance: none !important;
                     appearance: none !important;
-                    background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 15px center !important;
+                    background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"  required /></svg>') no-repeat right 15px center !important;
                     background-size: 20px !important;
                     background-color: transparent !important;
                     padding: 12px 45px 12px 15px !important;
@@ -416,7 +435,7 @@
                     -webkit-appearance: none !important;
                     -moz-appearance: none !important;
                     appearance: none !important;
-                    background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 15px center !important;
+                    background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"  required /></svg>') no-repeat right 15px center !important;
                     background-size: 20px !important;
                     background-color: transparent !important;
                     padding: 12px 45px 12px 15px !important;
@@ -438,7 +457,7 @@
                     -webkit-appearance: none !important;
                     -moz-appearance: none !important;
                     appearance: none !important;
-                    background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center !important;
+                    background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"  required /></svg>') no-repeat right 10px center !important;
                     background-size: 15px !important;
                     background-color: transparent !important;
                     padding: 12px 30px 12px 15px !important;
@@ -558,7 +577,7 @@
                 -moz-appearance: none !important;
                 appearance: none !important;
                 background-color: transparent !important;
-                background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"/></svg>') !important;
+                background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"  required /></svg>') !important;
                 background-repeat: no-repeat !important;
                 background-position: right 15px center !important;
                 background-size: 20px !important;
@@ -1020,7 +1039,7 @@
             }
 
         /* ===================================================
-           AFFILIATE PAGE DESIGN SYSTEM
+           affiliate PAGE DESIGN SYSTEM
            =================================================== */
         :root {
             --accent:    {{ $brandPrimary }};
@@ -1063,60 +1082,44 @@
         }
 
         /* Checkbox containers - unified toggle switch */
+        /* TERMS CONSENT LABEL */
         .consent-label {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: flex-start;
             cursor: pointer;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             font-size: 13px;
+            color: rgba(255,255,255,0.9);
         }
         .consent-label span {
             flex: 1;
-            line-height: 1.4;
+            line-height: 1.6;
+            padding-top: 2px;
         }
-        .consent-label input {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 46px !important;
-            height: 26px;
-            border-radius: 999px;
-            border: 1px solid rgba(255,255,255,0.28);
-            background: rgba(255,255,255,0.16);
-            position: relative;
-            margin-top: 0 !important;
-            padding: 0 !important;
-            flex-shrink: 0;
-            cursor: pointer;
-            transition: background .2s ease, border-color .2s ease;
+        .consent-label span a {
+            color: #ffcc00;
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255,204,0,0.5);
+            transition: all 0.2s ease;
         }
-        .consent-label input::before {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #fff;
-            transition: transform .2s ease;
+        .consent-label span a:hover {
+            color: #fff;
+            border-bottom-color: #ffcc00;
+            text-decoration: underline;
         }
-        .consent-label input:checked {
-            background: #ffcc00;
-            border-color: #ffcc00;
-        }
-        .consent-label input:checked::before {
-            background: #fff;
-            transform: translateX(20px);
-            box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
-        }
-        .consent-label input:focus-visible {
+
+        /* TERMS CONSENT - SAME TOGGLE AS OTHER CONSENTS */
+        /* No special styling - let it be a toggle like the rest */
+        .consent-label input[type="checkbox"]:focus-visible {
             outline: 2px solid rgba(255,204,0,0.7);
             outline-offset: 2px;
         }
 
         /* Payment agreement toggles: exact affiliate parity, locked with stronger selectors */
-        #payment-consent-group .consent-label {
+        #payment-consent-group .consent-label,
+.payment-consent-group .consent-label {
             display: flex !important;
             gap: 10px !important;
             align-items: flex-start !important;
@@ -1126,13 +1129,16 @@
             font-family: 'Inter', sans-serif !important;
             font-weight: 400 !important;
         }
-        #payment-consent-group .consent-label span {
+
+        #payment-consent-group .consent-label span,
+.payment-consent-group .consent-label span {
             flex: 1 !important;
             line-height: 1.4 !important;
             font-size: 13px !important;
             font-family: 'Inter', sans-serif !important;
         }
-        #payment-consent-group .consent-label input[type="checkbox"] {
+        #payment-consent-group .consent-label input[type="checkbox"],
+.payment-consent-group .consent-label input[type="checkbox"] {
             -webkit-appearance: none !important;
             appearance: none !important;
             width: 46px !important;
@@ -1148,7 +1154,8 @@
             cursor: pointer !important;
             transition: background .2s ease, border-color .2s ease !important;
         }
-        #payment-consent-group .consent-label input[type="checkbox"]::before {
+        #payment-consent-group .consent-label input[type="checkbox"]::before,
+.payment-consent-group .consent-label input[type="checkbox"]::before {
             content: '' !important;
             position: absolute !important;
             top: 2px !important;
@@ -1159,11 +1166,13 @@
             background: #fff !important;
             transition: transform .2s ease !important;
         }
-        #payment-consent-group .consent-label input[type="checkbox"]:checked {
+        #payment-consent-group .consent-label input[type="checkbox"]:checked,
+.payment-consent-group .consent-label input[type="checkbox"]:checked {
             background: #ffcc00 !important;
             border-color: #ffcc00 !important;
         }
-        #payment-consent-group .consent-label input[type="checkbox"]:checked::before {
+        #payment-consent-group .consent-label input[type="checkbox"]:checked::before,
+.payment-consent-group .consent-label input[type="checkbox"]:checked::before {
             background: #fff !important;
             transform: translateX(20px) !important;
             box-shadow: 0 0 0 3px rgba(0,0,0,0.1) !important;
@@ -1177,34 +1186,50 @@
             font-family: 'Inter', sans-serif !important;
         }
 
+        /* CHECKBOX CONTAINER - TOGGLES ONLY */
         .checkbox-container label {
             display: flex;
             gap: 10px;
-            align-items: flex-start;
+            align-items: center;
             cursor: pointer;
             margin-bottom: 10px;
             font-size: 13px;
-            line-height: 1.4;
         }
         .checkbox-container label span {
             flex: 1;
+            line-height: 1.4;
         }
-        .checkbox-container input[type="checkbox"] {
+
+        /* ALL TOGGLES: SMS & Driver Notification */
+        .checkbox-container #smsConsent_two,
+        .checkbox-container #smsConsent,
+        .checkbox-container #driverNotificationConsent_two,
+        .checkbox-container #driverNotificationConsent,
+        .checkbox-container #termsConsent_two,
+        .checkbox-container #termsConsent {
             -webkit-appearance: none;
             appearance: none;
             width: 46px !important;
-            height: 26px;
-            border-radius: 999px;
-            border: 1px solid rgba(255,255,255,0.28);
-            background: rgba(255,255,255,0.16);
+            height: 26px !important;
+            border-radius: 999px !important;
+            border: 1px solid rgba(255,255,255,0.28) !important;
+            background: rgba(255,255,255,0.16) !important;
             position: relative;
-            margin-top: 0 !important;
+            margin: 0 !important;
+            margin-right: 12px !important;
             padding: 0 !important;
             flex-shrink: 0;
             cursor: pointer;
             transition: background .2s ease, border-color .2s ease;
         }
-        .checkbox-container input[type="checkbox"]::before {
+
+        /* Toggle Slider Circle */
+        .checkbox-container #smsConsent_two::before,
+        .checkbox-container #smsConsent::before,
+        .checkbox-container #driverNotificationConsent_two::before,
+        .checkbox-container #driverNotificationConsent::before,
+        .checkbox-container #termsConsent_two::before,
+        .checkbox-container #termsConsent::before {
             content: '';
             position: absolute;
             top: 2px;
@@ -1215,13 +1240,28 @@
             background: #fff;
             transition: transform .2s ease;
         }
-        .checkbox-container input[type="checkbox"]:checked {
-            background: #ffcc00;
-            border-color: #ffcc00;
+
+        /* Checked State - Slide Right */
+        .checkbox-container #smsConsent_two:checked,
+        .checkbox-container #smsConsent:checked,
+        .checkbox-container #driverNotificationConsent_two:checked,
+        .checkbox-container #driverNotificationConsent:checked,
+        .checkbox-container #termsConsent_two:checked,
+        .checkbox-container #termsConsent:checked {
+            background: #ffcc00 !important;
+            border-color: #ffcc00 !important;
         }
-        .checkbox-container input[type="checkbox"]:checked::before {
-            background: #ffcc00;
+
+        .checkbox-container #smsConsent_two:checked::before,
+        .checkbox-container #smsConsent:checked::before,
+        .checkbox-container #driverNotificationConsent_two:checked::before,
+        .checkbox-container #driverNotificationConsent:checked::before,
+        .checkbox-container #termsConsent_two:checked::before,
+        .checkbox-container #termsConsent:checked::before {
+            background: #fff;
+            transform: translateX(20px);
         }
+
         .checkbox-container input[type="checkbox"]:focus-visible {
             outline: 2px solid rgba(255,204,0,0.7);
             outline-offset: 2px;
@@ -1329,6 +1369,7 @@
         .step-navigation {
             display: flex !important;
             justify-content: center;
+            align-items: center;
             gap: 12px;
             flex-wrap: wrap;
             margin: 1.5rem 0;
@@ -2738,6 +2779,28 @@
             .location-map-wrap iframe { min-height: 260px; }
             .aff-display-title { margin: 2px 0 4px; }
             .aff-display-copy { font-size: 11px; }
+
+            /* Mobile form layout: stack fields vertically */
+            .form-row {
+                flex-direction: column !important;
+            }
+            .form-row .form-group {
+                width: 100% !important;
+            }
+            .guest .form-row {
+                flex-direction: column !important;
+                gap: 12px !important;
+            }
+            .guest .form-row .form-group {
+                width: 100% !important;
+            }
+
+            /* Reduce phone formatting note size on mobile */
+            .phone-note {
+                font-size: 0.65rem !important;
+                margin-top: 2px !important;
+                line-height: 1.3 !important;
+            }
         }
 
         @media(max-width:576px) {
@@ -4204,6 +4267,10 @@
             line-height: 1.5 !important;
             margin-bottom: 0 !important;
         }
+        /* Terms consent checkbox specific alignment - centered with text */
+        .guest .checkbox-container .consent-label:nth-child(3) {
+            align-items: center;
+        }
         .guest .checkbox-container .consent-label a { color: #c4a3ff !important; text-decoration: underline !important; }
         .guest .submit-btn { margin-top: 20px !important; width: 100% !important; min-width: 100% !important; }
 
@@ -4893,7 +4960,6 @@
         /* ===== Custom hover tooltip system (data-tip) ===== */
         [data-tip] { position: relative; }
         [data-tip]:hover::after,
-        [data-tip][data-tip-open="1"]::after,
         [data-tip]:focus-visible::after {
             content: attr(data-tip);
             position: absolute;
@@ -4919,7 +4985,6 @@
             animation: cvTipFadeIn .15s ease-out forwards;
         }
         [data-tip]:hover::before,
-        [data-tip][data-tip-open="1"]::before,
         [data-tip]:focus-visible::before {
             content: '';
             position: absolute;
@@ -4935,39 +5000,9 @@
         }
         [data-tip-right]:hover::after { left: auto; right: 0; }
         [data-tip-right]:hover::before { left: auto; right: 14px; }
-        [data-tip-right][data-tip-open="1"]::after { left: auto; right: 0; }
-        [data-tip-right][data-tip-open="1"]::before { left: auto; right: 14px; }
         @keyframes cvTipFadeIn {
             from { opacity: 0; transform: translateY(-4px); }
             to { opacity: 1; transform: translateY(0); }
-        }
-        @media (max-width: 767.98px) {
-            [data-tip]:hover::after,
-            [data-tip][data-tip-open="1"]::after,
-            [data-tip]:focus-visible::after {
-                min-width: 0;
-                width: min(280px, calc(100vw - 24px));
-                max-width: calc(100vw - 24px);
-                left: max(-120px, calc(12px - 50vw));
-            }
-
-            [data-tip]:hover::before,
-            [data-tip][data-tip-open="1"]::before,
-            [data-tip]:focus-visible::before {
-                left: 10px;
-            }
-        }
-
-        /* Order Summary tooltips should open via modal only (disable hover bubbles) */
-        #cv-order-sidebar [data-tip]:hover::after,
-        #cv-order-sidebar [data-tip][data-tip-open="1"]::after,
-        #cv-order-sidebar [data-tip]:focus-visible::after,
-        #cv-order-sidebar [data-tip]:hover::before,
-        #cv-order-sidebar [data-tip][data-tip-open="1"]::before,
-        #cv-order-sidebar [data-tip]:focus-visible::before {
-            content: none !important;
-            display: none !important;
-            animation: none !important;
         }
 
         /* Hide the redundant breakdown lines the user wants removed */
@@ -5125,58 +5160,6 @@
             letter-spacing: -0.01em;
         }
 
-        .cv-package-tooltip-trigger { background: transparent; cursor: pointer; padding: 0; }
-        .cv-package-tooltip-trigger::before,
-        .cv-package-tooltip-trigger::after { content: none !important; display: none !important; }
-        .cv-tooltip-modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(6, 8, 18, 0.72);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 12000;
-            padding: 16px;
-        }
-        .cv-tooltip-modal-overlay.is-open { display: flex; }
-        .cv-tooltip-modal {
-            width: min(520px, calc(100vw - 32px));
-            max-height: min(80vh, 680px);
-            overflow: auto;
-            background: linear-gradient(180deg, rgba(28,20,52,0.98), rgba(14,8,28,0.99));
-            border: 1px solid rgba(167,116,255,0.35);
-            border-radius: 14px;
-            box-shadow: 0 18px 48px rgba(0,0,0,0.58);
-            color: #fff;
-        }
-        .cv-tooltip-modal-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            padding: 14px 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.12);
-        }
-        .cv-tooltip-modal-title { font-size: 14px; font-weight: 700; margin: 0; }
-        .cv-tooltip-modal-close {
-            background: transparent;
-            color: rgba(255,255,255,0.8);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 8px;
-            width: 30px;
-            height: 30px;
-            line-height: 1;
-            font-size: 20px;
-            cursor: pointer;
-        }
-        .cv-tooltip-modal-body {
-            padding: 16px;
-            font-size: 14px;
-            line-height: 1.6;
-            color: rgba(255,255,255,0.94);
-            white-space: pre-wrap;
-        }
-
         .cv-pkg-sub {
             font-size: 12.5px;
             color: rgba(255,255,255,0.62) !important;
@@ -5197,7 +5180,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 14px;
-            margin-top: 50px;
+            margin-top: 6px;
         }
 
         .cv-pkg-feature {
@@ -5351,7 +5334,7 @@
             .vip-card.cv-exact-card .cv-pkg-title-row { margin-top: 0; }
             .vip-card.cv-exact-card .cv-pkg-title { font-size: 22px !important; }
             .vip-card.cv-exact-card .cv-pkg-desc { font-size: 13px !important; line-height: 1.5; }
-            .vip-card.cv-exact-card .cv-pkg-features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px 10px; margin-top: 90px !important; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; }
+            .vip-card.cv-exact-card .cv-pkg-features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px 10px; margin-top: 40px !important; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; }
             .vip-card.cv-exact-card .cv-pkg-feature { flex: 0 0 auto; font-size: 10.5px !important; flex-direction: column; align-items: center; gap: 3px; text-align: center; }
             .vip-card.cv-exact-card .cv-pkg-feature i { font-size: 15px !important; margin-bottom: 1px; }
             .vip-card.cv-exact-card .vip-card-side {
@@ -5418,6 +5401,16 @@
             .hero-gallery-grid { display: none !important; }
         }
 
+        /* Scale down reCAPTCHA badge */
+        .grecaptcha-badge {
+            z-index: 9999 !important;
+            bottom: 10px !important;
+            right: 10px !important;
+            position: fixed !important;
+            transform: scale(0.5) !important;
+            transform-origin: bottom right !important;
+        }
+
         </style>
         @php
             $gaMeasurementId = preg_replace('/[^A-Za-z0-9_-]/', '', (string) ($data->google_analytics_id ?? ''));
@@ -5430,6 +5423,29 @@
                 gtag('js', new Date());
                 gtag('config', '{{ $gaMeasurementId }}');
             </script>
+        @endif
+        <!-- reCAPTCHA v3 Script -->
+        @if(config('services.recaptcha.site_key') && config('services.recaptcha.site_key') !== 'YOUR_RECAPTCHA_SITE_KEY_HERE')
+        <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+        <script>
+            window.executeRecaptcha = function(action = 'submit') {
+                return new Promise((resolve) => {
+                    if (!window.grecaptcha) {
+                        resolve(null);
+                        return;
+                    }
+                    grecaptcha.ready(function() {
+                        grecaptcha.execute('{{ config('services.recaptcha.site_key') }}', {action: action})
+                            .then(function(token) {
+                                resolve(token);
+                            })
+                            .catch(function() {
+                                resolve(null);
+                            });
+                    });
+                });
+            };
+        </script>
         @endif
     </head>
 
@@ -5627,6 +5643,19 @@
                             <div class="cv-dstep" id="cv-dstep-3" data-step="3"><span class="cv-dstep-num">3</span><span>Select Package</span></div>
                             <div class="cv-dstep" id="cv-dstep-4" data-step="4"><span class="cv-dstep-num">4</span><span>Review &amp; Pay</span></div>
                         </div>
+                        @if ($data->reservation == 1)
+                        <style>
+                            #cv-checkout-steps-res { display: none; }
+                            .cv-desktop-steps-res { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+                            .cv-checkout-body.is-guest-mode #cv-checkout-steps { display: none !important; }
+                            .cv-checkout-body.is-guest-mode #cv-checkout-steps-res { display: grid !important; }
+                        </style>
+                        <div class="cv-desktop-steps cv-desktop-steps-res" id="cv-checkout-steps-res">
+                            <div class="cv-dstep is-active" id="cv-rstep-1" data-step="1"><span class="cv-dstep-num">1</span><span>Choose Date</span></div>
+                            <div class="cv-dstep" id="cv-rstep-2" data-step="2"><span class="cv-dstep-num">2</span><span>Your Details</span></div>
+                            <div class="cv-dstep" id="cv-rstep-3" data-step="3"><span class="cv-dstep-num">3</span><span>Submit</span></div>
+                        </div>
+                        @endif
 
                         @if ($data->reservation == 1)
                             <div class="cv-access-hint">Choose one to continue<span class="cv-access-hint-dot"></span></div>
@@ -5704,7 +5733,14 @@
                         </style>
                         <div class="cv-access-grid">
                             @if ($data->reservation == 1)
-                                    <button type="button" class="cv-access-card cv-access-tab is-active" data-name="package">
+                                <button type="button" class="cv-access-card cv-access-tab is-active" data-name="guest">
+                                    <span class="cv-ac-icon-wrap"><i class="fas {{ $data->guest_tab_icon ?? 'fa-car-side' }}"></i></span>
+                                    <span class="cv-ac-body">
+                                        <strong>{{ $data->guest_list_button_text ?? 'Free Ride & Entry' }}</strong>
+                                        <span style="color: #fff !important;">{{ $data->guest_tab_subtitle ?? 'Complimentary ride and general entry' }}</span>
+                                    </span>
+                                </button>
+                                <button type="button" class="cv-access-card cv-access-tab" data-name="package">
                                     @if(!empty($data->package_tab_ribbon))
                                         <span class="cv-ac-ribbon">{{ $data->package_tab_ribbon }}</span>
                                     @endif
@@ -5713,13 +5749,6 @@
                                     <span class="cv-ac-body">
                                         <strong>{{ $data->package_button_text ?? 'VIP Packages' }}</strong>
                                         <span style="color: #fff !important;">{{ $data->package_tab_subtitle ?? 'VIP table packages &amp; experiences' }}</span>
-                                    </span>
-                                </button>
-                                    <button type="button" class="cv-access-card cv-access-tab" data-name="guest">
-                                    <span class="cv-ac-icon-wrap"><i class="fas {{ $data->guest_tab_icon ?? 'fa-car-side' }}"></i></span>
-                                    <span class="cv-ac-body">
-                                        <strong>{{ $data->guest_list_button_text ?? 'Free Ride & Entry' }}</strong>
-                                        <span style="color: #fff !important;">{{ $data->guest_tab_subtitle ?? 'Complimentary ride and general entry' }}</span>
                                     </span>
                                 </button>
                             @else
@@ -5744,6 +5773,8 @@
                             @csrf
                             <input type="hidden" name="website_id" value="{{ $data->id }}">
                             <input type="hidden" name="affiliate_slug" value="{{ $affiliateReferral->slug ?? '' }}">
+                            <!-- Reservation date - synced from header dropdown -->
+                            <input type="hidden" name="package_use_date" value="">
                             <section style="width: 100%">
                                 <h5 class="section-kicker-lg">Guest List Reservation</h5>
                                 <div class="">
@@ -5769,8 +5800,9 @@
                                                 <div class="form-row" style="margin-bottom: 1rem;">
                                                     <div class="form-group" style="width: 50%;">
                                                         <label for="phone">Phone Number</label>
-                                                        <input type="tel" name="reservation_phone" id="phone"
-                                                            placeholder="Phone Number" required />
+                                                        <input type="tel" name="reservation_phone" id="reservation_phone"
+                                                            placeholder="(555) 123-4567" required />
+                                                        <div class="phone-note" style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 4px;">Phone formatting may vary by country. International SMS delivery is not guaranteed.</div>
                                                     </div>
                                                     <div class="form-group" style="width: 50%;">
                                                         <label for="email">Email</label>
@@ -5873,21 +5905,12 @@
                                             <div class="checkbox-container">
                                                 <label class="consent-label">
                                                     <input type="checkbox" id="smsConsent_two" required />
-                                                    <span>I agree to receive SMS communications from {{ $data->name }}
-                                                    regarding my
-                                                    upcoming reservation. Message and data rates may apply. Messaging
-                                                    frequency
-                                                    may vary. Reply STOP to opt out at any time.</span>
-                                                </label>
-                                                <label class="consent-label driver-notification-consent-wrap" style="display:none;">
-                                                    <input type="checkbox" id="driverNotificationConsent_two" class="driver-notification-consent-input" />
-                                                    <span>I agree to receive notifications from the driver regarding my transportation pickup.</span>
+                                                    <span>I agree to receive SMS communications regarding my reservation, transportation updates, VIP services, and related notifications. Message and data rates may apply. Messaging frequency may vary. Reply STOP to opt out at any time.</span>
                                                 </label>
                                                 <label class="consent-label">
                                                     <input type="checkbox" id="termsConsent_two" required />
-                                                    <span>I understand that all sales are final. I agree to the <a
-                                                        target="_blank" href="{{ $data->terms }}">Terms of
-                                                        Service</a> and acknowledge that this reservation is fulfilled by the venue or experience provider, while CartVIP provides the checkout and reservation platform.</span>
+                                                    <span>I have read and agree to the <a
+                                                        target="_blank" href="{{ $data->terms }}">Terms of Service</a> / <a target="_blank" href="{{ $data->terms }}">Venue Policies</a></span>
                                                 </label>
                                             </div>
                                             <button class="submit-btn" type="submit" id="submitBtn_two">Create
@@ -5904,6 +5927,8 @@
 
 
                             <input type="hidden" name="type" value="guest">
+                            <input type="hidden" name="recaptcha_token" id="recaptcha_token" value="">
+                            <input type="hidden" name="form_load_time" id="form_load_time" value="">
 
                         </form>
                     </div>
@@ -5987,7 +6012,6 @@
                                                         $fallbackVisual = $data->logo ? asset('uploads/' . $data->logo) : asset('images/logo.png');
                                                         $packageVisual = !empty($item->image) ? asset('uploads/' . $item->image) : $fallbackVisual;
                                                         $packageMobileVisual = !empty($item->mobile_image) ? asset('uploads/' . $item->mobile_image) : $packageVisual;
-                                                        $packageTooltip = trim(strip_tags((string) ($item->tooltip ?? '')));
                                                     @endphp
                                                     <div class="vip-card cv-tier-{{ $pkgTierIdx }} cv-exact-card" id="pkg-card-{{ $item->id }}">
                                                         <div class="cv-pkg-media-wrap">
@@ -6004,9 +6028,6 @@
                                                             <div class="cv-pkg-title-row">
                                                                 <i class="{{ $pkgTierIcon }} cv-pkg-title-icon"></i>
                                                                 <div class="cv-pkg-title">{{ $item->name }}</div>
-                                                                @if($packageTooltip !== '')
-                                                                    <button type="button" class="cv-row-info-icon cv-package-tooltip-trigger" data-tip="{{ $packageTooltip }}" aria-label="Package info for {{ $item->name }}">i</button>
-                                                                @endif
                                                             </div>
                                                             @if($pkgIsTicket)
                                                                 <span class="cv-pkg-sub"><i class="fas fa-ticket-alt"></i>1 ticket per person</span>
@@ -6180,7 +6201,7 @@
                                                 <div style="position: relative;">
                                                     <input type="text" id="shareableLink" readonly
                                                         style="width:100%;margin-top:8px;display:none;padding-right:40px;"
-                                                        />
+  required />
                                                     <div id="copyTooltip" style="position: absolute; top: -35px; right: 0; background: #d6a857; color: #1f1400; padding: 8px 12px; border-radius: 4px; font-size: 12px; display: none; white-space: nowrap; z-index: 1000;">
                                                         Link copied!
                                                     </div>
@@ -6218,7 +6239,7 @@
                                                 <div class="col-md-8 col-8" style="padding-right: 0%;">
                                                     <input type="text" id="promo_code"
                                                         style="color: #fff;"
-                                                        placeholder="Enter code" />
+                                                        placeholder="Enter code"  required />
                                                 </div>
                                                 <div class="col-md-4 col-4" style="padding-left: 0%;">
                                                     <button type="button" class="vip-btn-submit"
@@ -6310,9 +6331,10 @@
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 50%;">
                                                                     <label for="phone">Phone Number</label>
-                                                                    <input type="tel" id="phone"
+                                                                    <input type="tel" id="package_phone"
                                                                         name="package_phone"
-                                                                        placeholder="Phone Number" required />
+                                                                        placeholder="(555) 123-4567" required />
+                                                                    <div class="phone-note" style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 4px;">Phone formatting may vary by country. International SMS delivery is not guaranteed.</div>
                                                                 </div>
                                                                 <div class="form-group" style="width: 50%;">
                                                                     <label for="email">Email</label>
@@ -6346,6 +6368,11 @@
                                                                 <label for="note">Booking Note</label>
                                                                 <textarea id="note" name="package_note" placeholder="Your occasion or special request?"></textarea>
                                                             </div>
+                                                            <div class="form-group">
+                                                                <label for="host">Host Name</label>
+                                                                <input id="host" name="host_name"
+                                                                    placeholder="Enter host name (optional)">
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -6366,8 +6393,8 @@
                                             <div class="checkbox-container transportaiton" id="transport-confirmation"
                                                 style="display:none">
                                                 <label>
-                                                    <input type="checkbox" id="transportation_part" />
-                                                    {{ $data->transportation_confirmation_text ?? 'I confirm I am not arriving via Uber, Lyft, limo, taxi, ride-sharing or any other paid service. I am arriving in a personal vehicle.' }}
+                                                    <input type="checkbox" id="transportation_part"  required />
+                                                    {{ $data->transportation_confirmation_text ?? 'I confirm I am arriving in a personal vehicle or approved venue transportation. I am not arriving via Uber, Lyft, taxi, limousine, ride-share, or any other third-party transportation service.' }}
                                                 </label>
                                                 <div class="step-navigation" style="margin-top: 20px;">
                                                     <button type="button" class="btn-prev"
@@ -6391,10 +6418,6 @@
                                                             <!-- Left: Form Fields -->
                                                             <div class="form-left">
 
-                                                                <button type="button"
-                                                                    class="same-as-info-transport">Same as package
-                                                                    holder information</button>
-
                                                                 <div class="form-row">
                                                                     <div class="form-group" style="width: 100%;">
                                                                         <label for="Pick-up-time">Pick-up Time</label>
@@ -6403,7 +6426,7 @@
                                                                             <input name="transportation_pickup_time" type="text" readonly
                                                                                 id="Pick-up-time"
                                                                                 class="form-control"
-                                                                                placeholder="Select pick-up time" />
+                                                                                placeholder="Select pick-up time" required />
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -6412,7 +6435,7 @@
                                                                         <label for="address">Pick-up Location</label>
                                                                         <input type="text"
                                                                             name="transportation_address"
-                                                                            id="address" placeholder="Enter pick-up address" />
+                                                                            id="address" placeholder="Enter pick-up address" required />
                                                                     </div>
 
                                                                 </div>
@@ -6423,7 +6446,7 @@
                                                                             WhatsApp</label>
                                                                         <input type="tel"
                                                                             name="transportation_phone" id="phone"
-                                                                            placeholder="For driver/dispatch to coordinate pickup" />
+                                                                            placeholder="For driver/dispatch to coordinate pickup"  required />
                                                                     </div>
 
                                                                 </div>
@@ -6434,9 +6457,9 @@
                                                                         <label for="">Number of
                                                                             Guest(s)</label>
 
-                                                                        <input type="number" class="form-control"
-                                                                            name="transportation_guest" value="0" min="1" required
-                                                                            style="width: 120px; max-width: 120px; color: #fff;" />
+                                                                        <input type="text" class="form-control"
+                                                                            name="transportation_guest" placeholder="e.g. John Smith"
+                                                                            style="width: 120px; max-width: 120px; color: #fff;"  required />
 
 
 
@@ -6446,6 +6469,17 @@
                                                                 <div class="form-group">
                                                                     <label for="note">Pickup Note</label>
                                                                     <textarea name="transportation_note" id="note" placeholder="If any"></textarea>
+                                                                </div>
+
+                                                                <!-- TRANSPORTATION RESTRICTION NOTICE -->
+                                                                <div style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); border: 2px solid #c92a2a; border-radius: 8px; padding: 14px 16px; margin-top: 20px; box-shadow: 0 4px 12px rgba(255, 107, 107, 0.25);">
+                                                                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                                                                        <div style="font-size: 20px; color: #fff; flex-shrink: 0;">⚠️</div>
+                                                                        <div>
+                                                                            <p style="margin: 0; color: #fff; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">HOUSE TRANSPORTATION OR SELF DRIVE ONLY</p>
+                                                                            <p style="margin: 6px 0 0 0; color: rgba(255,255,255,0.9); font-size: 12px; line-height: 1.4;">Uber, Lyft, taxi, limo & ride-sharing are NOT permitted.</p>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -6512,15 +6546,15 @@
 
                                                             <!-- Hidden fields for phone, email, and DOB - will be auto-populated from package holder info -->
                                                             <input type="hidden" name="payment_phone"
-                                                                id="hidden_payment_phone" />
+                                                                id="hidden_payment_phone"  required />
                                                             <input type="hidden" name="payment_email"
-                                                                id="hidden_payment_email" />
+                                                                id="hidden_payment_email"  required />
                                                             <input type="hidden" name="payment_month"
-                                                                id="hidden_payment_month" />
+                                                                id="hidden_payment_month"  required />
                                                             <input type="hidden" name="payment_day"
-                                                                id="hidden_payment_day" />
+                                                                id="hidden_payment_day"  required />
                                                             <input type="hidden" name="payment_year"
-                                                                id="hidden_payment_year" />
+                                                                id="hidden_payment_year"  required />
 
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 100%;">
@@ -6673,7 +6707,7 @@
                                                                         </div>
                                                             @endif
                                                         </div>
-                                                        <div class="checkbox-container" style="margin-top: 1.5rem;">
+                                                        <div class="checkbox-container payment-consent-group" style="margin-top: 1.5rem; display: none;">
                                                             <label class="consent-label">
                                                                 <input type="checkbox" id="businessExpenseCheckbox" />
                                                                 <span>This purchase is for business purposes</span>
@@ -6686,13 +6720,13 @@
                                                                     <label for="business_company">Company Name</label>
                                                                     <input type="text" name="business_company"
                                                                         id="business_company"
-                                                                        placeholder="Company Name" />
+                                                                        placeholder="Company Name"  required />
                                                                 </div>
                                                                 <div class="form-group" style="width: 50%;">
                                                                     <label for="business_vat">VAT or Tax ID</label>
                                                                     <input type="text" name="business_vat"
                                                                         id="business_vat"
-                                                                        placeholder="VAT or Tax ID" />
+                                                                        placeholder="VAT or Tax ID"  required />
                                                                 </div>
                                                             </div>
                                                             <div class="form-row">
@@ -6701,16 +6735,7 @@
                                                                         Address</label>
                                                                     <input type="text" name="business_address"
                                                                         id="business_address"
-                                                                        placeholder="Business Address" />
-                                                                </div>
-                                                            </div>
-                                                            <div class="form-row">
-                                                                <div class="form-group" style="width: 100%;">
-                                                                    <label for="business_purpose">Purpose of
-                                                                        Purchase</label>
-                                                                    <input type="text" name="business_purpose"
-                                                                        id="business_purpose"
-                                                                        placeholder="e.g. team event, client entertainment" />
+                                                                        placeholder="Business Address"  required />
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -6718,32 +6743,18 @@
                                                         <div class="checkbox-container payment-consent-group" id="payment-consent-group">
                                                             <label class="consent-label">
                                                                 <input type="checkbox" id="smsConsent" required />
-                                                                <span>I agree to receive SMS communications from
-                                                                {{ $data->name }}
-                                                                regarding my upcoming
-                                                                reservation. Message and data rates may apply. Messaging
-                                                                frequency may vary. Reply
-                                                                STOP to opt out at any time.</span>
-                                                            </label>
-                                                            <label class="consent-label driver-notification-consent-wrap" style="display:none;">
-                                                                <input type="checkbox" id="driverNotificationConsent" class="driver-notification-consent-input" />
-                                                                <span>I agree to receive notifications from the driver regarding my transportation pickup.</span>
+                                                                <span>I agree to receive SMS communications regarding my reservation, transportation updates, VIP services, and related notifications. Message and data rates may apply. Messaging frequency may vary. Reply STOP to opt out at any time.</span>
                                                             </label>
 
                                                             <label class="consent-label" style="margin-top: 1.4rem;">
                                                                 <input type="checkbox" id="termsConsent" required />
-                                                                <span>I understand that all sales are final. I agree to the <a
-                                                                    target="_blank" href="{{ $data->terms }}">Terms
-                                                                    of
-                                                                    Service</a> and acknowledge that this reservation is fulfilled by the venue or experience provider, while CartVIP provides the checkout and reservation platform.</span>
+                                                                <span>I have read and agree to the <a
+                                                                    target="_blank" href="{{ $data->terms }}">Terms of Service</a> / <a target="_blank" href="{{ $data->terms }}">Venue Policies</a></span>
                                                             </label>
 
-                                                            <p style="margin: 12px 0 0; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);">
-                                                                All bookings are processed by CartVIP. By completing this purchase, you agree to our no-refund policy and venue entry requirements.
-                                                            </p>
-                                                            <p style="margin: 8px 0 0; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.72);">
-                                                                By completing this purchase, you confirm you are authorized to use this payment method and agree not to initiate a chargeback without contacting CartVIP first.
-                                                            </p>
+                                                            {{-- <p style="margin: 12px 0 0; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.82);">
+                                                                All bookings are processed through CartVIP. By completing this purchase, you acknowledge that all sales are final and non-refundable, subject to applicable law and the venue's policies, and that you agree to all venue entry requirements. You confirm that you are authorized to use this payment method and that the information provided is accurate. You understand that a valid government-issued photo ID may be required at check-in and may be photographed to verify identity, age, reservation redemption, fraud prevention, venue security, and chargeback dispute purposes. Identification records are securely stored and are never retained on the scanning device.
+                                                            </p> --}}
                                                         </div>
 
                                                         <input type="hidden" class="package_use_date"
@@ -6758,7 +6769,7 @@
                                                             <button type="button" class="btn-prev"
                                                                 id="prev-to-transport">Previous:
                                                                 Transportation</button>
-                                                            <button class="submit-btn" id="submitBtn"
+                                                            <button style="margin-top: 0px !important;" class="submit-btn" id="submitBtn"
                                                                 type="submit">Complete Purchase</button>
                                                         </div>
 
@@ -6959,7 +6970,7 @@
                         </div>
                         <div class="modal-body" id="addonSelectionModalBody"></div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" id="addonModalNoAddonsBtn">No add-ons</button>
+                            <button type="button" class="btn btn-secondary" id="addonModalNoAddonsBtn">No Add-ons</button>
                             <button type="button" class="btn" id="addonModalConfirmBtn">Confirm & Add to Cart</button>
                         </div>
                     </div>
@@ -6999,6 +7010,109 @@
 
         </main>
         <style>
+            /* ===== Country Code Picker Styles ===== */
+            .phone-input-wrapper {
+                display: flex;
+                gap: 8px;
+                align-items: stretch;
+            }
+
+            .country-code-input {
+                flex: 0 0 120px;
+                position: relative;
+            }
+
+            .country-code-field {
+                width: 100%;
+                padding: 10px 12px;
+                border: 1px solid rgba(255,255,255,0.2);
+                background: rgba(255,255,255,0.05);
+                border-radius: 8px;
+                color: #fff;
+                font-size: 14px;
+                transition: border-color 0.3s;
+            }
+
+            .country-code-field:focus {
+                outline: none;
+                border-color: rgba(255,255,255,0.4);
+                background: rgba(255,255,255,0.08);
+            }
+
+            .country-code-dropdown {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                max-height: 250px;
+                overflow-y: auto;
+                background: rgba(20,20,30,0.98);
+                border: 1px solid rgba(255,255,255,0.2);
+                border-radius: 8px;
+                z-index: 1000;
+                display: none;
+                margin-top: 4px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            }
+
+            .country-code-dropdown.active {
+                display: block;
+            }
+
+            .country-option {
+                padding: 10px 12px;
+                cursor: pointer;
+                border-bottom: 1px solid rgba(255,255,255,0.05);
+                font-size: 13px;
+                color: rgba(255,255,255,0.8);
+                transition: background-color 0.2s;
+            }
+
+            .country-option:hover {
+                background: rgba(255,255,255,0.1);
+                color: #fff;
+            }
+
+            .country-option.selected {
+                background: rgba(124,92,255,0.2);
+                color: #fff;
+                font-weight: 600;
+            }
+
+            .flag-icon {
+                display: inline-block;
+                width: 20px;
+                height: 14px;
+                margin-right: 8px;
+                border-radius: 2px;
+                vertical-align: middle;
+                line-height: 14px;
+                text-align: center;
+                font-size: 12px;
+            }
+
+            .phone-number-input {
+                flex: 1;
+            }
+
+            .phone-validation-message {
+                font-size: 12px;
+                color: #ff6b6b;
+                margin-top: 4px;
+                display: none;
+            }
+
+            .phone-validation-message.valid {
+                color: #51cf66;
+                display: block;
+            }
+
+            .phone-validation-message.invalid {
+                color: #ff6b6b;
+                display: block;
+            }
+
+            /* ===== Processing Overlay ===== */
             #checkout-processing-overlay {
                 position: fixed;
                 inset: 0;
@@ -7228,6 +7342,163 @@
                 });
             })();
 
+            // Reservation form validation: prevent submission without date and guests
+            (function () {
+                const submitBtn = document.getElementById('submitBtn_two');
+                if (!submitBtn) return;
+
+                const form = submitBtn.closest('form');
+                if (!form) return;
+
+                // Set form load time
+                const formLoadTimeField = document.getElementById('form_load_time');
+                if (formLoadTimeField) {
+                    formLoadTimeField.value = Math.floor(Date.now() / 1000);
+                }
+
+                submitBtn.addEventListener('click', function (e) {
+                    const reservationDate = document.getElementById('package_use_date');
+                    const menCount = parseInt(document.getElementById('menCount')?.textContent || '0', 10);
+                    const womenCount = parseInt(document.getElementById('womenCount')?.textContent || '0', 10);
+                    const totalGuests = menCount + womenCount;
+
+                    // Sync reservation date to hidden field BEFORE validation
+                    if (reservationDate && reservationDate.value) {
+                        const hiddenDateField = document.querySelector('input[name="package_use_date"]');
+                        if (hiddenDateField) {
+                            hiddenDateField.value = reservationDate.value;
+                        }
+                    }
+
+                    let hasError = false;
+                    let errorMessage = '';
+
+                    // Check if reservation date is selected
+                    if (!reservationDate || !reservationDate.value || reservationDate.value.trim() === '') {
+                        hasError = true;
+                        errorMessage = 'Please select a reservation date.';
+                        if (reservationDate) {
+                            reservationDate.classList.add('required-field');
+                            reservationDate.setAttribute('aria-invalid', 'true');
+                        }
+                        const dateError = document.getElementById('package_use_date_error');
+                        if (dateError) {
+                            dateError.textContent = errorMessage;
+                            dateError.style.display = 'block';
+                        }
+                    } else {
+                        if (reservationDate) {
+                            reservationDate.classList.remove('required-field');
+                            reservationDate.removeAttribute('aria-invalid');
+                        }
+                        const dateError = document.getElementById('package_use_date_error');
+                        if (dateError) {
+                            dateError.style.display = 'none';
+                        }
+                    }
+
+                    // Check if total guests is greater than 0
+                    if (totalGuests === 0) {
+                        hasError = true;
+                        errorMessage = errorMessage ? 'Please select a reservation date and add at least one guest.' : 'Please add at least one guest (men or women).';
+                    }
+
+                    // Check SMS consent checkbox
+                    const smsConsent = document.getElementById('smsConsent_two');
+                    if (!smsConsent || !smsConsent.checked) {
+                        hasError = true;
+                        errorMessage = 'Please agree to receive SMS communications regarding your reservation, transportation updates, VIP services, and related notifications.';
+                    }
+
+                    // Check terms consent checkbox
+                    const termsConsent = document.getElementById('termsConsent_two');
+                    if (!termsConsent || !termsConsent.checked) {
+                        hasError = true;
+                        errorMessage = 'Please accept the Terms of Service.';
+                    }
+
+                    // Require a valid country code selection on the reservation phone picker.
+                    // The picker's code box is a searchable text input; block submit if the user typed
+                    // search text without picking a country (or typed an invalid code).
+                    var __ccFields = form.querySelectorAll('.country-code-field');
+                    for (var __ci = 0; __ci < __ccFields.length; __ci++) {
+                        var __cc = __ccFields[__ci];
+                        if (__cc.offsetParent === null) continue;
+                        var __ccWrap = __cc.closest('.country-code-input');
+                        if (!__ccWrap) continue;
+                        var __opts = __ccWrap.querySelectorAll('.country-option');
+                        if (!__opts.length) continue; // fail-safe: nothing to validate against
+                        var __ccVal = (__cc.value || '').trim();
+                        var __ccOk = false;
+                        for (var __oi = 0; __oi < __opts.length; __oi++) {
+                            if ((__opts[__oi].getAttribute('data-flag') + ' ' + __opts[__oi].getAttribute('data-code')) === __ccVal) { __ccOk = true; break; }
+                        }
+                        if (!__ccOk) {
+                            __cc.style.borderColor = '#ff6b6b';
+                            hasError = true;
+                            errorMessage = 'Please select a valid country code from the list (search and click your country, or type the full +code in the phone box).';
+                            break;
+                        }
+                        __cc.style.borderColor = '';
+                    }
+
+                    if (hasError) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // Show error message instead of alert
+                        const errorMsg = document.getElementById('validation-error-msg-reservation') || document.createElement('div');
+                        if (!errorMsg.id) {
+                            errorMsg.id = 'validation-error-msg-reservation';
+                            errorMsg.style.cssText = 'color: #ff6b6b; padding: 12px; margin: 10px 0; font-weight: 600; text-align: center; background: rgba(255, 107, 107, 0.1); border-radius: 6px; border-left: 4px solid #ff6b6b;';
+                            form.parentElement.insertBefore(errorMsg, form);
+                        }
+                        errorMsg.textContent = errorMessage;
+                        errorMsg.style.display = 'block';
+                        errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        return;
+                    }
+
+                    // Prevent default and handle submission with reCAPTCHA
+                    e.preventDefault();
+
+                    // Replace visible phone fields with E.164 values before submission
+                    const phoneFieldsToSync = [
+                        { visible: 'reservation_phone', e164: 'reservation_phone_e164' }
+                    ];
+
+                    phoneFieldsToSync.forEach(pair => {
+                        const e164Field = form.querySelector(`input[name="${pair.e164}"]`);
+                        const visibleField = form.querySelector(`input[name="${pair.visible}"]`);
+                        if (e164Field && visibleField && e164Field.value) {
+                            // Use E.164 format for submission
+                            visibleField.value = e164Field.value;
+                        }
+                    });
+
+                    // Get reCAPTCHA token before submitting
+                    if (typeof window.executeRecaptcha === 'function') {
+                        window.executeRecaptcha('reservation_submit').then(function(token) {
+                            if (token) {
+                                const tokenField = document.getElementById('recaptcha_token');
+                                if (tokenField) {
+                                    tokenField.value = token;
+                                }
+                            }
+                            // Submit form after token is set
+                            form.submit();
+                        }).catch(function(error) {
+                            console.warn('reCAPTCHA error:', error);
+                            // Still submit if reCAPTCHA fails - server-side validation will handle
+                            form.submit();
+                        });
+                    } else {
+                        // reCAPTCHA not available - submit directly
+                        console.warn('reCAPTCHA not loaded');
+                        form.submit();
+                    }
+                });
+            })();
+
             // Cart toast: show a notification when an item is added (helpful on mobile
             // where the cart sidebar is below the fold).
             (function () {
@@ -7286,107 +7557,6 @@
                 }
                 setTimeout(inject, 50);
                 setTimeout(inject, 500);
-            })();
-
-            (function () {
-                var packageTriggerSelector = '.cv-package-tooltip-trigger[data-tip]';
-                var sidebarTipSelector = '#cv-order-sidebar [data-tip]';
-
-                function ensureModal() {
-                    var existing = document.getElementById('cv-package-tooltip-modal');
-                    if (existing) {
-                        return existing;
-                    }
-
-                    var overlay = document.createElement('div');
-                    overlay.id = 'cv-package-tooltip-modal';
-                    overlay.className = 'cv-tooltip-modal-overlay';
-                    overlay.innerHTML = ''
-                        + '<div class="cv-tooltip-modal" role="dialog" aria-modal="true" aria-labelledby="cvTooltipModalTitle">'
-                        + '  <div class="cv-tooltip-modal-head">'
-                        + '    <h4 class="cv-tooltip-modal-title" id="cvTooltipModalTitle">Package Info</h4>'
-                        + '    <button type="button" class="cv-tooltip-modal-close" aria-label="Close">&times;</button>'
-                        + '  </div>'
-                        + '  <div class="cv-tooltip-modal-body" id="cvTooltipModalBody"></div>'
-                        + '</div>';
-
-                    document.body.appendChild(overlay);
-                    return overlay;
-                }
-
-                function closeModal() {
-                    var modal = document.getElementById('cv-package-tooltip-modal');
-                    if (!modal) {
-                        return;
-                    }
-                    modal.classList.remove('is-open');
-                }
-
-                function openModal(title, text) {
-                    var modal = ensureModal();
-                    var titleEl = modal.querySelector('#cvTooltipModalTitle');
-                    var bodyEl = modal.querySelector('#cvTooltipModalBody');
-
-                    titleEl.textContent = title || 'Package Info';
-                    bodyEl.textContent = text || '';
-                    modal.classList.add('is-open');
-                }
-
-                function resolveTipTrigger(target) {
-                    if (!target) return null;
-                    var packageTrigger = target.closest(packageTriggerSelector);
-                    if (packageTrigger) return packageTrigger;
-
-                    var sidebarTrigger = target.closest(sidebarTipSelector);
-                    if (sidebarTrigger) return sidebarTrigger;
-
-                    return null;
-                }
-
-                function resolveTipTitle(trigger) {
-                    if (!trigger) return 'Info';
-
-                    var explicit = trigger.getAttribute('data-tip-title');
-                    if (explicit) return explicit;
-
-                    if (trigger.matches('.cv-package-tooltip-trigger')) {
-                        return trigger.getAttribute('aria-label') || 'Package Info';
-                    }
-                    if (trigger.classList.contains('default-service-charge')) return 'Service Fee';
-                    if (trigger.classList.contains('default-sales-tax')) return 'Sales Tax';
-                    if (trigger.classList.contains('default-gratuity')) return 'Gratuity';
-                    if (trigger.classList.contains('default-processing-fee')) return 'Processing Fee';
-                    if (trigger.classList.contains('cv-deposit-label')) return 'Deposit Info';
-                    if (trigger.classList.contains('cv-deposit-shield')) return 'Security Info';
-
-                    return trigger.getAttribute('aria-label') || 'Order Summary Info';
-                }
-
-                document.addEventListener('click', function (event) {
-                    var trigger = resolveTipTrigger(event.target);
-                    if (trigger) {
-                        event.preventDefault();
-                        var tooltipText = (trigger.getAttribute('data-tip') || '').trim();
-                        var label = resolveTipTitle(trigger);
-                        openModal(label, tooltipText);
-                        return;
-                    }
-
-                    var modal = document.getElementById('cv-package-tooltip-modal');
-                    if (!modal || !modal.classList.contains('is-open')) {
-                        return;
-                    }
-
-                    if (event.target === modal || event.target.closest('.cv-tooltip-modal-close')) {
-                        closeModal();
-                    }
-                });
-
-                document.addEventListener('keydown', function (event) {
-                    if (event.key === 'Escape') {
-                        closeModal();
-                    }
-                });
             })();
         </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -7492,9 +7662,10 @@
                 if (packageField && firstItem) {
                     packageField.value = firstItem.packageId || packageField.value;
                 }
-                if (guestField) {
-                    guestField.value = totalGuests || 1;
-                }
+                // guestField is now for Host Name (text field), not guest count
+                // if (guestField) {
+                //     guestField.value = totalGuests || 1;
+                // }
                 if (addonsField) {
                     addonsField.value = addonNames.join(', ');
                 }
@@ -7523,6 +7694,9 @@
                     transportationAddressField.prop('required', true).attr('aria-required', 'true');
                     transportationPickupTimeField.prop('required', true).attr('aria-required', 'true');
                     transportationGuestField.prop('required', true).attr('aria-required', 'true');
+                    if (!Number.isFinite(parseInt(transportationGuestField.val(), 10)) || parseInt(transportationGuestField.val(), 10) < 1) {
+                        transportationGuestField.val('1');
+                    }
                     pickupDateField.prop('required', true).attr('aria-required', 'true');
                     driverNotificationConsentWrap.css('display', 'flex');
                     driverNotificationConsentInputs.prop('required', true).attr('aria-required', 'true');
@@ -7856,8 +8030,8 @@
                 let gratuited_price = ("{{ $data->gratuity_name }}" != "0") ? (discountedSubtotal / 100) * gratuity : 0;
                 let sales_tax_price = ("{{ $data->sales_tax_name }}" != "0") ? (discountedSubtotal / 100) * sales_tax : 0;
 
-                let processingFeeBase = discountedSubtotal + service_charge_price;
-                let amountAfterCoupon = processingFeeBase + sales_tax_price + gratuited_price;
+                let processingFeeBase = discountedSubtotal;
+                let amountAfterCoupon = discountedSubtotal + service_charge_price + sales_tax_price + gratuited_price;
                 let processingFee = parseFloat($('#processing_fee').val()) || 0;
                 let processingFeeType = ($('#processing_fee_type').val() || 'percentage').toLowerCase();
                 let processingFeeAmount = processingFeeType === 'flat'
@@ -8138,13 +8312,38 @@
                 }
                 
                 // Business expense checkbox handler
+                function setBusinessFieldsRequired(on) {
+                    ['business_company', 'business_vat', 'business_address'].forEach(function (n) {
+                        var el = document.querySelector('[name="' + n + '"]');
+                        if (el) { if (on) { el.setAttribute('required', 'required'); } else { el.removeAttribute('required'); } }
+                    });
+                }
+                // Business fields start hidden, so they must not be required until the box is checked
+                // (a required field inside a display:none container blocks form submission).
+                setBusinessFieldsRequired($('#businessExpenseCheckbox').is(':checked'));
                 $('#businessExpenseCheckbox').on('change', function() {
                     if ($(this).is(':checked')) {
                         $('#businessFields').slideDown();
+                        setBusinessFieldsRequired(true);
                     } else {
                         $('#businessFields').slideUp();
+                        setBusinessFieldsRequired(false);
                     }
                 });
+
+                // Multi-step form safety: the instant "Complete Purchase" is clicked, drop `required`
+                // from any field that is currently hidden so native validation can never block
+                // submission with "An invalid form control is not focusable".
+                (function () {
+                    var purchaseBtn = document.getElementById('submitBtn');
+                    if (purchaseBtn) {
+                        purchaseBtn.addEventListener('click', function () {
+                            document.querySelectorAll('#payment-form [required]').forEach(function (el) {
+                                if (el.offsetParent === null) { el.removeAttribute('required'); }
+                            });
+                        }, true);
+                    }
+                })();
             });
             // --- End Shareable Link Logic ---
         </script>
@@ -8271,7 +8470,9 @@
         <script>
             // Auto-populate hidden payment fields when moving to payment step
             function populatePaymentFields() {
-                $('#hidden_payment_phone').val($('input[name="package_phone"]').val());
+                // Use E.164 format from hidden field for SMS
+                const e164Phone = $('input[name="package_phone_e164"]').val() || $('input[name="package_phone"]').val();
+                $('#hidden_payment_phone').val(e164Phone);
                 $('#hidden_payment_email').val($('input[name="package_email"]').val());
                 $('#hidden_payment_month').val($('select[name="package_month"]').val());
                 $('#hidden_payment_day').val($('select[name="package_day"]').val());
@@ -8289,7 +8490,42 @@
 
             // Copy package holder info to transportation info
             $(document).on('click', '.same-as-info-transport', function() {
-                $('input[name="transportation_phone"]').val($('input[name="package_phone"]').val());
+                // Get references
+                const transportPhoneInput = $('input[name="transportation_phone"]')[0];
+                const transportCountryCode = $('input[name="transportation_phone_country"]')[0];
+                const packagePhoneInput = $('input[name="package_phone"]')[0];
+                const packageCountryCode = $('input[name="package_phone_country"]')[0];
+
+                if (!transportPhoneInput || !transportCountryCode || !packageCountryCode) {
+                    console.warn('Missing fields for copy operation');
+                    return;
+                }
+
+                // Copy phone number
+                const packagePhoneValue = packagePhoneInput ? packagePhoneInput.value : '';
+                transportPhoneInput.value = packagePhoneValue;
+
+                // Copy country code - both the display value and the dataset code
+                transportCountryCode.value = packageCountryCode.value;
+                transportCountryCode.dataset.code = packageCountryCode.dataset.code;
+
+                // Copy E.164 field
+                const packageE164Field = $('input[name="package_phone_e164"]')[0];
+                let transportE164Field = $('input[name="transportation_phone_e164"]')[0];
+
+                if (packageE164Field && packageE164Field.value) {
+                    if (!transportE164Field) {
+                        transportE164Field = document.createElement('input');
+                        transportE164Field.type = 'hidden';
+                        transportE164Field.name = 'transportation_phone_e164';
+                        transportPhoneInput.parentElement.appendChild(transportE164Field);
+                    }
+                    transportE164Field.value = packageE164Field.value;
+                }
+
+                // Trigger change event and validation
+                $(transportPhoneInput).trigger('input').trigger('change');
+                $(transportCountryCode).trigger('change');
             });
             // Populate country select
             function populateCountrySelect(selectId) {
@@ -8375,7 +8611,7 @@
                         element.style.setProperty('-moz-appearance', 'none', 'important');
                         element.style.setProperty('background-color', 'transparent', 'important');
                         element.style.setProperty('appearance', 'none', 'important');
-                        element.style.setProperty('background-image', 'url("data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'white\'><path d=\'M7 10l5 5 5-5z\'/></svg>")', 'important');
+                        element.style.setProperty('background-image', 'url("data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'white\'><path d=\'M7 10l5 5 5-5z\'  required /></svg>")', 'important');
                         element.style.setProperty('background-repeat', 'no-repeat', 'important');
                         element.style.setProperty('background-position', 'right 15px center', 'important');
                         element.style.setProperty('background-size', '20px', 'important');
@@ -8564,7 +8800,12 @@
                                 addons: Array.isArray(res) ? res : []
                             };
 
-                            openAddonSelectionModal(window.pendingPackageSelection);
+                            // No add-ons to offer: add the package straight to the cart (skip the modal).
+                            if ((window.pendingPackageSelection.addons || []).length === 0) {
+                                $('#addonModalNoAddonsBtn').trigger('click');
+                            } else {
+                                openAddonSelectionModal(window.pendingPackageSelection);
+                            }
                         }
                     });
                 });
@@ -8604,17 +8845,17 @@
                     window.pendingPackageSelection = null;
                 });
 
+                // No Add-ons button - adds package without any selected add-ons
                 $('#addonModalNoAddonsBtn').on('click', function() {
                     if (!window.pendingPackageSelection) {
                         return;
                     }
 
                     let selection = window.pendingPackageSelection;
-                    let selectedAddons = [];
+                    let selectedAddons = []; // Empty array - no add-ons selected
 
                     window.addPackageToCart(selection.packageId, selection.packageName, selection.packagePrice, selection.guests, selectedAddons, selection.transportation, selection.isMultiple);
                     $('#package_id').val(selection.packageId);
-                    $('#addons').val('');
 
                     $('.dynamic-price').show();
                     $('.default-price').hide();
@@ -8682,15 +8923,13 @@
                     }
                 }
 
-                // On mobile, scroll to the top of the new step
-                if (window.innerWidth < 992) {
-                    setTimeout(function() {
-                        var el = document.getElementById('section-' + stepNumber);
-                        if (el) {
-                            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
-                    }, 50);
-                }
+                // Scroll to the top of the new step on all devices
+                setTimeout(function() {
+                    var el = document.getElementById('section-' + stepNumber);
+                    if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 50);
             }
 
             function validateStep(stepNumber) {
@@ -8711,14 +8950,14 @@
                         '[name="package_year"]'
                     );
                 } else if (stepNumber === 2 && window.requiresTransportation) {
-                    // Validate transportation form
-                    requiredFields.push(
-                        '[name="package_use_date"]',
-                        '[name="transportation_pickup_time"]',
-                        '[name="transportation_address"]',
-                        '[name="transportation_phone"]',
-                        '[name="transportation_guest"]'
-                    );
+                    // Transportation form validation disabled - allow form to proceed
+                    // requiredFields.push(
+                    //     '[name="package_use_date"]',
+                    //     '[name="transportation_pickup_time"]',
+                    //     '[name="transportation_address"]',
+                    //     '[name="transportation_phone"]',
+                    //     '[name="transportation_guest"]'
+                    // );
                 } else if (stepNumber === 2 && !window.requiresTransportation) {
                     // Validate transportation confirmation checkbox
                     if (!$('#transportation_part').is(':checked')) {
@@ -8726,6 +8965,14 @@
                         return false;
                     }
                 }
+
+                // transportation_guest is now Host Name field - don't auto-fill
+                // if (stepNumber === 2 && window.requiresTransportation) {
+                //     const guestField = $('[name="transportation_guest"]');
+                //     if (!guestField.val() || parseInt(guestField.val(), 10) < 1) {
+                //         guestField.val('1');
+                //     }
+                // }
 
                 // Check required fields
                 requiredFields.forEach(function(selector) {
@@ -8750,19 +8997,48 @@
                     }
                 }
 
-                if (stepNumber === 2 && window.requiresTransportation) {
-                    const transportationGuestField = $('[name="transportation_guest"]');
-                    const transportationGuestValue = parseInt(transportationGuestField.val(), 10);
-                    if (!Number.isFinite(transportationGuestValue) || transportationGuestValue < 1) {
-                        transportationGuestField.addClass('required-field');
-                        isValid = false;
-                        firstInvalidField = firstInvalidField || transportationGuestField;
-                        alertMessage = 'Please enter Number of Guest(s) in Transportation (minimum 1).';
-                    }
-                }
+                // Transportation validation removed - allow form to proceed
+                // if (stepNumber === 2 && window.requiresTransportation) {
+                //     const transportationGuestField = $('[name="transportation_guest"]');
+                //     const transportationGuestValue = parseInt(transportationGuestField.val(), 10);
+                //     if (!Number.isFinite(transportationGuestValue) || transportationGuestValue < 1) {
+                //         transportationGuestField.addClass('required-field');
+                //         isValid = false;
+                //         firstInvalidField = firstInvalidField || transportationGuestField;
+                //         alertMessage = 'Please enter Number of Guest(s) in Transportation (minimum 1).';
+                //     }
+                // }
 
-                if (!isValid && stepNumber === 2 && window.requiresTransportation && alertMessage === 'Please fill in all required fields.') {
-                    alertMessage = 'Please complete the required transportation details before proceeding.';
+                // if (!isValid && stepNumber === 2 && window.requiresTransportation && alertMessage === 'Please fill in all required fields.') {
+                //     alertMessage = 'Please complete the required transportation details before proceeding.';
+                // }
+
+                // Require a valid country code selection on any visible phone country-code picker.
+                // The picker's code box is a searchable text input; if the user typed search text and
+                // did not pick a country (or typed an invalid code), block until a valid code is chosen.
+                if (isValid) {
+                    var __ccFields = document.querySelectorAll('.country-code-field');
+                    for (var __ci = 0; __ci < __ccFields.length; __ci++) {
+                        var __cc = __ccFields[__ci];
+                        if (__cc.offsetParent === null) continue; // not visible in the current step
+                        var __ccWrap = __cc.closest('.country-code-input');
+                        if (!__ccWrap) continue;
+                        var __opts = __ccWrap.querySelectorAll('.country-option');
+                        if (!__opts.length) continue; // fail-safe: nothing to validate against
+                        var __ccVal = (__cc.value || '').trim();
+                        var __ccOk = false;
+                        for (var __oi = 0; __oi < __opts.length; __oi++) {
+                            if ((__opts[__oi].getAttribute('data-flag') + ' ' + __opts[__oi].getAttribute('data-code')) === __ccVal) { __ccOk = true; break; }
+                        }
+                        if (!__ccOk) {
+                            __cc.style.borderColor = '#ff6b6b';
+                            isValid = false;
+                            firstInvalidField = $(__cc);
+                            alertMessage = 'Please select a valid country code from the list (search and click your country, or type the full +code in the phone box).';
+                            break;
+                        }
+                        __cc.style.borderColor = '';
+                    }
                 }
 
                 if (!isValid) {
@@ -9199,9 +9475,81 @@
                 }
             })();
 
-            document.getElementById('payment-form')?.addEventListener('submit', function() {
-                prepareCheckoutCartPayload(this);
-            });
+            // Package form: Use click event on button (not form submit) for iOS compatibility
+            // iOS mobile Safari has issues with form submit events, but click events work reliably
+            (function() {
+                const submitBtn = document.getElementById('submitBtn');
+                if (!submitBtn) return;
+
+                const form = submitBtn.closest('form');
+                if (!form) return;
+
+                submitBtn.addEventListener('click', function(e) {
+                    // Check SMS consent checkbox for package form
+                    const smsConsentPackage = document.getElementById('smsConsent');
+                    if (!smsConsentPackage || !smsConsentPackage.checked) {
+                        e.preventDefault();
+                        const errorMsg = document.getElementById('validation-error-msg-package') || document.createElement('div');
+                        if (!errorMsg.id) {
+                            errorMsg.id = 'validation-error-msg-package';
+                            errorMsg.style.cssText = 'color: #ff6b6b; padding: 12px; margin: 10px 0; font-weight: 600; text-align: center; background: rgba(255, 107, 107, 0.1); border-radius: 6px; border-left: 4px solid #ff6b6b;';
+                            form.parentElement.insertBefore(errorMsg, form);
+                        }
+                        errorMsg.textContent = 'Please agree to receive SMS communications regarding your reservation, transportation updates, VIP services, and related notifications.';
+                        errorMsg.style.display = 'block';
+                        errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        return;
+                    }
+
+                    // Check terms consent checkbox for package form
+                    const termsConsentPackage = document.getElementById('termsConsent');
+                    if (!termsConsentPackage || !termsConsentPackage.checked) {
+                        e.preventDefault();
+                        const errorMsg = document.getElementById('validation-error-msg-package') || document.createElement('div');
+                        if (!errorMsg.id) {
+                            errorMsg.id = 'validation-error-msg-package';
+                            errorMsg.style.cssText = 'color: #ff6b6b; padding: 12px; margin: 10px 0; font-weight: 600; text-align: center; background: rgba(255, 107, 107, 0.1); border-radius: 6px; border-left: 4px solid #ff6b6b;';
+                            form.parentElement.insertBefore(errorMsg, form);
+                        }
+                        errorMsg.textContent = 'Please accept the Terms of Service.';
+                        errorMsg.style.display = 'block';
+                        errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        return;
+                    }
+
+                    // Validation passed - show processing overlay
+                    showCheckoutProcessingOverlay();
+
+                    // Clean card number - remove spaces and special characters for Authorize.net
+                    const cardNumberField = form.querySelector('input[name="card_number"]');
+                    if (cardNumberField && cardNumberField.value) {
+                        cardNumberField.value = cardNumberField.value.replace(/\s+/g, '').replace(/[^0-9]/g, '');
+                    }
+
+                    prepareCheckoutCartPayload(form);
+
+                    // Replace visible phone fields with E.164 values before submission
+                    const phoneFieldsToSync = [
+                        { visible: 'package_phone', e164: 'package_phone_e164' },
+                        { visible: 'reservation_phone', e164: 'reservation_phone_e164' },
+                        { visible: 'transportation_phone', e164: 'transportation_phone_e164' }
+                    ];
+
+                    phoneFieldsToSync.forEach(pair => {
+                        const e164Field = form.querySelector(`input[name="${pair.e164}"]`);
+                        const visibleField = form.querySelector(`input[name="${pair.visible}"]`);
+                        if (e164Field && visibleField && e164Field.value) {
+                            // Use E.164 format for submission
+                            visibleField.value = e164Field.value;
+                        }
+                    });
+
+                    // Submit form after a tiny delay for iOS compatibility
+                    setTimeout(() => {
+                        form.submit();
+                    }, 50);
+                });
+            })();
 
             const transportationSchedule = {
                 operatingDays: @json(array_values(array_map('strtolower', (array) ($data->operating_days ?? [])))),
@@ -9286,8 +9634,12 @@
             function validateTransportationScheduleClient() {
                 const pickupDateField = $('#package_use_date');
                 const pickupTimeField = $('[name="transportation_pickup_time"]');
+                const pickupLocationField = $('[name="transportation_address"]');
+                const contactPhoneField = $('[name="transportation_phone"]');
                 const pickupDate = pickupDateField.val().trim();
                 const pickupTime = pickupTimeField.val().trim();
+                const pickupLocation = pickupLocationField.val().trim();
+                const contactPhone = contactPhoneField.val().trim();
 
                 if (!pickupDate) {
                     pickupDateField.addClass('required-field');
@@ -9322,6 +9674,24 @@
                         valid: false,
                         field: pickupTimeField,
                         message: 'Pickup time must be within the club operating hours.'
+                    };
+                }
+
+                if (!pickupLocation) {
+                    pickupLocationField.addClass('required-field');
+                    return {
+                        valid: false,
+                        field: pickupLocationField,
+                        message: 'Please enter the pick-up location.'
+                    };
+                }
+
+                if (!contactPhone) {
+                    contactPhoneField.addClass('required-field');
+                    return {
+                        valid: false,
+                        field: contactPhoneField,
+                        message: 'Please enter your contact phone number.'
                     };
                 }
 
@@ -9364,10 +9734,8 @@
                 }
 
                 el.type = 'text';
-                el.setAttribute('readonly', 'readonly');
                 if (typeof flatpickr === 'undefined') {
                     el.type = 'time';
-                    el.removeAttribute('readonly');
                     if (minT) el.min = minT;
                     if (maxT) el.max = maxT;
                     el.step = 900;
@@ -9379,7 +9747,7 @@
                     noCalendar: true,
                     time_24hr: false,
                     minuteIncrement: 15,
-                    dateFormat: 'H:i',
+                    dateFormat: 'h:i K',
                     allowInput: false,
                     onChange: function () {
                         $(el).removeClass('required-field');
@@ -9476,28 +9844,45 @@
                 cardCvc.mount('#cvv');
 
                 const form = document.getElementById('payment-form');
-                form.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    prepareCheckoutCartPayload(form);
-                    showCheckoutProcessingOverlay();
+                if (form) {
+                    // Improve iOS compatibility with form submission
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
 
-                    const {
-                        token,
-                        error
-                    } = await stripe.createToken(cardNumber);
+                        // Ensure form is not already submitting
+                        if (form._isSubmitting) {
+                            return;
+                        }
+                        form._isSubmitting = true;
 
-                    if (error) {
-                        hideCheckoutProcessingOverlay();
-                        document.getElementById('card-errors').textContent = error.message;
-                    } else {
-                        const hiddenInput = document.createElement('input');
-                        hiddenInput.setAttribute('type', 'hidden');
-                        hiddenInput.setAttribute('name', 'stripeToken');
-                        hiddenInput.setAttribute('value', token.id);
-                        form.appendChild(hiddenInput);
-                        form.submit();
-                    }
-                });
+                        prepareCheckoutCartPayload(form);
+                        showCheckoutProcessingOverlay();
+
+                        // Use Promise instead of async/await for better iOS compatibility
+                        stripe.createToken(cardNumber).then(function(result) {
+                            if (result.error) {
+                                hideCheckoutProcessingOverlay();
+                                document.getElementById('card-errors').textContent = result.error.message;
+                                form._isSubmitting = false;
+                            } else {
+                                const hiddenInput = document.createElement('input');
+                                hiddenInput.setAttribute('type', 'hidden');
+                                hiddenInput.setAttribute('name', 'stripeToken');
+                                hiddenInput.setAttribute('value', result.token.id);
+                                form.appendChild(hiddenInput);
+
+                                // iOS fix: Use setTimeout to ensure form submission happens
+                                setTimeout(function() {
+                                    form.submit();
+                                }, 100);
+                            }
+                        }).catch(function(err) {
+                            hideCheckoutProcessingOverlay();
+                            document.getElementById('card-errors').textContent = 'Payment error: ' + (err.message || 'Unknown error');
+                            form._isSubmitting = false;
+                        });
+                    }, false); // Use capture phase
+                }
             </script>
         @endif
 
@@ -9905,8 +10290,42 @@
                 else if (!accessDone) stepEls[1].classList.add('is-active');
                 else if (!cartDone) stepEls[2].classList.add('is-active');
                 else stepEls[3].classList.add('is-active');
+
+                if (typeof updateReservationSteps === 'function') updateReservationSteps();
             }
             window.updateCheckoutSteps = updateCheckoutSteps;
+
+            // Reservation (guest) flow has its own 3-step indicator: Choose Date -> Your Details -> Submit
+            function updateReservationSteps() {
+                var stepEls = [
+                    document.getElementById('cv-rstep-1'),
+                    document.getElementById('cv-rstep-2'),
+                    document.getElementById('cv-rstep-3')
+                ];
+                if (!stepEls[0]) return;
+
+                stepEls.forEach(function(s) {
+                    if (s) s.classList.remove('is-active', 'is-complete');
+                });
+
+                var dateInput = document.getElementById('package_use_date');
+                var dateDone = !!(dateInput && dateInput.value && dateInput.value.trim() !== '');
+
+                var form = document.querySelector('.guest form');
+                var detailsDone = !!form;
+                ['reservation_first_name', 'reservation_last_name', 'reservation_phone', 'reservation_email'].forEach(function(n) {
+                    var el = form && form.querySelector('[name="' + n + '"]');
+                    if (!el || !el.value || el.value.trim() === '') detailsDone = false;
+                });
+
+                if (dateDone) stepEls[0].classList.add('is-complete');
+                if (dateDone && detailsDone) stepEls[1].classList.add('is-complete');
+
+                if (!dateDone) stepEls[0].classList.add('is-active');
+                else if (!detailsDone) stepEls[1].classList.add('is-active');
+                else stepEls[2].classList.add('is-active');
+            }
+            window.updateReservationSteps = updateReservationSteps;
 
             function initCheckoutSteps() {
                 if (!document.getElementById('cv-dstep-1')) return;
@@ -9960,6 +10379,13 @@
                         updateCheckoutSteps();
                     }
                 });
+
+                var guestForm = document.querySelector('.guest form');
+                if (guestForm) {
+                    guestForm.addEventListener('input', updateReservationSteps);
+                    guestForm.addEventListener('change', updateReservationSteps);
+                }
+                updateReservationSteps();
             }
 
             /* ===== Map Button Handler ===== */
@@ -10001,6 +10427,13 @@
                 });
             }
 
+            // Auto-format phone numbers as user types
+            function initPhoneFormatters() {
+                // DISABLED: Phone formatters conflict with country code picker
+                // The country code picker (validateAndFormatPhone) now handles phone validation and formatting
+                // This old formatter only worked for US numbers and was causing issues with international numbers
+            }
+
             document.addEventListener('DOMContentLoaded', function() {
                 initSidebar();
                 initSidebarDateSync();
@@ -10010,9 +10443,660 @@
                 initCheckoutSteps();
                 initDateNotification();
                 initMapButton();
+                initPhoneFormatters();
             });
         })();
         </script>
 
+        <script>
+        // ===== COUNTRY CODE PICKER - COMPREHENSIVE SOLUTION =====
+        const COUNTRIES = [
+            { name: 'Afghanistan', code: '+93', flag: '🇦🇫' },
+            { name: 'Albania', code: '+355', flag: '🇦🇱' },
+            { name: 'Algeria', code: '+213', flag: '🇩🇿' },
+            { name: 'Andorra', code: '+376', flag: '🇦🇩' },
+            { name: 'Angola', code: '+244', flag: '🇦🇴' },
+            { name: 'Argentina', code: '+54', flag: '🇦🇷' },
+            { name: 'Armenia', code: '+374', flag: '🇦🇲' },
+            { name: 'Australia', code: '+61', flag: '🇦🇺' },
+            { name: 'Austria', code: '+43', flag: '🇦🇹' },
+            { name: 'Azerbaijan', code: '+994', flag: '🇦🇿' },
+            { name: 'Bahamas', code: '+1-242', flag: '🇧🇸' },
+            { name: 'Bahrain', code: '+973', flag: '🇧🇭' },
+            { name: 'Bangladesh', code: '+880', flag: '🇧🇩' },
+            { name: 'Barbados', code: '+1-246', flag: '🇧🇧' },
+            { name: 'Belarus', code: '+375', flag: '🇧🇾' },
+            { name: 'Belgium', code: '+32', flag: '🇧🇪' },
+            { name: 'Belize', code: '+501', flag: '🇧🇿' },
+            { name: 'Benin', code: '+229', flag: '🇧🇯' },
+            { name: 'Bhutan', code: '+975', flag: '🇧🇹' },
+            { name: 'Bolivia', code: '+591', flag: '🇧🇴' },
+            { name: 'Bosnia & Herzegovina', code: '+387', flag: '🇧🇦' },
+            { name: 'Botswana', code: '+267', flag: '🇧🇼' },
+            { name: 'Brazil', code: '+55', flag: '🇧🇷' },
+            { name: 'Brunei', code: '+673', flag: '🇧🇳' },
+            { name: 'Bulgaria', code: '+359', flag: '🇧🇬' },
+            { name: 'Burkina Faso', code: '+226', flag: '🇧🇫' },
+            { name: 'Burundi', code: '+257', flag: '🇧🇮' },
+            { name: 'Cambodia', code: '+855', flag: '🇰🇭' },
+            { name: 'Cameroon', code: '+237', flag: '🇨🇲' },
+            { name: 'Canada', code: '+1', flag: '🇨🇦' },
+            { name: 'Cape Verde', code: '+238', flag: '🇨🇻' },
+            { name: 'Central African Republic', code: '+236', flag: '🇨🇫' },
+            { name: 'Chad', code: '+235', flag: '🇹🇩' },
+            { name: 'Chile', code: '+56', flag: '🇨🇱' },
+            { name: 'China', code: '+86', flag: '🇨🇳' },
+            { name: 'Colombia', code: '+57', flag: '🇨🇴' },
+            { name: 'Comoros', code: '+269', flag: '🇰🇲' },
+            { name: 'Congo', code: '+242', flag: '🇨🇬' },
+            { name: 'Costa Rica', code: '+506', flag: '🇨🇷' },
+            { name: 'Croatia', code: '+385', flag: '🇭🇷' },
+            { name: 'Cuba', code: '+53', flag: '🇨🇺' },
+            { name: 'Cyprus', code: '+357', flag: '🇨🇾' },
+            { name: 'Czech Republic', code: '+420', flag: '🇨🇿' },
+            { name: 'Denmark', code: '+45', flag: '🇩🇰' },
+            { name: 'Djibouti', code: '+253', flag: '🇩🇯' },
+            { name: 'Dominica', code: '+1-767', flag: '🇩🇲' },
+            { name: 'Dominican Republic', code: '+1-809', flag: '🇩🇴' },
+            { name: 'Ecuador', code: '+593', flag: '🇪🇨' },
+            { name: 'Egypt', code: '+20', flag: '🇪🇬' },
+            { name: 'El Salvador', code: '+503', flag: '🇸🇻' },
+            { name: 'Equatorial Guinea', code: '+240', flag: '🇬🇶' },
+            { name: 'Eritrea', code: '+291', flag: '🇪🇷' },
+            { name: 'Estonia', code: '+372', flag: '🇪🇪' },
+            { name: 'Ethiopia', code: '+251', flag: '🇪🇹' },
+            { name: 'Fiji', code: '+679', flag: '🇫🇯' },
+            { name: 'Finland', code: '+358', flag: '🇫🇮' },
+            { name: 'France', code: '+33', flag: '🇫🇷' },
+            { name: 'Gabon', code: '+241', flag: '🇬🇦' },
+            { name: 'Gambia', code: '+220', flag: '🇬🇲' },
+            { name: 'Georgia', code: '+995', flag: '🇬🇪' },
+            { name: 'Germany', code: '+49', flag: '🇩🇪' },
+            { name: 'Ghana', code: '+233', flag: '🇬🇭' },
+            { name: 'Greece', code: '+30', flag: '🇬🇷' },
+            { name: 'Grenada', code: '+1-473', flag: '🇬🇩' },
+            { name: 'Guatemala', code: '+502', flag: '🇬🇹' },
+            { name: 'Guinea', code: '+224', flag: '🇬🇳' },
+            { name: 'Guinea-Bissau', code: '+245', flag: '🇬🇼' },
+            { name: 'Guyana', code: '+592', flag: '🇬🇾' },
+            { name: 'Haiti', code: '+509', flag: '🇭🇹' },
+            { name: 'Honduras', code: '+504', flag: '🇭🇳' },
+            { name: 'Hong Kong', code: '+852', flag: '🇭🇰' },
+            { name: 'Hungary', code: '+36', flag: '🇭🇺' },
+            { name: 'Iceland', code: '+354', flag: '🇮🇸' },
+            { name: 'India', code: '+91', flag: '🇮🇳' },
+            { name: 'Indonesia', code: '+62', flag: '🇮🇩' },
+            { name: 'Iran', code: '+98', flag: '🇮🇷' },
+            { name: 'Iraq', code: '+964', flag: '🇮🇶' },
+            { name: 'Ireland', code: '+353', flag: '🇮🇪' },
+            { name: 'Israel', code: '+972', flag: '🇮🇱' },
+            { name: 'Italy', code: '+39', flag: '🇮🇹' },
+            { name: 'Jamaica', code: '+1-876', flag: '🇯🇲' },
+            { name: 'Japan', code: '+81', flag: '🇯🇵' },
+            { name: 'Jordan', code: '+962', flag: '🇯🇴' },
+            { name: 'Kazakhstan', code: '+7', flag: '🇰🇿' },
+            { name: 'Kenya', code: '+254', flag: '🇰🇪' },
+            { name: 'Kiribati', code: '+686', flag: '🇰🇮' },
+            { name: 'Kosovo', code: '+383', flag: '🇽🇰' },
+            { name: 'Kuwait', code: '+965', flag: '🇰🇼' },
+            { name: 'Kyrgyzstan', code: '+996', flag: '🇰🇬' },
+            { name: 'Laos', code: '+856', flag: '🇱🇦' },
+            { name: 'Latvia', code: '+371', flag: '🇱🇻' },
+            { name: 'Lebanon', code: '+961', flag: '🇱🇧' },
+            { name: 'Lesotho', code: '+266', flag: '🇱🇸' },
+            { name: 'Liberia', code: '+231', flag: '🇱🇷' },
+            { name: 'Libya', code: '+218', flag: '🇱🇾' },
+            { name: 'Liechtenstein', code: '+423', flag: '🇱🇮' },
+            { name: 'Lithuania', code: '+370', flag: '🇱🇹' },
+            { name: 'Luxembourg', code: '+352', flag: '🇱🇺' },
+            { name: 'Macau', code: '+853', flag: '🇲🇴' },
+            { name: 'Madagascar', code: '+261', flag: '🇲🇬' },
+            { name: 'Malawi', code: '+265', flag: '🇲🇼' },
+            { name: 'Malaysia', code: '+60', flag: '🇲🇾' },
+            { name: 'Maldives', code: '+960', flag: '🇲🇻' },
+            { name: 'Mali', code: '+223', flag: '🇲🇱' },
+            { name: 'Malta', code: '+356', flag: '🇲🇹' },
+            { name: 'Marshall Islands', code: '+692', flag: '🇲🇭' },
+            { name: 'Mauritania', code: '+222', flag: '🇲🇷' },
+            { name: 'Mauritius', code: '+230', flag: '🇲🇺' },
+            { name: 'Mexico', code: '+52', flag: '🇲🇽' },
+            { name: 'Micronesia', code: '+691', flag: '🇫🇲' },
+            { name: 'Moldova', code: '+373', flag: '🇲🇩' },
+            { name: 'Monaco', code: '+377', flag: '🇲🇨' },
+            { name: 'Mongolia', code: '+976', flag: '🇲🇳' },
+            { name: 'Montenegro', code: '+382', flag: '🇲🇪' },
+            { name: 'Morocco', code: '+212', flag: '🇲🇦' },
+            { name: 'Mozambique', code: '+258', flag: '🇲🇿' },
+            { name: 'Myanmar', code: '+95', flag: '🇲🇲' },
+            { name: 'Namibia', code: '+264', flag: '🇳🇦' },
+            { name: 'Nauru', code: '+674', flag: '🇳🇷' },
+            { name: 'Nepal', code: '+977', flag: '🇳🇵' },
+            { name: 'Netherlands', code: '+31', flag: '🇳🇱' },
+            { name: 'New Zealand', code: '+64', flag: '🇳🇿' },
+            { name: 'Nicaragua', code: '+505', flag: '🇳🇮' },
+            { name: 'Niger', code: '+227', flag: '🇳🇪' },
+            { name: 'Nigeria', code: '+234', flag: '🇳🇬' },
+            { name: 'North Korea', code: '+850', flag: '🇰🇵' },
+            { name: 'North Macedonia', code: '+389', flag: '🇲🇰' },
+            { name: 'Norway', code: '+47', flag: '🇳🇴' },
+            { name: 'Oman', code: '+968', flag: '🇴🇲' },
+            { name: 'Pakistan', code: '+92', flag: '🇵🇰' },
+            { name: 'Palau', code: '+680', flag: '🇵🇼' },
+            { name: 'Palestine', code: '+970', flag: '🇵🇸' },
+            { name: 'Panama', code: '+507', flag: '🇵🇦' },
+            { name: 'Papua New Guinea', code: '+675', flag: '🇵🇬' },
+            { name: 'Paraguay', code: '+595', flag: '🇵🇾' },
+            { name: 'Peru', code: '+51', flag: '🇵🇪' },
+            { name: 'Philippines', code: '+63', flag: '🇵🇭' },
+            { name: 'Poland', code: '+48', flag: '🇵🇱' },
+            { name: 'Portugal', code: '+351', flag: '🇵🇹' },
+            { name: 'Qatar', code: '+974', flag: '🇶🇦' },
+            { name: 'Romania', code: '+40', flag: '🇷🇴' },
+            { name: 'Russia', code: '+7', flag: '🇷🇺' },
+            { name: 'Rwanda', code: '+250', flag: '🇷🇼' },
+            { name: 'Saint Kitts & Nevis', code: '+1-869', flag: '🇰🇳' },
+            { name: 'Saint Lucia', code: '+1-758', flag: '🇱🇨' },
+            { name: 'Saint Vincent & Grenadines', code: '+1-784', flag: '🇻🇨' },
+            { name: 'Samoa', code: '+685', flag: '🇼🇸' },
+            { name: 'San Marino', code: '+378', flag: '🇸🇲' },
+            { name: 'Sao Tome & Principe', code: '+239', flag: '🇸🇹' },
+            { name: 'Saudi Arabia', code: '+966', flag: '🇸🇦' },
+            { name: 'Senegal', code: '+221', flag: '🇸🇳' },
+            { name: 'Serbia', code: '+381', flag: '🇷🇸' },
+            { name: 'Seychelles', code: '+248', flag: '🇸🇨' },
+            { name: 'Sierra Leone', code: '+232', flag: '🇸🇱' },
+            { name: 'Singapore', code: '+65', flag: '🇸🇬' },
+            { name: 'Slovakia', code: '+421', flag: '🇸🇰' },
+            { name: 'Slovenia', code: '+386', flag: '🇸🇮' },
+            { name: 'Solomon Islands', code: '+677', flag: '🇸🇧' },
+            { name: 'Somalia', code: '+252', flag: '🇸🇴' },
+            { name: 'South Africa', code: '+27', flag: '🇿🇦' },
+            { name: 'South Korea', code: '+82', flag: '🇰🇷' },
+            { name: 'South Sudan', code: '+211', flag: '🇸🇸' },
+            { name: 'Spain', code: '+34', flag: '🇪🇸' },
+            { name: 'Sri Lanka', code: '+94', flag: '🇱🇰' },
+            { name: 'Sudan', code: '+249', flag: '🇸🇩' },
+            { name: 'Suriname', code: '+597', flag: '🇸🇷' },
+            { name: 'Sweden', code: '+46', flag: '🇸🇪' },
+            { name: 'Switzerland', code: '+41', flag: '🇨🇭' },
+            { name: 'Syria', code: '+963', flag: '🇸🇾' },
+            { name: 'Taiwan', code: '+886', flag: '🇹🇼' },
+            { name: 'Tajikistan', code: '+992', flag: '🇹🇯' },
+            { name: 'Tanzania', code: '+255', flag: '🇹🇿' },
+            { name: 'Thailand', code: '+66', flag: '🇹🇭' },
+            { name: 'Timor-Leste', code: '+670', flag: '🇹🇱' },
+            { name: 'Togo', code: '+228', flag: '🇹🇬' },
+            { name: 'Tonga', code: '+676', flag: '🇹🇴' },
+            { name: 'Trinidad & Tobago', code: '+1-868', flag: '🇹🇹' },
+            { name: 'Tunisia', code: '+216', flag: '🇹🇳' },
+            { name: 'Turkey', code: '+90', flag: '🇹🇷' },
+            { name: 'Turkmenistan', code: '+993', flag: '🇹🇲' },
+            { name: 'Tuvalu', code: '+688', flag: '🇹🇻' },
+            { name: 'Uganda', code: '+256', flag: '🇺🇬' },
+            { name: 'Ukraine', code: '+380', flag: '🇺🇦' },
+            { name: 'United Arab Emirates', code: '+971', flag: '🇦🇪' },
+            { name: 'United Kingdom', code: '+44', flag: '🇬🇧' },
+            { name: 'United States', code: '+1', flag: '🇺🇸' },
+            { name: 'Uruguay', code: '+598', flag: '🇺🇾' },
+            { name: 'Uzbekistan', code: '+998', flag: '🇺🇿' },
+            { name: 'Vanuatu', code: '+678', flag: '🇻🇺' },
+            { name: 'Vatican City', code: '+379', flag: '🇻🇦' },
+            { name: 'Venezuela', code: '+58', flag: '🇻🇪' },
+            { name: 'Vietnam', code: '+84', flag: '🇻🇳' },
+            { name: 'Yemen', code: '+967', flag: '🇾🇪' },
+            { name: 'Zambia', code: '+260', flag: '🇿🇲' },
+            { name: 'Zimbabwe', code: '+263', flag: '🇿🇼' }
+        ];
 
+        function initCountryCodePickers() {
+            const phoneFields = [
+                { name: 'package_phone', label: 'Package Phone' },
+                { name: 'reservation_phone', label: 'Reservation Phone' }
+                // Note: transportation_phone is excluded intentionally - it's a simple phone field for driver contact only
+            ];
+
+            phoneFields.forEach(field => {
+                const input = document.querySelector(`input[name="${field.name}"]`);
+                if (input) {
+                    setupCountryCodePicker(input, field.name);
+                }
+            });
+        }
+
+        function setupCountryCodePicker(phoneInput, fieldName) {
+            // Prevent double-wrapping if already initialized
+            if (phoneInput.parentElement.classList.contains('phone-input-wrapper')) {
+                return;
+            }
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'phone-input-wrapper';
+
+            const countryCodeDiv = document.createElement('div');
+            countryCodeDiv.className = 'country-code-input';
+
+            const countryCodeInput = document.createElement('input');
+            countryCodeInput.className = 'country-code-field';
+            countryCodeInput.type = 'text';
+            countryCodeInput.placeholder = '🇺🇸 +1';
+            countryCodeInput.name = `${fieldName}_country`;
+            countryCodeInput.setAttribute('data-phone-field', fieldName);
+            countryCodeInput.setAttribute('autocomplete', 'off');
+
+            const dropdown = document.createElement('div');
+            dropdown.className = 'country-code-dropdown';
+
+            COUNTRIES.forEach(country => {
+                const option = document.createElement('div');
+                option.className = 'country-option';
+                option.innerHTML = `<span class="flag-icon">${country.flag}</span>${country.code} ${country.name}`;
+                option.setAttribute('data-code', country.code);
+                option.setAttribute('data-flag', country.flag);
+                option.addEventListener('click', () => selectCountry(countryCodeInput, option, country, phoneInput));
+                dropdown.appendChild(option);
+            });
+
+            countryCodeDiv.appendChild(countryCodeInput);
+            countryCodeDiv.appendChild(dropdown);
+
+            // Set default to United States
+            const usOption = COUNTRIES.find(c => c.code === '+1' && c.name === 'United States');
+            if (usOption) {
+                countryCodeInput.value = `${usOption.flag} ${usOption.code}`;
+                countryCodeInput.dataset.code = usOption.code;
+            }
+
+            // Insert wrapper before phone input
+            phoneInput.parentElement.insertBefore(wrapper, phoneInput);
+            wrapper.appendChild(countryCodeDiv);
+            wrapper.appendChild(phoneInput);
+
+            // Setup country code input behavior
+            countryCodeInput.addEventListener('click', () => {
+                dropdown.classList.add('active');
+                countryCodeInput.select();
+            });
+
+            // Close the list whenever focus leaves the field (tab / enter / click away),
+            // but not when the blur is caused by clicking an option inside the list.
+            dropdown.addEventListener('mousedown', () => { dropdown.dataset.keepOpen = '1'; });
+            countryCodeInput.addEventListener('blur', () => {
+                if (dropdown.dataset.keepOpen === '1') { dropdown.dataset.keepOpen = ''; return; }
+                dropdown.classList.remove('active');
+            });
+
+            countryCodeInput.addEventListener('input', (e) => {
+                dropdown.classList.add('active');
+                const searchValue = e.target.value.toLowerCase();
+                const options = dropdown.querySelectorAll('.country-option');
+                options.forEach(option => {
+                    const text = option.textContent.toLowerCase();
+                    option.style.display = text.includes(searchValue) ? 'block' : 'none';
+                });
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!countryCodeDiv.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                }
+            });
+
+            // Phone number input validation
+            phoneInput.addEventListener('input', () => {
+                validateAndFormatPhone(phoneInput, countryCodeInput);
+            });
+
+            phoneInput.addEventListener('blur', () => {
+                validateAndFormatPhone(phoneInput, countryCodeInput);
+            });
+        }
+
+        function selectCountry(countryCodeInput, optionEl, country, phoneInput) {
+            countryCodeInput.value = `${country.flag} ${country.code}`;
+            countryCodeInput.dataset.code = country.code;
+
+            const dropdown = countryCodeInput.nextElementSibling;
+            dropdown.querySelectorAll('.country-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            optionEl.classList.add('selected');
+            dropdown.classList.remove('active');
+
+            validateAndFormatPhone(phoneInput, countryCodeInput);
+        }
+
+        // Country-specific phone number length requirements
+        const PHONE_LENGTH_REQUIREMENTS = {
+            '+1': { min: 10, max: 10, name: 'North America' },
+            '+880': { min: 10, max: 11, name: 'Bangladesh' },
+            '+44': { min: 9, max: 11, name: 'UK' },
+            '+33': { min: 9, max: 9, name: 'France' },
+            '+49': { min: 9, max: 11, name: 'Germany' },
+            '+39': { min: 9, max: 11, name: 'Italy' },
+            '+34': { min: 9, max: 9, name: 'Spain' },
+            '+31': { min: 9, max: 9, name: 'Netherlands' },
+            '+41': { min: 9, max: 9, name: 'Switzerland' },
+            '+43': { min: 9, max: 10, name: 'Austria' },
+            '+46': { min: 9, max: 9, name: 'Sweden' },
+            '+47': { min: 8, max: 8, name: 'Norway' },
+            '+45': { min: 8, max: 8, name: 'Denmark' },
+            '+358': { min: 9, max: 9, name: 'Finland' },
+            '+353': { min: 9, max: 10, name: 'Ireland' },
+            '+32': { min: 9, max: 9, name: 'Belgium' },
+            '+86': { min: 11, max: 11, name: 'China' },
+            '+81': { min: 10, max: 11, name: 'Japan' },
+            '+82': { min: 10, max: 11, name: 'South Korea' },
+            '+91': { min: 10, max: 10, name: 'India' },
+            '+62': { min: 10, max: 12, name: 'Indonesia' },
+            '+60': { min: 9, max: 11, name: 'Malaysia' },
+            '+66': { min: 9, max: 10, name: 'Thailand' },
+            '+65': { min: 8, max: 8, name: 'Singapore' },
+            '+61': { min: 9, max: 9, name: 'Australia' },
+            '+64': { min: 9, max: 10, name: 'New Zealand' },
+            '+27': { min: 9, max: 9, name: 'South Africa' },
+            '+55': { min: 10, max: 11, name: 'Brazil' },
+            '+52': { min: 10, max: 10, name: 'Mexico' },
+            '+54': { min: 10, max: 10, name: 'Argentina' },
+            '+56': { min: 9, max: 9, name: 'Chile' },
+            '+57': { min: 10, max: 10, name: 'Colombia' },
+            '+51': { min: 9, max: 9, name: 'Peru' },
+            '+84': { min: 9, max: 11, name: 'Vietnam' },
+            '+855': { min: 8, max: 9, name: 'Cambodia' },
+            '+663': { min: 9, max: 10, name: 'Laos' },
+            '+95': { min: 9, max: 10, name: 'Myanmar' },
+            '+970': { min: 9, max: 9, name: 'Palestine' },
+            '+972': { min: 9, max: 10, name: 'Israel' },
+            '+966': { min: 9, max: 9, name: 'Saudi Arabia' },
+            '+971': { min: 9, max: 9, name: 'UAE' },
+            '+973': { min: 8, max: 8, name: 'Bahrain' },
+            '+974': { min: 8, max: 8, name: 'Qatar' },
+            '+965': { min: 8, max: 8, name: 'Kuwait' },
+        };
+
+        function formatPhoneNumber(digits, countryCode) {
+            // Format based on country code
+            if (countryCode === '+1' || countryCode === '+7') {
+                // US/Canada/Russia: (XXX) XXX-XXXX
+                if (digits.length <= 3) return digits;
+                if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+                return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+            } else if (countryCode === '+44') {
+                // UK: +44 XXXX XXX XXXX
+                if (digits.length <= 4) return digits;
+                if (digits.length <= 7) return `${digits.slice(0, 4)} ${digits.slice(4)}`;
+                return `${digits.slice(0, 4)} ${digits.slice(4, 7)} ${digits.slice(7)}`;
+            } else if (countryCode === '+880') {
+                // Bangladesh: XXXX XXXXXX or XXXX XXXXX
+                if (digits.length <= 4) return digits;
+                return `${digits.slice(0, 4)} ${digits.slice(4)}`;
+            } else if (countryCode === '+86') {
+                // China: XXXX XXXX XXXX
+                if (digits.length <= 4) return digits;
+                if (digits.length <= 8) return `${digits.slice(0, 4)} ${digits.slice(4)}`;
+                return `${digits.slice(0, 4)} ${digits.slice(4, 8)} ${digits.slice(8)}`;
+            } else if (countryCode === '+81') {
+                // Japan: XX-XXXX-XXXX
+                if (digits.length <= 2) return digits;
+                if (digits.length <= 6) return `${digits.slice(0, 2)}-${digits.slice(2)}`;
+                return `${digits.slice(0, 2)}-${digits.slice(2, 6)}-${digits.slice(6)}`;
+            } else {
+                // Default: just return digits, split every 4 digits
+                if (digits.length <= 4) return digits;
+                let formatted = '';
+                for (let i = 0; i < digits.length; i += 4) {
+                    if (formatted) formatted += ' ';
+                    formatted += digits.slice(i, i + 4);
+                }
+                return formatted;
+            }
+        }
+
+        // Detect the country whose dial code is the longest prefix of the typed digits.
+        function detectCountryFromDigits(digits) {
+            if (!digits) return null;
+            let best = null;
+            let bestLen = 0;
+            COUNTRIES.forEach(function (country) {
+                const cc = country.code.replace(/\D/g, '');
+                if (cc && digits.startsWith(cc) && cc.length > bestLen) {
+                    best = country;
+                    bestLen = cc.length;
+                }
+            });
+            return best;
+        }
+
+        function validateAndFormatPhone(phoneInput, countryCodeInput) {
+            let phoneValue = phoneInput.value.trim();
+            let countryCode = countryCodeInput.dataset.code || '+1';
+
+            // If the user typed a leading "+<country code>" directly into the number box,
+            // detect the country, sync the flag/dropdown to it, and strip the code from the
+            // national number so the flag and the number stay in sync.
+            if (phoneValue.startsWith('+')) {
+                const typedDigits = phoneValue.replace(/\D/g, '');
+                const detected = detectCountryFromDigits(typedDigits);
+                if (detected) {
+                    countryCodeInput.value = `${detected.flag} ${detected.code}`;
+                    countryCodeInput.dataset.code = detected.code;
+                    countryCode = detected.code;
+                    const ccDigits = detected.code.replace(/\D/g, '');
+                    const nationalDigits = typedDigits.startsWith(ccDigits) ? typedDigits.substring(ccDigits.length) : typedDigits;
+                    phoneInput.value = nationalDigits;
+                    phoneValue = nationalDigits;
+                } else {
+                    // Incomplete country code still being typed (e.g. "+3") — leave it so the
+                    // user can finish, and don't format/validate yet.
+                    phoneInput.style.borderColor = '';
+                    phoneInput.classList.remove('is-invalid', 'is-valid');
+                    return;
+                }
+            }
+
+            // Get country-specific requirements
+            const requirements = PHONE_LENGTH_REQUIREMENTS[countryCode] || { min: 7, max: 15, name: 'Default' };
+
+            // Store max digits in dataset for JavaScript validation instead of HTML maxLength
+            phoneInput.dataset.maxDigits = requirements.max;
+
+            if (!phoneValue) {
+                phoneInput.style.borderColor = '';
+                phoneInput.classList.remove('is-invalid', 'is-valid');
+                // Clear E.164 hidden field
+                const hiddenField = document.querySelector(`input[name="${phoneInput.name}_e164"]`);
+                if (hiddenField) hiddenField.value = '';
+                return;
+            }
+
+            // Remove all non-digits (allow only numbers)
+            let digitsOnly = phoneValue.replace(/\D/g, '');
+
+            // Enforce max digits by truncating if needed (don't include formatting chars)
+            const maxDigits = parseInt(phoneInput.dataset.maxDigits || requirements.max);
+            if (digitsOnly.length > maxDigits) {
+                digitsOnly = digitsOnly.substring(0, maxDigits);
+            }
+
+            // Remove leading 1 if it's a North American number (already in country code)
+            let cleanNumber = digitsOnly;
+            if (countryCode === '+1' && digitsOnly.startsWith('1')) {
+                cleanNumber = digitsOnly.substring(1);
+            }
+
+            // Display formatted number with proper formatting
+            phoneInput.value = formatPhoneNumber(cleanNumber, countryCode);
+
+            // Check if number is valid length
+            if (cleanNumber.length < requirements.min) {
+                phoneInput.style.borderColor = '#ff6b6b';
+                phoneInput.classList.add('is-invalid');
+                phoneInput.classList.remove('is-valid');
+                return;
+            }
+
+            if (cleanNumber.length > requirements.max) {
+                phoneInput.style.borderColor = '#ff6b6b';
+                phoneInput.classList.add('is-invalid');
+                phoneInput.classList.remove('is-valid');
+                return;
+            }
+
+            // Valid! Format to E.164
+            const e164Number = countryCode + cleanNumber;
+
+            // Final E.164 validation
+            if (!/^\+\d{7,15}$/.test(e164Number)) {
+                phoneInput.style.borderColor = '#ff6b6b';
+                phoneInput.classList.add('is-invalid');
+                phoneInput.classList.remove('is-valid');
+                return;
+            }
+
+            // Valid - set green border
+            phoneInput.style.borderColor = '#51cf66';
+            phoneInput.classList.remove('is-invalid');
+            phoneInput.classList.add('is-valid');
+
+            // Create or update hidden field with E.164 format for SMS
+            let hiddenField = document.querySelector(`input[name="${phoneInput.name}_e164"]`);
+            if (!hiddenField) {
+                hiddenField = document.createElement('input');
+                hiddenField.type = 'hidden';
+                hiddenField.name = `${phoneInput.name}_e164`;
+                phoneInput.parentElement.appendChild(hiddenField);
+            }
+            hiddenField.value = e164Number;
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                initCountryCodePickers();
+            }, 500);
+        });
+        </script>
+
+
+    <script>
+    (function () {
+        // AJAX checkout/reservation submit: on a server error keep the page state and show
+        // the same notification (no reload); on success navigate to thank-you as usual.
+        function isCheckoutForm(form) {
+            var a = (form.getAttribute('action') || '');
+            return a.indexOf('/checkout/store') !== -1
+                || a.indexOf('/reservation/store') !== -1
+                || a.indexOf('/reservations/store') !== -1;
+        }
+
+        function restoreButtons() {
+            try { if (typeof hideCheckoutProcessingOverlay === 'function') hideCheckoutProcessingOverlay(); } catch (e) {}
+            var overlay = document.getElementById('checkout-processing-overlay');
+            if (overlay) { overlay.classList.remove('is-visible'); overlay.setAttribute('aria-hidden', 'true'); }
+            ['submitBtn', 'submitBtn_two'].forEach(function (id) {
+                var b = document.getElementById(id);
+                if (b) {
+                    b.disabled = false;
+                    if (b.dataset && b.dataset.defaultText) { b.textContent = b.dataset.defaultText; }
+                }
+            });
+        }
+
+        function showCheckoutError(message) {
+            restoreButtons();
+            var prev = document.getElementById('cv-ajax-error-alert');
+            if (prev && prev.parentNode) prev.parentNode.removeChild(prev);
+            var alertEl = document.createElement('div');
+            alertEl.className = 'alert alert-danger';
+            alertEl.setAttribute('role', 'alert');
+            alertEl.id = 'cv-ajax-error-alert';
+            alertEl.textContent = message || 'Something went wrong. Please try again.';
+            var container = document.querySelector('header .container') || document.body;
+            container.insertBefore(alertEl, container.firstChild);
+            try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); }
+        }
+
+        function extractError(json) {
+            if (!json) return null;
+            if (json.error) return json.error;
+            if (json.errors && typeof json.errors === 'object') {
+                var keys = Object.keys(json.errors);
+                if (keys.length) { var v = json.errors[keys[0]]; return Array.isArray(v) ? v[0] : v; }
+            }
+            return json.message || null;
+        }
+
+        function submitCheckoutAjax(form) {
+            // Show the same processing loader used by the package checkout (covers the reservation form too).
+            if (typeof showCheckoutProcessingOverlay === 'function') { try { showCheckoutProcessingOverlay(); } catch (e) {} }
+            // Retries append a fresh Stripe token each time; only send the latest.
+            var tokens = form.querySelectorAll('input[name="stripeToken"]');
+            for (var i = 0; i < tokens.length - 1; i++) {
+                if (tokens[i].parentNode) tokens[i].parentNode.removeChild(tokens[i]);
+            }
+            fetch(form.getAttribute('action'), {
+                method: 'POST',
+                body: new FormData(form),
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                credentials: 'same-origin'
+            }).then(function (res) {
+                return res.text().then(function (t) { try { return JSON.parse(t); } catch (e) { return null; } });
+            }).then(function (json) {
+                if (json && json.success && json.redirect) { window.location.href = json.redirect; return; }
+                showCheckoutError(extractError(json));
+            }).catch(function () {
+                showCheckoutError('Network error. Please check your connection and try again.');
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            Array.prototype.forEach.call(document.querySelectorAll('form'), function (form) {
+                if (!isCheckoutForm(form)) return;
+                // Programmatic submits (Stripe + reservation call form.submit() after their checks).
+                form.submit = function () { submitCheckoutAjax(form); };
+                // Native submits that passed every existing validation handler (e.g. Authorize.Net).
+                form.addEventListener('submit', function (e) {
+                    if (e.defaultPrevented) return; // an existing handler is already handling it
+                    e.preventDefault();
+                    submitCheckoutAjax(form);
+                });
+            });
+        });
+    })();
+    </script>
+
+    <script>
+    (function () {
+        // Checkout UX: Enter advances to the next field instead of submitting the form.
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Enter' && e.keyCode !== 13) return;
+            if (e.defaultPrevented) return; // a field-specific handler already dealt with Enter
+            var el = e.target;
+            if (!el) return;
+            var tag = (el.tagName || '').toLowerCase();
+            var type = ((el.getAttribute && el.getAttribute('type')) || '').toLowerCase();
+            if (tag === 'textarea' || tag === 'button' || tag === 'a') return; // keep normal behavior
+            if (type === 'submit' || type === 'button') return;
+            var form = el.form || (el.closest ? el.closest('form') : null);
+            if (!form) return; // only intercept fields inside a form
+
+            e.preventDefault(); // stop the implicit form submission
+
+            var fields = Array.prototype.filter.call(
+                form.querySelectorAll('input, select, textarea, button'),
+                function (node) {
+                    if (node.disabled || node.type === 'hidden' || node.tabIndex === -1) return false;
+                    return node.offsetParent !== null || node.getClientRects().length > 0;
+                }
+            );
+            var idx = fields.indexOf(el);
+            if (idx > -1 && idx < fields.length - 1) {
+                var next = fields[idx + 1];
+                next.focus();
+                if (typeof next.select === 'function') { try { next.select(); } catch (err) {} }
+            } else if (typeof el.blur === 'function') {
+                el.blur();
+            }
+        });
+    })();
+    </script>
     </html>

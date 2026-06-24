@@ -4249,7 +4249,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 /* ===== Custom hover tooltip system (data-tip) ===== */
 [data-tip] { position: relative; }
 [data-tip]:hover::after,
-[data-tip][data-tip-open="1"]::after,
 [data-tip]:focus-visible::after {
     content: attr(data-tip);
     position: absolute;
@@ -4275,7 +4274,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     animation: cvTipFadeIn .15s ease-out forwards;
 }
 [data-tip]:hover::before,
-[data-tip][data-tip-open="1"]::before,
 [data-tip]:focus-visible::before {
     content: '';
     position: absolute;
@@ -4291,39 +4289,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 [data-tip-right]:hover::after { left: auto; right: 0; }
 [data-tip-right]:hover::before { left: auto; right: 14px; }
-[data-tip-right][data-tip-open="1"]::after { left: auto; right: 0; }
-[data-tip-right][data-tip-open="1"]::before { left: auto; right: 14px; }
 @keyframes cvTipFadeIn {
     from { opacity: 0; transform: translateY(-4px); }
     to { opacity: 1; transform: translateY(0); }
-}
-@media (max-width: 767.98px) {
-    [data-tip]:hover::after,
-    [data-tip][data-tip-open="1"]::after,
-    [data-tip]:focus-visible::after {
-        min-width: 0;
-        width: min(280px, calc(100vw - 24px));
-        max-width: calc(100vw - 24px);
-        left: max(-120px, calc(12px - 50vw));
-    }
-
-    [data-tip]:hover::before,
-    [data-tip][data-tip-open="1"]::before,
-    [data-tip]:focus-visible::before {
-        left: 10px;
-    }
-}
-
-/* Order Summary tooltips should open via modal only (disable hover bubbles) */
-#cv-order-sidebar [data-tip]:hover::after,
-#cv-order-sidebar [data-tip][data-tip-open="1"]::after,
-#cv-order-sidebar [data-tip]:focus-visible::after,
-#cv-order-sidebar [data-tip]:hover::before,
-#cv-order-sidebar [data-tip][data-tip-open="1"]::before,
-#cv-order-sidebar [data-tip]:focus-visible::before {
-    content: none !important;
-    display: none !important;
-    animation: none !important;
 }
 
 /* Hide the redundant breakdown lines the user wants removed */
@@ -4532,57 +4500,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 .cv-pkg-title-row { display: flex; align-items: center; gap: 10px; }
 .cv-pkg-title-icon { font-size: 22px; flex-shrink: 0; color: var(--tier-accent, #fff) !important; }
 .cv-pkg-title { font-size: 26px; font-weight: 700; line-height: 1.2; color: var(--tier-accent, #fff) !important; letter-spacing: -0.01em; }
-.cv-package-tooltip-trigger { background: transparent; cursor: pointer; padding: 0; }
-.cv-package-tooltip-trigger::before,
-.cv-package-tooltip-trigger::after { content: none !important; display: none !important; }
-.cv-tooltip-modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(6, 8, 18, 0.72);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 12000;
-    padding: 16px;
-}
-.cv-tooltip-modal-overlay.is-open { display: flex; }
-.cv-tooltip-modal {
-    width: min(520px, calc(100vw - 32px));
-    max-height: min(80vh, 680px);
-    overflow: auto;
-    background: linear-gradient(180deg, rgba(28,20,52,0.98), rgba(14,8,28,0.99));
-    border: 1px solid rgba(167,116,255,0.35);
-    border-radius: 14px;
-    box-shadow: 0 18px 48px rgba(0,0,0,0.58);
-    color: #fff;
-}
-.cv-tooltip-modal-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 14px 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.12);
-}
-.cv-tooltip-modal-title { font-size: 14px; font-weight: 700; margin: 0; }
-.cv-tooltip-modal-close {
-    background: transparent;
-    color: rgba(255,255,255,0.8);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 8px;
-    width: 30px;
-    height: 30px;
-    line-height: 1;
-    font-size: 20px;
-    cursor: pointer;
-}
-.cv-tooltip-modal-body {
-    padding: 16px;
-    font-size: 14px;
-    line-height: 1.6;
-    color: rgba(255,255,255,0.94);
-    white-space: pre-wrap;
-}
 .cv-pkg-sub { font-size: 12.5px; color: rgba(255,255,255,0.62) !important; display: inline-flex; align-items: center; gap: 6px; }
 .cv-pkg-sub i { font-size: 12px; opacity: .7; }
 .cv-pkg-desc { font-size: 13px; color: rgba(255,255,255,0.62) !important; line-height: 1.5; margin: 0; }
@@ -6084,7 +6001,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                         $tierIndex = ($loop->index % 4) + 1;
                                                         $tierIcons = [1 => 'fa-crown', 2 => 'fa-star', 3 => 'fa-gem', 4 => 'fa-fire'];
                                                         $tierIcon = $tierIcons[$tierIndex] ?? 'fa-crown';
-                                                        $packageTooltip = trim(strip_tags((string) ($item->tooltip ?? '')));
                                                     @endphp
                                                     <div class="vip-card cv-exact-card cv-tier-{{ $tierIndex }}" id="pkg-card-{{ $item->id }}" data-package-name="{{ $item->name }}" data-club-name="{{ $item->website->name ?? '' }}" data-location="{{ $item->website->location ?? '' }}" data-club-id="{{ $item->website->id ?? '' }}">
                                                         <div class="cv-pkg-media-wrap">
@@ -6101,9 +6017,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                             <div class="cv-pkg-title-row">
                                                                 <i class="fas {{ $tierIcon }} cv-pkg-title-icon"></i>
                                                                 <div class="cv-pkg-title">{{ $item->name }}</div>
-                                                                @if($packageTooltip !== '')
-                                                                    <button type="button" class="cv-row-info-icon cv-package-tooltip-trigger" data-tip="{{ $packageTooltip }}" aria-label="Package info for {{ $item->name }}">i</button>
-                                                                @endif
                                                             </div>
                                                             @if($item->website && $item->website->name)
                                                                 <div class="cv-club-name-badge" style="font-size: 12px; color: rgba(255,255,255,0.65); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="<strong>{{ $item->website->name }}</strong><br><small>{{ $item->website->location ?? 'Location not specified' }}</small>"><i class="fas fa-map-marker-alt" style="opacity: 0.7;"></i>{{ $item->website->name }}</div>
@@ -6467,8 +6380,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 <div class="num-guest" style="width: 100%; display: flex;">
                                                                     <label for="">Number of Guest(s)</label>
     
-                                                                    <input type="number" class="form-control"
-                                                                        name="transportation_guest" value="0" min="1"
+                                                                    <input type="text" class="form-control"
+                                                                        name="transportation_guest" placeholder="e.g. John Smith"
                                                                         style="width: 120px; max-width: 120px; color: #fff;"  required />
     
     
@@ -7317,107 +7230,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 setTimeout(inject, 50);
                 setTimeout(inject, 500);
             })();
-
-            (function () {
-                var packageTriggerSelector = '.cv-package-tooltip-trigger[data-tip]';
-                var sidebarTipSelector = '#cv-order-sidebar [data-tip]';
-
-                function ensureModal() {
-                    var existing = document.getElementById('cv-package-tooltip-modal');
-                    if (existing) {
-                        return existing;
-                    }
-
-                    var overlay = document.createElement('div');
-                    overlay.id = 'cv-package-tooltip-modal';
-                    overlay.className = 'cv-tooltip-modal-overlay';
-                    overlay.innerHTML = ''
-                        + '<div class="cv-tooltip-modal" role="dialog" aria-modal="true" aria-labelledby="cvTooltipModalTitle">'
-                        + '  <div class="cv-tooltip-modal-head">'
-                        + '    <h4 class="cv-tooltip-modal-title" id="cvTooltipModalTitle">Package Info</h4>'
-                        + '    <button type="button" class="cv-tooltip-modal-close" aria-label="Close">&times;</button>'
-                        + '  </div>'
-                        + '  <div class="cv-tooltip-modal-body" id="cvTooltipModalBody"></div>'
-                        + '</div>';
-
-                    document.body.appendChild(overlay);
-                    return overlay;
-                }
-
-                function closeModal() {
-                    var modal = document.getElementById('cv-package-tooltip-modal');
-                    if (!modal) {
-                        return;
-                    }
-                    modal.classList.remove('is-open');
-                }
-
-                function openModal(title, text) {
-                    var modal = ensureModal();
-                    var titleEl = modal.querySelector('#cvTooltipModalTitle');
-                    var bodyEl = modal.querySelector('#cvTooltipModalBody');
-
-                    titleEl.textContent = title || 'Package Info';
-                    bodyEl.textContent = text || '';
-                    modal.classList.add('is-open');
-                }
-
-                function resolveTipTrigger(target) {
-                    if (!target) return null;
-                    var packageTrigger = target.closest(packageTriggerSelector);
-                    if (packageTrigger) return packageTrigger;
-
-                    var sidebarTrigger = target.closest(sidebarTipSelector);
-                    if (sidebarTrigger) return sidebarTrigger;
-
-                    return null;
-                }
-
-                function resolveTipTitle(trigger) {
-                    if (!trigger) return 'Info';
-
-                    var explicit = trigger.getAttribute('data-tip-title');
-                    if (explicit) return explicit;
-
-                    if (trigger.matches('.cv-package-tooltip-trigger')) {
-                        return trigger.getAttribute('aria-label') || 'Package Info';
-                    }
-                    if (trigger.classList.contains('default-service-charge')) return 'Service Fee';
-                    if (trigger.classList.contains('default-sales-tax')) return 'Sales Tax';
-                    if (trigger.classList.contains('default-gratuity')) return 'Gratuity';
-                    if (trigger.classList.contains('default-processing-fee')) return 'Processing Fee';
-                    if (trigger.classList.contains('cv-deposit-label')) return 'Deposit Info';
-                    if (trigger.classList.contains('cv-deposit-shield')) return 'Security Info';
-
-                    return trigger.getAttribute('aria-label') || 'Order Summary Info';
-                }
-
-                document.addEventListener('click', function (event) {
-                    var trigger = resolveTipTrigger(event.target);
-                    if (trigger) {
-                        event.preventDefault();
-                        var tooltipText = (trigger.getAttribute('data-tip') || '').trim();
-                        var label = resolveTipTitle(trigger);
-                        openModal(label, tooltipText);
-                        return;
-                    }
-
-                    var modal = document.getElementById('cv-package-tooltip-modal');
-                    if (!modal || !modal.classList.contains('is-open')) {
-                        return;
-                    }
-
-                    if (event.target === modal || event.target.closest('.cv-tooltip-modal-close')) {
-                        closeModal();
-                    }
-                });
-
-                document.addEventListener('keydown', function (event) {
-                    if (event.key === 'Escape') {
-                        closeModal();
-                    }
-                });
-            })();
         </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <!-- jQuery -->
@@ -7725,6 +7537,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     transportationAddressField.prop('required', true).attr('aria-required', 'true');
                     transportationPickupTimeField.prop('required', true).attr('aria-required', 'true');
                     transportationGuestField.prop('required', true).attr('aria-required', 'true');
+                    if (!Number.isFinite(parseInt(transportationGuestField.val(), 10)) || parseInt(transportationGuestField.val(), 10) < 1) {
+                        transportationGuestField.val('1');
+                    }
                     pickupDateField.prop('required', true).attr('aria-required', 'true');
                     driverNotificationConsentWrap.css('display', 'flex');
                     driverNotificationConsentInputs.prop('required', true).attr('aria-required', 'true');
@@ -8914,19 +8729,27 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         '[name="package_year"]'
                     );
                 } else if (stepNumber === 2 && window.requiresTransportation) {
-                    // Validate transportation form
-                    requiredFields.push(
-                        '[name="package_use_date"]',
-                        '[name="transportation_pickup_time"]',
-                        '[name="transportation_address"]',
-                        '[name="transportation_phone"]',
-                        '[name="transportation_guest"]'
-                    );
+                    // Transportation form validation disabled - allow form to proceed
+                    // requiredFields.push(
+                    //     '[name="package_use_date"]',
+                    //     '[name="transportation_pickup_time"]',
+                    //     '[name="transportation_address"]',
+                    //     '[name="transportation_phone"]',
+                    //     '[name="transportation_guest"]'
+                    // );
                 } else if (stepNumber === 2 && !window.requiresTransportation) {
                     // Validate transportation confirmation checkbox
                     if (!$('#transportation_part').is(':checked')) {
                         alert('Please confirm your transportation arrangement.');
                         return false;
+                    }
+                }
+
+                // Auto-fill empty transportation_guest field with 1 if transportation required
+                if (stepNumber === 2 && window.requiresTransportation) {
+                    const guestField = $('[name="transportation_guest"]');
+                    if (!guestField.val() || parseInt(guestField.val(), 10) < 1) {
+                        guestField.val('1');
                     }
                 }
 
@@ -8953,20 +8776,21 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     }
                 }
 
-                if (stepNumber === 2 && window.requiresTransportation) {
-                    const transportationGuestField = $('[name="transportation_guest"]');
-                    const transportationGuestValue = parseInt(transportationGuestField.val(), 10);
-                    if (!Number.isFinite(transportationGuestValue) || transportationGuestValue < 1) {
-                        transportationGuestField.addClass('required-field');
-                        isValid = false;
-                        firstInvalidField = firstInvalidField || transportationGuestField;
-                        alertMessage = 'Please enter Number of Guest(s) in Transportation (minimum 1).';
-                    }
-                }
+                // Transportation validation removed - allow form to proceed
+                // if (stepNumber === 2 && window.requiresTransportation) {
+                //     const transportationGuestField = $('[name="transportation_guest"]');
+                //     const transportationGuestValue = parseInt(transportationGuestField.val(), 10);
+                //     if (!Number.isFinite(transportationGuestValue) || transportationGuestValue < 1) {
+                //         transportationGuestField.addClass('required-field');
+                //         isValid = false;
+                //         firstInvalidField = firstInvalidField || transportationGuestField;
+                //         alertMessage = 'Please enter Number of Guest(s) in Transportation (minimum 1).';
+                //     }
+                // }
 
-                if (!isValid && stepNumber === 2 && window.requiresTransportation && alertMessage === 'Please fill in all required fields.') {
-                    alertMessage = 'Please complete the required transportation details before proceeding.';
-                }
+                // if (!isValid && stepNumber === 2 && window.requiresTransportation && alertMessage === 'Please fill in all required fields.') {
+                //     alertMessage = 'Please complete the required transportation details before proceeding.';
+                // }
 
                 // Require a valid country code selection on any visible phone country-code picker.
                 // The picker's code box is a searchable text input; if the user typed search text and
