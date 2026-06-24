@@ -6283,7 +6283,7 @@ input[type="checkbox"],
                             </div>
                             <div class="modal-body" id="addonSelectionModalBody"></div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-secondary" id="addonModalNoAddonsBtn">No add-ons</button>
                                 <button type="button" class="btn" id="addonModalConfirmBtn" style="background:var(--aff-accent);color:#000;font-weight:700;">Confirm & Add to Cart</button>
                             </div>
                         </div>
@@ -7985,6 +7985,41 @@ input[type="checkbox"],
 
                         $('#package_id').val(selection.packageId);
                         $('#addons').val(selectedAddons.map(function(addon) { return addon.id; }).join(','));
+                        $('.package_number_of_guest').val(selection.guests);
+                        $('.dynamic-price').show();
+                        $('.default-price').hide();
+                        $('#checkout-steps').show();
+                        syncTransportationStateFromCart();
+                        showStep(1);
+
+                        bootstrap.Modal.getOrCreateInstance(document.getElementById('addonSelectionModal')).hide();
+                        window.pendingPackageSelection = null;
+                    });
+                });
+
+                $('#addonModalNoAddonsBtn').on('click', function() {
+                    if (!window.pendingPackageSelection) {
+                        return;
+                    }
+
+                    var selection = window.pendingPackageSelection;
+                    var selectedAddons = [];
+
+                    window.addPackageToCart(
+                        selection.packageId,
+                        selection.packageName,
+                        selection.packagePrice,
+                        selection.guests,
+                        selectedAddons,
+                        selection.transportation,
+                        selection.isMultiple
+                    ).then(function(added) {
+                        if (!added) {
+                            return;
+                        }
+
+                        $('#package_id').val(selection.packageId);
+                        $('#addons').val('');
                         $('.package_number_of_guest').val(selection.guests);
                         $('.dynamic-price').show();
                         $('.default-price').hide();

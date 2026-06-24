@@ -6959,7 +6959,7 @@
                         </div>
                         <div class="modal-body" id="addonSelectionModalBody"></div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-secondary" id="addonModalNoAddonsBtn">No add-ons</button>
                             <button type="button" class="btn" id="addonModalConfirmBtn">Confirm & Add to Cart</button>
                         </div>
                     </div>
@@ -8593,6 +8593,28 @@
 
                     window.addPackageToCart(selection.packageId, selection.packageName, selection.packagePrice, selection.guests, selectedAddons, selection.transportation, selection.isMultiple);
                     $('#package_id').val(selection.packageId);
+
+                    $('.dynamic-price').show();
+                    $('.default-price').hide();
+                    $('#checkout-steps').show();
+                    syncTransportationStateFromCart();
+                    showStep(1);
+
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('addonSelectionModal')).hide();
+                    window.pendingPackageSelection = null;
+                });
+
+                $('#addonModalNoAddonsBtn').on('click', function() {
+                    if (!window.pendingPackageSelection) {
+                        return;
+                    }
+
+                    let selection = window.pendingPackageSelection;
+                    let selectedAddons = [];
+
+                    window.addPackageToCart(selection.packageId, selection.packageName, selection.packagePrice, selection.guests, selectedAddons, selection.transportation, selection.isMultiple);
+                    $('#package_id').val(selection.packageId);
+                    $('#addons').val('');
 
                     $('.dynamic-price').show();
                     $('.default-price').hide();
