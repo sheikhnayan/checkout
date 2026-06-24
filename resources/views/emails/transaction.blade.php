@@ -93,6 +93,9 @@
             @if(!empty($mailData['transportation_phone']))
             <tr><th>Contact Phone</th><td>{{ $mailData['transportation_phone'] }}</td></tr>
             @endif
+            @if(!empty($mailData['transportation_guest']))
+            <tr><th>Transportation Guests</th><td>{{ $mailData['transportation_guest'] }}</td></tr>
+            @endif
             @if(!empty($mailData['host_name']))
             <tr><th>Host Name</th><td>{{ $mailData['host_name'] }}</td></tr>
             @endif
@@ -188,6 +191,9 @@
             @endif
             @if(!empty($mailData['transportation_phone']))
             <tr><th>Contact Phone</th><td>{{ $mailData['transportation_phone'] }}</td></tr>
+            @endif
+            @if(!empty($mailData['transportation_guest']))
+            <tr><th>Transportation Guests</th><td>{{ $mailData['transportation_guest'] }}</td></tr>
             @endif
             @if(!empty($mailData['host_name']))
             <tr><th>Host Name</th><td>{{ $mailData['host_name'] }}</td></tr>
