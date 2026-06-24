@@ -7277,7 +7277,8 @@
             })();
 
             (function () {
-                var triggerSelector = '.cv-package-tooltip-trigger[data-tip]';
+                var packageTriggerSelector = '.cv-package-tooltip-trigger[data-tip]';
+                var sidebarTipSelector = '#cv-order-sidebar [data-tip]';
 
                 function ensureModal() {
                     var existing = document.getElementById('cv-package-tooltip-modal');
@@ -7319,12 +7320,42 @@
                     modal.classList.add('is-open');
                 }
 
+                function resolveTipTrigger(target) {
+                    if (!target) return null;
+                    var packageTrigger = target.closest(packageTriggerSelector);
+                    if (packageTrigger) return packageTrigger;
+
+                    var sidebarTrigger = target.closest(sidebarTipSelector);
+                    if (sidebarTrigger) return sidebarTrigger;
+
+                    return null;
+                }
+
+                function resolveTipTitle(trigger) {
+                    if (!trigger) return 'Info';
+
+                    var explicit = trigger.getAttribute('data-tip-title');
+                    if (explicit) return explicit;
+
+                    if (trigger.matches('.cv-package-tooltip-trigger')) {
+                        return trigger.getAttribute('aria-label') || 'Package Info';
+                    }
+                    if (trigger.classList.contains('default-service-charge')) return 'Service Fee';
+                    if (trigger.classList.contains('default-sales-tax')) return 'Sales Tax';
+                    if (trigger.classList.contains('default-gratuity')) return 'Gratuity';
+                    if (trigger.classList.contains('default-processing-fee')) return 'Processing Fee';
+                    if (trigger.classList.contains('cv-deposit-label')) return 'Deposit Info';
+                    if (trigger.classList.contains('cv-deposit-shield')) return 'Security Info';
+
+                    return trigger.getAttribute('aria-label') || 'Order Summary Info';
+                }
+
                 document.addEventListener('click', function (event) {
-                    var trigger = event.target.closest(triggerSelector);
+                    var trigger = resolveTipTrigger(event.target);
                     if (trigger) {
                         event.preventDefault();
                         var tooltipText = (trigger.getAttribute('data-tip') || '').trim();
-                        var label = trigger.getAttribute('aria-label') || 'Package info';
+                        var label = resolveTipTitle(trigger);
                         openModal(label, tooltipText);
                         return;
                     }
