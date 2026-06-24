@@ -6665,9 +6665,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                     {{-- Location info now lives in the hero (.cv-hero-location). Original section removed to avoid duplication. --}}
     
-                <div class="modal" tabindex="-1">
+                <div class="modal" id="infoTooltipModal" tabindex="-1">
                     <div class="modal-dialog">
-                        <div class="modal-content">
+                        <div class="modal-content" style="background:#fff;color:#000;">
                             <div class="modal-header">
                                 <h5 class="modal-title" style="color: #000 !important;">Modal title</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -7054,7 +7054,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     var tip = String(trigger.getAttribute('data-tip') || '').trim();
                     if (!tip) return;
 
-                    var modal = document.querySelector('.modal:not(.fade)');
+                    var modal = document.getElementById('infoTooltipModal');
                     if (!modal) return;
 
                     var modalTitle = modal.querySelector('.modal-title');
@@ -8705,14 +8705,39 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         <input type="hidden" id="processing_fee_type" value="{{ $data->processing_fee_type ?? 'percentage' }}">
 
         <script>
+            function showInfoTooltipModal(title, description) {
+                const modalElement = document.getElementById('infoTooltipModal');
+                if (!modalElement) {
+                    return;
+                }
+
+                const titleElement = modalElement.querySelector('.modal-title');
+                const bodyElement = modalElement.querySelector('.modal-body');
+
+                if (titleElement) {
+                    titleElement.textContent = title || 'Details';
+                }
+
+                if (bodyElement) {
+                    bodyElement.innerHTML = `<p style="color: #000 !important; margin: 0;">${description || ''}</p>`;
+                }
+
+                if (window.bootstrap && window.bootstrap.Modal) {
+                    window.bootstrap.Modal.getOrCreateInstance(modalElement).show();
+                    return;
+                }
+
+                if (window.jQuery && window.jQuery.fn && window.jQuery.fn.modal) {
+                    window.jQuery(modalElement).modal('show');
+                }
+            }
+
             function openModal() {
                 // Get the description from the clicked addon
                 const description = event.target.closest('.addon-item').querySelector('label').getAttribute('data-description');
                 const title = event.target.closest('.addon-item').querySelector('label').getAttribute('data-title');
 
-                $('.modal-title').text(title);
-                $('.modal-body').html(`<p style="color: #000 !important;">${description}</p>`);
-                $('.modal').modal('show');
+                showInfoTooltipModal(title, description);
 
             }
 
@@ -8739,9 +8764,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     'No additional details available for this package.'
                 ).trim();
 
-                $('.modal-title').text(title);
-                $('.modal-body').html(`<p style="color: #000 !important;">${description}</p>`);
-                $('.modal').modal('show');
+                showInfoTooltipModal(title, description);
             }
 
             document.addEventListener('click', function(evt) {
