@@ -1465,7 +1465,8 @@
         }
 
         /* Addon selection modal — dark theme */
-        #addonSelectionModal .modal-content {
+        #addonSelectionModal .modal-content,
+        #infoTooltipModal .modal-content {
             background: linear-gradient(150deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
             border: 1px solid rgba(255,255,255,0.14);
             box-shadow: 0 22px 55px rgba(0, 0, 0, 0.35);
@@ -3498,7 +3499,8 @@
             position: relative;
             overflow: hidden;
         }
-        #addonSelectionModal .modal-content::before {
+        #addonSelectionModal .modal-content::before,
+        #infoTooltipModal .modal-content::before {
             content: '';
             position: absolute;
             right: -10%; top: -10%;
@@ -3507,19 +3509,24 @@
             pointer-events: none;
             z-index: 0;
         }
-        #addonSelectionModal .modal-content > * { position: relative; z-index: 1; }
-        #addonSelectionModal .modal-header {
+        #addonSelectionModal .modal-content > *,
+        #infoTooltipModal .modal-content > * { position: relative; z-index: 1; }
+        #addonSelectionModal .modal-header,
+        #infoTooltipModal .modal-header {
             border-bottom: 1px solid rgba(167,116,255,0.18) !important;
             padding: 20px 24px !important;
         }
-        #addonSelectionModal .modal-title {
+        #addonSelectionModal .modal-title,
+        #infoTooltipModal .modal-title {
             color: #fff !important;
             font-size: 20px !important;
             font-weight: 800 !important;
             letter-spacing: -0.01em;
         }
-        #addonSelectionModal .modal-body { padding: 20px 24px !important; }
-        #addonSelectionModal .modal-footer {
+        #addonSelectionModal .modal-body,
+        #infoTooltipModal .modal-body { padding: 20px 24px !important; }
+        #addonSelectionModal .modal-footer,
+        #infoTooltipModal .modal-footer {
             border-top: 1px solid rgba(167,116,255,0.18) !important;
             padding: 16px 24px !important;
             gap: 12px;
@@ -3556,7 +3563,8 @@
             transition: all .15s !important;
         }
         #addonSelectionModal #addonModalConfirmBtn:hover { filter: brightness(1.1); transform: translateY(-1px); }
-        #addonSelectionModal .btn-secondary {
+        #addonSelectionModal .btn-secondary,
+        #infoTooltipModal .btn-secondary {
             background: rgba(255,255,255,0.05) !important;
             border: 1px solid rgba(255,255,255,0.18) !important;
             color: rgba(255,255,255,0.85) !important;
@@ -3565,7 +3573,9 @@
             padding: 11px 20px !important;
         }
         #addonSelectionModal .btn-close-white,
-        #addonSelectionModal .btn-close { filter: invert(1) brightness(1.5); }
+        #addonSelectionModal .btn-close,
+        #infoTooltipModal .btn-close-white,
+        #infoTooltipModal .btn-close { filter: invert(1) brightness(1.5); }
 
         /* ====== Total row strict override (defeat .vip-price gold) ====== */
         #cv-order-sidebar .pricing-shell .default-deposit,
@@ -6958,7 +6968,7 @@
             </section>
 
             <div class="modal fade" id="infoTooltipModal" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog">
+                <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content" style="background:#1a1d2e;color:#ddd;">
                         <div class="modal-header">
                             <h5 class="modal-title" style="color:#fff;">Modal title</h5>
@@ -7607,7 +7617,7 @@
                     var modalTitle = modal.querySelector('.modal-title');
                     var modalBody = modal.querySelector('.modal-body');
                     if (modalTitle) modalTitle.textContent = resolveTitle(trigger);
-                    if (modalBody) modalBody.innerHTML = '<p style="color:#ddd !important; margin:0;">' + escapeHtml(tip) + '</p>';
+                    if (modalBody) modalBody.innerHTML = '<p style="margin:0;">' + escapeHtml(tip) + '</p>';
 
                     if (window.bootstrap && window.bootstrap.Modal) {
                         window.bootstrap.Modal.getOrCreateInstance(modal).show();
@@ -9195,7 +9205,7 @@
                 }
 
                 if (bodyElement) {
-                    bodyElement.innerHTML = `<p style="color:#ddd !important; margin:0;">${description || ''}</p>`;
+                    bodyElement.innerHTML = `<p style="margin:0;">${description || ''}</p>`;
                 }
 
                 if (window.bootstrap && window.bootstrap.Modal) {
