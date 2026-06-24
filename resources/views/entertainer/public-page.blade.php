@@ -6778,12 +6778,12 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                     {{-- Location info now lives in the hero (.cv-hero-location). Original section removed to avoid duplication. --}}
     
-                <div class="modal" id="infoTooltipModal" tabindex="-1">
+                <div class="modal fade" id="infoTooltipModal" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog">
-                        <div class="modal-content" style="background:#fff;color:#000;">
+                        <div class="modal-content" style="background:#1a1d2e;color:#ddd;">
                             <div class="modal-header">
-                                <h5 class="modal-title" style="color: #000 !important;">Modal title</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <h5 class="modal-title" style="color:#fff;">Modal title</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                                 <p>Modal body text goes here.</p>
@@ -7279,7 +7279,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     var modalTitle = modal.querySelector('.modal-title');
                     var modalBody = modal.querySelector('.modal-body');
                     if (modalTitle) modalTitle.textContent = resolveTitle(trigger);
-                    if (modalBody) modalBody.innerHTML = '<p style="color: #000 !important;">' + escapeHtml(tip) + '</p>';
+                    if (modalBody) modalBody.innerHTML = '<p style="color:#ddd !important; margin:0;">' + escapeHtml(tip) + '</p>';
 
                     if (window.bootstrap && window.bootstrap.Modal) {
                         window.bootstrap.Modal.getOrCreateInstance(modal).show();
@@ -8975,7 +8975,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 }
 
                 if (bodyElement) {
-                    bodyElement.innerHTML = `<p style="color: #000 !important; margin: 0;">${description || ''}</p>`;
+                    bodyElement.innerHTML = `<p style="color:#ddd !important; margin:0;">${description || ''}</p>`;
                 }
 
                 if (window.bootstrap && window.bootstrap.Modal) {
