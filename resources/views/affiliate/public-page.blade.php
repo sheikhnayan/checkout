@@ -8457,7 +8457,47 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 $(document).on('input change', 'input, select, textarea', function() {
                     $(this).removeClass('required-field');
                 });
-               } else {
+            });
+        </script>
+
+        <script>
+            // Coupon logic for cart
+            $('#applyPromoBtn').on('click', function() {
+                let code = $('#promo_code').val().trim();
+                if (!code) return;
+
+                var promoSource = @json(!empty($affiliateReferral) ? 'affiliate' : 'club');
+                var ownerSlug = @json(!empty($affiliateReferral) ? $affiliateReferral->slug : '');
+                var cartItems = Array.isArray(window.cart) ? window.cart : [];
+                var packageIds = [];
+                var subtotal = 0;
+                var totalQty = 0;
+
+                cartItems.forEach(function(pkg) {
+                    var pkgId = parseInt(pkg.packageId, 10) || 0;
+                    if (pkgId > 0 && packageIds.indexOf(pkgId) === -1) {
+                        packageIds.push(pkgId);
+                    }
+
+                    var guests = parseInt(pkg.guests, 10) || 1;
+                    var billableGuests = (pkg.isMultiple === true || pkg.isMultiple === 1 || pkg.isMultiple === '1') ? guests : 1;
+                    subtotal += (parseFloat(pkg.packagePrice) || 0) * billableGuests;
+                    subtotal += (pkg.addons || []).reduce(function(sum, addon) { return sum + (parseFloat(addon.price) || 0); }, 0);
+                    totalQty += guests;
+                });
+
+                $.get('/' + @json($data->slug) + '/check/' + encodeURIComponent(code), {
+                    source: promoSource,
+                    owner_slug: ownerSlug,
+                    package_ids: packageIds.join(','),
+                    subtotal: subtotal.toFixed(2),
+                    total_qty: totalQty
+                }, function(res) {
+                    if (res.valid === false || res.valid === "false") {
+                        window.cartCoupon = null;
+                        alert(res.message || 'Invalid promo code');
+                        window.calculateCartTotal();
+                    } else {
                         window.cartCoupon = {
                             code: code,
                             id: res.id,
