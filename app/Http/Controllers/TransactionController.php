@@ -51,6 +51,33 @@ class TransactionController extends Controller
     }
 
     /**
+     * Validate a PAN using the Luhn checksum algorithm.
+     */
+    private function passesLuhnCheck(string $cardNumber): bool
+    {
+        if ($cardNumber === '' || preg_match('/\D/', $cardNumber)) {
+            return false;
+        }
+
+        $sum = 0;
+        $alternate = false;
+
+        for ($i = strlen($cardNumber) - 1; $i >= 0; $i--) {
+            $n = (int) $cardNumber[$i];
+            if ($alternate) {
+                $n *= 2;
+                if ($n > 9) {
+                    $n -= 9;
+                }
+            }
+            $sum += $n;
+            $alternate = !$alternate;
+        }
+
+        return ($sum % 10) === 0;
+    }
+
+    /**
      * Resolve the Authorize.Net environment URL, honoring the per-website sandbox
      * toggle, then the global setting, defaulting to sandbox when neither is
      * configured (same precedence used by CustomInvoiceController).
@@ -440,6 +467,7 @@ class TransactionController extends Controller
             if ($amount < 0) {
                 return back()->with('error', 'Invalid order amount. You have not been charged. Please refresh the page and try again.');
             }
+            $isZeroAmountCheckout = ($amount == 0.0);
 
             $w = Website::find($request->website_id);
 
@@ -479,6 +507,14 @@ class TransactionController extends Controller
             }
             $cvv = preg_replace('/\D/', '', (string) $request->input('card_cvv'));
 
+            // Strong server-side format checks before any gateway call.
+            if (strlen($cardNumber) < 12 || strlen($cardNumber) > 19 || !$this->passesLuhnCheck($cardNumber)) {
+                return back()->with('error', 'Invalid card number. You have not been charged. Please re-check your card details and try again.');
+            }
+            if (strlen($cvv) < 3 || strlen($cvv) > 4) {
+                return back()->with('error', 'Invalid card security code. You have not been charged. Please re-check your card details and try again.');
+            }
+
             $merchantAuthentication = new AnetAPI\MerchantAuthenticationType();
             $merchantAuthentication->setName($app);
             $merchantAuthentication->setTransactionKey($secret);
@@ -492,10 +528,13 @@ class TransactionController extends Controller
             $payment->setCreditCard($creditCard);
 
             $transactionRequestType = new AnetAPI\TransactionRequestType();
-            $transactionRequestType->setTransactionType("authCaptureTransaction");
-            // Send a plain 2-decimal string with no thousands separator. For free
-            // packages this becomes 0.00 and still goes through Authorize.Net.
-            $transactionRequestType->setAmount(number_format($amount, 2, '.', ''));
+            // Authorize.Net rejects authCapture with 0.00. For zero-dollar orders,
+            // validate card details using authOnly(0.01) and immediately void it.
+            $transactionType = $isZeroAmountCheckout ? 'authOnlyTransaction' : 'authCaptureTransaction';
+            $gatewayAmount = $isZeroAmountCheckout ? 0.01 : $amount;
+            $transactionRequestType->setTransactionType($transactionType);
+            // Send a plain 2-decimal string with no thousands separator.
+            $transactionRequestType->setAmount(number_format($gatewayAmount, 2, '.', ''));
             $transactionRequestType->setPayment($payment);
 
             // Billing address for AVS (Address Verification Service). Without the
@@ -542,11 +581,13 @@ class TransactionController extends Controller
             $anet = $this->interpretAuthorizeNetResponse($response);
             \Log::info('Authorize.Net charge result', [
                 'website_id' => $request->website_id,
+                'requested_amount' => $amount,
+                'gateway_amount' => $gatewayAmount,
+                'transaction_type' => $transactionType,
                 'response_code' => $anet['response_code'],
                 'trans_id' => $anet['trans_id'],
                 'avs' => $anet['avs'],
                 'cvv' => $anet['cvv'],
-                'amount' => $amount,
                 'ok' => $anet['ok'],
                 'held' => $anet['held'],
             ]);
@@ -554,6 +595,47 @@ class TransactionController extends Controller
             if ($response != null) {
                 $tresponse = $response->getTransactionResponse();
                 if ($anet['ok']) {
+                    // For true $0 checkouts, immediately void the temporary $0.01 auth
+                    // after validation so no charge is captured.
+                    if ($isZeroAmountCheckout && !empty($anet['trans_id'])) {
+                        $voidTx = new AnetAPI\TransactionRequestType();
+                        $voidTx->setTransactionType('voidTransaction');
+                        $voidTx->setRefTransId($anet['trans_id']);
+
+                        $voidRequest = new AnetAPI\CreateTransactionRequest();
+                        $voidRequest->setMerchantAuthentication($merchantAuthentication);
+                        $voidRequest->setRefId('void' . uniqid());
+                        $voidRequest->setTransactionRequest($voidTx);
+
+                        try {
+                            $voidController = new AnetController\CreateTransactionController($voidRequest);
+                            $voidResponse = $voidController->executeWithApiResponse($this->authorizeNetEnvironment($w, $setting, $usesGlobalKeys));
+                            $voidResult = $this->interpretAuthorizeNetResponse($voidResponse);
+
+                            \Log::info('Authorize.Net zero-amount auth void result', [
+                                'website_id' => $request->website_id,
+                                'original_trans_id' => $anet['trans_id'],
+                                'void_ok' => $voidResult['ok'],
+                                'void_response_code' => $voidResult['response_code'],
+                                'void_message' => $voidResult['message'],
+                            ]);
+
+                            if (!$voidResult['ok']) {
+                                return back()->with('error', 'Card validation succeeded but the temporary authorization could not be voided. Please try again.');
+                            }
+                        } catch (\Throwable $voidException) {
+                            \Log::error('Authorize.Net zero-amount auth void failed', [
+                                'website_id' => $request->website_id,
+                                'original_trans_id' => $anet['trans_id'],
+                                'error' => $voidException->getMessage(),
+                            ]);
+                            return back()->with('error', 'Card validation succeeded but we could not finalize the zero-amount authorization void. Please try again.');
+                        }
+
+                        $anet['response_code'] = 'zero_validated';
+                        $anet['message'] = 'Card validated for zero-amount checkout (temporary authorization voided).';
+                    }
+
                     // Approved (1) or held-for-review (4). In both cases the card
                     // was charged/authorized, so the order MUST be recorded. Held
                     // orders are saved as 'under_review' and settle on approval.
