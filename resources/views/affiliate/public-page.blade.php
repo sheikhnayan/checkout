@@ -4111,6 +4111,18 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
 }
 
+/* Order Summary tooltips should open via modal only (disable hover bubbles) */
+#cv-order-sidebar [data-tip]:hover::after,
+#cv-order-sidebar [data-tip][data-tip-open="1"]::after,
+#cv-order-sidebar [data-tip]:focus-visible::after,
+#cv-order-sidebar [data-tip]:hover::before,
+#cv-order-sidebar [data-tip][data-tip-open="1"]::before,
+#cv-order-sidebar [data-tip]:focus-visible::before {
+    content: none !important;
+    display: none !important;
+    animation: none !important;
+}
+
 /* Hide the redundant breakdown lines the user wants removed */
 #cv-order-sidebar #cart-total,
 #cv-order-sidebar #cart-section .cart-heading,
