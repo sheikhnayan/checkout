@@ -8712,17 +8712,44 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
             }
 
-            function openPackageModal() {
+            function openPackageModal(triggerElement) {
+                const trigger = triggerElement || (window.event ? window.event.target : null);
+                if (!trigger || !trigger.closest) {
+                    return;
+                }
 
-                // Get the description from the clicked package
-                const description = event.target.closest('.vip-card').querySelector('.items').getAttribute('data-description');
-                const title = event.target.closest('.vip-card').querySelector('.items').getAttribute('data-title');
+                const card = trigger.closest('.vip-card');
+                if (!card) {
+                    return;
+                }
+
+                const legacyMeta = card.querySelector('.items');
+                const title = (
+                    (legacyMeta && legacyMeta.getAttribute('data-title')) ||
+                    (card.querySelector('.cv-pkg-title') && card.querySelector('.cv-pkg-title').textContent) ||
+                    'Package Details'
+                ).trim();
+                const description = (
+                    (legacyMeta && legacyMeta.getAttribute('data-description')) ||
+                    (card.querySelector('.cv-pkg-desc') && card.querySelector('.cv-pkg-desc').textContent) ||
+                    'No additional details available for this package.'
+                ).trim();
 
                 $('.modal-title').text(title);
                 $('.modal-body').html(`<p style="color: #000 !important;">${description}</p>`);
                 $('.modal').modal('show');
-
             }
+
+            document.addEventListener('click', function(evt) {
+                const tooltipTrigger = evt.target.closest('.cv-pkg-title-icon');
+                if (!tooltipTrigger) {
+                    return;
+                }
+
+                evt.preventDefault();
+                evt.stopPropagation();
+                openPackageModal(tooltipTrigger);
+            });
 
             function addToTotal(price, name, id) {
                 // This function is now handled by cart system
