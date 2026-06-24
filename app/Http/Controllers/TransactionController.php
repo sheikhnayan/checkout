@@ -231,27 +231,29 @@ class TransactionController extends Controller
                         // Sanitize amount ("16,000.00" -> 16000.00, not 16) and send
                         // integer cents to Stripe.
                         $stripeAmount = $this->sanitizeAmount($request->total);
-                        if ($stripeAmount <= 0) {
+                        if ($stripeAmount < 0) {
                             return back()->with('error', 'Invalid order amount. You have not been charged. Please refresh the page and try again.');
                         }
 
-                        try {
-                            $charge = Stripe\Charge::create([
-                                "amount" => (int) round($stripeAmount * 100),
-                                "currency" => "usd",
-                                "source" => $request->stripeToken,
-                                "description" => "Payment fit"
-                            ]);
-                        } catch (\Stripe\Exception\CardException $e) {
-                            \Log::warning('Stripe card declined', ['website_id' => $request->website_id, 'message' => $e->getMessage()]);
-                            return back()->with('error', 'Payment failed: ' . $e->getMessage());
-                        } catch (\Throwable $e) {
-                            \Log::error('Stripe charge error', ['website_id' => $request->website_id, 'error' => $e->getMessage()]);
-                            return back()->with('error', 'We could not process your card. You have NOT been charged. Please try again.');
+                        $charge = null;
+                        if ($stripeAmount > 0) {
+                            try {
+                                $charge = Stripe\Charge::create([
+                                    "amount" => (int) round($stripeAmount * 100),
+                                    "currency" => "usd",
+                                    "source" => $request->stripeToken,
+                                    "description" => "Payment fit"
+                                ]);
+                            } catch (\Stripe\Exception\CardException $e) {
+                                \Log::warning('Stripe card declined', ['website_id' => $request->website_id, 'message' => $e->getMessage()]);
+                                return back()->with('error', 'Payment failed: ' . $e->getMessage());
+                            } catch (\Throwable $e) {
+                                \Log::error('Stripe charge error', ['website_id' => $request->website_id, 'error' => $e->getMessage()]);
+                                return back()->with('error', 'We could not process your card. You have NOT been charged. Please try again.');
+                            }
                         }
 
-    
-                    $transaction_id = $charge->id;
+                    $transaction_id = $charge ? $charge->id : ('FREE-' . strtoupper(Str::random(16)));
     
                     $ipAddress = $request->ip();
     
@@ -259,7 +261,7 @@ class TransactionController extends Controller
                     $add->transaction_id = $transaction_id;
                     // Stripe charges are captured immediately on success (no held state).
                     $add->payment_status = 'approved';
-                    $add->gateway_response_code = 'stripe_succeeded';
+                    $add->gateway_response_code = $charge ? 'stripe_succeeded' : 'free_checkout';
                     $add->ticket_qr_code = $this->generateTicketQrCode();
                     $add->package_first_name = $request->input('package_first_name');
                     $add->ip_address = $ipAddress;
@@ -433,6 +435,27 @@ class TransactionController extends Controller
 
         } else {
             # code...
+            // Sanitize the amount once. Keep negative totals blocked.
+            $amount = $this->sanitizeAmount($request->total);
+            if ($amount < 0) {
+                return back()->with('error', 'Invalid order amount. You have not been charged. Please refresh the page and try again.');
+            }
+
+            $w = Website::find($request->website_id);
+
+            if ($w->authorize_app_key != null) {
+                // Club uses its own Authorize.Net account.
+                $app = $w->authorize_app_key;
+                $secret = $w->authorize_secret_key;
+                $usesGlobalKeys = false;
+            } else {
+                // Club uses the global Authorize.Net account.
+                $app = $setting->authorize_key;
+                $secret = $setting->authorize_secret;
+                $usesGlobalKeys = true;
+            }
+            
+
             // Strip spaces/formatting so the gateway gets clean digits. The card
             // number is space-grouped in the UI; the CVV has no input mask, so a
             // stray space could otherwise slip through. Keep them as STRINGS — an
@@ -456,21 +479,6 @@ class TransactionController extends Controller
             }
             $cvv = preg_replace('/\D/', '', (string) $request->input('card_cvv'));
 
-            $w = Website::find($request->website_id);
-
-            if ($w->authorize_app_key != null) {
-                // Club uses its own Authorize.Net account.
-                $app = $w->authorize_app_key;
-                $secret = $w->authorize_secret_key;
-                $usesGlobalKeys = false;
-            } else {
-                // Club uses the global Authorize.Net account.
-                $app = $setting->authorize_key;
-                $secret = $setting->authorize_secret;
-                $usesGlobalKeys = true;
-            }
-            
-
             $merchantAuthentication = new AnetAPI\MerchantAuthenticationType();
             $merchantAuthentication->setName($app);
             $merchantAuthentication->setTransactionKey($secret);
@@ -479,21 +487,14 @@ class TransactionController extends Controller
             $creditCard->setCardNumber($cardNumber);
             $creditCard->setExpirationDate($expirationDate);
             $creditCard->setCardCode($cvv);
-    
+
             $payment = new AnetAPI\PaymentType();
             $payment->setCreditCard($creditCard);
-    
+
             $transactionRequestType = new AnetAPI\TransactionRequestType();
-    
             $transactionRequestType->setTransactionType("authCaptureTransaction");
-    
-            // Sanitize the amount: a raw (float) cast of "16,000.00" silently
-            // becomes 16, so strip separators/symbols first, then send a plain
-            // 2-decimal string with no thousands separator to Authorize.Net.
-            $amount = $this->sanitizeAmount($request->total);
-            if ($amount <= 0) {
-                return back()->with('error', 'Invalid order amount. You have not been charged. Please refresh the page and try again.');
-            }
+            // Send a plain 2-decimal string with no thousands separator. For free
+            // packages this becomes 0.00 and still goes through Authorize.Net.
             $transactionRequestType->setAmount(number_format($amount, 2, '.', ''));
             $transactionRequestType->setPayment($payment);
 
@@ -523,7 +524,7 @@ class TransactionController extends Controller
             $requests->setMerchantAuthentication($merchantAuthentication);
             $requests->setRefId('ref' . uniqid());
             $requests->setTransactionRequest($transactionRequestType);
-    
+
             $controller = new AnetController\CreateTransactionController($requests);
             try {
                 $response = $controller->executeWithApiResponse($this->authorizeNetEnvironment($w, $setting, $usesGlobalKeys));
