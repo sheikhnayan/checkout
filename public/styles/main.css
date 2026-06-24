@@ -884,7 +884,7 @@ footer {
  .vip-card p{
     font-size: 12px;
     line-height: 12px;
-    height: 12px;
+    height: auto;
     color: #646464;
     /* margin-bottom: 30px; */
  }

@@ -4294,6 +4294,16 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* Modal-only tooltip mode: disable pseudo-tooltip rendering on hover/focus */
+[data-tip]:hover::after,
+[data-tip]:focus-visible::after,
+[data-tip]:hover::before,
+[data-tip]:focus-visible::before {
+    content: none !important;
+    display: none !important;
+    animation: none !important;
+}
+
 /* Hide the redundant breakdown lines the user wants removed */
 #cv-order-sidebar #cart-total,
 #cv-order-sidebar #cart-section .cart-heading,
@@ -7229,6 +7239,60 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 // Re-inject after JS moves pricing-shell into the sidebar.
                 setTimeout(inject, 50);
                 setTimeout(inject, 500);
+            })();
+
+            // Open order-summary tips in the info modal on click (no hover tooltip).
+            (function () {
+                function escapeHtml(text) {
+                    return String(text || '').replace(/[&<>"']/g, function (char) {
+                        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char];
+                    });
+                }
+
+                function resolveTitle(trigger) {
+                    if (trigger.classList.contains('default-service-charge')) return 'Service Charge';
+                    if (trigger.classList.contains('default-sales-tax')) return 'Sales Tax';
+                    if (trigger.classList.contains('default-gratuity')) return 'Gratuity';
+                    if (trigger.classList.contains('default-processing-fee')) return 'Processing Fee';
+                    if (trigger.classList.contains('cv-deposit-label')) return 'Due Today';
+                    if (trigger.classList.contains('cv-deposit-shield')) return 'Secure Checkout';
+
+                    var label = trigger.querySelector('span');
+                    if (label) {
+                        var text = String(label.textContent || '').trim();
+                        if (text) return text.replace(/\bi\s*$/i, '').trim();
+                    }
+                    return 'Details';
+                }
+
+                function openTipModal(trigger) {
+                    var tip = String(trigger.getAttribute('data-tip') || '').trim();
+                    if (!tip) return;
+
+                    var modal = document.querySelector('.modal:not(.fade)');
+                    if (!modal) return;
+
+                    var modalTitle = modal.querySelector('.modal-title');
+                    var modalBody = modal.querySelector('.modal-body');
+                    if (modalTitle) modalTitle.textContent = resolveTitle(trigger);
+                    if (modalBody) modalBody.innerHTML = '<p style="color: #000 !important;">' + escapeHtml(tip) + '</p>';
+
+                    if (window.bootstrap && window.bootstrap.Modal) {
+                        window.bootstrap.Modal.getOrCreateInstance(modal).show();
+                        return;
+                    }
+                    if (window.jQuery && window.jQuery.fn && window.jQuery.fn.modal) {
+                        window.jQuery(modal).modal('show');
+                    }
+                }
+
+                document.addEventListener('click', function (event) {
+                    var trigger = event.target.closest('#cv-order-sidebar [data-tip], #cv-deposit-box [data-tip]');
+                    if (!trigger) return;
+                    event.preventDefault();
+                    event.stopPropagation();
+                    openTipModal(trigger);
+                });
             })();
         </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
