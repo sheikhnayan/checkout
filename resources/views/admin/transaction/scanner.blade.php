@@ -17,6 +17,30 @@
     #retakeBackPhotoBtn   { background:#d97706 !important; border-color:#d97706 !important; color:#fff !important; }
     #retakePhotosBtn      { background:#db2777 !important; border-color:#db2777 !important; color:#fff !important; }
     #cameraSwitchBtn      { background:#0ea5e9 !important; border-color:#0ea5e9 !important; color:#fff !important; }
+
+    /* Tablet/iPad-only tuning: make the ID capture surface larger without changing mobile. */
+    @media (hover: none) and (pointer: coarse) and (min-width: 768px) {
+        #photoCaptureSection > .border-2.rounded-3.p-0.mb-3 {
+            height: 420px !important;
+        }
+
+        #photoCameraFeed,
+        #idFrameGuide,
+        #photoFlash,
+        #photoCapturedCheck,
+        #noCameraMsg {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        #noCameraMsg {
+            padding: 4.5rem !important;
+        }
+
+        #photoCapturedCheck {
+            font-size: 84px !important;
+        }
+    }
 </style>
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
