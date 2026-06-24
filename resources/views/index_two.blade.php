@@ -5185,7 +5185,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 14px;
-            margin-top: 6px;
+            margin-top: 30px;
         }
 
         .cv-pkg-feature {
