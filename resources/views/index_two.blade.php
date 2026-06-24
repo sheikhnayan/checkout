@@ -5161,6 +5161,9 @@
 
         .cv-pkg-title-row { display: flex; align-items: center; gap: 10px; }
         .cv-pkg-title-icon { font-size: 22px; flex-shrink: 0; color: var(--tier-accent, #fff) !important; }
+        .cv-pkg-tooltip-trigger { width: 20px; height: 20px; border: 1px solid rgba(255,255,255,0.42); border-radius: 999px; background: rgba(255,255,255,0.08); color: #fff; font-size: 12px; font-weight: 700; line-height: 1; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; transition: background-color .15s ease, border-color .15s ease; }
+        .cv-pkg-tooltip-trigger:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.65); }
+        .cv-pkg-tooltip-trigger:focus-visible { outline: 2px solid rgba(255,255,255,0.7); outline-offset: 2px; }
 
         .cv-pkg-title {
             font-size: 26px;
@@ -6038,6 +6041,7 @@
                                                             <div class="cv-pkg-title-row">
                                                                 <i class="{{ $pkgTierIcon }} cv-pkg-title-icon"></i>
                                                                 <div class="cv-pkg-title">{{ $item->name }}</div>
+                                                                <button type="button" class="cv-pkg-tooltip-trigger" aria-label="View package details">i</button>
                                                             </div>
                                                             @if($pkgIsTicket)
                                                                 <span class="cv-pkg-sub"><i class="fas fa-ticket-alt"></i>1 ticket per person</span>
@@ -9217,7 +9221,7 @@
             }
 
             document.addEventListener('click', function(evt) {
-                const tooltipTrigger = evt.target.closest('.cv-pkg-title-icon');
+                const tooltipTrigger = evt.target.closest('.cv-pkg-tooltip-trigger');
                 if (!tooltipTrigger) {
                     return;
                 }
