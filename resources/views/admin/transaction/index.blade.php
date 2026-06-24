@@ -1910,6 +1910,28 @@ body.modal-open .admin-mobile-menu-toggle {
                     return (hours < 10 ? '0' : '') + hours + ':' + minutes + ' ' + ampm;
                 };
 
+                var formatDateUS = function(dateValue) {
+                    var raw = String(dateValue || '').trim();
+                    if (!raw) {
+                        return 'N/A';
+                    }
+
+                    var match = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+                    if (match) {
+                        return match[2] + '/' + match[3] + '/' + match[1];
+                    }
+
+                    var parsed = new Date(raw);
+                    if (!isNaN(parsed.getTime())) {
+                        var month = String(parsed.getMonth() + 1).padStart(2, '0');
+                        var day = String(parsed.getDate()).padStart(2, '0');
+                        var year = parsed.getFullYear();
+                        return month + '/' + day + '/' + year;
+                    }
+
+                    return raw;
+                };
+
                 var esc = function(value) {
                     return String(value == null ? '' : value)
                         .replace(/&/g, '&amp;')
@@ -1947,6 +1969,23 @@ body.modal-open .admin-mobile-menu-toggle {
                 var entAmt = parseFloat($(this).data('entertainer_commission_amount')) || 0;
                 var entStatus = String($(this).data('entertainer_commission_status') || '').trim();
                 var entHold = String($(this).data('entertainer_commission_hold_until') || '').trim();
+                var transactionType = String($(this).data('type') || '').trim().toLowerCase();
+
+                var menCount = parseInt($(this).data('men'), 10);
+                if (isNaN(menCount)) menCount = 0;
+                var womenCount = parseInt($(this).data('women'), 10);
+                if (isNaN(womenCount)) womenCount = 0;
+                var guestCount = parseInt($(this).data('package_number_of_guest'), 10);
+                if (isNaN(guestCount)) guestCount = 0;
+
+                if (transactionType === 'reservation' && guestCount <= 0) {
+                    guestCount = Math.max(menCount + womenCount, 0);
+                }
+
+                var guestsDisplay = String(guestCount);
+                if (transactionType === 'reservation') {
+                    guestsDisplay += ' (M: ' + menCount + ', W: ' + womenCount + ')';
+                }
 
                 var businessInfo = [
                     $(this).data('business_company'),
@@ -1984,10 +2023,10 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row('Guest', ($(this).data('package_first_name') || '') + ' ' + ($(this).data('package_last_name') || ''));
                 html += row('Email', $(this).data('package_email') || '');
                 html += row('Phone', $(this).data('package_phone') || '');
-                html += row('DOB', $(this).data('package_dob') || 'N/A');
+                html += row('DOB', formatDateUS($(this).data('package_dob')));
                 html += row('Order Items', $(this).data('package_id') || '');
-                html += row('Date Of Use', $(this).data('package_use_date') || '');
-                html += row('Guests', ($(this).data('package_number_of_guest') || '0') + ' (M: ' + ($(this).data('men') || 0) + ', W: ' + ($(this).data('women') || 0) + ')');
+                html += row('Date Of Use', formatDateUS($(this).data('package_use_date')));
+                html += row('Guests', guestsDisplay);
                 html += row('Host Name', $(this).data('host_name') || 'N/A');
                 html += row('Notes', $(this).data('package_note') || 'N/A');
                 html += '</div>';
@@ -2001,7 +2040,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row('Payment Phone', $(this).data('payment_phone') || 'N/A');
                 html += row('Payment Address', [$(this).data('payment_address'), $(this).data('payment_city'), $(this).data('payment_state'), $(this).data('payment_zip_code')].filter(Boolean).join(', '));
                 html += row('Payment Country', $(this).data('payment_country') || 'N/A');
-                html += row('Payment DOB', $(this).data('payment_dob') || 'N/A');
+                html += row('Payment DOB', formatDateUS($(this).data('payment_dob')));
                 html += row('Promo Code', $(this).data('promo_code') || 'N/A');
                 html += row('Discounted Amount', money($(this).data('discounted_amount') || 0));
                 html += row('Subtotal', money(totalAmount));
