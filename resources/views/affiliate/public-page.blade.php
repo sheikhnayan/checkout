@@ -3232,8 +3232,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .events-section-container .event-card .card > img { height: 180px !important; }
 }
 
-/* ====== ADDON MODAL - vibrant purple package-style ====== */
-#addonSelectionModal .modal-content {
+/* ====== ADDON + TOOLTIP MODALS - unified package-style background ====== */
+#addonSelectionModal .modal-content,
+#infoTooltipModal .modal-content {
     background: linear-gradient(180deg, rgba(36,18,58,0.96), rgba(18,10,32,0.98)) !important;
     border: 1px solid rgba(167,116,255,0.4) !important;
     border-radius: 20px !important;
