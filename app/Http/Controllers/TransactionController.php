@@ -1295,6 +1295,33 @@ class TransactionController extends Controller
             return '<div class="txn-detail-row"><span class="txn-detail-label">' . $label . '</span><span class="txn-detail-value">' . $value . '</span></div>';
         };
 
+        $formatDate = static function ($value, string $fallback = 'N/A'): string {
+            $raw = trim((string) ($value ?? ''));
+            if ($raw === '') {
+                return $fallback;
+            }
+
+            try {
+                return \Carbon\Carbon::parse($raw)->format('m/d/Y');
+            } catch (\Throwable $e) {
+                return $raw;
+            }
+        };
+
+        $isReservationType = strtolower(trim((string) ($transaction->type ?? ''))) === 'reservation';
+        $guestCount = (int) ($transaction->package_number_of_guest ?? 0);
+        $menCount = (int) ($transaction->men ?: $transaction->package_men ?: 0);
+        $womenCount = (int) ($transaction->women ?: $transaction->package_women ?: 0);
+
+        if ($isReservationType && $guestCount <= 0) {
+            $guestCount = max($menCount + $womenCount, 0);
+        }
+
+        $guestDisplay = (string) $guestCount;
+        if ($isReservationType) {
+            $guestDisplay .= ' (M: ' . $menCount . ', W: ' . $womenCount . ')';
+        }
+
         $dateText = $transaction->created_at
             ? $transaction->created_at->timezone('America/Los_Angeles')->format('M d, Y h:i A')
             : '';
@@ -1328,10 +1355,10 @@ class TransactionController extends Controller
         $html .= $row('Guest', $esc(trim(($transaction->package_first_name ?? '') . ' ' . ($transaction->package_last_name ?? ''))));
         $html .= $row('Email', $esc($transaction->package_email));
         $html .= $row('Phone', $esc($transaction->package_phone));
-        $html .= $row('DOB', $esc($transaction->package_dob ?: 'N/A'));
+        $html .= $row('DOB', $esc($formatDate($transaction->package_dob)));
         $html .= $row('Order Items', $esc($transaction->package_table_label));
-        $html .= $row('Date Of Use', $esc($transaction->package_use_date));
-        $html .= $row('Guests', $esc((string) ($transaction->package_number_of_guest ?? 0) . ' (M: ' . (int) ($transaction->package_men ?? 0) . ', W: ' . (int) ($transaction->package_women ?? 0) . ')'));
+        $html .= $row('Date Of Use', $esc($formatDate($transaction->package_use_date)));
+        $html .= $row('Guests', $esc($guestDisplay));
         $html .= $row('Notes', $esc($transaction->package_note ?: 'N/A'));
         $html .= '</div></div>';
 
@@ -1346,7 +1373,7 @@ class TransactionController extends Controller
             $transaction->payment_zip_code ?? null,
         ], static fn ($v) => trim((string) $v) !== '')))));
         $html .= $row('Payment Country', $esc($transaction->payment_country ?: 'N/A'));
-        $html .= $row('Payment DOB', $esc($transaction->payment_dob ?: 'N/A'));
+        $html .= $row('Payment DOB', $esc($formatDate($transaction->payment_dob)));
         $html .= $row('Promo Code', $esc($transaction->promo_code ?: 'N/A'));
         $html .= $row('Discounted Amount', $esc($money($transaction->discount ?? 0)));
         $html .= $row('Subtotal', $esc($money($transaction->sub_total ?? 0)));
