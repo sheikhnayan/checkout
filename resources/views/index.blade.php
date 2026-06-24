@@ -4497,7 +4497,7 @@ input[type="checkbox"],
 .cv-pkg-sub { font-size: 12.5px; color: rgba(255,255,255,0.62) !important; display: inline-flex; align-items: center; gap: 6px; }
 .cv-pkg-sub i { font-size: 12px; opacity: .7; }
 .cv-pkg-desc { font-size: 13px; color: rgba(255,255,255,0.62) !important; line-height: 1.5; margin: 0; }
-.cv-pkg-features { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 30px; }
+.cv-pkg-features { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 50px; }
 .cv-pkg-feature { font-size: 11.5px; color: rgba(255,255,255,0.65) !important; display: inline-flex; align-items: center; gap: 5px; }
 .cv-pkg-feature i { color: var(--tier-accent, rgba(255,255,255,0.76)) !important; font-size: 11px; opacity: .9; }
 .vip-card.cv-exact-card .vip-card-side { display: flex; flex-direction: column; justify-content: space-between; align-items: stretch; gap: 6px; grid-template-columns: none !important; flex: initial; text-align: right; }
