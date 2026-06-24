@@ -6291,9 +6291,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 <div class="num-guest" style="width: 100%; display: flex;">
                                                                     <label for="">Number of Guest(s)</label>
     
-                                                                    <input type="text" class="form-control"
-                                                                        name="transportation_guest" placeholder="e.g. John Smith" required
-                                                                        style="width: 120px; max-width: 120px; color: #fff;"  />
+                                                                    <input type="number" class="form-control"
+                                                                        name="transportation_guest" value="0" min="0" required
+                                                                        style="width: 120px; max-width: 120px; color: #fff;" />
     
     
     
@@ -7396,8 +7396,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     transportationAddressField.prop('required', true).attr('aria-required', 'true');
                     transportationPickupTimeField.prop('required', true).attr('aria-required', 'true');
                     transportationGuestField.prop('required', true).attr('aria-required', 'true');
-                    if (!Number.isFinite(parseInt(transportationGuestField.val(), 10)) || parseInt(transportationGuestField.val(), 10) < 1) {
-                        transportationGuestField.val('1');
+                    if (!Number.isFinite(parseInt(transportationGuestField.val(), 10)) || parseInt(transportationGuestField.val(), 10) < 0) {
+                        transportationGuestField.val('0');
                     }
                     pickupDateField.prop('required', true).attr('aria-required', 'true');
                     driverNotificationConsentWrap.css('display', 'flex');
@@ -8567,11 +8567,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     }
                 }
 
-                // Auto-fill empty transportation_guest field with 1 if transportation required
+                // Keep transportation guest default at 0 until user explicitly sets a value > 0.
                 if (stepNumber === 2 && window.requiresTransportation) {
                     const guestField = $('[name="transportation_guest"]');
-                    if (!guestField.val() || parseInt(guestField.val(), 10) < 1) {
-                        guestField.val('1');
+                    if (!guestField.val() || !Number.isFinite(parseInt(guestField.val(), 10))) {
+                        guestField.val('0');
                     }
                 }
 
@@ -8598,21 +8598,20 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     }
                 }
 
-                // Transportation validation removed - allow form to proceed
-                // if (stepNumber === 2 && window.requiresTransportation) {
-                //     const transportationGuestField = $('[name="transportation_guest"]');
-                //     const transportationGuestValue = parseInt(transportationGuestField.val(), 10);
-                //     if (!Number.isFinite(transportationGuestValue) || transportationGuestValue < 1) {
-                //         transportationGuestField.addClass('required-field');
-                //         isValid = false;
-                //         firstInvalidField = firstInvalidField || transportationGuestField;
-                //         alertMessage = 'Please enter Number of Guest(s) in Transportation (minimum 1).';
-                //     }
-                // }
+                if (stepNumber === 2 && window.requiresTransportation) {
+                    const transportationGuestField = $('[name="transportation_guest"]');
+                    const transportationGuestValue = parseInt(transportationGuestField.val(), 10);
+                    if (!Number.isFinite(transportationGuestValue) || transportationGuestValue < 1) {
+                        transportationGuestField.addClass('required-field');
+                        isValid = false;
+                        firstInvalidField = firstInvalidField || transportationGuestField;
+                        alertMessage = 'Please enter Number of Guest(s) in Transportation (minimum 1).';
+                    }
+                }
 
-                // if (!isValid && stepNumber === 2 && window.requiresTransportation && alertMessage === 'Please fill in all required fields.') {
-                //     alertMessage = 'Please complete the required transportation details before proceeding.';
-                // }
+                if (!isValid && stepNumber === 2 && window.requiresTransportation && alertMessage === 'Please fill in all required fields.') {
+                    alertMessage = 'Please complete the required transportation details before proceeding.';
+                }
 
                 // Require a valid country code selection on any visible phone country-code picker.
                 // The picker's code box is a searchable text input; if the user typed search text and
@@ -10860,13 +10859,35 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
     <script>
     (function () {
-        // AJAX checkout/reservation submit: on a server error keep the page state and show
-        // the same notification (no reload); on success navigate to thank-you as usual.
+        // AJAX checkout/reservation submit: keep exact page state on failure and show
+        // inline error; keep normal success redirect behavior.
         function isCheckoutForm(form) {
             var a = (form.getAttribute('action') || '');
             return a.indexOf('/checkout/store') !== -1
                 || a.indexOf('/reservation/store') !== -1
                 || a.indexOf('/reservations/store') !== -1;
+        }
+
+        function captureCheckoutState() {
+            var activeSection = document.querySelector('.checkout-section.active[id^="section-"]');
+            return {
+                activeSectionId: activeSection ? activeSection.id : null,
+                scrollY: window.pageYOffset || document.documentElement.scrollTop || 0
+            };
+        }
+
+        function restoreCheckoutState(snapshot) {
+            if (!snapshot) return;
+            if (snapshot.activeSectionId) {
+                var m = /^section-(\d+)$/.exec(snapshot.activeSectionId);
+                if (m && typeof window.showStep === 'function') {
+                    var step = parseInt(m[1], 10);
+                    if (Number.isFinite(step)) {
+                        try { window.showStep(step); } catch (e) {}
+                    }
+                }
+            }
+            try { window.scrollTo(0, snapshot.scrollY || 0); } catch (e) {}
         }
 
         function restoreButtons() {
@@ -10882,18 +10903,23 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             });
         }
 
-        function showCheckoutError(message) {
+        function showCheckoutError(form, message, snapshot) {
             restoreButtons();
+            restoreCheckoutState(snapshot);
+
             var prev = document.getElementById('cv-ajax-error-alert');
             if (prev && prev.parentNode) prev.parentNode.removeChild(prev);
+
             var alertEl = document.createElement('div');
             alertEl.className = 'alert alert-danger';
             alertEl.setAttribute('role', 'alert');
             alertEl.id = 'cv-ajax-error-alert';
             alertEl.textContent = message || 'Something went wrong. Please try again.';
-            var container = document.querySelector('header .container') || document.body;
-            container.insertBefore(alertEl, container.firstChild);
-            try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); }
+
+            var mount = form.closest('.checkout-section.active')
+                || form.closest('.checkout-section')
+                || form;
+            mount.insertBefore(alertEl, mount.firstChild);
         }
 
         function extractError(json) {
@@ -10901,42 +10927,59 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             if (json.error) return json.error;
             if (json.errors && typeof json.errors === 'object') {
                 var keys = Object.keys(json.errors);
-                if (keys.length) { var v = json.errors[keys[0]]; return Array.isArray(v) ? v[0] : v; }
+                if (keys.length) {
+                    var v = json.errors[keys[0]];
+                    return Array.isArray(v) ? v[0] : v;
+                }
             }
             return json.message || null;
         }
 
         function submitCheckoutAjax(form) {
-            // Show the same processing loader used by the package checkout (covers the reservation form too).
+            if (form.dataset.ajaxSubmitting === '1') return;
+            form.dataset.ajaxSubmitting = '1';
+
+            var snapshot = captureCheckoutState();
             if (typeof showCheckoutProcessingOverlay === 'function') { try { showCheckoutProcessingOverlay(); } catch (e) {} }
-            // Retries append a fresh Stripe token each time; only send the latest.
+
             var tokens = form.querySelectorAll('input[name="stripeToken"]');
             for (var i = 0; i < tokens.length - 1; i++) {
                 if (tokens[i].parentNode) tokens[i].parentNode.removeChild(tokens[i]);
             }
+
             fetch(form.getAttribute('action'), {
                 method: 'POST',
                 body: new FormData(form),
                 headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
                 credentials: 'same-origin'
             }).then(function (res) {
-                return res.text().then(function (t) { try { return JSON.parse(t); } catch (e) { return null; } });
-            }).then(function (json) {
-                if (json && json.success && json.redirect) { window.location.href = json.redirect; return; }
-                showCheckoutError(extractError(json));
+                return res.text().then(function (t) {
+                    var json = null;
+                    try { json = JSON.parse(t); } catch (e) {}
+                    return { ok: res.ok, json: json };
+                });
+            }).then(function (result) {
+                if (result.json && result.json.success && result.json.redirect) {
+                    window.location.href = result.json.redirect;
+                    return;
+                }
+                form.dataset.ajaxSubmitting = '0';
+                showCheckoutError(form, extractError(result.json), snapshot);
             }).catch(function () {
-                showCheckoutError('Network error. Please check your connection and try again.');
+                form.dataset.ajaxSubmitting = '0';
+                showCheckoutError(form, 'Network error. Please check your connection and try again.', snapshot);
             });
         }
 
         document.addEventListener('DOMContentLoaded', function () {
             Array.prototype.forEach.call(document.querySelectorAll('form'), function (form) {
                 if (!isCheckoutForm(form)) return;
-                // Programmatic submits (Stripe + reservation call form.submit() after their checks).
+                if (form.dataset.ajaxCheckoutBound === '1') return;
+                form.dataset.ajaxCheckoutBound = '1';
+
                 form.submit = function () { submitCheckoutAjax(form); };
-                // Native submits that passed every existing validation handler (e.g. Authorize.Net).
                 form.addEventListener('submit', function (e) {
-                    if (e.defaultPrevented) return; // an existing handler is already handling it
+                    if (e.defaultPrevented) return;
                     e.preventDefault();
                     submitCheckoutAjax(form);
                 });
