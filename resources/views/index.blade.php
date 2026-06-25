@@ -8656,6 +8656,18 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                         body.style.overflowY = '';
                         body.style.webkitOverflowScrolling = '';
                     }
+
+                    if (!document.querySelector('.modal.show')) {
+                        document.body.classList.remove('modal-open');
+                        document.body.style.overflow = '';
+                        document.body.style.overflowY = '';
+                        document.body.style.paddingRight = '';
+                        document.documentElement.style.overflow = '';
+                        document.documentElement.style.overflowY = '';
+                        document.querySelectorAll('.modal-backdrop').forEach(function(backdrop) {
+                            backdrop.remove();
+                        });
+                    }
                 });
                 window.addEventListener('resize', function() {
                     adjustAddonModalScrollArea(false);
