@@ -4893,6 +4893,30 @@ input[type="checkbox"],
     .hero-gallery-grid { display: none !important; }
 }
 
+/* Embed-only checkout mode: keep forms and purchase flow, hide page chrome. */
+body.embed-checkout-mode .cv-top-nav,
+body.embed-checkout-mode .mobile-top-actions,
+body.embed-checkout-mode > header,
+body.embed-checkout-mode .cv-events-shell,
+body.embed-checkout-mode .aff-footer {
+    display: none !important;
+}
+body.embed-checkout-mode main {
+    padding-top: 12px;
+}
+body.embed-checkout-mode main .container.mt-4 {
+    margin-top: 0 !important;
+    max-width: 1220px;
+}
+body.embed-checkout-mode .cv-checkout-body {
+    margin-top: 0;
+}
+@media (max-width: 991px) {
+    body.embed-checkout-mode main {
+        padding-top: 8px;
+    }
+}
+
         /* Scale down reCAPTCHA badge */
         .grecaptcha-badge {
             z-index: 9999 !important;
@@ -4944,7 +4968,7 @@ input[type="checkbox"],
         @endif
     </head>
 
-    <body>
+    <body class="{{ !empty($isIframeCheckout) ? 'embed-checkout-mode' : '' }}">
         <div class="background-glow"></div>
 
         {{-- New CartVIP Navbar --}}
@@ -5049,6 +5073,9 @@ input[type="checkbox"],
                         $packagesPageUrl = route('index', $data->slug);
                         if (request()->filled('aff')) {
                             $packagesPageUrl .= '?aff=' . urlencode((string) request()->input('aff'));
+                        }
+                        if (!empty($isIframeCheckout)) {
+                            $packagesPageUrl .= (strpos($packagesPageUrl, '?') !== false ? '&' : '?') . 'embed=1';
                         }
                     @endphp
                     <div class="cv-hero-inner">
@@ -6308,7 +6335,7 @@ input[type="checkbox"],
 
                     {{-- Location info now lives in the hero (.cv-hero-location). Original section removed to avoid duplication. --}}
 
-                <section>
+                <section class="cv-events-shell">
                     <div class="container py-5 events-section-container">
                         <div class="event-header">
                             <h2>Upcoming Events</h2>

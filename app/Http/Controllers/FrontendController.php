@@ -19,6 +19,8 @@ class FrontendController extends Controller
 {
     public function index($slug, Request $request)
     {
+        $isIframeCheckout = $request->boolean('embed');
+
         // Get only active, non-archived website by slug
         $data = Website::where('slug', $slug)
             ->where('status', 1)
@@ -85,7 +87,7 @@ class FrontendController extends Controller
 
                 $data->setRelation('events', $this->activeWebsiteEvents($data->id));
 
-                return view('index', compact('data', 'event', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup'));
+                return view('index', compact('data', 'event', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout'));
             }
         }
 
@@ -93,7 +95,7 @@ class FrontendController extends Controller
 
         $data->setRelation('events', $this->activeWebsiteEvents($data->id));
 
-        return view('index_two', compact('data', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup'));
+        return view('index_two', compact('data', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout'));
 
     }
 

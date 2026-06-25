@@ -135,6 +135,14 @@
                                                                     <a href="{{ route('admin.website.payment-settings', $item->id) }}" class="btn btn-info btn-sm" title="Payment Settings">
                                                                         <i class="fas fa-credit-card"></i>
                                                                     </a>
+                                                                    <button
+                                                                        type="button"
+                                                                        class="btn btn-dark btn-sm js-copy-embed"
+                                                                        title="Copy Embed Code"
+                                                                        data-embed-url="{{ url('/' . $item->slug) }}?embed=1"
+                                                                        onclick="copyWebsiteEmbedCode(this)">
+                                                                        <i class="fas fa-code"></i>
+                                                                    </button>
                                                                 </div>
                                                                 <form action="/admins/website/archive/{{ $item->id }}" method="POST" style="display:inline;">
                                                                     @csrf
@@ -215,6 +223,34 @@
             <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
             <script>
+                function copyWebsiteEmbedCode(button) {
+                    const embedUrl = button.getAttribute('data-embed-url');
+                    if (!embedUrl) {
+                        return;
+                    }
+
+                    const iframeCode = '<iframe src="' + embedUrl + '" width="100%" height="1400" style="border:0;max-width:100%;" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="payment"></iframe>';
+
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(iframeCode).then(function() {
+                            const originalTitle = button.title;
+                            button.title = 'Copied';
+                            button.classList.remove('btn-dark');
+                            button.classList.add('btn-success');
+                            setTimeout(function() {
+                                button.title = originalTitle;
+                                button.classList.remove('btn-success');
+                                button.classList.add('btn-dark');
+                            }, 1400);
+                        }).catch(function() {
+                            window.prompt('Copy embed code:', iframeCode);
+                        });
+                        return;
+                    }
+
+                    window.prompt('Copy embed code:', iframeCode);
+                }
+
                 $(document).ready(function() {
                     // Only initialize each table once
                     let table = new DataTable('#activeWebsitesTable');
