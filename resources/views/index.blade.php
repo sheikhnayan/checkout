@@ -8964,13 +8964,28 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                         firstInvalidField.trigger('focus');
                         firstInvalidField[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
                         if (firstInvalidField.is('[name="transportation_pickup_time"]')) {
-                            firstInvalidField.prop('disabled', false).prop('readonly', false);
+                            firstInvalidField.prop('disabled', false).prop('readonly', false)
+                                .removeAttr('disabled').removeAttr('readonly');
                             setTimeout(function() {
                                 var timeInput = firstInvalidField[0];
-                                if (timeInput && timeInput._flatpickr) {
-                                    timeInput._flatpickr.open();
+                                if (!timeInput) {
+                                    return;
                                 }
-                            }, 80);
+                                var fp = timeInput._flatpickr;
+                                if (fp) {
+                                    try { fp.close(); } catch (e) {}
+                                    try { fp._input && fp._input.focus(); } catch (e) {}
+                                    try { fp.open(); } catch (e) {}
+                                    setTimeout(function() {
+                                        if (fp && !fp.isOpen) {
+                                            try { fp.open(); } catch (e) {}
+                                        }
+                                    }, 120);
+                                    return;
+                                }
+                                timeInput.focus();
+                                timeInput.click();
+                            }, 120);
                         }
                     }
                 }
