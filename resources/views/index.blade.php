@@ -4922,14 +4922,6 @@ body.embed-checkout-mode .iframe-date-card label {
 }
 body.embed-checkout-mode {
     overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: auto;
-    touch-action: pan-y;
-}
-body.embed-checkout-mode main,
-body.embed-checkout-mode .cv-checkout-body {
-    touch-action: pan-y;
 }
 body.embed-checkout-mode main .container.mt-4 {
     padding-left: clamp(16px, 6vw, 100px) !important;
@@ -10632,35 +10624,6 @@ body.embed-checkout-mode main .container.mt-4 {
                 el.blur();
             }
         });
-    })();
-    </script>
-
-    <script>
-    (function () {
-        if (!document.body.classList.contains('embed-checkout-mode')) return;
-        var isIosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-        if (!isIosDevice) return;
-
-        var startY = 0;
-        document.addEventListener('touchstart', function (e) {
-            if (!e.touches || !e.touches.length) return;
-            startY = e.touches[0].clientY;
-        }, { passive: true });
-
-        document.addEventListener('touchmove', function (e) {
-            if (!e.touches || !e.touches.length) return;
-            var scroller = document.scrollingElement || document.documentElement || document.body;
-            if (!scroller) return;
-
-            var currentY = e.touches[0].clientY;
-            var isPullingDown = currentY > startY;
-            var atTop = scroller.scrollTop <= 0;
-            var atBottom = Math.ceil(scroller.scrollTop + scroller.clientHeight) >= scroller.scrollHeight;
-
-            if ((atTop && isPullingDown) || (atBottom && !isPullingDown)) {
-                e.preventDefault();
-            }
-        }, { passive: false });
     })();
     </script>
 
