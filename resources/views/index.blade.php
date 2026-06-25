@@ -8711,18 +8711,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                 window.dispatchEvent(new CustomEvent('embed:category-toggle'));
                                 scrollToCheckout();
                             };
-
-                            if (window.requestAnimationFrame) {
-                                requestAnimationFrame(function () {
-                                    requestAnimationFrame(runSettledCheckoutScroll);
-                                });
-                            } else {
-                                setTimeout(runSettledCheckoutScroll, 60);
-                            }
-
-                            setTimeout(runSettledCheckoutScroll, 180);
-                            setTimeout(runSettledCheckoutScroll, 420);
-                            setTimeout(runSettledCheckoutScroll, 760);
+                            setTimeout(runSettledCheckoutScroll, 800);
                         }
                     }
                     delete this.dataset.returnScrollY;
