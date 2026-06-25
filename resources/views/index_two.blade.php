@@ -9241,36 +9241,49 @@
                         if (shouldRestoreScrollOnHide) {
                             window.scrollTo({ top: isNaN(returnScrollY) ? 0 : returnScrollY, behavior: 'auto' });
                         } else if (shouldScrollToCheckoutOnHide) {
-                            let scrollToCheckout = function () {
-                                let targetSection = document.getElementById('section-1') || document.querySelector('.checkout-section.active');
-                                if (targetSection && targetSection.scrollIntoView) {
-                                    targetSection.scrollIntoView({ behavior: 'auto', block: 'start' });
-                                } else {
-                                    window.scrollTo({ top: 0, behavior: 'auto' });
-                                }
+                            let waitForToastAndScrollBottom = function () {
+                                let attempts = 0;
+                                let maxAttempts = 20;
+                                let poll = setInterval(function () {
+                                    attempts += 1;
+                                    let toast = document.getElementById('cv-cart-toast');
+                                    let toastVisible = !!(toast && toast.classList.contains('is-visible'));
+                                    if (!toastVisible && attempts < maxAttempts) {
+                                        return;
+                                    }
+                                    clearInterval(poll);
+
+                                    let completed = false;
+                                    let onHeightPosted = null;
+                                    let finalizeScroll = function () {
+                                        if (completed) {
+                                            return;
+                                        }
+                                        completed = true;
+                                        if (onHeightPosted) {
+                                            window.removeEventListener('embed:height-posted', onHeightPosted);
+                                        }
+                                        window.parent.postMessage({ type: 'checkoutScrollToIframe' }, '*');
+                                        setTimeout(function () {
+                                            let bottom = Math.max(
+                                                document.documentElement ? document.documentElement.scrollHeight : 0,
+                                                document.body ? document.body.scrollHeight : 0
+                                            );
+                                            window.scrollTo({ top: bottom, behavior: 'auto' });
+                                        }, 120);
+                                    };
+
+                                    onHeightPosted = function () {
+                                        finalizeScroll();
+                                    };
+
+                                    window.addEventListener('embed:height-posted', onHeightPosted);
+                                    window.dispatchEvent(new CustomEvent('embed:category-toggle'));
+                                    setTimeout(finalizeScroll, 1500);
+                                }, 100);
                             };
 
-                            let completed = false;
-                            let onHeightPosted = null;
-                            let finalizeScroll = function () {
-                                if (completed) {
-                                    return;
-                                }
-                                completed = true;
-                                if (onHeightPosted) {
-                                    window.removeEventListener('embed:height-posted', onHeightPosted);
-                                }
-                                window.parent.postMessage({ type: 'checkoutScrollToIframe' }, '*');
-                                setTimeout(scrollToCheckout, 120);
-                            };
-
-                            onHeightPosted = function () {
-                                finalizeScroll();
-                            };
-
-                            window.addEventListener('embed:height-posted', onHeightPosted);
-                            window.dispatchEvent(new CustomEvent('embed:category-toggle'));
-                            setTimeout(finalizeScroll, 1500);
+                            waitForToastAndScrollBottom();
                         }
                     }
                     delete this.dataset.returnScrollY;
