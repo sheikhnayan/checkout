@@ -5646,6 +5646,7 @@
                         $heroImage = asset('images/logo.png');
                     }
                 @endphp
+                @if (empty($isSinglePackageCheckout))
                 <section class="cv-hero-stage" style="background-image:url('{{ $heroImage }}');">
                     <div class="cv-hero-inner">
                         <div class="cv-hero-head">
@@ -5731,6 +5732,7 @@
                         </div>
                     </div>
                 </section>
+                @endif
 
                 @if(!empty($data->gallery_images))
                     <div class="hero-gallery-grid">
@@ -5776,12 +5778,25 @@
                 </button>
                 <div class="cv-main-col" id="cv-checkout-main">
                     <div class="cv-desktop-shell">
-                        <div class="cv-desktop-steps" id="cv-checkout-steps">
+                        <div class="cv-desktop-steps" id="cv-checkout-steps" @if(!empty($isSinglePackageCheckout)) style="grid-template-columns: repeat(3, minmax(0, 1fr));" @endif>
                             <div class="cv-dstep is-active" id="cv-dstep-1" data-step="1"><span class="cv-dstep-num">1</span><span>Choose Date</span></div>
-                            <div class="cv-dstep" id="cv-dstep-2" data-step="2"><span class="cv-dstep-num">2</span><span>Choose Access</span></div>
-                            <div class="cv-dstep" id="cv-dstep-3" data-step="3"><span class="cv-dstep-num">3</span><span>Select Package</span></div>
-                            <div class="cv-dstep" id="cv-dstep-4" data-step="4"><span class="cv-dstep-num">4</span><span>Review &amp; Pay</span></div>
+                            <div class="cv-dstep" id="cv-dstep-2" data-step="2"><span class="cv-dstep-num">2</span><span>{{ !empty($isSinglePackageCheckout) ? 'Select Guest' : 'Choose Access' }}</span></div>
+                            <div class="cv-dstep" id="cv-dstep-3" data-step="3"><span class="cv-dstep-num">3</span><span>{{ !empty($isSinglePackageCheckout) ? 'Review & Pay' : 'Select Package' }}</span></div>
+                            @if (empty($isSinglePackageCheckout))
+                                <div class="cv-dstep" id="cv-dstep-4" data-step="4"><span class="cv-dstep-num">4</span><span>Review &amp; Pay</span></div>
+                            @endif
                         </div>
+                        @if (!empty($isSinglePackageCheckout))
+                            <div class="hero-date-card" style="margin: 14px 0 16px; max-width: 460px;">
+                                <label>Choose Your Reservation Date</label>
+                                <div class="date-input-wrapper">
+                                    <input id="package_use_date" type="text"
+                                        value="" placeholder="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('M d, Y') }}" style="width: 100%;" readonly aria-describedby="package_use_date_error">
+                                    <span class="custom-calendar-icon"></span>
+                                </div>
+                                <small id="package_use_date_error" class="reservation-date-error">Please select a reservation date.</small>
+                            </div>
+                        @endif
                         @if ($data->reservation == 1)
                         <style>
                             #cv-checkout-steps-res { display: none; }
@@ -5796,7 +5811,7 @@
                         </div>
                         @endif
 
-                        @if ($data->reservation == 1)
+                        @if ($data->reservation == 1 && empty($isSinglePackageCheckout))
                             <div class="cv-access-hint">Choose one to continue<span class="cv-access-hint-dot"></span></div>
                         @endif
                         @php
@@ -5870,6 +5885,7 @@
 .cv-access-card[data-name="package"] .cv-ac-shimmer::before { background: linear-gradient(115deg, transparent 0%, transparent 30%, rgba(255,255,255,.84) 47%, rgba(var(--cv-package-rgb),.42) 56%, transparent 70%, transparent 100%); }
 
                         </style>
+                        @if (empty($isSinglePackageCheckout))
                         <div class="cv-access-grid">
                             @if ($data->reservation == 1)
                                 <button type="button" class="cv-access-card cv-access-tab is-active" data-name="package">
@@ -5904,6 +5920,7 @@
                                 </div>
                             @endif
                         </div>
+                        @endif
                     </div>
 
                 @if ($data->reservation == 1)
@@ -10853,23 +10870,34 @@
                 var dateInput = document.getElementById('package_use_date');
                 var dateDone = !dateInput || (dateInput.value && dateInput.value.trim() !== '');
 
+                var isSinglePackageCheckout = {{ !empty($isSinglePackageCheckout) ? 'true' : 'false' }};
                 var accessTabs = document.querySelectorAll('.cv-access-tab');
-                var accessDone = accessTabs.length === 0 || !!document.querySelector('.cv-access-tab.is-active');
+                var accessDone = isSinglePackageCheckout || accessTabs.length === 0 || !!document.querySelector('.cv-access-tab.is-active');
 
                 var cartList = document.getElementById('cart-list');
                 var cartDone = !!(cartList && cartList.children.length > 0);
 
                 var formDone = checkPackageFormFilled();
 
-                if (dateDone) stepEls[0].classList.add('is-complete');
-                if (dateDone && accessDone) stepEls[1].classList.add('is-complete');
-                if (dateDone && accessDone && cartDone) stepEls[2].classList.add('is-complete');
-                if (dateDone && accessDone && cartDone && formDone) stepEls[3].classList.add('is-complete');
+                if (isSinglePackageCheckout) {
+                    if (dateDone && stepEls[0]) stepEls[0].classList.add('is-complete');
+                    if (dateDone && cartDone && stepEls[1]) stepEls[1].classList.add('is-complete');
+                    if (dateDone && cartDone && formDone && stepEls[2]) stepEls[2].classList.add('is-complete');
 
-                if (!dateDone) stepEls[0].classList.add('is-active');
-                else if (!accessDone) stepEls[1].classList.add('is-active');
-                else if (!cartDone) stepEls[2].classList.add('is-active');
-                else stepEls[3].classList.add('is-active');
+                    if (!dateDone && stepEls[0]) stepEls[0].classList.add('is-active');
+                    else if (!cartDone && stepEls[1]) stepEls[1].classList.add('is-active');
+                    else if (stepEls[2]) stepEls[2].classList.add('is-active');
+                } else {
+                    if (dateDone && stepEls[0]) stepEls[0].classList.add('is-complete');
+                    if (dateDone && accessDone && stepEls[1]) stepEls[1].classList.add('is-complete');
+                    if (dateDone && accessDone && cartDone && stepEls[2]) stepEls[2].classList.add('is-complete');
+                    if (dateDone && accessDone && cartDone && formDone && stepEls[3]) stepEls[3].classList.add('is-complete');
+
+                    if (!dateDone && stepEls[0]) stepEls[0].classList.add('is-active');
+                    else if (!accessDone && stepEls[1]) stepEls[1].classList.add('is-active');
+                    else if (!cartDone && stepEls[2]) stepEls[2].classList.add('is-active');
+                    else if (stepEls[3]) stepEls[3].classList.add('is-active');
+                }
 
                 if (typeof updateReservationSteps === 'function') updateReservationSteps();
             }
