@@ -10127,10 +10127,30 @@
                 });
             })();
 
+            function getPacificTodayDateString() {
+                try {
+                    const formatter = new Intl.DateTimeFormat('en-CA', {
+                        timeZone: 'America/Los_Angeles',
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    });
+                    return formatter.format(new Date());
+                } catch (error) {
+                    const now = new Date();
+                    const year = now.getFullYear();
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+                    const day = String(now.getDate()).padStart(2, '0');
+                    return year + '-' + month + '-' + day;
+                }
+            }
+
+            const pacificTodayDate = getPacificTodayDateString();
+
             flatpickr("#package_use_date", {
                 dateFormat: "Y-m-d",
                 defaultDate: null,
-                minDate: "today",
+                minDate: pacificTodayDate,
                 allowInput: false,
                 clickOpens: true,
                 disable: [function(date) {
@@ -10150,7 +10170,7 @@
                 flatpickr("#package_use_date_iframe", {
                     dateFormat: "Y-m-d",
                     defaultDate: null,
-                    minDate: "today",
+                    minDate: pacificTodayDate,
                     allowInput: false,
                     clickOpens: true,
                     disable: [function(date) {

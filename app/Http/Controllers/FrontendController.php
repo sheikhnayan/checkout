@@ -497,7 +497,7 @@ class FrontendController extends Controller
         }
 
         if (!$targetDate) {
-            $targetDate = \Carbon\Carbon::today();
+            $targetDate = \Carbon\Carbon::today('America/Los_Angeles');
         }
 
         $capacity = \App\Helpers\PackageLimitHelper::getAvailableCapacity($package, $targetDate);
