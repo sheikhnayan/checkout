@@ -10678,6 +10678,59 @@ body.embed-checkout-mode main .container.mt-4 {
         setTimeout(queueEmbedHeightSync, 900);
     })();
     </script>
+
+    <script>
+    (function () {
+        var isEmbedMode = document.body.classList.contains('embed-checkout-mode');
+        var isIosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        if (!isEmbedMode || !isIosDevice) return;
+
+        var root = document.scrollingElement || document.documentElement;
+        if (!root) return;
+
+        var startY = 0;
+
+        function getMaxScrollTop() {
+            return Math.max((root.scrollHeight || 0) - window.innerHeight, 0);
+        }
+
+        function nudgeFromBoundary() {
+            var max = getMaxScrollTop();
+            if (max <= 2) return;
+            if (root.scrollTop <= 0) {
+                root.scrollTop = 1;
+            } else if (root.scrollTop >= max) {
+                root.scrollTop = max - 1;
+            }
+        }
+
+        window.addEventListener('load', nudgeFromBoundary);
+        window.addEventListener('resize', nudgeFromBoundary);
+        window.addEventListener('orientationchange', function () { setTimeout(nudgeFromBoundary, 120); });
+
+        document.addEventListener('touchstart', function (e) {
+            if (!e.touches || !e.touches.length) return;
+            startY = e.touches[0].clientY;
+            nudgeFromBoundary();
+        }, { passive: true });
+
+        document.addEventListener('touchmove', function (e) {
+            if (!e.touches || !e.touches.length) return;
+            var deltaY = e.touches[0].clientY - startY;
+            var max = getMaxScrollTop();
+            if (max <= 0) return;
+
+            var atTop = root.scrollTop <= 0;
+            var atBottom = root.scrollTop >= max;
+
+            // Prevent iOS rubber-band from trapping nested iframe scroll at the boundaries.
+            if ((atTop && deltaY > 0) || (atBottom && deltaY < 0)) {
+                e.preventDefault();
+                nudgeFromBoundary();
+            }
+        }, { passive: false });
+    })();
+    </script>
     </body>
 
     </html>
