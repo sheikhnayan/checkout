@@ -4902,11 +4902,14 @@ body.embed-checkout-mode .aff-footer {
     display: none !important;
 }
 body.embed-checkout-mode main {
-    padding-top: 12px;
+    padding-top: 0;
 }
 body.embed-checkout-mode main .container.mt-4 {
-    margin-top: 0 !important;
-    max-width: 1220px;
+    margin: 0 !important;
+    max-width: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100% !important;
 }
 body.embed-checkout-mode .cv-checkout-body {
     margin-top: 0;
@@ -4919,7 +4922,7 @@ body.embed-checkout-mode .iframe-date-card label {
 }
 @media (max-width: 991px) {
     body.embed-checkout-mode main {
-        padding-top: 8px;
+        padding-top: 0;
     }
 }
 
