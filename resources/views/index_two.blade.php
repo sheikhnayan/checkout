@@ -5458,7 +5458,17 @@
         body.embed-checkout-mode main .container.mt-4 {
             padding-left: clamp(16px, 6vw, 100px) !important;
             padding-right: clamp(16px, 6vw, 100px) !important;
+            padding-bottom: max(64px, env(safe-area-inset-bottom)) !important;
             box-sizing: border-box;
+        }
+        body.embed-checkout-mode .grecaptcha-badge {
+            pointer-events: none !important;
+        }
+        body.embed-checkout-mode #cv-cart-toast {
+            pointer-events: none;
+        }
+        body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
+            pointer-events: auto;
         }
         @media (max-width: 991px) {
             body.embed-checkout-mode main {
