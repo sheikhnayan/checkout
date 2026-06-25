@@ -11389,47 +11389,4 @@
     })();
     </script>
 
-    <script>
-    (function () {
-        if (!document.body.classList.contains('embed-checkout-mode')) return;
-        if (window.top === window.self) return;
-
-        function postEmbedHeight() {
-            var doc = document.documentElement;
-            var body = document.body;
-            var height = Math.max(
-                doc ? doc.scrollHeight : 0,
-                body ? body.scrollHeight : 0,
-                doc ? doc.offsetHeight : 0,
-                body ? body.offsetHeight : 0,
-                doc ? doc.clientHeight : 0
-            );
-            window.parent.postMessage({ type: 'checkoutEmbedHeight', height: height }, '*');
-        }
-
-        var rafId = null;
-        function queueEmbedHeightSync() {
-            if (rafId) {
-                cancelAnimationFrame(rafId);
-            }
-            rafId = requestAnimationFrame(postEmbedHeight);
-        }
-
-        window.addEventListener('load', queueEmbedHeightSync);
-        window.addEventListener('resize', queueEmbedHeightSync);
-        window.addEventListener('orientationchange', queueEmbedHeightSync);
-        document.addEventListener('click', function () { setTimeout(queueEmbedHeightSync, 120); });
-        document.addEventListener('input', function () { setTimeout(queueEmbedHeightSync, 120); });
-
-        if ('ResizeObserver' in window) {
-            var resizeObserver = new ResizeObserver(queueEmbedHeightSync);
-            if (document.documentElement) resizeObserver.observe(document.documentElement);
-            if (document.body) resizeObserver.observe(document.body);
-        }
-
-        setTimeout(queueEmbedHeightSync, 50);
-        setTimeout(queueEmbedHeightSync, 250);
-        setTimeout(queueEmbedHeightSync, 900);
-    })();
-    </script>
     </html>
