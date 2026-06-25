@@ -7385,7 +7385,14 @@
                 #cv-cart-toast { top: 14px; padding: 12px 16px 12px 14px; font-size: 13px; min-width: 0; width: calc(100vw - 28px); }
                 #cv-cart-toast .cv-toast-icon { width: 32px; height: 32px; font-size: 13px; }
                 #cv-cart-toast .cv-toast-title { font-size: 13.5px; }
-                #cv-cart-toast .cv-toast-sub { font-size: 11.5px; max-width: 150px; }
+                #cv-cart-toast .cv-toast-sub {
+                    font-size: 11.5px;
+                    max-width: none;
+                    white-space: normal;
+                    overflow: visible;
+                    text-overflow: clip;
+                    line-height: 1.35;
+                }
             }
         </style>
         <div id="cv-cart-toast" role="status" aria-live="polite" aria-atomic="true">
