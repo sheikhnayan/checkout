@@ -8697,29 +8697,32 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                         if (shouldRestoreScrollOnHide) {
                             window.scrollTo({ top: isNaN(returnScrollY) ? 0 : returnScrollY, behavior: 'auto' });
                         } else if (shouldScrollToCheckoutOnHide) {
-                            if (typeof showStep === 'function') {
-                                showStep(1);
-                            }
-
-                            var forceScrollToCheckout = function () {
+                            var scrollToCheckout = function () {
                                 var targetSection = document.getElementById('section-1') || document.querySelector('.checkout-section.active');
-                                window.parent.postMessage({ type: 'checkoutScrollToIframe' }, '*');
-                                window.dispatchEvent(new CustomEvent('embed:category-toggle'));
-
-                                if (!targetSection) {
+                                if (targetSection && targetSection.scrollIntoView) {
+                                    targetSection.scrollIntoView({ behavior: 'auto', block: 'start' });
+                                } else {
                                     window.scrollTo({ top: 0, behavior: 'auto' });
-                                    return;
                                 }
-
-                                var rect = targetSection.getBoundingClientRect ? targetSection.getBoundingClientRect() : null;
-                                var top = rect ? Math.max(0, Math.floor(rect.top + window.pageYOffset - 8)) : 0;
-                                window.scrollTo({ top: top, behavior: 'auto' });
                             };
 
-                            var scrollRetries = [0, 120, 280, 520, 900, 1400];
-                            scrollRetries.forEach(function (delay) {
-                                setTimeout(forceScrollToCheckout, delay);
-                            });
+                            var runSettledCheckoutScroll = function () {
+                                window.parent.postMessage({ type: 'checkoutScrollToIframe' }, '*');
+                                window.dispatchEvent(new CustomEvent('embed:category-toggle'));
+                                scrollToCheckout();
+                            };
+
+                            if (window.requestAnimationFrame) {
+                                requestAnimationFrame(function () {
+                                    requestAnimationFrame(runSettledCheckoutScroll);
+                                });
+                            } else {
+                                setTimeout(runSettledCheckoutScroll, 60);
+                            }
+
+                            setTimeout(runSettledCheckoutScroll, 180);
+                            setTimeout(runSettledCheckoutScroll, 420);
+                            setTimeout(runSettledCheckoutScroll, 760);
                         }
                     }
                     delete this.dataset.returnScrollY;
