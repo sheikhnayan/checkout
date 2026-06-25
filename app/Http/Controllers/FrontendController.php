@@ -78,7 +78,6 @@ class FrontendController extends Controller
         }
 
         $requestedPackageId = $request->filled('package') ? (int) $request->input('package') : null;
-        $singleCheckoutPackage = null;
 
         if ($singlePackageCheckout) {
             if (!$requestedPackageId) {
@@ -86,10 +85,9 @@ class FrontendController extends Controller
             }
 
             $singleCheckoutPackage = Package::query()
-                ->with('event')
+                ->with(['category', 'event'])
                 ->where('id', $requestedPackageId)
                 ->where('website_id', $data->id)
-                ->clubVisible()
                 ->where('status', 1)
                 ->where('is_archieved', 0)
                 ->first();
@@ -98,35 +96,20 @@ class FrontendController extends Controller
                 abort(404, 'Package not found');
             }
 
-            if ($singleCheckoutPackage->event_id) {
-                $event = Event::where('id', $singleCheckoutPackage->event_id)
-                    ->where('website_id', $data->id)
-                    ->where('is_archieved', 0)
-                    ->when(Schema::hasColumn('events', 'status'), function ($query) {
-                        $query->where('status', 1);
-                    })
-                    ->first();
+            $packageCategories = $this->buildSinglePackageCategoryPayload($singleCheckoutPackage);
 
-                if (!$event || !$this->isEventCurrentOrUpcoming($event)) {
-                    abort(404, 'Package event not available');
-                }
+            $checkoutPopup = CheckoutPopup::activeForCheckout((int) $data->id)
+                ->latest('id')
+                ->first();
 
-                $event = $this->decorateEventAttendanceData($event);
-                $packageCategories = $this->buildPackageCategories($data, (int) $event->id, false);
-                $packageCategories = $this->filterPackageCategoriesByPackageId($packageCategories, $requestedPackageId);
+            $data->setRelation('events', $this->activeWebsiteEvents($data->id));
 
-                if ($packageCategories->isEmpty()) {
-                    abort(404, 'Package not available');
-                }
-
-                $data->setRelation('events', $this->activeWebsiteEvents($data->id));
-
-                $checkoutPopup = CheckoutPopup::activeForCheckout((int) $data->id)
-                    ->latest('id')
-                    ->first();
-
+            if ($singleCheckoutPackage->event) {
+                $event = $this->decorateEventAttendanceData($singleCheckoutPackage->event);
                 return view('index', compact('data', 'event', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout'));
             }
+
+            return view('index_two', compact('data', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout'));
         }
 
         $checkoutPopup = CheckoutPopup::activeForCheckout((int) $data->id)
@@ -146,12 +129,6 @@ class FrontendController extends Controller
                 $event = $this->decorateEventAttendanceData($event);
 
                 $packageCategories = $this->buildPackageCategories($data, (int) $event->id, false);
-                if ($singlePackageCheckout) {
-                    $packageCategories = $this->filterPackageCategoriesByPackageId($packageCategories, $requestedPackageId);
-                    if ($packageCategories->isEmpty()) {
-                        abort(404, 'Package not available');
-                    }
-                }
 
                 $data->setRelation('events', $this->activeWebsiteEvents($data->id));
 
@@ -160,12 +137,6 @@ class FrontendController extends Controller
         }
 
         $packageCategories = $this->buildPackageCategories($data, null, true);
-        if ($singlePackageCheckout) {
-            $packageCategories = $this->filterPackageCategoriesByPackageId($packageCategories, $requestedPackageId);
-            if ($packageCategories->isEmpty()) {
-                abort(404, 'Package not available');
-            }
-        }
 
         $data->setRelation('events', $this->activeWebsiteEvents($data->id));
 
@@ -187,6 +158,19 @@ class FrontendController extends Controller
             })
             ->filter()
             ->values();
+    }
+
+    private function buildSinglePackageCategoryPayload(Package $package)
+    {
+        return collect([
+            [
+                'id' => $package->package_category_id ?: 'uncategorized',
+                'name' => optional($package->category)->name ?: 'Uncategorized',
+                'icon' => optional($package->category)->icon ?: null,
+                'color' => optional($package->category)->color ?: null,
+                'packages' => collect([$package]),
+            ],
+        ]);
     }
 
     public function addons($slug, $id)
