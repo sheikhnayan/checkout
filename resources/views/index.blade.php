@@ -8732,12 +8732,27 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                 }
                             };
 
-                            var runSettledCheckoutScroll = function () {
-                                window.dispatchEvent(new CustomEvent('embed:category-toggle'));
+                            var completed = false;
+                            var onHeightPosted = null;
+                            var finalizeScroll = function () {
+                                if (completed) {
+                                    return;
+                                }
+                                completed = true;
+                                if (onHeightPosted) {
+                                    window.removeEventListener('embed:height-posted', onHeightPosted);
+                                }
                                 window.parent.postMessage({ type: 'checkoutScrollToIframe' }, '*');
                                 setTimeout(scrollToCheckout, 120);
                             };
-                            setTimeout(runSettledCheckoutScroll, 2000);
+
+                            onHeightPosted = function () {
+                                finalizeScroll();
+                            };
+
+                            window.addEventListener('embed:height-posted', onHeightPosted);
+                            window.dispatchEvent(new CustomEvent('embed:category-toggle'));
+                            setTimeout(finalizeScroll, 1500);
                         }
                     }
                     delete this.dataset.returnScrollY;
@@ -10918,9 +10933,14 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
         function postHeightNow() {
             if (!mobileQuery.matches) return;
             var nextHeight = Math.max(720, Math.min(getContentHeight(), 12000));
-            if (Math.abs(nextHeight - lastHeight) < 2) return;
-            lastHeight = nextHeight;
-            window.parent.postMessage({ type: 'checkoutEmbedHeight', height: nextHeight }, '*');
+            var changed = Math.abs(nextHeight - lastHeight) >= 2;
+            if (changed) {
+                lastHeight = nextHeight;
+                window.parent.postMessage({ type: 'checkoutEmbedHeight', height: nextHeight }, '*');
+            }
+            window.dispatchEvent(new CustomEvent('embed:height-posted', {
+                detail: { height: nextHeight, changed: changed }
+            }));
         }
 
         function queueHeightPost() {
