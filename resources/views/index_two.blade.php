@@ -9234,7 +9234,10 @@
                                 window.scrollTo({ top: top, behavior: 'auto' });
                             };
 
-                            setTimeout(forceScrollToCheckout, 1200);
+                            let scrollRetries = [0, 120, 280, 520, 900, 1400];
+                            scrollRetries.forEach(function (delay) {
+                                setTimeout(forceScrollToCheckout, delay);
+                            });
                         }
                     }
                     delete this.dataset.returnScrollY;

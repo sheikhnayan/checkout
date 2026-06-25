@@ -8716,7 +8716,10 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                 window.scrollTo({ top: top, behavior: 'auto' });
                             };
 
-                            setTimeout(forceScrollToCheckout, 1200);
+                            var scrollRetries = [0, 120, 280, 520, 900, 1400];
+                            scrollRetries.forEach(function (delay) {
+                                setTimeout(forceScrollToCheckout, delay);
+                            });
                         }
                     }
                     delete this.dataset.returnScrollY;
