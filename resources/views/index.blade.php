@@ -8346,6 +8346,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 var addonSelectionModalEl = document.getElementById('addonSelectionModal');
                 bootstrap.Modal.getOrCreateInstance(addonSelectionModalEl).show();
                 if (document.body.classList.contains('embed-checkout-mode')) {
+                    window.parent.postMessage({ type: 'checkoutScrollToIframe' }, '*');
                     window.scrollTo({ top: 0, behavior: 'auto' });
                     addonSelectionModalEl.scrollTop = 0;
                     window.dispatchEvent(new CustomEvent('embed:category-toggle'));
@@ -10672,33 +10673,29 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
         var scheduled = false;
 
         function getContentHeight() {
-            var selectors = [
-                '#section-1:visible',
-                '#section-2:visible',
-                '#section-3:visible',
-                '.package-category-tiles:visible',
-                '.package-category-group:visible',
-                '.dynamic-price:visible',
-                '.checkout-steps:visible',
-                '#shareLinkContainer:visible',
-                '.checkout-section:visible',
-                '.modal.show .modal-dialog:visible'
-            ];
-            var maxBottom = 0;
+            var activeSection = document.querySelector('.checkout-section.active') || document.querySelector('#section-1.active') || document.querySelector('#section-2.active') || document.querySelector('#section-3.active');
+            var activeModal = document.querySelector('#addonSelectionModal.show .modal-dialog') || document.querySelector('#addonSelectionModal.show .modal-content');
+            var targets = [];
 
-            selectors.forEach(function (selector) {
-                $(selector).each(function () {
-                    var rect = this.getBoundingClientRect ? this.getBoundingClientRect() : null;
-                    if (!rect) return;
-                    var bottom = Math.ceil(rect.bottom + window.pageYOffset);
-                    if (bottom > maxBottom) {
-                        maxBottom = bottom;
-                    }
-                });
+            if (activeSection) {
+                targets.push(activeSection);
+            }
+            if (activeModal) {
+                targets.push(activeModal);
+            }
+
+            var maxBottom = 0;
+            targets.forEach(function (node) {
+                var rect = node.getBoundingClientRect ? node.getBoundingClientRect() : null;
+                if (!rect) return;
+                var bottom = Math.ceil(rect.bottom + window.pageYOffset);
+                if (bottom > maxBottom) {
+                    maxBottom = bottom;
+                }
             });
 
             if (!maxBottom) {
-                var fallbackRoot = document.querySelector('main .container.mt-4') || document.body;
+                var fallbackRoot = document.querySelector('#cv-checkout-layout') || document.querySelector('main .container.mt-4') || document.body;
                 maxBottom = fallbackRoot && fallbackRoot.scrollHeight ? fallbackRoot.scrollHeight : 1000;
             }
 
