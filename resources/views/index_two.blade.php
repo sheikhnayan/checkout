@@ -7896,6 +7896,7 @@
                     $('#step-2 .step-title').text('Transportation');
                     $('#next-to-transport').text('Next: Transportation Details');
                     transportationFields.prop('disabled', false);
+                    transportationPickupTimeField.prop('disabled', false).prop('readonly', false);
                     transportationPhoneField.prop('required', true).attr('aria-required', 'true');
                     transportationAddressField.prop('required', true).attr('aria-required', 'true');
                     transportationPickupTimeField.prop('required', true).attr('aria-required', 'true');
@@ -10120,6 +10121,12 @@
                 }
 
                 if (!pickupTime) {
+                    pickupTimeField.prop('disabled', false).prop('readonly', false);
+                    if (pickupTimeField[0] && pickupTimeField[0]._flatpickr) {
+                        setTimeout(function() {
+                            pickupTimeField[0]._flatpickr.open();
+                        }, 0);
+                    }
                     pickupTimeField.addClass('required-field');
                     return {
                         valid: false,
@@ -10129,6 +10136,12 @@
                 }
 
                 if (!isTimeWithinOperatingHours(pickupTime)) {
+                    pickupTimeField.prop('disabled', false).prop('readonly', false);
+                    if (pickupTimeField[0] && pickupTimeField[0]._flatpickr) {
+                        setTimeout(function() {
+                            pickupTimeField[0]._flatpickr.open();
+                        }, 0);
+                    }
                     pickupTimeField.addClass('required-field');
                     return {
                         valid: false,
@@ -10180,9 +10193,6 @@
                 var maxT = to24h(typeof transportationSchedule !== 'undefined' ? transportationSchedule.endTime : null);
                 var isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
                     || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-                var ua = navigator.userAgent || '';
-                var isSafariBrowser = /Safari/i.test(ua) && !/Chrome|CriOS|Chromium|Edg|OPR|Firefox|FxiOS/i.test(ua);
-                var isMacDesktopSafari = isSafariBrowser && /Mac/i.test(navigator.platform || ua) && !(navigator.maxTouchPoints > 1);
 
                 if (isMobileDevice) {
                     el.type = 'time';
@@ -10197,6 +10207,7 @@
                 }
 
                 el.type = 'text';
+                el.removeAttribute('readonly');
                 if (typeof flatpickr === 'undefined') {
                     el.type = 'time';
                     if (minT) el.min = minT;
@@ -10205,38 +10216,31 @@
                     return;
                 }
 
-                flatpickr(el, {
+                var pickupTimePicker = flatpickr(el, {
                     enableTime: true,
                     noCalendar: true,
                     time_24hr: false,
                     minuteIncrement: 15,
                     dateFormat: 'h:i K',
-                    allowInput: false,
-                    onReady: function (selectedDates, dateStr, instance) {
-                        if (!isMacDesktopSafari || !instance || !instance.calendarContainer) {
-                            return;
-                        }
-                        var ampmEl = instance.calendarContainer.querySelector('.flatpickr-am-pm');
-                        if (!ampmEl || ampmEl.dataset.safariAmPmBound === '1') {
-                            return;
-                        }
-                        ampmEl.dataset.safariAmPmBound = '1';
-                        ampmEl.style.pointerEvents = 'auto';
-                        ampmEl.addEventListener('click', function (evt) {
-                            evt.preventDefault();
-                            evt.stopPropagation();
-                            var base = instance.selectedDates && instance.selectedDates[0]
-                                ? new Date(instance.selectedDates[0].getTime())
-                                : (instance.parseDate(instance.input && instance.input.value ? instance.input.value : '', 'h:i K') || new Date());
-                            base.setHours((base.getHours() + 12) % 24);
-                            instance.setDate(base, true, 'h:i K');
-                        });
-                    },
+                    allowInput: true,
+                    clickOpens: true,
                     onChange: function () {
                         $(el).removeClass('required-field');
                     },
                     minTime: minT || undefined,
                     maxTime: maxT || undefined
+                });
+
+                el.addEventListener('focus', function () {
+                    if (pickupTimePicker && typeof pickupTimePicker.open === 'function') {
+                        pickupTimePicker.open();
+                    }
+                });
+
+                el.addEventListener('click', function () {
+                    if (pickupTimePicker && typeof pickupTimePicker.open === 'function') {
+                        pickupTimePicker.open();
+                    }
                 });
             })();
 
