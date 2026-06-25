@@ -10837,7 +10837,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
 
         function postHeightNow() {
             if (!mobileQuery.matches) return;
-            var nextHeight = Math.max(720, Math.min(getContentHeight(), 3600));
+            var nextHeight = Math.max(720, Math.min(getContentHeight(), 12000));
             if (Math.abs(nextHeight - lastHeight) < 2) return;
             lastHeight = nextHeight;
             window.parent.postMessage({ type: 'checkoutEmbedHeight', height: nextHeight }, '*');
