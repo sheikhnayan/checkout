@@ -4948,7 +4948,6 @@ body.embed-checkout-mode .modal-dialog.modal-dialog-centered {
         max-height: calc(100dvh - 170px - max(0.5rem, env(safe-area-inset-top)) - max(0.5rem, env(safe-area-inset-bottom)));
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch;
-        overscroll-behavior: contain;
     }
 }
 body.embed-checkout-mode {
