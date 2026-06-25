@@ -8921,6 +8921,9 @@
                     window.scrollTo({ top: 0, behavior: 'auto' });
                     addonSelectionModalEl.scrollTop = 0;
                     window.dispatchEvent(new CustomEvent('embed:category-toggle'));
+                    window.setTimeout(function () {
+                        adjustAddonModalScrollArea();
+                    }, 0);
                 }
             }
 
@@ -9091,6 +9094,49 @@
                     let unitPrice = parseFloat(valEl.data('price')) || 0;
                     $('#addonSelectionModalBody .addon-line-total-value[data-id="' + id + '"]').text(formatCurrency(unitPrice * next));
                 });
+
+                function adjustAddonModalScrollArea() {
+                    if (!document.body.classList.contains('embed-checkout-mode') || window.innerWidth > 991) {
+                        return;
+                    }
+
+                    let modal = document.getElementById('addonSelectionModal');
+                    if (!modal || !modal.classList.contains('show')) {
+                        return;
+                    }
+
+                    let dialog = modal.querySelector('.addon-modal-dialog');
+                    let body = modal.querySelector('.modal-body');
+                    let header = modal.querySelector('.modal-header');
+                    let footer = modal.querySelector('.modal-footer');
+                    if (!dialog || !body) {
+                        return;
+                    }
+
+                    let viewportHeight = window.visualViewport && window.visualViewport.height ? window.visualViewport.height : window.innerHeight;
+                    let chromeHeight = (header ? header.offsetHeight : 0) + (footer ? footer.offsetHeight : 0) + 48;
+                    let nextHeight = Math.max(180, Math.floor(viewportHeight - chromeHeight));
+
+                    dialog.style.alignItems = 'flex-start';
+                    body.style.maxHeight = nextHeight + 'px';
+                    body.style.overflowY = 'auto';
+                    body.style.webkitOverflowScrolling = 'touch';
+                    body.scrollTop = 0;
+                }
+
+                document.getElementById('addonSelectionModal')?.addEventListener('shown.bs.modal', adjustAddonModalScrollArea);
+                document.getElementById('addonSelectionModal')?.addEventListener('hidden.bs.modal', function() {
+                    let body = this.querySelector('.modal-body');
+                    if (body) {
+                        body.style.maxHeight = '';
+                        body.style.overflowY = '';
+                        body.style.webkitOverflowScrolling = '';
+                    }
+                });
+                window.addEventListener('resize', adjustAddonModalScrollArea);
+                if (window.visualViewport) {
+                    window.visualViewport.addEventListener('resize', adjustAddonModalScrollArea);
+                }
 
                 setTimeout(function() {
                     refreshPackageAvailabilityForSelectedDate(false);
