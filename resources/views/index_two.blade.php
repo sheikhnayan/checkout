@@ -5452,6 +5452,18 @@
         body.embed-checkout-mode .iframe-date-card label {
             color: #fff !important;
         }
+        body.embed-checkout-mode .modal {
+            position: fixed !important;
+            inset: 0;
+        }
+        body.embed-checkout-mode .modal-dialog {
+            margin: 0.75rem auto;
+        }
+        body.embed-checkout-mode .modal-dialog.modal-dialog-centered {
+            min-height: calc(100% - 1.5rem);
+            display: flex;
+            align-items: center;
+        }
         body.embed-checkout-mode {
             overflow-x: hidden;
         }
@@ -8883,7 +8895,12 @@
 
                 $('#addonSelectionModalTitle').text('Select Add-ons for ' + (selection.pkgName || selection.packageName));
                 $('#addonSelectionModalBody').html(html);
-                bootstrap.Modal.getOrCreateInstance(document.getElementById('addonSelectionModal')).show();
+                var addonSelectionModalEl = document.getElementById('addonSelectionModal');
+                bootstrap.Modal.getOrCreateInstance(addonSelectionModalEl).show();
+                if (document.body.classList.contains('embed-checkout-mode')) {
+                    addonSelectionModalEl.scrollTop = 0;
+                    window.dispatchEvent(new CustomEvent('embed:category-toggle'));
+                }
             }
 
             $(document).ready(function() {
@@ -8902,6 +8919,7 @@
                     let targetId = targetSelector.replace(/^#/, '');
                     let $target = targetId ? $('#' + targetId) : $();
                     let isOpen = $(this).hasClass('active');
+                    let shouldNotifyEmbedResize = document.body.classList.contains('embed-checkout-mode');
 
                     $('.package-category-tile').removeClass('active');
                     $('.package-category-group').stop(true, true).slideUp(180);
@@ -8911,8 +8929,10 @@
                         $target.stop(true, true).slideDown(180);
                     }
 
-                    if (document.body.classList.contains('embed-checkout-mode')) {
-                        window.dispatchEvent(new CustomEvent('embed:category-toggle'));
+                    if (shouldNotifyEmbedResize) {
+                        $('.package-category-group').promise().done(function() {
+                            window.dispatchEvent(new CustomEvent('embed:category-toggle'));
+                        });
                     }
                 });
 
@@ -11454,6 +11474,9 @@
             setTimeout(queueHeightPost, 620);
             setTimeout(queueHeightPost, 1100);
         });
+
+        document.addEventListener('shown.bs.modal', queueHeightPost);
+        document.addEventListener('hidden.bs.modal', queueHeightPost);
 
         document.addEventListener('load', function (e) {
             var t = e.target;
