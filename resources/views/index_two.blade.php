@@ -6123,6 +6123,7 @@
                                     @endif
 
                                     @if(isset($packageCategories) && $packageCategories->count())
+                                        @if(empty($isSinglePackageCheckout))
                                         <div class="mb-3 package-category-tiles" style="width:100%;">
                                             @foreach ($packageCategories as $category)
                                                 @php
@@ -6147,9 +6148,10 @@
                                                 </button>
                                             @endforeach
                                         </div>
+                                        @endif
 
                                         @foreach ($packageCategories as $category)
-                                            <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: none;">
+                                            <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: {{ !empty($isSinglePackageCheckout) ? 'block' : 'none' }};">
                                                 @foreach ($category['packages'] as $item)
                                                     @php
                                                         $pkgTierIdx = ($loop->index % 5) + 1;
@@ -8970,6 +8972,7 @@
             }
 
             $(document).ready(function() {
+                const singlePackageHeroMode = @json(!empty($isSinglePackageCheckout));
                 let popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
                 popoverTriggerList.forEach(function (popoverTriggerEl) {
                     bootstrap.Popover.getOrCreateInstance(popoverTriggerEl, {
@@ -9002,7 +9005,10 @@
                     }
                 });
 
-                if (document.body.classList.contains('embed-checkout-mode') && $('.package-category-tile').length && !$('.package-category-tile.active').length) {
+                if (singlePackageHeroMode) {
+                    $('.package-category-group').show();
+                    $('.package-category-tile').first().addClass('active');
+                } else if (document.body.classList.contains('embed-checkout-mode') && $('.package-category-tile').length && !$('.package-category-tile.active').length) {
                     $('.package-category-tile').first().trigger('click');
                 }
 
@@ -10561,6 +10567,7 @@
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const requestedPackageId = @json($requestedPackageId ?? null);
+                const singlePackageHeroMode = @json(!empty($isSinglePackageCheckout));
                 if (!requestedPackageId) {
                     return;
                 }
@@ -10568,10 +10575,17 @@
                 setTimeout(function() {
                     const targetButton = document.querySelector('.vip-btn[data-id="' + requestedPackageId + '"]');
                     if (targetButton) {
-                        targetButton.click();
-                        const steps = document.getElementById('checkout-steps');
-                        if (steps) {
-                            steps.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        const card = targetButton.closest('.vip-card');
+                        if (card) {
+                            card.classList.add('selected');
+                        }
+
+                        if (!singlePackageHeroMode) {
+                            targetButton.click();
+                            const steps = document.getElementById('checkout-steps');
+                            if (steps) {
+                                steps.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
                         }
                     }
                 }, 350);

@@ -31,6 +31,7 @@ class FrontendController extends Controller
     {
         $isIframeCheckout = $request->boolean('embed');
         $singlePackageCheckout = $request->boolean('single_package_checkout');
+        $isSinglePackageCheckout = $singlePackageCheckout;
 
         // Get only active, non-archived website by slug
         $data = Website::where('slug', $slug)
@@ -106,10 +107,10 @@ class FrontendController extends Controller
 
             if ($singleCheckoutPackage->event) {
                 $event = $this->decorateEventAttendanceData($singleCheckoutPackage->event);
-                return view('index', compact('data', 'event', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout'));
+                return view('index', compact('data', 'event', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout', 'isSinglePackageCheckout'));
             }
 
-            return view('index_two', compact('data', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout'));
+            return view('index_two', compact('data', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout', 'isSinglePackageCheckout'));
         }
 
         $checkoutPopup = CheckoutPopup::activeForCheckout((int) $data->id)
@@ -132,7 +133,7 @@ class FrontendController extends Controller
 
                 $data->setRelation('events', $this->activeWebsiteEvents($data->id));
 
-                return view('index', compact('data', 'event', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout'));
+                return view('index', compact('data', 'event', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout', 'isSinglePackageCheckout'));
             }
         }
 
@@ -140,7 +141,7 @@ class FrontendController extends Controller
 
         $data->setRelation('events', $this->activeWebsiteEvents($data->id));
 
-        return view('index_two', compact('data', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout'));
+        return view('index_two', compact('data', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout', 'isSinglePackageCheckout'));
 
     }
 
