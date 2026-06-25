@@ -9225,7 +9225,6 @@
                             };
 
                             let runSettledCheckoutScroll = function () {
-                                window.parent.postMessage({ type: 'checkoutScrollToIframe' }, '*');
                                 window.dispatchEvent(new CustomEvent('embed:category-toggle'));
                                 scrollToCheckout();
                             };

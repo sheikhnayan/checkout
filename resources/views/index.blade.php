@@ -8707,7 +8707,6 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                             };
 
                             var runSettledCheckoutScroll = function () {
-                                window.parent.postMessage({ type: 'checkoutScrollToIframe' }, '*');
                                 window.dispatchEvent(new CustomEvent('embed:category-toggle'));
                                 scrollToCheckout();
                             };
