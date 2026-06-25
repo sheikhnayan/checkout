@@ -8376,6 +8376,9 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 $('#addonSelectionModalTitle').text('Select Add-ons for ' + (selection.pkgName || selection.packageName));
                 $('#addonSelectionModalBody').html(html);
                 var addonSelectionModalEl = document.getElementById('addonSelectionModal');
+                if (document.body.classList.contains('embed-checkout-mode')) {
+                    addonSelectionModalEl.dataset.returnScrollY = String(window.pageYOffset || window.scrollY || 0);
+                }
                 bootstrap.Modal.getOrCreateInstance(addonSelectionModalEl).show();
                 if (document.body.classList.contains('embed-checkout-mode')) {
                     window.parent.postMessage({ type: 'checkoutScrollToIframe' }, '*');
@@ -8644,6 +8647,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 document.getElementById('addonSelectionModal')?.addEventListener('hidden.bs.modal', function() {
                     var content = this.querySelector('.modal-content');
                     var body = this.querySelector('.modal-body');
+                    var returnScrollY = parseInt(this.dataset.returnScrollY || '0', 10);
                     if (content) {
                         content.style.maxHeight = '';
                         content.style.display = '';
@@ -8656,6 +8660,11 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                         body.style.overflowY = '';
                         body.style.webkitOverflowScrolling = '';
                     }
+
+                    if (document.body.classList.contains('embed-checkout-mode')) {
+                        window.scrollTo({ top: isNaN(returnScrollY) ? 0 : returnScrollY, behavior: 'auto' });
+                    }
+                    delete this.dataset.returnScrollY;
 
                     if (!document.querySelector('.modal.show')) {
                         document.body.classList.remove('modal-open');
