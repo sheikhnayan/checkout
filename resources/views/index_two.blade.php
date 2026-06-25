@@ -9471,7 +9471,6 @@
                         showStep(2);
                     }
                 });
-                        triggerEmbedCheckoutScrollFallback(900);
 
                 // Previous to Package from Transportation confirmation
                 $('#prev-to-package').click(function() {
@@ -9490,7 +9489,6 @@
                         showStep(3);
                     }
                 });
-                        triggerEmbedCheckoutScrollFallback(900);
 
                 // Next to Payment from Transportation form
                 $('#next-to-payment').click(function() {
