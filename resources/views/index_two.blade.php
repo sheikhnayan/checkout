@@ -11428,14 +11428,10 @@
 
         function getContentHeight() {
             var activeSection = document.querySelector('.checkout-section.active') || document.querySelector('#section-1.active') || document.querySelector('#section-2.active') || document.querySelector('#section-3.active');
-            var activeModal = document.querySelector('#addonSelectionModal.show .modal-dialog') || document.querySelector('#addonSelectionModal.show .modal-content');
             var targets = [];
 
             if (activeSection) {
                 targets.push(activeSection);
-            }
-            if (activeModal) {
-                targets.push(activeModal);
             }
 
             var maxBottom = 0;
@@ -11453,13 +11449,13 @@
                 maxBottom = fallbackRoot && fallbackRoot.scrollHeight ? fallbackRoot.scrollHeight : 1000;
             }
 
-            var viewportFloor = window.innerHeight ? (window.innerHeight + 120) : 1000;
+            var viewportFloor = window.innerHeight ? Math.max(650, Math.round(window.innerHeight * 0.78)) : 650;
             return Math.max(maxBottom + 24, viewportFloor);
         }
 
         function postHeightNow() {
             if (!mobileQuery.matches) return;
-            var nextHeight = Math.max(1000, Math.min(getContentHeight(), 4200));
+            var nextHeight = Math.max(650, Math.min(getContentHeight(), 3600));
             if (Math.abs(nextHeight - lastHeight) < 2) return;
             lastHeight = nextHeight;
             window.parent.postMessage({ type: 'checkoutEmbedHeight', height: nextHeight }, '*');
