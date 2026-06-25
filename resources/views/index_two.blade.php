@@ -3532,6 +3532,22 @@
             padding: 16px 24px !important;
             gap: 12px;
         }
+        #addonSelectionModal .modal-footer {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            align-items: center;
+        }
+        #addonSelectionModal .modal-footer .btn {
+            flex: 1 1 0;
+            min-width: 0;
+            white-space: nowrap;
+        }
+        @media (max-width: 575.98px) {
+            #addonSelectionModal .modal-footer .btn {
+                font-size: 12px !important;
+                padding: 10px 8px !important;
+            }
+        }
         #addonSelectionModal .addon-modal-row {
             background: linear-gradient(180deg, rgba(167,116,255,0.08), rgba(167,116,255,0.02)) !important;
             border: 1px solid rgba(167,116,255,0.22) !important;
@@ -8931,6 +8947,7 @@
                 if (document.body.classList.contains('embed-checkout-mode')) {
                     addonSelectionModalEl.dataset.returnScrollY = String(window.pageYOffset || window.scrollY || 0);
                     addonSelectionModalEl.dataset.restoreScrollOnHide = '1';
+                    addonSelectionModalEl.dataset.scrollToCheckoutOnHide = '0';
                 }
                 bootstrap.Modal.getOrCreateInstance(addonSelectionModalEl).show();
                 if (document.body.classList.contains('embed-checkout-mode')) {
@@ -9062,6 +9079,7 @@
                     let addonModalEl = document.getElementById('addonSelectionModal');
                     if (document.body.classList.contains('embed-checkout-mode') && addonModalEl) {
                         addonModalEl.dataset.restoreScrollOnHide = '0';
+                        addonModalEl.dataset.scrollToCheckoutOnHide = '1';
                     }
                     $('#package_id').val(selection.packageId);
 
@@ -9089,6 +9107,7 @@
                     let addonModalEl = document.getElementById('addonSelectionModal');
                     if (document.body.classList.contains('embed-checkout-mode') && addonModalEl) {
                         addonModalEl.dataset.restoreScrollOnHide = '0';
+                        addonModalEl.dataset.scrollToCheckoutOnHide = '1';
                     }
                     $('#package_id').val(selection.packageId);
 
@@ -9178,6 +9197,7 @@
                     let body = this.querySelector('.modal-body');
                     let returnScrollY = parseInt(this.dataset.returnScrollY || '0', 10);
                     let shouldRestoreScrollOnHide = this.dataset.restoreScrollOnHide !== '0';
+                    let shouldScrollToCheckoutOnHide = this.dataset.scrollToCheckoutOnHide === '1';
                     if (content) {
                         content.style.maxHeight = '';
                         content.style.display = '';
@@ -9191,11 +9211,24 @@
                         body.style.webkitOverflowScrolling = '';
                     }
 
-                    if (document.body.classList.contains('embed-checkout-mode') && shouldRestoreScrollOnHide) {
-                        window.scrollTo({ top: isNaN(returnScrollY) ? 0 : returnScrollY, behavior: 'auto' });
+                    if (document.body.classList.contains('embed-checkout-mode')) {
+                        if (shouldRestoreScrollOnHide) {
+                            window.scrollTo({ top: isNaN(returnScrollY) ? 0 : returnScrollY, behavior: 'auto' });
+                        } else if (shouldScrollToCheckoutOnHide) {
+                            window.parent.postMessage({ type: 'checkoutScrollToIframe' }, '*');
+                            window.setTimeout(function() {
+                                let targetSection = document.getElementById('section-1') || document.querySelector('.checkout-section.active');
+                                if (targetSection && targetSection.scrollIntoView) {
+                                    targetSection.scrollIntoView({ behavior: 'auto', block: 'start' });
+                                } else {
+                                    window.scrollTo({ top: 0, behavior: 'auto' });
+                                }
+                            }, 40);
+                        }
                     }
                     delete this.dataset.returnScrollY;
                     delete this.dataset.restoreScrollOnHide;
+                    delete this.dataset.scrollToCheckoutOnHide;
 
                     if (!document.querySelector('.modal.show')) {
                         document.body.classList.remove('modal-open');
