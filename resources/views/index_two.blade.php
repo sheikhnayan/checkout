@@ -5469,6 +5469,9 @@
                 min-height: calc(100% - 0.5rem);
                 align-items: flex-start;
                 margin-top: max(0.25rem, env(safe-area-inset-top));
+                max-width: calc(100vw - max(32px, env(safe-area-inset-left) + env(safe-area-inset-right)));
+                width: 100%;
+                box-sizing: border-box;
             }
             body.embed-checkout-mode #addonSelectionModal .addon-modal-dialog.modal-dialog-scrollable {
                 max-height: calc(100dvh - max(0.5rem, env(safe-area-inset-top)) - max(0.5rem, env(safe-area-inset-bottom)));
@@ -9117,6 +9120,9 @@
                     let nextHeight = Math.max(180, Math.floor(viewportHeight - chromeHeight));
 
                     dialog.style.alignItems = 'flex-start';
+                    dialog.style.maxWidth = 'calc(100vw - 32px)';
+                    dialog.style.width = '100%';
+                    dialog.style.boxSizing = 'border-box';
                     body.style.maxHeight = nextHeight + 'px';
                     body.style.overflowY = 'auto';
                     body.style.webkitOverflowScrolling = 'touch';
