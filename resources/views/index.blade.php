@@ -10624,6 +10624,33 @@ body.embed-checkout-mode main .container.mt-4 {
                 }
             );
             var idx = fields.indexOf(el);
+
+            <script>
+            (function () {
+                if (!document.body.classList.contains('embed-checkout-mode')) return;
+                var isIosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+                if (!isIosDevice) return;
+
+                function normalizeScrollEdges() {
+                    var scroller = document.scrollingElement || document.documentElement || document.body;
+                    if (!scroller) return;
+                    var maxScrollTop = scroller.scrollHeight - scroller.clientHeight;
+                    if (maxScrollTop <= 0) return;
+
+                    if (scroller.scrollTop <= 0) {
+                        scroller.scrollTop = 1;
+                        return;
+                    }
+                    if (scroller.scrollTop >= maxScrollTop) {
+                        scroller.scrollTop = Math.max(maxScrollTop - 1, 0);
+                    }
+                }
+
+                window.addEventListener('load', normalizeScrollEdges);
+                window.addEventListener('pageshow', normalizeScrollEdges);
+                document.addEventListener('touchstart', normalizeScrollEdges, { passive: true });
+            })();
+            </script>
             if (idx > -1 && idx < fields.length - 1) {
                 var next = fields[idx + 1];
                 next.focus();
