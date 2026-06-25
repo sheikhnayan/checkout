@@ -9295,17 +9295,18 @@
                     }
                 }
 
-                // Scroll to the top of the new step on all devices
+                // Scroll to the heading of the new step on all devices.
                 setTimeout(function() {
-                    var el = document.getElementById('section-' + stepNumber);
-                    if (el) {
+                    var sectionEl = document.getElementById('section-' + stepNumber);
+                    if (sectionEl) {
                         var isEmbedMode = document.body.classList.contains('embed-checkout-mode');
                         var isIosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-                        var scrollBlock = (isEmbedMode && stepNumber === 2 && window.innerWidth <= 991)
-                            ? 'center'
-                            : 'start';
                         var scrollBehavior = (isEmbedMode && isIosDevice) ? 'auto' : 'smooth';
-                        el.scrollIntoView({ behavior: scrollBehavior, block: scrollBlock });
+                        var headingEl = sectionEl.querySelector('h1, h2, h3, .checkout-section-title') || sectionEl;
+                        var rect = headingEl.getBoundingClientRect ? headingEl.getBoundingClientRect() : null;
+                        var top = rect ? Math.max(0, Math.floor(rect.top + window.pageYOffset - 10)) : 0;
+
+                        window.scrollTo({ top: top, behavior: scrollBehavior });
                     }
                 }, 50);
             }
