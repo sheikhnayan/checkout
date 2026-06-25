@@ -11577,11 +11577,16 @@
 
         function getContentHeight() {
             var activeSection = document.querySelector('.checkout-section.active') || document.querySelector('#section-1.active') || document.querySelector('#section-2.active') || document.querySelector('#section-3.active');
-            var targets = [];
-
-            if (activeSection) {
-                targets.push(activeSection);
-            }
+            var targets = [
+                document.querySelector('#cv-checkout-layout'),
+                document.querySelector('.cv-checkout-body'),
+                document.querySelector('#cv-order-sidebar'),
+                document.querySelector('.cv-sidebar'),
+                document.querySelector('.pricing-shell'),
+                activeSection
+            ].filter(function (node) {
+                return !!node;
+            });
 
             var maxBottom = 0;
             targets.forEach(function (node) {
