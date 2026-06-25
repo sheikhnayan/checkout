@@ -9077,7 +9077,10 @@
                 setTimeout(function() {
                     var el = document.getElementById('section-' + stepNumber);
                     if (el) {
-                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        var scrollBlock = (document.body.classList.contains('embed-checkout-mode') && stepNumber === 2 && window.innerWidth <= 991)
+                            ? 'center'
+                            : 'start';
+                        el.scrollIntoView({ behavior: 'smooth', block: scrollBlock });
                     }
                 }, 50);
             }
