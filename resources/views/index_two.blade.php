@@ -9152,6 +9152,10 @@
                             return;
                         }
 
+                        let toast = document.getElementById('cv-cart-toast');
+                        let start = Date.now();
+                        let maxWait = 2600;
+
                         let scrollToCheckout = function () {
                             let targetSection = document.getElementById('section-1') || document.querySelector('.checkout-section.active');
                             if (targetSection && targetSection.scrollIntoView) {
@@ -9161,9 +9165,30 @@
                             }
                         };
 
-                        window.dispatchEvent(new CustomEvent('embed:category-toggle'));
-                        window.parent.postMessage({ type: 'checkoutScrollToIframe' }, '*');
-                        setTimeout(scrollToCheckout, 120);
+                        let runAfterToast = function () {
+                            window.dispatchEvent(new CustomEvent('embed:category-toggle'));
+                            setTimeout(function () {
+                                window.parent.postMessage({ type: 'checkoutScrollToIframe' }, '*');
+                            }, 220);
+                            setTimeout(scrollToCheckout, 420);
+                        };
+
+                        if (!toast) {
+                            runAfterToast();
+                            return;
+                        }
+
+                        (function waitForToast() {
+                            if (toast.classList.contains('is-visible')) {
+                                runAfterToast();
+                                return;
+                            }
+                            if ((Date.now() - start) >= maxWait) {
+                                runAfterToast();
+                                return;
+                            }
+                            setTimeout(waitForToast, 80);
+                        })();
                     }, typeof delayMs === 'number' ? delayMs : 900);
                 }
 
@@ -9241,36 +9266,8 @@
                         if (shouldRestoreScrollOnHide) {
                             window.scrollTo({ top: isNaN(returnScrollY) ? 0 : returnScrollY, behavior: 'auto' });
                         } else if (shouldScrollToCheckoutOnHide) {
-                            let scrollToCheckout = function () {
-                                let targetSection = document.getElementById('section-1') || document.querySelector('.checkout-section.active');
-                                if (targetSection && targetSection.scrollIntoView) {
-                                    targetSection.scrollIntoView({ behavior: 'auto', block: 'start' });
-                                } else {
-                                    window.scrollTo({ top: 0, behavior: 'auto' });
-                                }
-                            };
-
-                            let completed = false;
-                            let onHeightPosted = null;
-                            let finalizeScroll = function () {
-                                if (completed) {
-                                    return;
-                                }
-                                completed = true;
-                                if (onHeightPosted) {
-                                    window.removeEventListener('embed:height-posted', onHeightPosted);
-                                }
-                                window.parent.postMessage({ type: 'checkoutScrollToIframe' }, '*');
-                                setTimeout(scrollToCheckout, 120);
-                            };
-
-                            onHeightPosted = function () {
-                                finalizeScroll();
-                            };
-
-                            window.addEventListener('embed:height-posted', onHeightPosted);
-                            window.dispatchEvent(new CustomEvent('embed:category-toggle'));
-                            setTimeout(finalizeScroll, 1500);
+                            // Success flow auto-scroll is handled by triggerEmbedCheckoutScrollFallback()
+                            // so we avoid duplicate competing scrolls here.
                         }
                     }
                     delete this.dataset.returnScrollY;
