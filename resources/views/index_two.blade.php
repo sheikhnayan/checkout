@@ -8930,6 +8930,7 @@
                 var addonSelectionModalEl = document.getElementById('addonSelectionModal');
                 if (document.body.classList.contains('embed-checkout-mode')) {
                     addonSelectionModalEl.dataset.returnScrollY = String(window.pageYOffset || window.scrollY || 0);
+                    addonSelectionModalEl.dataset.restoreScrollOnHide = '1';
                 }
                 bootstrap.Modal.getOrCreateInstance(addonSelectionModalEl).show();
                 if (document.body.classList.contains('embed-checkout-mode')) {
@@ -9057,6 +9058,11 @@
                     });
 
                     window.addPackageToCart(selection.packageId, selection.packageName, selection.packagePrice, selection.guests, selectedAddons, selection.transportation, selection.isMultiple);
+
+                    let addonModalEl = document.getElementById('addonSelectionModal');
+                    if (document.body.classList.contains('embed-checkout-mode') && addonModalEl) {
+                        addonModalEl.dataset.restoreScrollOnHide = '0';
+                    }
                     $('#package_id').val(selection.packageId);
 
                     $('.dynamic-price').show();
@@ -9079,6 +9085,11 @@
                     let selectedAddons = []; // Empty array - no add-ons selected
 
                     window.addPackageToCart(selection.packageId, selection.packageName, selection.packagePrice, selection.guests, selectedAddons, selection.transportation, selection.isMultiple);
+
+                    let addonModalEl = document.getElementById('addonSelectionModal');
+                    if (document.body.classList.contains('embed-checkout-mode') && addonModalEl) {
+                        addonModalEl.dataset.restoreScrollOnHide = '0';
+                    }
                     $('#package_id').val(selection.packageId);
 
                     $('.dynamic-price').show();
@@ -9166,6 +9177,7 @@
                     let content = this.querySelector('.modal-content');
                     let body = this.querySelector('.modal-body');
                     let returnScrollY = parseInt(this.dataset.returnScrollY || '0', 10);
+                    let shouldRestoreScrollOnHide = this.dataset.restoreScrollOnHide !== '0';
                     if (content) {
                         content.style.maxHeight = '';
                         content.style.display = '';
@@ -9179,10 +9191,11 @@
                         body.style.webkitOverflowScrolling = '';
                     }
 
-                    if (document.body.classList.contains('embed-checkout-mode')) {
+                    if (document.body.classList.contains('embed-checkout-mode') && shouldRestoreScrollOnHide) {
                         window.scrollTo({ top: isNaN(returnScrollY) ? 0 : returnScrollY, behavior: 'auto' });
                     }
                     delete this.dataset.returnScrollY;
+                    delete this.dataset.restoreScrollOnHide;
 
                     if (!document.querySelector('.modal.show')) {
                         document.body.classList.remove('modal-open');

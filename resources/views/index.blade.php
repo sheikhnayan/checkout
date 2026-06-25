@@ -8378,6 +8378,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 var addonSelectionModalEl = document.getElementById('addonSelectionModal');
                 if (document.body.classList.contains('embed-checkout-mode')) {
                     addonSelectionModalEl.dataset.returnScrollY = String(window.pageYOffset || window.scrollY || 0);
+                    addonSelectionModalEl.dataset.restoreScrollOnHide = '1';
                 }
                 bootstrap.Modal.getOrCreateInstance(addonSelectionModalEl).show();
                 if (document.body.classList.contains('embed-checkout-mode')) {
@@ -8523,6 +8524,11 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                             return;
                         }
 
+                        var addonModalEl = document.getElementById('addonSelectionModal');
+                        if (document.body.classList.contains('embed-checkout-mode') && addonModalEl) {
+                            addonModalEl.dataset.restoreScrollOnHide = '0';
+                        }
+
                         $('#package_id').val(selection.packageId);
                         $('#addons').val(selectedAddons.map(function(addon) { return addon.id; }).join(','));
                         $('.package_number_of_guest').val(selection.guests);
@@ -8557,6 +8563,11 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     ).then(function(added) {
                         if (!added) {
                             return;
+                        }
+
+                        var addonModalEl = document.getElementById('addonSelectionModal');
+                        if (document.body.classList.contains('embed-checkout-mode') && addonModalEl) {
+                            addonModalEl.dataset.restoreScrollOnHide = '0';
                         }
 
                         $('#package_id').val(selection.packageId);
@@ -8648,6 +8659,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     var content = this.querySelector('.modal-content');
                     var body = this.querySelector('.modal-body');
                     var returnScrollY = parseInt(this.dataset.returnScrollY || '0', 10);
+                    var shouldRestoreScrollOnHide = this.dataset.restoreScrollOnHide !== '0';
                     if (content) {
                         content.style.maxHeight = '';
                         content.style.display = '';
@@ -8661,10 +8673,11 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                         body.style.webkitOverflowScrolling = '';
                     }
 
-                    if (document.body.classList.contains('embed-checkout-mode')) {
+                    if (document.body.classList.contains('embed-checkout-mode') && shouldRestoreScrollOnHide) {
                         window.scrollTo({ top: isNaN(returnScrollY) ? 0 : returnScrollY, behavior: 'auto' });
                     }
                     delete this.dataset.returnScrollY;
+                    delete this.dataset.restoreScrollOnHide;
 
                     if (!document.querySelector('.modal.show')) {
                         document.body.classList.remove('modal-open');
