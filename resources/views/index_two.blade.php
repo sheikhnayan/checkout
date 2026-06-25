@@ -1743,6 +1743,23 @@
             color: #000 !important;
         }
 
+        .single-package-date-card {
+            margin: 14px 0 18px;
+            max-width: 460px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(232,190,106,0.28);
+            background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(232,190,106,0.08));
+            box-shadow: 0 8px 22px rgba(0,0,0,0.22);
+        }
+
+        .single-package-date-card label {
+            color: rgba(255,255,255,0.86) !important;
+            font-size: 10px;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
         .event-capacity-chip {
             display: inline-flex;
             align-items: center;
@@ -5734,7 +5751,7 @@
                 </section>
                 @endif
 
-                @if(!empty($data->gallery_images))
+                @if(!empty($data->gallery_images) && empty($isSinglePackageCheckout))
                     <div class="hero-gallery-grid">
                         @foreach((array) $data->gallery_images as $galleryImage)
                             <button type="button" class="hero-gallery-item js-checkout-gallery-trigger" data-gallery-src="{{ asset('uploads/' . $galleryImage) }}" data-gallery-alt="Gallery image {{ $loop->iteration }}">
@@ -5744,6 +5761,7 @@
                     </div>
                 @endif
 
+                @if (empty($isSinglePackageCheckout))
                 <section class="aff-story">
                     <h2>{{ $data->description_label ?? 'Description' }}</h2>
                     <div class="story-copy-block is-collapsed" data-mobile-collapsible>
@@ -5766,6 +5784,7 @@
                         </div>
                     @endif
                 </section>
+                @endif
             </div>
         </header>
         <main style="background: radial-gradient(circle at 18% 60px, rgba(232,190,106,.10), transparent 340px), radial-gradient(circle at 82% 180px, rgba(124,92,255,.10), transparent 360px), linear-gradient(180deg,#050507 0%,#06070a 100%);">
@@ -5787,7 +5806,10 @@
                             @endif
                         </div>
                         @if (!empty($isSinglePackageCheckout))
-                            <div class="hero-date-card" style="margin: 14px 0 16px; max-width: 460px;">
+                            <style>
+                                #cv-checkout-steps { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+                            </style>
+                            <div class="hero-date-card single-package-date-card">
                                 <label>Choose Your Reservation Date</label>
                                 <div class="date-input-wrapper">
                                     <input id="package_use_date" type="text"
@@ -7055,6 +7077,7 @@
 
             {{-- Location info now lives in the hero (.cv-hero-location). --}}
 
+            @if (empty($isSinglePackageCheckout))
             <section class="cv-events-shell">
                 <div class="container py-5 events-section-container">
                     <div class="event-header">
@@ -7113,6 +7136,7 @@
 
 
             </section>
+            @endif
 
             <div class="modal fade" id="infoTooltipModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
