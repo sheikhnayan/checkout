@@ -10624,33 +10624,6 @@ body.embed-checkout-mode main .container.mt-4 {
                 }
             );
             var idx = fields.indexOf(el);
-
-            <script>
-            (function () {
-                if (!document.body.classList.contains('embed-checkout-mode')) return;
-                var isIosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-                if (!isIosDevice) return;
-
-                function normalizeScrollEdges() {
-                    var scroller = document.scrollingElement || document.documentElement || document.body;
-                    if (!scroller) return;
-                    var maxScrollTop = scroller.scrollHeight - scroller.clientHeight;
-                    if (maxScrollTop <= 0) return;
-
-                    if (scroller.scrollTop <= 0) {
-                        scroller.scrollTop = 1;
-                        return;
-                    }
-                    if (scroller.scrollTop >= maxScrollTop) {
-                        scroller.scrollTop = Math.max(maxScrollTop - 1, 0);
-                    }
-                }
-
-                window.addEventListener('load', normalizeScrollEdges);
-                window.addEventListener('pageshow', normalizeScrollEdges);
-                document.addEventListener('touchstart', normalizeScrollEdges, { passive: true });
-            })();
-            </script>
             if (idx > -1 && idx < fields.length - 1) {
                 var next = fields[idx + 1];
                 next.focus();
@@ -10659,6 +10632,35 @@ body.embed-checkout-mode main .container.mt-4 {
                 el.blur();
             }
         });
+    })();
+    </script>
+
+    <script>
+    (function () {
+        if (!document.body.classList.contains('embed-checkout-mode')) return;
+        var isIosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        if (!isIosDevice) return;
+
+        var startY = 0;
+        document.addEventListener('touchstart', function (e) {
+            if (!e.touches || !e.touches.length) return;
+            startY = e.touches[0].clientY;
+        }, { passive: true });
+
+        document.addEventListener('touchmove', function (e) {
+            if (!e.touches || !e.touches.length) return;
+            var scroller = document.scrollingElement || document.documentElement || document.body;
+            if (!scroller) return;
+
+            var currentY = e.touches[0].clientY;
+            var isPullingDown = currentY > startY;
+            var atTop = scroller.scrollTop <= 0;
+            var atBottom = Math.ceil(scroller.scrollTop + scroller.clientHeight) >= scroller.scrollHeight;
+
+            if ((atTop && isPullingDown) || (atBottom && !isPullingDown)) {
+                e.preventDefault();
+            }
+        }, { passive: false });
     })();
     </script>
 
