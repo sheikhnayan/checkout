@@ -7073,7 +7073,7 @@
             </div>
 
             <div class="modal fade" id="addonSelectionModal" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered addon-modal-dialog">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable addon-modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="addonSelectionModalTitle">Select Add-ons</h5>
