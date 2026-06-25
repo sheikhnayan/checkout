@@ -11598,13 +11598,13 @@
                 maxBottom = fallbackRoot && fallbackRoot.scrollHeight ? fallbackRoot.scrollHeight : 1000;
             }
 
-            var viewportFloor = window.innerHeight ? Math.max(650, Math.round(window.innerHeight * 0.78)) : 650;
-            return Math.max(maxBottom + 24, viewportFloor);
+            var viewportFloor = window.innerHeight ? Math.max(720, Math.round(window.innerHeight * 0.86)) : 720;
+            return Math.max(maxBottom + 56, viewportFloor);
         }
 
         function postHeightNow() {
             if (!mobileQuery.matches) return;
-            var nextHeight = Math.max(650, Math.min(getContentHeight(), 3600));
+            var nextHeight = Math.max(720, Math.min(getContentHeight(), 3600));
             if (Math.abs(nextHeight - lastHeight) < 2) return;
             lastHeight = nextHeight;
             window.parent.postMessage({ type: 'checkoutEmbedHeight', height: nextHeight }, '*');
