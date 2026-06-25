@@ -9229,7 +9229,7 @@
                                 window.dispatchEvent(new CustomEvent('embed:category-toggle'));
                                 scrollToCheckout();
                             };
-                            setTimeout(runSettledCheckoutScroll, 800);
+                            setTimeout(runSettledCheckoutScroll, 1000);
                         }
                     }
                     delete this.dataset.returnScrollY;
