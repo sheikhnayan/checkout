@@ -8697,15 +8697,32 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                         if (shouldRestoreScrollOnHide) {
                             window.scrollTo({ top: isNaN(returnScrollY) ? 0 : returnScrollY, behavior: 'auto' });
                         } else if (shouldScrollToCheckoutOnHide) {
-                            window.parent.postMessage({ type: 'checkoutScrollToIframe' }, '*');
-                            window.setTimeout(function() {
+                            var scrollToCheckout = function () {
                                 var targetSection = document.getElementById('section-1') || document.querySelector('.checkout-section.active');
                                 if (targetSection && targetSection.scrollIntoView) {
                                     targetSection.scrollIntoView({ behavior: 'auto', block: 'start' });
                                 } else {
                                     window.scrollTo({ top: 0, behavior: 'auto' });
                                 }
-                            }, 40);
+                            };
+
+                            var runSettledCheckoutScroll = function () {
+                                window.parent.postMessage({ type: 'checkoutScrollToIframe' }, '*');
+                                window.dispatchEvent(new CustomEvent('embed:category-toggle'));
+                                scrollToCheckout();
+                            };
+
+                            if (window.requestAnimationFrame) {
+                                requestAnimationFrame(function () {
+                                    requestAnimationFrame(runSettledCheckoutScroll);
+                                });
+                            } else {
+                                setTimeout(runSettledCheckoutScroll, 60);
+                            }
+
+                            setTimeout(runSettledCheckoutScroll, 180);
+                            setTimeout(runSettledCheckoutScroll, 420);
+                            setTimeout(runSettledCheckoutScroll, 760);
                         }
                     }
                     delete this.dataset.returnScrollY;
