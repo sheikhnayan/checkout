@@ -17,9 +17,20 @@ use Illuminate\Support\Facades\Schema;
 
 class FrontendController extends Controller
 {
+    public function singlePackageCheckout($slug, $packageId, Request $request)
+    {
+        $request->merge([
+            'package' => (int) $packageId,
+            'single_package_checkout' => 1,
+        ]);
+
+        return $this->index($slug, $request);
+    }
+
     public function index($slug, Request $request)
     {
         $isIframeCheckout = $request->boolean('embed');
+        $singlePackageCheckout = $request->boolean('single_package_checkout');
 
         // Get only active, non-archived website by slug
         $data = Website::where('slug', $slug)
@@ -67,6 +78,57 @@ class FrontendController extends Controller
         }
 
         $requestedPackageId = $request->filled('package') ? (int) $request->input('package') : null;
+        $singleCheckoutPackage = null;
+
+        if ($singlePackageCheckout) {
+            if (!$requestedPackageId) {
+                abort(404, 'Package not found');
+            }
+
+            $singleCheckoutPackage = Package::query()
+                ->with('event')
+                ->where('id', $requestedPackageId)
+                ->where('website_id', $data->id)
+                ->clubVisible()
+                ->where('status', 1)
+                ->where('is_archieved', 0)
+                ->first();
+
+            if (!$singleCheckoutPackage) {
+                abort(404, 'Package not found');
+            }
+
+            if ($singleCheckoutPackage->event_id) {
+                $event = Event::where('id', $singleCheckoutPackage->event_id)
+                    ->where('website_id', $data->id)
+                    ->where('is_archieved', 0)
+                    ->when(Schema::hasColumn('events', 'status'), function ($query) {
+                        $query->where('status', 1);
+                    })
+                    ->first();
+
+                if (!$event || !$this->isEventCurrentOrUpcoming($event)) {
+                    abort(404, 'Package event not available');
+                }
+
+                $event = $this->decorateEventAttendanceData($event);
+                $packageCategories = $this->buildPackageCategories($data, (int) $event->id, false);
+                $packageCategories = $this->filterPackageCategoriesByPackageId($packageCategories, $requestedPackageId);
+
+                if ($packageCategories->isEmpty()) {
+                    abort(404, 'Package not available');
+                }
+
+                $data->setRelation('events', $this->activeWebsiteEvents($data->id));
+
+                $checkoutPopup = CheckoutPopup::activeForCheckout((int) $data->id)
+                    ->latest('id')
+                    ->first();
+
+                return view('index', compact('data', 'event', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout'));
+            }
+        }
+
         $checkoutPopup = CheckoutPopup::activeForCheckout((int) $data->id)
             ->latest('id')
             ->first();
@@ -84,6 +146,12 @@ class FrontendController extends Controller
                 $event = $this->decorateEventAttendanceData($event);
 
                 $packageCategories = $this->buildPackageCategories($data, (int) $event->id, false);
+                if ($singlePackageCheckout) {
+                    $packageCategories = $this->filterPackageCategoriesByPackageId($packageCategories, $requestedPackageId);
+                    if ($packageCategories->isEmpty()) {
+                        abort(404, 'Package not available');
+                    }
+                }
 
                 $data->setRelation('events', $this->activeWebsiteEvents($data->id));
 
@@ -92,11 +160,33 @@ class FrontendController extends Controller
         }
 
         $packageCategories = $this->buildPackageCategories($data, null, true);
+        if ($singlePackageCheckout) {
+            $packageCategories = $this->filterPackageCategoriesByPackageId($packageCategories, $requestedPackageId);
+            if ($packageCategories->isEmpty()) {
+                abort(404, 'Package not available');
+            }
+        }
 
         $data->setRelation('events', $this->activeWebsiteEvents($data->id));
 
         return view('index_two', compact('data', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout'));
 
+    }
+
+    private function filterPackageCategoriesByPackageId($packageCategories, int $packageId)
+    {
+        return collect($packageCategories)
+            ->map(function ($category) use ($packageId) {
+                $filteredPackages = collect($category['packages'] ?? [])->where('id', $packageId)->values();
+                if ($filteredPackages->isEmpty()) {
+                    return null;
+                }
+
+                $category['packages'] = $filteredPackages;
+                return $category;
+            })
+            ->filter()
+            ->values();
     }
 
     public function addons($slug, $id)

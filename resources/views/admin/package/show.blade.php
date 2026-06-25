@@ -209,6 +209,12 @@
                                                                 </form>
                                                             </td>
                                                             <td>
+                                                                <button type="button"
+                                                                    class="btn btn-dark js-copy-single-checkout"
+                                                                    data-checkout-url="{{ route('package.checkout.single', ['slug' => $website->slug, 'packageId' => $item->id]) }}"
+                                                                    title="Copy Single Checkout Link">
+                                                                    Copy Link
+                                                                </button>
                                                                 <a href="/admins/package/edit/{{ $item->id }}" class="btn btn-primary">Edit</a>
                                                                 <form action="/admins/package/archive/{{ $item->id }}" method="POST" style="display:inline;">
                                                                     @csrf
@@ -269,6 +275,12 @@
                                                                 </form>
                                                             </td>
                                                             <td>
+                                                                <button type="button"
+                                                                    class="btn btn-dark js-copy-single-checkout"
+                                                                    data-checkout-url="{{ route('package.checkout.single', ['slug' => $website->slug, 'packageId' => $item->id]) }}"
+                                                                    title="Copy Single Checkout Link">
+                                                                    Copy Link
+                                                                </button>
                                                                 <form action="/admins/package/unarchive/{{ $item->id }}" method="POST" style="display:inline;">
                                                                     @csrf
                                                                     <button type="submit" class="btn btn-success" onclick="return confirm('Unarchive this package?');">
@@ -457,6 +469,12 @@
                                                                 </td>
                                                                 <td>{{ $pkg->price }}</td>
                                                                 <td>
+                                                                    <button type="button"
+                                                                        class="btn btn-sm btn-dark js-copy-single-checkout"
+                                                                        data-checkout-url="{{ route('package.checkout.single', ['slug' => $website->slug, 'packageId' => $pkg->id]) }}"
+                                                                        title="Copy Single Checkout Link">
+                                                                        Copy Link
+                                                                    </button>
                                                                     <a href="{{ route('admin.package.edit', $pkg->id) }}" class="btn btn-sm btn-primary">Edit</a>
                                                                 </td>
                                                             </tr>
@@ -592,6 +610,37 @@
                     });
 
                     const csrfToken = '{{ csrf_token() }}';
+
+                    function copySingleCheckoutLink(button) {
+                        const checkoutUrl = button.getAttribute('data-checkout-url') || '';
+                        if (!checkoutUrl) {
+                            return;
+                        }
+
+                        const originalText = button.textContent;
+
+                        function markCopied(text) {
+                            button.textContent = text;
+                            setTimeout(function() {
+                                button.textContent = originalText;
+                            }, 1400);
+                        }
+
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            navigator.clipboard.writeText(checkoutUrl).then(function() {
+                                markCopied('Copied');
+                            }).catch(function() {
+                                window.prompt('Copy single checkout link:', checkoutUrl);
+                            });
+                            return;
+                        }
+
+                        window.prompt('Copy single checkout link:', checkoutUrl);
+                    }
+
+                    $(document).on('click', '.js-copy-single-checkout', function() {
+                        copySingleCheckoutLink(this);
+                    });
 
                     function showReorderToast(message, isError = false) {
                         const toastEl = document.getElementById('reorderToast');

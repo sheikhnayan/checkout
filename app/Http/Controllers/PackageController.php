@@ -253,6 +253,7 @@ class PackageController extends Controller
             ->get();
 
         $website_id = $id;
+        $website = Website::select('id', 'slug')->findOrFail((int) $id);
 
         $categories = PackageCategory::where('website_id', $id)
             ->orderBy('is_archieved')
@@ -284,7 +285,7 @@ class PackageController extends Controller
                 ->get();
         }
 
-        return view('admin.package.show', compact('data', 'targetedPackages', 'website_id', 'categories', 'selectedCategoryKey', 'selectedCategory', 'categoryPackages'));
+        return view('admin.package.show', compact('data', 'targetedPackages', 'website_id', 'website', 'categories', 'selectedCategoryKey', 'selectedCategory', 'categoryPackages'));
     }
 
     /**

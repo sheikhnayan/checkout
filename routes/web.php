@@ -175,6 +175,7 @@ Route::get('/{slug}/addons/{id}', [FrontendController::class, 'addons'])->name('
 
 Route::get('/{slug}/check/{code}', [FrontendController::class, 'checkCode'])->name('check.code');
 Route::get('/{slug}/auto-discounts', [FrontendController::class, 'autoDiscounts'])->name('auto.discounts');
+Route::get('/{slug}/package/{packageId}/checkout', [FrontendController::class, 'singlePackageCheckout'])->name('package.checkout.single');
 
 Route::get('/{slug}/package/{packageId}/capacity', [FrontendController::class, 'checkPackageCapacity'])->name('package.capacity');
 
