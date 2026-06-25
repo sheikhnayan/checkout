@@ -4914,6 +4914,9 @@ body.embed-checkout-mode .cv-checkout-body {
 body.embed-checkout-mode .iframe-date-card {
     margin-bottom: 14px;
 }
+body.embed-checkout-mode .iframe-date-card label {
+    color: #fff !important;
+}
 @media (max-width: 991px) {
     body.embed-checkout-mode main {
         padding-top: 8px;
