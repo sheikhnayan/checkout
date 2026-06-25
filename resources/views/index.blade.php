@@ -9625,6 +9625,9 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 var maxT = to24h(typeof transportationSchedule !== 'undefined' ? transportationSchedule.endTime : null);
                 var isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
                     || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+                var ua = navigator.userAgent || '';
+                var isSafariBrowser = /Safari/i.test(ua) && !/Chrome|CriOS|Chromium|Edg|OPR|Firefox|FxiOS/i.test(ua);
+                var isMacDesktopSafari = isSafariBrowser && /Mac/i.test(navigator.platform || ua) && !(navigator.maxTouchPoints > 1);
 
                 if (isMobileDevice) {
                     el.type = 'time';
@@ -9654,6 +9657,26 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     minuteIncrement: 15,
                     dateFormat: 'h:i K',
                     allowInput: false,
+                    onReady: function (selectedDates, dateStr, instance) {
+                        if (!isMacDesktopSafari || !instance || !instance.calendarContainer) {
+                            return;
+                        }
+                        var ampmEl = instance.calendarContainer.querySelector('.flatpickr-am-pm');
+                        if (!ampmEl || ampmEl.dataset.safariAmPmBound === '1') {
+                            return;
+                        }
+                        ampmEl.dataset.safariAmPmBound = '1';
+                        ampmEl.style.pointerEvents = 'auto';
+                        ampmEl.addEventListener('click', function (evt) {
+                            evt.preventDefault();
+                            evt.stopPropagation();
+                            var base = instance.selectedDates && instance.selectedDates[0]
+                                ? new Date(instance.selectedDates[0].getTime())
+                                : (instance.parseDate(instance.input && instance.input.value ? instance.input.value : '', 'h:i K') || new Date());
+                            base.setHours((base.getHours() + 12) % 24);
+                            instance.setDate(base, true, 'h:i K');
+                        });
+                    },
                     onChange: function () {
                         $(el).removeClass('required-field');
                     },
