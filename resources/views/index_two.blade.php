@@ -9234,7 +9234,7 @@
                                 window.scrollTo({ top: top, behavior: 'auto' });
                             };
 
-                            setTimeout(forceScrollToCheckout, 1200);
+                            setTimeout(forceScrollToCheckout, 800);
                         }
                     }
                     delete this.dataset.returnScrollY;
