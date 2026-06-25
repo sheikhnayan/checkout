@@ -10218,17 +10218,17 @@
                     }
                     return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
                 }
-                var minT = to24h(typeof transportationSchedule !== 'undefined' ? transportationSchedule.startTime : null);
-                var maxT = to24h(typeof transportationSchedule !== 'undefined' ? transportationSchedule.endTime : null);
                 var isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
                     || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+                var userAgent = navigator.userAgent || '';
+                var isSafariDesktop = /^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(userAgent) && !isMobileDevice;
 
-                if (isMobileDevice) {
+                if (isMobileDevice || isSafariDesktop) {
                     el.type = 'time';
                     el.removeAttribute('readonly');
                     el.step = 900;
-                    if (minT) el.min = minT;
-                    if (maxT) el.max = maxT;
+                    el.removeAttribute('min');
+                    el.removeAttribute('max');
                     el.addEventListener('input', function () {
                         $(el).removeClass('required-field');
                     });
@@ -10239,8 +10239,8 @@
                 el.removeAttribute('readonly');
                 if (typeof flatpickr === 'undefined') {
                     el.type = 'time';
-                    if (minT) el.min = minT;
-                    if (maxT) el.max = maxT;
+                    el.removeAttribute('min');
+                    el.removeAttribute('max');
                     el.step = 900;
                     return;
                 }
@@ -10255,9 +10255,7 @@
                     clickOpens: true,
                     onChange: function () {
                         $(el).removeClass('required-field');
-                    },
-                    minTime: minT || undefined,
-                    maxTime: maxT || undefined
+                    }
                 });
 
                 el.addEventListener('focus', function () {
