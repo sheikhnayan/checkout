@@ -8623,6 +8623,32 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     $('#addonSelectionModalBody .addon-line-total-value[data-id="' + id + '"]').text(formatCurrency(unitPrice * next));
                 });
 
+                function triggerEmbedCheckoutScrollFallback(delayMs) {
+                    if (!document.body.classList.contains('embed-checkout-mode')) {
+                        return;
+                    }
+
+                    setTimeout(function() {
+                        var modalEl = document.getElementById('addonSelectionModal');
+                        if (modalEl && modalEl.classList.contains('show')) {
+                            return;
+                        }
+
+                        var scrollToCheckout = function () {
+                            var targetSection = document.getElementById('section-1') || document.querySelector('.checkout-section.active');
+                            if (targetSection && targetSection.scrollIntoView) {
+                                targetSection.scrollIntoView({ behavior: 'auto', block: 'start' });
+                            } else {
+                                window.scrollTo({ top: 0, behavior: 'auto' });
+                            }
+                        };
+
+                        window.dispatchEvent(new CustomEvent('embed:category-toggle'));
+                        window.parent.postMessage({ type: 'checkoutScrollToIframe' }, '*');
+                        setTimeout(scrollToCheckout, 120);
+                    }, typeof delayMs === 'number' ? delayMs : 900);
+                }
+
                 function adjustAddonModalScrollArea(resetScroll) {
                     if (!document.body.classList.contains('embed-checkout-mode') || window.innerWidth > 991) {
                         return;
@@ -8939,6 +8965,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                         showStep(2);
                     }
                 });
+                        triggerEmbedCheckoutScrollFallback(900);
                 
                 // Previous to Package from Transportation confirmation
                 $('#prev-to-package').click(function() {
@@ -8957,6 +8984,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                         showStep(3);
                     }
                 });
+                        triggerEmbedCheckoutScrollFallback(900);
                 
                 // Next to Payment from Transportation form
                 $('#next-to-payment').click(function() {
