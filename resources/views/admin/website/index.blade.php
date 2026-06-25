@@ -229,7 +229,7 @@
                         return;
                     }
 
-                    const iframeCode = '<iframe src="' + embedUrl + '" width="100%" height="2000" style="border:0;max-width:100%;" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="payment"></iframe>';
+                    const iframeCode = '<iframe src="' + embedUrl + '" width="100%" height="2000" style="border:0;max-width:100%;overflow:auto;-webkit-overflow-scrolling:touch;" loading="lazy" scrolling="yes" referrerpolicy="strict-origin-when-cross-origin" allow="payment"></iframe>';
 
                     if (navigator.clipboard && navigator.clipboard.writeText) {
                         navigator.clipboard.writeText(iframeCode).then(function() {

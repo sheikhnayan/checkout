@@ -5454,6 +5454,14 @@
         }
         body.embed-checkout-mode {
             overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
+            touch-action: pan-y;
+        }
+        body.embed-checkout-mode main,
+        body.embed-checkout-mode .cv-checkout-body {
+            touch-action: pan-y;
         }
         body.embed-checkout-mode main .container.mt-4 {
             padding-left: clamp(16px, 6vw, 100px) !important;
@@ -9077,10 +9085,13 @@
                 setTimeout(function() {
                     var el = document.getElementById('section-' + stepNumber);
                     if (el) {
-                        var scrollBlock = (document.body.classList.contains('embed-checkout-mode') && stepNumber === 2 && window.innerWidth <= 991)
+                        var isEmbedMode = document.body.classList.contains('embed-checkout-mode');
+                        var isIosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+                        var scrollBlock = (isEmbedMode && stepNumber === 2 && window.innerWidth <= 991)
                             ? 'center'
                             : 'start';
-                        el.scrollIntoView({ behavior: 'smooth', block: scrollBlock });
+                        var scrollBehavior = (isEmbedMode && isIosDevice) ? 'auto' : 'smooth';
+                        el.scrollIntoView({ behavior: scrollBehavior, block: scrollBlock });
                     }
                 }, 50);
             }
