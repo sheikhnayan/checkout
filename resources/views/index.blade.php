@@ -10647,20 +10647,18 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
         var scheduled = false;
 
         function getContentHeight() {
-            var doc = document.documentElement;
-            var body = document.body;
-            return Math.max(
-                doc ? doc.scrollHeight : 0,
-                body ? body.scrollHeight : 0,
-                doc ? doc.offsetHeight : 0,
-                body ? body.offsetHeight : 0,
-                doc ? doc.clientHeight : 0
-            );
+            var contentRoot = document.querySelector('.cv-checkout-body') || document.querySelector('main .container.mt-4') || document.body;
+            var rootRect = contentRoot && contentRoot.getBoundingClientRect ? contentRoot.getBoundingClientRect() : null;
+            var rootTop = rootRect ? (rootRect.top + window.pageYOffset) : 0;
+            var rootScrollHeight = contentRoot ? contentRoot.scrollHeight : 0;
+            var contentHeight = Math.ceil(rootTop + rootScrollHeight + 24);
+            var viewportFloor = window.innerHeight ? (window.innerHeight + 120) : 1000;
+            return Math.max(contentHeight, viewportFloor);
         }
 
         function postHeightNow() {
             if (!mobileQuery.matches) return;
-            var nextHeight = Math.max(900, Math.min(getContentHeight(), 12000));
+            var nextHeight = Math.max(1000, Math.min(getContentHeight(), 4200));
             if (Math.abs(nextHeight - lastHeight) < 2) return;
             lastHeight = nextHeight;
             window.parent.postMessage({ type: 'checkoutEmbedHeight', height: nextHeight }, '*');
