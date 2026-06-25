@@ -5464,6 +5464,13 @@
             display: flex;
             align-items: center;
         }
+        @media (max-width: 991px) {
+            body.embed-checkout-mode #addonSelectionModal .addon-modal-dialog.modal-dialog-centered {
+                min-height: calc(100% - 0.5rem);
+                align-items: flex-start;
+                margin-top: max(0.25rem, env(safe-area-inset-top));
+            }
+        }
         body.embed-checkout-mode {
             overflow-x: hidden;
         }
@@ -7066,7 +7073,7 @@
             </div>
 
             <div class="modal fade" id="addonSelectionModal" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-dialog modal-dialog-centered addon-modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="addonSelectionModalTitle">Select Add-ons</h5>
