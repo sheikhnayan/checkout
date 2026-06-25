@@ -230,8 +230,8 @@
                     }
 
                     const iframeId = 'checkout-embed-' + Date.now();
-                    const iframeCode = '<iframe id="' + iframeId + '" src="' + embedUrl + '" width="100%" height="4200" style="border:0;max-width:100%;display:block;" loading="lazy" scrolling="no" referrerpolicy="strict-origin-when-cross-origin" allow="payment"></iframe>' +
-                        '<script>(function(){var iframe=document.getElementById("' + iframeId + '");if(!iframe){return;}window.addEventListener("message",function(event){var data=event.data||{};if(data.type!=="checkoutEmbedHeight"){return;}var nextHeight=parseInt(data.height,10);if(!nextHeight||nextHeight<600){return;}iframe.style.height=Math.max(nextHeight+24,4200)+"px";});})();<\/script>';
+                    const iframeCode = '<iframe id="' + iframeId + '" src="' + embedUrl + '" width="100%" height="2000" style="border:0;max-width:100%;display:block;" loading="lazy" scrolling="no" referrerpolicy="strict-origin-when-cross-origin" allow="payment"></iframe>' +
+                        '<script>(function(){var iframe=document.getElementById("' + iframeId + '");if(!iframe){return;}window.addEventListener("message",function(event){var data=event.data||{};if(data.type!=="checkoutEmbedHeight"){return;}var nextHeight=parseInt(data.height,10);if(!nextHeight||nextHeight<600){return;}iframe.style.height=Math.max(nextHeight+24,2000)+"px";});})();<\/script>';
 
                     if (navigator.clipboard && navigator.clipboard.writeText) {
                         navigator.clipboard.writeText(iframeCode).then(function() {
