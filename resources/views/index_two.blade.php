@@ -5452,9 +5452,21 @@
         body.embed-checkout-mode .iframe-date-card label {
             color: #fff !important;
         }
+        body.embed-checkout-mode {
+            overflow-x: hidden;
+        }
+        body.embed-checkout-mode main .container.mt-4 {
+            padding-left: clamp(16px, 6vw, 100px) !important;
+            padding-right: clamp(16px, 6vw, 100px) !important;
+            box-sizing: border-box;
+        }
         @media (max-width: 991px) {
             body.embed-checkout-mode main {
                 padding-top: 0;
+            }
+            body.embed-checkout-mode main .container.mt-4 {
+                padding-left: 16px !important;
+                padding-right: 16px !important;
             }
         }
 
