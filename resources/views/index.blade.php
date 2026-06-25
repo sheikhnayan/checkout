@@ -4933,22 +4933,33 @@ body.embed-checkout-mode .modal-dialog.modal-dialog-centered {
     align-items: center;
 }
 @media (max-width: 991px) {
+    body.embed-checkout-mode #addonSelectionModal .addon-modal-dialog {
+        max-width: calc(100vw - 32px) !important;
+        width: calc(100vw - 32px) !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        margin-top: 0.25rem !important;
+        margin-bottom: 0.25rem !important;
+    }
     body.embed-checkout-mode #addonSelectionModal .addon-modal-dialog.modal-dialog-centered {
         min-height: calc(100% - 0.5rem);
         align-items: flex-start;
-        margin-top: max(0.25rem, env(safe-area-inset-top));
-        max-width: calc(100vw - max(32px, env(safe-area-inset-left) + env(safe-area-inset-right)));
-        width: 100%;
-        box-sizing: border-box;
+        margin-top: max(0.25rem, env(safe-area-inset-top)) !important;
     }
     body.embed-checkout-mode #addonSelectionModal .addon-modal-dialog.modal-dialog-scrollable {
         max-height: calc(100dvh - max(0.5rem, env(safe-area-inset-top)) - max(0.5rem, env(safe-area-inset-bottom)));
     }
     body.embed-checkout-mode #addonSelectionModal .addon-modal-dialog.modal-dialog-scrollable .modal-content {
         max-height: inherit;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        overflow: hidden;
     }
     body.embed-checkout-mode #addonSelectionModal .addon-modal-dialog.modal-dialog-scrollable .modal-body {
         max-height: calc(100dvh - 170px - max(0.5rem, env(safe-area-inset-top)) - max(0.5rem, env(safe-area-inset-bottom)));
+        flex: 1 1 auto;
+        min-height: 0;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch;
     }
@@ -8579,7 +8590,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     $('#addonSelectionModalBody .addon-line-total-value[data-id="' + id + '"]').text(formatCurrency(unitPrice * next));
                 });
 
-                function adjustAddonModalScrollArea() {
+                function adjustAddonModalScrollArea(resetScroll) {
                     if (!document.body.classList.contains('embed-checkout-mode') || window.innerWidth > 991) {
                         return;
                     }
@@ -8590,41 +8601,70 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     }
 
                     var dialog = modal.querySelector('.addon-modal-dialog');
+                    var content = modal.querySelector('.modal-content');
                     var body = modal.querySelector('.modal-body');
                     var header = modal.querySelector('.modal-header');
                     var footer = modal.querySelector('.modal-footer');
-                    if (!dialog || !body) {
+                    if (!dialog || !content || !body) {
                         return;
                     }
 
                     var viewportHeight = window.visualViewport && window.visualViewport.height ? window.visualViewport.height : window.innerHeight;
-                    var chromeHeight = (header ? header.offsetHeight : 0) + (footer ? footer.offsetHeight : 0) + 48;
-                    var nextHeight = Math.max(180, Math.floor(viewportHeight - chromeHeight));
+                    var verticalInset = 16;
+                    var contentHeight = Math.max(220, Math.floor(viewportHeight - verticalInset));
+                    var chromeHeight = (header ? header.offsetHeight : 0) + (footer ? footer.offsetHeight : 0);
+                    var nextHeight = Math.max(160, contentHeight - chromeHeight);
 
                     dialog.style.alignItems = 'flex-start';
                     dialog.style.maxWidth = 'calc(100vw - 32px)';
-                    dialog.style.width = '100%';
-                    dialog.style.boxSizing = 'border-box';
+                    dialog.style.width = 'calc(100vw - 32px)';
+                    dialog.style.marginLeft = 'auto';
+                    dialog.style.marginRight = 'auto';
+                    dialog.style.marginTop = '8px';
+                    dialog.style.marginBottom = '8px';
+
+                    content.style.maxHeight = contentHeight + 'px';
+                    content.style.display = 'flex';
+                    content.style.flexDirection = 'column';
+
                     body.style.maxHeight = nextHeight + 'px';
+                    body.style.minHeight = '0';
+                    body.style.flex = '1 1 auto';
                     body.style.overflowY = 'auto';
                     body.style.webkitOverflowScrolling = 'touch';
-                    body.scrollTop = 0;
+
+                    if (resetScroll) {
+                        body.scrollTop = 0;
+                    }
                 }
 
-                document.getElementById('addonSelectionModal')?.addEventListener('shown.bs.modal', adjustAddonModalScrollArea);
+                document.getElementById('addonSelectionModal')?.addEventListener('shown.bs.modal', function() {
+                    adjustAddonModalScrollArea(true);
+                });
                 document.getElementById('addonSelectionModal')?.addEventListener('hidden.bs.modal', function() {
+                    var content = this.querySelector('.modal-content');
                     var body = this.querySelector('.modal-body');
+                    if (content) {
+                        content.style.maxHeight = '';
+                        content.style.display = '';
+                        content.style.flexDirection = '';
+                    }
                     if (body) {
                         body.style.maxHeight = '';
+                        body.style.minHeight = '';
+                        body.style.flex = '';
                         body.style.overflowY = '';
                         body.style.webkitOverflowScrolling = '';
                     }
                 });
-                window.addEventListener('resize', adjustAddonModalScrollArea);
+                window.addEventListener('resize', function() {
+                    adjustAddonModalScrollArea(false);
+                });
                 if (window.visualViewport) {
-                    window.visualViewport.addEventListener('resize', adjustAddonModalScrollArea);
+                    window.visualViewport.addEventListener('resize', function() {
+                        adjustAddonModalScrollArea(false);
+                    });
                 }
-
                 $(document).on('change', '#package_use_date', function() {
                     var previousDate = String(window.lastSelectedUseDate || '').trim();
                     var currentDate = (typeof window.getSelectedUseDate === 'function')

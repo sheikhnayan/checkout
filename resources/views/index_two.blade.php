@@ -5465,22 +5465,33 @@
             align-items: center;
         }
         @media (max-width: 991px) {
+            body.embed-checkout-mode #addonSelectionModal .addon-modal-dialog {
+                max-width: calc(100vw - 32px) !important;
+                width: calc(100vw - 32px) !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                margin-top: 0.25rem !important;
+                margin-bottom: 0.25rem !important;
+            }
             body.embed-checkout-mode #addonSelectionModal .addon-modal-dialog.modal-dialog-centered {
                 min-height: calc(100% - 0.5rem);
                 align-items: flex-start;
-                margin-top: max(0.25rem, env(safe-area-inset-top));
-                max-width: calc(100vw - max(32px, env(safe-area-inset-left) + env(safe-area-inset-right)));
-                width: 100%;
-                box-sizing: border-box;
+                margin-top: max(0.25rem, env(safe-area-inset-top)) !important;
             }
             body.embed-checkout-mode #addonSelectionModal .addon-modal-dialog.modal-dialog-scrollable {
                 max-height: calc(100dvh - max(0.5rem, env(safe-area-inset-top)) - max(0.5rem, env(safe-area-inset-bottom)));
             }
             body.embed-checkout-mode #addonSelectionModal .addon-modal-dialog.modal-dialog-scrollable .modal-content {
                 max-height: inherit;
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                overflow: hidden;
             }
             body.embed-checkout-mode #addonSelectionModal .addon-modal-dialog.modal-dialog-scrollable .modal-body {
                 max-height: calc(100dvh - 170px - max(0.5rem, env(safe-area-inset-top)) - max(0.5rem, env(safe-area-inset-bottom)));
+                flex: 1 1 auto;
+                min-height: 0;
                 overflow-y: auto !important;
                 -webkit-overflow-scrolling: touch;
             }
@@ -9097,7 +9108,7 @@
                     $('#addonSelectionModalBody .addon-line-total-value[data-id="' + id + '"]').text(formatCurrency(unitPrice * next));
                 });
 
-                function adjustAddonModalScrollArea() {
+                function adjustAddonModalScrollArea(resetScroll) {
                     if (!document.body.classList.contains('embed-checkout-mode') || window.innerWidth > 991) {
                         return;
                     }
@@ -9108,41 +9119,70 @@
                     }
 
                     let dialog = modal.querySelector('.addon-modal-dialog');
+                    let content = modal.querySelector('.modal-content');
                     let body = modal.querySelector('.modal-body');
                     let header = modal.querySelector('.modal-header');
                     let footer = modal.querySelector('.modal-footer');
-                    if (!dialog || !body) {
+                    if (!dialog || !content || !body) {
                         return;
                     }
 
                     let viewportHeight = window.visualViewport && window.visualViewport.height ? window.visualViewport.height : window.innerHeight;
-                    let chromeHeight = (header ? header.offsetHeight : 0) + (footer ? footer.offsetHeight : 0) + 48;
-                    let nextHeight = Math.max(180, Math.floor(viewportHeight - chromeHeight));
+                    let verticalInset = 16;
+                    let contentHeight = Math.max(220, Math.floor(viewportHeight - verticalInset));
+                    let chromeHeight = (header ? header.offsetHeight : 0) + (footer ? footer.offsetHeight : 0);
+                    let nextHeight = Math.max(160, contentHeight - chromeHeight);
 
                     dialog.style.alignItems = 'flex-start';
                     dialog.style.maxWidth = 'calc(100vw - 32px)';
-                    dialog.style.width = '100%';
-                    dialog.style.boxSizing = 'border-box';
+                    dialog.style.width = 'calc(100vw - 32px)';
+                    dialog.style.marginLeft = 'auto';
+                    dialog.style.marginRight = 'auto';
+                    dialog.style.marginTop = '8px';
+                    dialog.style.marginBottom = '8px';
+
+                    content.style.maxHeight = contentHeight + 'px';
+                    content.style.display = 'flex';
+                    content.style.flexDirection = 'column';
+
                     body.style.maxHeight = nextHeight + 'px';
+                    body.style.minHeight = '0';
+                    body.style.flex = '1 1 auto';
                     body.style.overflowY = 'auto';
                     body.style.webkitOverflowScrolling = 'touch';
-                    body.scrollTop = 0;
+
+                    if (resetScroll) {
+                        body.scrollTop = 0;
+                    }
                 }
 
-                document.getElementById('addonSelectionModal')?.addEventListener('shown.bs.modal', adjustAddonModalScrollArea);
+                document.getElementById('addonSelectionModal')?.addEventListener('shown.bs.modal', function() {
+                    adjustAddonModalScrollArea(true);
+                });
                 document.getElementById('addonSelectionModal')?.addEventListener('hidden.bs.modal', function() {
+                    let content = this.querySelector('.modal-content');
                     let body = this.querySelector('.modal-body');
+                    if (content) {
+                        content.style.maxHeight = '';
+                        content.style.display = '';
+                        content.style.flexDirection = '';
+                    }
                     if (body) {
                         body.style.maxHeight = '';
+                        body.style.minHeight = '';
+                        body.style.flex = '';
                         body.style.overflowY = '';
                         body.style.webkitOverflowScrolling = '';
                     }
                 });
-                window.addEventListener('resize', adjustAddonModalScrollArea);
+                window.addEventListener('resize', function() {
+                    adjustAddonModalScrollArea(false);
+                });
                 if (window.visualViewport) {
-                    window.visualViewport.addEventListener('resize', adjustAddonModalScrollArea);
+                    window.visualViewport.addEventListener('resize', function() {
+                        adjustAddonModalScrollArea(false);
+                    });
                 }
-
                 setTimeout(function() {
                     refreshPackageAvailabilityForSelectedDate(false);
                 }, 180);
@@ -9152,10 +9192,8 @@
             let currentStep = 1;
 
             function showStep(stepNumber) {
-                // Hide all sections
                 $('.checkout-section').removeClass('active').hide();
 
-                // Show target section
                 $('#section-' + stepNumber).addClass('active').show();
 
                 // Update step indicators
