@@ -8963,6 +8963,15 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     if (firstInvalidField && firstInvalidField.length) {
                         firstInvalidField.trigger('focus');
                         firstInvalidField[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        if (firstInvalidField.is('[name="transportation_pickup_time"]')) {
+                            firstInvalidField.prop('disabled', false).prop('readonly', false);
+                            setTimeout(function() {
+                                var timeInput = firstInvalidField[0];
+                                if (timeInput && timeInput._flatpickr) {
+                                    timeInput._flatpickr.open();
+                                }
+                            }, 80);
+                        }
                     }
                 }
                 
@@ -9568,11 +9577,6 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
 
                 if (!pickupTime) {
                     pickupTimeField.prop('disabled', false).prop('readonly', false);
-                    if (pickupTimeField[0] && pickupTimeField[0]._flatpickr) {
-                        setTimeout(function() {
-                            pickupTimeField[0]._flatpickr.open();
-                        }, 0);
-                    }
                     pickupTimeField.addClass('required-field');
                     return {
                         valid: false,
@@ -9583,11 +9587,6 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
 
                 if (!isTimeWithinOperatingHours(pickupTime)) {
                     pickupTimeField.prop('disabled', false).prop('readonly', false);
-                    if (pickupTimeField[0] && pickupTimeField[0]._flatpickr) {
-                        setTimeout(function() {
-                            pickupTimeField[0]._flatpickr.open();
-                        }, 0);
-                    }
                     pickupTimeField.addClass('required-field');
                     return {
                         valid: false,
