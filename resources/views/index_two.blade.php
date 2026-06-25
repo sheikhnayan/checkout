@@ -8898,6 +8898,7 @@
                 var addonSelectionModalEl = document.getElementById('addonSelectionModal');
                 bootstrap.Modal.getOrCreateInstance(addonSelectionModalEl).show();
                 if (document.body.classList.contains('embed-checkout-mode')) {
+                    window.scrollTo({ top: 0, behavior: 'auto' });
                     addonSelectionModalEl.scrollTop = 0;
                     window.dispatchEvent(new CustomEvent('embed:category-toggle'));
                 }
@@ -11425,13 +11426,38 @@
         var scheduled = false;
 
         function getContentHeight() {
-            var contentRoot = document.querySelector('.cv-checkout-body') || document.querySelector('main .container.mt-4') || document.body;
-            var rootRect = contentRoot && contentRoot.getBoundingClientRect ? contentRoot.getBoundingClientRect() : null;
-            var rootTop = rootRect ? (rootRect.top + window.pageYOffset) : 0;
-            var rootScrollHeight = contentRoot ? contentRoot.scrollHeight : 0;
-            var contentHeight = Math.ceil(rootTop + rootScrollHeight + 24);
+            var selectors = [
+                '#section-1:visible',
+                '#section-2:visible',
+                '#section-3:visible',
+                '.package-category-tiles:visible',
+                '.package-category-group:visible',
+                '.dynamic-price:visible',
+                '.checkout-steps:visible',
+                '#shareLinkContainer:visible',
+                '.checkout-section:visible',
+                '.modal.show .modal-dialog:visible'
+            ];
+            var maxBottom = 0;
+
+            selectors.forEach(function (selector) {
+                $(selector).each(function () {
+                    var rect = this.getBoundingClientRect ? this.getBoundingClientRect() : null;
+                    if (!rect) return;
+                    var bottom = Math.ceil(rect.bottom + window.pageYOffset);
+                    if (bottom > maxBottom) {
+                        maxBottom = bottom;
+                    }
+                });
+            });
+
+            if (!maxBottom) {
+                var fallbackRoot = document.querySelector('main .container.mt-4') || document.body;
+                maxBottom = fallbackRoot && fallbackRoot.scrollHeight ? fallbackRoot.scrollHeight : 1000;
+            }
+
             var viewportFloor = window.innerHeight ? (window.innerHeight + 120) : 1000;
-            return Math.max(contentHeight, viewportFloor);
+            return Math.max(maxBottom + 24, viewportFloor);
         }
 
         function postHeightNow() {
