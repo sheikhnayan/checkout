@@ -8708,7 +8708,8 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
 
                             var runSettledCheckoutScroll = function () {
                                 window.dispatchEvent(new CustomEvent('embed:category-toggle'));
-                                scrollToCheckout();
+                                window.parent.postMessage({ type: 'checkoutScrollToIframe' }, '*');
+                                setTimeout(scrollToCheckout, 120);
                             };
                             setTimeout(runSettledCheckoutScroll, 2000);
                         }
