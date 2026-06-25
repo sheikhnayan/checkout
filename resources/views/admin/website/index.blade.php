@@ -229,7 +229,9 @@
                         return;
                     }
 
-                    const iframeCode = '<iframe src="' + embedUrl + '" width="100%" height="2000" style="border:0;max-width:100%;overflow:auto;-webkit-overflow-scrolling:touch;" loading="lazy" scrolling="yes" referrerpolicy="strict-origin-when-cross-origin" allow="payment"></iframe>';
+                    const iframeId = 'checkout-embed-' + Date.now();
+                    const iframeCode = '<iframe id="' + iframeId + '" src="' + embedUrl + '" width="100%" height="2000" style="border:0;max-width:100%;display:block;" loading="lazy" scrolling="no" referrerpolicy="strict-origin-when-cross-origin" allow="payment"></iframe>' +
+                        '<script>(function(){var iframe=document.getElementById("' + iframeId + '");if(!iframe){return;}var mobileQuery=window.matchMedia("(max-width: 991px)");function resetDesktopHeight(){if(!mobileQuery.matches){iframe.style.height="2000px";}}function applyMobileHeight(rawHeight){if(!mobileQuery.matches){return;}var parsed=parseInt(rawHeight,10);if(!parsed){return;}var next=Math.max(900,Math.min(parsed+16,12000));iframe.style.height=next+"px";}window.addEventListener("message",function(event){if(event.source!==iframe.contentWindow){return;}var data=event.data||{};if(data.type!=="checkoutEmbedHeight"){return;}applyMobileHeight(data.height);});if(mobileQuery.addEventListener){mobileQuery.addEventListener("change",resetDesktopHeight);}else if(mobileQuery.addListener){mobileQuery.addListener(resetDesktopHeight);}resetDesktopHeight();})();<\/script>';
 
                     if (navigator.clipboard && navigator.clipboard.writeText) {
                         navigator.clipboard.writeText(iframeCode).then(function() {

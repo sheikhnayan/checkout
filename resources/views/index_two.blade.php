@@ -11391,4 +11391,77 @@
     })();
     </script>
 
+    <script>
+    (function () {
+        if (!document.body.classList.contains('embed-checkout-mode')) return;
+        if (window.top === window.self) return;
+
+        var mobileQuery = window.matchMedia('(max-width: 991px)');
+        var lastHeight = 0;
+        var scheduled = false;
+
+        function getContentHeight() {
+            var doc = document.documentElement;
+            var body = document.body;
+            return Math.max(
+                doc ? doc.scrollHeight : 0,
+                body ? body.scrollHeight : 0,
+                doc ? doc.offsetHeight : 0,
+                body ? body.offsetHeight : 0,
+                doc ? doc.clientHeight : 0
+            );
+        }
+
+        function postHeightNow() {
+            if (!mobileQuery.matches) return;
+            var nextHeight = Math.max(900, Math.min(getContentHeight(), 12000));
+            if (Math.abs(nextHeight - lastHeight) < 2) return;
+            lastHeight = nextHeight;
+            window.parent.postMessage({ type: 'checkoutEmbedHeight', height: nextHeight }, '*');
+        }
+
+        function queueHeightPost() {
+            if (!mobileQuery.matches) return;
+            if (scheduled) return;
+            scheduled = true;
+            requestAnimationFrame(function () {
+                scheduled = false;
+                postHeightNow();
+            });
+        }
+
+        window.addEventListener('load', queueHeightPost);
+        window.addEventListener('resize', queueHeightPost);
+        window.addEventListener('orientationchange', function () {
+            setTimeout(queueHeightPost, 120);
+            setTimeout(queueHeightPost, 380);
+        });
+        document.addEventListener('DOMContentLoaded', queueHeightPost);
+        document.addEventListener('click', function (e) {
+            if (!e.target || !e.target.closest) return;
+            if (!e.target.closest('.package-category-tile, .package_number_of_guestss, .add_to_cart, .remove-from-cart')) return;
+            setTimeout(queueHeightPost, 120);
+            setTimeout(queueHeightPost, 360);
+        });
+
+        if ('MutationObserver' in window) {
+            var observedRoot = document.getElementById('vip_packages') || document.body;
+            if (observedRoot) {
+                var observer = new MutationObserver(queueHeightPost);
+                observer.observe(observedRoot, { childList: true, subtree: true, attributes: true });
+            }
+        }
+
+        setInterval(function () {
+            if (mobileQuery.matches) {
+                queueHeightPost();
+            }
+        }, 1200);
+
+        queueHeightPost();
+        setTimeout(queueHeightPost, 180);
+        setTimeout(queueHeightPost, 620);
+    })();
+    </script>
+
     </html>
