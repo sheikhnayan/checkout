@@ -10803,28 +10803,43 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
         var lastHeight = 0;
         var scheduled = false;
 
+        function getNodeBottom(node) {
+            if (!node || !node.getBoundingClientRect) return 0;
+            var rect = node.getBoundingClientRect();
+            if (!rect || rect.height <= 0) return 0;
+            return Math.ceil(rect.bottom + window.pageYOffset);
+        }
+
         function getContentHeight() {
             var activeSection = document.querySelector('.checkout-section.active') || document.querySelector('#section-1.active') || document.querySelector('#section-2.active') || document.querySelector('#section-3.active');
-            var targets = [];
-
-            if (activeSection) {
-                targets.push(activeSection);
-            }
+            var targets = [
+                activeSection,
+                document.querySelector('#cv-checkout-layout'),
+                document.querySelector('#cv-checkout-layout .cv-main-col'),
+                document.querySelector('#cv-order-sidebar'),
+                document.querySelector('#cv-sidebar-body'),
+                document.querySelector('#cart-section'),
+                document.querySelector('.pricing-shell'),
+                document.querySelector('#shareLinkContainer'),
+                document.querySelector('main .container.mt-4')
+            ];
 
             var maxBottom = 0;
             targets.forEach(function (node) {
-                var rect = node.getBoundingClientRect ? node.getBoundingClientRect() : null;
-                if (!rect) return;
-                var bottom = Math.ceil(rect.bottom + window.pageYOffset);
+                var bottom = getNodeBottom(node);
                 if (bottom > maxBottom) {
                     maxBottom = bottom;
                 }
             });
 
-            if (!maxBottom) {
-                var fallbackRoot = document.querySelector('#cv-checkout-layout') || document.querySelector('main .container.mt-4') || document.body;
-                maxBottom = fallbackRoot && fallbackRoot.scrollHeight ? fallbackRoot.scrollHeight : 1000;
-            }
+            var fallbackRoot = document.querySelector('#cv-checkout-layout') || document.querySelector('main .container.mt-4') || document.body;
+            var fallbackHeight = Math.max(
+                fallbackRoot && fallbackRoot.scrollHeight ? fallbackRoot.scrollHeight : 0,
+                document.documentElement && document.documentElement.scrollHeight ? document.documentElement.scrollHeight : 0,
+                document.body && document.body.scrollHeight ? document.body.scrollHeight : 0,
+                1000
+            );
+            maxBottom = Math.max(maxBottom, fallbackHeight);
 
             var viewportFloor = window.innerHeight ? Math.max(650, Math.round(window.innerHeight * 0.78)) : 650;
             return Math.max(maxBottom + 24, viewportFloor);
@@ -10883,7 +10898,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
         }, true);
 
         if ('MutationObserver' in window) {
-            var observedRoot = document.getElementById('vip_packages') || document.body;
+            var observedRoot = document.getElementById('cv-checkout-layout') || document.getElementById('vip_packages') || document.body;
             if (observedRoot) {
                 var observer = new MutationObserver(queueHeightPost);
                 observer.observe(observedRoot, { childList: true, subtree: true, attributes: true });
