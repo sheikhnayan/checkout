@@ -5443,6 +5443,9 @@
         body.embed-checkout-mode .cv-checkout-body {
             margin-top: 0;
         }
+        body.embed-checkout-mode .iframe-date-card {
+            margin-bottom: 14px;
+        }
         @media (max-width: 991px) {
             body.embed-checkout-mode main {
                 padding-top: 8px;
@@ -6018,6 +6021,18 @@
                                         </div>
                                         @endif
                                     </div>
+
+                                    @if(!empty($isIframeCheckout))
+                                        <div class="hero-date-card iframe-date-card">
+                                            <label>Choose Your Reservation Date</label>
+                                            <div class="date-input-wrapper">
+                                                <input id="package_use_date_iframe" type="text"
+                                                    value="" placeholder="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('M d, Y') }}" style="width: 100%;" readonly aria-describedby="package_use_date_iframe_error">
+                                                <span class="custom-calendar-icon custom-calendar-icon-iframe"></span>
+                                            </div>
+                                            <small id="package_use_date_iframe_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
+                                        </div>
+                                    @endif
 
                                     @if(isset($packageCategories) && $packageCategories->count())
                                         <div class="mb-3 package-category-tiles" style="width:100%;">
@@ -7831,18 +7846,20 @@
             }
 
             function getSelectedUseDate() {
-                return String($('#package_use_date').val() || $('.package_use_date').val() || '').trim();
+                return String($('#package_use_date_iframe').val() || $('#package_use_date').val() || $('.package_use_date').val() || '').trim();
             }
 
             function showReservationDateError(message) {
                 const text = String(message || 'Please select a reservation date.').trim();
-                $('#package_use_date').addClass('required-field').attr('aria-invalid', 'true');
+                $('#package_use_date, #package_use_date_iframe').addClass('required-field').attr('aria-invalid', 'true');
                 $('#package_use_date_error').text(text).show();
+                $('#package_use_date_iframe_error').text(text).show();
             }
 
             function clearReservationDateError() {
-                $('#package_use_date').removeClass('required-field').removeAttr('aria-invalid');
+                $('#package_use_date, #package_use_date_iframe').removeClass('required-field').removeAttr('aria-invalid');
                 $('#package_use_date_error').hide();
+                $('#package_use_date_iframe_error').hide();
             }
 
             function ensureReservationDateSelected() {
@@ -7860,7 +7877,11 @@
                 if (dateCard && typeof dateCard.scrollIntoView === 'function') {
                     dateCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
-                $('#package_use_date').trigger('focus');
+                if (document.body.classList.contains('embed-checkout-mode') && document.getElementById('package_use_date_iframe')) {
+                    $('#package_use_date_iframe').trigger('focus');
+                } else {
+                    $('#package_use_date').trigger('focus');
+                }
                 return false;
             }
 
@@ -8862,6 +8883,14 @@
                         $target.stop(true, true).slideDown(180);
                     }
                 });
+
+                if (document.body.classList.contains('embed-checkout-mode') && $('.package-category-tile').length && !$('.package-category-tile.active').length) {
+                    $('.package-category-tile').first().trigger('click');
+                }
+
+                if ($('#package_use_date_iframe').length) {
+                    $('#package_use_date_iframe').val($('#package_use_date').val() || '');
+                }
 
                 $(document).on('click', '.vip-btn', function() {
                     let $btn = $(this);
@@ -9928,8 +9957,37 @@
                 }
             });
 
+            if (document.body.classList.contains('embed-checkout-mode') && document.getElementById('package_use_date_iframe')) {
+                flatpickr("#package_use_date_iframe", {
+                    dateFormat: "Y-m-d",
+                    defaultDate: null,
+                    minDate: "today",
+                    allowInput: false,
+                    clickOpens: true,
+                    disable: [function(date) {
+                        return !isDateAllowed(date);
+                    }],
+                    onReady: function(selectedDates, dateStr, instance) {
+                        $('#package_use_date').val(dateStr || instance.input.value);
+                        $('.package_use_date').val(dateStr || instance.input.value);
+                        clearReservationDateError();
+                    },
+                    onChange: function(selectedDates, dateStr) {
+                        $('#package_use_date').val(dateStr).trigger('change');
+                        clearReservationDateError();
+                    }
+                });
+            }
+
             $('.custom-calendar-icon').on('click', function() {
                 const picker = document.getElementById('package_use_date')._flatpickr;
+                if (picker) {
+                    picker.open();
+                }
+            });
+
+            $('.custom-calendar-icon-iframe').on('click', function() {
+                const picker = document.getElementById('package_use_date_iframe')?._flatpickr;
                 if (picker) {
                     picker.open();
                 }
@@ -9941,6 +9999,9 @@
         <script>
             $('#package_use_date').on('change', function() {
                 const val = $('#package_use_date').val();
+                if ($('#package_use_date_iframe').length && $('#package_use_date_iframe').val() !== val) {
+                    $('#package_use_date_iframe').val(val);
+                }
                 $('.package_use_date').val(val);
                 clearReservationDateError();
                 refreshPackageAvailabilityForSelectedDate(true);

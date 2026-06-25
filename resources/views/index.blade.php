@@ -4911,6 +4911,9 @@ body.embed-checkout-mode main .container.mt-4 {
 body.embed-checkout-mode .cv-checkout-body {
     margin-top: 0;
 }
+body.embed-checkout-mode .iframe-date-card {
+    margin-bottom: 14px;
+}
 @media (max-width: 991px) {
     body.embed-checkout-mode main {
         padding-top: 8px;
@@ -5538,6 +5541,21 @@ body.embed-checkout-mode .cv-checkout-body {
                                         @endif
                                     </div>
     
+                                    @if(!empty($isIframeCheckout))
+                                        <div class="hero-date-card iframe-date-card">
+                                            <label>Choose Your Reservation Date</label>
+                                            <div class="date-input-wrapper">
+                                                <select id="package_use_date_iframe" style="width: 100%;" aria-describedby="package_use_date_iframe_error">
+                                                    <option value="" selected>Select Date</option>
+                                                    @foreach($eventDateOptions as $dateOption)
+                                                        <option value="{{ $dateOption['value'] }}">{{ $dateOption['label'] }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <small id="package_use_date_iframe_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
+                                        </div>
+                                    @endif
+
                                     @if(isset($packageCategories) && $packageCategories->count())
                                         <div class="mb-3 package-category-tiles" style="width:100%;">
                                             @foreach ($packageCategories as $category)
@@ -7395,20 +7413,22 @@ body.embed-checkout-mode .cv-checkout-body {
             }
 
             function getSelectedUseDate() {
-                return String($('#package_use_date').val() || $('.package_use_date').val() || '').trim();
+                return String($('#package_use_date_iframe').val() || $('#package_use_date').val() || $('.package_use_date').val() || '').trim();
             }
 
             window.getSelectedUseDate = getSelectedUseDate;
 
             function showReservationDateError(message) {
                 var text = String(message || 'Please select a reservation date.').trim();
-                $('#package_use_date').addClass('required-field').attr('aria-invalid', 'true');
+                $('#package_use_date, #package_use_date_iframe').addClass('required-field').attr('aria-invalid', 'true');
                 $('#package_use_date_error').text(text).show();
+                $('#package_use_date_iframe_error').text(text).show();
             }
 
             function clearReservationDateError() {
-                $('#package_use_date').removeClass('required-field').removeAttr('aria-invalid');
+                $('#package_use_date, #package_use_date_iframe').removeClass('required-field').removeAttr('aria-invalid');
                 $('#package_use_date_error').hide();
+                $('#package_use_date_iframe_error').hide();
             }
 
             function ensureReservationDateSelected() {
@@ -7426,7 +7446,11 @@ body.embed-checkout-mode .cv-checkout-body {
                 if (dateCard && typeof dateCard.scrollIntoView === 'function') {
                     dateCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
-                $('#package_use_date').trigger('focus');
+                if (document.body.classList.contains('embed-checkout-mode') && document.getElementById('package_use_date_iframe')) {
+                    $('#package_use_date_iframe').trigger('focus');
+                } else {
+                    $('#package_use_date').trigger('focus');
+                }
                 return false;
             }
 
@@ -7447,6 +7471,9 @@ body.embed-checkout-mode .cv-checkout-body {
                     $('.package_use_date').val(selected);
                 } else {
                     $('.package_use_date').val('');
+                }
+                if ($('#package_use_date_iframe').length && $('#package_use_date_iframe').val() !== selected) {
+                    $('#package_use_date_iframe').val(selected);
                 }
             }
 
@@ -8312,6 +8339,14 @@ body.embed-checkout-mode .cv-checkout-body {
                     }
                 });
 
+                if (document.body.classList.contains('embed-checkout-mode') && $('.package-category-tile').length && !$('.package-category-tile.active').length) {
+                    $('.package-category-tile').first().trigger('click');
+                }
+
+                $(document).on('change', '#package_use_date_iframe', function() {
+                    $('#package_use_date').val($(this).val()).trigger('change');
+                });
+
                 $(document).on('click', '.vip-btn', function () {
                     var $btn = $(this);
                     var packageId = $btn.data('id');
@@ -8478,6 +8513,9 @@ body.embed-checkout-mode .cv-checkout-body {
                     }
 
                     window.lastSelectedUseDate = currentDate;
+                    if ($('#package_use_date_iframe').length && $('#package_use_date_iframe').val() !== currentDate) {
+                        $('#package_use_date_iframe').val(currentDate);
+                    }
                     clearReservationDateError();
                     if (typeof window.syncUseDateField === 'function') {
                         window.syncUseDateField();
