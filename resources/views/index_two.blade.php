@@ -9373,7 +9373,11 @@
                 } else if (stepNumber === 2 && !window.requiresTransportation) {
                     // Validate transportation confirmation checkbox
                     if (!$('#transportation_part').is(':checked')) {
-                        alert('Please confirm your transportation arrangement.');
+                        if (typeof window.showToast === 'function') {
+                            window.showToast('Action Required', 'Please confirm your transportation arrangement.', 'fas fa-exclamation-circle');
+                        } else {
+                            alert('Please confirm your transportation arrangement.');
+                        }
                         return false;
                     }
                 }
@@ -9453,7 +9457,11 @@
                 }
 
                 if (!isValid) {
-                    alert(alertMessage);
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('Action Required', alertMessage, 'fas fa-exclamation-circle');
+                    } else {
+                        alert(alertMessage);
+                    }
                     if (firstInvalidField && firstInvalidField.length) {
                         firstInvalidField.trigger('focus');
                         firstInvalidField[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
