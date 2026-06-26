@@ -5557,6 +5557,12 @@
             }
         }
 
+        @media (max-width: 767px) {
+            body.single-package-checkout-mode > header {
+                display: none !important;
+            }
+        }
+
         /* Scale down reCAPTCHA badge */
         .grecaptcha-badge {
             z-index: 9999 !important;
@@ -5605,7 +5611,7 @@
         @endif
     </head>
 
-    <body class="{{ !empty($isIframeCheckout) ? 'embed-checkout-mode' : '' }}" style="background: #000 !important;">
+    <body class="{{ !empty($isIframeCheckout) ? 'embed-checkout-mode' : '' }} {{ !empty($isSinglePackageCheckout) ? 'single-package-checkout-mode' : '' }}" style="background: #000 !important;">
         @php
             $isSharedLink = request()->hasAny([
                 'package',
