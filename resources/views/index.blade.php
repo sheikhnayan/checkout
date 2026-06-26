@@ -9586,19 +9586,19 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     return null;
                 }
 
-                const trimmedValue = String(timeValue).trim();
-                const twelveHourMatch = trimmedValue.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+                const trimmedValue = String(timeValue).trim().replace(/[\u00A0\u202F]/g, ' ');
+                const twelveHourMatch = trimmedValue.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*([AaPp])\.?\s*[Mm]\.?$/);
                 if (twelveHourMatch) {
                     let hours = parseInt(twelveHourMatch[1], 10) % 12;
                     const minutes = parseInt(twelveHourMatch[2], 10);
-                    if (twelveHourMatch[3].toUpperCase() === 'PM') {
+                    if (twelveHourMatch[3].toUpperCase() === 'P') {
                         hours += 12;
                     }
 
                     return (hours * 60) + minutes;
                 }
 
-                const twentyFourHourMatch = trimmedValue.match(/^(\d{1,2}):(\d{2})$/);
+                const twentyFourHourMatch = trimmedValue.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
                 if (twentyFourHourMatch) {
                     return (parseInt(twentyFourHourMatch[1], 10) * 60) + parseInt(twentyFourHourMatch[2], 10);
                 }
@@ -9694,10 +9694,8 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 }
                 var isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
                     || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-                var userAgent = navigator.userAgent || '';
-                var isSafariDesktop = /^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(userAgent) && !isMobileDevice;
 
-                if (isMobileDevice || isSafariDesktop) {
+                if (isMobileDevice) {
                     el.type = 'time';
                     el.removeAttribute('readonly');
                     el.step = 900;
