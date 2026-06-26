@@ -161,8 +161,13 @@
     $reservationDateRaw = $transaction->package_use_date ?? null;
     $reservationDateFormatted = 'N/A';
     if (!empty($reservationDateRaw)) {
+        $reservationDateRawString = trim((string) $reservationDateRaw);
         try {
-            $reservationDateFormatted = \Carbon\Carbon::parse($reservationDateRaw)->setTimezone('America/Los_Angeles')->format('M d, Y');
+            if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $reservationDateRawString) === 1) {
+                $reservationDateFormatted = \Carbon\Carbon::createFromFormat('Y-m-d', $reservationDateRawString, 'America/Los_Angeles')->format('M d, Y');
+            } else {
+                $reservationDateFormatted = \Carbon\Carbon::parse($reservationDateRawString)->setTimezone('America/Los_Angeles')->format('M d, Y');
+            }
         } catch (\Throwable $e) {
             $reservationDateFormatted = (string) $reservationDateRaw;
         }
