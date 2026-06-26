@@ -5823,7 +5823,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         <div style="flex:1; min-width:0;">
                             <div class="cv-sidebar-venue-name">{{ $data->name }}</div>
                             <div class="cv-sidebar-venue-date" id="cv-sidebar-date">
-                                <i class="fas fa-calendar-alt" style="margin-right:4px;opacity:.6;"></i>Select a date above
+                                <i class="fas fa-calendar-alt" style="margin-right:4px;opacity:.6;"></i>Select a date
                             </div>
                         </div>
                     </div>
@@ -8851,7 +8851,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                 function updateSidebarDate() {
                     var val = dateInput.value;
-                    sidebarDate.innerHTML = '<i class="fas fa-calendar-alt" style="margin-right:4px;opacity:.6;"></i>' + (val || 'Select a date above');
+                    sidebarDate.innerHTML = '<i class="fas fa-calendar-alt" style="margin-right:4px;opacity:.6;"></i>' + (val || 'Select a date');
                 }
 
                 dateInput.addEventListener('change', updateSidebarDate);

@@ -226,6 +226,11 @@ class TransactionController extends Controller
 
         $w = Website::find($request->website_id);
         [$validatedPromoCodeId, $validatedDiscountAmount] = $this->resolveValidatedPromoForCheckout($request, $w);
+        $amount = $this->sanitizeAmount($request->total);
+
+        if ($amount < 0) {
+            return back()->with('error', 'Invalid order amount. You have not been charged. Please refresh the page and try again.');
+        }
 
         // Idempotency guard: stop a rapid double-submit / refresh-resubmit from
         // charging the card twice. Keyed on the order signature and held briefly;
@@ -238,6 +243,17 @@ class TransactionController extends Controller
         );
         if (! \Illuminate\Support\Facades\Cache::add($idempotencyKey, 1, 20)) {
             return back()->with('error', 'Your previous order is still being processed. Please wait a few seconds before trying again.');
+        }
+
+        if ($amount == 0.0) {
+            return $this->completeZeroAmountPackageCheckout(
+                $request,
+                $cartItems,
+                $cartSummary,
+                $selectedPackage,
+                $validatedPromoCodeId,
+                $validatedDiscountAmount
+            );
         }
 
         if ($w->payment_method == 'stripe') {
@@ -257,10 +273,7 @@ class TransactionController extends Controller
                         // 3️⃣ Create a one‑time token from the raw card data
                         // Sanitize amount ("16,000.00" -> 16000.00, not 16) and send
                         // integer cents to Stripe.
-                        $stripeAmount = $this->sanitizeAmount($request->total);
-                        if ($stripeAmount < 0) {
-                            return back()->with('error', 'Invalid order amount. You have not been charged. Please refresh the page and try again.');
-                        }
+                        $stripeAmount = $amount;
 
                         $charge = null;
                         if ($stripeAmount > 0) {
@@ -462,13 +475,6 @@ class TransactionController extends Controller
 
         } else {
             # code...
-            // Sanitize the amount once. Keep negative totals blocked.
-            $amount = $this->sanitizeAmount($request->total);
-            if ($amount < 0) {
-                return back()->with('error', 'Invalid order amount. You have not been charged. Please refresh the page and try again.');
-            }
-            $isZeroAmountCheckout = ($amount == 0.0);
-
             $w = Website::find($request->website_id);
 
             if ($w->authorize_app_key != null) {
@@ -528,10 +534,8 @@ class TransactionController extends Controller
             $payment->setCreditCard($creditCard);
 
             $transactionRequestType = new AnetAPI\TransactionRequestType();
-            // Authorize.Net rejects authCapture with 0.00. For zero-dollar orders,
-            // validate card details using authOnly(0.01) and immediately void it.
-            $transactionType = $isZeroAmountCheckout ? 'authOnlyTransaction' : 'authCaptureTransaction';
-            $gatewayAmount = $isZeroAmountCheckout ? 0.01 : $amount;
+            $transactionType = 'authCaptureTransaction';
+            $gatewayAmount = $amount;
             $transactionRequestType->setTransactionType($transactionType);
             // Send a plain 2-decimal string with no thousands separator.
             $transactionRequestType->setAmount(number_format($gatewayAmount, 2, '.', ''));
@@ -595,47 +599,6 @@ class TransactionController extends Controller
             if ($response != null) {
                 $tresponse = $response->getTransactionResponse();
                 if ($anet['ok']) {
-                    // For true $0 checkouts, immediately void the temporary $0.01 auth
-                    // after validation so no charge is captured.
-                    if ($isZeroAmountCheckout && !empty($anet['trans_id'])) {
-                        $voidTx = new AnetAPI\TransactionRequestType();
-                        $voidTx->setTransactionType('voidTransaction');
-                        $voidTx->setRefTransId($anet['trans_id']);
-
-                        $voidRequest = new AnetAPI\CreateTransactionRequest();
-                        $voidRequest->setMerchantAuthentication($merchantAuthentication);
-                        $voidRequest->setRefId('void' . uniqid());
-                        $voidRequest->setTransactionRequest($voidTx);
-
-                        try {
-                            $voidController = new AnetController\CreateTransactionController($voidRequest);
-                            $voidResponse = $voidController->executeWithApiResponse($this->authorizeNetEnvironment($w, $setting, $usesGlobalKeys));
-                            $voidResult = $this->interpretAuthorizeNetResponse($voidResponse);
-
-                            \Log::info('Authorize.Net zero-amount auth void result', [
-                                'website_id' => $request->website_id,
-                                'original_trans_id' => $anet['trans_id'],
-                                'void_ok' => $voidResult['ok'],
-                                'void_response_code' => $voidResult['response_code'],
-                                'void_message' => $voidResult['message'],
-                            ]);
-
-                            if (!$voidResult['ok']) {
-                                return back()->with('error', 'Card validation succeeded but the temporary authorization could not be voided. Please try again.');
-                            }
-                        } catch (\Throwable $voidException) {
-                            \Log::error('Authorize.Net zero-amount auth void failed', [
-                                'website_id' => $request->website_id,
-                                'original_trans_id' => $anet['trans_id'],
-                                'error' => $voidException->getMessage(),
-                            ]);
-                            return back()->with('error', 'Card validation succeeded but we could not finalize the zero-amount authorization void. Please try again.');
-                        }
-
-                        $anet['response_code'] = 'zero_validated';
-                        $anet['message'] = 'Card validated for zero-amount checkout (temporary authorization voided).';
-                    }
-
                     // Approved (1) or held-for-review (4). In both cases the card
                     // was charged/authorized, so the order MUST be recorded. Held
                     // orders are saved as 'under_review' and settle on approval.
@@ -837,6 +800,179 @@ class TransactionController extends Controller
 
 
         // dd($request->all()); // This line is for debugging purposes, you can remove it later
+    }
+
+    private function completeZeroAmountPackageCheckout(
+        Request $request,
+        array $cartItems,
+        array $cartSummary,
+        ?Package $selectedPackage,
+        ?int $validatedPromoCodeId,
+        float $validatedDiscountAmount
+    ) {
+        $transactionId = 'FREE-' . strtoupper(Str::random(16));
+        $ipAddress = $request->ip();
+        $eventId = optional($selectedPackage)->event_id;
+        $websiteId = (int) $request->website_id;
+
+        $transaction = new Transaction();
+        $transaction->transaction_id = $transactionId;
+        $transaction->payment_status = 'approved';
+        $transaction->gateway_response_code = 'free_checkout';
+        $transaction->gateway_message = 'Zero-dollar checkout completed without payment gateway processing.';
+        $transaction->ticket_qr_code = $this->generateTicketQrCode();
+        $transaction->package_first_name = $request->input('package_first_name');
+        $transaction->ip_address = $ipAddress;
+        $transaction->package_last_name = $request->input('package_last_name');
+        $transaction->package_phone = $request->input('package_phone');
+        $transaction->package_email = $request->input('package_email');
+        $transaction->package_number_of_guest = $cartSummary['total_guests'];
+        $transaction->package_use_date = $request->input('package_use_date');
+        $transaction->business_company = $request->input('business_company');
+        $transaction->business_vat = $request->input('business_vat');
+        $transaction->business_address = $request->input('business_address');
+
+        $packageMonth = $request->input('package_month');
+        $packageDay = $request->input('package_day');
+        $packageYear = $request->input('package_year');
+        $transaction->package_dob = ($packageYear && $packageMonth && $packageDay)
+            ? sprintf('%04d-%02d-%02d', $packageYear, $packageMonth, $packageDay)
+            : null;
+
+        $transaction->package_note = $request->input('package_note');
+        $transaction->host_name = $request->input('host_name');
+        $transaction->promo_code = $validatedPromoCodeId;
+        $transaction->actual_total = $request->input('payment_total');
+        $transaction->discounted_amount = $validatedDiscountAmount;
+        $transaction->transportation_pickup_time = $request->input('transportation_pickup_time');
+        $transaction->transportation_address = $request->input('transportation_address');
+        $transaction->transportation_phone = $request->input('transportation_phone');
+        $transaction->transportation_guest = $request->input('transportation_guest');
+        $transaction->transportation_note = $request->input('transportation_note');
+        $transaction->addons = $cartSummary['addons_summary'];
+        $transaction->package_id = $cartSummary['primary_package_id'] ?: $request->input('package_id');
+        $transaction->cart_items = !empty($cartItems) ? $cartItems : null;
+        $transaction->payment_first_name = $request->input('payment_first_name');
+        $transaction->payment_last_name = $request->input('payment_last_name');
+        $transaction->payment_phone = $request->input('payment_phone');
+        $transaction->payment_email = $request->input('payment_email');
+        $transaction->payment_address = $request->input('payment_address');
+        $transaction->payment_city = $request->input('payment_city');
+        $transaction->payment_state = $request->input('payment_state');
+        $transaction->payment_country = $request->input('payment_country');
+
+        $paymentMonth = $request->input('payment_month');
+        $paymentDay = $request->input('payment_day');
+        $paymentYear = $request->input('payment_year');
+        $transaction->payment_dob = ($paymentYear && $paymentMonth && $paymentDay)
+            ? sprintf('%04d-%02d-%02d', $paymentYear, $paymentMonth, $paymentDay)
+            : null;
+
+        $transaction->payment_zip_code = $request->input('payment_zip_code');
+        $transaction->event_id = $eventId;
+        $transaction->website_id = $websiteId;
+        $transaction->total = $request->input('total');
+        $transaction->type = 'package';
+        $transaction->save();
+
+        $this->incrementPromoUsage($validatedPromoCodeId);
+        $this->applyReferralCommission($request, $transaction, (float) ($cartSummary['commission_base_amount'] ?? 0));
+        $this->sendClubLifterScheduleAfterResponse($transaction);
+
+        $website = Website::findOrFail($websiteId);
+
+        try {
+            $mailData = [
+                'transaction_id' => $transactionId,
+                'package_first_name' => $request->input('package_first_name'),
+                'package_last_name' => $request->input('package_last_name'),
+                'package_phone' => $request->input('package_phone'),
+                'package_email' => $request->input('package_email'),
+                'package_use_date' => $request->input('package_use_date'),
+                'package_dob' => $transaction->package_dob,
+                'package_note' => $request->input('package_note'),
+                'transportation_pickup_time' => $request->input('transportation_pickup_time'),
+                'transportation_address' => $request->input('transportation_address'),
+                'transportation_phone' => $request->input('transportation_phone'),
+                'transportation_guest' => $request->input('transportation_guest'),
+                'transportation_note' => $request->input('transportation_note'),
+                'host_name' => $request->input('host_name'),
+                'business_company' => $transaction->business_company,
+                'business_vat' => $transaction->business_vat,
+                'business_address' => $transaction->business_address,
+                'addons' => $cartSummary['addons_summary'],
+                'package_id' => $cartSummary['primary_package_id'] ?: $request->input('package_id'),
+                'cart_items' => $cartItems,
+                'payment_first_name' => $request->input('payment_first_name'),
+                'payment_last_name' => $request->input('payment_last_name'),
+                'payment_phone' => $request->input('payment_phone'),
+                'payment_email' => $request->input('payment_email'),
+                'payment_address' => $request->input('payment_address'),
+                'payment_city' => $request->input('payment_city'),
+                'payment_state' => $request->input('payment_state'),
+                'payment_country' => $request->input('payment_country'),
+                'payment_dob' => $transaction->payment_dob,
+                'payment_zip_code' => $request->input('payment_zip_code'),
+                'event_id' => $eventId,
+                'website_id' => $websiteId,
+                'total' => $request->input('total'),
+                'type' => 'package',
+                'ticket_qr_code' => $transaction->ticket_qr_code,
+                'ticket_qr_image_url' => $this->buildTicketQrImageUrl($transaction->ticket_qr_code),
+            ];
+
+            $mailData['club_name'] = $website->name;
+            $mailData['website_name'] = $website->name;
+            $mailData['price_breakdown'] = $this->buildPackagePriceBreakdown($transaction->fresh(), $website);
+
+            $this->applyWebsiteSmtpConfig($website);
+
+            $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
+            $sendMailClub = new TransactionMail($mailDataNoQr, $transaction, $cartItems, $mailData['price_breakdown'], $website, false, 'manager');
+            $sendMailPurchaser = new TransactionMail($mailData, $transaction, $cartItems, $mailData['price_breakdown'], $website, true, 'guest');
+
+            $clubEmails = collect($website->emails ?? [])
+                ->pluck('email')
+                ->filter(fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
+                ->push('hello@cartvip.com')
+                ->unique()
+                ->values();
+
+            foreach ($clubEmails as $clubEmail) {
+                Mail::to($clubEmail)->send(clone $sendMailClub);
+            }
+
+            $purchaserEmail = $request->input('package_email');
+            if ($purchaserEmail && filter_var($purchaserEmail, FILTER_VALIDATE_EMAIL)) {
+                Mail::to($purchaserEmail)->send($sendMailPurchaser);
+            }
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
+
+        try {
+            $purchaserPhone = $transaction->package_phone;
+            if ($purchaserPhone) {
+                $smsService = new \App\Services\TelnyxSmsService();
+                $smsData = [
+                    'transaction_id' => $transaction->transaction_id,
+                    'club_name' => $website->name ?? 'Venue',
+                    'club_slug' => $website->slug ?? '',
+                    'package_name' => $cartSummary['package_name'] ?? 'Package',
+                    'quantity' => $request->input('quantity', 1),
+                    'package_use_date' => $transaction->package_use_date,
+                    'total_amount' => $transaction->total,
+                ];
+                $smsService->sendTransactionNotification($purchaserPhone, $smsData, 'package');
+            }
+        } catch (\Exception $exception) {
+            \Log::error('SMS failed: ' . $exception->getMessage());
+        }
+
+        return redirect()->route('thank-you')
+            ->with('transaction', $transaction->fresh())
+            ->with('website', $website)
+            ->with('paymentType', 'full');
     }
 
     public function test()

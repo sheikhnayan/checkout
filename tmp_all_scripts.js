@@ -2849,7 +2849,7 @@
 
                 function updateSidebarDate() {
                     var val = dateInput.value;
-                    sidebarDate.innerHTML = '<i class="fas fa-calendar-alt" style="margin-right:4px;opacity:.6;"></i>' + (val || 'Select a date above');
+                    sidebarDate.innerHTML = '<i class="fas fa-calendar-alt" style="margin-right:4px;opacity:.6;"></i>' + (val || 'Select a date');
                 }
 
                 dateInput.addEventListener('change', updateSidebarDate);
