@@ -174,6 +174,8 @@ class WebsiteController extends Controller
             'operating_days.*' => 'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
             'operating_start_time' => 'nullable|date_format:H:i',
             'operating_end_time' => 'nullable|date_format:H:i',
+            'pickup_start_time' => 'nullable|date_format:H:i',
+            'pickup_end_time' => 'nullable|date_format:H:i',
         ]);
 
         // Website admins (user_type = website_user) may reuse an email across websites; block
@@ -259,6 +261,8 @@ class WebsiteController extends Controller
         $add->operating_days = $this->normalizeOperatingDays($request->input('operating_days', []));
         $add->operating_start_time = $request->filled('operating_start_time') ? $request->operating_start_time : null;
         $add->operating_end_time = $request->filled('operating_end_time') ? $request->operating_end_time : null;
+        $add->pickup_start_time = $request->filled('pickup_start_time') ? $request->pickup_start_time : null;
+        $add->pickup_end_time = $request->filled('pickup_end_time') ? $request->pickup_end_time : null;
 
         $image = $request->file('logo');
         if ($image) {
@@ -440,6 +444,8 @@ class WebsiteController extends Controller
             'operating_days.*' => 'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday',
             'operating_start_time' => 'nullable|date_format:H:i',
             'operating_end_time' => 'nullable|date_format:H:i',
+            'pickup_start_time' => 'nullable|date_format:H:i',
+            'pickup_end_time' => 'nullable|date_format:H:i',
         ]);
         
         // Check authorization for website users
@@ -528,6 +534,8 @@ class WebsiteController extends Controller
         $add->operating_days = $this->normalizeOperatingDays($request->input('operating_days', []));
         $add->operating_start_time = $request->filled('operating_start_time') ? $request->operating_start_time : null;
         $add->operating_end_time = $request->filled('operating_end_time') ? $request->operating_end_time : null;
+        $add->pickup_start_time = $request->filled('pickup_start_time') ? $request->pickup_start_time : null;
+        $add->pickup_end_time = $request->filled('pickup_end_time') ? $request->pickup_end_time : null;
         $add->text_description = $request->text_description;
         $add->secondary_description = $request->secondary_description;
         $add->description_label = $request->description_label;

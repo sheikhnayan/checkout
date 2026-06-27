@@ -471,6 +471,20 @@ label{
                                                         <input type="time" name="operating_end_time" class="form-control" id="operating_end_time" value="{{ old('operating_end_time') }}">
                                                     </div>
                                                 </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="pickup_start_time" class="form-label">Pickup Start Time <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Earliest transportation pickup time shown and enforced during checkout."></i></label>
+                                                        <input type="time" name="pickup_start_time" class="form-control" id="pickup_start_time" value="{{ old('pickup_start_time') }}">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="pickup_end_time" class="form-label">Pickup End Time <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Latest transportation pickup time shown and enforced during checkout."></i></label>
+                                                        <input type="time" name="pickup_end_time" class="form-control" id="pickup_end_time" value="{{ old('pickup_end_time') }}">
+                                                    </div>
+                                                </div>
                                             </div>
                                             
                                             <div class="row">

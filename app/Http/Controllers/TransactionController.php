@@ -2385,7 +2385,7 @@ class TransactionController extends Controller
 
         if ($pickupTime !== '' && !$this->isWithinWebsiteOperatingHours($website, $pickupTime)) {
             throw ValidationException::withMessages([
-                'transportation_pickup_time' => 'Pickup time must be within the club operating hours.',
+                'transportation_pickup_time' => 'Pickup time must be within the configured pickup hours.',
             ]);
         }
     }
@@ -2409,8 +2409,8 @@ class TransactionController extends Controller
 
     private function isWithinWebsiteOperatingHours(Website $website, string $pickupTime): bool
     {
-        $startMinutes = $this->convertTimeStringToMinutes($website->operating_start_time);
-        $endMinutes = $this->convertTimeStringToMinutes($website->operating_end_time);
+        $startMinutes = $this->convertTimeStringToMinutes($website->pickup_start_time);
+        $endMinutes = $this->convertTimeStringToMinutes($website->pickup_end_time);
         $pickupMinutes = $this->convertTimeStringToMinutes($pickupTime);
 
         if ($pickupMinutes === null) {

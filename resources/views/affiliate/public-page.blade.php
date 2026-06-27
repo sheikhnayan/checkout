@@ -6257,6 +6257,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                                                         <!-- Left: Form Fields -->
                                                         <div class="form-left">
+                                                            <div id="transportation-details-fields">
 
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 100%;">
@@ -6306,16 +6307,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 <textarea name="transportation_note" id="note"
                                                                     placeholder="If any"></textarea>
                                                             </div>
+                                                            </div>
 
-                                                            <!-- TRANSPORTATION RESTRICTION NOTICE -->
-                                                            <div style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); border: 2px solid #c92a2a; border-radius: 8px; padding: 14px 16px; margin-top: 20px; box-shadow: 0 4px 12px rgba(255, 107, 107, 0.25);">
-                                                                <div style="display: flex; align-items: flex-start; gap: 12px;">
-                                                                    <div style="font-size: 20px; color: #fff; flex-shrink: 0;">⚠️</div>
-                                                                    <div>
-                                                                        <p style="margin: 0; color: #fff; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">HOUSE TRANSPORTATION OR SELF DRIVE ONLY</p>
-                                                                        <p style="margin: 6px 0 0 0; color: rgba(255,255,255,0.9); font-size: 12px; line-height: 1.4;">Uber, Lyft, taxi, limo & ride-sharing are NOT permitted.</p>
-                                                                    </div>
-                                                                </div>
+                                                            <div class="checkbox-container transportaiton" style="margin-top: 20px;">
+                                                                <label>
+                                                                    <input type="checkbox" id="transportation_self_drive_ack" name="transportation_self_drive_ack" value="1" />
+                                                                    I do not need the complimentary transportation included with my package and will self-drive. My party will arrive by private vehicle. Uber, Lyft, taxis, limousines, and ride-sharing services are not permitted.
+                                                                </label>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -7414,6 +7412,37 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     pickupDateField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
                     driverNotificationConsentWrap.hide();
                     driverNotificationConsentInputs.prop('checked', false).prop('required', false).removeAttr('aria-required');
+                }
+
+                updateTransportationSelfDriveState();
+            }
+
+            function updateTransportationSelfDriveState() {
+                const selfDriveAck = $('#transportation_self_drive_ack');
+                const transportationDetailsFields = $('#transportation-details-fields');
+                const transportationPhoneField = $('input[name="transportation_phone"]');
+                const transportationAddressField = $('input[name="transportation_address"]');
+                const transportationPickupTimeField = $('input[name="transportation_pickup_time"]');
+                const transportationGuestField = $('input[name="transportation_guest"]');
+                const isSelfDrive = selfDriveAck.is(':checked');
+
+                if (!window.requiresTransportation) {
+                    transportationDetailsFields.show();
+                    return;
+                }
+
+                if (isSelfDrive) {
+                    transportationDetailsFields.hide();
+                    transportationPhoneField.prop('required', false).prop('disabled', true).removeClass('required-field').removeAttr('aria-required');
+                    transportationAddressField.prop('required', false).prop('disabled', true).removeClass('required-field').removeAttr('aria-required');
+                    transportationPickupTimeField.prop('required', false).prop('disabled', true).removeClass('required-field').removeAttr('aria-required');
+                    transportationGuestField.prop('required', false).prop('disabled', true).removeClass('required-field').removeAttr('aria-required');
+                } else {
+                    transportationDetailsFields.show();
+                    transportationPhoneField.prop('required', true).prop('disabled', false).attr('aria-required', 'true');
+                    transportationAddressField.prop('required', true).prop('disabled', false).attr('aria-required', 'true');
+                    transportationPickupTimeField.prop('required', true).prop('disabled', false).attr('aria-required', 'true');
+                    transportationGuestField.prop('required', true).prop('disabled', false).attr('aria-required', 'true');
                 }
             }
 
@@ -8590,7 +8619,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     }
                 });
 
-                if (isValid && stepNumber === 2 && window.requiresTransportation && typeof validateTransportationScheduleClient === 'function') {
+                const skipTransportationInputs = stepNumber === 2 && window.requiresTransportation && $('#transportation_self_drive_ack').is(':checked');
+
+                if (isValid && stepNumber === 2 && window.requiresTransportation && !skipTransportationInputs && typeof validateTransportationScheduleClient === 'function') {
                     const scheduleValidation = validateTransportationScheduleClient();
                     if (!scheduleValidation.valid) {
                         isValid = false;
@@ -8599,7 +8630,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     }
                 }
 
-                if (stepNumber === 2 && window.requiresTransportation) {
+                if (stepNumber === 2 && window.requiresTransportation && !skipTransportationInputs) {
                     const transportationGuestField = $('[name="transportation_guest"]');
                     const transportationGuestValue = parseInt(transportationGuestField.val(), 10);
                     if (!Number.isFinite(transportationGuestValue) || transportationGuestValue < 1) {
@@ -8607,6 +8638,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         isValid = false;
                         firstInvalidField = firstInvalidField || transportationGuestField;
                         alertMessage = 'Please enter Number of Guest(s) in Transportation (minimum 1).';
+                    }
+                }
+
+                if (stepNumber === 2 && window.requiresTransportation) {
+                    const transportationSelfDriveAck = $('#transportation_self_drive_ack');
+                    if (!transportationSelfDriveAck.is(':checked')) {
+                        isValid = false;
+                        firstInvalidField = firstInvalidField || transportationSelfDriveAck;
+                        alertMessage = 'Please confirm your transportation arrival acknowledgment before proceeding.';
                     }
                 }
 
@@ -8661,6 +8701,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     if (validateStep(1)) {
                         showStep(2);
                     }
+                });
+
+                $(document).on('change', '#transportation_self_drive_ack', function() {
+                    updateTransportationSelfDriveState();
                 });
                 
                 // Previous to Package from Transportation confirmation

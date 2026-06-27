@@ -34,6 +34,8 @@ class Website extends Model
         'operating_days',
         'operating_start_time',
         'operating_end_time',
+        'pickup_start_time',
+        'pickup_end_time',
         'visa_logo',
         'mastercard_logo',
         'amex_logo',

@@ -6612,7 +6612,10 @@
 
                                                         <div class="col-md-12">
 
-                                                            <h2 style="margin-bottom: 35px;">Transportation</h2>
+                                                            <h2 style="margin-bottom: 35px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                                                <span>Transportation</span>
+                                                                <span id="transportation-hours-range" style="display: none; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.28); border-radius: 999px; padding: 4px 10px;"></span>
+                                                            </h2>
 
                                                             <!-- Left: Form Fields -->
                                                             <div class="form-left">
@@ -10198,8 +10201,8 @@
 
             const transportationSchedule = {
                 operatingDays: @json(array_values(array_map('strtolower', (array) ($data->operating_days ?? [])))),
-                startTime: @json($data->operating_start_time),
-                endTime: @json($data->operating_end_time),
+                startTime: @json($data->pickup_start_time),
+                endTime: @json($data->pickup_end_time),
             };
 
             function parseTimeToMinutes(timeValue) {
@@ -10276,6 +10279,42 @@
                 return pickupMinutes >= startMinutes && pickupMinutes <= endMinutes;
             }
 
+            function formatMinutesAsTwelveHour(totalMinutes) {
+                const normalizedMinutes = ((totalMinutes % 1440) + 1440) % 1440;
+                const hours24 = Math.floor(normalizedMinutes / 60);
+                const minutes = normalizedMinutes % 60;
+                const meridiem = hours24 >= 12 ? 'PM' : 'AM';
+                const hours12 = (hours24 % 12) || 12;
+                return String(hours12) + ':' + String(minutes).padStart(2, '0') + ' ' + meridiem;
+            }
+
+            function formatOperatingTimeForDisplay(timeValue) {
+                const minutes = parseTimeToMinutes(timeValue);
+                if (minutes === null) {
+                    return String(timeValue || '').trim();
+                }
+
+                return formatMinutesAsTwelveHour(minutes);
+            }
+
+            function updateTransportationHoursDisplay() {
+                const hoursRangeEl = document.getElementById('transportation-hours-range');
+                if (!hoursRangeEl) {
+                    return;
+                }
+
+                const startLabel = formatOperatingTimeForDisplay(transportationSchedule.startTime);
+                const endLabel = formatOperatingTimeForDisplay(transportationSchedule.endTime);
+
+                if (startLabel && endLabel) {
+                    hoursRangeEl.textContent = startLabel + ' - ' + endLabel;
+                    hoursRangeEl.style.display = 'inline-flex';
+                } else {
+                    hoursRangeEl.textContent = '';
+                    hoursRangeEl.style.display = 'none';
+                }
+            }
+
             function validateTransportationScheduleClient() {
                 const pickupDateField = $('#package_use_date');
                 const pickupTimeField = $('[name="transportation_pickup_time"]');
@@ -10320,7 +10359,7 @@
                     return {
                         valid: false,
                         field: pickupTimeField,
-                        message: 'Pickup time must be within the club operating hours.'
+                        message: 'Pickup time must be within the configured pickup hours.'
                     };
                 }
 
@@ -10363,6 +10402,14 @@
                     }
                     return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
                 }
+                var minT = to24h(transportationSchedule.startTime);
+                var maxT = to24h(transportationSchedule.endTime);
+                var hasSameDayRange = false;
+                var startMinutes = parseTimeToMinutes(transportationSchedule.startTime);
+                var endMinutes = parseTimeToMinutes(transportationSchedule.endTime);
+                if (startMinutes !== null && endMinutes !== null) {
+                    hasSameDayRange = endMinutes >= startMinutes;
+                }
                 var isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
                     || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
@@ -10370,8 +10417,13 @@
                     el.type = 'time';
                     el.removeAttribute('readonly');
                     el.step = 900;
-                    el.removeAttribute('min');
-                    el.removeAttribute('max');
+                    if (minT && maxT && hasSameDayRange) {
+                        el.min = minT;
+                        el.max = maxT;
+                    } else {
+                        el.removeAttribute('min');
+                        el.removeAttribute('max');
+                    }
                     el.addEventListener('input', function () {
                         $(el).removeClass('required-field');
                     });
@@ -10382,13 +10434,18 @@
                 el.removeAttribute('readonly');
                 if (typeof flatpickr === 'undefined') {
                     el.type = 'time';
-                    el.removeAttribute('min');
-                    el.removeAttribute('max');
+                    if (minT && maxT && hasSameDayRange) {
+                        el.min = minT;
+                        el.max = maxT;
+                    } else {
+                        el.removeAttribute('min');
+                        el.removeAttribute('max');
+                    }
                     el.step = 900;
                     return;
                 }
 
-                var pickupTimePicker = flatpickr(el, {
+                var pickerConfig = {
                     enableTime: true,
                     noCalendar: true,
                     time_24hr: false,
@@ -10399,7 +10456,13 @@
                     onChange: function () {
                         $(el).removeClass('required-field');
                     }
-                });
+                };
+                if (minT && maxT && hasSameDayRange) {
+                    pickerConfig.minTime = minT;
+                    pickerConfig.maxTime = maxT;
+                }
+
+                var pickupTimePicker = flatpickr(el, pickerConfig);
 
                 el.addEventListener('focus', function () {
                     if (pickupTimePicker && typeof pickupTimePicker.open === 'function') {
@@ -10413,6 +10476,8 @@
                     }
                 });
             })();
+
+            updateTransportationHoursDisplay();
 
             function getPacificTodayDateString() {
                 try {
