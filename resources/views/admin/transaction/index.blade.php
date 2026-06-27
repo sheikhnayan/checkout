@@ -967,6 +967,33 @@ body.modal-open .admin-mobile-menu-toggle {
                             </td>
                             <td>
                                 <div class="d-flex align-items-center gap-1">
+                                    @php
+                                        $requiresTransportationForRow = false;
+                                        $rowCartItems = is_array($item->cart_items ?? null) ? $item->cart_items : [];
+                                        foreach ($rowCartItems as $rowCartItem) {
+                                            if (!is_array($rowCartItem)) {
+                                                continue;
+                                            }
+                                            $rowTransportValue = $rowCartItem['transportation'] ?? ($rowCartItem['transport'] ?? false);
+                                            if (
+                                                $rowTransportValue === true ||
+                                                $rowTransportValue === 1 ||
+                                                $rowTransportValue === '1' ||
+                                                $rowTransportValue === 'true' ||
+                                                $rowTransportValue === 'on'
+                                            ) {
+                                                $requiresTransportationForRow = true;
+                                                break;
+                                            }
+                                        }
+                                        if (!$requiresTransportationForRow && !empty($item->package)) {
+                                            $requiresTransportationForRow = (
+                                                $item->package->transportation == 1 ||
+                                                $item->package->transportation === true ||
+                                                $item->package->transportation === '1'
+                                            );
+                                        }
+                                    @endphp
                                     <button type="button" class="txn-action-eye view-btn"
                                         data-bs-toggle="modal" data-bs-target="#viewTransactionModal"
                                         data-id="{{ $item->id }}"
@@ -1022,6 +1049,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                         data-date="{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('Y-m-d h:i A T') }}"
                                         data-men="{{ $item->men ?? '' }}"
                                         data-women="{{ $item->women ?? '' }}"
+                                        data-requires_transportation="{{ $requiresTransportationForRow ? 1 : 0 }}"
                                         data-affiliate_name="{{ !empty($item->affiliate_id) && !empty($item->affiliate) ? ($item->affiliate->display_name ?: optional($item->affiliate->user)->name ?: ('affiliate #' . $item->affiliate_id)) : '' }}"
                                         data-entertainer_name="{{ !empty($item->entertainer_id) && !empty($item->entertainer) ? ($item->entertainer->display_name ?: optional($item->entertainer->user)->name ?: ('Entertainer #' . $item->entertainer_id)) : '' }}"
                                         data-affiliate_commission_percentage="{{ (float) ($item->affiliate_commission_percentage ?? 0) }}"
@@ -1993,6 +2021,19 @@ body.modal-open .admin-mobile-menu-toggle {
                     $(this).data('business_address')
                 ].filter(function(v){ return String(v || '').trim() !== ''; }).join(' | ');
 
+                var requiresTransportation = String($(this).data('requires_transportation') || '').toLowerCase();
+                requiresTransportation = requiresTransportation === '1' || requiresTransportation === 'true' || requiresTransportation === 'yes';
+                var hasTransportationDetails = [
+                    $(this).data('transportation_pickup_time'),
+                    $(this).data('transportation_address'),
+                    $(this).data('transportation_phone'),
+                    $(this).data('transportation_note')
+                ].some(function(v){ return String(v || '').trim() !== ''; });
+                var transportMode = 'Not Required';
+                if (requiresTransportation) {
+                    transportMode = hasTransportationDetails ? 'Pickup Requested' : 'Self Drive Selected';
+                }
+
                 var amountPaid = parseFloat($(this).data('total') || 0);
                 var totalAmount = parseFloat($(this).data('subtotal') || 0);
                 var dueAmount = parseFloat($(this).data('due') || 0);
@@ -2074,6 +2115,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += '<div class="col-md-6">';
                 html += '<div class="txn-detail-card">';
                 html += '<div class="txn-detail-title">Transport & Business</div>';
+                html += row('Transport Mode', transportMode);
                 html += row('Pickup Time', formatPickupTime($(this).data('transportation_pickup_time')));
                 html += row('Transport Phone', $(this).data('transportation_phone') || 'N/A');
                 html += row('Transport Address', $(this).data('transportation_address') || 'N/A');
