@@ -211,7 +211,7 @@
                                                             <td>
                                                                 <button type="button"
                                                                     class="btn btn-dark js-copy-single-checkout"
-                                                                    data-checkout-url="{{ route('package.checkout.single', ['slug' => $website->slug, 'packageId' => $item->id]) }}"
+                                                                    data-checkout-url="{{ route('package.checkout.single', ['slug' => $website->slug, 'packageId' => ((\Illuminate\Support\Str::slug((string) $item->name) ?: 'package') . '-' . $item->id)]) }}"
                                                                     title="Copy Single Checkout Link">
                                                                     Copy Link
                                                                 </button>
@@ -277,7 +277,7 @@
                                                             <td>
                                                                 <button type="button"
                                                                     class="btn btn-dark js-copy-single-checkout"
-                                                                    data-checkout-url="{{ route('package.checkout.single', ['slug' => $website->slug, 'packageId' => $item->id]) }}"
+                                                                    data-checkout-url="{{ route('package.checkout.single', ['slug' => $website->slug, 'packageId' => ((\Illuminate\Support\Str::slug((string) $item->name) ?: 'package') . '-' . $item->id)]) }}"
                                                                     title="Copy Single Checkout Link">
                                                                     Copy Link
                                                                 </button>
@@ -471,7 +471,7 @@
                                                                 <td>
                                                                     <button type="button"
                                                                         class="btn btn-sm btn-dark js-copy-single-checkout"
-                                                                        data-checkout-url="{{ route('package.checkout.single', ['slug' => $website->slug, 'packageId' => $pkg->id]) }}"
+                                                                        data-checkout-url="{{ route('package.checkout.single', ['slug' => $website->slug, 'packageId' => ((\Illuminate\Support\Str::slug((string) $pkg->name) ?: 'package') . '-' . $pkg->id)]) }}"
                                                                         title="Copy Single Checkout Link">
                                                                         Copy Link
                                                                     </button>

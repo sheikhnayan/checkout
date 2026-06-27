@@ -19,8 +19,13 @@ class FrontendController extends Controller
 {
     public function singlePackageCheckout($slug, $packageId, Request $request)
     {
+        $resolvedPackageId = $this->resolveSinglePackageId($packageId);
+        if (!$resolvedPackageId) {
+            abort(404, 'Package not found');
+        }
+
         $request->merge([
-            'package' => (int) $packageId,
+            'package' => $resolvedPackageId,
             'single_package_checkout' => 1,
         ]);
 
@@ -670,5 +675,25 @@ class FrontendController extends Controller
 
                 return max(1, (int) $transaction->package_number_of_guest);
             });
+    }
+
+    private function resolveSinglePackageId($packageIdentifier): ?int
+    {
+        $rawIdentifier = trim((string) $packageIdentifier);
+        if ($rawIdentifier === '') {
+            return null;
+        }
+
+        // Backward compatibility: old links still pass numeric package IDs.
+        if (ctype_digit($rawIdentifier)) {
+            return (int) $rawIdentifier;
+        }
+
+        // New format: "{package-name-slug}-{id}".
+        if (preg_match('/-(\d+)$/', $rawIdentifier, $matches) === 1) {
+            return (int) $matches[1];
+        }
+
+        return null;
     }
 }
