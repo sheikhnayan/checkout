@@ -5648,7 +5648,9 @@
             <a href="https://cartvip.com" target="_blank" class="cv-nav-brand">
                 <img src="{{ asset('images/logo.png') }}" alt="CartVIP" class="cv-nav-logo-img">
             </a>
-            @php($allPackagesCheckoutUrl = route('index', ['slug' => $data->slug]))
+            @php
+                $allPackagesCheckoutUrl = url('/' . $data->slug);
+            @endphp
             <div class="cv-nav-actions">
                 @if ($data->back_link)
                 <a href="{{ $data->back_link }}" class="cv-nav-back">
