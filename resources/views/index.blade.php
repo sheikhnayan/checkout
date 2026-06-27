@@ -5110,23 +5110,6 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
 
         {{-- Duplicate venue header removed - club details are shown in the hero section --}}
 
-        @if ($data->back_link || !empty($isSinglePackageCheckout))
-            <div class="mobile-top-actions d-md-none {{ !empty($isSinglePackageCheckout) ? 'has-multiple-actions' : '' }}">
-                @if ($data->back_link)
-                <a href="{{ $data->back_link }}" class="mobile-back-home-btn">
-                    <i class="fas fa-arrow-left"></i>
-                    <span>{{ $data->back_text ?: 'Back To Home' }}</span>
-                </a>
-                @endif
-                @if (!empty($isSinglePackageCheckout))
-                <a href="{{ $allPackagesCheckoutUrl }}" class="mobile-back-home-btn mobile-view-packages-btn">
-                    <i class="fas fa-th-large"></i>
-                    <span>View All Packages</span>
-                </a>
-                @endif
-            </div>
-        @endif
-
         <header>
             <div class="container py-1">
                 @session('success')
