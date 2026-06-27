@@ -2442,6 +2442,17 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         display: none !important;
     }
 
+    .mobile-top-actions.has-multiple-actions {
+        display: flex !important;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .mobile-top-actions.has-multiple-actions .mobile-back-home-btn {
+        flex: 1 1 0;
+        width: auto;
+    }
+
     .mobile-back-home-btn {
         width: 100%;
         display: inline-flex;
@@ -2718,6 +2729,12 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     transform: translateX(-2px);
 }
 .cv-nav-back i { font-size: 11px; }
+.cv-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+}
 
 @media (max-width: 991px) {
     .cv-nav-trust { display: none; }
@@ -2728,6 +2745,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 }
 .cv-nav-back { display:flex; align-items:center; gap:8px; padding:11px 19px; border-radius:12px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.15); color:rgba(255,255,255,.88) !important; text-decoration:none !important; font-size:15px; font-weight:600; transition:all .2s; }
 .cv-nav-back:hover { background:rgba(255,255,255,.11); color:#fff !important; border-color:rgba(255,255,255,.2); }
+.cv-nav-actions { display:flex; align-items:center; gap:10px; margin-left:auto; }
 .cv-hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:4px; margin-left:auto; }
 .cv-hamburger span { display:block; width:22px; height:2px; background:rgba(255,255,255,.85); border-radius:2px; }
 
@@ -4893,6 +4911,8 @@ input[type="checkbox"],
     .cv-top-nav { padding: 0 14px; height: 60px; }
     .cv-nav-logo-img { height: 32px; max-width: 130px; }
     .cv-nav-back { display: flex !important; padding: 7px 12px !important; font-size: 12px !important; gap: 6px !important; }
+    .cv-nav-actions { gap: 6px !important; }
+    .cv-nav-view-all { padding: 7px 10px !important; }
     .cv-nav-back span { display: inline; }
     .cv-hamburger { display: none !important; }
     .mobile-top-actions { display: none !important; }
@@ -4900,6 +4920,7 @@ input[type="checkbox"],
 }
 @media (max-width: 420px) {
     .cv-nav-back { padding: 6px 10px !important; font-size: 11.5px !important; }
+    .cv-nav-view-all { padding: 6px 8px !important; font-size: 10.5px !important; }
     .cv-nav-back i { font-size: 10px; }
     .cv-nav-logo-img { height: 80px; max-width: 110px; }
 }
@@ -5067,11 +5088,19 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
             <a href="https://cartvip.com" target="_blank" class="cv-nav-brand">
                 <img src="{{ asset('images/logo.png') }}" alt="CartVIP" class="cv-nav-logo-img">
             </a>
-            @if ($data->back_link)
-            <a href="{{ $data->back_link }}" class="cv-nav-back">
-                <i class="fas fa-arrow-left"></i> {{ $data->back_text ?: 'Back to Home' }}
-            </a>
-            @endif
+            @php($allPackagesCheckoutUrl = route('index', ['slug' => $data->slug]))
+            <div class="cv-nav-actions">
+                @if ($data->back_link)
+                <a href="{{ $data->back_link }}" class="cv-nav-back">
+                    <i class="fas fa-arrow-left"></i> {{ $data->back_text ?: 'Back to Home' }}
+                </a>
+                @endif
+                @if (!empty($isSinglePackageCheckout))
+                <a href="{{ $allPackagesCheckoutUrl }}" class="cv-nav-back cv-nav-view-all">
+                    <i class="fas fa-th-large"></i> View All Packages
+                </a>
+                @endif
+            </div>
             <button class="cv-hamburger" id="cv-hamburger" aria-label="Open menu">
                 <span></span><span></span><span></span>
             </button>
@@ -5079,12 +5108,20 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
 
         {{-- Duplicate venue header removed - club details are shown in the hero section --}}
 
-        @if ($data->back_link)
-            <div class="mobile-top-actions d-md-none">
+        @if ($data->back_link || !empty($isSinglePackageCheckout))
+            <div class="mobile-top-actions d-md-none {{ !empty($isSinglePackageCheckout) ? 'has-multiple-actions' : '' }}">
+                @if ($data->back_link)
                 <a href="{{ $data->back_link }}" class="mobile-back-home-btn">
                     <i class="fas fa-arrow-left"></i>
                     <span>{{ $data->back_text ?: 'Back To Home' }}</span>
                 </a>
+                @endif
+                @if (!empty($isSinglePackageCheckout))
+                <a href="{{ $allPackagesCheckoutUrl }}" class="mobile-back-home-btn mobile-view-packages-btn">
+                    <i class="fas fa-th-large"></i>
+                    <span>View All Packages</span>
+                </a>
+                @endif
             </div>
         @endif
 
@@ -6791,7 +6828,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
             }
             #cv-cart-toast .cv-toast-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
             #cv-cart-toast .cv-toast-title { font-size: 14.5px; font-weight: 800; color: #fff; letter-spacing: -0.005em; }
-            #cv-cart-toast .cv-toast-sub { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.65); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 240px; }
+            #cv-cart-toast .cv-toast-sub { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.65); white-space: normal; overflow: visible; text-overflow: clip; max-width: none; line-height: 1.35; }
             #cv-cart-toast .cv-toast-close {
                 margin-left: auto;
                 background: rgba(255,255,255,0.08);
