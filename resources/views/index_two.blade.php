@@ -138,7 +138,7 @@
             /* cv-dstep responsive - single line on mobile */
             .cv-desktop-steps { flex-wrap: nowrap !important; }
             @media (max-width: 767px) {
-                .cv-desktop-steps { gap: 0; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+                .cv-desktop-steps { gap: 0; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; width: min(100%, 420px); margin-left: auto; margin-right: auto; }
                 .cv-dstep { font-size: 9.5px !important; padding: 0 2px !important; gap: 5px !important; }
                 .cv-dstep-num { width: 26px !important; height: 26px !important; font-size: 11px !important; }
                 .cv-dstep::before { top: 13px !important; left: calc(50% + 15px) !important; right: calc(-50% + 15px) !important; }
