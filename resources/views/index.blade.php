@@ -6060,10 +6060,8 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
     
                                                     <div class="col-md-12">
 
-                                                        <h2 style="margin-bottom: 35px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                                                            <span>Transportation</span>
-                                                            <span id="transportation-hours-range" style="display: none; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.28); border-radius: 999px; padding: 4px 10px;"></span>
-                                                        </h2>
+                                                        <h2 style="margin-bottom: 8px;">Transportation</h2>
+                                                        <div id="transportation-hours-range" style="display: none; margin-bottom: 24px; font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.92);"></div>
 
                                                         <!-- Left: Form Fields -->
                                                         <div class="form-left">
@@ -9749,7 +9747,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 const endLabel = formatOperatingTimeForDisplay(transportationSchedule.endTime);
 
                 if (startLabel && endLabel) {
-                    hoursRangeEl.textContent = startLabel + ' - ' + endLabel;
+                    hoursRangeEl.textContent = 'Pickup Hours: ' + startLabel + ' - ' + endLabel;
                     hoursRangeEl.style.display = 'inline-flex';
                 } else {
                     hoursRangeEl.textContent = '';
