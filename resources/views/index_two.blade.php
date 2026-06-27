@@ -6190,7 +6190,7 @@
                                     <div class="cv-package-section-header" style="display:flex; justify-content:space-between; align-items:center; margin: 18px 0 12px; flex-wrap:wrap; gap:10px;">
                                         <div>
                                             @if(!empty($isSinglePackageCheckout))
-                                                <h5 class="section-kicker-lg" style="margin:0 !important;">Select your package to checkout. Or <a href="{{ $allPackagesCheckoutUrl }}" style="color:inherit;text-decoration:underline;">View all packages.</a></h5>
+                                                <h5 class="section-kicker-lg" style="margin:0 !important; text-transform: unset;">Select your package to checkout, Or <a href="{{ $allPackagesCheckoutUrl }}" style="text-transform: uppercase; color:inherit;text-decoration:underline;">View all packages.</a></h5>
                                             @else
                                                 <h5 class="section-kicker-lg" style="margin:0 !important;">{{ $data->package_section_title ?: 'Select Your Package' }}</h5>
                                                 <p style="margin: 4px 0 0; font-size: 12.5px; color: rgba(255,255,255,0.5);">{{ $data->package_section_subtext ?: 'All packages include free ride, club entry, and priority access.' }}</p>
