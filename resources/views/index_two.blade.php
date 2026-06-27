@@ -2050,7 +2050,7 @@
         }
 
         nav {
-            max-width: 420px;
+            max-width: 600px;
             margin: 0 auto 24px;
             padding: 4px;
             border-radius: 14px;
