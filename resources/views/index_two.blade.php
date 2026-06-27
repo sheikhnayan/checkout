@@ -6182,10 +6182,19 @@
                                             $mostPopularPackageName = $mostPopularPackage->name ?? '';
                                         }
                                     @endphp
+                                    @if(!empty($isSinglePackageCheckout))
+                                    <style>
+                                        .cv-package-section-header p { display: none !important; }
+                                    </style>
+                                    @endif
                                     <div class="cv-package-section-header" style="display:flex; justify-content:space-between; align-items:center; margin: 18px 0 12px; flex-wrap:wrap; gap:10px;">
                                         <div>
-                                            <h5 class="section-kicker-lg" style="margin:0 !important;">{{ $data->package_section_title ?: 'Select Your Package' }}</h5>
-                                            <p style="margin: 4px 0 0; font-size: 12.5px; color: rgba(255,255,255,0.5);">{{ $data->package_section_subtext ?: 'All packages include free ride, club entry, and priority access.' }}</p>
+                                            @if(!empty($isSinglePackageCheckout))
+                                                <h5 class="section-kicker-lg" style="margin:0 !important;">Select your package to checkout. Or <a href="{{ $allPackagesCheckoutUrl }}" style="color:inherit;text-decoration:underline;">View all packages.</a></h5>
+                                            @else
+                                                <h5 class="section-kicker-lg" style="margin:0 !important;">{{ $data->package_section_title ?: 'Select Your Package' }}</h5>
+                                                <p style="margin: 4px 0 0; font-size: 12.5px; color: rgba(255,255,255,0.5);">{{ $data->package_section_subtext ?: 'All packages include free ride, club entry, and priority access.' }}</p>
+                                            @endif
                                         </div>
                                         @if($mostPopularPackageName)
                                         <div class="cv-most-popular-tag" style="display:inline-flex; align-items:center; gap:10px; padding: 7px 14px; border-radius: 999px; background: rgba(167,116,255,0.08); border: 1px solid rgba(167,116,255,0.32); font-size: 12.5px; color: rgba(255,255,255,0.9); font-weight: 600;">
