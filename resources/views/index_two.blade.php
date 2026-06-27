@@ -5957,6 +5957,12 @@
                             .cv-access-grid .cv-access-card::after {
                                 display: none !important;
                             }
+                            .cv-access-grid .cv-access-card {
+                                padding-left: 18px !important;
+                            }
+                            .cv-access-grid .cv-access-card.is-active {
+                                padding-left: 20px !important;
+                            }
                         </style>
                         @endif
                         @if (empty($isSinglePackageCheckout))
