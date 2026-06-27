@@ -6041,7 +6041,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                             <div class="cv-pkg-title-row">
                                                                 <i class="fas {{ $tierIcon }} cv-pkg-title-icon"></i>
                                                                 <div class="cv-pkg-title">{{ $item->name }}</div>
-                                                                <button type="button" class="cv-pkg-tooltip-trigger" aria-label="View package details">i</button>
+                                                                <button type="button" class="cv-pkg-tooltip-trigger" aria-label="View package details" data-title="{{ $item->name }}" data-tooltip="{{ trim((string) ($item->tooltip ?? '')) }}">i</button>
                                                             </div>
                                                             @if($item->website && $item->website->name)
                                                                 <div class="cv-club-name-badge" style="font-size: 12px; color: rgba(255,255,255,0.65); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; cursor: help;" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="<strong>{{ $item->website->name }}</strong><br><small>{{ $item->website->location ?? 'Location not specified' }}</small>"><i class="fas fa-map-marker-alt" style="opacity: 0.7;"></i>{{ $item->website->name }}</div>
@@ -9063,12 +9063,16 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 }
 
                 const legacyMeta = card.querySelector('.items');
+                const triggerTitle = String(trigger.getAttribute('data-title') || '').trim();
+                const triggerTooltip = String(trigger.getAttribute('data-tooltip') || '').trim();
                 const title = (
+                    triggerTitle ||
                     (legacyMeta && legacyMeta.getAttribute('data-title')) ||
                     (card.querySelector('.cv-pkg-title') && card.querySelector('.cv-pkg-title').textContent) ||
                     'Package Details'
                 ).trim();
                 const description = (
+                    triggerTooltip ||
                     (legacyMeta && legacyMeta.getAttribute('data-description')) ||
                     (card.querySelector('.cv-pkg-desc') && card.querySelector('.cv-pkg-desc').textContent) ||
                     'No additional details available for this package.'

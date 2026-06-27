@@ -5779,7 +5779,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                             <div class="cv-pkg-title-row">
                                                                 <i class="fas {{ $tierIcon }} cv-pkg-title-icon"></i>
                                                                 <div class="cv-pkg-title">{{ $item->name }}</div>
-                                                                <button type="button" class="cv-pkg-tooltip-trigger" aria-label="View package details">i</button>
+                                                                <button type="button" class="cv-pkg-tooltip-trigger" aria-label="View package details" data-title="{{ $item->name }}" data-tooltip="{{ trim((string) ($item->tooltip ?? '')) }}">i</button>
                                                             </div>
                                                             @if($pkgIsTicket)
                                                                 <span class="cv-pkg-sub"><i class="fas fa-ticket-alt"></i>1 ticket per person</span>
@@ -9287,12 +9287,16 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 }
 
                 const legacyMeta = card.querySelector('.items');
+                const triggerTitle = String(trigger.getAttribute('data-title') || '').trim();
+                const triggerTooltip = String(trigger.getAttribute('data-tooltip') || '').trim();
                 const title = (
+                    triggerTitle ||
                     (legacyMeta && legacyMeta.getAttribute('data-title')) ||
                     (card.querySelector('.cv-pkg-title') && card.querySelector('.cv-pkg-title').textContent) ||
                     'Package Details'
                 ).trim();
                 const description = (
+                    triggerTooltip ||
                     (legacyMeta && legacyMeta.getAttribute('data-description')) ||
                     (card.querySelector('.cv-pkg-desc') && card.querySelector('.cv-pkg-desc').textContent) ||
                     'No additional details available for this package.'
