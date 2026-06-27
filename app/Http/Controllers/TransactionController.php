@@ -385,6 +385,9 @@ class TransactionController extends Controller
                             'package_dob' => $add->package_dob,
                             'package_note' => $request->input('package_note'),
                             'transportation_pickup_time' => $add->transportation_pickup_time,
+                            'transportation_mode' => $requiresTransportation
+                                ? ($isSelfDriveTransportation ? 'Self Drive Selected' : 'Pickup Requested')
+                                : null,
                             'transportation_address' => $add->transportation_address,
                             'transportation_phone' => $add->transportation_phone,
                             'transportation_guest' => $add->transportation_guest,
@@ -699,6 +702,9 @@ class TransactionController extends Controller
                             'package_dob' => $add->package_dob,
                             'package_note' => $request->input('package_note'),
                             'transportation_pickup_time' => $add->transportation_pickup_time,
+                            'transportation_mode' => $requiresTransportation
+                                ? ($isSelfDriveTransportation ? 'Self Drive Selected' : 'Pickup Requested')
+                                : null,
                             'transportation_address' => $add->transportation_address,
                             'transportation_phone' => $add->transportation_phone,
                             'transportation_guest' => $add->transportation_guest,
@@ -907,6 +913,9 @@ class TransactionController extends Controller
                 'package_dob' => $transaction->package_dob,
                 'package_note' => $request->input('package_note'),
                 'transportation_pickup_time' => $transaction->transportation_pickup_time,
+                'transportation_mode' => $requiresTransportation
+                    ? ($isSelfDriveTransportation ? 'Self Drive Selected' : 'Pickup Requested')
+                    : null,
                 'transportation_address' => $transaction->transportation_address,
                 'transportation_phone' => $transaction->transportation_phone,
                 'transportation_guest' => $transaction->transportation_guest,
