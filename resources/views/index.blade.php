@@ -5343,7 +5343,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 </button>
                 <div class="cv-main-col" id="cv-checkout-main">
                     <div class="cv-desktop-shell">
-                        <div class="cv-desktop-steps" id="cv-checkout-steps" @if(!empty($isSinglePackageCheckout) || $data->reservation != 1) style="grid-template-columns: repeat(3, minmax(0, 1fr));" @endif>
+                        <div class="cv-desktop-steps" id="cv-checkout-steps" @if(!empty($isSinglePackageCheckout) || $data->reservation != 1) style="grid-template-columns: repeat(3, minmax(0, 1fr)) !important;" @endif>
                             <div class="cv-dstep is-active" id="cv-dstep-1" data-step="1"><span class="cv-dstep-num">1</span><span>Choose Date</span></div>
                             <div class="cv-dstep" id="cv-dstep-2" data-step="2"><span class="cv-dstep-num">2</span><span>{{ !empty($isSinglePackageCheckout) ? 'Select Guest' : (($data->reservation == 1) ? 'Choose Access' : 'Select Package') }}</span></div>
                             <div class="cv-dstep" id="cv-dstep-3" data-step="3"><span class="cv-dstep-num">3</span><span>{{ !empty($isSinglePackageCheckout) ? 'Review & Pay' : (($data->reservation == 1) ? 'Select Package' : 'Review & Pay') }}</span></div>
