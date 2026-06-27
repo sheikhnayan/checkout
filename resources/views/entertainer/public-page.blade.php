@@ -6215,12 +6215,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                     class="vip-price default-due">DUE ON ARRIVAL: <span class="due-amount">$0.00</span></div>
                                             @endif
 
-                                            @if ($data->sales_tax_name == 0)
+                                            {{-- @if ($data->sales_tax_name == 0)
                                                 <div style="font-size: 10px; font-weight: 700; color: {{ $brandSecondary }} !important;"
                                                     class="vip-price">
-                                                    {{-- <span>*No sales tax applied. Services sold are not subject to sales tax under Nevada law. Please consult a tax advisor for your local regionï¿½ifï¿½applicable.</span> --}}
-                                                </div>
-                                            @endif
+                                                    <span>*No sales tax applied. Services sold are not subject to sales tax under Nevada law. Please consult a tax advisor for your local regionï¿½ifï¿½applicable.</span></div>
+                                            @endif --}}
                                         </div>
                                         <div class="col-md-6 dynamic-price" style="display: none;">
                                             <label

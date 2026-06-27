@@ -6463,14 +6463,14 @@
                                                     class="vip-price default-due">DUE ON ARRIVAL: <span class="due-amount">$0.00</span>
                                                 </div>
                                             @endif
-                                            @if ($data->sales_tax_name == 0)
+                                            {{-- @if ($data->sales_tax_name == 0)
                                                 <div style="font-size: 10px; font-weight: 700; color: {{ $brandSecondary }} !important;"
                                                     class="vip-price">
-                                                    {{-- <span>*No sales tax applied. Services sold are
+                                                    <span>*No sales tax applied. Services sold are
                                                         not subject to sales tax under Nevada law. Please consult a tax
-                                                        advisor for your local region if applicable.</span> --}}
+                                                        advisor for your local region if applicable.</span>
                                                     </div>
-                                            @endif
+                                            @endif --}}
                                         </div>
                                         <div class="col-md-6 dynamic-price" style="display: none;">
                                             <label
