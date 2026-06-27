@@ -5343,11 +5343,11 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 </button>
                 <div class="cv-main-col" id="cv-checkout-main">
                     <div class="cv-desktop-shell">
-                        <div class="cv-desktop-steps" id="cv-checkout-steps" @if(!empty($isSinglePackageCheckout)) style="grid-template-columns: repeat(3, minmax(0, 1fr));" @endif>
+                        <div class="cv-desktop-steps" id="cv-checkout-steps" @if(!empty($isSinglePackageCheckout) || $data->reservation != 1) style="grid-template-columns: repeat(3, minmax(0, 1fr));" @endif>
                             <div class="cv-dstep is-active" id="cv-dstep-1" data-step="1"><span class="cv-dstep-num">1</span><span>Choose Date</span></div>
-                            <div class="cv-dstep" id="cv-dstep-2" data-step="2"><span class="cv-dstep-num">2</span><span>{{ !empty($isSinglePackageCheckout) ? 'Select Guest' : (($data->reservation == 1) ? 'Choose Access' : 'Package Only') }}</span></div>
-                            <div class="cv-dstep" id="cv-dstep-3" data-step="3"><span class="cv-dstep-num">3</span><span>{{ !empty($isSinglePackageCheckout) ? 'Review & Pay' : 'Select Package' }}</span></div>
-                            @if (empty($isSinglePackageCheckout))
+                            <div class="cv-dstep" id="cv-dstep-2" data-step="2"><span class="cv-dstep-num">2</span><span>{{ !empty($isSinglePackageCheckout) ? 'Select Guest' : (($data->reservation == 1) ? 'Choose Access' : 'Select Package') }}</span></div>
+                            <div class="cv-dstep" id="cv-dstep-3" data-step="3"><span class="cv-dstep-num">3</span><span>{{ !empty($isSinglePackageCheckout) ? 'Review & Pay' : (($data->reservation == 1) ? 'Select Package' : 'Review & Pay') }}</span></div>
+                            @if (empty($isSinglePackageCheckout) && $data->reservation == 1)
                                 <div class="cv-dstep" id="cv-dstep-4" data-step="4"><span class="cv-dstep-num">4</span><span>Review &amp; Pay</span></div>
                             @endif
                         </div>
@@ -10368,6 +10368,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 var isSinglePackageCheckout = {{ !empty($isSinglePackageCheckout) ? 'true' : 'false' }};
                 var accessTabs = document.querySelectorAll('.cv-access-tab');
                 var accessDone = isSinglePackageCheckout || accessTabs.length === 0 || !!document.querySelector('.cv-access-tab.is-active');
+                var hasAccessStep = !isSinglePackageCheckout && !!stepEls[3];
 
                 var cartList = document.getElementById('cart-list');
                 var cartDone = !!(cartList && cartList.children.length > 0);
@@ -10375,6 +10376,14 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 var formDone = checkPackageFormFilled();
 
                 if (isSinglePackageCheckout) {
+                    if (dateDone && stepEls[0]) stepEls[0].classList.add('is-complete');
+                    if (dateDone && cartDone && stepEls[1]) stepEls[1].classList.add('is-complete');
+                    if (dateDone && cartDone && formDone && stepEls[2]) stepEls[2].classList.add('is-complete');
+
+                    if (!dateDone && stepEls[0]) stepEls[0].classList.add('is-active');
+                    else if (!cartDone && stepEls[1]) stepEls[1].classList.add('is-active');
+                    else if (stepEls[2]) stepEls[2].classList.add('is-active');
+                } else if (!hasAccessStep) {
                     if (dateDone && stepEls[0]) stepEls[0].classList.add('is-complete');
                     if (dateDone && cartDone && stepEls[1]) stepEls[1].classList.add('is-complete');
                     if (dateDone && cartDone && formDone && stepEls[2]) stepEls[2].classList.add('is-complete');
