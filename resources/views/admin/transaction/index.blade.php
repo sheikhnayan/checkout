@@ -152,19 +152,23 @@ body.modal-open .admin-mobile-menu-toggle {
     #viewTransactionModal .modal-header .btn-close {
         position: relative;
         z-index: 2;
-        margin-right: 8px;
-        width: 2.5rem !important;
-        height: 2.5rem !important;
-        padding: 0.5rem !important;
-        opacity: 1 !important;
-        background-size: 1.5rem !important;
+        margin-right: 0;
+        margin-left: auto;
+        width: 2rem !important;
+        height: 2rem !important;
+        padding: 0.25rem !important;
+        opacity: 0.95 !important;
+        background-size: 1rem !important;
+        background-color: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
         filter: invert(1) !important;
     }
 
     #viewTransactionModal .modal-header .btn-close:hover,
     #viewTransactionModal .modal-header .btn-close:focus {
-        opacity: 0.8 !important;
-        background-color: rgba(255,255,255,0.15) !important;
+        opacity: 1 !important;
+        background-color: transparent !important;
     }
 }
 
