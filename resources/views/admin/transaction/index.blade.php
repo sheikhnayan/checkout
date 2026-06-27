@@ -1927,6 +1927,9 @@ body.modal-open .admin-mobile-menu-toggle {
                     if (!raw || raw.indexOf(':') === -1) {
                         return raw || 'N/A';
                     }
+                    if (/\b(?:AM|PM)\b/i.test(raw)) {
+                        return raw.toUpperCase();
+                    }
                     var timeParts = raw.split(':');
                     var hours = parseInt(timeParts[0], 10);
                     var minutes = timeParts[1] || '00';

@@ -1405,7 +1405,7 @@ class TransactionController extends Controller
 
         $pickupRaw = trim((string) ($transaction->transportation_pickup_time ?? ''));
         $pickupFormatted = $pickupRaw;
-        if ($pickupRaw !== '' && strpos($pickupRaw, ':') !== false) {
+        if ($pickupRaw !== '' && strpos($pickupRaw, ':') !== false && !preg_match('/\b(?:AM|PM)\b/i', $pickupRaw)) {
             $parts = explode(':', $pickupRaw);
             $hours = isset($parts[0]) ? (int) $parts[0] : 0;
             $minutes = isset($parts[1]) ? $parts[1] : '00';
