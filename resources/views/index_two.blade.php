@@ -5843,7 +5843,7 @@
                     <div class="cv-desktop-shell">
                         <div class="cv-desktop-steps" id="cv-checkout-steps" @if(!empty($isSinglePackageCheckout)) style="grid-template-columns: repeat(3, minmax(0, 1fr));" @endif>
                             <div class="cv-dstep is-active" id="cv-dstep-1" data-step="1"><span class="cv-dstep-num">1</span><span>Choose Date</span></div>
-                            <div class="cv-dstep" id="cv-dstep-2" data-step="2"><span class="cv-dstep-num">2</span><span>{{ !empty($isSinglePackageCheckout) ? 'Select Guest' : 'Choose Access' }}</span></div>
+                            <div class="cv-dstep" id="cv-dstep-2" data-step="2"><span class="cv-dstep-num">2</span><span>{{ !empty($isSinglePackageCheckout) ? 'Select Guest' : (($data->reservation == 1) ? 'Choose Access' : 'Select Package') }}</span></div>
                             <div class="cv-dstep" id="cv-dstep-3" data-step="3"><span class="cv-dstep-num">3</span><span>{{ !empty($isSinglePackageCheckout) ? 'Review & Pay' : 'Select Package' }}</span></div>
                             @if (empty($isSinglePackageCheckout))
                                 <div class="cv-dstep" id="cv-dstep-4" data-step="4"><span class="cv-dstep-num">4</span><span>Review &amp; Pay</span></div>
