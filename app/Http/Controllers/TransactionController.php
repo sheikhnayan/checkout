@@ -2385,7 +2385,7 @@ class TransactionController extends Controller
 
         if ($pickupTime !== '' && !$this->isWithinWebsiteOperatingHours($website, $pickupTime)) {
             throw ValidationException::withMessages([
-                'transportation_pickup_time' => 'Pickup time must be within the configured pickup hours.',
+                'transportation_pickup_time' => 'Please Enter Valid Pickup Time.',
             ]);
         }
     }

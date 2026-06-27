@@ -10395,7 +10395,7 @@
                     return {
                         valid: false,
                         field: pickupTimeField,
-                        message: 'Pickup time must be within the configured pickup hours.'
+                        message: 'Please Enter Valid Pickup Time.'
                     };
                 }
 
