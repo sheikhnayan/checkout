@@ -184,6 +184,7 @@ class TransactionController extends Controller
 
         $selectedPackage = Package::find($cartSummary['primary_package_id'] ?: $request->input('package_id'));
         $requiresTransportation = $this->cartRequiresTransportation($cartItems, $selectedPackage);
+        $isSelfDriveTransportation = $requiresTransportation && $request->boolean('transportation_self_drive_ack');
 
         $this->ensureCartEventCapacitiesAvailable($cartItems, $requestedUseDate);
 
@@ -200,7 +201,6 @@ class TransactionController extends Controller
         }
 
         if ($requiresTransportation) {
-            $isSelfDriveTransportation = $request->boolean('transportation_self_drive_ack');
 
             $transportationValidationRules = [
                 'package_use_date' => ['required', 'date'],
@@ -330,11 +330,11 @@ class TransactionController extends Controller
                     $add->promo_code = $validatedPromoCodeId;
                     $add->actual_total = $request->input('payment_total');
                     $add->discounted_amount = $validatedDiscountAmount;
-                    $add->transportation_pickup_time = $request->input('transportation_pickup_time');
-                    $add->transportation_address = $request->input('transportation_address');
-                    $add->transportation_phone = $request->input('transportation_phone');
-                    $add->transportation_guest = $request->input('transportation_guest');
-                    $add->transportation_note = $request->input('transportation_note');
+                    $add->transportation_pickup_time = $isSelfDriveTransportation ? null : $request->input('transportation_pickup_time');
+                    $add->transportation_address = $isSelfDriveTransportation ? null : $request->input('transportation_address');
+                    $add->transportation_phone = $isSelfDriveTransportation ? null : $request->input('transportation_phone');
+                    $add->transportation_guest = $isSelfDriveTransportation ? null : $request->input('transportation_guest');
+                    $add->transportation_note = $isSelfDriveTransportation ? null : $request->input('transportation_note');
                     $add->addons = $cartSummary['addons_summary'];
                     $add->package_id = $cartSummary['primary_package_id'] ?: $request->input('package_id');
                     $add->cart_items = !empty($cartItems) ? $cartItems : null;
@@ -367,8 +367,10 @@ class TransactionController extends Controller
                     $this->incrementPromoUsage($validatedPromoCodeId);
                     $this->applyReferralCommission($request, $add, (float) ($cartSummary['commission_base_amount'] ?? 0));
 
-                    // ClubLifter: for package purchases that include transportation, send the booking to their API.
-                    $this->sendClubLifterScheduleAfterResponse($add);
+                    // ClubLifter: do not send transportation payload when self-drive is selected.
+                    if (!$isSelfDriveTransportation) {
+                        $this->sendClubLifterScheduleAfterResponse($add);
+                    }
     
                     try {
                         //code...
@@ -382,11 +384,11 @@ class TransactionController extends Controller
                             'package_use_date' => $request->input('package_use_date'),
                             'package_dob' => $add->package_dob,
                             'package_note' => $request->input('package_note'),
-                            'transportation_pickup_time' => $request->input('transportation_pickup_time'),
-                            'transportation_address' => $request->input('transportation_address'),
-                            'transportation_phone' => $request->input('transportation_phone'),
-                            'transportation_guest' => $request->input('transportation_guest'),
-                            'transportation_note' => $request->input('transportation_note'),
+                            'transportation_pickup_time' => $add->transportation_pickup_time,
+                            'transportation_address' => $add->transportation_address,
+                            'transportation_phone' => $add->transportation_phone,
+                            'transportation_guest' => $add->transportation_guest,
+                            'transportation_note' => $add->transportation_note,
                             'host_name' => $request->input('host_name'),
                             'business_company' => $add->business_company,
                             'business_vat' => $add->business_vat,
@@ -642,11 +644,11 @@ class TransactionController extends Controller
                     $add->promo_code = $validatedPromoCodeId;
                     $add->actual_total = $request->input('payment_total');
                     $add->discounted_amount = $validatedDiscountAmount;
-                    $add->transportation_pickup_time = $request->input('transportation_pickup_time');
-                    $add->transportation_address = $request->input('transportation_address');
-                    $add->transportation_phone = $request->input('transportation_phone');
-                    $add->transportation_guest = $request->input('transportation_guest');
-                    $add->transportation_note = $request->input('transportation_note');
+                    $add->transportation_pickup_time = $isSelfDriveTransportation ? null : $request->input('transportation_pickup_time');
+                    $add->transportation_address = $isSelfDriveTransportation ? null : $request->input('transportation_address');
+                    $add->transportation_phone = $isSelfDriveTransportation ? null : $request->input('transportation_phone');
+                    $add->transportation_guest = $isSelfDriveTransportation ? null : $request->input('transportation_guest');
+                    $add->transportation_note = $isSelfDriveTransportation ? null : $request->input('transportation_note');
                     $add->addons = $cartSummary['addons_summary'];
                     $add->package_id = $cartSummary['primary_package_id'] ?: $request->input('package_id');
                     $add->cart_items = !empty($cartItems) ? $cartItems : null;
@@ -679,8 +681,10 @@ class TransactionController extends Controller
                     $this->incrementPromoUsage($validatedPromoCodeId);
                     $this->applyReferralCommission($request, $add, (float) ($cartSummary['commission_base_amount'] ?? 0));
 
-                    // ClubLifter: for package purchases that include transportation, send the booking to their API.
-                    $this->sendClubLifterScheduleAfterResponse($add);
+                    // ClubLifter: do not send transportation payload when self-drive is selected.
+                    if (!$isSelfDriveTransportation) {
+                        $this->sendClubLifterScheduleAfterResponse($add);
+                    }
     
                     try {
                         //code...
@@ -694,11 +698,11 @@ class TransactionController extends Controller
                             'package_use_date' => $request->input('package_use_date'),
                             'package_dob' => $add->package_dob,
                             'package_note' => $request->input('package_note'),
-                            'transportation_pickup_time' => $request->input('transportation_pickup_time'),
-                            'transportation_address' => $request->input('transportation_address'),
-                            'transportation_phone' => $request->input('transportation_phone'),
-                            'transportation_guest' => $request->input('transportation_guest'),
-                            'transportation_note' => $request->input('transportation_note'),
+                            'transportation_pickup_time' => $add->transportation_pickup_time,
+                            'transportation_address' => $add->transportation_address,
+                            'transportation_phone' => $add->transportation_phone,
+                            'transportation_guest' => $add->transportation_guest,
+                            'transportation_note' => $add->transportation_note,
                             'host_name' => $request->input('host_name'),
                             'business_company' => $add->business_company,
                             'business_vat' => $add->business_vat,
@@ -821,6 +825,8 @@ class TransactionController extends Controller
         $ipAddress = $request->ip();
         $eventId = optional($selectedPackage)->event_id;
         $websiteId = (int) $request->website_id;
+        $requiresTransportation = $this->cartRequiresTransportation($cartItems, $selectedPackage);
+        $isSelfDriveTransportation = $requiresTransportation && $request->boolean('transportation_self_drive_ack');
 
         $transaction = new Transaction();
         $transaction->transaction_id = $transactionId;
@@ -851,11 +857,11 @@ class TransactionController extends Controller
         $transaction->promo_code = $validatedPromoCodeId;
         $transaction->actual_total = $request->input('payment_total');
         $transaction->discounted_amount = $validatedDiscountAmount;
-        $transaction->transportation_pickup_time = $request->input('transportation_pickup_time');
-        $transaction->transportation_address = $request->input('transportation_address');
-        $transaction->transportation_phone = $request->input('transportation_phone');
-        $transaction->transportation_guest = $request->input('transportation_guest');
-        $transaction->transportation_note = $request->input('transportation_note');
+        $transaction->transportation_pickup_time = $isSelfDriveTransportation ? null : $request->input('transportation_pickup_time');
+        $transaction->transportation_address = $isSelfDriveTransportation ? null : $request->input('transportation_address');
+        $transaction->transportation_phone = $isSelfDriveTransportation ? null : $request->input('transportation_phone');
+        $transaction->transportation_guest = $isSelfDriveTransportation ? null : $request->input('transportation_guest');
+        $transaction->transportation_note = $isSelfDriveTransportation ? null : $request->input('transportation_note');
         $transaction->addons = $cartSummary['addons_summary'];
         $transaction->package_id = $cartSummary['primary_package_id'] ?: $request->input('package_id');
         $transaction->cart_items = !empty($cartItems) ? $cartItems : null;
@@ -884,7 +890,9 @@ class TransactionController extends Controller
 
         $this->incrementPromoUsage($validatedPromoCodeId);
         $this->applyReferralCommission($request, $transaction, (float) ($cartSummary['commission_base_amount'] ?? 0));
-        $this->sendClubLifterScheduleAfterResponse($transaction);
+        if (!$isSelfDriveTransportation) {
+            $this->sendClubLifterScheduleAfterResponse($transaction);
+        }
 
         $website = Website::findOrFail($websiteId);
 
@@ -898,11 +906,11 @@ class TransactionController extends Controller
                 'package_use_date' => $request->input('package_use_date'),
                 'package_dob' => $transaction->package_dob,
                 'package_note' => $request->input('package_note'),
-                'transportation_pickup_time' => $request->input('transportation_pickup_time'),
-                'transportation_address' => $request->input('transportation_address'),
-                'transportation_phone' => $request->input('transportation_phone'),
-                'transportation_guest' => $request->input('transportation_guest'),
-                'transportation_note' => $request->input('transportation_note'),
+                'transportation_pickup_time' => $transaction->transportation_pickup_time,
+                'transportation_address' => $transaction->transportation_address,
+                'transportation_phone' => $transaction->transportation_phone,
+                'transportation_guest' => $transaction->transportation_guest,
+                'transportation_note' => $transaction->transportation_note,
                 'host_name' => $request->input('host_name'),
                 'business_company' => $transaction->business_company,
                 'business_vat' => $transaction->business_vat,
@@ -1452,6 +1460,16 @@ class TransactionController extends Controller
         };
 
         $isReservationType = strtolower(trim((string) ($transaction->type ?? ''))) === 'reservation';
+        $requiresTransportation = $this->transactionRequiresTransportation($transaction);
+        $hasTransportationDetails =
+            trim((string) ($transaction->transportation_pickup_time ?? '')) !== '' ||
+            trim((string) ($transaction->transportation_address ?? '')) !== '' ||
+            trim((string) ($transaction->transportation_phone ?? '')) !== '' ||
+            trim((string) ($transaction->transportation_note ?? '')) !== '';
+        $isSelfDriveTransportation = $requiresTransportation && !$hasTransportationDetails;
+        $transportMode = !$requiresTransportation
+            ? 'Not Required'
+            : ($isSelfDriveTransportation ? 'Self Drive Selected' : 'Pickup Requested');
         $guestCount = (int) ($transaction->package_number_of_guest ?? 0);
         $menCount = (int) ($transaction->men ?: $transaction->package_men ?: 0);
         $womenCount = (int) ($transaction->women ?: $transaction->package_women ?: 0);
@@ -1554,6 +1572,7 @@ class TransactionController extends Controller
         $html .= '</div></div>';
 
         $html .= '<div class="col-md-6"><div class="txn-detail-card"><div class="txn-detail-title">Transport & Business</div>';
+        $html .= $row('Transport Mode', $esc($transportMode));
         $html .= $row('Pickup Time', $esc($pickupFormatted ?: 'N/A'));
         $html .= $row('Transport Phone', $esc($transaction->transportation_phone ?: 'N/A'));
         $html .= $row('Transport Address', $esc($transaction->transportation_address ?: 'N/A'));
@@ -3235,6 +3254,28 @@ class TransactionController extends Controller
         }
 
         return $payload;
+    }
+
+    private function transactionRequiresTransportation(Transaction $transaction): bool
+    {
+        $cartItems = is_array($transaction->cart_items) ? $transaction->cart_items : [];
+        foreach ($cartItems as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            if ($this->isTruthy($item['transportation'] ?? ($item['transport'] ?? false))) {
+                return true;
+            }
+        }
+
+        $package = $transaction->relationLoaded('package') ? $transaction->package : null;
+        if (!$package && !empty($transaction->package_id)) {
+            $package = Package::find($transaction->package_id);
+        }
+
+        return $package
+            && ($package->transportation == 1 || $package->transportation === true || $package->transportation === '1');
     }
 
     /** Format a date + time string into ClubLifter's required MM/DD/YYYY HH:MM AM/PM. */
