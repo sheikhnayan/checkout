@@ -6190,6 +6190,9 @@
                                     <div class="cv-package-section-header" style="display:flex; justify-content:space-between; align-items:center; margin: 18px 0 12px; flex-wrap:wrap; gap:10px;">
                                         <div>
                                             @if(!empty($isSinglePackageCheckout))
+                                            <style>
+                                                .cv-package-section-header { margin: 0px 0 12px !important; }
+                                            </style>
                                                 <h5 class="section-kicker-lg" style="margin:0 !important; text-transform: unset; font-size: 0.8rem">Select your package to checkout, or <a href="{{ $allPackagesCheckoutUrl }}" style="text-transform: uppercase; color:inherit;text-decoration:underline;">View all packages.</a></h5>
                                             @else
                                                 <h5 class="section-kicker-lg" style="margin:0 !important;">{{ $data->package_section_title ?: 'Select Your Package' }}</h5>
