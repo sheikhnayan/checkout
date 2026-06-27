@@ -6278,7 +6278,9 @@
                                                             <div class="cv-pkg-title-row">
                                                                 <i class="{{ $pkgTierIcon }} cv-pkg-title-icon"></i>
                                                                 <div class="cv-pkg-title">{{ $item->name }}</div>
-                                                                <button type="button" class="cv-pkg-tooltip-trigger" aria-label="View package details" data-title="{{ $item->name }}" data-tooltip="{{ trim((string) ($item->tooltip ?? '')) }}">i</button>
+                                                                @if(trim((string) ($item->tooltip ?? '')) !== '')
+                                                                    <button type="button" class="cv-pkg-tooltip-trigger" aria-label="View package details" data-title="{{ $item->name }}" data-tooltip="{{ trim((string) ($item->tooltip ?? '')) }}">i</button>
+                                                                @endif
                                                             </div>
                                                             @if($pkgIsTicket)
                                                                 <span class="cv-pkg-sub"><i class="fas fa-ticket-alt"></i>1 ticket per person</span>
