@@ -5951,6 +5951,14 @@
 .cv-access-card[data-name="package"] .cv-ac-shimmer::before { background: linear-gradient(115deg, transparent 0%, transparent 30%, rgba(255,255,255,.84) 47%, rgba(var(--cv-package-rgb),.42) 56%, transparent 70%, transparent 100%); }
 
                         </style>
+                        @if ($data->reservation != 1)
+                        <style>
+                            .cv-access-grid .cv-access-card::before,
+                            .cv-access-grid .cv-access-card::after {
+                                display: none !important;
+                            }
+                        </style>
+                        @endif
                         @if (empty($isSinglePackageCheckout))
                         <div class="cv-access-grid">
                             @if ($data->reservation == 1)
