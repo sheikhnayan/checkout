@@ -158,12 +158,18 @@
 <body>
 @php
     $club = $website ?? ($transaction->website ?? null);
-    $reservationDateRaw = $transaction->package_use_date ?? null;
+    $reservationDateRaw = $mailData['package_use_date']
+        ?? $mailData['reservation_date']
+        ?? ($transaction->getRawOriginal('package_use_date') ?? null)
+        ?? ($transaction->package_use_date ?? null);
     $reservationDateFormatted = 'N/A';
     if (!empty($reservationDateRaw)) {
         $reservationDateRawString = trim((string) $reservationDateRaw);
         try {
-            if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $reservationDateRawString) === 1) {
+            // Keep date-only values as-is (no timezone conversion) to avoid day shifting.
+            if ($reservationDateRaw instanceof \Carbon\CarbonInterface) {
+                $reservationDateFormatted = $reservationDateRaw->format('M d, Y');
+            } elseif (preg_match('/^\d{4}-\d{2}-\d{2}$/', $reservationDateRawString) === 1) {
                 $reservationDateFormatted = \Carbon\Carbon::createFromFormat('Y-m-d', $reservationDateRawString, 'America/Los_Angeles')->format('M d, Y');
             } else {
                 $reservationDateFormatted = \Carbon\Carbon::parse($reservationDateRawString)->setTimezone('America/Los_Angeles')->format('M d, Y');

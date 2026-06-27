@@ -129,6 +129,7 @@ class TransactionMail extends Mailable
                 'cartItems' => $this->cartItems,
                 'priceBreakdown' => $this->priceBreakdown,
                 'website' => $this->website,
+                'mailData' => $this->mailData,
                 'qrCodeBase64' => $qrCodeBase64,
                 'showQrInPdf' => $this->includeQrInPdf,
             ]);
