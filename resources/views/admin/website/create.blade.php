@@ -460,14 +460,14 @@ label{
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="operating_start_time" class="form-label">Operating Start Time <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Earliest time that bookings can be made for this venue."></i></label>
+                                                        <label for="operating_start_time" class="form-label">Operating Start Time <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Club operating hours are set here."></i></label>
                                                         <input type="time" name="operating_start_time" class="form-control" id="operating_start_time" value="{{ old('operating_start_time') }}">
                                                     </div>
                                                 </div>
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="operating_end_time" class="form-label">Operating End Time <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Latest time that bookings can be made for this venue."></i></label>
+                                                        <label for="operating_end_time" class="form-label">Operating End Time <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Club operating hours are set here."></i></label>
                                                         <input type="time" name="operating_end_time" class="form-control" id="operating_end_time" value="{{ old('operating_end_time') }}">
                                                     </div>
                                                 </div>

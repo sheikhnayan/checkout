@@ -250,9 +250,9 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $refunded = Transaction::where('status', 2)->whereBetween('created_at', [$startDate, $endDate])->sum('total');
-        $completed = Transaction::where('status', 1)->whereBetween('created_at', [$startDate, $endDate])->sum('total');
-        $canceled = Transaction::where('status', 0)->whereBetween('created_at', [$startDate, $endDate])->sum('total');
+        $refunded = 0;
+        $completed = Transaction::query()->financiallyReportable()->whereBetween('created_at', [$startDate, $endDate])->sum('total');
+        $canceled = 0;
 
         $total = $refunded + $completed + $canceled;
 
@@ -262,7 +262,7 @@ class ReportGenerationService
             'metrics' => [
                 'total_refunded' => (float) $refunded,
                 'refund_rate' => $total > 0 ? round(($refunded / $total) * 100, 2) : 0,
-                'canceled_orders' => (int) Transaction::where('status', 0)->whereBetween('created_at', [$startDate, $endDate])->count(),
+                'canceled_orders' => 0,
             ],
         ];
     }
@@ -284,12 +284,13 @@ class ReportGenerationService
         [$startDate, $endDate] = $this->getDateRange();
 
         $rawData = Transaction::query()
+            ->financiallyReportable()
             ->whereBetween('created_at', [$startDate, $endDate])
             ->select(
                 DB::raw('DATE(created_at) as date'),
                 DB::raw('SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as completed'),
-                DB::raw('SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as canceled'),
-                DB::raw('SUM(CASE WHEN status = 2 THEN 1 ELSE 0 END) as refunded')
+                DB::raw('0 as canceled'),
+                DB::raw('0 as refunded')
             )
             ->groupBy('date')
             ->orderBy('date')
@@ -339,9 +340,9 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $completed = Transaction::where('status', 1)->whereBetween('created_at', [$startDate, $endDate])->count();
-        $canceled = Transaction::where('status', 0)->whereBetween('created_at', [$startDate, $endDate])->count();
-        $refunded = Transaction::where('status', 2)->whereBetween('created_at', [$startDate, $endDate])->count();
+        $completed = Transaction::query()->financiallyReportable()->whereBetween('created_at', [$startDate, $endDate])->count();
+        $canceled = 0;
+        $refunded = 0;
 
         $rawData = [
             ['status' => 'Completed', 'count' => $completed],
@@ -384,6 +385,7 @@ class ReportGenerationService
 
         // Count by package type (ticket vs table)
         $data = Transaction::query()
+            ->financiallyReportable()
             ->join('packages', 'transactions.package_id', '=', 'packages.id')
             ->whereBetween('transactions.created_at', [$startDate, $endDate])
             ->select('packages.package_type', DB::raw('COUNT(*) as count'), DB::raw('SUM(transactions.total) as revenue'))
@@ -408,6 +410,7 @@ class ReportGenerationService
 
         // Count transactions with multiple items in cart_items
         $data = Transaction::query()
+            ->financiallyReportable()
             ->whereBetween('created_at', [$startDate, $endDate])
             ->where(function ($q) {
                 $q->whereRaw("JSON_LENGTH(cart_items) > 1")
@@ -420,7 +423,7 @@ class ReportGenerationService
             'title' => 'Multi-Package Orders',
             'metrics' => [
                 'multi_package_count' => $data,
-                'single_package_count' => Transaction::whereBetween('created_at', [$startDate, $endDate])->count() - $data,
+                'single_package_count' => Transaction::query()->financiallyReportable()->whereBetween('created_at', [$startDate, $endDate])->count() - $data,
             ],
         ];
     }
@@ -496,6 +499,7 @@ class ReportGenerationService
             ->leftJoin('transactions', 'affiliates.id', '=', 'transactions.affiliate_id')
             ->whereBetween('transactions.created_at', [$startDate, $endDate])
             ->whereNull('transactions.archived_at')
+            ->where('transactions.status', Transaction::STATUS_COMPLETED)
             ->groupBy('affiliates.id')
             ->orderByDesc('revenue')
             ->limit(20)
@@ -518,6 +522,7 @@ class ReportGenerationService
         [$startDate, $endDate] = $this->getDateRange();
 
         $data = Transaction::query()
+            ->financiallyReportable()
             ->whereNotNull('transactions.affiliate_id')
             ->whereBetween('transactions.created_at', [$startDate, $endDate])
             ->select(
@@ -583,6 +588,7 @@ class ReportGenerationService
         [$startDate, $endDate] = $this->getDateRange();
 
         $data = Transaction::query()
+            ->financiallyReportable()
             ->whereNotNull('transactions.entertainer_id')
             ->whereBetween('transactions.created_at', [$startDate, $endDate])
             ->select(
@@ -662,7 +668,8 @@ class ReportGenerationService
             ->leftJoin('transactions', function ($join) use ($startDate, $endDate) {
                 $join->on('packages.id', '=', 'transactions.package_id')
                     ->whereBetween('transactions.created_at', [$startDate, $endDate])
-                    ->whereNull('transactions.archived_at');
+                    ->whereNull('transactions.archived_at')
+                    ->where('transactions.status', Transaction::STATUS_COMPLETED);
             })
             ->groupBy('packages.id', 'packages.name')
             ->limit(15)
@@ -688,6 +695,7 @@ class ReportGenerationService
         [$startDate, $endDate] = $this->getDateRange();
 
         $rawData = Transaction::query()
+            ->financiallyReportable()
             ->whereBetween('created_at', [$startDate, $endDate])
             ->select(
                 DB::raw('DATE(created_at) as date'),
@@ -730,16 +738,17 @@ class ReportGenerationService
         [$startDate, $endDate] = $this->getDateRange();
 
         $firstTime = Transaction::query()
+            ->financiallyReportable()
             ->whereBetween('created_at', [$startDate, $endDate])
             ->join(
-                DB::raw('(SELECT package_email, MIN(id) as first_id FROM transactions WHERE archived_at IS NULL GROUP BY package_email) as first'),
+                DB::raw('(SELECT package_email, MIN(id) as first_id FROM transactions WHERE archived_at IS NULL AND status = 1 GROUP BY package_email) as first'),
                 'transactions.id',
                 '=',
                 'first.first_id'
             )
             ->count();
 
-        $total = Transaction::whereBetween('created_at', [$startDate, $endDate])->count();
+        $total = Transaction::query()->financiallyReportable()->whereBetween('created_at', [$startDate, $endDate])->count();
         $repeat = $total - $firstTime;
 
         // Format for Chart.js
@@ -796,7 +805,8 @@ class ReportGenerationService
             )
             ->leftJoin('transactions', function ($join) {
                 $join->on('events.id', '=', 'transactions.event_id')
-                    ->whereNull('transactions.archived_at');
+                    ->whereNull('transactions.archived_at')
+                    ->where('transactions.status', Transaction::STATUS_COMPLETED);
             })
             ->whereBetween('events.date', [$startDate, $endDate])
             ->groupBy('events.id', 'events.name')
@@ -829,7 +839,8 @@ class ReportGenerationService
             )
             ->leftJoin('transactions', function ($join) {
                 $join->on('events.id', '=', 'transactions.event_id')
-                    ->whereNull('transactions.archived_at');
+                    ->whereNull('transactions.archived_at')
+                    ->where('transactions.status', Transaction::STATUS_COMPLETED);
             })
             ->whereBetween('events.date', [$startDate, $endDate])
             ->groupBy('events.id', 'events.name')
@@ -863,7 +874,8 @@ class ReportGenerationService
             )
             ->leftJoin('transactions', function ($join) {
                 $join->on('events.id', '=', 'transactions.event_id')
-                    ->whereNull('transactions.archived_at');
+                    ->whereNull('transactions.archived_at')
+                    ->where('transactions.status', Transaction::STATUS_COMPLETED);
             })
             ->groupBy('events.id', 'events.name')
             ->orderByDesc('total_attendees')
@@ -888,8 +900,8 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $completed = Transaction::where('status', 1)->whereBetween('created_at', [$startDate, $endDate])->sum('total');
-        $refunded = Transaction::where('status', 2)->whereBetween('created_at', [$startDate, $endDate])->sum('total');
+        $completed = Transaction::query()->financiallyReportable()->whereBetween('created_at', [$startDate, $endDate])->sum('total');
+        $refunded = 0;
 
         return [
             'type' => 'metric',
@@ -897,7 +909,7 @@ class ReportGenerationService
             'metrics' => [
                 'gross_revenue' => (float) $completed,
                 'refunded' => (float) $refunded,
-                'net_revenue' => (float) ($completed - $refunded),
+                'net_revenue' => (float) $completed,
             ],
         ];
     }
@@ -906,9 +918,9 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $affiliateCommission = Transaction::whereBetween('created_at', [$startDate, $endDate])
+        $affiliateCommission = Transaction::query()->financiallyReportable()->whereBetween('created_at', [$startDate, $endDate])
             ->sum('affiliate_commission_amount');
-        $entertainerCommission = Transaction::whereBetween('created_at', [$startDate, $endDate])
+        $entertainerCommission = Transaction::query()->financiallyReportable()->whereBetween('created_at', [$startDate, $endDate])
             ->sum('entertainer_commission_amount');
 
         return [
@@ -926,11 +938,11 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
-        $revenue = Transaction::where('status', 1)->whereBetween('created_at', [$startDate, $endDate])->sum('total');
-        $refunded = Transaction::where('status', 2)->whereBetween('created_at', [$startDate, $endDate])->sum('total');
-        $affiliateCommission = Transaction::whereBetween('created_at', [$startDate, $endDate])
+        $revenue = Transaction::query()->financiallyReportable()->whereBetween('created_at', [$startDate, $endDate])->sum('total');
+        $refunded = 0;
+        $affiliateCommission = Transaction::query()->financiallyReportable()->whereBetween('created_at', [$startDate, $endDate])
             ->sum('affiliate_commission_amount');
-        $entertainerCommission = Transaction::whereBetween('created_at', [$startDate, $endDate])
+        $entertainerCommission = Transaction::query()->financiallyReportable()->whereBetween('created_at', [$startDate, $endDate])
             ->sum('entertainer_commission_amount');
 
         $netRevenue = $revenue - $refunded - $affiliateCommission - $entertainerCommission;

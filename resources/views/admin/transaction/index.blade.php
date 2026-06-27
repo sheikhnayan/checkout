@@ -316,18 +316,20 @@ body.modal-open .admin-mobile-menu-toggle {
             $prevWeekStart = $weekStart->copy()->subWeek();
             $prevWeekEnd   = $prevWeekStart->copy()->endOfWeek();
 
-            $thisWeekData = $data->filter(fn($t) => $t->created_at->timezone($tz)->between($weekStart, $now));
-            $prevWeekData = $data->filter(fn($t) => $t->created_at->timezone($tz)->between($prevWeekStart, $prevWeekEnd));
+            $reportableData = $data->where('status', 1);
 
-            $totalTxns         = $data->count();
-            $completedTxns     = $data->where('status', 1)->count();
-            $totalRevenue      = (float) $data->sum('total');
-            $pendingCommission = $data->filter(fn($t) =>
+            $thisWeekData = $reportableData->filter(fn($t) => $t->created_at->timezone($tz)->between($weekStart, $now));
+            $prevWeekData = $reportableData->filter(fn($t) => $t->created_at->timezone($tz)->between($prevWeekStart, $prevWeekEnd));
+
+            $totalTxns         = $reportableData->count();
+            $completedTxns     = $reportableData->count();
+            $totalRevenue      = (float) $reportableData->sum('total');
+            $pendingCommission = $reportableData->filter(fn($t) =>
                 ($t->affiliate_commission_status === 'pending') ||
                 ($t->entertainer_commission_status === 'pending')
             )->sum(fn($t) => (float)($t->affiliate_commission_amount ?? 0) + (float)($t->entertainer_commission_amount ?? 0));
 
-            $pendingPayoutAmount = $data->sum(function ($t) use ($now) {
+            $pendingPayoutAmount = $reportableData->sum(function ($t) use ($now) {
                 $amount = 0.0;
                 if ($t->affiliate_commission_status === 'pending' && $t->affiliate_commission_hold_until && $t->affiliate_commission_hold_until->gt($now)) {
                     $amount += (float) ($t->affiliate_commission_amount ?? 0);
@@ -338,7 +340,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 return $amount;
             });
 
-            $payoutAmount = $data->sum(function ($t) {
+            $payoutAmount = $reportableData->sum(function ($t) {
                 $amount = 0.0;
                 if ($t->affiliate_commission_status === 'paid') {
                     $amount += (float) ($t->affiliate_commission_amount ?? 0);
@@ -349,7 +351,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 return $amount;
             });
 
-            $totalEarning = $data->sum(function ($t) {
+            $totalEarning = $reportableData->sum(function ($t) {
                 $amount = 0.0;
                 if (($t->affiliate_commission_status ?? null) !== 'reversed') {
                     $amount += (float) ($t->affiliate_commission_amount ?? 0);
@@ -364,8 +366,8 @@ body.modal-open .admin-mobile-menu-toggle {
             $pwTxns = $prevWeekData->count();
             $txnTrend = $pwTxns > 0 ? round((($twTxns - $pwTxns) / $pwTxns) * 100, 1) : 0;
 
-            $twCompleted = $thisWeekData->where('status', 1)->count();
-            $pwCompleted = $prevWeekData->where('status', 1)->count();
+            $twCompleted = $thisWeekData->count();
+            $pwCompleted = $prevWeekData->count();
             $completedTrend = $pwCompleted > 0 ? round((($twCompleted - $pwCompleted) / $pwCompleted) * 100, 1) : 0;
 
             $twRevenue = (float) $thisWeekData->sum('total');
@@ -376,11 +378,11 @@ body.modal-open .admin-mobile-menu-toggle {
             $chartDays = collect();
             for ($i = 29; $i >= 0; $i--) {
                 $dateStr = $now->copy()->subDays($i)->format('Y-m-d');
-                $dayData = $data->filter(fn($t) => $t->created_at->timezone($tz)->format('Y-m-d') === $dateStr);
+                $dayData = $reportableData->filter(fn($t) => $t->created_at->timezone($tz)->format('Y-m-d') === $dateStr);
                 $chartDays->push([
                     'label'      => $now->copy()->subDays($i)->format('M d'),
                     'revenue'    => (float) $dayData->sum('total'),
-                    'completed'  => $dayData->where('status', 1)->count(),
+                    'completed'  => $dayData->count(),
                     'commission' => $dayData->sum(fn($t) => (float)($t->affiliate_commission_amount ?? 0) + (float)($t->entertainer_commission_amount ?? 0)),
                 ]);
             }
@@ -388,7 +390,7 @@ body.modal-open .admin-mobile-menu-toggle {
             $chart7  = $chartDays->slice(23)->values();
 
             // Top packages donut
-            $allPkgGroups = $data->where('type', 'package')
+            $allPkgGroups = $reportableData->where('type', 'package')
                 ->groupBy('package_table_label')
                 ->map(fn($g) => ['name' => ($g->first()->package_table_label ?: 'Unknown'), 'revenue' => (float)$g->sum('total')])
                 ->sortByDesc('revenue')->values();
@@ -665,18 +667,18 @@ body.modal-open .admin-mobile-menu-toggle {
 
             <!-- Stat Cards -->
             @php
-                $pendingCommission = $data->sum(function($item) {
+                $pendingCommission = $reportableData->sum(function($item) {
                     $comm = (float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0);
                     $status = $item->affiliate_commission_status ?? $item->entertainer_commission_status ?? null;
                     return $status === 'pending' ? $comm : 0;
                 });
-                $availableNow = $data->sum(function($item) {
+                $availableNow = $reportableData->sum(function($item) {
                     $comm = (float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0);
                     $status = $item->affiliate_commission_status ?? $item->entertainer_commission_status ?? null;
                     $holdUntil = $item->affiliate_commission_hold_until ?? $item->entertainer_commission_hold_until ?? null;
                     return ($status === 'approved' || ($holdUntil && $holdUntil->lte(now()))) ? $comm : 0;
                 });
-                $lifetimeEarned = $data->sum(function($item) {
+                $lifetimeEarned = $reportableData->sum(function($item) {
                     return (float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0);
                 });
             @endphp
@@ -1871,6 +1873,10 @@ body.modal-open .admin-mobile-menu-toggle {
                     let total = 0;
                     table.rows({ search: 'applied' }).every(function(index) {
                         const row = this.node();
+                        const statusValue = String($(row).find('.view-btn').data('status') ?? '').trim();
+                        if (statusValue === '0' || statusValue === '2' || statusValue.toLowerCase() === 'canceled' || statusValue.toLowerCase() === 'refunded') {
+                            return;
+                        }
                         const amountCell = row.querySelector('.txn-amount');
                         if (amountCell) {
                             const text = amountCell.textContent.replace(/[^0-9.-]+/g, '');

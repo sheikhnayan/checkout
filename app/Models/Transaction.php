@@ -12,6 +12,10 @@ class Transaction extends Model
 {
     private const EXCLUDE_ARCHIVED_SCOPE = 'exclude_archived_transactions';
 
+    public const STATUS_CANCELED = 0;
+    public const STATUS_COMPLETED = 1;
+    public const STATUS_REFUNDED = 2;
+
     private static ?bool $hasArchivedAtColumn = null;
 
     public const COMMISSION_STATUS_PENDING = 'pending';
@@ -148,6 +152,11 @@ class Transaction extends Model
     {
         return $query->withoutGlobalScope(self::EXCLUDE_ARCHIVED_SCOPE)
             ->whereNotNull('archived_at');
+    }
+
+    public function scopeFinanciallyReportable(Builder $query): Builder
+    {
+        return $query->where('status', self::STATUS_COMPLETED);
     }
 
     private function normalizeMultiValuePackageField($value): array
