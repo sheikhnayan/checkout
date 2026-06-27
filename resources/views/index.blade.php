@@ -5936,7 +5936,9 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
 
                                             @if ($data->sales_tax_name == 0)
                                                 <div style="font-size: 10px; font-weight: 700; color: {{ $brandSecondary }} !important;"
-                                                    class="vip-price"><span>*No sales tax applied. Services sold are not subject to sales tax under Nevada law. Please consult a tax advisor for your local regionï¿½ifï¿½applicable.</span></div>
+                                                    class="vip-price">
+                                                    {{-- <span>*No sales tax applied. Services sold are not subject to sales tax under Nevada law. Please consult a tax advisor for your local regionï¿½ifï¿½applicable.</span> --}}
+                                                </div>
                                             @endif
                                         </div>
                                         <div class="col-md-6 dynamic-price" style="display: none;">
