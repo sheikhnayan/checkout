@@ -200,13 +200,20 @@ class TransactionController extends Controller
         }
 
         if ($requiresTransportation) {
+            $isSelfDriveTransportation = $request->boolean('transportation_self_drive_ack');
+
+            $transportationValidationRules = [
+                'package_use_date' => ['required', 'date'],
+            ];
+
+            if (!$isSelfDriveTransportation) {
+                $transportationValidationRules['transportation_pickup_time'] = ['required', 'string', 'max:100'];
+                $transportationValidationRules['transportation_address'] = ['required', 'string', 'max:255'];
+                $transportationValidationRules['transportation_phone'] = ['required', 'string', 'max:50'];
+            }
+
             $request->validate(
-                [
-                    'package_use_date' => ['required', 'date'],
-                    'transportation_pickup_time' => ['required', 'string', 'max:100'],
-                    'transportation_address' => ['required', 'string', 'max:255'],
-                    'transportation_phone' => ['required', 'string', 'max:50'],
-                ],
+                $transportationValidationRules,
                 [
                     'package_use_date.required' => 'Pickup date is required for transportation packages.',
                     'package_use_date.date' => 'Pickup date must be a valid date.',
@@ -217,7 +224,7 @@ class TransactionController extends Controller
             );
 
             $scheduleWebsite = Website::find($request->website_id);
-            if ($scheduleWebsite) {
+            if ($scheduleWebsite && !$isSelfDriveTransportation) {
                 $this->validateTransportationAvailability($scheduleWebsite, $request, $selectedPackage);
             }
         }
