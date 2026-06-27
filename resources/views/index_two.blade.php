@@ -5457,6 +5457,8 @@
         }
         @media (max-width: 767px) {
             .cv-top-nav { padding: 0 14px; height: 60px; }
+            body.single-package-checkout-mode .cv-top-nav { margin-bottom: 0 !important; }
+            body.single-package-checkout-mode main .container.mt-4 { margin-top: 0 !important; }
             .cv-nav-logo-img { height: 32px; max-width: 130px; }
             .cv-nav-back { display: flex !important; padding: 7px 12px !important; font-size: 12px !important; gap: 6px !important; }
             .cv-nav-actions { gap: 6px !important; }
