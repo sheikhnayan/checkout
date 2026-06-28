@@ -6594,7 +6594,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     </div>
                 </div>
 
-                <div class="modal fade" id="addonSelectionModal" tabindex="-1" aria-hidden="true">
+                <div class="modal fade" id="addonSelectionModal" style="height: 95% !important;" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable addon-modal-dialog">
                         <div class="modal-content" style="background:#1a1d2e;color:#ddd;">
                             <div class="modal-header">

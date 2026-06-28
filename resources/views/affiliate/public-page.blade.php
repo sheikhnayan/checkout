@@ -6699,7 +6699,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     </div>
                 </div>
 
-                <div class="modal fade" id="addonSelectionModal" tabindex="-1" aria-hidden="true">
+                <div class="modal fade" id="addonSelectionModal" style="height: 95% !important;" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content" style="background:#1a1d2e;color:#ddd;">
                             <div class="modal-header">
