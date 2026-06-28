@@ -930,13 +930,13 @@ body.modal-open .admin-mobile-menu-toggle {
                                 <span style="background:{{ $reservationStatusColor }};color:white;padding:6px 12px;border-radius:6px;font-weight:600;font-size:0.85rem;">{{ $reservationStatusValue }}</span>
                             </td>
                             <td>{{-- RESERVATION DATE --}}
-                                @if($reservationDate)
-                                    @if($isToday)
+                                @if($reservationDatePacific)
+                                    @if($reservationDatePacific->equalTo($laToday))
                                         <div style="font-size:0.95rem;font-weight:600;">Today</div>
-                                    @elseif($isFuture)
-                                        <div style="font-size:0.9rem;">{{ $reservationDate->format('M d, Y') }}</div>
+                                    @elseif($reservationDatePacific->greaterThan($laToday))
+                                        <div style="font-size:0.9rem;">{{ $reservationDatePacific->format('M d, Y') }}</div>
                                     @else
-                                        <div style="font-size:0.9rem;color:rgba(255,255,255,0.6);">{{ $reservationDate->format('M d, Y') }}</div>
+                                        <div style="font-size:0.9rem;color:rgba(255,255,255,0.6);">{{ $reservationDatePacific->format('M d, Y') }}</div>
                                     @endif
                                 @else
                                     <span style="color:rgba(255,255,255,0.25);font-size:0.78rem">-</span>
