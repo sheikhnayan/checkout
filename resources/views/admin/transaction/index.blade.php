@@ -107,6 +107,12 @@
 .badge-completed { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.25); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; padding: 4px 10px; border-radius: 20px; }
 .badge-canceled  { background: rgba(239,68,68,0.15);  color: #f87171; border: 1px solid rgba(239,68,68,0.25);  font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
 .badge-refunded  { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+.badge-reservation-upcoming { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.25); font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+.badge-reservation-today { background: rgba(245,158,11,0.16); color: #fbbf24; border: 1px solid rgba(245,158,11,0.28); font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+.badge-reservation-checked-in { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.25); font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+.badge-reservation-no-show { background: rgba(249,115,22,0.15); color: #fb923c; border: 1px solid rgba(249,115,22,0.25); font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+.badge-reservation-refunded { background: rgba(107,114,128,0.18); color: #d1d5db; border: 1px solid rgba(107,114,128,0.28); font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+.badge-reservation-cancelled { background: rgba(239,68,68,0.18); color: #fca5a5; border: 1px solid rgba(239,68,68,0.28); font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
 .badge-checkin-yes { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.2); font-size: 0.65rem; padding: 3px 8px; border-radius: 6px; white-space: nowrap; display: inline-block; }
 .badge-checkin-no  { background: rgba(107,114,128,0.15); color: #9ca3af; border: 1px solid rgba(107,114,128,0.2); font-size: 0.65rem; padding: 3px 8px; border-radius: 6px; white-space: nowrap; display: inline-block; }
 .txn-action-eye { background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.2); color: #818cf8; border-radius: 8px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.82rem; transition: background 0.2s; cursor: pointer; }
@@ -900,33 +906,35 @@ body.modal-open .admin-mobile-menu-toggle {
                                     }
 
                                     $reservationStatusValue = 'Upcoming';
-                                    $reservationStatusColor = '#3b82f6';
+                                    $reservationStatusClass = 'badge-reservation-upcoming';
 
                                     if ($reservationDatePacific) {
                                         if ($reservationDatePacific->equalTo($laToday)) {
                                             $reservationStatusValue = 'Today';
+                                            $reservationStatusClass = 'badge-reservation-today';
                                         } elseif ($reservationDatePacific->greaterThan($laToday)) {
                                             $reservationStatusValue = 'Upcoming';
+                                            $reservationStatusClass = 'badge-reservation-upcoming';
                                         } else {
                                             if ($item->checked_in_status) {
                                                 $reservationStatusValue = 'Checked In';
-                                                $reservationStatusColor = '#10b981';
+                                                $reservationStatusClass = 'badge-reservation-checked-in';
                                             } else {
                                                 $reservationStatusValue = 'No Show';
-                                                $reservationStatusColor = '#f97316';
+                                                $reservationStatusClass = 'badge-reservation-no-show';
                                             }
                                         }
                                     }
 
                                     if ($item->status == 2) {
                                         $reservationStatusValue = 'Refunded';
-                                        $reservationStatusColor = '#6b7280';
+                                        $reservationStatusClass = 'badge-reservation-refunded';
                                     } elseif ($item->status == 0) {
                                         $reservationStatusValue = 'Cancelled';
-                                        $reservationStatusColor = '#ef4444';
+                                        $reservationStatusClass = 'badge-reservation-cancelled';
                                     }
                                 @endphp
-                                <span style="background:{{ $reservationStatusColor }};color:white;padding:6px 12px;border-radius:6px;font-weight:600;font-size:0.85rem;">{{ $reservationStatusValue }}</span>
+                                <span class="{{ $reservationStatusClass }}">{{ $reservationStatusValue }}</span>
                             </td>
                             <td>{{-- RESERVATION DATE --}}
                                 @if($reservationDatePacific)
