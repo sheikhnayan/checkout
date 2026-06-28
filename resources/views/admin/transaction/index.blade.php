@@ -872,48 +872,49 @@ body.modal-open .admin-mobile-menu-toggle {
                             </td>
                             <td>{{-- RESERVATION STATUS --}}
                                 @php
-                                    // First, calculate reservation date
                                     $reservationDate = null;
-                                    $isToday = false;
-                                    $isFuture = false;
                                     try {
                                         if (isset($item) && property_exists($item, 'package_use_date')) {
                                             $reservationDate = $item->package_use_date ? optional($item->package_use_date) : null;
                                         } elseif (isset($item->package_use_date)) {
                                             $reservationDate = $item->package_use_date ? optional($item->package_use_date) : null;
                                         }
-
-                                        if ($reservationDate) {
-                                            $today = \Carbon\Carbon::today();
-                                            $isToday = $reservationDate->isToday();
-                                            $isFuture = $reservationDate->isFuture();
-                                        }
                                     } catch (\Exception $e) {
                                         $reservationDate = null;
-                                        $isToday = false;
-                                        $isFuture = false;
                                     }
 
-                                    // Now determine reservation status
-                                    $reservationStatusValue = 'Upcoming';
-                                    $reservationStatusColor = '#3b82f6';
-                                    $statusEmoji = '🟦';
+                                    $laToday = \Carbon\Carbon::now('America/Los_Angeles')->startOfDay();
+                                    $reservationDatePacific = null;
 
                                     if ($reservationDate) {
-                                        if ($reservationDate->isToday()) {
+                                        try {
+                                            $reservationDateString = $reservationDate instanceof \Carbon\CarbonInterface
+                                                ? $reservationDate->format('Y-m-d')
+                                                : trim((string) $reservationDate);
+
+                                            if ($reservationDateString !== '') {
+                                                $reservationDatePacific = \Carbon\Carbon::createFromFormat('Y-m-d', $reservationDateString, 'America/Los_Angeles')->startOfDay();
+                                            }
+                                        } catch (\Throwable $e) {
+                                            $reservationDatePacific = null;
+                                        }
+                                    }
+
+                                    $reservationStatusValue = 'Upcoming';
+                                    $reservationStatusColor = '#3b82f6';
+
+                                    if ($reservationDatePacific) {
+                                        if ($reservationDatePacific->equalTo($laToday)) {
                                             $reservationStatusValue = 'Today';
-                                        } elseif ($reservationDate->isFuture()) {
+                                        } elseif ($reservationDatePacific->greaterThan($laToday)) {
                                             $reservationStatusValue = 'Upcoming';
                                         } else {
-                                            // Past date - check entry status
                                             if ($item->checked_in_status) {
                                                 $reservationStatusValue = 'Checked In';
                                                 $reservationStatusColor = '#10b981';
-                                                $statusEmoji = '🟩';
                                             } else {
                                                 $reservationStatusValue = 'No Show';
                                                 $reservationStatusColor = '#f97316';
-                                                $statusEmoji = '🟧';
                                             }
                                         }
                                     }
