@@ -6193,7 +6193,7 @@
                                             <style>
                                                 .cv-package-section-header { margin: 0px 0 12px !important; }
                                             </style>
-                                                <h5 class="section-kicker-lg" style="margin:0 !important; text-transform: unset; font-size: 0.8rem">Select your package to checkout, <br> or <a href="{{ $allPackagesCheckoutUrl }}" style="text-transform: uppercase; color:inherit;text-decoration:underline;">View all packages.</a></h5>
+                                                <h5 class="section-kicker-lg" style="margin:0 !important; text-transform: unset; font-size: 0.8rem">Select your package to checkout, or <a href="{{ $allPackagesCheckoutUrl }}" style="text-transform: uppercase; color:inherit;text-decoration:underline;">View all packages.</a></h5>
                                             @else
                                                 <h5 class="section-kicker-lg" style="margin:0 !important;">{{ $data->package_section_title ?: 'Select Your Package' }}</h5>
                                                 <p style="margin: 4px 0 0; font-size: 12.5px; color: rgba(255,255,255,0.5);">{{ $data->package_section_subtext ?: 'All packages include free ride, club entry, and priority access.' }}</p>
