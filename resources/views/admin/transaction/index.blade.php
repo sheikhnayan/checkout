@@ -1560,14 +1560,20 @@ body.modal-open .admin-mobile-menu-toggle {
                 });
 
                 // ── Export button wiring (custom, reliable across pages) ─────
-                // Dynamically get all visible columns (skip checkbox, hidden cols, and Action col)
+                // Export all real transaction columns, even if the layout is hiding some
+                // of them at the current viewport size. Keep the checkbox, action column,
+                // and internal underscore helper columns out of exports.
                 function getExportColumnIndexes() {
                     const indexes = [];
                     $('#txnDataTable thead th').each(function (idx) {
                         const $th = $(this);
                         const headerText = $th.text().trim().toLowerCase();
-                        // Skip: checkbox column (0), hidden columns, and Action column
-                        if (idx > 0 && !$th.hasClass('d-none') && headerText !== 'action') {
+                        if (idx === 0) return;
+                        if (headerText === 'action') return;
+                        if (headerText.startsWith('_')) return;
+
+                        // Keep any real data column, even if the responsive layout hides it.
+                        if (headerText !== '') {
                             indexes.push(idx);
                         }
                     });
