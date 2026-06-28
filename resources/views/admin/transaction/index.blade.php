@@ -412,6 +412,7 @@ body.modal-open .admin-mobile-menu-toggle {
             $filterType      = (string) request('type', '');
             $filterAffiliate = (string) request('affiliate', '');
             $filterStatus    = (string) request('status', '');
+            $filterReservation = (string) request('reservation', '');
             $filterDateFrom  = (string) request('date_from', '');
             $filterDateTo    = (string) request('date_to', '');
 
@@ -656,11 +657,11 @@ body.modal-open .admin-mobile-menu-toggle {
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
                     <select id="reservationFilter" class="form-control" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:8px 12px;border-radius:8px;font-size:0.9rem;">
-                        <option value="">All Reservations</option>
-                        <option value="upcoming">Upcoming</option>
-                        <option value="today">Today</option>
-                        <option value="weekend">This Weekend</option>
-                        <option value="past">Past</option>
+                        <option value="" {{ $filterReservation === '' ? 'selected' : '' }}>All Reservations</option>
+                        <option value="upcoming" {{ $filterReservation === 'upcoming' ? 'selected' : '' }}>Upcoming</option>
+                        <option value="today" {{ $filterReservation === 'today' ? 'selected' : '' }}>Today</option>
+                        <option value="weekend" {{ $filterReservation === 'weekend' ? 'selected' : '' }}>This Weekend</option>
+                        <option value="past" {{ $filterReservation === 'past' ? 'selected' : '' }}>Past</option>
                     </select>
                 </div>
             </div>
