@@ -874,10 +874,8 @@ body.modal-open .admin-mobile-menu-toggle {
                                 @php
                                     $reservationDate = null;
                                     try {
-                                        if (isset($item) && property_exists($item, 'package_use_date')) {
-                                            $reservationDate = $item->package_use_date ? optional($item->package_use_date) : null;
-                                        } elseif (isset($item->package_use_date)) {
-                                            $reservationDate = $item->package_use_date ? optional($item->package_use_date) : null;
+                                        if (isset($item->package_use_date) && $item->package_use_date) {
+                                            $reservationDate = $item->package_use_date;
                                         }
                                     } catch (\Exception $e) {
                                         $reservationDate = null;
