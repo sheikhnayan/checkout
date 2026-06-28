@@ -1591,6 +1591,83 @@ body.modal-open .admin-mobile-menu-toggle {
                     return '"' + safe + '"';
                 }
 
+                function parseJsonLike(value) {
+                    if (value == null || value === '') {
+                        return null;
+                    }
+
+                    if (Array.isArray(value) || typeof value === 'object') {
+                        return value;
+                    }
+
+                    try {
+                        return JSON.parse(value);
+                    } catch (e) {
+                        return null;
+                    }
+                }
+
+                function getExportPackageDetails(rowNode) {
+                    if (!rowNode) {
+                        return '';
+                    }
+
+                    const packageButton = rowNode.querySelector('.btn-link-package');
+                    if (!packageButton) {
+                        return '';
+                    }
+
+                    const $button = $(packageButton);
+                    const transactionType = String($button.data('transaction-type') || '').toLowerCase();
+                    const packageLabel = String($button.data('package-label') || packageButton.getAttribute('data-package-label') || '').trim();
+                    const menCount = parseInt($button.data('men') || 0, 10) || 0;
+                    const womenCount = parseInt($button.data('women') || 0, 10) || 0;
+                    const totalGuests = menCount + womenCount;
+
+                    let cartItems = $button.data('cart-items');
+                    if (!Array.isArray(cartItems)) {
+                        cartItems = parseJsonLike(packageButton.getAttribute('data-cart-items')) || [];
+                    }
+
+                    const packageParts = [];
+                    if (Array.isArray(cartItems)) {
+                        cartItems.forEach(function (item) {
+                            if (!item || typeof item !== 'object') {
+                                return;
+                            }
+
+                            const packageName = String(item.package_name || item.packageName || item.pkgName || '').trim();
+                            if (!packageName) {
+                                return;
+                            }
+
+                            const quantity = Math.max(1, parseInt(item.guests || item.quantity || 1, 10) || 1);
+                            const packageType = String(item.package_type || item.type || item.packageType || '').toLowerCase();
+
+                            if (packageType === 'ticket') {
+                                packageParts.push(packageName + ' x' + quantity + ' tickets');
+                            } else {
+                                packageParts.push(packageName + ' x' + quantity + ' guests');
+                            }
+                        });
+                    }
+
+                    const summary = packageParts.length > 0 ? packageParts.join('; ') : packageLabel;
+                    const details = [];
+
+                    if (summary) {
+                        details.push(summary);
+                    }
+
+                    if (transactionType === 'reservation' && totalGuests > 0) {
+                        details.push('Guests: M ' + menCount + ', F ' + womenCount + ', Total ' + totalGuests);
+                    } else if (totalGuests > 0) {
+                        details.push('Guests: ' + totalGuests);
+                    }
+
+                    return details.join(' | ');
+                }
+
                 function getExportDataset() {
                     const exportColumnIndexes = getExportColumnIndexes();
                     const selected = $('.row-check:checked');
@@ -1599,6 +1676,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     const headers = exportColumnIndexes.map(function (idx) {
                         return stripHtml($('#txnDataTable thead th').eq(idx).text());
                     });
+                    headers.push('Package Details');
 
                     const rows = [];
 
@@ -1635,6 +1713,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                 const row = exportColumnIndexes.map(function (colIdx) {
                                     return stripHtml(rowData[colIdx] || '');
                                 });
+                                row.push(getExportPackageDetails(rowNode));
                                 rows.push(row);
                             });
                         } catch (e) {
