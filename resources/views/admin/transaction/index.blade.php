@@ -2532,7 +2532,7 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 // Display packages with details
                 if (packageSummary.items.length) {
-                    html += '<h6 style="color:#e0e7ff;margin-bottom:16px;font-weight:700;"><i class="fas fa-boxes-stacked"></i> Package Purchase Breakdown</h6>';
+                    html += '<h6 style="color:#e0e7ff;margin-top:16px;margin-bottom:16px;font-weight:700;"><i class="fas fa-boxes-stacked"></i> Package Purchase Breakdown</h6>';
 
                     packageSummary.items.forEach(function(item, index) {
                         html += '<div class="package-item" style="background:#1e293b;border:1px solid rgba(255,255,255,0.1);padding:12px;border-radius:8px;margin-bottom:10px;">';
