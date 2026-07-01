@@ -2392,6 +2392,19 @@ body.modal-open .admin-mobile-menu-toggle {
                 var confirmationNumber = $(this).data('confirmation-number') || 'N/A';
                 var packageLabel = String($(this).data('package-label') || '').trim();
                 var packageSummary = window.summarizePackageItems ? window.summarizePackageItems(cartItems) : { items: [], totalQuantity: 0, totalAddons: 0, addonSummaryText: '', summaryText: packageLabel };
+                var statusValue = $(this).data('status');
+                var statusText = 'Unknown';
+                var statusClass = 'txn-status-unknown';
+                if (statusValue == 1 || statusValue === 'Completed' || statusValue === 'Approved') {
+                    statusText = 'Completed';
+                    statusClass = 'txn-status-completed';
+                } else if (statusValue == 0 || statusValue === 'Canceled' || statusValue === '0') {
+                    statusText = 'Canceled';
+                    statusClass = 'txn-status-canceled';
+                } else if (statusValue == 2 || statusValue === 'Refunded') {
+                    statusText = 'Refunded';
+                    statusClass = 'txn-status-refunded';
+                }
                 var row = window.txnDetailRow || function(label, value) {
                     return '<div class="txn-detail-row"><span class="txn-detail-label">' + esc(label) + '</span><span class="txn-detail-value">' + esc(value) + '</span></div>';
                 };
