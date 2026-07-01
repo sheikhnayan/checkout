@@ -2545,15 +2545,18 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += '</div>';
 
                 // Display packages with details
-                if (packageSummary.items.length) {
+                if (packageLineupItems.length) {
                     html += '<h6 style="color:#e0e7ff;margin-top:16px;margin-bottom:16px;font-weight:700;"><i class="fas fa-boxes-stacked"></i> Package Purchase Breakdown</h6>';
 
-                    packageSummary.items.forEach(function(item, index) {
+                    packageLineupItems.forEach(function(item, index) {
+                        var itemUnitPrice = typeof item.unitPrice === 'number' ? item.unitPrice : null;
+                        var itemLineTotal = typeof item.lineTotal === 'number' ? item.lineTotal : null;
+                        var itemAddons = Array.isArray(item.addonLabels) ? item.addonLabels : [];
                         html += '<div class="package-item" style="background:#1e293b;border:1px solid rgba(255,255,255,0.1);padding:12px;border-radius:8px;margin-bottom:10px;">';
                         html += '<div style="display:flex;justify-content:space-between;align-items:start;gap:12px;margin-bottom:8px;">';
                         html += '<div style="min-width:0;">';
                         html += '<div style="font-weight:700;color:#e0e7ff;">' + esc(item.name) + '</div>';
-                        html += '<div style="font-size:0.8rem;color:#94a3b8;margin-top:4px;">Item ' + (index + 1) + ' of ' + packageSummary.items.length + '</div>';
+                        html += '<div style="font-size:0.8rem;color:#94a3b8;margin-top:4px;">Item ' + (index + 1) + ' of ' + packageLineupItems.length + '</div>';
                         html += '</div>';
                         html += '<div style="text-align:right;flex-shrink:0;">';
                         html += '<div style="display:inline-block;background:' + (item.packageType === 'ticket' ? 'rgba(245,158,11,0.18)' : 'rgba(124,58,237,0.18)') + ';color:' + (item.packageType === 'ticket' ? '#fbbf24' : '#a5b4fc') + ';border:1px solid ' + (item.packageType === 'ticket' ? 'rgba(245,158,11,0.3)' : 'rgba(124,58,237,0.28)') + ';border-radius:999px;padding:3px 10px;font-size:0.72rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;">' + esc(item.packageType === 'ticket' ? 'Ticket Package' : 'Guest Package') + '</div>';
@@ -2567,18 +2570,18 @@ body.modal-open .admin-mobile-menu-toggle {
                         html += '</div>';
                         html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px;">';
                         html += '<div style="font-size:0.72rem;color:#94a3b8;margin-bottom:4px;">Unit Price</div>';
-                        html += '<div style="font-weight:700;color:#e0e7ff;">$' + item.unitPrice.toFixed(2) + '</div>';
+                        html += '<div style="font-weight:700;color:#e0e7ff;">' + (itemUnitPrice == null ? 'N/A' : ('$' + itemUnitPrice.toFixed(2))) + '</div>';
                         html += '</div>';
                         html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px;">';
                         html += '<div style="font-size:0.72rem;color:#94a3b8;margin-bottom:4px;">Line Total</div>';
-                        html += '<div style="font-weight:700;color:#34d399;">$' + item.lineTotal.toFixed(2) + '</div>';
+                        html += '<div style="font-weight:700;color:#34d399;">' + (itemLineTotal == null ? 'N/A' : ('$' + itemLineTotal.toFixed(2))) + '</div>';
                         html += '</div>';
                         html += '</div>';
 
-                        if (item.addonLabels && item.addonLabels.length) {
+                        if (itemAddons.length) {
                             html += '<div style="margin-top:10px;border-left:2px solid rgba(251,191,36,0.28);padding-left:12px;">';
-                            html += '<div style="color:#94a3b8;font-size:0.8rem;margin-bottom:6px;font-weight:600;">Add-ons (' + esc(String(item.addonLabels.length)) + ')</div>';
-                            item.addonLabels.forEach(function(addonLabel) {
+                            html += '<div style="color:#94a3b8;font-size:0.8rem;margin-bottom:6px;font-weight:600;">Add-ons (' + esc(String(itemAddons.length)) + ')</div>';
+                            itemAddons.forEach(function(addonLabel) {
                                 html += '<div style="color:#e0e7ff;font-size:0.85rem;margin-bottom:4px;">• ' + esc(addonLabel) + '</div>';
                             });
                             html += '</div>';
