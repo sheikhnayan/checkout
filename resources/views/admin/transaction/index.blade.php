@@ -1128,7 +1128,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                         data-entertainer_commission_hold_until="{{ $item->entertainer_commission_hold_until ? optional($item->entertainer_commission_hold_until)->timezone('America/Los_Angeles')->format('M d, Y h:i A T') : '' }}"
                                         data-total_commission="{{ (float) $commission }}"
                                         data-checked_in_status="{{ $item->checked_in_status ? 1 : 0 }}"
-                                        data-checked_in_at_pacific="{{ $item->checked_in_at_pacific ? optional($item->checked_in_at_pacific)->timezone('America/Los_Angeles')->format('Y-m-d h:i A T') : '' }}"
+                                        data-checked_in_at_pacific="{{ $item->checked_in_at_pacific ? (optional($item->checked_in_at_pacific)->format('Y-m-d h:i A') . ' PT') : '' }}"
                                         data-checkin_photo_front="{{ $item->checkin_photo_front_path ?? '' }}"
                                         data-checkin_photo_back="{{ $item->checkin_photo_back_path ?? '' }}"
                                         title="View Details">
