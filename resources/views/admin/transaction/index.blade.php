@@ -2543,6 +2543,10 @@ body.modal-open .admin-mobile-menu-toggle {
                 var hasTransportation = [transportationPickup, transportationAddress, transportationPhone, transportationNote].some(function(v) {
                     return v !== '';
                 });
+                var breakdownData = $(this).data('breakdown');
+                if (!breakdownData || typeof breakdownData !== 'object') {
+                    breakdownData = null;
+                }
                 var parseAddonLabel = function(label) {
                     var raw = String(label || '').trim();
                     if (!raw) {
@@ -2569,6 +2573,28 @@ body.modal-open .admin-mobile-menu-toggle {
                         raw: raw
                     };
                 };
+                var knownPackageLineTotal = packageLineupItems.reduce(function(sum, item) {
+                    return sum + (typeof item.lineTotal === 'number' ? item.lineTotal : 0);
+                }, 0);
+                var unpricedAddonQtyTotal = 0;
+                packageLineupItems.forEach(function(item) {
+                    var labels = Array.isArray(item.addonLabels) ? item.addonLabels : [];
+                    labels.map(parseAddonLabel).forEach(function(addon) {
+                        if (addon && addon.unitPrice == null) {
+                            unpricedAddonQtyTotal += addon.quantity || 0;
+                        }
+                    });
+                });
+                var fallbackAddonUnitPrice = null;
+                if (breakdownData && unpricedAddonQtyTotal > 0) {
+                    var itemsSubtotalVal = parseFloat(breakdownData.items_subtotal);
+                    if (!isNaN(itemsSubtotalVal)) {
+                        var addonPool = itemsSubtotalVal - knownPackageLineTotal;
+                        if (addonPool > 0) {
+                            fallbackAddonUnitPrice = addonPool / unpricedAddonQtyTotal;
+                        }
+                    }
+                }
 
                 var html = '<div>';
 
@@ -2589,6 +2615,14 @@ body.modal-open .admin-mobile-menu-toggle {
                         var qtyText = String(item.quantity) + ' ' + (item.packageType === 'ticket' ? 'tickets' : 'guests');
                         var itemAddons = Array.isArray(item.addonLabels) ? item.addonLabels : [];
                         var addonEntries = itemAddons.map(parseAddonLabel).filter(Boolean);
+                        if (fallbackAddonUnitPrice != null) {
+                            addonEntries.forEach(function(addon) {
+                                if (addon.unitPrice == null) {
+                                    addon.unitPrice = fallbackAddonUnitPrice;
+                                    addon.lineTotal = fallbackAddonUnitPrice * (addon.quantity || 1);
+                                }
+                            });
+                        }
                         var addonQtyTotal = addonEntries.reduce(function(sum, addon) { return sum + (addon.quantity || 0); }, 0);
                         var addonPriceTotal = addonEntries.reduce(function(sum, addon) { return sum + (addon.lineTotal || 0); }, 0);
                         var hasAddonPrice = addonEntries.some(function(addon) { return addon.unitPrice != null; });
@@ -2644,6 +2678,14 @@ body.modal-open .admin-mobile-menu-toggle {
                         var itemLineTotal = typeof item.lineTotal === 'number' ? item.lineTotal : null;
                         var itemAddons = Array.isArray(item.addonLabels) ? item.addonLabels : [];
                         var addonEntries = itemAddons.map(parseAddonLabel).filter(Boolean);
+                        if (fallbackAddonUnitPrice != null) {
+                            addonEntries.forEach(function(addon) {
+                                if (addon.unitPrice == null) {
+                                    addon.unitPrice = fallbackAddonUnitPrice;
+                                    addon.lineTotal = fallbackAddonUnitPrice * (addon.quantity || 1);
+                                }
+                            });
+                        }
                         var addonQtyTotal = addonEntries.reduce(function(sum, addon) { return sum + (addon.quantity || 0); }, 0);
                         var addonPriceTotal = addonEntries.reduce(function(sum, addon) { return sum + (addon.lineTotal || 0); }, 0);
                         var hasAddonPrice = addonEntries.some(function(addon) { return addon.unitPrice != null; });
@@ -2695,7 +2737,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 }
 
                 // Full price / purchase breakdown (server-computed, matches what the customer was charged)
-                var breakdown = $(this).data('breakdown');
+                var breakdown = breakdownData;
                 if (breakdown && typeof breakdown === 'object') {
                     var money = function(v){ var n = parseFloat(v); return '$' + (isNaN(n) ? 0 : n).toFixed(2); };
                     var line = function(label, value, opts){
