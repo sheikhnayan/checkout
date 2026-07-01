@@ -2066,7 +2066,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     return raw;
                 };
 
-                var esc = function(value) {
+                window.txnEsc = window.txnEsc || function(value) {
                     return String(value == null ? '' : value)
                         .replace(/&/g, '&amp;')
                         .replace(/</g, '&lt;')
@@ -2345,6 +2345,14 @@ body.modal-open .admin-mobile-menu-toggle {
             // Handle Package Details Modal
             $(document).on('click', '.btn-link-package', function(e) {
                 e.preventDefault();
+                var esc = window.txnEsc || function(value) {
+                    return String(value == null ? '' : value)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&#39;');
+                };
                 var rawCartItems = $(this).data('cart-items') || [];
                 var cartItems = Array.isArray(rawCartItems) ? rawCartItems : (window.parseJsonLike ? window.parseJsonLike(rawCartItems) : []);
                 var transactionType = $(this).data('transaction-type') || 'package';
