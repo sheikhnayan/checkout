@@ -2284,6 +2284,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     var safeEsc = window.txnEsc || esc;
                     return '<div class="txn-detail-row"><span class="txn-detail-label">' + safeEsc(label) + ':</span><span class="txn-detail-value">' + safeEsc(value) + '</span></div>';
                 };
+                var row = window.txnDetailRow;
 
                 var html = '';
 
