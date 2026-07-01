@@ -2491,6 +2491,18 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row('Package Count', String(packageCount));
                 html += row('Total Units', String(totalUnits));
                 html += row('Add-ons', addonDetails);
+                if (packageSummary.items.length) {
+                    html += '<div style="margin-top:10px;background:rgba(15,23,42,0.55);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px;">';
+                    html += '<div style="font-size:0.78rem;color:#cbd5e1;font-weight:700;margin-bottom:8px;letter-spacing:0.03em;">Package Lineup</div>';
+                    packageSummary.items.forEach(function(item) {
+                        var qtyText = String(item.quantity) + ' ' + (item.packageType === 'ticket' ? 'tickets' : 'guests');
+                        html += '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;padding:7px 8px;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);margin-bottom:6px;">';
+                        html += '<span style="color:#e2e8f0;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(item.name) + '</span>';
+                        html += '<span style="color:#fbbf24;font-weight:700;white-space:nowrap;">x ' + esc(qtyText) + '</span>';
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                }
                 html += row('Transaction Type', transactionType.charAt(0).toUpperCase() + transactionType.slice(1));
                 html += row('Order Date', orderDate);
                 html += row('Website / Venue', $(this).data('website_id') || 'N/A');
