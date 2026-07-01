@@ -875,7 +875,30 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td class="txn-confirmation-num">{{ $item->transaction_id ?? 'N/A' }}</td>
                             <td class="txn-pkg-name">
                                 <div style="font-size:0.85rem;font-weight:600;margin-bottom:8px;">{{ $venueName }}</div>
-                                <button type="button" class="btn btn-sm btn-link-package" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-confirmation-number="{{ $item->transaction_id ?? 'N/A' }}" data-cart-items='@json($cartItems)' data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" data-package_number_of_guest="{{ $item->package_number_of_guest ?? 0 }}" data-package_first_name="{{ $item->package_first_name ?? '' }}" data-package_last_name="{{ $item->package_last_name ?? '' }}" data-package_phone="{{ $item->package_phone ?? '' }}" data-package_email="{{ $item->package_email ?? '' }}" data-package_dob="{{ $item->package_dob ?? '' }}" data-package_note="{{ $item->package_note ?? '' }}" data-host_name="{{ $item->host_name ?? '' }}" data-transportation_pickup_time="{{ $item->transportation_pickup_time ?? '' }}" data-transportation_address="{{ $item->transportation_address ?? '' }}" data-transportation_phone="{{ $item->transportation_phone ?? '' }}" data-transportation_note="{{ $item->transportation_note ?? '' }}" data-payment_first_name="{{ $item->payment_first_name ?? '' }}" data-payment_last_name="{{ $item->payment_last_name ?? '' }}" data-payment_phone="{{ $item->payment_phone ?? '' }}" data-payment_email="{{ $item->payment_email ?? '' }}" data-payment_address="{{ $item->payment_address ?? '' }}" data-payment_city="{{ $item->payment_city ?? '' }}" data-payment_state="{{ $item->payment_state ?? '' }}" data-payment_country="{{ $item->payment_country ?? '' }}" data-payment_dob="{{ $item->payment_dob ?? '' }}" data-payment_zip_code="{{ $item->payment_zip_code ?? '' }}" data-type="{{ $item->type }}" data-status="{{ $item->status }}" data-ip_address="{{ $item->ip_address ?? '' }}" data-website_id="{{ $item->website->name ?? '' }}" data-addons="{{ $addons }}" style="font-size:0.85rem;min-width:72px;">View</button>
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-link-package"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#packageDetailsModal"
+                                    data-transaction-id="{{ $item->id }}"
+                                    data-confirmation-number="{{ $item->transaction_id ?? 'N/A' }}"
+                                    data-order-date="{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('M d, Y h:i A') }}"
+                                    data-package-use-date="{{ $item->package_use_date ?? '' }}"
+                                    data-cart-items='@json($cartItems)'
+                                    data-transaction-type='{{ $item->type }}'
+                                    data-men='{{ $item->package_men ?? 0 }}'
+                                    data-women='{{ $item->package_women ?? 0 }}'
+                                    data-package-label="{{ $packageDetailsText }}"
+                                    data-package_number_of_guest="{{ $item->package_number_of_guest ?? 0 }}"
+                                    data-transportation_pickup_time="{{ $item->transportation_pickup_time ?? '' }}"
+                                    data-transportation_address="{{ $item->transportation_address ?? '' }}"
+                                    data-transportation_phone="{{ $item->transportation_phone ?? '' }}"
+                                    data-transportation_note="{{ $item->transportation_note ?? '' }}"
+                                    data-status="{{ $item->status }}"
+                                    data-website_id="{{ $item->website->name ?? '' }}"
+                                    data-addons="{{ $addons }}"
+                                    style="font-size:0.85rem;min-width:72px;"
+                                >View</button>
                             </td>
                             <td>
                                 @php
@@ -2463,174 +2486,48 @@ body.modal-open .admin-mobile-menu-toggle {
 
                     return raw;
                 };
-                var customerName = [$(this).data('package_first_name') || '', $(this).data('package_last_name') || ''].join(' ').trim() || 'N/A';
-                var customerEmail = $(this).data('package_email') || 'N/A';
-                var customerPhone = $(this).data('package_phone') || 'N/A';
-                var customerDob = formatDateUS($(this).data('package_dob'));
-                var paymentName = [$(this).data('payment_first_name') || '', $(this).data('payment_last_name') || ''].join(' ').trim() || 'N/A';
-                var paymentEmail = $(this).data('payment_email') || 'N/A';
-                var paymentPhone = $(this).data('payment_phone') || 'N/A';
-                var paymentAddress = [$(this).data('payment_address'), $(this).data('payment_city'), $(this).data('payment_state'), $(this).data('payment_zip_code')].filter(Boolean).join(', ') || 'N/A';
                 var packageGuestCount = parseInt($(this).data('package_number_of_guest') || 0, 10) || 0;
                 var packageCount = packageSummary.items.length || (packageLabel ? packageLabel.split(/\s*,\s*/).filter(Boolean).length : 0) || (packageGuestCount > 0 ? 1 : 0);
                 var totalUnits = packageSummary.totalQuantity || packageGuestCount || 0;
                 var addonDetails = $(this).data('addons') || packageSummary.addonSummaryText || 'N/A';
-                var purchaseSummaryTitle = packageLabel || packageSummary.summaryText || 'Package Details';
-                var stat = function(label, value) {
-                    return '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px 14px;min-width:0;">'
-                        + '<div style="font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;color:#94a3b8;margin-bottom:6px;font-weight:700;">' + esc(label) + '</div>'
-                        + '<div style="color:#f8fafc;font-weight:700;font-size:0.92rem;line-height:1.25;word-break:break-word;">' + esc(value) + '</div>'
-                        + '</div>';
-                };
+                var purchaseSummaryTitle = packageLabel || packageSummary.summaryText || 'N/A';
+                var dateOfUse = formatDateUS($(this).data('package-use-date') || $(this).data('package_use_date'));
+                var orderDate = $(this).data('order-date') || $(this).data('date') || 'N/A';
 
-                var html = '<div>';
+                var transportationPickup = $(this).data('transportation_pickup_time') || '';
+                var transportationAddress = $(this).data('transportation_address') || '';
+                var transportationPhone = $(this).data('transportation_phone') || '';
+                var transportationNote = $(this).data('transportation_note') || '';
+                var hasTransportation = [transportationPickup, transportationAddress, transportationPhone, transportationNote].some(function(v) {
+                    return String(v || '').trim() !== '';
+                });
 
-                html += '<div class="txn-detail-card txn-hero-card" style="margin-bottom:16px;">';
-                html += '<div class="txn-detail-title" style="margin-bottom:12px;">Purchase Details</div>';
-                html += '<div class="txn-section-grid">';
-                html += '<div class="txn-detail-card" style="margin-bottom:0;">';
-                html += '<div class="txn-detail-title">Customer Details</div>';
-                html += row('Customer', customerName);
-                html += row('Customer Email', customerEmail);
-                html += row('Customer Phone', customerPhone);
-                html += row('Customer DOB', customerDob);
-                html += row('Host Name', $(this).data('host_name') || 'N/A');
-                html += row('Notes', $(this).data('package_note') || 'N/A');
+                var html = '<div class="row g-3">';
+                html += '<div class="col-md-6">';
+                html += '<ul class="list-group">';
+                html += '<li class="list-group-item"><strong>Order ID:</strong> ' + esc(orderId) + '</li>';
+                html += '<li class="list-group-item"><strong>Confirmation #:</strong> ' + esc(confirmationNumber) + '</li>';
+                html += '<li class="list-group-item"><strong>Package Summary:</strong> ' + esc(purchaseSummaryTitle) + '</li>';
+                html += '<li class="list-group-item"><strong>Package Count:</strong> ' + esc(String(packageCount)) + '</li>';
+                html += '<li class="list-group-item"><strong>Total Units:</strong> ' + esc(String(totalUnits)) + '</li>';
+                html += '<li class="list-group-item"><strong>Add-ons:</strong> ' + esc(addonDetails || 'N/A') + '</li>';
+                html += '</ul>';
                 html += '</div>';
 
-                html += '<div class="txn-detail-card" style="margin-bottom:0;">';
-                html += '<div class="txn-detail-title">Booking Details</div>';
-                html += row('Order ID', orderId);
-                html += row('Confirmation #', confirmationNumber);
-                html += row('Package Summary', purchaseSummaryTitle);
-                html += row('Package Count', String(packageCount));
-                html += row('Total Units', String(totalUnits));
-                html += row('Add-ons Count', String(packageSummary.totalAddons || 0));
-                html += row('Add-ons', addonDetails);
-                html += row('Transaction Type', transactionType.charAt(0).toUpperCase() + transactionType.slice(1));
-                html += row('Order Date', $(this).data('date') || 'N/A');
-                html += row('Website / Venue', $(this).data('website_id') || 'N/A');
-                html += row('Status', statusText);
+                html += '<div class="col-md-6">';
+                html += '<ul class="list-group">';
+                html += '<li class="list-group-item"><strong>Transaction Type:</strong> ' + esc(transactionType.charAt(0).toUpperCase() + transactionType.slice(1)) + '</li>';
+                html += '<li class="list-group-item"><strong>Status:</strong> ' + esc(statusText) + '</li>';
+                html += '<li class="list-group-item"><strong>Order Date:</strong> ' + esc(orderDate) + '</li>';
+                html += '<li class="list-group-item"><strong>Date Of Use:</strong> ' + esc(dateOfUse) + '</li>';
+                html += '<li class="list-group-item"><strong>Website / Venue:</strong> ' + esc($(this).data('website_id') || 'N/A') + '</li>';
+                html += '<li class="list-group-item"><strong>Transportation:</strong> ' + esc(hasTransportation ? 'Provided' : 'Not Provided') + '</li>';
+                html += '<li class="list-group-item"><strong>Pickup Time:</strong> ' + esc(transportationPickup || 'N/A') + '</li>';
+                html += '<li class="list-group-item"><strong>Pickup Address:</strong> ' + esc(transportationAddress || 'N/A') + '</li>';
+                html += '<li class="list-group-item"><strong>Transport Phone:</strong> ' + esc(transportationPhone || 'N/A') + '</li>';
+                html += '<li class="list-group-item"><strong>Transport Note:</strong> ' + esc(transportationNote || 'N/A') + '</li>';
+                html += '</ul>';
                 html += '</div>';
-
-                html += '<div class="txn-detail-card" style="margin-bottom:0;">';
-                html += '<div class="txn-detail-title">Payment Details</div>';
-                html += row('Payment Name', paymentName);
-                html += row('Payment Email', paymentEmail);
-                html += row('Payment Phone', paymentPhone);
-                html += row('Payment Address', paymentAddress);
-                html += '</div>';
-
-                html += '<div class="txn-detail-card" style="margin-bottom:0;">';
-                html += '<div class="txn-detail-title">Summary</div>';
-                html += row('Customer', customerName);
-                html += row('Order ID', orderId);
-                html += row('Confirmation #', confirmationNumber);
-                html += row('Status', statusText);
-                html += '</div>';
-                html += '</div>';
-
-                // Display packages with details
-                if (packageSummary.items.length) {
-                    html += '<h6 style="color:#e0e7ff;margin-top:16px;margin-bottom:16px;font-weight:700;"><i class="fas fa-boxes-stacked"></i> Package Purchase Breakdown</h6>';
-
-                    packageSummary.items.forEach(function(item, index) {
-                        html += '<div class="package-item" style="background:#1e293b;border:1px solid rgba(255,255,255,0.1);padding:12px;border-radius:8px;margin-bottom:10px;">';
-                        html += '<div style="display:flex;justify-content:space-between;align-items:start;gap:12px;margin-bottom:8px;">';
-                        html += '<div style="min-width:0;">';
-                        html += '<div style="font-weight:700;color:#e0e7ff;">' + esc(item.name) + '</div>';
-                        html += '<div style="font-size:0.8rem;color:#94a3b8;margin-top:4px;">Item ' + (index + 1) + ' of ' + packageSummary.items.length + '</div>';
-                        html += '</div>';
-                        html += '<div style="text-align:right;flex-shrink:0;">';
-                        html += '<div style="display:inline-block;background:' + (item.packageType === 'ticket' ? 'rgba(245,158,11,0.18)' : 'rgba(124,58,237,0.18)') + ';color:' + (item.packageType === 'ticket' ? '#fbbf24' : '#a5b4fc') + ';border:1px solid ' + (item.packageType === 'ticket' ? 'rgba(245,158,11,0.3)' : 'rgba(124,58,237,0.28)') + ';border-radius:999px;padding:3px 10px;font-size:0.72rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;">' + esc(item.packageType === 'ticket' ? 'Ticket Package' : 'Guest Package') + '</div>';
-                        html += '</div>';
-                        html += '</div>';
-
-                        html += '<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px;">';
-                        html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px;">';
-                        html += '<div style="font-size:0.72rem;color:#94a3b8;margin-bottom:4px;">Quantity</div>';
-                        html += '<div style="font-weight:700;color:#fbbf24;">' + esc(String(item.quantity)) + ' ' + esc(item.packageType === 'ticket' ? 'tickets' : 'guests') + '</div>';
-                        html += '</div>';
-                        html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px;">';
-                        html += '<div style="font-size:0.72rem;color:#94a3b8;margin-bottom:4px;">Unit Price</div>';
-                        html += '<div style="font-weight:700;color:#e0e7ff;">$' + item.unitPrice.toFixed(2) + '</div>';
-                        html += '</div>';
-                        html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px;">';
-                        html += '<div style="font-size:0.72rem;color:#94a3b8;margin-bottom:4px;">Line Total</div>';
-                        html += '<div style="font-weight:700;color:#34d399;">$' + item.lineTotal.toFixed(2) + '</div>';
-                        html += '</div>';
-                        html += '</div>';
-
-                        if (item.addonLabels && item.addonLabels.length) {
-                            html += '<div style="margin-top:10px;border-left:2px solid rgba(251,191,36,0.28);padding-left:12px;">';
-                            html += '<div style="color:#94a3b8;font-size:0.8rem;margin-bottom:6px;font-weight:600;">Add-ons (' + esc(String(item.addonLabels.length)) + ')</div>';
-                            item.addonLabels.forEach(function(addonLabel) {
-                                html += '<div style="color:#e0e7ff;font-size:0.85rem;margin-bottom:4px;">• ' + esc(addonLabel) + '</div>';
-                            });
-                            html += '</div>';
-                        }
-
-                        html += '</div>';
-                    });
-                }
-
-                // Display guest information for reservations
-                if (transactionType === 'reservation' && (menCount > 0 || womenCount > 0)) {
-                    var totalGuests = parseInt(menCount) + parseInt(womenCount);
-                    html += '<h6 style="color:#e0e7ff;margin-top:20px;margin-bottom:12px;font-weight:700;"><i class="fas fa-users"></i> Guest Breakdown</h6>';
-                    html += '<div style="background:#1e293b;border:1px solid rgba(255,255,255,0.1);padding:12px;border-radius:8px;">';
-                    html += '<div style="color:#e0e7ff;margin-bottom:6px;">👨 Males: <span style="font-weight:600;color:#fbbf24;">' + menCount + '</span></div>';
-                    html += '<div style="color:#e0e7ff;margin-bottom:6px;">👩 Females: <span style="font-weight:600;color:#fbbf24;">' + womenCount + '</span></div>';
-                    html += '<div style="color:#e0e7ff;border-top:1px solid rgba(255,255,255,0.1);padding-top:8px;margin-top:8px;font-weight:600;">Total: <span style="color:#fbbf24;">' + totalGuests + ' guests</span></div>';
-                    html += '</div>';
-                }
-
-                // Full price / purchase breakdown (server-computed, matches what the customer was charged)
-                var breakdown = $(this).data('breakdown');
-                if (breakdown && typeof breakdown === 'object') {
-                    var money = function(v){ var n = parseFloat(v); return '$' + (isNaN(n) ? 0 : n).toFixed(2); };
-                    var line = function(label, value, opts){
-                        opts = opts || {};
-                        var valColor = opts.color || '#e0e7ff';
-                        var weight = opts.weight || '500';
-                        var topBorder = opts.border ? 'border-top:1px solid rgba(255,255,255,0.15);margin-top:6px;padding-top:10px;' : '';
-                        var labelColor = opts.muted ? 'rgba(148,163,184,0.7)' : '#94a3b8';
-                        return '<div style="display:flex;justify-content:space-between;gap:16px;margin-bottom:8px;' + topBorder + '">'
-                            + '<span style="color:' + labelColor + ';">' + label + '</span>'
-                            + '<span style="color:' + valColor + ';font-weight:' + weight + ';white-space:nowrap;">' + value + '</span></div>';
-                    };
-
-                    html += '<h6 style="color:#e0e7ff;margin-top:20px;margin-bottom:12px;font-weight:700;"><i class="fas fa-receipt"></i> Price Breakdown</h6>';
-                    html += '<div style="background:#1e293b;border:1px solid rgba(255,255,255,0.1);padding:14px;border-radius:8px;">';
-
-                    html += line('Items Subtotal', money(breakdown.items_subtotal));
-                    if (parseFloat(breakdown.promo_discount) > 0) {
-                        html += line('Discount', '-' + money(breakdown.promo_discount), {color:'#34d399'});
-                    }
-                    if (breakdown.service_charge && breakdown.service_charge.enabled) {
-                        html += line(breakdown.service_charge.name || 'Service Charge', money(breakdown.service_charge.amount));
-                    }
-                    if (breakdown.gratuity && breakdown.gratuity.enabled) {
-                        html += line(breakdown.gratuity.name || 'Gratuity', money(breakdown.gratuity.amount));
-                    }
-                    if (breakdown.sales_tax && breakdown.sales_tax.enabled) {
-                        html += line(breakdown.sales_tax.name || 'Sales Tax', money(breakdown.sales_tax.amount));
-                    }
-                    if (breakdown.processing_fee && breakdown.processing_fee.enabled) {
-                        html += line('Processing Fee', money(breakdown.processing_fee.amount));
-                    }
-                    html += line('Grand Total', money(breakdown.grand_total), {color:'#fbbf24', weight:'700', border:true});
-                    if (breakdown.refundable && breakdown.refundable.enabled && parseFloat(breakdown.refundable.amount) > 0) {
-                        html += line((breakdown.refundable.name || 'Non-refundable Deposit') + ' (incl. in total)', money(breakdown.refundable.amount), {muted:true});
-                    }
-                    html += line('Amount Paid', money(breakdown.amount_paid_now), {color:'#34d399', weight:'600'});
-                    if (parseFloat(breakdown.remaining_due) > 0) {
-                        html += line('Remaining Due', money(breakdown.remaining_due), {color:'#ef4444', weight:'600'});
-                    }
-
-                    html += '</div>';
-                }
-
                 html += '</div>';
 
                 $('#packageDetailsContent').html(html);
