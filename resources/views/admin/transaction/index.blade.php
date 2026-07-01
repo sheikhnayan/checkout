@@ -2070,7 +2070,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     return (hours < 10 ? '0' : '') + hours + ':' + minutes + ' ' + ampm;
                 };
 
-                var formatDateUS = function(dateValue) {
+                window.formatDateUS = window.formatDateUS || function(dateValue) {
                     var raw = String(dateValue || '').trim();
                     if (!raw) {
                         return 'N/A';
@@ -2394,6 +2394,27 @@ body.modal-open .admin-mobile-menu-toggle {
                 var packageSummary = window.summarizePackageItems ? window.summarizePackageItems(cartItems) : { items: [], totalQuantity: 0, totalAddons: 0, addonSummaryText: '', summaryText: packageLabel };
                 var row = window.txnDetailRow || function(label, value) {
                     return '<div class="txn-detail-row"><span class="txn-detail-label">' + esc(label) + '</span><span class="txn-detail-value">' + esc(value) + '</span></div>';
+                };
+                var formatDateUS = window.formatDateUS || function(dateValue) {
+                    var raw = String(dateValue || '').trim();
+                    if (!raw) {
+                        return 'N/A';
+                    }
+
+                    var match = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+                    if (match) {
+                        return match[2] + '/' + match[3] + '/' + match[1];
+                    }
+
+                    var parsed = new Date(raw);
+                    if (!isNaN(parsed.getTime())) {
+                        var month = String(parsed.getMonth() + 1).padStart(2, '0');
+                        var day = String(parsed.getDate()).padStart(2, '0');
+                        var year = parsed.getFullYear();
+                        return month + '/' + day + '/' + year;
+                    }
+
+                    return raw;
                 };
                 var customerName = [$(this).data('package_first_name') || '', $(this).data('package_last_name') || ''].join(' ').trim() || 'N/A';
                 var customerEmail = $(this).data('package_email') || 'N/A';
