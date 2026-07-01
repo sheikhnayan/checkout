@@ -2475,10 +2475,29 @@ body.modal-open .admin-mobile-menu-toggle {
                         if (!text) {
                             return;
                         }
+
+                        var parsedName = text;
+                        var parsedQty = 1;
+                        var parsedType = 'package';
+
+                        var guestMatch = text.match(/^(.*?):\s*(\d+)\s*(guest|guests|ticket|tickets)\b/i);
+                        if (guestMatch) {
+                            parsedName = String(guestMatch[1] || '').trim() || text;
+                            parsedQty = Math.max(1, parseInt(guestMatch[2] || '1', 10) || 1);
+                            parsedType = /ticket/i.test(guestMatch[3] || '') ? 'ticket' : 'package';
+                        } else {
+                            var xQtyMatch = text.match(/^(.*?)\s*x\s*(\d+)\b/i);
+                            if (xQtyMatch) {
+                                parsedName = String(xQtyMatch[1] || '').trim() || text;
+                                parsedQty = Math.max(1, parseInt(xQtyMatch[2] || '1', 10) || 1);
+                                parsedType = /ticket/i.test(parsedName) ? 'ticket' : 'package';
+                            }
+                        }
+
                         packageLineupItems.push({
-                            name: text,
-                            quantity: 1,
-                            packageType: 'package'
+                            name: parsedName,
+                            quantity: parsedQty,
+                            packageType: parsedType
                         });
                     });
                 }
