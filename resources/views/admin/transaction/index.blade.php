@@ -851,7 +851,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td class="txn-confirmation-num">{{ $item->transaction_id ?? 'N/A' }}</td>
                             <td class="txn-pkg-name">
                                 <div style="font-size:0.85rem;font-weight:600;margin-bottom:8px;">{{ $venueName }}</div>
-                                <button type="button" class="btn btn-sm btn-link-package" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-confirmation-number="{{ $item->transaction_id ?? 'N/A' }}" data-cart-items='@json($cartItems)' data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" style="font-size:0.85rem;min-width:72px;">View</button>
+                                <button type="button" class="btn btn-sm btn-link-package" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-confirmation-number="{{ $item->transaction_id ?? 'N/A' }}" data-cart-items='@json($cartItems)' data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" data-package_number_of_guest="{{ $item->package_number_of_guest ?? 0 }}" data-package_first_name="{{ $item->package_first_name ?? '' }}" data-package_last_name="{{ $item->package_last_name ?? '' }}" data-package_phone="{{ $item->package_phone ?? '' }}" data-package_email="{{ $item->package_email ?? '' }}" data-package_dob="{{ $item->package_dob ?? '' }}" data-package_note="{{ $item->package_note ?? '' }}" data-host_name="{{ $item->host_name ?? '' }}" data-transportation_pickup_time="{{ $item->transportation_pickup_time ?? '' }}" data-transportation_address="{{ $item->transportation_address ?? '' }}" data-transportation_phone="{{ $item->transportation_phone ?? '' }}" data-transportation_note="{{ $item->transportation_note ?? '' }}" data-payment_first_name="{{ $item->payment_first_name ?? '' }}" data-payment_last_name="{{ $item->payment_last_name ?? '' }}" data-payment_phone="{{ $item->payment_phone ?? '' }}" data-payment_email="{{ $item->payment_email ?? '' }}" data-payment_address="{{ $item->payment_address ?? '' }}" data-payment_city="{{ $item->payment_city ?? '' }}" data-payment_state="{{ $item->payment_state ?? '' }}" data-payment_country="{{ $item->payment_country ?? '' }}" data-payment_dob="{{ $item->payment_dob ?? '' }}" data-payment_zip_code="{{ $item->payment_zip_code ?? '' }}" data-type="{{ $item->type }}" data-status="{{ $item->status }}" data-ip_address="{{ $item->ip_address ?? '' }}" data-website_id="{{ $item->website->name ?? '' }}" data-addons="{{ $addons }}" style="font-size:0.85rem;min-width:72px;">View</button>
                             </td>
                             <td>
                                 @php
@@ -2437,6 +2437,10 @@ body.modal-open .admin-mobile-menu-toggle {
                 var paymentEmail = $(this).data('payment_email') || 'N/A';
                 var paymentPhone = $(this).data('payment_phone') || 'N/A';
                 var paymentAddress = [$(this).data('payment_address'), $(this).data('payment_city'), $(this).data('payment_state'), $(this).data('payment_zip_code')].filter(Boolean).join(', ') || 'N/A';
+                var packageGuestCount = parseInt($(this).data('package_number_of_guest') || 0, 10) || 0;
+                var packageCount = packageSummary.items.length || (packageLabel ? packageLabel.split(/\s*,\s*/).filter(Boolean).length : 0) || (packageGuestCount > 0 ? 1 : 0);
+                var totalUnits = packageSummary.totalQuantity || packageGuestCount || 0;
+                var addonDetails = $(this).data('addons') || packageSummary.addonSummaryText || 'N/A';
                 var purchaseSummaryTitle = packageLabel || packageSummary.summaryText || 'Package Details';
                 var stat = function(label, value) {
                     return '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px 14px;min-width:0;">'
@@ -2448,61 +2452,28 @@ body.modal-open .admin-mobile-menu-toggle {
                 var html = '<div>';
 
                 html += '<div class="txn-detail-card txn-hero-card" style="margin-bottom:16px;">';
-                html += '<div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;">';
-                html += '<div style="min-width:0;flex:1 1 280px;">';
-                html += '<div style="font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8;font-weight:800;margin-bottom:6px;">Purchase Details</div>';
-                html += '<div class="txn-detail-title mb-0" style="font-size:1.2rem;line-height:1.2;">' + esc(purchaseSummaryTitle) + '</div>';
-                html += '<div style="margin-top:8px;color:#cbd5e1;font-size:0.85rem;line-height:1.45;">Customer, booking, and payment summary for quick review.</div>';
-                html += '</div>';
-                html += '<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;align-items:flex-start;flex:0 1 auto;">';
-                html += '<span class="txn-status-pill ' + statusClass + '">' + esc(statusText) + '</span>';
-                html += '<span style="display:inline-flex;align-items:center;padding:4px 10px;border-radius:999px;background:rgba(99,102,241,0.14);border:1px solid rgba(99,102,241,0.22);color:#c7d2fe;font-size:0.75rem;font-weight:700;">' + esc(transactionType.charAt(0).toUpperCase() + transactionType.slice(1)) + '</span>';
-                html += '<span style="display:inline-flex;align-items:center;padding:4px 10px;border-radius:999px;background:rgba(16,185,129,0.14);border:1px solid rgba(16,185,129,0.22);color:#86efac;font-size:0.75rem;font-weight:700;">Add-ons ' + esc(String(packageSummary.totalAddons || 0)) + '</span>';
-                html += '</div>';
-                html += '</div>';
-                html += '<div class="txn-summary-grid">';
-                html += stat('Customer', customerName);
-                html += stat('Order ID', orderId);
-                html += stat('Confirmation #', confirmationNumber);
-                html += stat('Total Units', String(packageSummary.totalQuantity || 0));
-                html += '</div>';
-                if (packageSummary.addonSummaryText) {
-                    html += '<div style="margin-top:14px;padding:12px 14px;border-radius:14px;background:rgba(15,23,42,0.5);border:1px solid rgba(148,163,184,0.12);">';
-                    html += '<div style="font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;color:#94a3b8;font-weight:800;margin-bottom:6px;">Add-on Summary</div>';
-                    html += '<div style="color:#e2e8f0;font-size:0.85rem;line-height:1.55;">' + esc(packageSummary.addonSummaryText) + '</div>';
-                    html += '</div>';
-                }
-                html += '</div>';
-
-                html += '<div class="row g-3">';
-
-                html += '<div class="col-lg-6">';
-                html += '<div class="txn-detail-card">';
-                html += '<div class="txn-detail-title">Customer Details</div>';
-                html += row('Customer Name', customerName);
+                html += '<div class="txn-detail-title">Purchase Details</div>';
+                html += row('Customer', customerName);
                 html += row('Customer Email', customerEmail);
                 html += row('Customer Phone', customerPhone);
                 html += row('Customer DOB', customerDob);
-                html += row('Payment Name', paymentName);
-                html += row('Payment Email', paymentEmail);
-                html += row('Payment Phone', paymentPhone);
-                html += row('Payment Address', paymentAddress);
-                html += '</div>';
-                html += '</div>';
-
-                html += '<div class="col-lg-6">';
-                html += '<div class="txn-detail-card">';
-                html += '<div class="txn-detail-title">Purchase Details</div>';
-                html += row('Package Summary', packageLabel || packageSummary.summaryText || 'N/A');
-                html += row('Package Count', String(packageSummary.items.length || 0));
-                html += row('Total Units', String(packageSummary.totalQuantity || 0));
+                html += row('Order ID', orderId);
+                html += row('Confirmation #', confirmationNumber);
+                html += row('Package Summary', purchaseSummaryTitle);
+                html += row('Package Count', String(packageCount));
+                html += row('Total Units', String(totalUnits));
                 html += row('Add-ons Count', String(packageSummary.totalAddons || 0));
+                html += row('Add-ons', addonDetails);
                 html += row('Transaction Type', transactionType.charAt(0).toUpperCase() + transactionType.slice(1));
                 html += row('Order Date', $(this).data('date') || 'N/A');
                 html += row('Website / Venue', $(this).data('website_id') || 'N/A');
                 html += row('Host Name', $(this).data('host_name') || 'N/A');
+                html += row('Payment Name', paymentName);
+                html += row('Payment Email', paymentEmail);
+                html += row('Payment Phone', paymentPhone);
+                html += row('Payment Address', paymentAddress);
                 html += row('Notes', $(this).data('package_note') || 'N/A');
-                html += '</div>';
+                html += row('Status', statusText);
                 html += '</div>';
 
                 // Display packages with details
