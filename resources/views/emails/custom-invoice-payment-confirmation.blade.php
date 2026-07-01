@@ -21,6 +21,7 @@
 
     <table>
         <tr><th>Confirmation ID</th><td>{{ $transaction->transaction_id }}</td></tr>
+        <tr><th>Order ID</th><td>{{ $transaction->id ?? 'N/A' }}</td></tr>
         <tr><th>Invoice</th><td>#{{ $invoice->id }}</td></tr>
         <tr><th>Club</th><td>{{ $website->name ?? optional($invoice->website)->name ?? 'N/A' }}</td></tr>
         <tr><th>Client</th><td>{{ $invoice->client_name }}</td></tr>

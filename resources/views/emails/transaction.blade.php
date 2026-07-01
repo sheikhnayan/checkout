@@ -25,6 +25,7 @@
 <body>
 @php
     $confirmationNumber = $mailData['confirmation_id'] ?? ($transaction->transaction_id ?? 'Pending');
+    $orderId = $mailData['order_id'] ?? ($transaction->id ?? 'N/A');
     $venueName = $clubName ?: ($mailData['website_name'] ?? 'Venue');
     $guestName = trim(($mailData['package_first_name'] ?? '') . ' ' . ($mailData['package_last_name'] ?? '')) ?: 'N/A';
     $reservationDateRaw = $mailData['package_use_date'] ?? $mailData['reservation_date'] ?? null;
@@ -64,10 +65,12 @@
         <h2>{{ $venueName }} - BOOKING</h2>
         <div class="hero">
             <p style="margin:0;"><strong>Confirmation #:</strong> {{ $confirmationNumber }}</p>
+            <p style="margin:6px 0 0;"><strong>Order ID:</strong> {{ $orderId }}</p>
         </div>
 
         <table class="summary">
             <tr><th>Confirmation #</th><td>{{ $confirmationNumber }}</td></tr>
+            <tr><th>Order ID</th><td>{{ $orderId }}</td></tr>
             <tr><th>Venue</th><td>{{ $venueName }}</td></tr>
             <tr><th>Booking Type</th><td>{{ ucfirst(str_replace('_', ' ', $bookingType)) }}</td></tr>
             <tr><th>Guest Name</th><td>{{ $guestName }}</td></tr>
@@ -165,12 +168,14 @@
 
         <div class="hero">
             <p style="margin:0 0 8px;"><strong>Confirmation #:</strong> {{ $confirmationNumber }}</p>
+            <p style="margin:0;"><strong>Order ID:</strong> {{ $orderId }}</p>
             <p style="margin:0;"><strong>Venue:</strong> {{ $venueName }}</p>
         </div>
 
         <div class="section-title">Booking Details</div>
         <table class="summary">
             <tr><th>Confirmation #</th><td>{{ $confirmationNumber }}</td></tr>
+            <tr><th>Order ID</th><td>{{ $orderId }}</td></tr>
             <tr><th>Venue</th><td>{{ $venueName }}</td></tr>
             <tr><th>Guest Name</th><td>{{ $guestName }}</td></tr>
             <tr><th>Reservation Date</th><td>{{ $reservationDateFormatted }}</td></tr>

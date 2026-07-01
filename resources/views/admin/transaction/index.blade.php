@@ -825,7 +825,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td class="txn-confirmation-num">{{ $item->transaction_id ?? 'N/A' }}</td>
                             <td class="txn-pkg-name">
                                 <div style="font-size:0.85rem;font-weight:600;margin-bottom:8px;">{{ $venueName }}</div>
-                                <button type="button" class="btn btn-sm btn-link-package" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-cart-items='@json($cartItems)' data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" style="font-size:0.85rem;">{{ max(1, $packageDetails->count()) }} {{ max(1, $packageDetails->count()) === 1 ? 'Package' : 'Packages' }}</button>
+                                <button type="button" class="btn btn-sm btn-link-package" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-confirmation-number="{{ $item->transaction_id ?? 'N/A' }}" data-cart-items='@json($cartItems)' data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" style="font-size:0.85rem;min-width:72px;">View</button>
                             </td>
                             <td>
                                 @php
@@ -2075,6 +2075,76 @@ body.modal-open .admin-mobile-menu-toggle {
                         .replace(/'/g, '&#39;');
                 };
 
+                var parseJsonLike = function(value) {
+                    if (value == null || value === '') {
+                        return null;
+                    }
+                    if (Array.isArray(value) || typeof value === 'object') {
+                        return value;
+                    }
+                    try {
+                        return JSON.parse(value);
+                    } catch (e) {
+                        return null;
+                    }
+                };
+
+                var summarizePackageItems = function(cartItems) {
+                    var items = [];
+                    var totalQuantity = 0;
+                    var totalAddons = 0;
+                    var summaryParts = [];
+
+                    (Array.isArray(cartItems) ? cartItems : []).forEach(function(item) {
+                        if (!item || typeof item !== 'object') {
+                            return;
+                        }
+
+                        var packageName = String(item.package_name || item.packageName || item.pkgName || 'Unknown Package').trim();
+                        var quantity = Math.max(1, parseInt(item.guests || item.quantity || 1, 10) || 1);
+                        var packageType = String(item.package_type || item.type || item.packageType || '').toLowerCase();
+                        var unitPrice = parseFloat(item.unit_price || 0) || 0;
+                        var lineTotal = parseFloat(item.line_total || (unitPrice * quantity) || 0) || 0;
+                        var addons = Array.isArray(item.addons) ? item.addons : [];
+                        var addonLabels = [];
+
+                        addons.forEach(function(addon) {
+                            if (!addon || typeof addon !== 'object') {
+                                return;
+                            }
+
+                            var addonName = String(addon.name || 'Add-on').trim();
+                            if (!addonName) {
+                                return;
+                            }
+
+                            var addonQty = Math.max(1, parseInt(addon.quantity || 1, 10) || 1);
+                            var addonPrice = parseFloat(addon.price || 0) || 0;
+                            totalAddons += 1;
+                            addonLabels.push(addonName + ' x' + addonQty + (addonPrice > 0 ? ' (' + '$' + addonPrice.toFixed(2) + ')' : ''));
+                        });
+
+                        totalQuantity += quantity;
+                        summaryParts.push(packageName + ' x' + quantity + (packageType === 'ticket' ? ' tickets' : ' guests'));
+                        items.push({
+                            name: packageName,
+                            quantity: quantity,
+                            packageType: packageType || 'package',
+                            unitPrice: unitPrice,
+                            lineTotal: lineTotal,
+                            addonCount: addons.length,
+                            addonLabels: addonLabels,
+                        });
+                    });
+
+                    return {
+                        items: items,
+                        totalQuantity: totalQuantity,
+                        totalAddons: totalAddons,
+                        summaryText: summaryParts.length ? summaryParts.join('; ') : ''
+                    };
+                };
+
                 var status = $(this).data('status');
                 var statusText = 'Unknown';
                 var statusClass = 'txn-status-unknown';
@@ -2275,64 +2345,69 @@ body.modal-open .admin-mobile-menu-toggle {
             // Handle Package Details Modal
             $(document).on('click', '.btn-link-package', function(e) {
                 e.preventDefault();
-                var cartItems = $(this).data('cart-items') || [];
+                var rawCartItems = $(this).data('cart-items') || [];
+                var cartItems = Array.isArray(rawCartItems) ? rawCartItems : (parseJsonLike(rawCartItems) || []);
                 var transactionType = $(this).data('transaction-type') || 'package';
                 var menCount = $(this).data('men') || 0;
                 var womenCount = $(this).data('women') || 0;
                 var transactionId = $(this).data('transaction-id');
+                var orderId = transactionId || 'N/A';
+                var confirmationNumber = $(this).data('confirmation-number') || 'N/A';
+                var packageLabel = String($(this).data('package-label') || '').trim();
+                var packageSummary = summarizePackageItems(cartItems);
 
                 var html = '<div>';
 
+                html += '<div class="txn-detail-card" style="margin-bottom:16px;">';
+                html += '<div class="txn-detail-title">Purchase Snapshot</div>';
+                html += row('Order ID', orderId);
+                html += row('Confirmation #', confirmationNumber);
+                html += row('Package Summary', packageLabel || packageSummary.summaryText || 'N/A');
+                html += row('Package Count', String(packageSummary.items.length || 0));
+                html += row('Total Units', String(packageSummary.totalQuantity || 0));
+                if (packageSummary.totalAddons > 0) {
+                    html += row('Add-ons Total', String(packageSummary.totalAddons));
+                }
+                html += row('Transaction Type', transactionType.charAt(0).toUpperCase() + transactionType.slice(1));
+                html += '</div>';
+
                 // Display packages with details
-                if (cartItems && Array.isArray(cartItems)) {
-                    html += '<h6 style="color:#e0e7ff;margin-bottom:16px;font-weight:700;"><i class="fas fa-box"></i> Packages</h6>';
+                if (packageSummary.items.length) {
+                    html += '<h6 style="color:#e0e7ff;margin-bottom:16px;font-weight:700;"><i class="fas fa-boxes-stacked"></i> Package Purchase Breakdown</h6>';
 
-                    cartItems.forEach(function(item, index) {
-                        if (!item) return;
-
-                        var packageName = item.package_name || item.packageName || item.pkgName || 'Unknown Package';
-                        var quantity = Math.max(1, parseInt(item.guests || item.quantity || 1));
-                        var packageType = (item.package_type || item.type || item.packageType || '').toLowerCase();
-                        var price = parseFloat(item.unit_price || 0);
-                        var itemTotal = price * quantity;
-
+                    packageSummary.items.forEach(function(item, index) {
                         html += '<div class="package-item" style="background:#1e293b;border:1px solid rgba(255,255,255,0.1);padding:12px;border-radius:8px;margin-bottom:10px;">';
-                        html += '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">';
-                        html += '<div style="font-weight:600;color:#e0e7ff;">' + packageName + '</div>';
-                        html += '<div style="text-align:right;">';
+                        html += '<div style="display:flex;justify-content:space-between;align-items:start;gap:12px;margin-bottom:8px;">';
+                        html += '<div style="min-width:0;">';
+                        html += '<div style="font-weight:700;color:#e0e7ff;">' + esc(item.name) + '</div>';
+                        html += '<div style="font-size:0.8rem;color:#94a3b8;margin-top:4px;">Item ' + (index + 1) + ' of ' + packageSummary.items.length + '</div>';
+                        html += '</div>';
+                        html += '<div style="text-align:right;flex-shrink:0;">';
+                        html += '<div style="display:inline-block;background:' + (item.packageType === 'ticket' ? 'rgba(245,158,11,0.18)' : 'rgba(124,58,237,0.18)') + ';color:' + (item.packageType === 'ticket' ? '#fbbf24' : '#a5b4fc') + ';border:1px solid ' + (item.packageType === 'ticket' ? 'rgba(245,158,11,0.3)' : 'rgba(124,58,237,0.28)') + ';border-radius:999px;padding:3px 10px;font-size:0.72rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;">' + esc(item.packageType === 'ticket' ? 'Ticket Package' : 'Guest Package') + '</div>';
+                        html += '</div>';
+                        html += '</div>';
 
-                        if (packageType === 'ticket') {
-                            html += '<div style="color:#fbbf24;font-weight:600;">x' + quantity + ' tickets</div>';
-                            if (price > 0) {
-                                html += '<div style="color:#94a3b8;font-size:0.85rem;">$' + price.toFixed(2) + ' x ' + quantity + ' = $' + itemTotal.toFixed(2) + '</div>';
-                            }
-                        } else {
-                            html += '<div style="color:#fbbf24;font-weight:600;">' + quantity + ' ' + (quantity === 1 ? 'guest' : 'guests') + '</div>';
-                            if (price > 0) {
-                                html += '<div style="color:#94a3b8;font-size:0.85rem;">$' + price.toFixed(2) + '</div>';
-                            }
-                        }
+                        html += '<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px;">';
+                        html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px;">';
+                        html += '<div style="font-size:0.72rem;color:#94a3b8;margin-bottom:4px;">Quantity</div>';
+                        html += '<div style="font-weight:700;color:#fbbf24;">' + esc(String(item.quantity)) + ' ' + esc(item.packageType === 'ticket' ? 'tickets' : 'guests') + '</div>';
+                        html += '</div>';
+                        html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px;">';
+                        html += '<div style="font-size:0.72rem;color:#94a3b8;margin-bottom:4px;">Unit Price</div>';
+                        html += '<div style="font-weight:700;color:#e0e7ff;">$' + item.unitPrice.toFixed(2) + '</div>';
+                        html += '</div>';
+                        html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px;">';
+                        html += '<div style="font-size:0.72rem;color:#94a3b8;margin-bottom:4px;">Line Total</div>';
+                        html += '<div style="font-weight:700;color:#34d399;">$' + item.lineTotal.toFixed(2) + '</div>';
+                        html += '</div>';
+                        html += '</div>';
 
-                        html += '</div></div>';
-
-                        // Display add-ons for this item
-                        if (item.addons && Array.isArray(item.addons) && item.addons.length > 0) {
-                            html += '<div style="margin-left:12px;border-left:2px solid rgba(251,191,36,0.3);padding-left:12px;margin-top:8px;">';
-                            html += '<div style="color:#94a3b8;font-size:0.85rem;margin-bottom:6px;">Add-ons:</div>';
-
-                            item.addons.forEach(function(addon) {
-                                var addonQty = addon.quantity || 1;
-                                var addonPrice = parseFloat(addon.price || 0);
-                                var addonTotal = addonPrice * addonQty;
-                                html += '<div style="color:#e0e7ff;font-size:0.85rem;margin-bottom:4px;">';
-                                html += '✓ ' + (addon.name || 'Add-on') + ' ';
-                                if (addonQty > 1) html += 'x' + addonQty + ' ';
-                                if (addonPrice > 0) html += '($' + addonPrice.toFixed(2);
-                                if (addonQty > 1) html += ' × ' + addonQty;
-                                if (addonPrice > 0) html += ' = $' + addonTotal.toFixed(2) + ')';
-                                html += '</div>';
+                        if (item.addonLabels && item.addonLabels.length) {
+                            html += '<div style="margin-top:10px;border-left:2px solid rgba(251,191,36,0.28);padding-left:12px;">';
+                            html += '<div style="color:#94a3b8;font-size:0.8rem;margin-bottom:6px;font-weight:600;">Add-ons</div>';
+                            item.addonLabels.forEach(function(addonLabel) {
+                                html += '<div style="color:#e0e7ff;font-size:0.85rem;margin-bottom:4px;">• ' + esc(addonLabel) + '</div>';
                             });
-
                             html += '</div>';
                         }
 
