@@ -1063,6 +1063,8 @@ body.modal-open .admin-mobile-menu-toggle {
                                         data-id="{{ $item->id }}"
                                         data-transaction_id="{{ $item->transaction_id ?? 'Free' }}"
                                         data-package_id="{{ $packageDetailsText }}"
+                                        data-cart-items='@json($cartItems)'
+                                        data-breakdown='@json($item->price_breakdown)'
                                         data-package_first_name="{{ $item->package_first_name }}"
                                         data-package_last_name="{{ $item->package_last_name }}"
                                         data-package_phone="{{ $item->package_phone }}"
@@ -1125,6 +1127,8 @@ body.modal-open .admin-mobile-menu-toggle {
                                         data-entertainer_commission_status="{{ $item->entertainer_commission_status ?? '' }}"
                                         data-entertainer_commission_hold_until="{{ $item->entertainer_commission_hold_until ? optional($item->entertainer_commission_hold_until)->timezone('America/Los_Angeles')->format('M d, Y h:i A T') : '' }}"
                                         data-total_commission="{{ (float) $commission }}"
+                                        data-checked_in_status="{{ $item->checked_in_status ? 1 : 0 }}"
+                                        data-checked_in_at_pacific="{{ $item->checked_in_at_pacific ? optional($item->checked_in_at_pacific)->timezone('America/Los_Angeles')->format('Y-m-d h:i A T') : '' }}"
                                         data-checkin_photo_front="{{ $item->checkin_photo_front_path ?? '' }}"
                                         data-checkin_photo_back="{{ $item->checkin_photo_back_path ?? '' }}"
                                         title="View Details">
@@ -2274,6 +2278,127 @@ body.modal-open .admin-mobile-menu-toggle {
                 var amountPaid = parseFloat($(this).data('total') || 0);
                 var totalAmount = parseFloat($(this).data('subtotal') || 0);
                 var dueAmount = parseFloat($(this).data('due') || 0);
+                var checkedInStatus = String($(this).data('checked_in_status') || '').toLowerCase();
+                checkedInStatus = checkedInStatus === '1' || checkedInStatus === 'true' || checkedInStatus === 'yes';
+                var checkedInAtPacific = String($(this).data('checked_in_at_pacific') || '').trim();
+
+                var rawCartItems = $(this).data('cart-items') || [];
+                var parsedCartItems = Array.isArray(rawCartItems) ? rawCartItems : (window.parseJsonLike ? window.parseJsonLike(rawCartItems) : []);
+                var normalizeCartItems = function(value) {
+                    if (Array.isArray(value)) {
+                        return value;
+                    }
+                    if (!value || typeof value !== 'object') {
+                        return [];
+                    }
+                    if (Array.isArray(value.items)) {
+                        return value.items;
+                    }
+                    if (Array.isArray(value.cart_items)) {
+                        return value.cart_items;
+                    }
+                    if (Array.isArray(value.cartItems)) {
+                        return value.cartItems;
+                    }
+                    var objectValues = Object.values(value || {});
+                    if (objectValues.length && objectValues.every(function(v) { return v && typeof v === 'object'; })) {
+                        return objectValues;
+                    }
+                    return [];
+                };
+                var cartItems = normalizeCartItems(parsedCartItems);
+                var breakdownData = $(this).data('breakdown');
+                if (!breakdownData || typeof breakdownData !== 'object') {
+                    breakdownData = null;
+                }
+
+                var purchaseItems = [];
+                if (breakdownData && Array.isArray(breakdownData.items) && breakdownData.items.length) {
+                    purchaseItems = breakdownData.items.map(function(rawItem) {
+                        if (!rawItem || typeof rawItem !== 'object') {
+                            return null;
+                        }
+
+                        var qty = Math.max(1, parseInt(rawItem.guests || rawItem.quantity || 1, 10) || 1);
+                        var packageType = String(rawItem.package_type || rawItem.type || rawItem.packageType || '').toLowerCase() || 'package';
+                        var unitPrice = parseFloat(rawItem.unit_price);
+                        unitPrice = isNaN(unitPrice) ? null : unitPrice;
+                        var packageSubtotal = parseFloat(rawItem.package_subtotal);
+                        packageSubtotal = isNaN(packageSubtotal) ? null : packageSubtotal;
+                        var lineTotal = parseFloat(rawItem.line_total);
+                        lineTotal = isNaN(lineTotal) ? null : lineTotal;
+
+                        var addons = Array.isArray(rawItem.addons) ? rawItem.addons.map(function(addon) {
+                            if (!addon || typeof addon !== 'object') {
+                                return null;
+                            }
+                            var addonName = String(addon.name || '').trim();
+                            if (!addonName) {
+                                return null;
+                            }
+                            var addonQty = Math.max(1, parseInt(addon.qty || addon.quantity || 1, 10) || 1);
+                            var addonUnit = parseFloat(addon.unit_price);
+                            addonUnit = isNaN(addonUnit) ? null : addonUnit;
+                            var addonLine = parseFloat(addon.price);
+                            addonLine = isNaN(addonLine) ? (addonUnit == null ? null : addonUnit * addonQty) : addonLine;
+                            return {
+                                name: addonName,
+                                quantity: addonQty,
+                                unitPrice: addonUnit,
+                                lineTotal: addonLine
+                            };
+                        }).filter(Boolean) : [];
+
+                        return {
+                            name: String(rawItem.package_name || rawItem.packageName || rawItem.name || 'Package').trim(),
+                            quantity: qty,
+                            packageType: packageType,
+                            unitPrice: unitPrice,
+                            packageSubtotal: packageSubtotal,
+                            lineTotal: lineTotal,
+                            addons: addons
+                        };
+                    }).filter(Boolean);
+                }
+
+                if (!purchaseItems.length) {
+                    var summarized = window.summarizePackageItems ? window.summarizePackageItems(cartItems) : { items: [] };
+                    purchaseItems = (summarized.items || []).map(function(item) {
+                        var sourceCartItem = cartItems.find(function(cartItem) {
+                            var cartName = String(cartItem && (cartItem.package_name || cartItem.packageName || cartItem.pkgName || '')).trim().toLowerCase();
+                            return cartName && cartName === String(item.name || '').trim().toLowerCase();
+                        }) || {};
+                        var addons = Array.isArray(sourceCartItem.addons) ? sourceCartItem.addons.map(function(addon) {
+                            if (!addon || typeof addon !== 'object') {
+                                return null;
+                            }
+                            var addonName = String(addon.name || '').trim();
+                            if (!addonName) {
+                                return null;
+                            }
+                            var addonQty = Math.max(1, parseInt(addon.qty || addon.quantity || 1, 10) || 1);
+                            var addonUnit = parseFloat(addon.unit_price);
+                            addonUnit = isNaN(addonUnit) ? null : addonUnit;
+                            var addonLine = parseFloat(addon.price);
+                            addonLine = isNaN(addonLine) ? (addonUnit == null ? null : addonUnit * addonQty) : addonLine;
+                            return {
+                                name: addonName,
+                                quantity: addonQty,
+                                unitPrice: addonUnit,
+                                lineTotal: addonLine
+                            };
+                        }).filter(Boolean) : [];
+                        return {
+                            name: item.name,
+                            quantity: item.quantity,
+                            packageType: item.packageType || 'package',
+                            unitPrice: typeof item.unitPrice === 'number' ? item.unitPrice : null,
+                            packageSubtotal: typeof item.lineTotal === 'number' ? item.lineTotal : null,
+                            lineTotal: typeof item.lineTotal === 'number' ? item.lineTotal : null,
+                            addons: addons
+                        };
+                    });
+                }
 
                 var frontPath = String($(this).data('checkin_photo_front') || '').trim();
                 var backPath = String($(this).data('checkin_photo_back') || '').trim();
@@ -2285,6 +2410,15 @@ body.modal-open .admin-mobile-menu-toggle {
                     return '<div class="txn-detail-row"><span class="txn-detail-label">' + safeEsc(label) + ':</span><span class="txn-detail-value">' + safeEsc(value) + '</span></div>';
                 };
                 var row = window.txnDetailRow;
+                var line = function(label, value, opts) {
+                    opts = opts || {};
+                    var valueColor = opts.color || '#e0e7ff';
+                    var weight = opts.weight || '600';
+                    var border = opts.border ? 'border-top:1px solid rgba(255,255,255,0.12);padding-top:10px;margin-top:8px;' : '';
+                    return '<div style="display:flex;justify-content:space-between;gap:16px;margin-bottom:8px;' + border + '">'
+                        + '<span style="color:#94a3b8;">' + esc(label) + '</span>'
+                        + '<span style="color:' + valueColor + ';font-weight:' + weight + ';white-space:nowrap;">' + esc(value) + '</span></div>';
+                };
 
                 var html = '';
 
@@ -2294,9 +2428,64 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += '<span class="txn-status-pill ' + statusClass + '">' + esc(statusText) + '</span>';
                 html += '</div>';
                 html += '<div style="margin-top:8px;color:#94a3b8;font-size:0.82rem;">' + esc($(this).data('date') || '') + ' | ' + esc($(this).data('website_id') || '') + '</div>';
+                if (checkedInStatus) {
+                    html += '<div style="margin-top:8px;color:#86efac;font-size:0.82rem;font-weight:700;">Checked In' + (checkedInAtPacific ? ' | ' + esc(checkedInAtPacific) : '') + '</div>';
+                }
                 html += '</div>';
 
                 html += '<div class="row g-3">';
+                html += '<div class="col-md-6">';
+                html += '<div class="txn-detail-card">';
+                html += '<div class="txn-detail-title">Purchase Summary</div>';
+                if (purchaseItems.length) {
+                    purchaseItems.forEach(function(item, index) {
+                        var qtyLabel = String(item.quantity) + ' ' + (item.packageType === 'ticket' ? 'tickets' : 'guests');
+                        html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px;margin-bottom:' + (index === purchaseItems.length - 1 ? '0' : '10px') + ';">';
+                        html += '<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:8px;">';
+                        html += '<div style="min-width:0;">';
+                        html += '<div style="font-weight:700;color:#e0e7ff;">' + esc(item.name || 'Package') + '</div>';
+                        html += '<div style="font-size:0.8rem;color:#94a3b8;margin-top:4px;">' + esc(qtyLabel) + '</div>';
+                        html += '</div>';
+                        html += '<div style="text-align:right;flex-shrink:0;">';
+                        html += '<div style="display:inline-block;background:' + (item.packageType === 'ticket' ? 'rgba(245,158,11,0.18)' : 'rgba(124,58,237,0.18)') + ';color:' + (item.packageType === 'ticket' ? '#fbbf24' : '#a5b4fc') + ';border:1px solid ' + (item.packageType === 'ticket' ? 'rgba(245,158,11,0.3)' : 'rgba(124,58,237,0.28)') + ';border-radius:999px;padding:3px 10px;font-size:0.72rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;">' + esc(item.packageType === 'ticket' ? 'Ticket Package' : 'Guest Package') + '</div>';
+                        html += '</div>';
+                        html += '</div>';
+                        html += '<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;">';
+                        html += '<div style="background:rgba(15,23,42,0.45);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;">';
+                        html += '<div style="font-size:0.72rem;color:#94a3b8;margin-bottom:4px;">Quantity</div>';
+                        html += '<div style="font-weight:700;color:#fbbf24;">' + esc(qtyLabel) + '</div>';
+                        html += '</div>';
+                        html += '<div style="background:rgba(15,23,42,0.45);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;">';
+                        html += '<div style="font-size:0.72rem;color:#94a3b8;margin-bottom:4px;">Unit Price</div>';
+                        html += '<div style="font-weight:700;color:#e0e7ff;">' + (item.unitPrice == null ? 'N/A' : money(item.unitPrice)) + '</div>';
+                        html += '</div>';
+                        html += '<div style="background:rgba(15,23,42,0.45);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;">';
+                        html += '<div style="font-size:0.72rem;color:#94a3b8;margin-bottom:4px;">Package Total</div>';
+                        html += '<div style="font-weight:700;color:#34d399;">' + (item.packageSubtotal == null ? 'N/A' : money(item.packageSubtotal)) + '</div>';
+                        html += '</div>';
+                        html += '</div>';
+                        if (Array.isArray(item.addons) && item.addons.length) {
+                            html += '<div style="margin-top:10px;border-left:2px solid rgba(251,191,36,0.28);padding-left:12px;">';
+                            html += '<div style="color:#94a3b8;font-size:0.8rem;margin-bottom:6px;font-weight:600;">Add-ons</div>';
+                            item.addons.forEach(function(addon) {
+                                var addonText = addon.name + ' x' + addon.quantity;
+                                if (addon.unitPrice != null && addon.lineTotal != null) {
+                                    addonText += ' @ ' + money(addon.unitPrice) + ' = ' + money(addon.lineTotal);
+                                } else if (addon.lineTotal != null) {
+                                    addonText += ' = ' + money(addon.lineTotal);
+                                }
+                                html += '<div style="color:#e0e7ff;font-size:0.85rem;margin-bottom:4px;">• ' + esc(addonText) + '</div>';
+                            });
+                            html += '</div>';
+                        }
+                        html += '</div>';
+                    });
+                } else {
+                    html += '<div style="color:#94a3b8;font-size:0.9rem;">No package or add-on details available.</div>';
+                }
+                html += '</div>';
+                html += '</div>';
+
                 html += '<div class="col-md-6">';
                 html += '<div class="txn-detail-card">';
                 html += '<div class="txn-detail-title">Guest & Reservation</div>';
@@ -2304,7 +2493,6 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row('Email', $(this).data('package_email') || '');
                 html += row('Phone', $(this).data('package_phone') || '');
                 html += row('DOB', formatDateUS($(this).data('package_dob')));
-                html += row('Order Items', $(this).data('package_id') || '');
                 html += row('Date Of Use', formatDateUS($(this).data('package_use_date')));
                 html += row('Guests', guestsDisplay);
                 html += row('Host Name', $(this).data('host_name') || 'N/A');
@@ -2315,31 +2503,74 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += '<div class="col-md-6">';
                 html += '<div class="txn-detail-card">';
                 html += '<div class="txn-detail-title">Payment & Charges</div>';
+                if (breakdownData && typeof breakdownData === 'object') {
+                    html += line('Items Subtotal', money(breakdownData.items_subtotal));
+                    if (parseFloat(breakdownData.promo_discount) > 0) {
+                        html += line('Discount', '-' + money(breakdownData.promo_discount), { color: '#34d399' });
+                    }
+                    if (breakdownData.service_charge && breakdownData.service_charge.enabled) {
+                        html += line(breakdownData.service_charge.name || 'Service Charge', money(breakdownData.service_charge.amount));
+                    }
+                    if (breakdownData.gratuity && breakdownData.gratuity.enabled) {
+                        html += line(breakdownData.gratuity.name || 'Gratuity', money(breakdownData.gratuity.amount));
+                    }
+                    if (breakdownData.sales_tax && breakdownData.sales_tax.enabled) {
+                        html += line(breakdownData.sales_tax.name || 'Sales Tax', money(breakdownData.sales_tax.amount));
+                    }
+                    if (breakdownData.processing_fee && breakdownData.processing_fee.enabled) {
+                        html += line('Processing Fee', money(breakdownData.processing_fee.amount));
+                    }
+                    html += line('Grand Total', money(breakdownData.grand_total), { color: '#fbbf24', weight: '700', border: true });
+                    if (breakdownData.refundable && breakdownData.refundable.enabled && parseFloat(breakdownData.refundable.amount) > 0) {
+                        html += line((breakdownData.refundable.name || 'Non-refundable Deposit') + ' (incl. in total)', money(breakdownData.refundable.amount), { color: '#94a3b8', weight: '500' });
+                    }
+                    html += line('Amount Paid', money(breakdownData.amount_paid_now), { color: '#34d399', weight: '700' });
+                    if (parseFloat(breakdownData.remaining_due) > 0) {
+                        html += line('Remaining Due', money(breakdownData.remaining_due), { color: '#ef4444', weight: '700' });
+                    }
+                } else {
+                    html += row('Promo Code', $(this).data('promo_code') || 'N/A');
+                    html += row('Discounted Amount', money($(this).data('discounted_amount') || 0));
+                    html += row('Subtotal', money(totalAmount));
+                    html += row('Gratuity', money($(this).data('gratuity') || 0));
+                    html += row('Service Charge', money($(this).data('service_charge') || 0));
+                    html += row('Processing Fee', money($(this).data('processing_fee') || 0));
+                    html += row('Non Refundable Deposit', money($(this).data('refundable') || 0));
+                    html += row('Amount Paid', money(amountPaid));
+                    html += row('Amount Due', money(dueAmount));
+                }
+                html += '</div>';
+                html += '</div>';
+
+                html += '<div class="col-md-6">';
+                html += '<div class="txn-detail-card">';
+                html += '<div class="txn-detail-title">Transportation</div>';
+                html += row('Transport Mode', transportMode);
+                html += row('Pickup Time', formatPickupTime($(this).data('transportation_pickup_time')));
+                html += row('Transport Phone', $(this).data('transportation_phone') || 'N/A');
+                html += row('Transport Address', $(this).data('transportation_address') || 'N/A');
+                html += row('Transport Note', $(this).data('transportation_note') || 'N/A');
+                html += '</div>';
+                html += '</div>';
+
+                html += '<div class="col-md-6">';
+                html += '<div class="txn-detail-card">';
+                html += '<div class="txn-detail-title">Payment Contact</div>';
                 html += row('Payment Name', ($(this).data('payment_first_name') || '') + ' ' + ($(this).data('payment_last_name') || ''));
                 html += row('Payment Email', $(this).data('payment_email') || '');
                 html += row('Payment Phone', $(this).data('payment_phone') || 'N/A');
                 html += row('Payment Address', [$(this).data('payment_address'), $(this).data('payment_city'), $(this).data('payment_state'), $(this).data('payment_zip_code')].filter(Boolean).join(', '));
                 html += row('Payment Country', $(this).data('payment_country') || 'N/A');
                 html += row('Payment DOB', formatDateUS($(this).data('payment_dob')));
-                html += row('Promo Code', $(this).data('promo_code') || 'N/A');
-                html += row('Discounted Amount', money($(this).data('discounted_amount') || 0));
-                html += row('Subtotal', money(totalAmount));
-                html += row('Gratuity', money($(this).data('gratuity') || 0));
-                html += row('Service Charge', money($(this).data('service_charge') || 0));
-                html += row('Processing Fee', money($(this).data('processing_fee') || 0));
-                html += row('Non Refundable Deposit', money($(this).data('refundable') || 0));
-                html += row('Amount Paid', money(amountPaid));
-                html += row('Amount Due', money(dueAmount));
                 html += '</div>';
                 html += '</div>';
 
                 html += '<div class="col-md-6">';
                 html += '<div class="txn-detail-card">';
-                html += '<div class="txn-detail-title">Source & Fee</div>';
+                html += '<div class="txn-detail-title">Source & Fees</div>';
                 html += row('Source', source);
                 html += row('Type', $(this).data('type') || 'N/A');
                 html += row('Event ID', $(this).data('event_id') || 'N/A');
-                html += row('Add-ons', $(this).data('addons') || 'N/A');
                 html += row('Total Fee', money($(this).data('total_commission') || 0));
                 if (affiliateName || affAmt > 0 || affPct > 0 || affStatus) {
                     html += row('Promoter Fee', (affiliateName || 'N/A') + ' | ' + affPct.toFixed(2) + '% | ' + money(affAmt) + (affStatus ? (' | ' + affStatus.toUpperCase()) : '') + (affHold ? (' | ' + affHold) : ''));
@@ -2347,21 +2578,18 @@ body.modal-open .admin-mobile-menu-toggle {
                 if (entertainerName || entAmt > 0 || entPct > 0 || entStatus) {
                     html += row('Entertainer Fee', (entertainerName || 'N/A') + ' | ' + entPct.toFixed(2) + '% | ' + money(entAmt) + (entStatus ? (' | ' + entStatus.toUpperCase()) : '') + (entHold ? (' | ' + entHold) : ''));
                 }
-                html += row('IP Address', $(this).data('ip_address') || '');
                 html += '</div>';
                 html += '</div>';
 
                 html += '<div class="col-md-6">';
                 html += '<div class="txn-detail-card">';
-                html += '<div class="txn-detail-title">Transport & Business</div>';
-                html += row('Transport Mode', transportMode);
-                html += row('Pickup Time', formatPickupTime($(this).data('transportation_pickup_time')));
-                html += row('Transport Phone', $(this).data('transportation_phone') || 'N/A');
-                html += row('Transport Address', $(this).data('transportation_address') || 'N/A');
-                html += row('Transport Note', $(this).data('transportation_note') || 'N/A');
+                html += '<div class="txn-detail-title">Audit & Business</div>';
+                html += row('Check-In Status', checkedInStatus ? 'Checked In' : 'Not Checked In');
+                html += row('Check-In Time (PT)', checkedInAtPacific || 'N/A');
                 html += row('Terms Accepted', 'Yes');
                 html += row('SMS Accepted', 'Yes');
                 html += row('Business Info', businessInfo || 'N/A');
+                html += row('IP Address', $(this).data('ip_address') || '');
                 html += '</div>';
                 html += '</div>';
                 html += '</div>';
