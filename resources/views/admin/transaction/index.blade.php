@@ -2531,7 +2531,11 @@ body.modal-open .admin-mobile-menu-toggle {
                 var orderDateMain = String($(this).closest('tr').find('.txn-date-main').text() || '').trim();
                 var orderDateTime = String($(this).closest('tr').find('.txn-date-time').text() || '').trim();
                 var orderDate = [orderDateMain, orderDateTime].filter(Boolean).join(' ') || 'N/A';
-                var transportationDate = formatDateUS($(this).data('package-use-date') || $(this).data('package_use_date') || '');
+                var transportationDateRaw = String($(this).data('package-use-date') || $(this).data('package_use_date') || '').trim();
+                var transportationDate = formatDateUS(transportationDateRaw);
+                if (transportationDate === 'N/A' && transportationDateRaw) {
+                    transportationDate = transportationDateRaw;
+                }
                 var transportationPickup = String($(this).data('transportation_pickup_time') || '').trim();
                 var transportationAddress = String($(this).data('transportation_address') || '').trim();
                 var transportationPhone = String($(this).data('transportation_phone') || '').trim();
@@ -2539,6 +2543,32 @@ body.modal-open .admin-mobile-menu-toggle {
                 var hasTransportation = [transportationPickup, transportationAddress, transportationPhone, transportationNote].some(function(v) {
                     return v !== '';
                 });
+                var parseAddonLabel = function(label) {
+                    var raw = String(label || '').trim();
+                    if (!raw) {
+                        return null;
+                    }
+                    var match = raw.match(/^(.*?)\s*x\s*(\d+)(?:\s*\(\s*\$?([\d.]+)\s*\))?$/i);
+                    if (!match) {
+                        return {
+                            name: raw,
+                            quantity: 1,
+                            unitPrice: null,
+                            lineTotal: null,
+                            raw: raw
+                        };
+                    }
+                    var name = String(match[1] || '').trim() || 'Add-on';
+                    var quantity = Math.max(1, parseInt(match[2] || '1', 10) || 1);
+                    var unitPrice = match[3] != null ? (parseFloat(match[3]) || 0) : null;
+                    return {
+                        name: name,
+                        quantity: quantity,
+                        unitPrice: unitPrice,
+                        lineTotal: unitPrice == null ? null : (unitPrice * quantity),
+                        raw: raw
+                    };
+                };
 
                 var html = '<div>';
 
@@ -2558,13 +2588,28 @@ body.modal-open .admin-mobile-menu-toggle {
                     packageLineupItems.forEach(function(item) {
                         var qtyText = String(item.quantity) + ' ' + (item.packageType === 'ticket' ? 'tickets' : 'guests');
                         var itemAddons = Array.isArray(item.addonLabels) ? item.addonLabels : [];
+                        var addonEntries = itemAddons.map(parseAddonLabel).filter(Boolean);
+                        var addonQtyTotal = addonEntries.reduce(function(sum, addon) { return sum + (addon.quantity || 0); }, 0);
+                        var addonPriceTotal = addonEntries.reduce(function(sum, addon) { return sum + (addon.lineTotal || 0); }, 0);
+                        var hasAddonPrice = addonEntries.some(function(addon) { return addon.unitPrice != null; });
                         html += '<div style="padding:7px 8px;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);margin-bottom:6px;">';
                         html += '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">';
                         html += '<span style="color:#e2e8f0;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(item.name) + '</span>';
                         html += '<span style="color:#fbbf24;font-weight:700;white-space:nowrap;">x ' + esc(qtyText) + '</span>';
                         html += '</div>';
-                        if (itemAddons.length) {
-                            html += '<div style="margin-top:6px;font-size:0.78rem;color:#93c5fd;line-height:1.45;">Add-ons: ' + esc(itemAddons.join(', ')) + '</div>';
+                        if (addonEntries.length) {
+                            html += '<div style="margin-top:6px;font-size:0.78rem;color:#93c5fd;line-height:1.45;font-weight:700;">Add-ons: ' + esc(String(addonEntries.length)) + ' | Qty: ' + esc(String(addonQtyTotal));
+                            if (hasAddonPrice) {
+                                html += ' | Total: $' + addonPriceTotal.toFixed(2);
+                            }
+                            html += '</div>';
+                            addonEntries.forEach(function(addon) {
+                                var addonLine = addon.name + ' x' + addon.quantity;
+                                if (addon.unitPrice != null) {
+                                    addonLine += ' @ $' + addon.unitPrice.toFixed(2) + ' = $' + addon.lineTotal.toFixed(2);
+                                }
+                                html += '<div style="margin-top:3px;font-size:0.76rem;color:#cbd5e1;line-height:1.35;">- ' + esc(addonLine) + '</div>';
+                            });
                         }
                         html += '</div>';
                     });
@@ -2598,6 +2643,10 @@ body.modal-open .admin-mobile-menu-toggle {
                         var itemUnitPrice = typeof item.unitPrice === 'number' ? item.unitPrice : null;
                         var itemLineTotal = typeof item.lineTotal === 'number' ? item.lineTotal : null;
                         var itemAddons = Array.isArray(item.addonLabels) ? item.addonLabels : [];
+                        var addonEntries = itemAddons.map(parseAddonLabel).filter(Boolean);
+                        var addonQtyTotal = addonEntries.reduce(function(sum, addon) { return sum + (addon.quantity || 0); }, 0);
+                        var addonPriceTotal = addonEntries.reduce(function(sum, addon) { return sum + (addon.lineTotal || 0); }, 0);
+                        var hasAddonPrice = addonEntries.some(function(addon) { return addon.unitPrice != null; });
                         html += '<div class="package-item" style="background:#1e293b;border:1px solid rgba(255,255,255,0.1);padding:12px;border-radius:8px;margin-bottom:10px;">';
                         html += '<div style="display:flex;justify-content:space-between;align-items:start;gap:12px;margin-bottom:8px;">';
                         html += '<div style="min-width:0;">';
@@ -2624,11 +2673,19 @@ body.modal-open .admin-mobile-menu-toggle {
                         html += '</div>';
                         html += '</div>';
 
-                        if (itemAddons.length) {
+                        if (addonEntries.length) {
                             html += '<div style="margin-top:10px;border-left:2px solid rgba(251,191,36,0.28);padding-left:12px;">';
-                            html += '<div style="color:#94a3b8;font-size:0.8rem;margin-bottom:6px;font-weight:600;">Add-ons (' + esc(String(itemAddons.length)) + ')</div>';
-                            itemAddons.forEach(function(addonLabel) {
-                                html += '<div style="color:#e0e7ff;font-size:0.85rem;margin-bottom:4px;">• ' + esc(addonLabel) + '</div>';
+                            html += '<div style="color:#94a3b8;font-size:0.8rem;margin-bottom:6px;font-weight:600;">Add-ons (' + esc(String(addonEntries.length)) + ') | Qty: ' + esc(String(addonQtyTotal));
+                            if (hasAddonPrice) {
+                                html += ' | Total: $' + addonPriceTotal.toFixed(2);
+                            }
+                            html += '</div>';
+                            addonEntries.forEach(function(addon) {
+                                var addonLine = addon.name + ' x' + addon.quantity;
+                                if (addon.unitPrice != null) {
+                                    addonLine += ' @ $' + addon.unitPrice.toFixed(2) + ' = $' + addon.lineTotal.toFixed(2);
+                                }
+                                html += '<div style="color:#e0e7ff;font-size:0.85rem;margin-bottom:4px;">• ' + esc(addonLine) + '</div>';
                             });
                             html += '</div>';
                         }
