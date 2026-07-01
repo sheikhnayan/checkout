@@ -2504,21 +2504,37 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += '<div class="txn-detail-card">';
                 html += '<div class="txn-detail-title">Payment & Charges</div>';
                 if (breakdownData && typeof breakdownData === 'object') {
-                    html += line('Items Subtotal', money(breakdownData.items_subtotal));
+                    html += line('Subtotal', money(breakdownData.items_subtotal));
                     if (parseFloat(breakdownData.promo_discount) > 0) {
-                        html += line('Discount', '-' + money(breakdownData.promo_discount), { color: '#34d399' });
+                        html += line('Discounted Amount', '-' + money(breakdownData.promo_discount), { color: '#34d399' });
+                    } else {
+                        html += line('Discounted Amount', money(0));
+                    }
+                    if (!(breakdownData.service_charge && breakdownData.service_charge.enabled)) {
+                        html += line('Service Charge', money(0));
                     }
                     if (breakdownData.service_charge && breakdownData.service_charge.enabled) {
-                        html += line(breakdownData.service_charge.name || 'Service Charge', money(breakdownData.service_charge.amount));
+                        html += line('Service Charge', money(breakdownData.service_charge.amount));
+                    }
+                    if (!(breakdownData.gratuity && breakdownData.gratuity.enabled)) {
+                        html += line('Gratuity', money(0));
                     }
                     if (breakdownData.gratuity && breakdownData.gratuity.enabled) {
-                        html += line(breakdownData.gratuity.name || 'Gratuity', money(breakdownData.gratuity.amount));
+                        html += line('Gratuity', money(breakdownData.gratuity.amount));
                     }
                     if (breakdownData.sales_tax && breakdownData.sales_tax.enabled) {
                         html += line(breakdownData.sales_tax.name || 'Sales Tax', money(breakdownData.sales_tax.amount));
                     }
+                    if (!(breakdownData.processing_fee && breakdownData.processing_fee.enabled)) {
+                        html += line('Processing Fee', money(0));
+                    }
                     if (breakdownData.processing_fee && breakdownData.processing_fee.enabled) {
                         html += line('Processing Fee', money(breakdownData.processing_fee.amount));
+                    }
+                    if (breakdownData.refundable && breakdownData.refundable.enabled && parseFloat(breakdownData.refundable.amount) > 0) {
+                        html += line('Non Refundable Deposit', money(breakdownData.refundable.amount));
+                    } else {
+                        html += line('Non Refundable Deposit', money(0));
                     }
                     html += line('Grand Total', money(breakdownData.grand_total), { color: '#fbbf24', weight: '700', border: true });
                     if (breakdownData.refundable && breakdownData.refundable.enabled && parseFloat(breakdownData.refundable.amount) > 0) {
@@ -2526,7 +2542,9 @@ body.modal-open .admin-mobile-menu-toggle {
                     }
                     html += line('Amount Paid', money(breakdownData.amount_paid_now), { color: '#34d399', weight: '700' });
                     if (parseFloat(breakdownData.remaining_due) > 0) {
-                        html += line('Remaining Due', money(breakdownData.remaining_due), { color: '#ef4444', weight: '700' });
+                        html += line('Amount Due', money(breakdownData.remaining_due), { color: '#ef4444', weight: '700' });
+                    } else {
+                        html += line('Amount Due', money(0), { color: '#ef4444', weight: '700' });
                     }
                 } else {
                     html += row('Promo Code', $(this).data('promo_code') || 'N/A');
