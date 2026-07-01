@@ -2417,7 +2417,30 @@ body.modal-open .admin-mobile-menu-toggle {
                         .replace(/'/g, '&#39;');
                 };
                 var rawCartItems = $(this).data('cart-items') || [];
-                var cartItems = Array.isArray(rawCartItems) ? rawCartItems : (window.parseJsonLike ? window.parseJsonLike(rawCartItems) : []);
+                var parsedCartItems = Array.isArray(rawCartItems) ? rawCartItems : (window.parseJsonLike ? window.parseJsonLike(rawCartItems) : []);
+                var normalizeCartItems = function(value) {
+                    if (Array.isArray(value)) {
+                        return value;
+                    }
+                    if (!value || typeof value !== 'object') {
+                        return [];
+                    }
+                    if (Array.isArray(value.items)) {
+                        return value.items;
+                    }
+                    if (Array.isArray(value.cart_items)) {
+                        return value.cart_items;
+                    }
+                    if (Array.isArray(value.cartItems)) {
+                        return value.cartItems;
+                    }
+                    var objectValues = Object.values(value || {});
+                    if (objectValues.length && objectValues.every(function(v) { return v && typeof v === 'object'; })) {
+                        return objectValues;
+                    }
+                    return [];
+                };
+                var cartItems = normalizeCartItems(parsedCartItems);
                 var transactionType = $(this).data('transaction-type') || 'package';
                 var menCount = $(this).data('men') || 0;
                 var womenCount = $(this).data('women') || 0;
@@ -2592,28 +2615,6 @@ body.modal-open .admin-mobile-menu-toggle {
                         raw: raw
                     };
                 };
-                var knownPackageLineTotal = packageLineupItems.reduce(function(sum, item) {
-                    return sum + (typeof item.lineTotal === 'number' ? item.lineTotal : 0);
-                }, 0);
-                var unpricedAddonQtyTotal = 0;
-                packageLineupItems.forEach(function(item) {
-                    var labels = Array.isArray(item.addonLabels) ? item.addonLabels : [];
-                    labels.map(parseAddonLabel).forEach(function(addon) {
-                        if (addon && addon.unitPrice == null) {
-                            unpricedAddonQtyTotal += addon.quantity || 0;
-                        }
-                    });
-                });
-                var fallbackAddonUnitPrice = null;
-                if (breakdownData && unpricedAddonQtyTotal > 0) {
-                    var itemsSubtotalVal = parseFloat(breakdownData.items_subtotal);
-                    if (!isNaN(itemsSubtotalVal)) {
-                        var addonPool = itemsSubtotalVal - knownPackageLineTotal;
-                        if (addonPool > 0) {
-                            fallbackAddonUnitPrice = addonPool / unpricedAddonQtyTotal;
-                        }
-                    }
-                }
 
                 var html = '<div>';
 
@@ -2634,33 +2635,16 @@ body.modal-open .admin-mobile-menu-toggle {
                         var qtyText = String(item.quantity) + ' ' + (item.packageType === 'ticket' ? 'tickets' : 'guests');
                         var itemAddons = Array.isArray(item.addonLabels) ? item.addonLabels : [];
                         var addonEntries = itemAddons.map(parseAddonLabel).filter(Boolean);
-                        if (fallbackAddonUnitPrice != null) {
-                            addonEntries.forEach(function(addon) {
-                                if (addon.unitPrice == null) {
-                                    addon.unitPrice = fallbackAddonUnitPrice;
-                                    addon.lineTotal = fallbackAddonUnitPrice * (addon.quantity || 1);
-                                }
-                            });
-                        }
                         var addonQtyTotal = addonEntries.reduce(function(sum, addon) { return sum + (addon.quantity || 0); }, 0);
-                        var addonPriceTotal = addonEntries.reduce(function(sum, addon) { return sum + (addon.lineTotal || 0); }, 0);
-                        var hasAddonPrice = addonEntries.some(function(addon) { return addon.unitPrice != null; });
                         html += '<div style="padding:7px 8px;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);margin-bottom:6px;">';
                         html += '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">';
                         html += '<span style="color:#e2e8f0;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(item.name) + '</span>';
                         html += '<span style="color:#fbbf24;font-weight:700;white-space:nowrap;">x ' + esc(qtyText) + '</span>';
                         html += '</div>';
                         if (addonEntries.length) {
-                            html += '<div style="margin-top:6px;font-size:0.78rem;color:#93c5fd;line-height:1.45;font-weight:700;">Add-ons: ' + esc(String(addonEntries.length)) + ' | Qty: ' + esc(String(addonQtyTotal));
-                            if (hasAddonPrice) {
-                                html += ' | Total: $' + addonPriceTotal.toFixed(2);
-                            }
-                            html += '</div>';
+                            html += '<div style="margin-top:6px;font-size:0.78rem;color:#93c5fd;line-height:1.45;font-weight:700;">Add-ons: ' + esc(String(addonEntries.length)) + ' | Qty: ' + esc(String(addonQtyTotal)) + '</div>';
                             addonEntries.forEach(function(addon) {
                                 var addonLine = addon.name + ' x' + addon.quantity;
-                                if (addon.unitPrice != null) {
-                                    addonLine += ' @ $' + addon.unitPrice.toFixed(2) + ' = $' + addon.lineTotal.toFixed(2);
-                                }
                                 html += '<div style="margin-top:3px;font-size:0.76rem;color:#cbd5e1;line-height:1.35;">- ' + esc(addonLine) + '</div>';
                             });
                         }
@@ -2697,14 +2681,6 @@ body.modal-open .admin-mobile-menu-toggle {
                         var itemLineTotal = typeof item.lineTotal === 'number' ? item.lineTotal : null;
                         var itemAddons = Array.isArray(item.addonLabels) ? item.addonLabels : [];
                         var addonEntries = itemAddons.map(parseAddonLabel).filter(Boolean);
-                        if (fallbackAddonUnitPrice != null) {
-                            addonEntries.forEach(function(addon) {
-                                if (addon.unitPrice == null) {
-                                    addon.unitPrice = fallbackAddonUnitPrice;
-                                    addon.lineTotal = fallbackAddonUnitPrice * (addon.quantity || 1);
-                                }
-                            });
-                        }
                         var addonQtyTotal = addonEntries.reduce(function(sum, addon) { return sum + (addon.quantity || 0); }, 0);
                         var addonPriceTotal = addonEntries.reduce(function(sum, addon) { return sum + (addon.lineTotal || 0); }, 0);
                         var hasAddonPrice = addonEntries.some(function(addon) { return addon.unitPrice != null; });
