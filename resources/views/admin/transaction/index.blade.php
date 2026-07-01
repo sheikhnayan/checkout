@@ -296,6 +296,18 @@ body.modal-open .admin-mobile-menu-toggle {
     margin-bottom: 10px;
 }
 
+#viewTransactionModal .txn-section-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+@media (max-width: 768px) {
+    #viewTransactionModal .txn-section-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 #viewTransactionModal .txn-detail-row {
     display: flex;
     justify-content: space-between;
@@ -2406,7 +2418,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     statusClass = 'txn-status-refunded';
                 }
                 var row = window.txnDetailRow || function(label, value) {
-                    return '<div class="txn-detail-row"><span class="txn-detail-label">' + esc(label) + '</span><span class="txn-detail-value">' + esc(value) + '</span></div>';
+                    return '<div class="txn-detail-row"><span class="txn-detail-label">' + esc(label) + ':</span><span class="txn-detail-value">' + esc(value) + '</span></div>';
                 };
                 var formatDateUS = window.formatDateUS || function(dateValue) {
                     var raw = String(dateValue || '').trim();
@@ -2452,11 +2464,20 @@ body.modal-open .admin-mobile-menu-toggle {
                 var html = '<div>';
 
                 html += '<div class="txn-detail-card txn-hero-card" style="margin-bottom:16px;">';
-                html += '<div class="txn-detail-title">Purchase Details</div>';
+                html += '<div class="txn-detail-title" style="margin-bottom:12px;">Purchase Details</div>';
+                html += '<div class="txn-section-grid">';
+                html += '<div class="txn-detail-card" style="margin-bottom:0;">';
+                html += '<div class="txn-detail-title">Customer Details</div>';
                 html += row('Customer', customerName);
                 html += row('Customer Email', customerEmail);
                 html += row('Customer Phone', customerPhone);
                 html += row('Customer DOB', customerDob);
+                html += row('Host Name', $(this).data('host_name') || 'N/A');
+                html += row('Notes', $(this).data('package_note') || 'N/A');
+                html += '</div>';
+
+                html += '<div class="txn-detail-card" style="margin-bottom:0;">';
+                html += '<div class="txn-detail-title">Booking Details</div>';
                 html += row('Order ID', orderId);
                 html += row('Confirmation #', confirmationNumber);
                 html += row('Package Summary', purchaseSummaryTitle);
@@ -2467,13 +2488,24 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row('Transaction Type', transactionType.charAt(0).toUpperCase() + transactionType.slice(1));
                 html += row('Order Date', $(this).data('date') || 'N/A');
                 html += row('Website / Venue', $(this).data('website_id') || 'N/A');
-                html += row('Host Name', $(this).data('host_name') || 'N/A');
+                html += row('Status', statusText);
+                html += '</div>';
+
+                html += '<div class="txn-detail-card" style="margin-bottom:0;">';
+                html += '<div class="txn-detail-title">Payment Details</div>';
                 html += row('Payment Name', paymentName);
                 html += row('Payment Email', paymentEmail);
                 html += row('Payment Phone', paymentPhone);
                 html += row('Payment Address', paymentAddress);
-                html += row('Notes', $(this).data('package_note') || 'N/A');
+                html += '</div>';
+
+                html += '<div class="txn-detail-card" style="margin-bottom:0;">';
+                html += '<div class="txn-detail-title">Summary</div>';
+                html += row('Customer', customerName);
+                html += row('Order ID', orderId);
+                html += row('Confirmation #', confirmationNumber);
                 html += row('Status', statusText);
+                html += '</div>';
                 html += '</div>';
 
                 // Display packages with details
