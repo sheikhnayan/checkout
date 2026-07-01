@@ -2418,6 +2418,10 @@ body.modal-open .admin-mobile-menu-toggle {
                 };
                 var rawCartItems = $(this).data('cart-items') || [];
                 var parsedCartItems = Array.isArray(rawCartItems) ? rawCartItems : (window.parseJsonLike ? window.parseJsonLike(rawCartItems) : []);
+                var breakdownData = $(this).data('breakdown');
+                if (!breakdownData || typeof breakdownData !== 'object') {
+                    breakdownData = null;
+                }
                 var normalizeCartItems = function(value) {
                     if (Array.isArray(value)) {
                         return value;
@@ -2449,6 +2453,63 @@ body.modal-open .admin-mobile-menu-toggle {
                 var confirmationNumber = $(this).data('confirmation-number') || 'N/A';
                 var packageLabel = String($(this).data('package-label') || '').trim();
                 var packageSummary = window.summarizePackageItems ? window.summarizePackageItems(cartItems) : { items: [], totalQuantity: 0, totalAddons: 0, addonSummaryText: '', summaryText: packageLabel };
+                var breakdownItems = [];
+                if (breakdownData && Array.isArray(breakdownData.items)) {
+                    breakdownItems = breakdownData.items.map(function(rawItem) {
+                        if (!rawItem || typeof rawItem !== 'object') {
+                            return null;
+                        }
+
+                        var qty = Math.max(1, parseInt(rawItem.guests || rawItem.quantity || 1, 10) || 1);
+                        var isMultiple = !!rawItem.is_multiple;
+                        var unitPriceRaw = parseFloat(rawItem.unit_price);
+                        var packageSubtotalRaw = parseFloat(rawItem.package_subtotal);
+                        var lineTotalRaw = parseFloat(rawItem.line_total);
+                        var resolvedUnitPrice = isNaN(unitPriceRaw) ? null : unitPriceRaw;
+                        var resolvedLineTotal = !isNaN(packageSubtotalRaw)
+                            ? packageSubtotalRaw
+                            : (!isNaN(lineTotalRaw) ? lineTotalRaw : (resolvedUnitPrice == null ? null : (resolvedUnitPrice * qty)));
+
+                        var structuredAddons = Array.isArray(rawItem.addons) ? rawItem.addons.map(function(addon) {
+                            if (!addon || typeof addon !== 'object') {
+                                return null;
+                            }
+                            var addonName = String(addon.name || '').trim();
+                            if (!addonName) {
+                                return null;
+                            }
+                            var addonQty = Math.max(1, parseInt(addon.qty || addon.quantity || 1, 10) || 1);
+                            var addonUnit = parseFloat(addon.unit_price);
+                            var addonLine = parseFloat(addon.price);
+                            var resolvedAddonUnit = isNaN(addonUnit) ? null : addonUnit;
+                            var resolvedAddonLine = isNaN(addonLine)
+                                ? (resolvedAddonUnit == null ? null : (resolvedAddonUnit * addonQty))
+                                : addonLine;
+                            return {
+                                name: addonName,
+                                quantity: addonQty,
+                                unitPrice: resolvedAddonUnit,
+                                lineTotal: resolvedAddonLine
+                            };
+                        }).filter(Boolean) : [];
+
+                        return {
+                            name: String(rawItem.package_name || rawItem.packageName || rawItem.name || 'Package').trim(),
+                            quantity: qty,
+                            packageType: String(rawItem.package_type || rawItem.type || rawItem.packageType || '').toLowerCase() || 'package',
+                            unitPrice: resolvedUnitPrice,
+                            lineTotal: resolvedLineTotal,
+                            addonLabels: structuredAddons.map(function(addon) {
+                                var label = addon.name + ' x' + addon.quantity;
+                                if (addon.unitPrice != null) {
+                                    label += ' ($' + addon.unitPrice.toFixed(2) + ')';
+                                }
+                                return label;
+                            }),
+                            addonsStructured: structuredAddons
+                        };
+                    }).filter(Boolean);
+                }
                 var statusValue = $(this).data('status');
                 var statusText = 'Unknown';
                 var statusClass = 'txn-status-unknown';
@@ -2491,7 +2552,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 var totalUnits = packageSummary.totalQuantity || packageGuestCount || 0;
                 var addonDetails = $(this).data('addons') || packageSummary.addonSummaryText || 'N/A';
                 var purchaseSummaryTitle = packageLabel || packageSummary.summaryText || 'Package Details';
-                var packageLineupItems = packageSummary.items.slice();
+                var packageLineupItems = breakdownItems.length ? breakdownItems.slice() : packageSummary.items.slice();
                 if (!packageLineupItems.length && purchaseSummaryTitle && purchaseSummaryTitle !== 'Package Details') {
                     purchaseSummaryTitle.split(/\s*[;,]\s*/).filter(Boolean).forEach(function(part) {
                         var text = String(part).trim();
@@ -2585,10 +2646,6 @@ body.modal-open .admin-mobile-menu-toggle {
                 var hasTransportation = [transportationPickup, transportationAddress, transportationPhone, transportationNote].some(function(v) {
                     return v !== '';
                 });
-                var breakdownData = $(this).data('breakdown');
-                if (!breakdownData || typeof breakdownData !== 'object') {
-                    breakdownData = null;
-                }
                 var parseAddonLabel = function(label) {
                     var raw = String(label || '').trim();
                     if (!raw) {
@@ -2679,8 +2736,16 @@ body.modal-open .admin-mobile-menu-toggle {
                     packageLineupItems.forEach(function(item, index) {
                         var itemUnitPrice = typeof item.unitPrice === 'number' ? item.unitPrice : null;
                         var itemLineTotal = typeof item.lineTotal === 'number' ? item.lineTotal : null;
-                        var itemAddons = Array.isArray(item.addonLabels) ? item.addonLabels : [];
-                        var addonEntries = itemAddons.map(parseAddonLabel).filter(Boolean);
+                        var addonEntries = Array.isArray(item.addonsStructured) && item.addonsStructured.length
+                            ? item.addonsStructured.map(function(addon) {
+                                return {
+                                    name: addon.name,
+                                    quantity: addon.quantity,
+                                    unitPrice: addon.unitPrice,
+                                    lineTotal: addon.lineTotal
+                                };
+                            })
+                            : (Array.isArray(item.addonLabels) ? item.addonLabels.map(parseAddonLabel).filter(Boolean) : []);
                         var addonQtyTotal = addonEntries.reduce(function(sum, addon) { return sum + (addon.quantity || 0); }, 0);
                         var addonPriceTotal = addonEntries.reduce(function(sum, addon) { return sum + (addon.lineTotal || 0); }, 0);
                         var hasAddonPrice = addonEntries.some(function(addon) { return addon.unitPrice != null; });
