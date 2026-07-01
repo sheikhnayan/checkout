@@ -2485,6 +2485,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 var orderDateMain = String($(this).closest('tr').find('.txn-date-main').text() || '').trim();
                 var orderDateTime = String($(this).closest('tr').find('.txn-date-time').text() || '').trim();
                 var orderDate = [orderDateMain, orderDateTime].filter(Boolean).join(' ') || 'N/A';
+                var transportationDate = formatDateUS($(this).data('package-use-date') || $(this).data('package_use_date') || '');
                 var transportationPickup = String($(this).data('transportation_pickup_time') || '').trim();
                 var transportationAddress = String($(this).data('transportation_address') || '').trim();
                 var transportationPhone = String($(this).data('transportation_phone') || '').trim();
@@ -2510,9 +2511,15 @@ body.modal-open .admin-mobile-menu-toggle {
                     html += '<div style="font-size:0.78rem;color:#cbd5e1;font-weight:700;margin-bottom:8px;letter-spacing:0.03em;">Package Lineup</div>';
                     packageLineupItems.forEach(function(item) {
                         var qtyText = String(item.quantity) + ' ' + (item.packageType === 'ticket' ? 'tickets' : 'guests');
-                        html += '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;padding:7px 8px;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);margin-bottom:6px;">';
+                        var itemAddons = Array.isArray(item.addonLabels) ? item.addonLabels : [];
+                        html += '<div style="padding:7px 8px;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);margin-bottom:6px;">';
+                        html += '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">';
                         html += '<span style="color:#e2e8f0;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(item.name) + '</span>';
                         html += '<span style="color:#fbbf24;font-weight:700;white-space:nowrap;">x ' + esc(qtyText) + '</span>';
+                        html += '</div>';
+                        if (itemAddons.length) {
+                            html += '<div style="margin-top:6px;font-size:0.78rem;color:#93c5fd;line-height:1.45;">Add-ons: ' + esc(itemAddons.join(', ')) + '</div>';
+                        }
                         html += '</div>';
                     });
                     html += '</div>';
@@ -2528,6 +2535,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += '<div class="txn-detail-card" style="margin-bottom:0;">';
                 html += '<div class="txn-detail-title">Transportation Details</div>';
                 html += row('Transportation', hasTransportation ? 'Provided' : 'Self Drive Selected');
+                html += row('Transportation Date', transportationDate || 'N/A');
                 html += row('Pickup Time', transportationPickup || 'N/A');
                 html += row('Pickup Address', transportationAddress || 'N/A');
                 html += row('Transport Phone', transportationPhone || 'N/A');
