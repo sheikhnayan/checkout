@@ -2070,6 +2070,14 @@ body.modal-open .admin-mobile-menu-toggle {
 
             $(document).on('click', '.view-btn', function() {
                 const transactionId = $(this).data('id');
+                var esc = window.txnEsc || function(value) {
+                    return String(value == null ? '' : value)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&#39;');
+                };
                 var money = function(v){
                     var n = parseFloat(v || 0);
                     return '$' + (isNaN(n) ? 0 : n).toFixed(2);
@@ -2273,7 +2281,8 @@ body.modal-open .admin-mobile-menu-toggle {
                 var backPhotoUrl = backPath ? '{{ route("admin.transaction.id-photo", ["transactionId" => "ID", "side" => "back"]) }}'.replace('ID', transactionId) : '';
 
                 window.txnDetailRow = window.txnDetailRow || function(label, value) {
-                    return '<div class="txn-detail-row"><span class="txn-detail-label">' + esc(label) + '</span><span class="txn-detail-value">' + esc(value) + '</span></div>';
+                    var safeEsc = window.txnEsc || esc;
+                    return '<div class="txn-detail-row"><span class="txn-detail-label">' + safeEsc(label) + ':</span><span class="txn-detail-value">' + safeEsc(value) + '</span></div>';
                 };
 
                 var html = '';
