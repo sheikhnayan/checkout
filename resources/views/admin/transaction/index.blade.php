@@ -2075,7 +2075,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         .replace(/'/g, '&#39;');
                 };
 
-                var parseJsonLike = function(value) {
+                window.parseJsonLike = window.parseJsonLike || function(value) {
                     if (value == null || value === '') {
                         return null;
                     }
@@ -2089,7 +2089,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     }
                 };
 
-                var summarizePackageItems = function(cartItems) {
+                window.summarizePackageItems = window.summarizePackageItems || function(cartItems) {
                     var items = [];
                     var totalQuantity = 0;
                     var totalAddons = 0;
@@ -2219,7 +2219,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 var frontPhotoUrl = frontPath ? '{{ route("admin.transaction.id-photo", ["transactionId" => "ID", "side" => "front"]) }}'.replace('ID', transactionId) : '';
                 var backPhotoUrl = backPath ? '{{ route("admin.transaction.id-photo", ["transactionId" => "ID", "side" => "back"]) }}'.replace('ID', transactionId) : '';
 
-                var row = function(label, value) {
+                window.txnDetailRow = window.txnDetailRow || function(label, value) {
                     return '<div class="txn-detail-row"><span class="txn-detail-label">' + esc(label) + '</span><span class="txn-detail-value">' + esc(value) + '</span></div>';
                 };
 
@@ -2346,7 +2346,7 @@ body.modal-open .admin-mobile-menu-toggle {
             $(document).on('click', '.btn-link-package', function(e) {
                 e.preventDefault();
                 var rawCartItems = $(this).data('cart-items') || [];
-                var cartItems = Array.isArray(rawCartItems) ? rawCartItems : (parseJsonLike(rawCartItems) || []);
+                var cartItems = Array.isArray(rawCartItems) ? rawCartItems : (window.parseJsonLike ? window.parseJsonLike(rawCartItems) : []);
                 var transactionType = $(this).data('transaction-type') || 'package';
                 var menCount = $(this).data('men') || 0;
                 var womenCount = $(this).data('women') || 0;
@@ -2354,7 +2354,10 @@ body.modal-open .admin-mobile-menu-toggle {
                 var orderId = transactionId || 'N/A';
                 var confirmationNumber = $(this).data('confirmation-number') || 'N/A';
                 var packageLabel = String($(this).data('package-label') || '').trim();
-                var packageSummary = summarizePackageItems(cartItems);
+                var packageSummary = window.summarizePackageItems ? window.summarizePackageItems(cartItems) : { items: [], totalQuantity: 0, totalAddons: 0, summaryText: packageLabel };
+                var row = window.txnDetailRow || function(label, value) {
+                    return '<div class="txn-detail-row"><span class="txn-detail-label">' + esc(label) + '</span><span class="txn-detail-value">' + esc(value) + '</span></div>';
+                };
 
                 var html = '<div>';
 
