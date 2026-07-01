@@ -2547,6 +2547,28 @@ body.modal-open .admin-mobile-menu-toggle {
 
                     return raw;
                 };
+                var formatPickupTime = function(timeValue) {
+                    var raw = String(timeValue || '').trim();
+                    if (!raw) {
+                        return 'N/A';
+                    }
+                    if (/\b(?:AM|PM)\b/i.test(raw)) {
+                        return raw.toUpperCase();
+                    }
+
+                    var strict = raw.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+                    if (strict) {
+                        var hours = parseInt(strict[1], 10);
+                        var minutes = strict[2];
+                        if (!isNaN(hours)) {
+                            var ampm = hours >= 12 ? 'PM' : 'AM';
+                            hours = hours % 12 || 12;
+                            return (hours < 10 ? '0' : '') + hours + ':' + minutes + ' ' + ampm;
+                        }
+                    }
+
+                    return raw;
+                };
                 var packageGuestCount = parseInt($(this).data('package_number_of_guest') || 0, 10) || 0;
                 var packageCount = packageSummary.items.length || (packageLabel ? packageLabel.split(/\s*,\s*/).filter(Boolean).length : 0) || (packageGuestCount > 0 ? 1 : 0);
                 var totalUnits = packageSummary.totalQuantity || packageGuestCount || 0;
@@ -2640,6 +2662,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     transportationDate = transportationDateRaw;
                 }
                 var transportationPickup = String($(this).data('transportation_pickup_time') || '').trim();
+                var transportationPickupDisplay = formatPickupTime(transportationPickup);
                 var transportationAddress = String($(this).data('transportation_address') || '').trim();
                 var transportationPhone = String($(this).data('transportation_phone') || '').trim();
                 var transportationNote = String($(this).data('transportation_note') || '').trim();
@@ -2721,7 +2744,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += '<div class="txn-detail-title">Transportation Details</div>';
                 html += row('Transportation', hasTransportation ? 'Provided' : 'Self Drive Selected');
                 html += row('Transportation Date', transportationDate || 'N/A');
-                html += row('Pickup Time', transportationPickup || 'N/A');
+                html += row('Pickup Time', transportationPickupDisplay);
                 html += row('Pickup Address', transportationAddress || 'N/A');
                 html += row('Transport Phone', transportationPhone || 'N/A');
                 html += row('Transport Note', transportationNote || 'N/A');
