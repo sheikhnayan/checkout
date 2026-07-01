@@ -256,7 +256,8 @@ body.modal-open .admin-mobile-menu-toggle {
     color: #bfdbfe;
 }
 
-#viewTransactionModal .txn-detail-card {
+#viewTransactionModal .txn-detail-card,
+#packageDetailsModal .txn-detail-card {
     background: #1e293b;
     border: 1px solid rgba(255,255,255,0.12);
     border-radius: 10px;
@@ -264,14 +265,16 @@ body.modal-open .admin-mobile-menu-toggle {
     margin-bottom: 12px;
 }
 
-#viewTransactionModal .txn-hero-card {
+#viewTransactionModal .txn-hero-card,
+#packageDetailsModal .txn-hero-card {
     background: linear-gradient(135deg, rgba(15,23,42,0.98), rgba(30,41,59,0.96));
     border: 1px solid rgba(124,58,237,0.22);
     box-shadow: 0 18px 40px rgba(2,6,23,0.28);
     padding: 18px;
 }
 
-#viewTransactionModal .txn-summary-grid {
+#viewTransactionModal .txn-summary-grid,
+#packageDetailsModal .txn-summary-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 10px;
@@ -279,36 +282,42 @@ body.modal-open .admin-mobile-menu-toggle {
 }
 
 @media (max-width: 992px) {
-    #viewTransactionModal .txn-summary-grid {
+    #viewTransactionModal .txn-summary-grid,
+    #packageDetailsModal .txn-summary-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
 @media (max-width: 576px) {
-    #viewTransactionModal .txn-summary-grid {
+    #viewTransactionModal .txn-summary-grid,
+    #packageDetailsModal .txn-summary-grid {
         grid-template-columns: 1fr;
     }
 }
 
-#viewTransactionModal .txn-detail-title {
+#viewTransactionModal .txn-detail-title,
+#packageDetailsModal .txn-detail-title {
     color: #e0e7ff;
     font-weight: 700;
     margin-bottom: 10px;
 }
 
-#viewTransactionModal .txn-section-grid {
+#viewTransactionModal .txn-section-grid,
+#packageDetailsModal .txn-section-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
 }
 
 @media (max-width: 768px) {
-    #viewTransactionModal .txn-section-grid {
+    #viewTransactionModal .txn-section-grid,
+    #packageDetailsModal .txn-section-grid {
         grid-template-columns: 1fr;
     }
 }
 
-#viewTransactionModal .txn-detail-row {
+#viewTransactionModal .txn-detail-row,
+#packageDetailsModal .txn-detail-row {
     display: flex;
     justify-content: space-between;
     gap: 14px;
@@ -317,15 +326,18 @@ body.modal-open .admin-mobile-menu-toggle {
     border-bottom: 1px dashed rgba(255,255,255,0.08);
 }
 
-#viewTransactionModal .txn-detail-row:last-child {
+#viewTransactionModal .txn-detail-row:last-child,
+#packageDetailsModal .txn-detail-row:last-child {
     border-bottom: none;
 }
 
-#viewTransactionModal .txn-detail-label {
+#viewTransactionModal .txn-detail-label,
+#packageDetailsModal .txn-detail-label {
     color: #94a3b8;
 }
 
-#viewTransactionModal .txn-detail-value {
+#viewTransactionModal .txn-detail-value,
+#packageDetailsModal .txn-detail-value {
     color: #e2e8f0;
     font-weight: 600;
     text-align: right;
