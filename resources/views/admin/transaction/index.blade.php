@@ -2468,6 +2468,20 @@ body.modal-open .admin-mobile-menu-toggle {
                 var totalUnits = packageSummary.totalQuantity || packageGuestCount || 0;
                 var addonDetails = $(this).data('addons') || packageSummary.addonSummaryText || 'N/A';
                 var purchaseSummaryTitle = packageLabel || packageSummary.summaryText || 'Package Details';
+                var packageLineupItems = packageSummary.items.slice();
+                if (!packageLineupItems.length && purchaseSummaryTitle && purchaseSummaryTitle !== 'Package Details') {
+                    purchaseSummaryTitle.split(/\s*[;,]\s*/).filter(Boolean).forEach(function(part) {
+                        var text = String(part).trim();
+                        if (!text) {
+                            return;
+                        }
+                        packageLineupItems.push({
+                            name: text,
+                            quantity: 1,
+                            packageType: 'package'
+                        });
+                    });
+                }
                 var orderDateMain = String($(this).closest('tr').find('.txn-date-main').text() || '').trim();
                 var orderDateTime = String($(this).closest('tr').find('.txn-date-time').text() || '').trim();
                 var orderDate = [orderDateMain, orderDateTime].filter(Boolean).join(' ') || 'N/A';
@@ -2491,10 +2505,10 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row('Package Count', String(packageCount));
                 html += row('Total Units', String(totalUnits));
                 html += row('Add-ons', addonDetails);
-                if (packageSummary.items.length) {
+                if (packageLineupItems.length) {
                     html += '<div style="margin-top:10px;background:rgba(15,23,42,0.55);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px;">';
                     html += '<div style="font-size:0.78rem;color:#cbd5e1;font-weight:700;margin-bottom:8px;letter-spacing:0.03em;">Package Lineup</div>';
-                    packageSummary.items.forEach(function(item) {
+                    packageLineupItems.forEach(function(item) {
                         var qtyText = String(item.quantity) + ' ' + (item.packageType === 'ticket' ? 'tickets' : 'guests');
                         html += '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;padding:7px 8px;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);margin-bottom:6px;">';
                         html += '<span style="color:#e2e8f0;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(item.name) + '</span>';
@@ -2513,7 +2527,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += '<div class="col-md-6">';
                 html += '<div class="txn-detail-card" style="margin-bottom:0;">';
                 html += '<div class="txn-detail-title">Transportation Details</div>';
-                html += row('Transportation', hasTransportation ? 'Provided' : 'Not Provided');
+                html += row('Transportation', hasTransportation ? 'Provided' : 'Self Drive Selected');
                 html += row('Pickup Time', transportationPickup || 'N/A');
                 html += row('Pickup Address', transportationAddress || 'N/A');
                 html += row('Transport Phone', transportationPhone || 'N/A');
