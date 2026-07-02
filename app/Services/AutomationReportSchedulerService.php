@@ -161,8 +161,8 @@ class AutomationReportSchedulerService
             if ($from && $to) {
                 return [
                     'date_range' => 'custom',
-                    'custom_from' => $from->copy()->startOfMonth()->toDateString(),
-                    'custom_to' => $to->copy()->endOfMonth()->toDateString(),
+                    'custom_from' => $from->copy()->toDateString(),
+                    'custom_to' => $to->copy()->toDateString(),
                     'timezone' => $tz,
                 ];
             }

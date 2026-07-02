@@ -1174,8 +1174,7 @@ class ReportController extends Controller
             'frequency' => 'required|in:daily,weekly,monthly,yearly,custom_month_range',
             'website_ids' => 'required|array|min:1',
             'website_ids.*' => 'integer|exists:websites,id',
-            'email_recipients' => 'required|string|max:5000',
-            'timezone' => 'nullable|timezone',
+            'email_recipients' => 'required',
             'send_time' => 'nullable|date_format:H:i',
             'one_time_date' => 'nullable|date',
             'one_time_time' => 'nullable|date_format:H:i',
@@ -1183,8 +1182,8 @@ class ReportController extends Controller
             'monthly_day' => 'nullable|integer|min:1|max:31',
             'yearly_month' => 'nullable|integer|min:1|max:12',
             'yearly_day' => 'nullable|integer|min:1|max:31',
-            'custom_from_month' => 'nullable|date_format:Y-m',
-            'custom_to_month' => 'nullable|date_format:Y-m',
+            'custom_from_month' => 'nullable|date',
+            'custom_to_month' => 'nullable|date',
         ]);
 
         $requestedWebsiteIds = collect($validated['website_ids'])->map(fn ($id) => (int) $id)->unique()->values()->all();
@@ -1194,11 +1193,20 @@ class ReportController extends Controller
             abort(403, 'You cannot select one or more of the chosen clubs.');
         }
 
-        $emails = collect(preg_split('/[,;\s]+/', (string) $validated['email_recipients']))
-            ->filter()
-            ->map(fn ($email) => strtolower(trim((string) $email)))
-            ->unique()
-            ->values();
+        $rawRecipients = $request->input('email_recipients', []);
+        if (is_array($rawRecipients)) {
+            $emails = collect($rawRecipients)
+                ->map(fn ($email) => strtolower(trim((string) $email)))
+                ->filter()
+                ->unique()
+                ->values();
+        } else {
+            $emails = collect(preg_split('/[,;\s]+/', (string) $rawRecipients))
+                ->filter()
+                ->map(fn ($email) => strtolower(trim((string) $email)))
+                ->unique()
+                ->values();
+        }
 
         foreach ($emails as $email) {
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -1228,10 +1236,10 @@ class ReportController extends Controller
         $customFrom = null;
         $customTo = null;
         if (!empty($validated['custom_from_month'])) {
-            $customFrom = Carbon::createFromFormat('Y-m', $validated['custom_from_month'])->startOfMonth()->toDateString();
+            $customFrom = Carbon::parse($validated['custom_from_month'])->toDateString();
         }
         if (!empty($validated['custom_to_month'])) {
-            $customTo = Carbon::createFromFormat('Y-m', $validated['custom_to_month'])->startOfMonth()->toDateString();
+            $customTo = Carbon::parse($validated['custom_to_month'])->toDateString();
         }
 
         if ($customFrom && $customTo && $customFrom > $customTo) {
@@ -1243,7 +1251,7 @@ class ReportController extends Controller
             'frequency' => $validated['frequency'],
             'website_ids' => $requestedWebsiteIds,
             'email_recipients' => $emails->all(),
-            'timezone' => $validated['timezone'] ?: 'America/Los_Angeles',
+            'timezone' => 'America/Los_Angeles',
             'send_time' => !empty($validated['send_time']) ? ($validated['send_time'] . ':00') : '06:00:00',
             'one_time_date' => !empty($validated['one_time_date']) ? Carbon::parse($validated['one_time_date'])->toDateString() : null,
             'one_time_time' => !empty($validated['one_time_time']) ? ($validated['one_time_time'] . ':00') : null,

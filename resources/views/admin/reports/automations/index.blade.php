@@ -1,7 +1,7 @@
 @extends('admin.main')
 
 @section('content')
-<div class="container-fluid px-4 py-6">
+<div class="container-fluid px-4 py-6 automation-reports-page">
     <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 gap-2">
         <div>
             <h1 class="h2 mb-1" style="color: #fff">Automation Reports</h1>
@@ -54,26 +54,31 @@
 
                         <div class="mb-3">
                             <label class="form-label">Clubs</label>
-                            <select name="website_ids[]" class="form-select" multiple required size="6">
-                                @foreach($websites as $website)
-                                    <option value="{{ $website->id }}" {{ in_array($website->id, old('website_ids', [])) ? 'selected' : '' }}>{{ $website->name }}</option>
-                                @endforeach
-                            </select>
-                            <small class="text-muted">Hold Ctrl/Cmd to select multiple clubs.</small>
+                            <div class="d-flex gap-2">
+                                <select class="form-select" id="clubPicker">
+                                    <option value="">Select a club</option>
+                                    @foreach($websites as $website)
+                                        <option value="{{ $website->id }}">{{ $website->name }}</option>
+                                    @endforeach
+                                </select>
+                                <button type="button" class="btn btn-outline-primary" id="addClubBtn">Add</button>
+                            </div>
+                            <div id="clubList" class="mt-2"></div>
+                            <div id="clubInputs"></div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Recipients</label>
-                            <textarea name="email_recipients" class="form-control" rows="3" required placeholder="one@email.com, two@email.com">{{ old('email_recipients') }}</textarea>
-                            <small class="text-muted">Separate emails with comma, space, or semicolon.</small>
+                            <div class="d-flex gap-2">
+                                <input type="email" class="form-control" id="recipientInput" placeholder="name@email.com">
+                                <button type="button" class="btn btn-outline-primary" id="addRecipientBtn">Add</button>
+                            </div>
+                            <div id="recipientList" class="mt-2"></div>
+                            <div id="recipientInputs"></div>
                         </div>
 
                         <div class="row g-2">
-                            <div class="col-md-6">
-                                <label class="form-label">Timezone</label>
-                                <input type="text" name="timezone" class="form-control" value="{{ old('timezone', $defaultTimezone) }}" required>
-                            </div>
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <label class="form-label">Send Time</label>
                                 <input type="time" name="send_time" class="form-control" value="{{ old('send_time', '06:00') }}">
                                 <small class="text-muted">If left blank, default is 6:00 AM PST.</small>
@@ -125,12 +130,12 @@
                         <div id="customMonthFields" class="mt-3 d-none">
                             <div class="row g-2">
                                 <div class="col-6">
-                                    <label class="form-label">From Month</label>
-                                    <input type="month" name="custom_from_month" class="form-control" value="{{ old('custom_from_month') }}">
+                                    <label class="form-label">From Date</label>
+                                    <input type="date" name="custom_from_month" class="form-control" value="{{ old('custom_from_month') }}">
                                 </div>
                                 <div class="col-6">
-                                    <label class="form-label">To Month</label>
-                                    <input type="month" name="custom_to_month" class="form-control" value="{{ old('custom_to_month') }}">
+                                    <label class="form-label">To Date</label>
+                                    <input type="date" name="custom_to_month" class="form-control" value="{{ old('custom_to_month') }}">
                                 </div>
                             </div>
                         </div>
@@ -209,11 +214,123 @@
 
 <script>
 (function () {
+    const initialWebsiteIds = @json(array_map('intval', old('website_ids', [])));
+    const websites = @json($websites->map(fn($w) => ['id' => (int) $w->id, 'name' => $w->name])->values());
+    const clubPicker = document.getElementById('clubPicker');
+    const addClubBtn = document.getElementById('addClubBtn');
+    const clubList = document.getElementById('clubList');
+    const clubInputs = document.getElementById('clubInputs');
+
+    const initialRecipientsRaw = @json(old('email_recipients', []));
+    const initialRecipients = Array.isArray(initialRecipientsRaw)
+        ? initialRecipientsRaw
+        : String(initialRecipientsRaw || '').split(/[,;\s]+/).filter(Boolean);
+    const recipientInput = document.getElementById('recipientInput');
+    const addRecipientBtn = document.getElementById('addRecipientBtn');
+    const recipientList = document.getElementById('recipientList');
+    const recipientInputs = document.getElementById('recipientInputs');
+
     const frequency = document.getElementById('frequency');
     const weekly = document.getElementById('weeklyFields');
     const monthly = document.getElementById('monthlyFields');
     const yearly = document.getElementById('yearlyFields');
     const custom = document.getElementById('customMonthFields');
+    const form = document.getElementById('scheduleForm');
+
+    let selectedWebsiteIds = Array.from(new Set(initialWebsiteIds));
+    let recipients = Array.from(new Set(initialRecipients.map(v => String(v).trim().toLowerCase()).filter(Boolean)));
+
+    function renderClubs() {
+        clubList.innerHTML = '';
+        clubInputs.innerHTML = '';
+
+        selectedWebsiteIds.forEach((id) => {
+            const website = websites.find((w) => w.id === id);
+            if (!website) return;
+
+            const chip = document.createElement('span');
+            chip.className = 'badge bg-primary me-1 mb-1';
+            chip.innerHTML = `${website.name} <button type="button" class="btn btn-sm btn-link text-white p-0 ms-1" data-remove-club="${id}">x</button>`;
+            clubList.appendChild(chip);
+
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'website_ids[]';
+            input.value = String(id);
+            clubInputs.appendChild(input);
+        });
+    }
+
+    function renderRecipients() {
+        recipientList.innerHTML = '';
+        recipientInputs.innerHTML = '';
+
+        recipients.forEach((email) => {
+            const chip = document.createElement('span');
+            chip.className = 'badge bg-info me-1 mb-1';
+            chip.innerHTML = `${email} <button type="button" class="btn btn-sm btn-link text-white p-0 ms-1" data-remove-recipient="${email}">x</button>`;
+            recipientList.appendChild(chip);
+
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'email_recipients[]';
+            input.value = email;
+            recipientInputs.appendChild(input);
+        });
+    }
+
+    addClubBtn.addEventListener('click', function () {
+        const id = Number(clubPicker.value || 0);
+        if (!id) return;
+        if (!selectedWebsiteIds.includes(id)) {
+            selectedWebsiteIds.push(id);
+            renderClubs();
+        }
+        clubPicker.value = '';
+    });
+
+    clubList.addEventListener('click', function (event) {
+        const target = event.target;
+        const id = Number(target.getAttribute('data-remove-club') || 0);
+        if (!id) return;
+        selectedWebsiteIds = selectedWebsiteIds.filter((v) => v !== id);
+        renderClubs();
+    });
+
+    addRecipientBtn.addEventListener('click', function () {
+        const email = String(recipientInput.value || '').trim().toLowerCase();
+        if (!email) return;
+        const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        if (!valid) {
+            alert('Please enter a valid email address.');
+            return;
+        }
+        if (!recipients.includes(email)) {
+            recipients.push(email);
+            renderRecipients();
+        }
+        recipientInput.value = '';
+    });
+
+    recipientList.addEventListener('click', function (event) {
+        const target = event.target;
+        const email = target.getAttribute('data-remove-recipient');
+        if (!email) return;
+        recipients = recipients.filter((v) => v !== email);
+        renderRecipients();
+    });
+
+    form.addEventListener('submit', function (event) {
+        if (selectedWebsiteIds.length === 0) {
+            event.preventDefault();
+            alert('Please add at least one club.');
+            return;
+        }
+        if (recipients.length === 0) {
+            event.preventDefault();
+            alert('Please add at least one recipient email.');
+        }
+    });
 
     function updateVisibility() {
         const value = frequency.value;
@@ -223,8 +340,18 @@
         custom.classList.toggle('d-none', value !== 'custom_month_range');
     }
 
+    renderClubs();
+    renderRecipients();
     frequency.addEventListener('change', updateVisibility);
     updateVisibility();
 })();
 </script>
+
+<style>
+.automation-reports-page .form-label,
+.automation-reports-page .table thead th,
+.automation-reports-page .card-header h5 {
+    color: #fff !important;
+}
+</style>
 @endsection
