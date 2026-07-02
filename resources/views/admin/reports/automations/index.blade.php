@@ -42,14 +42,26 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Frequency</label>
+                            <label class="form-label">Send Frequency</label>
                             <select name="frequency" class="form-select" id="frequency" required>
                                 <option value="daily" {{ old('frequency') === 'daily' ? 'selected' : '' }}>Daily</option>
                                 <option value="weekly" {{ old('frequency') === 'weekly' ? 'selected' : '' }}>Weekly</option>
                                 <option value="monthly" {{ old('frequency') === 'monthly' ? 'selected' : '' }}>Monthly</option>
                                 <option value="yearly" {{ old('frequency') === 'yearly' ? 'selected' : '' }}>Yearly</option>
-                                <option value="custom_month_range" {{ old('frequency') === 'custom_month_range' ? 'selected' : '' }}>Custom Month Range</option>
                             </select>
+                            <small class="text-muted">This controls how often the report is sent.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Report Type</label>
+                            <select name="report_period_type" class="form-select" id="reportPeriodType" required>
+                                <option value="daily" {{ old('report_period_type') === 'daily' ? 'selected' : '' }}>Daily Data</option>
+                                <option value="weekly" {{ old('report_period_type', 'weekly') === 'weekly' ? 'selected' : '' }}>Weekly Data</option>
+                                <option value="monthly" {{ old('report_period_type') === 'monthly' ? 'selected' : '' }}>Monthly Data</option>
+                                <option value="yearly" {{ old('report_period_type') === 'yearly' ? 'selected' : '' }}>Yearly Data</option>
+                                <option value="custom_range" {{ old('report_period_type') === 'custom_range' ? 'selected' : '' }}>Custom Range</option>
+                            </select>
+                            <small class="text-muted">This controls which date range is included in each sent report.</small>
                         </div>
 
                         <div class="mb-3">
@@ -127,7 +139,7 @@
                             </div>
                         </div>
 
-                        <div id="customMonthFields" class="mt-3 d-none">
+                        <div id="customRangeFields" class="mt-3 d-none">
                             <div class="row g-2">
                                 <div class="col-6">
                                     <label class="form-label">From Date</label>
@@ -160,7 +172,8 @@
                                 <thead>
                                 <tr>
                                     <th>Name</th>
-                                    <th>Frequency</th>
+                                    <th>Send Frequency</th>
+                                    <th>Report Type</th>
                                     <th>Next Run</th>
                                     <th>Status</th>
                                     <th class="text-end">Actions</th>
@@ -174,6 +187,7 @@
                                             <div class="small text-muted">{{ count($schedule->email_recipients ?? []) }} recipients</div>
                                         </td>
                                         <td>{{ ucfirst(str_replace('_', ' ', $schedule->frequency)) }}</td>
+                                        <td>{{ ucfirst(str_replace('_', ' ', $schedule->report_period_type ?: ($schedule->frequency === 'custom_month_range' ? 'custom_range' : $schedule->frequency))) }}</td>
                                         <td>{{ $schedule->next_run_at ? $schedule->next_run_at->format('Y-m-d H:i') : '-' }}</td>
                                         <td>
                                             @if($schedule->is_active)
@@ -231,10 +245,11 @@
     const recipientInputs = document.getElementById('recipientInputs');
 
     const frequency = document.getElementById('frequency');
+    const reportPeriodType = document.getElementById('reportPeriodType');
     const weekly = document.getElementById('weeklyFields');
     const monthly = document.getElementById('monthlyFields');
     const yearly = document.getElementById('yearlyFields');
-    const custom = document.getElementById('customMonthFields');
+    const customRange = document.getElementById('customRangeFields');
     const form = document.getElementById('scheduleForm');
 
     let selectedWebsiteIds = Array.from(new Set(initialWebsiteIds));
@@ -332,18 +347,24 @@
         }
     });
 
-    function updateVisibility() {
+    function updateFrequencyVisibility() {
         const value = frequency.value;
         weekly.classList.toggle('d-none', value !== 'weekly');
         monthly.classList.toggle('d-none', value !== 'monthly');
         yearly.classList.toggle('d-none', value !== 'yearly');
-        custom.classList.toggle('d-none', value !== 'custom_month_range');
+    }
+
+    function updateReportTypeVisibility() {
+        const value = reportPeriodType.value;
+        customRange.classList.toggle('d-none', value !== 'custom_range');
     }
 
     renderClubs();
     renderRecipients();
-    frequency.addEventListener('change', updateVisibility);
-    updateVisibility();
+    frequency.addEventListener('change', updateFrequencyVisibility);
+    reportPeriodType.addEventListener('change', updateReportTypeVisibility);
+    updateFrequencyVisibility();
+    updateReportTypeVisibility();
 })();
 </script>
 

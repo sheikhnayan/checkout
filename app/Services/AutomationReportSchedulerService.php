@@ -105,8 +105,15 @@ class AutomationReportSchedulerService
     {
         $tz = $schedule->timezone ?: 'America/Los_Angeles';
         $runAt = $runAtAppTz->copy()->setTimezone($tz);
+        $periodType = $schedule->report_period_type;
 
-        if ($schedule->frequency === 'daily') {
+        if (!$periodType) {
+            $periodType = $schedule->frequency === 'custom_month_range'
+                ? 'custom_range'
+                : $schedule->frequency;
+        }
+
+        if ($periodType === 'daily') {
             $start = $runAt->copy()->subDay()->startOfDay();
             $end = $runAt->copy()->subDay()->endOfDay();
 
@@ -118,7 +125,7 @@ class AutomationReportSchedulerService
             ];
         }
 
-        if ($schedule->frequency === 'weekly') {
+        if ($periodType === 'weekly') {
             $start = $runAt->copy()->subWeek()->startOfWeek(Carbon::SUNDAY);
             $end = $start->copy()->endOfWeek(Carbon::SATURDAY);
 
@@ -130,7 +137,7 @@ class AutomationReportSchedulerService
             ];
         }
 
-        if ($schedule->frequency === 'monthly') {
+        if ($periodType === 'monthly') {
             $start = $runAt->copy()->subMonthNoOverflow()->startOfMonth();
             $end = $start->copy()->endOfMonth();
 
@@ -142,7 +149,7 @@ class AutomationReportSchedulerService
             ];
         }
 
-        if ($schedule->frequency === 'yearly') {
+        if ($periodType === 'yearly') {
             $start = $runAt->copy()->subYear()->startOfYear();
             $end = $start->copy()->endOfYear();
 
@@ -154,7 +161,7 @@ class AutomationReportSchedulerService
             ];
         }
 
-        if ($schedule->frequency === 'custom_month_range') {
+        if ($periodType === 'custom_range') {
             $from = $schedule->custom_from_month;
             $to = $schedule->custom_to_month;
 

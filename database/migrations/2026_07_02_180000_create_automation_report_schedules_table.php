@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('created_by_user_id')->constrained('users')->cascadeOnDelete();
             $table->string('name');
             $table->string('frequency'); // daily, weekly, monthly, yearly, custom_month_range
+            $table->string('report_period_type')->default('weekly'); // daily, weekly, monthly, yearly, custom_range
             $table->json('website_ids');
             $table->json('email_recipients');
             $table->string('timezone')->default('America/Los_Angeles');

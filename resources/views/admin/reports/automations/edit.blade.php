@@ -34,14 +34,35 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Frequency</label>
+                        <label class="form-label">Send Frequency</label>
                         <select name="frequency" class="form-select" id="frequency" required>
-                            <option value="daily" {{ old('frequency', $schedule->frequency) === 'daily' ? 'selected' : '' }}>Daily</option>
-                            <option value="weekly" {{ old('frequency', $schedule->frequency) === 'weekly' ? 'selected' : '' }}>Weekly</option>
-                            <option value="monthly" {{ old('frequency', $schedule->frequency) === 'monthly' ? 'selected' : '' }}>Monthly</option>
-                            <option value="yearly" {{ old('frequency', $schedule->frequency) === 'yearly' ? 'selected' : '' }}>Yearly</option>
-                            <option value="custom_month_range" {{ old('frequency', $schedule->frequency) === 'custom_month_range' ? 'selected' : '' }}>Custom Month Range</option>
+                            @php
+                                $cadence = old('frequency', $schedule->frequency);
+                                if ($cadence === 'custom_month_range') {
+                                    $cadence = 'monthly';
+                                }
+                            @endphp
+                            <option value="daily" {{ $cadence === 'daily' ? 'selected' : '' }}>Daily</option>
+                            <option value="weekly" {{ $cadence === 'weekly' ? 'selected' : '' }}>Weekly</option>
+                            <option value="monthly" {{ $cadence === 'monthly' ? 'selected' : '' }}>Monthly</option>
+                            <option value="yearly" {{ $cadence === 'yearly' ? 'selected' : '' }}>Yearly</option>
                         </select>
+                        <small class="text-muted">This controls how often the report is sent.</small>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Report Type</label>
+                        @php
+                            $reportType = old('report_period_type', $schedule->report_period_type ?: ($schedule->frequency === 'custom_month_range' ? 'custom_range' : $schedule->frequency));
+                        @endphp
+                        <select name="report_period_type" class="form-select" id="reportPeriodType" required>
+                            <option value="daily" {{ $reportType === 'daily' ? 'selected' : '' }}>Daily Data</option>
+                            <option value="weekly" {{ $reportType === 'weekly' ? 'selected' : '' }}>Weekly Data</option>
+                            <option value="monthly" {{ $reportType === 'monthly' ? 'selected' : '' }}>Monthly Data</option>
+                            <option value="yearly" {{ $reportType === 'yearly' ? 'selected' : '' }}>Yearly Data</option>
+                            <option value="custom_range" {{ $reportType === 'custom_range' ? 'selected' : '' }}>Custom Range</option>
+                        </select>
+                        <small class="text-muted">This controls which date range is included in each sent report.</small>
                     </div>
 
                     <div class="col-12">
@@ -148,6 +169,7 @@
     const recipientInputs = document.getElementById('recipientInputs');
 
     const frequency = document.getElementById('frequency');
+    const reportPeriodType = document.getElementById('reportPeriodType');
     const weekly = document.getElementById('weeklyFields');
     const monthly = document.getElementById('monthlyFields');
     const yearlyMonth = document.getElementById('yearlyMonthField');
@@ -251,20 +273,26 @@
         }
     });
 
-    function updateVisibility() {
+    function updateFrequencyVisibility() {
         const value = frequency.value;
         weekly.classList.toggle('d-none', value !== 'weekly');
         monthly.classList.toggle('d-none', value !== 'monthly');
         yearlyMonth.classList.toggle('d-none', value !== 'yearly');
         yearlyDay.classList.toggle('d-none', value !== 'yearly');
-        customFrom.classList.toggle('d-none', value !== 'custom_month_range');
-        customTo.classList.toggle('d-none', value !== 'custom_month_range');
+    }
+
+    function updateReportTypeVisibility() {
+        const value = reportPeriodType.value;
+        customFrom.classList.toggle('d-none', value !== 'custom_range');
+        customTo.classList.toggle('d-none', value !== 'custom_range');
     }
 
     renderClubs();
     renderRecipients();
-    frequency.addEventListener('change', updateVisibility);
-    updateVisibility();
+    frequency.addEventListener('change', updateFrequencyVisibility);
+    reportPeriodType.addEventListener('change', updateReportTypeVisibility);
+    updateFrequencyVisibility();
+    updateReportTypeVisibility();
 })();
 </script>
 

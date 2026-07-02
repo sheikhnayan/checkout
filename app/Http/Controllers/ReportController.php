@@ -1171,7 +1171,8 @@ class ReportController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'frequency' => 'required|in:daily,weekly,monthly,yearly,custom_month_range',
+            'frequency' => 'required|in:daily,weekly,monthly,yearly',
+            'report_period_type' => 'required|in:daily,weekly,monthly,yearly,custom_range',
             'website_ids' => 'required|array|min:1',
             'website_ids.*' => 'integer|exists:websites,id',
             'email_recipients' => 'required',
@@ -1229,8 +1230,8 @@ class ReportController extends Controller
             return back()->withErrors(['yearly_day' => 'Month and day are required for yearly schedules.'])->withInput()->throwResponse();
         }
 
-        if ($validated['frequency'] === 'custom_month_range' && (empty($validated['custom_from_month']) || empty($validated['custom_to_month']))) {
-            return back()->withErrors(['custom_from_month' => 'From/To months are required for custom month range schedules.'])->withInput()->throwResponse();
+        if ($validated['report_period_type'] === 'custom_range' && (empty($validated['custom_from_month']) || empty($validated['custom_to_month']))) {
+            return back()->withErrors(['custom_from_month' => 'From/To dates are required for custom range report type.'])->withInput()->throwResponse();
         }
 
         $customFrom = null;
@@ -1249,6 +1250,7 @@ class ReportController extends Controller
         return [
             'name' => $validated['name'],
             'frequency' => $validated['frequency'],
+            'report_period_type' => $validated['report_period_type'],
             'website_ids' => $requestedWebsiteIds,
             'email_recipients' => $emails->all(),
             'timezone' => 'America/Los_Angeles',
@@ -1259,8 +1261,8 @@ class ReportController extends Controller
             'monthly_day' => $validated['frequency'] === 'monthly' ? (int) $validated['monthly_day'] : null,
             'yearly_month' => $validated['frequency'] === 'yearly' ? (int) $validated['yearly_month'] : null,
             'yearly_day' => $validated['frequency'] === 'yearly' ? (int) $validated['yearly_day'] : null,
-            'custom_from_month' => $validated['frequency'] === 'custom_month_range' ? $customFrom : null,
-            'custom_to_month' => $validated['frequency'] === 'custom_month_range' ? $customTo : null,
+            'custom_from_month' => $validated['report_period_type'] === 'custom_range' ? $customFrom : null,
+            'custom_to_month' => $validated['report_period_type'] === 'custom_range' ? $customTo : null,
         ];
     }
 

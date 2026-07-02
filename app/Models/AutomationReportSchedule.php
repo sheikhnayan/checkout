@@ -13,6 +13,7 @@ class AutomationReportSchedule extends Model
         'created_by_user_id',
         'name',
         'frequency',
+        'report_period_type',
         'website_ids',
         'email_recipients',
         'timezone',
