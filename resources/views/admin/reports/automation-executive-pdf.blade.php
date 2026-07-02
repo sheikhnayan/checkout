@@ -306,22 +306,54 @@
         $size = 180;
         $center = $size / 2;
         $radius = 58;
-        $stroke = 30;
-        $circumference = 2 * pi() * $radius;
-        $offset = 0;
+        $innerRadius = 34;
+        $angle = -90.0;
+
         $svg = '<svg width="' . $size . '" height="' . $size . '" viewBox="0 0 ' . $size . ' ' . $size . '" xmlns="http://www.w3.org/2000/svg">';
-        $svg .= '<circle cx="' . $center . '" cy="' . $center . '" r="' . $radius . '" fill="none" stroke="#e2e8f0" stroke-width="' . $stroke . '"/>';
+        $svg .= '<circle cx="' . $center . '" cy="' . $center . '" r="' . $radius . '" fill="#e2e8f0"/>';
 
         foreach ($segments as $segment) {
-            $len = $circumference * ((float) ($segment['pct'] ?? 0) / 100);
-            if ($len <= 0) {
+            $pct = max(0.0, min(100.0, (float) ($segment['pct'] ?? 0)));
+            if ($pct <= 0.0) {
                 continue;
             }
-            $svg .= '<circle cx="' . $center . '" cy="' . $center . '" r="' . $radius . '" fill="none" stroke="' . e($segment['color']) . '" stroke-width="' . $stroke . '" stroke-linecap="butt" transform="rotate(-90 ' . $center . ' ' . $center . ')" stroke-dasharray="' . $len . ' ' . $circumference . '" stroke-dashoffset="-' . $offset . '"/>';
-            $offset += $len;
+
+            $sweep = 360.0 * ($pct / 100.0);
+            $color = (string) ($segment['color'] ?? '#94a3b8');
+
+            if ($pct >= 99.999) {
+                $svg .= '<circle cx="' . $center . '" cy="' . $center . '" r="' . $radius . '" fill="' . e($color) . '"/>';
+                $angle += $sweep;
+                continue;
+            }
+
+            $startRad = deg2rad($angle);
+            $endRad = deg2rad($angle + $sweep);
+
+            $x1 = $center + ($radius * cos($startRad));
+            $y1 = $center + ($radius * sin($startRad));
+            $x2 = $center + ($radius * cos($endRad));
+            $y2 = $center + ($radius * sin($endRad));
+            $largeArc = $sweep > 180 ? 1 : 0;
+
+            $path = sprintf(
+                'M %.3f %.3f L %.3f %.3f A %.3f %.3f 0 %d 1 %.3f %.3f Z',
+                $center,
+                $center,
+                $x1,
+                $y1,
+                $radius,
+                $radius,
+                $largeArc,
+                $x2,
+                $y2
+            );
+
+            $svg .= '<path d="' . $path . '" fill="' . e($color) . '"/>';
+            $angle += $sweep;
         }
 
-        $svg .= '<circle cx="' . $center . '" cy="' . $center . '" r="34" fill="#ffffff"/>';
+        $svg .= '<circle cx="' . $center . '" cy="' . $center . '" r="' . $innerRadius . '" fill="#ffffff"/>';
         $svg .= '<text x="' . $center . '" y="' . ($center - 3) . '" text-anchor="middle" font-size="10" font-weight="700" fill="#0f172a">Total</text>';
         $svg .= '<text x="' . $center . '" y="' . ($center + 12) . '" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">' . e($totalLabel) . '</text>';
         $svg .= '</svg>';
