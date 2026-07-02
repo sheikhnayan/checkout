@@ -172,64 +172,40 @@
         .trend-up { color: #15803d; font-weight: 700; }
         .trend-down { color: #b91c1c; font-weight: 700; }
         .trend-flat { color: #334155; font-weight: 700; }
-        .donut-grid {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 8px;
-            margin-top: 8px;
-        }
-        .donut-card {
-            width: 33.33%;
+        .pie-box {
             border: 1px solid #cbd5e1;
+            padding: 8px;
             background: #ffffff;
-            text-align: center;
-            vertical-align: top;
-            padding: 7px;
         }
-        .donut-title {
-            font-size: 8px;
+        .pie-title {
+            font-size: 9px;
+            font-weight: 700;
             text-transform: uppercase;
-            color: #64748b;
+            color: #334155;
+            margin: 0 0 6px;
             letter-spacing: 0.4px;
-            margin-bottom: 4px;
         }
-        .donut-value {
-            font-size: 11px;
-            font-weight: 700;
-            color: #0f172a;
-            margin-top: 3px;
-        }
-        .donut-fallback {
-            width: 86px;
-            height: 86px;
-            margin: 0 auto;
-            border-radius: 50%;
-            border: 8px solid #d1d5db;
-            position: relative;
-            box-sizing: border-box;
-            background: #ffffff;
-        }
-        .donut-fallback::after {
-            content: '';
-            position: absolute;
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: #ffffff;
-            top: 14px;
-            left: 14px;
-            border: 1px solid #e5e7eb;
-        }
-        .donut-fallback .center {
-            position: absolute;
-            top: 34px;
-            left: 0;
-            width: 100%;
+        .pie-svg-wrap {
             text-align: center;
-            font-size: 11px;
-            font-weight: 700;
-            color: #0f172a;
-            z-index: 3;
+            margin-bottom: 6px;
+        }
+        .legend-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 4px;
+        }
+        .legend-table td {
+            border-bottom: 1px solid #eef2f7;
+            padding: 4px 2px;
+            font-size: 8px;
+            vertical-align: top;
+        }
+        .swatch {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            margin-right: 4px;
+            vertical-align: middle;
         }
         .page-break { page-break-before: always; }
         .footer {
@@ -273,41 +249,87 @@
 
     $directSharePct = ($sourceSnapshot['direct']['transactions'] / $totalTx) * 100;
     $addonAttachPct = (float) ($summary['addon_attach_rate'] ?? 0);
-    $maleGuestPct = ($summary['total_men'] / $totalGuests) * 100;
-    $femaleGuestPct = ($summary['total_women'] / $totalGuests) * 100;
     $zeroValueSharePct = (float) ($summary['zero_value_share'] ?? 0);
     $commissionRatePct = ($summary['total_revenue'] ?? 0) > 0
         ? (((float) ($summary['total_commission'] ?? 0) / (float) ($summary['total_revenue'] ?? 0)) * 100)
         : 0;
     $leadTimeTotalCount = (int) $leadTimeBands->sum('transactions');
-    $genderCoveragePct = (float) ($summary['gender_coverage_pct'] ?? 0);
 
     $transportTx = (int) ($transportSnapshot['transport']['transactions'] ?? 0);
-    $selfDriveTx = (int) ($transportSnapshot['self_drive']['transactions'] ?? 0);
     $transportSharePct = ($transportTx / $totalTx) * 100;
 
     $packageOnlyTx = (int) ($packageModeSnapshot['package_only']['transactions'] ?? 0);
-    $packageWithAddonsTx = (int) ($packageModeSnapshot['package_with_addons']['transactions'] ?? 0);
     $packageOnlySharePct = ($packageOnlyTx / $totalTx) * 100;
 
-    $donutSvg = function ($percent, $color) {
-        $p = max(0, min(100, (float) $percent));
-        $radius = 30;
-        $circumference = 2 * pi() * $radius;
-        $offset = $circumference * (1 - ($p / 100));
-        return sprintf(
-            '<svg width="86" height="86" viewBox="0 0 86 86" xmlns="http://www.w3.org/2000/svg"><circle cx="43" cy="43" r="30" fill="none" stroke="#e2e8f0" stroke-width="10"/><circle cx="43" cy="43" r="30" fill="none" stroke="%s" stroke-width="10" stroke-linecap="round" transform="rotate(-90 43 43)" stroke-dasharray="%.2f" stroke-dashoffset="%.2f"/><text x="43" y="47" text-anchor="middle" font-size="12" font-weight="700" fill="#0f172a">%s%%</text></svg>',
-            $color,
-            $circumference,
-            $offset,
-            number_format($p, 1)
-        );
+    $colors = ['#0ea5e9', '#22c55e', '#f97316', '#a855f7', '#ef4444', '#14b8a6', '#6366f1', '#f59e0b'];
+    $buildPieData = function ($rows, $nameKey, $valueKey, $limit = 6) use ($colors) {
+        $base = collect($rows)
+            ->map(function ($row) use ($nameKey, $valueKey) {
+                return [
+                    'name' => (string) ($row[$nameKey] ?? 'N/A'),
+                    'value' => (float) ($row[$valueKey] ?? 0),
+                ];
+            })
+            ->filter(fn ($row) => $row['value'] > 0)
+            ->sortByDesc('value')
+            ->values();
+
+        $top = $base->take($limit)->values();
+        $otherValue = max(0, (float) $base->skip($limit)->sum('value'));
+
+        $segments = $top->map(function ($row, $idx) use ($colors) {
+            return [
+                'name' => $row['name'],
+                'value' => $row['value'],
+                'color' => $colors[$idx % count($colors)],
+            ];
+        })->values();
+
+        if ($otherValue > 0) {
+            $segments->push([
+                'name' => 'Other',
+                'value' => $otherValue,
+                'color' => '#94a3b8',
+            ]);
+        }
+
+        $total = max(0.0, (float) $segments->sum('value'));
+        $segments = $segments->map(function ($row) use ($total) {
+            $row['pct'] = $total > 0 ? (($row['value'] / $total) * 100) : 0;
+            return $row;
+        })->values();
+
+        return ['segments' => $segments, 'total' => $total];
     };
 
-    $donutFallback = function ($percent, $color) {
-        $p = max(0, min(100, (float) $percent));
-        return '<div class="donut-fallback" style="border-color:' . $color . ';"><div class="center">' . number_format($p, 1) . '%</div></div>';
+    $renderPie = function ($segments, $totalLabel) {
+        $size = 180;
+        $center = $size / 2;
+        $radius = 58;
+        $stroke = 30;
+        $circumference = 2 * pi() * $radius;
+        $offset = 0;
+        $svg = '<svg width="' . $size . '" height="' . $size . '" viewBox="0 0 ' . $size . ' ' . $size . '" xmlns="http://www.w3.org/2000/svg">';
+        $svg .= '<circle cx="' . $center . '" cy="' . $center . '" r="' . $radius . '" fill="none" stroke="#e2e8f0" stroke-width="' . $stroke . '"/>';
+
+        foreach ($segments as $segment) {
+            $len = $circumference * ((float) ($segment['pct'] ?? 0) / 100);
+            if ($len <= 0) {
+                continue;
+            }
+            $svg .= '<circle cx="' . $center . '" cy="' . $center . '" r="' . $radius . '" fill="none" stroke="' . e($segment['color']) . '" stroke-width="' . $stroke . '" stroke-linecap="butt" transform="rotate(-90 ' . $center . ' ' . $center . ')" stroke-dasharray="' . $len . ' ' . $circumference . '" stroke-dashoffset="-' . $offset . '"/>';
+            $offset += $len;
+        }
+
+        $svg .= '<circle cx="' . $center . '" cy="' . $center . '" r="34" fill="#ffffff"/>';
+        $svg .= '<text x="' . $center . '" y="' . ($center - 3) . '" text-anchor="middle" font-size="10" font-weight="700" fill="#0f172a">Total</text>';
+        $svg .= '<text x="' . $center . '" y="' . ($center + 12) . '" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">' . e($totalLabel) . '</text>';
+        $svg .= '</svg>';
+        return $svg;
     };
+
+    $clubPie = $buildPieData($clubSnapshot, 'website_name', 'revenue', 6);
+    $packagePie = $buildPieData($topPackages, 'package_name', 'revenue', 7);
 
     $trendClass = function ($value) {
         if ($value > 0.01) {
@@ -403,11 +425,6 @@
                 </td>
             </tr>
             <tr>
-                <td class="insight"><div class="k">Male Guests</div><div class="v">{{ $formatNum($summary['total_men']) }}</div></td>
-                <td class="insight"><div class="k">Female Guests</div><div class="v">{{ $formatNum($summary['total_women']) }}</div></td>
-                <td class="insight"><div class="k">Unknown Gender Guests</div><div class="v">{{ $formatNum($summary['unknown_gender_guests']) }}</div></td>
-            </tr>
-            <tr>
                 <td class="insight">
                     <div class="k">Revenue Change (Latest Day Vs Prior)</div>
                     <div class="v {{ $trendClass($trendRevenue) }}">{{ $trendLabel($trendRevenue) }} {{ number_format(abs($trendRevenue), 1) }}%</div>
@@ -422,57 +439,41 @@
                 </td>
             </tr>
         </table>
+    </div>
 
-        <table class="donut-grid">
+    <div class="section page-break">
+        <div class="section-title">Circular Revenue Stream Split</div>
+        <table class="two-col">
             <tr>
-                <td class="donut-card">
-                    <div class="donut-title">Direct Source Share</div>
-                    {!! $donutFallback($directSharePct, '#0ea5e9') !!}
-                    <div class="donut-value">{{ number_format($directSharePct, 1) }}%</div>
+                <td class="panel">
+                    <div class="pie-box">
+                        <div class="pie-title">Club Revenue Share</div>
+                        <div class="pie-svg-wrap">{!! $renderPie($clubPie['segments'], $formatMoney($clubPie['total'])) !!}</div>
+                        <table class="legend-table">
+                            @foreach($clubPie['segments'] as $seg)
+                                <tr>
+                                    <td><span class="swatch" style="background: {{ $seg['color'] }};"></span>{{ $seg['name'] }}</td>
+                                    <td class="right">{{ $formatMoney($seg['value']) }}</td>
+                                    <td class="right">{{ number_format($seg['pct'], 1) }}%</td>
+                                </tr>
+                            @endforeach
+                        </table>
+                    </div>
                 </td>
-                <td class="donut-card">
-                    <div class="donut-title">Add-on Attach Rate</div>
-                    {!! $donutFallback($addonAttachPct, '#22c55e') !!}
-                    <div class="donut-value">{{ number_format($addonAttachPct, 1) }}%</div>
-                </td>
-                <td class="donut-card">
-                    <div class="donut-title">Male Guest Share</div>
-                    {!! $donutFallback($maleGuestPct, '#f97316') !!}
-                    <div class="donut-value">{{ number_format($maleGuestPct, 1) }}%</div>
-                </td>
-            </tr>
-            <tr>
-                <td class="donut-card">
-                    <div class="donut-title">Female Guest Share</div>
-                    {!! $donutFallback($femaleGuestPct, '#a855f7') !!}
-                    <div class="donut-value">{{ number_format($femaleGuestPct, 1) }}%</div>
-                </td>
-                <td class="donut-card">
-                    <div class="donut-title">Zero-Value Order Share</div>
-                    {!! $donutFallback($zeroValueSharePct, '#14b8a6') !!}
-                    <div class="donut-value">{{ number_format($zeroValueSharePct, 1) }}%</div>
-                </td>
-                <td class="donut-card">
-                    <div class="donut-title">Commission Rate</div>
-                    {!! $donutFallback($commissionRatePct, '#ef4444') !!}
-                    <div class="donut-value">{{ number_format($commissionRatePct, 1) }}%</div>
-                </td>
-            </tr>
-            <tr>
-                <td class="donut-card">
-                    <div class="donut-title">Transportation Share</div>
-                    {!! $donutFallback($transportSharePct, '#0f766e') !!}
-                    <div class="donut-value">{{ number_format($transportSharePct, 1) }}%</div>
-                </td>
-                <td class="donut-card">
-                    <div class="donut-title">Package-Only Share</div>
-                    {!! $donutFallback($packageOnlySharePct, '#6366f1') !!}
-                    <div class="donut-value">{{ number_format($packageOnlySharePct, 1) }}%</div>
-                </td>
-                <td class="donut-card">
-                    <div class="donut-title">Gender Data Coverage</div>
-                    {!! $donutFallback($genderCoveragePct, '#7c3aed') !!}
-                    <div class="donut-value">{{ number_format($genderCoveragePct, 1) }}%</div>
+                <td class="panel">
+                    <div class="pie-box">
+                        <div class="pie-title">Package Revenue Share</div>
+                        <div class="pie-svg-wrap">{!! $renderPie($packagePie['segments'], $formatMoney($packagePie['total'])) !!}</div>
+                        <table class="legend-table">
+                            @foreach($packagePie['segments'] as $seg)
+                                <tr>
+                                    <td><span class="swatch" style="background: {{ $seg['color'] }};"></span>{{ $seg['name'] }}</td>
+                                    <td class="right">{{ $formatMoney($seg['value']) }}</td>
+                                    <td class="right">{{ number_format($seg['pct'], 1) }}%</td>
+                                </tr>
+                            @endforeach
+                        </table>
+                    </div>
                 </td>
             </tr>
         </table>
@@ -533,21 +534,18 @@
             <tr>
                 <td class="panel">
                     <div class="graph-box">
-                        <div class="graph-title">Gender Data Coverage (Package Transactions Limited)</div>
+                        <div class="graph-title">Package Mode Mix</div>
                         <div class="bar-row">
-                            <div class="bar-label">Transactions with explicit men/women data: {{ $formatNum($summary['gender_eligible_transactions'] ?? 0) }} / {{ $formatNum($summary['total_transactions']) }} ({{ number_format($summary['gender_coverage_pct'] ?? 0, 1) }}%)</div>
-                            <div class="bar-track"><div class="bar-fill c4" style="width: {{ $pct($summary['gender_coverage_pct'] ?? 0, 100) }}%;"></div></div>
+                            <div class="bar-label">Package Only | {{ $formatNum($packageModeSnapshot['package_only']['transactions'] ?? 0) }} txns | {{ $formatMoney($packageModeSnapshot['package_only']['revenue'] ?? 0) }}</div>
+                            <div class="bar-track"><div class="bar-fill c5" style="width: {{ $pct($packageModeSnapshot['package_only']['transactions'] ?? 0, $totalTx) }}%;"></div></div>
                         </div>
                         <div class="bar-row">
-                            <div class="bar-label">Men count from covered rows: {{ $formatNum($summary['total_men']) }}</div>
-                            <div class="bar-track"><div class="bar-fill c1" style="width: {{ $pct($summary['total_men'], max(1, $summary['total_men'] + $summary['total_women'])) }}%;"></div></div>
+                            <div class="bar-label">Package + Add-ons | {{ $formatNum($packageModeSnapshot['package_with_addons']['transactions'] ?? 0) }} txns | {{ $formatMoney($packageModeSnapshot['package_with_addons']['revenue'] ?? 0) }}</div>
+                            <div class="bar-track"><div class="bar-fill c2" style="width: {{ $pct($packageModeSnapshot['package_with_addons']['transactions'] ?? 0, $totalTx) }}%;"></div></div>
                         </div>
                         <div class="bar-row">
-                            <div class="bar-label">Women count from covered rows: {{ $formatNum($summary['total_women']) }}</div>
-                            <div class="bar-track"><div class="bar-fill c2" style="width: {{ $pct($summary['total_women'], max(1, $summary['total_men'] + $summary['total_women'])) }}%;"></div></div>
-                        </div>
-                        <div class="bar-label" style="margin-top: 6px; color:#475569;">
-                            Note: Package-only flows often do not collect guest gender split, so this is a partial-data indicator.
+                            <div class="bar-label">Zero-value orders | {{ $formatNum($summary['zero_value_transactions'] ?? 0) }} txns | {{ number_format($summary['zero_value_share'] ?? 0, 1) }}%</div>
+                            <div class="bar-track"><div class="bar-fill c6" style="width: {{ $pct($summary['zero_value_share'] ?? 0, 100) }}%;"></div></div>
                         </div>
                     </div>
                 </td>
@@ -595,14 +593,18 @@
                 </td>
                 <td class="panel">
                     <div class="graph-box">
-                        <div class="graph-title">Package-Only Vs Package+Add-ons</div>
+                        <div class="graph-title">Conversion-style Mix Metrics</div>
                         <div class="bar-row">
-                            <div class="bar-label">Package Only | {{ $formatNum($packageModeSnapshot['package_only']['transactions'] ?? 0) }} txns | {{ $formatMoney($packageModeSnapshot['package_only']['revenue'] ?? 0) }}</div>
-                            <div class="bar-track"><div class="bar-fill c5" style="width: {{ $pct($packageModeSnapshot['package_only']['transactions'] ?? 0, $totalTx) }}%;"></div></div>
+                            <div class="bar-label">Add-on Attach Rate | {{ number_format($summary['addon_attach_rate'] ?? 0, 1) }}%</div>
+                            <div class="bar-track"><div class="bar-fill c2" style="width: {{ $pct($summary['addon_attach_rate'] ?? 0, 100) }}%;"></div></div>
                         </div>
                         <div class="bar-row">
-                            <div class="bar-label">Package + Add-ons | {{ $formatNum($packageModeSnapshot['package_with_addons']['transactions'] ?? 0) }} txns | {{ $formatMoney($packageModeSnapshot['package_with_addons']['revenue'] ?? 0) }}</div>
-                            <div class="bar-track"><div class="bar-fill c2" style="width: {{ $pct($packageModeSnapshot['package_with_addons']['transactions'] ?? 0, $totalTx) }}%;"></div></div>
+                            <div class="bar-label">Direct Source Share | {{ number_format($directSharePct, 1) }}%</div>
+                            <div class="bar-track"><div class="bar-fill c1" style="width: {{ $pct($directSharePct, 100) }}%;"></div></div>
+                        </div>
+                        <div class="bar-row">
+                            <div class="bar-label">Commission Rate | {{ number_format($commissionRatePct, 1) }}%</div>
+                            <div class="bar-track"><div class="bar-fill c4" style="width: {{ $pct($commissionRatePct, 100) }}%;"></div></div>
                         </div>
                     </div>
                 </td>
@@ -612,6 +614,16 @@
 
     <div class="section page-break">
         <div class="section-title">Add-on Intelligence And Combination Graphs</div>
+        <div class="graph-box" style="margin-bottom: 8px;">
+            <div class="graph-title">Top Package Revenue</div>
+            @foreach($topPackages as $pkg)
+                <div class="bar-row">
+                    <div class="bar-label">{{ $pkg['package_name'] }} | {{ $formatMoney($pkg['revenue']) }} | {{ $formatNum($pkg['transactions']) }} txns</div>
+                    <div class="bar-track"><div class="bar-fill c6" style="width: {{ $pct($pkg['revenue'], $pkgRevMax) }}%;"></div></div>
+                </div>
+            @endforeach
+        </div>
+
         <div class="graph-box">
             <div class="graph-title">Most Purchased Add-ons</div>
             @forelse($topAddons as $addon)
@@ -684,7 +696,7 @@
     </div>
 
     <div class="section page-break">
-        <div class="section-title">Club, Package, And Daily Momentum</div>
+        <div class="section-title">Club And Daily Momentum</div>
         <table class="two-col">
             <tr>
                 <td class="panel">
@@ -700,11 +712,11 @@
                 </td>
                 <td class="panel">
                     <div class="graph-box">
-                        <div class="graph-title">Top Package Revenue</div>
-                        @foreach($topPackages as $pkg)
+                        <div class="graph-title">Top Package + Add-on Combination Momentum</div>
+                        @foreach($topPackageAddonCombinations->take(10) as $combo)
                             <div class="bar-row">
-                                <div class="bar-label">{{ $pkg['package_name'] }} | {{ $formatMoney($pkg['revenue']) }} | {{ $formatNum($pkg['transactions']) }} txns</div>
-                                <div class="bar-track"><div class="bar-fill c6" style="width: {{ $pct($pkg['revenue'], $pkgRevMax) }}%;"></div></div>
+                                <div class="bar-label">{{ $combo['label'] }} | {{ $formatNum($combo['transactions']) }} txns</div>
+                                <div class="bar-track"><div class="bar-fill c6" style="width: {{ $pct($combo['transactions'], $packageAddonComboMax) }}%;"></div></div>
                             </div>
                         @endforeach
                     </div>

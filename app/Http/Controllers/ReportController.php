@@ -374,14 +374,6 @@ class ReportController extends Controller
         $affiliateCommission = (float) $transactions->sum('affiliate_commission_amount');
         $entertainerCommission = (float) $transactions->sum('entertainer_commission_amount');
         $totalCommission = $affiliateCommission + $entertainerCommission;
-        $totalMen = (int) $transactions->sum(fn ($t) => max(0, (int) ($t->men ?? 0)));
-        $totalWomen = (int) $transactions->sum(fn ($t) => max(0, (int) ($t->women ?? 0)));
-        $knownGenderGuests = $totalMen + $totalWomen;
-        $unknownGenderGuests = max(0, $totalGuests - $knownGenderGuests);
-        $genderEligibleTransactions = (int) $transactions
-            ->filter(fn ($t) => ((int) ($t->men ?? 0) > 0) || ((int) ($t->women ?? 0) > 0))
-            ->count();
-        $genderCoveragePct = $totalTransactions > 0 ? (($genderEligibleTransactions / $totalTransactions) * 100) : 0;
 
         $totalAddonsQty = 0;
         $transactionsWithAddons = 0;
@@ -852,11 +844,6 @@ class ReportController extends Controller
             'entertainer_commission' => $entertainerCommission,
             'total_commission' => $totalCommission,
             'net_revenue' => $totalRevenue - $totalCommission,
-            'total_men' => $totalMen,
-            'total_women' => $totalWomen,
-            'unknown_gender_guests' => $unknownGenderGuests,
-            'gender_eligible_transactions' => $genderEligibleTransactions,
-            'gender_coverage_pct' => $genderCoveragePct,
             'avg_lead_days' => $avgLeadDays,
             'avg_checkin_lag_minutes' => $avgCheckinLagMinutes,
             'transactions_with_addons' => $transactionsWithAddons,
