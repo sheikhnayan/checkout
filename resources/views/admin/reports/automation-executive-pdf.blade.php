@@ -4,18 +4,18 @@
     <meta charset="UTF-8">
     <title>Automation Executive Report</title>
     <style>
-        @page { margin: 20px 22px; }
+        @page { margin: 14px 16px; }
         body {
             font-family: DejaVu Sans, Arial, sans-serif;
             margin: 0;
             color: #0f172a;
-            font-size: 10px;
+            font-size: 9px;
             line-height: 1.35;
         }
         .header {
             border-bottom: 2px solid #0f172a;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
+            padding-bottom: 7px;
+            margin-bottom: 7px;
         }
         .title {
             margin: 0;
@@ -32,12 +32,12 @@
             width: 100%;
             border-collapse: separate;
             border-spacing: 6px;
-            margin-top: 8px;
+            margin-top: 5px;
         }
         .meta td {
             border: 1px solid #cbd5e1;
             background: #f8fafc;
-            padding: 6px 8px;
+            padding: 4px 6px;
             vertical-align: top;
         }
         .meta .label {
@@ -53,12 +53,12 @@
             font-weight: 700;
         }
         .section {
-            margin-top: 12px;
-            page-break-inside: avoid;
+            margin-top: 7px;
+            page-break-inside: auto;
         }
         .section-title {
-            margin: 0 0 7px;
-            padding: 5px 8px;
+            margin: 0 0 5px;
+            padding: 4px 6px;
             background: #0f172a;
             color: #ffffff;
             font-size: 11px;
@@ -68,12 +68,12 @@
         .cards {
             width: 100%;
             border-collapse: separate;
-            border-spacing: 6px;
+            border-spacing: 4px;
         }
         .card {
             border: 1px solid #cbd5e1;
             background: #ffffff;
-            padding: 6px 8px;
+            padding: 4px 6px;
             width: 25%;
             vertical-align: top;
         }
@@ -92,7 +92,7 @@
         .two-col {
             width: 100%;
             border-collapse: separate;
-            border-spacing: 8px 0;
+            border-spacing: 5px 0;
         }
         .panel {
             width: 50%;
@@ -100,10 +100,10 @@
         }
         .graph-box {
             border: 1px solid #cbd5e1;
-            padding: 7px;
+            padding: 5px;
         }
         .graph-title {
-            margin: 0 0 6px;
+            margin: 0 0 4px;
             font-size: 9px;
             font-weight: 700;
             text-transform: uppercase;
@@ -111,7 +111,7 @@
             letter-spacing: 0.4px;
         }
         .bar-row {
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
         .bar-label {
             font-size: 9px;
@@ -135,12 +135,12 @@
             width: 100%;
             border-collapse: collapse;
             border: 1px solid #cbd5e1;
-            margin-top: 8px;
+            margin-top: 5px;
         }
         .data-table th {
             background: #f1f5f9;
             border-bottom: 1px solid #cbd5e1;
-            padding: 5px 6px;
+            padding: 4px 5px;
             text-align: left;
             font-size: 8px;
             text-transform: uppercase;
@@ -149,7 +149,7 @@
         }
         .data-table td {
             border-bottom: 1px solid #eef2f7;
-            padding: 5px 6px;
+            padding: 4px 5px;
             font-size: 9px;
             color: #111827;
         }
@@ -158,12 +158,12 @@
         .insight-grid {
             width: 100%;
             border-collapse: separate;
-            border-spacing: 6px;
+            border-spacing: 4px;
         }
         .insight {
             border: 1px solid #cbd5e1;
             background: #f8fafc;
-            padding: 6px;
+            padding: 4px;
             vertical-align: top;
             width: 33.33%;
         }
@@ -174,7 +174,7 @@
         .trend-flat { color: #334155; font-weight: 700; }
         .pie-box {
             border: 1px solid #cbd5e1;
-            padding: 8px;
+            padding: 5px;
             background: #ffffff;
         }
         .pie-title {
@@ -187,11 +187,11 @@
         }
         .pie-svg-wrap {
             text-align: center;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
         .pie-img {
-            width: 180px;
-            height: 180px;
+            width: 150px;
+            height: 150px;
             display: block;
             margin: 0 auto;
         }
@@ -223,11 +223,11 @@
         .legend-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 4px;
+            margin-top: 2px;
         }
         .legend-table td {
             border-bottom: 1px solid #eef2f7;
-            padding: 4px 2px;
+            padding: 3px 2px;
             font-size: 8px;
             vertical-align: top;
         }
@@ -238,11 +238,11 @@
             margin-right: 4px;
             vertical-align: middle;
         }
-        .page-break { page-break-before: always; }
+        .page-break { page-break-before: auto; }
         .footer {
-            margin-top: 12px;
+            margin-top: 7px;
             border-top: 1px solid #cbd5e1;
-            padding-top: 6px;
+            padding-top: 4px;
             font-size: 9px;
             color: #64748b;
         }
@@ -556,7 +556,7 @@
         </table>
     </div>
 
-    <div class="section page-break">
+    <div class="section">
         <div class="section-title">Circular Revenue Stream Split</div>
         <table class="two-col">
             <tr>
@@ -594,7 +594,7 @@
         </table>
     </div>
 
-    <div class="section page-break">
+    <div class="section">
         <div class="section-title">Acquisition Mix And Time Distribution</div>
         <table class="two-col">
             <tr>
@@ -643,7 +643,7 @@
         </div>
     </div>
 
-    <div class="section page-break">
+    <div class="section">
         <div class="section-title">Guest Demographics And Spend Behavior</div>
         <table class="two-col">
             <tr>
@@ -727,7 +727,7 @@
         </table>
     </div>
 
-    <div class="section page-break">
+    <div class="section">
         <div class="section-title">Add-on Intelligence And Combination Graphs</div>
         <div class="graph-box" style="margin-bottom: 8px;">
             <div class="graph-title">Top Package Revenue</div>
@@ -764,7 +764,7 @@
         </div>
     </div>
 
-    <div class="section page-break">
+    <div class="section">
         <div class="section-title">Guest Location Intelligence</div>
         <table class="two-col">
             <tr>
@@ -810,7 +810,7 @@
         </div>
     </div>
 
-    <div class="section page-break">
+    <div class="section">
         <div class="section-title">Club And Daily Momentum</div>
         <table class="two-col">
             <tr>
