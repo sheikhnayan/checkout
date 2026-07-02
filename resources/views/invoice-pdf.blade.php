@@ -454,7 +454,7 @@
         </div>
     </div>
 
-    @if($transaction->package_note || !empty($mailData['transportation_mode']) || $transaction->transportation_pickup_time || $transaction->transportation_address || $transaction->transportation_phone || $transaction->transportation_guest || $transaction->host_name || $transaction->transportation_note)
+    @if($transaction->package_note || !empty($mailData['transportation_mode']) || $transaction->transportation_pickup_time || $transaction->transportation_arrival_time || $transaction->transportation_address || $transaction->transportation_phone || $transaction->transportation_guest || $transaction->host_name || $transaction->transportation_note)
     <div class="section">
         <div class="section-title">Booking & Transportation Details</div>
         @if($transaction->package_note)
@@ -473,6 +473,12 @@
         <div class="info-row">
             <span class="info-label">Pickup Time</span>
             <span class="info-value">{{ rescue(fn () => \Carbon\Carbon::parse($transaction->transportation_pickup_time)->format('h:i A'), $transaction->transportation_pickup_time) }}</span>
+        </div>
+        @endif
+        @if($transaction->transportation_arrival_time)
+        <div class="info-row">
+            <span class="info-label">Arrival Time</span>
+            <span class="info-value">{{ rescue(fn () => \Carbon\Carbon::parse($transaction->transportation_arrival_time)->format('h:i A'), $transaction->transportation_arrival_time) }}</span>
         </div>
         @endif
         @if($transaction->transportation_address)

@@ -60,6 +60,7 @@
                     <div class="section-title">Transportation Details</div>
                     <ul class="list-group">
                         <li class="list-group-item"><strong>Pickup Time:</strong> <span>{{ htmlspecialchars($transaction->transportation_pickup_time ?? '') }}</span></li>
+                        <li class="list-group-item"><strong>Arrival Time:</strong> <span>{{ htmlspecialchars($transaction->transportation_arrival_time ?? '') }}</span></li>
                         <li class="list-group-item"><strong>Pickup Location:</strong> <span>{{ htmlspecialchars($transaction->transportation_address ?? '') }}</span></li>
                         <li class="list-group-item"><strong>Phone:</strong> <span>{{ htmlspecialchars($transaction->transportation_phone ?? '') }}</span></li>
                         <li class="list-group-item"><strong>Host Name:</strong> <span>{{ htmlspecialchars($transaction->host_name ?? '') }}</span></li>

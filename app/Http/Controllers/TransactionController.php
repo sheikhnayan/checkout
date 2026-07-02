@@ -185,6 +185,7 @@ class TransactionController extends Controller
         $selectedPackage = Package::find($cartSummary['primary_package_id'] ?: $request->input('package_id'));
         $requiresTransportation = $this->cartRequiresTransportation($cartItems, $selectedPackage);
         $isSelfDriveTransportation = $requiresTransportation && $request->boolean('transportation_self_drive_ack');
+        $requiresArrivalTime = !$requiresTransportation || $isSelfDriveTransportation;
 
         $this->ensureCartEventCapacitiesAvailable($cartItems, $requestedUseDate);
 
@@ -227,6 +228,17 @@ class TransactionController extends Controller
             if ($scheduleWebsite && !$isSelfDriveTransportation) {
                 $this->validateTransportationAvailability($scheduleWebsite, $request, $selectedPackage);
             }
+        }
+
+        if ($requiresArrivalTime) {
+            $request->validate(
+                [
+                    'transportation_arrival_time' => ['required', 'string', 'max:100'],
+                ],
+                [
+                    'transportation_arrival_time.required' => 'Time of arrival is required for self-drive or non-transportation packages.',
+                ]
+            );
         }
 
         $setting = Setting::find(1);
@@ -331,6 +343,7 @@ class TransactionController extends Controller
                     $add->actual_total = $request->input('payment_total');
                     $add->discounted_amount = $validatedDiscountAmount;
                     $add->transportation_pickup_time = $isSelfDriveTransportation ? null : $request->input('transportation_pickup_time');
+                    $add->transportation_arrival_time = $requiresArrivalTime ? $request->input('transportation_arrival_time') : null;
                     $add->transportation_address = $isSelfDriveTransportation ? null : $request->input('transportation_address');
                     $add->transportation_phone = $isSelfDriveTransportation ? null : $request->input('transportation_phone');
                     $add->transportation_guest = $isSelfDriveTransportation ? null : $request->input('transportation_guest');
@@ -385,6 +398,7 @@ class TransactionController extends Controller
                             'package_dob' => $add->package_dob,
                             'package_note' => $request->input('package_note'),
                             'transportation_pickup_time' => $add->transportation_pickup_time,
+                            'transportation_arrival_time' => $add->transportation_arrival_time,
                             'transportation_mode' => $requiresTransportation
                                 ? ($isSelfDriveTransportation ? 'Self Drive Selected' : 'Pickup Requested')
                                 : null,
@@ -648,6 +662,7 @@ class TransactionController extends Controller
                     $add->actual_total = $request->input('payment_total');
                     $add->discounted_amount = $validatedDiscountAmount;
                     $add->transportation_pickup_time = $isSelfDriveTransportation ? null : $request->input('transportation_pickup_time');
+                    $add->transportation_arrival_time = $requiresArrivalTime ? $request->input('transportation_arrival_time') : null;
                     $add->transportation_address = $isSelfDriveTransportation ? null : $request->input('transportation_address');
                     $add->transportation_phone = $isSelfDriveTransportation ? null : $request->input('transportation_phone');
                     $add->transportation_guest = $isSelfDriveTransportation ? null : $request->input('transportation_guest');
@@ -702,6 +717,7 @@ class TransactionController extends Controller
                             'package_dob' => $add->package_dob,
                             'package_note' => $request->input('package_note'),
                             'transportation_pickup_time' => $add->transportation_pickup_time,
+                            'transportation_arrival_time' => $add->transportation_arrival_time,
                             'transportation_mode' => $requiresTransportation
                                 ? ($isSelfDriveTransportation ? 'Self Drive Selected' : 'Pickup Requested')
                                 : null,
@@ -833,6 +849,7 @@ class TransactionController extends Controller
         $websiteId = (int) $request->website_id;
         $requiresTransportation = $this->cartRequiresTransportation($cartItems, $selectedPackage);
         $isSelfDriveTransportation = $requiresTransportation && $request->boolean('transportation_self_drive_ack');
+        $requiresArrivalTime = !$requiresTransportation || $isSelfDriveTransportation;
 
         $transaction = new Transaction();
         $transaction->transaction_id = $transactionId;
@@ -864,6 +881,7 @@ class TransactionController extends Controller
         $transaction->actual_total = $request->input('payment_total');
         $transaction->discounted_amount = $validatedDiscountAmount;
         $transaction->transportation_pickup_time = $isSelfDriveTransportation ? null : $request->input('transportation_pickup_time');
+        $transaction->transportation_arrival_time = $requiresArrivalTime ? $request->input('transportation_arrival_time') : null;
         $transaction->transportation_address = $isSelfDriveTransportation ? null : $request->input('transportation_address');
         $transaction->transportation_phone = $isSelfDriveTransportation ? null : $request->input('transportation_phone');
         $transaction->transportation_guest = $isSelfDriveTransportation ? null : $request->input('transportation_guest');
@@ -913,6 +931,7 @@ class TransactionController extends Controller
                 'package_dob' => $transaction->package_dob,
                 'package_note' => $request->input('package_note'),
                 'transportation_pickup_time' => $transaction->transportation_pickup_time,
+                'transportation_arrival_time' => $transaction->transportation_arrival_time,
                 'transportation_mode' => $requiresTransportation
                     ? ($isSelfDriveTransportation ? 'Self Drive Selected' : 'Pickup Requested')
                     : null,
@@ -1423,6 +1442,17 @@ class TransactionController extends Controller
             $pickupFormatted = sprintf('%02d:%s %s', $hours, $minutes, $ampm);
         }
 
+        $arrivalRaw = trim((string) ($transaction->transportation_arrival_time ?? ''));
+        $arrivalFormatted = $arrivalRaw;
+        if ($arrivalRaw !== '' && strpos($arrivalRaw, ':') !== false && !preg_match('/\b(?:AM|PM)\b/i', $arrivalRaw)) {
+            $parts = explode(':', $arrivalRaw);
+            $hours = isset($parts[0]) ? (int) $parts[0] : 0;
+            $minutes = isset($parts[1]) ? $parts[1] : '00';
+            $ampm = $hours >= 12 ? 'PM' : 'AM';
+            $hours = $hours % 12 ?: 12;
+            $arrivalFormatted = sprintf('%02d:%s %s', $hours, $minutes, $ampm);
+        }
+
         $status = $transaction->status;
         $statusText = 'Unknown';
         $statusClass = 'txn-status-unknown';
@@ -1583,6 +1613,7 @@ class TransactionController extends Controller
         $html .= '<div class="col-md-6"><div class="txn-detail-card"><div class="txn-detail-title">Transport & Business</div>';
         $html .= $row('Transport Mode', $esc($transportMode));
         $html .= $row('Pickup Time', $esc($pickupFormatted ?: 'N/A'));
+        $html .= $row('Arrival Time', $esc($arrivalFormatted ?: 'N/A'));
         $html .= $row('Transport Phone', $esc($transaction->transportation_phone ?: 'N/A'));
         $html .= $row('Transport Address', $esc($transaction->transportation_address ?: 'N/A'));
         $html .= $row('Transport Guest', $esc($transaction->transportation_guest ?: 'N/A'));

@@ -90,13 +90,16 @@
             @if(!empty($mailData['package_note']))
             <tr><th>Booking Note</th><td>{{ $mailData['package_note'] }}</td></tr>
             @endif
-            @if(!empty($mailData['transportation_mode']) || !empty($mailData['transportation_pickup_time']) || !empty($mailData['transportation_address']) || !empty($mailData['transportation_phone']) || !empty($mailData['transportation_guest']) || !empty($mailData['transportation_note']))
+            @if(!empty($mailData['transportation_mode']) || !empty($mailData['transportation_pickup_time']) || !empty($mailData['transportation_arrival_time']) || !empty($mailData['transportation_address']) || !empty($mailData['transportation_phone']) || !empty($mailData['transportation_guest']) || !empty($mailData['transportation_note']))
             <tr><th colspan="2" style="background: #dbeafe; padding: 14px; border-radius: 6px;"><strong>Transportation Details</strong></th></tr>
             @if(!empty($mailData['transportation_mode']))
             <tr><th>Transportation Mode</th><td>{{ $mailData['transportation_mode'] }}</td></tr>
             @endif
             @if(!empty($mailData['transportation_pickup_time']))
             <tr><th>Pickup Time</th><td>{{ rescue(fn () => \Carbon\Carbon::parse($mailData['transportation_pickup_time'])->format('h:i A'), $mailData['transportation_pickup_time']) }}</td></tr>
+            @endif
+            @if(!empty($mailData['transportation_arrival_time']))
+            <tr><th>Arrival Time</th><td>{{ rescue(fn () => \Carbon\Carbon::parse($mailData['transportation_arrival_time'])->format('h:i A'), $mailData['transportation_arrival_time']) }}</td></tr>
             @endif
             @if(!empty($mailData['transportation_address']))
             <tr><th>Pickup Location</th><td>{{ $mailData['transportation_address'] }}</td></tr>
@@ -194,13 +197,16 @@
             @if(!empty($mailData['package_note']))
             <tr><th>Booking Note</th><td>{{ $mailData['package_note'] }}</td></tr>
             @endif
-            @if(!empty($mailData['transportation_mode']) || !empty($mailData['transportation_pickup_time']) || !empty($mailData['transportation_address']) || !empty($mailData['transportation_phone']) || !empty($mailData['transportation_guest']) || !empty($mailData['transportation_note']))
+            @if(!empty($mailData['transportation_mode']) || !empty($mailData['transportation_pickup_time']) || !empty($mailData['transportation_arrival_time']) || !empty($mailData['transportation_address']) || !empty($mailData['transportation_phone']) || !empty($mailData['transportation_guest']) || !empty($mailData['transportation_note']))
             <tr><th colspan="2" style="background: #dbeafe; padding: 14px; border-radius: 6px;"><strong>Transportation Details</strong></th></tr>
             @if(!empty($mailData['transportation_mode']))
             <tr><th>Transportation Mode</th><td>{{ $mailData['transportation_mode'] }}</td></tr>
             @endif
             @if(!empty($mailData['transportation_pickup_time']))
             <tr><th>Pickup Time</th><td>{{ rescue(fn () => \Carbon\Carbon::parse($mailData['transportation_pickup_time'])->format('h:i A'), $mailData['transportation_pickup_time']) }}</td></tr>
+            @endif
+            @if(!empty($mailData['transportation_arrival_time']))
+            <tr><th>Arrival Time</th><td>{{ rescue(fn () => \Carbon\Carbon::parse($mailData['transportation_arrival_time'])->format('h:i A'), $mailData['transportation_arrival_time']) }}</td></tr>
             @endif
             @if(!empty($mailData['transportation_address']))
             <tr><th>Pickup Location</th><td>{{ $mailData['transportation_address'] }}</td></tr>

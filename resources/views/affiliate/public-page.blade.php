@@ -3652,7 +3652,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     z-index: 2;
 }
 .checkout-section[id^="section-"] #Pick-up-time,
-.checkout-section[id^="section-"] input[name="transportation_pickup_time"] {
+.checkout-section[id^="section-"] #Arrival-time,
+.checkout-section[id^="section-"] input[name="transportation_pickup_time"],
+.checkout-section[id^="section-"] input[name="transportation_arrival_time"] {
     background: rgba(255,255,255,0.03) !important;
     border: 1px solid rgba(255,255,255,0.14) !important;
     color: #fff !important;
@@ -3668,8 +3670,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     font-family: inherit;
 }
 .checkout-section[id^="section-"] #Pick-up-time::placeholder,
-.checkout-section[id^="section-"] input[name="transportation_pickup_time"]::placeholder { color: rgba(255,255,255,0.35) !important; }
-.checkout-section[id^="section-"] input[name="transportation_pickup_time"]:focus {
+.checkout-section[id^="section-"] #Arrival-time::placeholder,
+.checkout-section[id^="section-"] input[name="transportation_pickup_time"]::placeholder,
+.checkout-section[id^="section-"] input[name="transportation_arrival_time"]::placeholder { color: rgba(255,255,255,0.35) !important; }
+.checkout-section[id^="section-"] input[name="transportation_pickup_time"]:focus,
+.checkout-section[id^="section-"] input[name="transportation_arrival_time"]:focus {
     outline: none !important;
     border-color: #a774ff !important;
     background: rgba(255,255,255,0.05) !important;
@@ -6317,7 +6322,21 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                             </div>
                                                             </div>
 
-                                                            <div class="checkbox-container transportaiton" style="margin-top: 20px;">
+                                                            <div class="form-row" id="transportation-arrival-time-field" style="display:none !important; margin-top: 14px;">
+                                                                <div class="form-group" style="width: 100%;">
+                                                                    <label for="Arrival-time">Time of Arrival</label>
+                                                                    <div class="pickup-time-wrap">
+                                                                        <i class="fas fa-clock pickup-time-icon"></i>
+                                                                        <input name="transportation_arrival_time" type="text" readonly
+                                                                            id="Arrival-time"
+                                                                            class="form-control"
+                                                                            placeholder="Select time of arrival" />
+                                                                    </div>
+                                                                    <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:rgba(255,255,255,0.6);">Required when self-driving or when package transportation is not included.</small>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="checkbox-container transportaiton" id="transportation-self-drive-wrap" style="margin-top: 20px;">
                                                                 <label>
                                                                     <input type="checkbox" id="transportation_self_drive_ack" name="transportation_self_drive_ack" value="1" />
                                                                     I do not need the complimentary transportation included with my package and will self-drive. My party will arrive by private vehicle. Uber, Lyft, taxis, limousines, and ride-sharing services are not permitted.
@@ -7398,6 +7417,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 const transportationPhoneField = $('input[name="transportation_phone"]');
                 const transportationAddressField = $('input[name="transportation_address"]');
                 const transportationPickupTimeField = $('input[name="transportation_pickup_time"]');
+                const transportationArrivalTimeField = $('input[name="transportation_arrival_time"]');
                 const transportationGuestField = $('input[name="transportation_guest"]');
                 const pickupDateField = $('input[name="package_use_date"]');
                 const driverNotificationConsentWrap = $('.driver-notification-consent-wrap');
@@ -7406,6 +7426,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     $('#step-2 .step-title').text('Transportation');
                     $('#next-to-transport').text('Next: Transportation Details');
                     transportationFields.prop('disabled', false);
+                    transportationArrivalTimeField.prop('required', false).prop('disabled', false).removeClass('required-field').removeAttr('aria-required');
                     transportationPhoneField.prop('required', true).attr('aria-required', 'true');
                     transportationAddressField.prop('required', true).attr('aria-required', 'true');
                     transportationPickupTimeField.prop('required', true).attr('aria-required', 'true');
@@ -7417,13 +7438,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     driverNotificationConsentWrap.css('display', 'flex');
                     driverNotificationConsentInputs.prop('required', true).attr('aria-required', 'true');
                 } else {
-                    $('#step-2 .step-title').text('Confirmation');
-                    $('#next-to-transport').text('Next: Transportation Confirmation');
-                    transportationFields.prop('disabled', true);
+                    $('#step-2 .step-title').text('Arrival');
+                    $('#next-to-transport').text('Next: Arrival Details');
+                    transportationFields.prop('disabled', false);
                     transportationPhoneField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
                     transportationAddressField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
                     transportationPickupTimeField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
                     transportationGuestField.prop('required', false).removeClass('required-field').removeAttr('aria-required').val('0');
+                    transportationArrivalTimeField.prop('required', true).prop('disabled', false).attr('aria-required', 'true');
                     pickupDateField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
                     driverNotificationConsentWrap.hide();
                     driverNotificationConsentInputs.prop('checked', false).prop('required', false).removeAttr('aria-required');
@@ -7434,30 +7456,53 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
             function updateTransportationSelfDriveState() {
                 const selfDriveAck = $('#transportation_self_drive_ack');
+                const selfDriveWrap = $('#transportation-self-drive-wrap');
                 const transportationDetailsFields = $('#transportation-details-fields');
+                const transportationArrivalTimeRow = $('#transportation-arrival-time-field');
+                const setArrivalTimeVisibility = function (isVisible) {
+                    transportationArrivalTimeRow.each(function () {
+                        this.style.setProperty('display', isVisible ? 'flex' : 'none', 'important');
+                    });
+                };
                 const transportationPhoneField = $('input[name="transportation_phone"]');
                 const transportationAddressField = $('input[name="transportation_address"]');
                 const transportationPickupTimeField = $('input[name="transportation_pickup_time"]');
+                const transportationArrivalTimeField = $('input[name="transportation_arrival_time"]');
                 const transportationGuestField = $('input[name="transportation_guest"]');
                 const isSelfDrive = selfDriveAck.is(':checked');
 
                 if (!window.requiresTransportation) {
-                    transportationDetailsFields.show();
-                    return;
-                }
-
-                if (isSelfDrive) {
+                    selfDriveWrap.hide();
+                    selfDriveAck.prop('checked', false).prop('disabled', true);
                     transportationDetailsFields.hide();
+                    setArrivalTimeVisibility(true);
                     transportationPhoneField.prop('required', false).prop('disabled', true).removeClass('required-field').removeAttr('aria-required');
                     transportationAddressField.prop('required', false).prop('disabled', true).removeClass('required-field').removeAttr('aria-required');
                     transportationPickupTimeField.prop('required', false).prop('disabled', true).removeClass('required-field').removeAttr('aria-required');
                     transportationGuestField.prop('required', false).prop('disabled', true).removeClass('required-field').removeAttr('aria-required');
+                    transportationArrivalTimeField.prop('required', true).prop('disabled', false).attr('aria-required', 'true');
+                    return;
+                }
+
+                selfDriveWrap.show();
+                selfDriveAck.prop('disabled', false);
+
+                if (isSelfDrive) {
+                    transportationDetailsFields.hide();
+                    setArrivalTimeVisibility(true);
+                    transportationPhoneField.prop('required', false).prop('disabled', true).removeClass('required-field').removeAttr('aria-required');
+                    transportationAddressField.prop('required', false).prop('disabled', true).removeClass('required-field').removeAttr('aria-required');
+                    transportationPickupTimeField.prop('required', false).prop('disabled', true).removeClass('required-field').removeAttr('aria-required');
+                    transportationGuestField.prop('required', false).prop('disabled', true).removeClass('required-field').removeAttr('aria-required');
+                    transportationArrivalTimeField.prop('required', true).prop('disabled', false).attr('aria-required', 'true');
                 } else {
                     transportationDetailsFields.show();
+                    setArrivalTimeVisibility(false);
                     transportationPhoneField.prop('required', true).prop('disabled', false).attr('aria-required', 'true');
                     transportationAddressField.prop('required', true).prop('disabled', false).attr('aria-required', 'true');
                     transportationPickupTimeField.prop('required', true).prop('disabled', false).attr('aria-required', 'true');
                     transportationGuestField.prop('required', true).prop('disabled', false).attr('aria-required', 'true');
+                    transportationArrivalTimeField.prop('required', false).prop('disabled', true).removeClass('required-field').removeAttr('aria-required');
                 }
             }
 
@@ -8560,13 +8605,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 
                 // Handle transportation logic for step 2
                 if (stepNumber === 2) {
-                    if (window.requiresTransportation) {
-                        $('#transport-form').show();
-                        $('#transport-confirmation').hide();
-                    } else {
-                        $('#transport-form').hide();
-                        $('#transport-confirmation').show();
-                    }
+                    $('#transport-form').show();
+                    $('#transport-confirmation').hide();
                 }
 
                 // Scroll to the top of the new step on all devices
@@ -8604,12 +8644,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     //     '[name="transportation_phone"]',
                     //     '[name="transportation_guest"]'
                     // );
-                } else if (stepNumber === 2 && !window.requiresTransportation) {
-                    // Validate transportation confirmation checkbox
-                    if (!$('#transportation_part').is(':checked')) {
-                        alert('Please confirm your transportation arrangement.');
-                        return false;
-                    }
                 }
 
                 // Keep transportation guest default at 0 until user explicitly sets a value > 0.
@@ -8635,6 +8669,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 });
 
                 const skipTransportationInputs = stepNumber === 2 && window.requiresTransportation && $('#transportation_self_drive_ack').is(':checked');
+                const requiresArrivalTime = stepNumber === 2 && (!window.requiresTransportation || skipTransportationInputs);
 
                 if (isValid && stepNumber === 2 && window.requiresTransportation && !skipTransportationInputs && typeof validateTransportationScheduleClient === 'function') {
                     const scheduleValidation = validateTransportationScheduleClient();
@@ -8653,6 +8688,17 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         isValid = false;
                         firstInvalidField = firstInvalidField || transportationGuestField;
                         alertMessage = 'Please enter Number of Guest(s) in Transportation (minimum 1).';
+                    }
+                }
+
+                if (requiresArrivalTime) {
+                    const transportationArrivalTimeField = $('[name="transportation_arrival_time"]');
+                    const transportationArrivalTimeValue = transportationArrivalTimeField.val().trim();
+                    if (!transportationArrivalTimeValue) {
+                        transportationArrivalTimeField.addClass('required-field');
+                        isValid = false;
+                        firstInvalidField = firstInvalidField || transportationArrivalTimeField;
+                        alertMessage = 'Please enter time of arrival.';
                     }
                 }
 
@@ -9329,6 +9375,64 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             // Pick-up time picker: desktop uses Flatpickr, mobile uses the native time control.
             (function () {
                 var el = document.querySelector('input[name="transportation_pickup_time"]');
+                if (!el) return;
+                function to24h(t) {
+                    if (!t) return null;
+                    var m = String(t).trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+                    if (!m) return null;
+                    var hh = parseInt(m[1], 10);
+                    var mm = parseInt(m[2], 10);
+                    if (m[3]) {
+                        var mer = m[3].toUpperCase();
+                        if (mer === 'PM' && hh < 12) hh += 12;
+                        else if (mer === 'AM' && hh === 12) hh = 0;
+                    }
+                    return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+                }
+                var minT = to24h(typeof transportationSchedule !== 'undefined' ? transportationSchedule.startTime : null);
+                var maxT = to24h(typeof transportationSchedule !== 'undefined' ? transportationSchedule.endTime : null);
+                var isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+                    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+                if (isMobileDevice) {
+                    el.type = 'time';
+                    el.removeAttribute('readonly');
+                    el.step = 900;
+                    if (minT) el.min = minT;
+                    if (maxT) el.max = maxT;
+                    el.addEventListener('input', function () {
+                        $(el).removeClass('required-field');
+                    });
+                    return;
+                }
+
+                el.type = 'text';
+                if (typeof flatpickr === 'undefined') {
+                    el.type = 'time';
+                    if (minT) el.min = minT;
+                    if (maxT) el.max = maxT;
+                    el.step = 900;
+                    return;
+                }
+
+                flatpickr(el, {
+                    enableTime: true,
+                    noCalendar: true,
+                    time_24hr: false,
+                    minuteIncrement: 15,
+                    dateFormat: 'h:i K',
+                    allowInput: false,
+                    onChange: function () {
+                        $(el).removeClass('required-field');
+                    },
+                    minTime: minT || undefined,
+                    maxTime: maxT || undefined
+                });
+            })();
+
+            // Arrival time picker mirrors pickup-time behavior for cross-platform support.
+            (function () {
+                var el = document.querySelector('input[name="transportation_arrival_time"]');
                 if (!el) return;
                 function to24h(t) {
                     if (!t) return null;
