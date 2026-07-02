@@ -4,6 +4,7 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\ReportController;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -28,3 +29,7 @@ Artisan::command('reports:dispatch-automation', function () {
     $this->line('Sent: ' . ($result['sent'] ?? 0));
     $this->line('Failed: ' . ($result['failed'] ?? 0));
 })->purpose('Send due automation executive report schedules');
+
+Schedule::command('reports:dispatch-automation')
+    ->everyMinute()
+    ->withoutOverlapping();
