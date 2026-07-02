@@ -191,6 +191,19 @@
             font-size: 9px;
             color: #111827;
         }
+        .data-table th.right,
+        .data-table td.right {
+            text-align: right !important;
+        }
+        .data-table th:first-child,
+        .data-table td:first-child {
+            width: 30%;
+            text-align: left;
+        }
+        .data-table th:nth-child(n+2),
+        .data-table td:nth-child(n+2) {
+            width: 17.5%;
+        }
         .data-table tr:nth-child(even) td { background: #f7faff; }
         .right { text-align: right; }
         .insight-grid {
