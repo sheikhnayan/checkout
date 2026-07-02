@@ -908,6 +908,15 @@
   </li>
   @endif
 
+  @if($authUser && ($canAccessRoute('admin.reports.automation.schedules') || $authUser->isAdmin()))
+  <li class="menu-item {{ request()->is('admins/reports/automation/schedules*') ? 'active' : '' }}">
+    <a href="{{ route('admin.reports.automation.schedules') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-time-five"></i>
+      <div class="text-truncate">Automation Reports</div>
+    </a>
+  </li>
+  @endif
+
   @if($authUser && ($canAccessRoute('admin.transaction.index') || $authUser->isAdmin()))
   <li class="menu-item {{ request()->is('admins/transaction') ? 'active' : '' }}">
     <a href="{{ route('admin.transaction.index') }}" class="menu-link">

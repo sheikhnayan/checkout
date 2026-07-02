@@ -5,12 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Report;
 use App\Models\UserReportPreference;
 use App\Models\ReportExport;
+use App\Models\AutomationReportRun;
+use App\Models\AutomationReportSchedule;
 use App\Models\Transaction;
 use App\Models\Website;
+use App\Services\AutomationReportSchedulerService;
 use App\Services\ReportGenerationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -18,6 +22,13 @@ use Carbon\Carbon;
 
 class ReportController extends Controller
 {
+    private AutomationReportSchedulerService $automationScheduler;
+
+    public function __construct(AutomationReportSchedulerService $automationScheduler)
+    {
+        $this->automationScheduler = $automationScheduler;
+    }
+
     // Middleware handled in routes/web.php
 
     /**
@@ -998,6 +1009,366 @@ class ReportController extends Controller
         }
 
         return $ids;
+    }
+
+    public function automationSchedules(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            abort(401);
+        }
+
+        $accessibleWebsiteIds = $this->resolveUserAccessibleWebsiteIds($user);
+        $websites = Website::query()
+            ->whereIn('id', $accessibleWebsiteIds)
+            ->where('is_archieved', 0)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        $schedulesQuery = AutomationReportSchedule::query()->with('creator');
+        if (!$user->isAdmin()) {
+            $schedulesQuery->where('created_by_user_id', $user->id);
+        }
+
+        $schedules = $schedulesQuery->orderByDesc('created_at')->get();
+
+        return view('admin.reports.automations.index', [
+            'schedules' => $schedules,
+            'websites' => $websites,
+            'defaultTimezone' => 'America/Los_Angeles',
+        ]);
+    }
+
+    public function automationSchedulesStore(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            abort(401);
+        }
+
+        $validated = $this->validateAutomationSchedule($request, $user);
+
+        $schedule = new AutomationReportSchedule();
+        $schedule->fill($validated);
+        $schedule->created_by_user_id = $user->id;
+        $schedule->is_active = true;
+        $schedule->next_run_at = $this->automationScheduler->computeNextRunAt($schedule);
+        $schedule->save();
+
+        return redirect()
+            ->route('admin.reports.automation.schedules')
+            ->with('success', 'Automation schedule created successfully.');
+    }
+
+    public function automationSchedulesEdit(AutomationReportSchedule $schedule)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            abort(401);
+        }
+
+        $this->assertCanManageSchedule($schedule, $user);
+
+        $accessibleWebsiteIds = $this->resolveUserAccessibleWebsiteIds($user);
+        $websites = Website::query()
+            ->whereIn('id', $accessibleWebsiteIds)
+            ->where('is_archieved', 0)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return view('admin.reports.automations.edit', [
+            'schedule' => $schedule,
+            'websites' => $websites,
+            'defaultTimezone' => 'America/Los_Angeles',
+        ]);
+    }
+
+    public function automationSchedulesUpdate(AutomationReportSchedule $schedule, Request $request)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            abort(401);
+        }
+
+        $this->assertCanManageSchedule($schedule, $user);
+        $validated = $this->validateAutomationSchedule($request, $user);
+
+        $schedule->fill($validated);
+        $schedule->next_run_at = $this->automationScheduler->computeNextRunAt($schedule);
+        $schedule->save();
+
+        return redirect()
+            ->route('admin.reports.automation.schedules')
+            ->with('success', 'Automation schedule updated successfully.');
+    }
+
+    public function automationSchedulesToggle(AutomationReportSchedule $schedule)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            abort(401);
+        }
+
+        $this->assertCanManageSchedule($schedule, $user);
+
+        $schedule->is_active = !$schedule->is_active;
+        if ($schedule->is_active) {
+            $schedule->next_run_at = $this->automationScheduler->computeNextRunAt($schedule);
+        }
+        $schedule->save();
+
+        return back()->with('success', 'Schedule status updated.');
+    }
+
+    public function automationSchedulesDestroy(AutomationReportSchedule $schedule)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            abort(401);
+        }
+
+        $this->assertCanManageSchedule($schedule, $user);
+        $schedule->delete();
+
+        return back()->with('success', 'Schedule deleted successfully.');
+    }
+
+    public function automationSchedulesRunNow(AutomationReportSchedule $schedule)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            abort(401);
+        }
+
+        $this->assertCanManageSchedule($schedule, $user);
+        $this->dispatchAutomationSchedule($schedule, $user->id);
+
+        return back()->with('success', 'Automation report generated and sent successfully.');
+    }
+
+    public function automationHistory(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            abort(401);
+        }
+
+        $runsQuery = AutomationReportRun::query()->with(['schedule', 'triggeredBy']);
+        if (!$user->isAdmin()) {
+            $runsQuery->whereHas('schedule', function ($q) use ($user) {
+                $q->where('created_by_user_id', $user->id);
+            });
+        }
+
+        $runs = $runsQuery->orderByDesc('id')->paginate(25);
+
+        return view('admin.reports.automations.history', [
+            'runs' => $runs,
+        ]);
+    }
+
+    private function validateAutomationSchedule(Request $request, $user): array
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'frequency' => 'required|in:daily,weekly,monthly,yearly,custom_month_range',
+            'website_ids' => 'required|array|min:1',
+            'website_ids.*' => 'integer|exists:websites,id',
+            'email_recipients' => 'required|string|max:5000',
+            'timezone' => 'nullable|timezone',
+            'send_time' => 'nullable|date_format:H:i',
+            'one_time_date' => 'nullable|date',
+            'one_time_time' => 'nullable|date_format:H:i',
+            'weekly_day' => 'nullable|integer|min:0|max:6',
+            'monthly_day' => 'nullable|integer|min:1|max:31',
+            'yearly_month' => 'nullable|integer|min:1|max:12',
+            'yearly_day' => 'nullable|integer|min:1|max:31',
+            'custom_from_month' => 'nullable|date_format:Y-m',
+            'custom_to_month' => 'nullable|date_format:Y-m',
+        ]);
+
+        $requestedWebsiteIds = collect($validated['website_ids'])->map(fn ($id) => (int) $id)->unique()->values()->all();
+        $allowedWebsiteIds = $this->resolveUserAccessibleWebsiteIds($user);
+        $invalidWebsiteIds = array_values(array_diff($requestedWebsiteIds, $allowedWebsiteIds));
+        if (!empty($invalidWebsiteIds)) {
+            abort(403, 'You cannot select one or more of the chosen clubs.');
+        }
+
+        $emails = collect(preg_split('/[,;\s]+/', (string) $validated['email_recipients']))
+            ->filter()
+            ->map(fn ($email) => strtolower(trim((string) $email)))
+            ->unique()
+            ->values();
+
+        foreach ($emails as $email) {
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                return back()
+                    ->withErrors(['email_recipients' => 'One or more email addresses are invalid.'])
+                    ->withInput()
+                    ->throwResponse();
+            }
+        }
+
+        if ($validated['frequency'] === 'weekly' && is_null($validated['weekly_day'])) {
+            return back()->withErrors(['weekly_day' => 'Week day is required for weekly schedules.'])->withInput()->throwResponse();
+        }
+
+        if ($validated['frequency'] === 'monthly' && is_null($validated['monthly_day'])) {
+            return back()->withErrors(['monthly_day' => 'Day of month is required for monthly schedules.'])->withInput()->throwResponse();
+        }
+
+        if ($validated['frequency'] === 'yearly' && (is_null($validated['yearly_month']) || is_null($validated['yearly_day']))) {
+            return back()->withErrors(['yearly_day' => 'Month and day are required for yearly schedules.'])->withInput()->throwResponse();
+        }
+
+        if ($validated['frequency'] === 'custom_month_range' && (empty($validated['custom_from_month']) || empty($validated['custom_to_month']))) {
+            return back()->withErrors(['custom_from_month' => 'From/To months are required for custom month range schedules.'])->withInput()->throwResponse();
+        }
+
+        $customFrom = null;
+        $customTo = null;
+        if (!empty($validated['custom_from_month'])) {
+            $customFrom = Carbon::createFromFormat('Y-m', $validated['custom_from_month'])->startOfMonth()->toDateString();
+        }
+        if (!empty($validated['custom_to_month'])) {
+            $customTo = Carbon::createFromFormat('Y-m', $validated['custom_to_month'])->startOfMonth()->toDateString();
+        }
+
+        if ($customFrom && $customTo && $customFrom > $customTo) {
+            return back()->withErrors(['custom_to_month' => 'To month must be after or equal to From month.'])->withInput()->throwResponse();
+        }
+
+        return [
+            'name' => $validated['name'],
+            'frequency' => $validated['frequency'],
+            'website_ids' => $requestedWebsiteIds,
+            'email_recipients' => $emails->all(),
+            'timezone' => $validated['timezone'] ?: 'America/Los_Angeles',
+            'send_time' => !empty($validated['send_time']) ? ($validated['send_time'] . ':00') : '06:00:00',
+            'one_time_date' => !empty($validated['one_time_date']) ? Carbon::parse($validated['one_time_date'])->toDateString() : null,
+            'one_time_time' => !empty($validated['one_time_time']) ? ($validated['one_time_time'] . ':00') : null,
+            'weekly_day' => $validated['frequency'] === 'weekly' ? (int) $validated['weekly_day'] : null,
+            'monthly_day' => $validated['frequency'] === 'monthly' ? (int) $validated['monthly_day'] : null,
+            'yearly_month' => $validated['frequency'] === 'yearly' ? (int) $validated['yearly_month'] : null,
+            'yearly_day' => $validated['frequency'] === 'yearly' ? (int) $validated['yearly_day'] : null,
+            'custom_from_month' => $validated['frequency'] === 'custom_month_range' ? $customFrom : null,
+            'custom_to_month' => $validated['frequency'] === 'custom_month_range' ? $customTo : null,
+        ];
+    }
+
+    private function resolveUserAccessibleWebsiteIds($user): array
+    {
+        return collect($user->accessibleWebsiteIds())
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn ($id) => $id > 0)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    private function assertCanManageSchedule(AutomationReportSchedule $schedule, $user): void
+    {
+        if ($user->isAdmin()) {
+            return;
+        }
+
+        if ((int) $schedule->created_by_user_id !== (int) $user->id) {
+            abort(403, 'You are not allowed to manage this automation schedule.');
+        }
+    }
+
+    public function dispatchDueAutomationSchedules(): array
+    {
+        $now = now();
+        $dueSchedules = AutomationReportSchedule::query()
+            ->where('is_active', true)
+            ->whereNotNull('next_run_at')
+            ->where('next_run_at', '<=', $now)
+            ->orderBy('next_run_at')
+            ->limit(50)
+            ->get();
+
+        $result = [
+            'processed' => 0,
+            'sent' => 0,
+            'failed' => 0,
+        ];
+
+        foreach ($dueSchedules as $schedule) {
+            $result['processed']++;
+            $run = $this->dispatchAutomationSchedule($schedule, null);
+            if ($run->status === 'sent') {
+                $result['sent']++;
+            } else {
+                $result['failed']++;
+            }
+        }
+
+        return $result;
+    }
+
+    private function dispatchAutomationSchedule(AutomationReportSchedule $schedule, ?int $triggeredByUserId): AutomationReportRun
+    {
+        $rangePayload = $this->automationScheduler->buildRangePayload($schedule, now());
+        $params = array_merge($rangePayload, [
+            'website_ids' => $schedule->website_ids ?? [],
+            'timezone' => $schedule->timezone ?: 'America/Los_Angeles',
+        ]);
+
+        $run = AutomationReportRun::create([
+            'automation_report_schedule_id' => $schedule->id,
+            'triggered_by_user_id' => $triggeredByUserId,
+            'status' => 'pending',
+            'email_recipients' => $schedule->email_recipients ?? [],
+            'website_ids' => $schedule->website_ids ?? [],
+            'report_params' => $params,
+        ]);
+
+        try {
+            $signedUrl = URL::temporarySignedRoute(
+                'reports.automation.publicPreviewSigned',
+                now()->addDays(7),
+                $params
+            );
+
+            $subject = 'Automation Report: ' . $schedule->name;
+            $body = "Your automated report is ready.\n\n";
+            $body .= "Schedule: {$schedule->name}\n";
+            $body .= "Frequency: {$schedule->frequency}\n";
+            $body .= "Generated at: " . now()->format('Y-m-d H:i:s') . "\n\n";
+            $body .= "Preview/Download link:\n{$signedUrl}\n\n";
+            $body .= "This link will expire in 7 days.";
+
+            foreach ((array) ($schedule->email_recipients ?? []) as $recipient) {
+                Mail::raw($body, function ($message) use ($recipient, $subject) {
+                    $message->to($recipient)->subject($subject);
+                });
+            }
+
+            $run->update([
+                'status' => 'sent',
+                'sent_at' => now(),
+            ]);
+
+            $schedule->last_run_at = now();
+            $schedule->last_run_status = 'sent';
+            $schedule->last_error = null;
+            $schedule->next_run_at = $this->automationScheduler->computeNextRunAt($schedule, now()->addMinute());
+            $schedule->save();
+        } catch (\Throwable $e) {
+            $run->update([
+                'status' => 'failed',
+                'error_message' => $e->getMessage(),
+            ]);
+
+            $schedule->last_run_at = now();
+            $schedule->last_run_status = 'failed';
+            $schedule->last_error = $e->getMessage();
+            $schedule->next_run_at = $this->automationScheduler->computeNextRunAt($schedule, now()->addMinute());
+            $schedule->save();
+        }
+
+        return $run;
     }
 
     /**

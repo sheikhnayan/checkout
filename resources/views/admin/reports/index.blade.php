@@ -7,6 +7,9 @@
             <h1 class="h2 mb-2" style="color: #fff">Reports & Analytics</h1>
             <p class="text-muted mb-0">View detailed insights and analytics for your business</p>
         </div>
+        <a href="{{ route('admin.reports.automation.schedules') }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-clock me-2"></i>Automation Schedules
+        </a>
     </div>
 
     <!-- Category Filters -->

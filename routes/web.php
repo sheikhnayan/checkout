@@ -431,6 +431,14 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
     // Reports (Analytics & Reporting)
     Route::group(['prefix' => 'reports', 'as' => 'reports.'], function () {
         Route::get('/', [ReportController::class, 'index'])->name('index');
+        Route::get('/automation/schedules', [ReportController::class, 'automationSchedules'])->name('automation.schedules');
+        Route::post('/automation/schedules', [ReportController::class, 'automationSchedulesStore'])->name('automation.schedules.store');
+        Route::get('/automation/schedules/history', [ReportController::class, 'automationHistory'])->name('automation.history');
+        Route::get('/automation/schedules/{schedule}/edit', [ReportController::class, 'automationSchedulesEdit'])->name('automation.schedules.edit');
+        Route::put('/automation/schedules/{schedule}', [ReportController::class, 'automationSchedulesUpdate'])->name('automation.schedules.update');
+        Route::post('/automation/schedules/{schedule}/toggle', [ReportController::class, 'automationSchedulesToggle'])->name('automation.schedules.toggle');
+        Route::post('/automation/schedules/{schedule}/run', [ReportController::class, 'automationSchedulesRunNow'])->name('automation.schedules.run');
+        Route::delete('/automation/schedules/{schedule}', [ReportController::class, 'automationSchedulesDestroy'])->name('automation.schedules.destroy');
         Route::get('/automation/temp-url', [ReportController::class, 'automationTempUrl'])->name('automation.tempUrl');
         Route::get('/automation/preview-signed', [ReportController::class, 'automationPreviewSigned'])->name('automation.preview.signed');
         Route::get('/automation/preview', [ReportController::class, 'automationPreview'])->name('automation.preview');
@@ -483,6 +491,10 @@ Route::delete('/payment-logos/{id}', [PaymentLogoController::class, 'destroy'])-
 
 // Telnyx Webhook routes (SMS delivery notifications - no CSRF needed)
 Route::post('/webhooks/telnyx/sms', [TelnyxWebhookController::class, 'handleSmsWebhook'])->name('telnyx.webhook.sms');
+
+// Public signed automation report preview for emailed recipients.
+Route::get('/reports/automation/public-preview-signed', [ReportController::class, 'automationPreviewSigned'])
+    ->name('reports.automation.publicPreviewSigned');
 
 // Frontend catch-all route with slug parameter
 // Keep this at the very end so it does not shadow admin/auth/portal routes.
