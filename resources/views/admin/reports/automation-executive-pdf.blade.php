@@ -11,45 +11,58 @@
             color: #0f172a;
             font-size: 9px;
             line-height: 1.35;
+            background: #f3f6fb;
         }
         .header {
-            border-bottom: 2px solid #0f172a;
-            padding-bottom: 7px;
+            background: #0b1220;
+            border: 1px solid #1e293b;
+            padding: 8px 9px 7px;
             margin-bottom: 7px;
         }
         .title {
             margin: 0;
-            font-size: 21px;
+            font-size: 18px;
             font-weight: 700;
             letter-spacing: 0.2px;
+            color: #f8fafc;
         }
         .subtitle {
+            margin: 2px 0 3px;
+            color: #93c5fd;
+            font-size: 10px;
+        }
+        .header-note {
+            display: inline-block;
             margin: 2px 0 0;
-            color: #334155;
-            font-size: 11px;
+            padding: 2px 6px;
+            border: 1px solid #334155;
+            background: #111827;
+            color: #cbd5e1;
+            font-size: 8px;
+            letter-spacing: 0.3px;
         }
         .meta {
             width: 100%;
             border-collapse: separate;
-            border-spacing: 6px;
+            border-spacing: 5px;
             margin-top: 5px;
         }
         .meta td {
-            border: 1px solid #cbd5e1;
-            background: #f8fafc;
+            border: 1px solid #334155;
+            background: #0f172a;
             padding: 4px 6px;
             vertical-align: top;
         }
         .meta .label {
-            color: #64748b;
+            color: #94a3b8;
             text-transform: uppercase;
             font-size: 8px;
             letter-spacing: 0.5px;
             margin-bottom: 2px;
         }
         .meta .value {
-            color: #0f172a;
-            font-size: 10px;
+            color: #e2e8f0;
+            font-size: 9px;
             font-weight: 700;
         }
         .section {
@@ -59,11 +72,12 @@
         .section-title {
             margin: 0 0 5px;
             padding: 4px 6px;
-            background: #0f172a;
-            color: #ffffff;
-            font-size: 11px;
+            background: #111827;
+            color: #e2e8f0;
+            border-left: 4px solid #06b6d4;
+            font-size: 10px;
             text-transform: uppercase;
-            letter-spacing: 0.6px;
+            letter-spacing: 0.7px;
         }
         .cards {
             width: 100%;
@@ -71,7 +85,8 @@
             border-spacing: 4px;
         }
         .card {
-            border: 1px solid #cbd5e1;
+            border: 1px solid #d0dae8;
+            border-top: 3px solid #38bdf8;
             background: #ffffff;
             padding: 4px 6px;
             width: 25%;
@@ -85,8 +100,8 @@
             letter-spacing: 0.4px;
         }
         .card .value {
-            font-size: 14px;
-            color: #0f172a;
+            font-size: 13px;
+            color: #0b1324;
             font-weight: 700;
         }
         .two-col {
@@ -99,15 +114,16 @@
             vertical-align: top;
         }
         .graph-box {
-            border: 1px solid #cbd5e1;
+            border: 1px solid #d0dae8;
+            background: #ffffff;
             padding: 5px;
         }
         .graph-title {
             margin: 0 0 4px;
-            font-size: 9px;
+            font-size: 8px;
             font-weight: 700;
             text-transform: uppercase;
-            color: #334155;
+            color: #1e293b;
             letter-spacing: 0.4px;
         }
         .bar-row {
@@ -120,8 +136,8 @@
         }
         .bar-track {
             width: 100%;
-            height: 8px;
-            background: #e2e8f0;
+            height: 7px;
+            background: #e8edf5;
             overflow: hidden;
         }
         .bar-fill { height: 8px; }
@@ -134,18 +150,19 @@
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            border: 1px solid #cbd5e1;
+            border: 1px solid #d2deee;
+            background: #ffffff;
             margin-top: 5px;
         }
         .data-table th {
-            background: #f1f5f9;
-            border-bottom: 1px solid #cbd5e1;
+            background: #e9f0fb;
+            border-bottom: 1px solid #d2deee;
             padding: 4px 5px;
             text-align: left;
             font-size: 8px;
             text-transform: uppercase;
             letter-spacing: 0.4px;
-            color: #334155;
+            color: #1f2937;
         }
         .data-table td {
             border-bottom: 1px solid #eef2f7;
@@ -153,7 +170,7 @@
             font-size: 9px;
             color: #111827;
         }
-        .data-table tr:nth-child(even) td { background: #fbfdff; }
+        .data-table tr:nth-child(even) td { background: #f7faff; }
         .right { text-align: right; }
         .insight-grid {
             width: 100%;
@@ -161,8 +178,8 @@
             border-spacing: 4px;
         }
         .insight {
-            border: 1px solid #cbd5e1;
-            background: #f8fafc;
+            border: 1px solid #d0dae8;
+            background: #f8fbff;
             padding: 4px;
             vertical-align: top;
             width: 33.33%;
@@ -173,7 +190,7 @@
         .trend-down { color: #b91c1c; font-weight: 700; }
         .trend-flat { color: #334155; font-weight: 700; }
         .pie-box {
-            border: 1px solid #cbd5e1;
+            border: 1px solid #d0dae8;
             padding: 5px;
             background: #ffffff;
         }
@@ -181,7 +198,7 @@
             font-size: 9px;
             font-weight: 700;
             text-transform: uppercase;
-            color: #334155;
+            color: #1f2937;
             margin: 0 0 6px;
             letter-spacing: 0.4px;
         }
@@ -226,7 +243,7 @@
             margin-top: 2px;
         }
         .legend-table td {
-            border-bottom: 1px solid #eef2f7;
+            border-bottom: 1px solid #e7edf6;
             padding: 3px 2px;
             font-size: 8px;
             vertical-align: top;
@@ -241,10 +258,10 @@
         .page-break { page-break-before: auto; }
         .footer {
             margin-top: 7px;
-            border-top: 1px solid #cbd5e1;
+            border-top: 1px solid #d0dae8;
             padding-top: 4px;
-            font-size: 9px;
-            color: #64748b;
+            font-size: 8px;
+            color: #475569;
         }
     </style>
 </head>
@@ -484,6 +501,7 @@
     <div class="header">
         <h1 class="title">Automation Executive Intelligence Report</h1>
         <div class="subtitle">Graph-heavy management view across guests, spending, geography, time patterns, and club/package performance</div>
+        <div class="header-note">Checkout Platform | Client Presentation Edition</div>
         <table class="meta">
             <tr>
                 <td>
