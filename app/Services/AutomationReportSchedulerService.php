@@ -114,8 +114,8 @@ class AutomationReportSchedulerService
         }
 
         if ($periodType === 'daily') {
-            $start = $runAt->copy()->subDay()->startOfDay();
-            $end = $runAt->copy()->subDay()->endOfDay();
+            $start = $runAt->copy()->startOfDay();
+            $end = $runAt->copy()->endOfDay();
 
             return [
                 'period' => 'daily',
@@ -127,8 +127,8 @@ class AutomationReportSchedulerService
         }
 
         if ($periodType === 'weekly') {
-            $start = $runAt->copy()->subWeek()->startOfWeek(Carbon::SUNDAY);
-            $end = $start->copy()->endOfWeek(Carbon::SATURDAY);
+            $start = $runAt->copy()->subDays(6)->startOfDay();
+            $end = $runAt->copy()->endOfDay();
 
             return [
                 'period' => 'weekly',
@@ -140,8 +140,8 @@ class AutomationReportSchedulerService
         }
 
         if ($periodType === 'monthly') {
-            $start = $runAt->copy()->subMonthNoOverflow()->startOfMonth();
-            $end = $start->copy()->endOfMonth();
+            $start = $runAt->copy()->subDays(29)->startOfDay();
+            $end = $runAt->copy()->endOfDay();
 
             return [
                 'period' => 'monthly',
@@ -153,8 +153,8 @@ class AutomationReportSchedulerService
         }
 
         if ($periodType === 'yearly') {
-            $start = $runAt->copy()->subYear()->startOfYear();
-            $end = $start->copy()->endOfYear();
+            $start = $runAt->copy()->subDays(364)->startOfDay();
+            $end = $runAt->copy()->endOfDay();
 
             return [
                 'period' => 'yearly',
