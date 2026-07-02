@@ -378,15 +378,24 @@ class ReportController extends Controller
         $totalWomen = (int) $transactions->sum(fn ($t) => max(0, (int) ($t->women ?? 0)));
         $knownGenderGuests = $totalMen + $totalWomen;
         $unknownGenderGuests = max(0, $totalGuests - $knownGenderGuests);
+        $genderEligibleTransactions = (int) $transactions
+            ->filter(fn ($t) => ((int) ($t->men ?? 0) > 0) || ((int) ($t->women ?? 0) > 0))
+            ->count();
+        $genderCoveragePct = $totalTransactions > 0 ? (($genderEligibleTransactions / $totalTransactions) * 100) : 0;
 
         $totalAddonsQty = 0;
         $transactionsWithAddons = 0;
         $addonBuckets = [];
         $packageAddonComboBuckets = [];
+        $transportTransactions = 0;
+        $transportRevenue = 0.0;
+        $packageOnlyTransactions = 0;
+        $packageOnlyRevenue = 0.0;
         foreach ($transactions as $transaction) {
             $cartItems = is_array($transaction->cart_items) ? $transaction->cart_items : [];
             $transactionAddonNames = [];
             $transactionHasAddons = false;
+            $transactionHasTransportAddon = false;
 
             foreach ($cartItems as $item) {
                 if (!is_array($item) || !isset($item['addons']) || !is_array($item['addons'])) {
@@ -436,6 +445,16 @@ class ReportController extends Controller
 
                     $itemAddonNames[$addonKey] = $addonName;
                     $transactionAddonNames[$addonKey] = $addonName;
+
+                    if (
+                        str_contains($addonKey, 'transport') ||
+                        str_contains($addonKey, 'pickup') ||
+                        str_contains($addonKey, 'driver') ||
+                        str_contains($addonKey, 'limo') ||
+                        str_contains($addonKey, 'shuttle')
+                    ) {
+                        $transactionHasTransportAddon = true;
+                    }
                 }
 
                 if (!empty($itemAddonNames)) {
@@ -467,6 +486,20 @@ class ReportController extends Controller
                 }
 
                 // Keep package+addon combinations as the main combination signal.
+            } else {
+                $packageOnlyTransactions++;
+                $packageOnlyRevenue += (float) ($transaction->total ?? 0);
+            }
+
+            $hasTransportFields = trim((string) ($transaction->transportation_pickup_time ?? '')) !== ''
+                || trim((string) ($transaction->transportation_address ?? '')) !== ''
+                || trim((string) ($transaction->transportation_phone ?? '')) !== ''
+                || trim((string) ($transaction->transportation_guest ?? '')) !== ''
+                || trim((string) ($transaction->transportation_note ?? '')) !== '';
+
+            if ($hasTransportFields || $transactionHasTransportAddon) {
+                $transportTransactions++;
+                $transportRevenue += (float) ($transaction->total ?? 0);
             }
         }
 
@@ -479,6 +512,31 @@ class ReportController extends Controller
             ->sortByDesc('transactions')
             ->take(14)
             ->values();
+
+        $selfDriveTransactions = max(0, $totalTransactions - $transportTransactions);
+        $selfDriveRevenue = max(0, $totalRevenue - $transportRevenue);
+
+        $transportSnapshot = [
+            'transport' => [
+                'transactions' => $transportTransactions,
+                'revenue' => $transportRevenue,
+            ],
+            'self_drive' => [
+                'transactions' => $selfDriveTransactions,
+                'revenue' => $selfDriveRevenue,
+            ],
+        ];
+
+        $packageModeSnapshot = [
+            'package_only' => [
+                'transactions' => $packageOnlyTransactions,
+                'revenue' => $packageOnlyRevenue,
+            ],
+            'package_with_addons' => [
+                'transactions' => $transactionsWithAddons,
+                'revenue' => max(0, $totalRevenue - $packageOnlyRevenue),
+            ],
+        ];
 
         $clubSnapshot = $transactions
             ->groupBy('website_id')
@@ -797,6 +855,8 @@ class ReportController extends Controller
             'total_men' => $totalMen,
             'total_women' => $totalWomen,
             'unknown_gender_guests' => $unknownGenderGuests,
+            'gender_eligible_transactions' => $genderEligibleTransactions,
+            'gender_coverage_pct' => $genderCoveragePct,
             'avg_lead_days' => $avgLeadDays,
             'avg_checkin_lag_minutes' => $avgCheckinLagMinutes,
             'transactions_with_addons' => $transactionsWithAddons,
@@ -840,6 +900,8 @@ class ReportController extends Controller
             'topAddons' => $topAddons,
             'topPackageAddonCombinations' => $topPackageAddonCombinations,
             'sourceSnapshot' => $sourceSnapshot,
+            'transportSnapshot' => $transportSnapshot,
+            'packageModeSnapshot' => $packageModeSnapshot,
             'insights' => $insights,
             'timezone' => $timezone,
             'periodLabel' => $periodLabel,
