@@ -522,9 +522,9 @@
 @endphp
 
     <div class="header">
-        <h1 class="title">Automation Executive Intelligence Report</h1>
+        <h1 class="title">CartVIP Business Intelligence | Executive Presentation Edition</h1>
         <div class="subtitle">Comprehensive business intelligence across revenue, customer acquisition, package performance, venue contribution, operational efficiency, demand trends, and conversion analytics.</div>
-        <div class="header-note">CartVIP Business Intelligence | Executive Presentation Edition</div>
+        {{-- <div class="header-note">CartVIP Business Intelligence | Executive Presentation Edition</div> --}}
         <table class="meta">
             <tr>
                 <td>
