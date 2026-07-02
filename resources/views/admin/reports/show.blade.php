@@ -69,6 +69,9 @@
                             <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#saveReportModal">
                                 <i class="fas fa-save me-2"></i>Save Report
                             </button>
+                            <button type="button" class="btn btn-primary btn-sm" id="previewPdfBtn">
+                                <i class="fas fa-eye me-2"></i>Preview PDF
+                            </button>
                             <div class="btn-group btn-group-sm" role="group">
                                 <button type="button" class="btn btn-outline-success" id="exportCsv" title="Export as CSV">
                                     <i class="fas fa-file-csv"></i>
@@ -207,6 +210,13 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('exportPdf').addEventListener('click', function() {
         exportReport('pdf');
     });
+
+    var previewBtn = document.getElementById('previewPdfBtn');
+    if (previewBtn) {
+        previewBtn.addEventListener('click', function() {
+            previewReportPdf();
+        });
+    }
 });
 
 function loadReportData() {
@@ -404,6 +414,16 @@ function exportReport(format) {
     });
 
     form.submit();
+}
+
+function previewReportPdf() {
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    const previewUrl = new URL(@json(route('admin.reports.previewPdf', $report)), window.location.origin);
+    params.forEach((value, key) => {
+        previewUrl.searchParams.set(key, value);
+    });
+    window.open(previewUrl.toString(), '_blank');
 }
 </script>
 

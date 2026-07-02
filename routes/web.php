@@ -431,8 +431,12 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
     // Reports (Analytics & Reporting)
     Route::group(['prefix' => 'reports', 'as' => 'reports.'], function () {
         Route::get('/', [ReportController::class, 'index'])->name('index');
+        Route::get('/automation/temp-url', [ReportController::class, 'automationTempUrl'])->name('automation.tempUrl');
+        Route::get('/automation/preview-signed', [ReportController::class, 'automationPreviewSigned'])->name('automation.preview.signed');
+        Route::get('/automation/preview', [ReportController::class, 'automationPreview'])->name('automation.preview');
         Route::get('/category/{category}', [ReportController::class, 'byCategory'])->name('category');
         Route::get('/{report}', [ReportController::class, 'show'])->name('show');
+        Route::get('/{report}/preview-pdf', [ReportController::class, 'previewPdf'])->name('previewPdf');
         Route::get('/{report}/metadata', [ReportController::class, 'metadata'])->name('metadata');
         Route::post('/{report}/preferences', [ReportController::class, 'savePreference'])->name('preferences.save');
         Route::get('/saved-reports', [ReportController::class, 'getSavedReports'])->name('saved');
