@@ -430,10 +430,18 @@ class ReportController extends Controller
                             'qty' => 0,
                             'transactions' => 0,
                             'revenue' => 0.0,
+                            'club_counts' => [],
                         ];
                     }
                     $addonBuckets[$addonKey]['qty'] += $qty;
                     $addonBuckets[$addonKey]['revenue'] += $lineRevenue;
+
+                    $clubName = trim((string) (optional($transaction->website)->name ?? ''));
+                    if ($clubName === '') {
+                        $clubName = 'Unknown Club';
+                    }
+                    $addonBuckets[$addonKey]['club_counts'][$clubName] =
+                        (int) ($addonBuckets[$addonKey]['club_counts'][$clubName] ?? 0) + $qty;
 
                     $itemAddonNames[$addonKey] = $addonName;
                     $transactionAddonNames[$addonKey] = $addonName;
@@ -461,10 +469,18 @@ class ReportController extends Controller
                             'label' => $packageLabel . ' + ' . $addonComboLabel,
                             'transactions' => 0,
                             'revenue' => 0.0,
+                            'club_counts' => [],
                         ];
                     }
                     $packageAddonComboBuckets[$packageComboKey]['transactions']++;
                     $packageAddonComboBuckets[$packageComboKey]['revenue'] += (float) ($transaction->total ?? 0);
+
+                    $comboClubName = trim((string) (optional($transaction->website)->name ?? ''));
+                    if ($comboClubName === '') {
+                        $comboClubName = 'Unknown Club';
+                    }
+                    $packageAddonComboBuckets[$packageComboKey]['club_counts'][$comboClubName] =
+                        (int) ($packageAddonComboBuckets[$packageComboKey]['club_counts'][$comboClubName] ?? 0) + 1;
                 }
             }
 
@@ -498,11 +514,33 @@ class ReportController extends Controller
         $topAddons = collect($addonBuckets)
             ->sortByDesc('qty')
             ->take(15)
+            ->map(function ($row) {
+                $clubNames = collect($row['club_counts'] ?? [])
+                    ->sortDesc()
+                    ->keys()
+                    ->take(2)
+                    ->values()
+                    ->implode(', ');
+                $row['club_names'] = $clubNames !== '' ? $clubNames : 'Unknown Club';
+                unset($row['club_counts']);
+                return $row;
+            })
             ->values();
 
         $topPackageAddonCombinations = collect($packageAddonComboBuckets)
             ->sortByDesc('transactions')
             ->take(14)
+            ->map(function ($row) {
+                $clubNames = collect($row['club_counts'] ?? [])
+                    ->sortDesc()
+                    ->keys()
+                    ->take(2)
+                    ->values()
+                    ->implode(', ');
+                $row['club_names'] = $clubNames !== '' ? $clubNames : 'Unknown Club';
+                unset($row['club_counts']);
+                return $row;
+            })
             ->values();
 
         $selfDriveTransactions = max(0, $totalTransactions - $transportTransactions);
@@ -565,11 +603,21 @@ class ReportController extends Controller
                 return 'Package';
             })
             ->map(function ($items, $label) {
+                $clubNames = $items
+                    ->groupBy(fn ($t) => trim((string) (optional($t->website)->name ?? '')) ?: 'Unknown Club')
+                    ->map(fn ($clubItems) => $clubItems->count())
+                    ->sortDesc()
+                    ->keys()
+                    ->take(2)
+                    ->values()
+                    ->implode(', ');
+
                 return [
                     'package_name' => (string) $label,
                     'transactions' => (int) $items->count(),
                     'revenue' => (float) $items->sum('total'),
                     'guests' => (int) $items->sum(fn ($t) => max(1, (int) ($t->package_number_of_guest ?? 1))),
+                    'club_names' => $clubNames !== '' ? $clubNames : 'Unknown Club',
                 ];
             })
             ->sortByDesc('revenue')
@@ -800,22 +848,6 @@ class ReportController extends Controller
             ? (array_sum($checkinLagMinutes) / count($checkinLagMinutes))
             : 0;
 
-        $lastTwoDays = $dailyTrend->values()->slice(-2)->values();
-        $trendRevenueDeltaPct = 0.0;
-        $trendTxnDeltaPct = 0.0;
-        $trendGuestDeltaPct = 0.0;
-        if ($lastTwoDays->count() === 2) {
-            $prev = $lastTwoDays->get(0);
-            $curr = $lastTwoDays->get(1);
-
-            $trendRevenueDeltaPct = ((float) ($curr['revenue'] ?? 0) - (float) ($prev['revenue'] ?? 0))
-                / max(1.0, abs((float) ($prev['revenue'] ?? 0))) * 100;
-            $trendTxnDeltaPct = ((float) ($curr['transactions'] ?? 0) - (float) ($prev['transactions'] ?? 0))
-                / max(1.0, abs((float) ($prev['transactions'] ?? 0))) * 100;
-            $trendGuestDeltaPct = ((float) ($curr['guests'] ?? 0) - (float) ($prev['guests'] ?? 0))
-                / max(1.0, abs((float) ($prev['guests'] ?? 0))) * 100;
-        }
-
         $sourceSnapshot = [
             'direct' => [
                 'transactions' => (int) $transactions->filter(fn ($t) => empty($t->affiliate_id) && empty($t->entertainer_id))->count(),
@@ -865,11 +897,6 @@ class ReportController extends Controller
                     : null,
                 'website_name' => optional($largestTransaction->website)->name,
             ] : null,
-            'trend' => [
-                'revenue_delta_pct' => $trendRevenueDeltaPct,
-                'transactions_delta_pct' => $trendTxnDeltaPct,
-                'guests_delta_pct' => $trendGuestDeltaPct,
-            ],
         ];
 
         $payload = [

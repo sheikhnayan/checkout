@@ -274,10 +274,6 @@
     $dailyRevMax = max((float) ($dailyTrend->max('revenue') ?? 0), 1);
     $addonQtyMax = max((int) ($topAddons->max('qty') ?? 0), 1);
     $packageAddonComboMax = max((int) ($topPackageAddonCombinations->max('transactions') ?? 0), 1);
-    $trendRevenue = (float) ($insights['trend']['revenue_delta_pct'] ?? 0);
-    $trendTransactions = (float) ($insights['trend']['transactions_delta_pct'] ?? 0);
-    $trendGuests = (float) ($insights['trend']['guests_delta_pct'] ?? 0);
-
     $directSharePct = ($sourceSnapshot['direct']['transactions'] / $totalTx) * 100;
     $addonAttachPct = (float) ($summary['addon_attach_rate'] ?? 0);
     $zeroValueSharePct = (float) ($summary['zero_value_share'] ?? 0);
@@ -476,27 +472,13 @@
     };
 
     $clubPie = $buildPieData($clubSnapshot, 'website_name', 'revenue', 6);
-    $packagePie = $buildPieData($topPackages, 'package_name', 'revenue', 7);
-
-    $trendClass = function ($value) {
-        if ($value > 0.01) {
-            return 'trend-up';
-        }
-        if ($value < -0.01) {
-            return 'trend-down';
-        }
-        return 'trend-flat';
-    };
-
-    $trendLabel = function ($value) {
-        if ($value > 0.01) {
-            return 'UP';
-        }
-        if ($value < -0.01) {
-            return 'DOWN';
-        }
-        return 'FLAT';
-    };
+    $packagePieRows = $topPackages->map(function ($row) {
+        return [
+            'display_name' => (string) $row['package_name'] . ' (' . ((string) ($row['club_names'] ?? 'Unknown Club')) . ')',
+            'revenue' => (float) ($row['revenue'] ?? 0),
+        ];
+    });
+    $packagePie = $buildPieData($packagePieRows, 'display_name', 'revenue', 7);
 @endphp
 
     <div class="header">
@@ -549,7 +531,7 @@
     </div>
 
     <div class="section">
-        <div class="section-title">High-Impact Insights</div>
+        <div class="section-title">Executive Highlights</div>
         <table class="insight-grid">
             <tr>
                 <td class="insight">
@@ -569,20 +551,6 @@
                             N/A
                         @endif
                     </div>
-                </td>
-            </tr>
-            <tr>
-                <td class="insight">
-                    <div class="k">Revenue Change (Latest Day Vs Prior)</div>
-                    <div class="v {{ $trendClass($trendRevenue) }}">{{ $trendLabel($trendRevenue) }} {{ number_format(abs($trendRevenue), 1) }}%</div>
-                </td>
-                <td class="insight">
-                    <div class="k">Transaction Change</div>
-                    <div class="v {{ $trendClass($trendTransactions) }}">{{ $trendLabel($trendTransactions) }} {{ number_format(abs($trendTransactions), 1) }}%</div>
-                </td>
-                <td class="insight">
-                    <div class="k">Guest Change</div>
-                    <div class="v {{ $trendClass($trendGuests) }}">{{ $trendLabel($trendGuests) }} {{ number_format(abs($trendGuests), 1) }}%</div>
                 </td>
             </tr>
         </table>
@@ -665,7 +633,7 @@
         </table>
 
         <div class="graph-box" style="margin-top: 8px;">
-            <div class="graph-title">Weekday Revenue Pattern</div>
+                        <div class="graph-title">Day-wise Revenue Pattern</div>
             @foreach($weekdayTrend as $day)
                 <div class="bar-row">
                     <div class="bar-label">{{ $day['weekday'] }} | {{ $formatNum($day['transactions']) }} txns | {{ $formatMoney($day['revenue']) }}</div>
@@ -765,7 +733,7 @@
             <div class="graph-title">Top Package Revenue</div>
             @foreach($topPackages as $pkg)
                 <div class="bar-row">
-                    <div class="bar-label">{{ $pkg['package_name'] }} | {{ $formatMoney($pkg['revenue']) }} | {{ $formatNum($pkg['transactions']) }} txns</div>
+                    <div class="bar-label">{{ $pkg['package_name'] }} | Club: {{ $pkg['club_names'] ?? 'Unknown Club' }} | {{ $formatMoney($pkg['revenue']) }} | {{ $formatNum($pkg['transactions']) }} txns</div>
                     <div class="bar-track"><div class="bar-fill c6" style="width: {{ $pct($pkg['revenue'], $pkgRevMax) }}%;"></div></div>
                 </div>
             @endforeach
@@ -775,7 +743,7 @@
             <div class="graph-title">Most Purchased Add-ons</div>
             @forelse($topAddons as $addon)
                 <div class="bar-row">
-                    <div class="bar-label">{{ $addon['addon_name'] }} | Qty {{ $formatNum($addon['qty']) }} | Txns {{ $formatNum($addon['transactions']) }} | {{ $formatMoney($addon['revenue']) }}</div>
+                    <div class="bar-label">{{ $addon['addon_name'] }} | Club: {{ $addon['club_names'] ?? 'Unknown Club' }} | Qty {{ $formatNum($addon['qty']) }} | Txns {{ $formatNum($addon['transactions']) }} | {{ $formatMoney($addon['revenue']) }}</div>
                     <div class="bar-track"><div class="bar-fill c2" style="width: {{ $pct($addon['qty'], $addonQtyMax) }}%;"></div></div>
                 </div>
             @empty
@@ -787,7 +755,7 @@
             <div class="graph-title">Package + Add-on Combination Leaderboard</div>
             @forelse($topPackageAddonCombinations as $combo)
                 <div class="bar-row">
-                    <div class="bar-label">{{ $combo['label'] }} | {{ $formatNum($combo['transactions']) }} txns | {{ $formatMoney($combo['revenue']) }}</div>
+                    <div class="bar-label">{{ $combo['label'] }} | Club: {{ $combo['club_names'] ?? 'Unknown Club' }} | {{ $formatNum($combo['transactions']) }} txns | {{ $formatMoney($combo['revenue']) }}</div>
                     <div class="bar-track"><div class="bar-fill c6" style="width: {{ $pct($combo['transactions'], $packageAddonComboMax) }}%;"></div></div>
                 </div>
             @empty
