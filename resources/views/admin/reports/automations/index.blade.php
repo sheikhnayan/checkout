@@ -188,7 +188,7 @@
                                         </td>
                                         <td>{{ ucfirst(str_replace('_', ' ', $schedule->frequency)) }}</td>
                                         <td>{{ ucfirst(str_replace('_', ' ', $schedule->report_period_type ?: ($schedule->frequency === 'custom_month_range' ? 'custom_range' : $schedule->frequency))) }}</td>
-                                        <td>{{ $schedule->next_run_at ? $schedule->next_run_at->format('Y-m-d H:i') : '-' }}</td>
+                                        <td>{{ $schedule->next_run_at ? $schedule->next_run_at->copy()->timezone('America/Los_Angeles')->format('Y-m-d h:i A') . ' PST' : '-' }}</td>
                                         <td>
                                             @if($schedule->is_active)
                                                 <span class="badge bg-success">Active</span>

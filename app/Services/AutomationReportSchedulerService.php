@@ -118,6 +118,7 @@ class AutomationReportSchedulerService
             $end = $runAt->copy()->subDay()->endOfDay();
 
             return [
+                'period' => 'daily',
                 'date_range' => 'custom',
                 'custom_from' => $start->toDateString(),
                 'custom_to' => $end->toDateString(),
@@ -130,6 +131,7 @@ class AutomationReportSchedulerService
             $end = $start->copy()->endOfWeek(Carbon::SATURDAY);
 
             return [
+                'period' => 'weekly',
                 'date_range' => 'custom',
                 'custom_from' => $start->toDateString(),
                 'custom_to' => $end->toDateString(),
@@ -142,6 +144,7 @@ class AutomationReportSchedulerService
             $end = $start->copy()->endOfMonth();
 
             return [
+                'period' => 'monthly',
                 'date_range' => 'custom',
                 'custom_from' => $start->toDateString(),
                 'custom_to' => $end->toDateString(),
@@ -154,6 +157,7 @@ class AutomationReportSchedulerService
             $end = $start->copy()->endOfYear();
 
             return [
+                'period' => 'yearly',
                 'date_range' => 'custom',
                 'custom_from' => $start->toDateString(),
                 'custom_to' => $end->toDateString(),
@@ -167,6 +171,7 @@ class AutomationReportSchedulerService
 
             if ($from && $to) {
                 return [
+                    'period' => 'custom',
                     'date_range' => 'custom',
                     'custom_from' => $from->copy()->toDateString(),
                     'custom_to' => $to->copy()->toDateString(),

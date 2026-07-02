@@ -951,7 +951,26 @@ class ReportController extends Controller
     private function resolveAutomationDateRange(Request $request, string $timezone): array
     {
         $period = strtolower((string) $request->get('period', 'weekly'));
+        $dateRange = strtolower((string) $request->get('date_range', ''));
+        $customFrom = $request->get('custom_from', $request->get('from'));
+        $customTo = $request->get('custom_to', $request->get('to'));
         $now = now($timezone);
+
+        // First priority: explicit custom date windows sent by automation dispatch links.
+        if (($dateRange === 'custom' || (!empty($customFrom) && !empty($customTo))) && !empty($customFrom) && !empty($customTo)) {
+            $startAt = Carbon::parse($customFrom, $timezone)->startOfDay();
+            $endAt = Carbon::parse($customTo, $timezone)->endOfDay();
+
+            $label = match ($period) {
+                'daily' => 'Daily',
+                'monthly' => 'Monthly',
+                'yearly' => 'Yearly',
+                'weekly' => 'Weekly',
+                default => 'Custom',
+            };
+
+            return [$startAt, $endAt, $label];
+        }
 
         if ($period === 'daily') {
             $startAt = $now->copy()->subDay()->startOfDay();
@@ -959,9 +978,21 @@ class ReportController extends Controller
             return [$startAt, $endAt, 'Daily'];
         }
 
+        if ($period === 'monthly') {
+            $startAt = $now->copy()->subMonthNoOverflow()->startOfMonth();
+            $endAt = $startAt->copy()->endOfMonth();
+            return [$startAt, $endAt, 'Monthly'];
+        }
+
+        if ($period === 'yearly') {
+            $startAt = $now->copy()->subYear()->startOfYear();
+            $endAt = $startAt->copy()->endOfYear();
+            return [$startAt, $endAt, 'Yearly'];
+        }
+
         if ($period === 'custom') {
-            $from = $request->get('from');
-            $to = $request->get('to');
+            $from = $request->get('from', $customFrom);
+            $to = $request->get('to', $customTo);
             $startAt = $from ? Carbon::parse($from, $timezone)->startOfDay() : $now->copy()->subDays(6)->startOfDay();
             $endAt = $to ? Carbon::parse($to, $timezone)->endOfDay() : $now->copy()->endOfDay();
             return [$startAt, $endAt, 'Custom'];
