@@ -346,7 +346,8 @@ class ReportController extends Controller
      */
     public function automationPreview(Request $request)
     {
-        [$startAt, $endAt, $periodLabel] = $this->resolveAutomationDateRange($request);
+        $timezone = $this->resolveAutomationTimezone($request);
+        [$startAt, $endAt, $periodLabel] = $this->resolveAutomationDateRange($request, $timezone);
         $websiteIds = $this->resolveAutomationWebsiteIds($request);
 
         $txQuery = Transaction::query()
@@ -373,6 +374,10 @@ class ReportController extends Controller
         $affiliateCommission = (float) $transactions->sum('affiliate_commission_amount');
         $entertainerCommission = (float) $transactions->sum('entertainer_commission_amount');
         $totalCommission = $affiliateCommission + $entertainerCommission;
+        $totalMen = (int) $transactions->sum(fn ($t) => max(0, (int) ($t->men ?? 0)));
+        $totalWomen = (int) $transactions->sum(fn ($t) => max(0, (int) ($t->women ?? 0)));
+        $knownGenderGuests = $totalMen + $totalWomen;
+        $unknownGenderGuests = max(0, $totalGuests - $knownGenderGuests);
 
         $totalAddonsQty = 0;
         foreach ($transactions as $transaction) {
@@ -436,27 +441,199 @@ class ReportController extends Controller
             ->take(12)
             ->values();
 
-        $dailyTrend = Transaction::query()
-            ->financiallyReportable()
-            ->whereBetween('created_at', [$startAt, $endAt])
-            ->when(!empty($websiteIds), fn ($q) => $q->whereIn('website_id', $websiteIds))
-            ->select(
-                DB::raw('DATE(created_at) as day'),
-                DB::raw('COUNT(*) as transactions'),
-                DB::raw('SUM(total) as revenue'),
-                DB::raw('SUM(COALESCE(package_number_of_guest, 1)) as guests'),
-                DB::raw('COUNT(DISTINCT package_email) as unique_patrons')
-            )
-            ->groupBy('day')
-            ->orderBy('day')
-            ->get()
-            ->map(fn ($row) => [
-                'day' => (string) $row->day,
-                'transactions' => (int) $row->transactions,
-                'revenue' => (float) $row->revenue,
-                'guests' => (int) $row->guests,
-                'unique_patrons' => (int) $row->unique_patrons,
-            ]);
+        $dailyBuckets = [];
+        $dailyCursor = $startAt->copy()->startOfDay();
+        $dailyEnd = $endAt->copy()->startOfDay();
+        while ($dailyCursor->lte($dailyEnd)) {
+            $dayKey = $dailyCursor->format('Y-m-d');
+            $dailyBuckets[$dayKey] = [
+                'day' => $dayKey,
+                'transactions' => 0,
+                'revenue' => 0.0,
+                'guests' => 0,
+                'patron_emails' => [],
+            ];
+            $dailyCursor->addDay();
+        }
+
+        foreach ($transactions as $transaction) {
+            if (!$transaction->created_at) {
+                continue;
+            }
+            $dayKey = $transaction->created_at->copy()->timezone($timezone)->format('Y-m-d');
+            if (!isset($dailyBuckets[$dayKey])) {
+                continue;
+            }
+            $dailyBuckets[$dayKey]['transactions']++;
+            $dailyBuckets[$dayKey]['revenue'] += (float) ($transaction->total ?? 0);
+            $dailyBuckets[$dayKey]['guests'] += max(1, (int) ($transaction->package_number_of_guest ?? 1));
+            $email = strtolower(trim((string) ($transaction->package_email ?? '')));
+            if ($email !== '') {
+                $dailyBuckets[$dayKey]['patron_emails'][$email] = true;
+            }
+        }
+
+        $dailyTrend = collect($dailyBuckets)
+            ->map(function ($row) {
+                $row['unique_patrons'] = count($row['patron_emails'] ?? []);
+                unset($row['patron_emails']);
+                return $row;
+            })
+            ->values();
+
+        $hourlyBuckets = collect(range(0, 23))->mapWithKeys(function ($hour) {
+            return [$hour => [
+                'hour' => $hour,
+                'label' => sprintf('%02d:00', $hour),
+                'transactions' => 0,
+                'revenue' => 0.0,
+                'guests' => 0,
+            ]];
+        })->all();
+
+        $weekdayBuckets = [
+            0 => ['weekday' => 'Sun', 'transactions' => 0, 'revenue' => 0.0, 'guests' => 0],
+            1 => ['weekday' => 'Mon', 'transactions' => 0, 'revenue' => 0.0, 'guests' => 0],
+            2 => ['weekday' => 'Tue', 'transactions' => 0, 'revenue' => 0.0, 'guests' => 0],
+            3 => ['weekday' => 'Wed', 'transactions' => 0, 'revenue' => 0.0, 'guests' => 0],
+            4 => ['weekday' => 'Thu', 'transactions' => 0, 'revenue' => 0.0, 'guests' => 0],
+            5 => ['weekday' => 'Fri', 'transactions' => 0, 'revenue' => 0.0, 'guests' => 0],
+            6 => ['weekday' => 'Sat', 'transactions' => 0, 'revenue' => 0.0, 'guests' => 0],
+        ];
+
+        $cityBuckets = [];
+        $stateBuckets = [];
+        $countryBuckets = [];
+
+        $orderValueBands = [
+            ['label' => '$0-$99', 'min' => 0, 'max' => 99.99, 'transactions' => 0, 'revenue' => 0.0],
+            ['label' => '$100-$249', 'min' => 100, 'max' => 249.99, 'transactions' => 0, 'revenue' => 0.0],
+            ['label' => '$250-$499', 'min' => 250, 'max' => 499.99, 'transactions' => 0, 'revenue' => 0.0],
+            ['label' => '$500-$999', 'min' => 500, 'max' => 999.99, 'transactions' => 0, 'revenue' => 0.0],
+            ['label' => '$1,000+', 'min' => 1000, 'max' => null, 'transactions' => 0, 'revenue' => 0.0],
+        ];
+
+        $leadTimeBands = [
+            ['label' => 'Same Day', 'min' => 0, 'max' => 0, 'transactions' => 0],
+            ['label' => '1 Day', 'min' => 1, 'max' => 1, 'transactions' => 0],
+            ['label' => '2-3 Days', 'min' => 2, 'max' => 3, 'transactions' => 0],
+            ['label' => '4-7 Days', 'min' => 4, 'max' => 7, 'transactions' => 0],
+            ['label' => '8-14 Days', 'min' => 8, 'max' => 14, 'transactions' => 0],
+            ['label' => '15+ Days', 'min' => 15, 'max' => null, 'transactions' => 0],
+        ];
+
+        $leadTimeDays = [];
+        $checkinLagMinutes = [];
+
+        foreach ($transactions as $transaction) {
+            if (!$transaction->created_at) {
+                continue;
+            }
+
+            $createdAtLocal = $transaction->created_at->copy()->timezone($timezone);
+            $hour = (int) $createdAtLocal->format('G');
+            $dow = (int) $createdAtLocal->dayOfWeek;
+            $amount = (float) ($transaction->total ?? 0);
+            $guests = max(1, (int) ($transaction->package_number_of_guest ?? 1));
+
+            $hourlyBuckets[$hour]['transactions']++;
+            $hourlyBuckets[$hour]['revenue'] += $amount;
+            $hourlyBuckets[$hour]['guests'] += $guests;
+
+            $weekdayBuckets[$dow]['transactions']++;
+            $weekdayBuckets[$dow]['revenue'] += $amount;
+            $weekdayBuckets[$dow]['guests'] += $guests;
+
+            $city = trim((string) ($transaction->payment_city ?? ''));
+            if ($city !== '') {
+                $cityKey = strtolower($city);
+                if (!isset($cityBuckets[$cityKey])) {
+                    $cityBuckets[$cityKey] = ['name' => ucwords($cityKey), 'transactions' => 0, 'revenue' => 0.0, 'guests' => 0];
+                }
+                $cityBuckets[$cityKey]['transactions']++;
+                $cityBuckets[$cityKey]['revenue'] += $amount;
+                $cityBuckets[$cityKey]['guests'] += $guests;
+            }
+
+            $state = trim((string) ($transaction->payment_state ?? ''));
+            if ($state !== '') {
+                $stateKey = strtoupper($state);
+                if (!isset($stateBuckets[$stateKey])) {
+                    $stateBuckets[$stateKey] = ['name' => $stateKey, 'transactions' => 0, 'revenue' => 0.0, 'guests' => 0];
+                }
+                $stateBuckets[$stateKey]['transactions']++;
+                $stateBuckets[$stateKey]['revenue'] += $amount;
+                $stateBuckets[$stateKey]['guests'] += $guests;
+            }
+
+            $country = trim((string) ($transaction->payment_country ?? ''));
+            if ($country !== '') {
+                $countryKey = strtoupper($country);
+                if (!isset($countryBuckets[$countryKey])) {
+                    $countryBuckets[$countryKey] = ['name' => $countryKey, 'transactions' => 0, 'revenue' => 0.0, 'guests' => 0];
+                }
+                $countryBuckets[$countryKey]['transactions']++;
+                $countryBuckets[$countryKey]['revenue'] += $amount;
+                $countryBuckets[$countryKey]['guests'] += $guests;
+            }
+
+            foreach ($orderValueBands as $idx => $band) {
+                $inRange = $band['max'] === null
+                    ? ($amount >= $band['min'])
+                    : ($amount >= $band['min'] && $amount <= $band['max']);
+
+                if ($inRange) {
+                    $orderValueBands[$idx]['transactions']++;
+                    $orderValueBands[$idx]['revenue'] += $amount;
+                    break;
+                }
+            }
+
+            if (!empty($transaction->package_use_date)) {
+                $useDate = Carbon::parse($transaction->package_use_date, $timezone)->startOfDay();
+                $leadDays = $createdAtLocal->startOfDay()->diffInDays($useDate, false);
+                if ($leadDays >= 0) {
+                    $leadTimeDays[] = $leadDays;
+                    foreach ($leadTimeBands as $idx => $band) {
+                        $inRange = $band['max'] === null
+                            ? ($leadDays >= $band['min'])
+                            : ($leadDays >= $band['min'] && $leadDays <= $band['max']);
+
+                        if ($inRange) {
+                            $leadTimeBands[$idx]['transactions']++;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!empty($transaction->checked_in_at_pacific)) {
+                $checkinAtLocal = $transaction->checked_in_at_pacific->copy()->timezone($timezone);
+                $diffMinutes = $createdAtLocal->diffInMinutes($checkinAtLocal, false);
+                if ($diffMinutes >= 0) {
+                    $checkinLagMinutes[] = $diffMinutes;
+                }
+            }
+        }
+
+        $hourlyTrend = collect($hourlyBuckets)->values();
+        $weekdayTrend = collect($weekdayBuckets)->values();
+        $topCities = collect($cityBuckets)->sortByDesc('transactions')->take(12)->values();
+        $topStates = collect($stateBuckets)->sortByDesc('transactions')->take(10)->values();
+        $topCountries = collect($countryBuckets)->sortByDesc('transactions')->take(8)->values();
+        $orderValueBands = collect($orderValueBands);
+        $leadTimeBands = collect($leadTimeBands);
+
+        $peakHourByTransactions = $hourlyTrend->sortByDesc('transactions')->first();
+        $peakHourByRevenue = $hourlyTrend->sortByDesc('revenue')->first();
+        $largestTransaction = $transactions->sortByDesc(fn ($t) => (float) ($t->total ?? 0))->first();
+
+        $avgLeadDays = count($leadTimeDays) > 0
+            ? (array_sum($leadTimeDays) / count($leadTimeDays))
+            : 0;
+        $avgCheckinLagMinutes = count($checkinLagMinutes) > 0
+            ? (array_sum($checkinLagMinutes) / count($checkinLagMinutes))
+            : 0;
 
         $sourceSnapshot = [
             'direct' => [
@@ -479,11 +656,31 @@ class ReportController extends Controller
             'unique_patrons' => $uniquePatrons,
             'total_guests' => $totalGuests,
             'avg_order_value' => $avgOrder,
+            'max_order_value' => (float) $transactions->max('total'),
+            'min_order_value' => (float) $transactions->min('total'),
             'total_addons_qty' => (int) $totalAddonsQty,
             'affiliate_commission' => $affiliateCommission,
             'entertainer_commission' => $entertainerCommission,
             'total_commission' => $totalCommission,
             'net_revenue' => $totalRevenue - $totalCommission,
+            'total_men' => $totalMen,
+            'total_women' => $totalWomen,
+            'unknown_gender_guests' => $unknownGenderGuests,
+            'avg_lead_days' => $avgLeadDays,
+            'avg_checkin_lag_minutes' => $avgCheckinLagMinutes,
+        ];
+
+        $insights = [
+            'peak_hour_transactions' => $peakHourByTransactions,
+            'peak_hour_revenue' => $peakHourByRevenue,
+            'largest_transaction' => $largestTransaction ? [
+                'id' => (int) $largestTransaction->id,
+                'amount' => (float) ($largestTransaction->total ?? 0),
+                'created_at' => $largestTransaction->created_at
+                    ? $largestTransaction->created_at->copy()->timezone($timezone)->format('M d, Y h:i A')
+                    : null,
+                'website_name' => optional($largestTransaction->website)->name,
+            ] : null,
         ];
 
         $payload = [
@@ -491,7 +688,16 @@ class ReportController extends Controller
             'clubSnapshot' => $clubSnapshot,
             'topPackages' => $topPackages,
             'dailyTrend' => $dailyTrend,
+            'hourlyTrend' => $hourlyTrend,
+            'weekdayTrend' => $weekdayTrend,
+            'topCities' => $topCities,
+            'topStates' => $topStates,
+            'topCountries' => $topCountries,
+            'orderValueBands' => $orderValueBands,
+            'leadTimeBands' => $leadTimeBands,
             'sourceSnapshot' => $sourceSnapshot,
+            'insights' => $insights,
+            'timezone' => $timezone,
             'periodLabel' => $periodLabel,
             'startAt' => $startAt,
             'endAt' => $endAt,
@@ -507,10 +713,10 @@ class ReportController extends Controller
         return $pdf->stream($filename);
     }
 
-    private function resolveAutomationDateRange(Request $request): array
+    private function resolveAutomationDateRange(Request $request, string $timezone): array
     {
         $period = strtolower((string) $request->get('period', 'weekly'));
-        $now = now('America/Los_Angeles');
+        $now = now($timezone);
 
         if ($period === 'daily') {
             $startAt = $now->copy()->subDay()->startOfDay();
@@ -521,8 +727,8 @@ class ReportController extends Controller
         if ($period === 'custom') {
             $from = $request->get('from');
             $to = $request->get('to');
-            $startAt = $from ? Carbon::parse($from, 'America/Los_Angeles')->startOfDay() : $now->copy()->subDays(6)->startOfDay();
-            $endAt = $to ? Carbon::parse($to, 'America/Los_Angeles')->endOfDay() : $now->copy()->endOfDay();
+            $startAt = $from ? Carbon::parse($from, $timezone)->startOfDay() : $now->copy()->subDays(6)->startOfDay();
+            $endAt = $to ? Carbon::parse($to, $timezone)->endOfDay() : $now->copy()->endOfDay();
             return [$startAt, $endAt, 'Custom'];
         }
 
@@ -530,6 +736,21 @@ class ReportController extends Controller
         $startAt = $now->copy()->subDays(6)->startOfDay();
         $endAt = $now->copy()->endOfDay();
         return [$startAt, $endAt, 'Weekly'];
+    }
+
+    private function resolveAutomationTimezone(Request $request): string
+    {
+        $tz = trim((string) $request->get('timezone', 'America/Los_Angeles'));
+        if ($tz === '') {
+            return 'America/Los_Angeles';
+        }
+
+        try {
+            new \DateTimeZone($tz);
+            return $tz;
+        } catch (\Throwable $e) {
+            return 'America/Los_Angeles';
+        }
     }
 
     private function resolveAutomationWebsiteIds(Request $request): array
