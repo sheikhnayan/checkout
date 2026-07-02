@@ -317,7 +317,7 @@ class ReportController extends Controller
             return response()->json(['success' => false, 'error' => 'Unauthorized'], 401);
         }
 
-        $params = $request->only(['period', 'from', 'to', 'website_ids']);
+        $params = $request->only(['period', 'from', 'to', 'website_ids', 'timezone', 'interactive']);
 
         $expiresAt = now()->addHours(12);
         $signedUrl = URL::temporarySignedRoute('admin.reports.automation.preview.signed', $expiresAt, $params);
@@ -897,6 +897,10 @@ class ReportController extends Controller
             'selectedWebsites' => $selectedWebsites,
             'generatedAt' => now(),
         ];
+
+        if ($request->boolean('interactive')) {
+            return view('admin.reports.automation-executive-interactive', $payload);
+        }
 
         $pdf = Pdf::loadView('admin.reports.automation-executive-pdf', $payload)
             ->setPaper('a4', 'portrait');

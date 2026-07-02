@@ -189,6 +189,19 @@
             text-align: center;
             margin-bottom: 6px;
         }
+        .pie-img {
+            width: 180px;
+            height: 180px;
+            display: block;
+            margin: 0 auto;
+        }
+        .pie-total {
+            margin-top: 4px;
+            text-align: center;
+            font-size: 9px;
+            color: #334155;
+            font-weight: 700;
+        }
         .circle-grid {
             border-collapse: collapse;
             margin: 0 auto;
@@ -384,6 +397,84 @@
         return $html;
     };
 
+    $renderPieImage = function ($segments, $totalLabel) use ($renderCircleGrid) {
+        if (!function_exists('imagecreatetruecolor') || !function_exists('imagefilledarc')) {
+            return $renderCircleGrid($segments, $totalLabel);
+        }
+
+        $size = 420;
+        $center = (int) ($size / 2);
+        $radius = 170;
+        $diameter = $radius * 2;
+        $innerRadius = 98;
+        $innerDiameter = $innerRadius * 2;
+
+        $im = imagecreatetruecolor($size, $size);
+        if (!$im) {
+            return $renderCircleGrid($segments, $totalLabel);
+        }
+
+        imagealphablending($im, true);
+        imagesavealpha($im, true);
+        $transparent = imagecolorallocatealpha($im, 255, 255, 255, 127);
+        imagefill($im, 0, 0, $transparent);
+
+        if (function_exists('imageantialias')) {
+            @imageantialias($im, true);
+        }
+
+        $angleStart = -90.0;
+        foreach ($segments as $segment) {
+            $pct = max(0.0, min(100.0, (float) ($segment['pct'] ?? 0)));
+            if ($pct <= 0.0) {
+                continue;
+            }
+
+            $sweep = 360.0 * ($pct / 100.0);
+            $angleEnd = $angleStart + $sweep;
+
+            $hex = (string) ($segment['color'] ?? '#94a3b8');
+            if (!preg_match('/^#?[0-9a-fA-F]{6}$/', $hex)) {
+                $hex = '#94a3b8';
+            }
+            $hex = ltrim($hex, '#');
+            $r = hexdec(substr($hex, 0, 2));
+            $g = hexdec(substr($hex, 2, 2));
+            $b = hexdec(substr($hex, 4, 2));
+            $col = imagecolorallocate($im, $r, $g, $b);
+
+            imagefilledarc(
+                $im,
+                $center,
+                $center,
+                $diameter,
+                $diameter,
+                $angleStart,
+                $angleEnd,
+                $col,
+                IMG_ARC_PIE
+            );
+
+            $angleStart = $angleEnd;
+        }
+
+        $white = imagecolorallocate($im, 255, 255, 255);
+        imagefilledellipse($im, $center, $center, $innerDiameter, $innerDiameter, $white);
+
+        ob_start();
+        imagepng($im);
+        $pngData = ob_get_clean();
+        imagedestroy($im);
+
+        if (!$pngData) {
+            return $renderCircleGrid($segments, $totalLabel);
+        }
+
+        $base64 = base64_encode($pngData);
+        return '<img class="pie-img" src="data:image/png;base64,' . $base64 . '" alt="Pie chart" />'
+            . '<div class="pie-total">Total: ' . e($totalLabel) . '</div>';
+    };
+
     $clubPie = $buildPieData($clubSnapshot, 'website_name', 'revenue', 6);
     $packagePie = $buildPieData($topPackages, 'package_name', 'revenue', 7);
 
@@ -504,7 +595,7 @@
                 <td class="panel">
                     <div class="pie-box">
                         <div class="pie-title">Club Revenue Share</div>
-                        <div class="pie-svg-wrap">{!! $renderCircleGrid($clubPie['segments'], $formatMoney($clubPie['total'])) !!}</div>
+                        <div class="pie-svg-wrap">{!! $renderPieImage($clubPie['segments'], $formatMoney($clubPie['total'])) !!}</div>
                         <table class="legend-table">
                             @foreach($clubPie['segments'] as $seg)
                                 <tr>
@@ -519,7 +610,7 @@
                 <td class="panel">
                     <div class="pie-box">
                         <div class="pie-title">Package Revenue Share</div>
-                        <div class="pie-svg-wrap">{!! $renderCircleGrid($packagePie['segments'], $formatMoney($packagePie['total'])) !!}</div>
+                        <div class="pie-svg-wrap">{!! $renderPieImage($packagePie['segments'], $formatMoney($packagePie['total'])) !!}</div>
                         <table class="legend-table">
                             @foreach($packagePie['segments'] as $seg)
                                 <tr>
