@@ -938,8 +938,11 @@ body.modal-open .admin-mobile-menu-toggle {
                                         $reservationDate = null;
                                     }
 
-                                    $laToday = \Carbon\Carbon::now('America/Los_Angeles')->startOfDay();
+                                    $nowPacific = \Carbon\Carbon::now('America/Los_Angeles');
+                                    $laToday = $nowPacific->copy()->startOfDay();
                                     $reservationDatePacific = null;
+                                    $transportAnchorAtPacific = null;
+                                    $noShowEligibleAtPacific = null;
 
                                     if ($reservationDate) {
                                         try {
@@ -952,6 +955,23 @@ body.modal-open .admin-mobile-menu-toggle {
                                             }
                                         } catch (\Throwable $e) {
                                             $reservationDatePacific = null;
+                                        }
+                                    }
+
+                                    if ($reservationDatePacific) {
+                                        $transportTimeRaw = trim((string) ($item->transportation_arrival_time ?: $item->transportation_pickup_time ?: ''));
+
+                                        if ($transportTimeRaw !== '') {
+                                            try {
+                                                $transportAnchorAtPacific = \Carbon\Carbon::parse(
+                                                    $reservationDatePacific->format('Y-m-d') . ' ' . $transportTimeRaw,
+                                                    'America/Los_Angeles'
+                                                );
+                                                $noShowEligibleAtPacific = $transportAnchorAtPacific->copy()->addHours(24);
+                                            } catch (\Throwable $e) {
+                                                $transportAnchorAtPacific = null;
+                                                $noShowEligibleAtPacific = null;
+                                            }
                                         }
                                     }
 
@@ -969,9 +989,12 @@ body.modal-open .admin-mobile-menu-toggle {
                                             if ($item->checked_in_status) {
                                                 $reservationStatusValue = 'Checked In';
                                                 $reservationStatusClass = 'badge-reservation-checked-in';
-                                            } else {
+                                            } elseif ($noShowEligibleAtPacific && $nowPacific->greaterThanOrEqualTo($noShowEligibleAtPacific)) {
                                                 $reservationStatusValue = 'No Show';
                                                 $reservationStatusClass = 'badge-reservation-no-show';
+                                            } else {
+                                                $reservationStatusValue = 'Upcoming';
+                                                $reservationStatusClass = 'badge-reservation-upcoming';
                                             }
                                         }
                                     }
