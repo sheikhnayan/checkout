@@ -234,7 +234,6 @@
     $pkgRevMax = max((float) ($topPackages->max('revenue') ?? 0), 1);
     $dailyRevMax = max((float) ($dailyTrend->max('revenue') ?? 0), 1);
     $addonQtyMax = max((int) ($topAddons->max('qty') ?? 0), 1);
-    $addonComboMax = max((int) ($topAddonCombinations->max('transactions') ?? 0), 1);
     $packageAddonComboMax = max((int) ($topPackageAddonCombinations->max('transactions') ?? 0), 1);
     $trendRevenue = (float) ($insights['trend']['revenue_delta_pct'] ?? 0);
     $trendTransactions = (float) ($insights['trend']['transactions_delta_pct'] ?? 0);
@@ -243,6 +242,12 @@
     $directSharePct = ($sourceSnapshot['direct']['transactions'] / $totalTx) * 100;
     $addonAttachPct = (float) ($summary['addon_attach_rate'] ?? 0);
     $maleGuestPct = ($summary['total_men'] / $totalGuests) * 100;
+    $femaleGuestPct = ($summary['total_women'] / $totalGuests) * 100;
+    $zeroValueSharePct = (float) ($summary['zero_value_share'] ?? 0);
+    $commissionRatePct = ($summary['total_revenue'] ?? 0) > 0
+        ? (((float) ($summary['total_commission'] ?? 0) / (float) ($summary['total_revenue'] ?? 0)) * 100)
+        : 0;
+    $leadTimeTotalCount = (int) $leadTimeBands->sum('transactions');
 
     $donutSvg = function ($percent, $color) {
         $p = max(0, min(100, (float) $percent));
@@ -390,6 +395,23 @@
                     <div class="donut-value">{{ number_format($maleGuestPct, 1) }}%</div>
                 </td>
             </tr>
+            <tr>
+                <td class="donut-card">
+                    <div class="donut-title">Female Guest Share</div>
+                    {!! $donutSvg($femaleGuestPct, '#a855f7') !!}
+                    <div class="donut-value">{{ number_format($femaleGuestPct, 1) }}%</div>
+                </td>
+                <td class="donut-card">
+                    <div class="donut-title">Zero-Value Order Share</div>
+                    {!! $donutSvg($zeroValueSharePct, '#14b8a6') !!}
+                    <div class="donut-value">{{ number_format($zeroValueSharePct, 1) }}%</div>
+                </td>
+                <td class="donut-card">
+                    <div class="donut-title">Commission Rate</div>
+                    {!! $donutSvg($commissionRatePct, '#ef4444') !!}
+                    <div class="donut-value">{{ number_format($commissionRatePct, 1) }}%</div>
+                </td>
+            </tr>
         </table>
     </div>
 
@@ -479,6 +501,9 @@
 
         <div class="graph-box" style="margin-top: 8px;">
             <div class="graph-title">Booking Lead Time (Creation To Use Date)</div>
+            <div class="bar-label" style="margin-bottom: 6px; color:#475569;">
+                Total bucketed transactions: {{ $formatNum($leadTimeTotalCount) }} / {{ $formatNum($summary['total_transactions']) }}
+            </div>
             @foreach($leadTimeBands as $band)
                 <div class="bar-row">
                     <div class="bar-label">{{ $band['label'] }} | {{ $formatNum($band['transactions']) }} transactions</div>
@@ -490,36 +515,17 @@
 
     <div class="section page-break">
         <div class="section-title">Add-on Intelligence And Combination Graphs</div>
-        <table class="two-col">
-            <tr>
-                <td class="panel">
-                    <div class="graph-box">
-                        <div class="graph-title">Most Purchased Add-ons</div>
-                        @forelse($topAddons as $addon)
-                            <div class="bar-row">
-                                <div class="bar-label">{{ $addon['addon_name'] }} | Qty {{ $formatNum($addon['qty']) }} | Txns {{ $formatNum($addon['transactions']) }} | {{ $formatMoney($addon['revenue']) }}</div>
-                                <div class="bar-track"><div class="bar-fill c2" style="width: {{ $pct($addon['qty'], $addonQtyMax) }}%;"></div></div>
-                            </div>
-                        @empty
-                            <div>No add-on data found in this period.</div>
-                        @endforelse
-                    </div>
-                </td>
-                <td class="panel">
-                    <div class="graph-box">
-                        <div class="graph-title">Top Add-on Combinations</div>
-                        @forelse($topAddonCombinations as $combo)
-                            <div class="bar-row">
-                                <div class="bar-label">{{ $combo['combo'] }} | {{ $formatNum($combo['transactions']) }} txns | {{ $formatMoney($combo['revenue']) }}</div>
-                                <div class="bar-track"><div class="bar-fill c4" style="width: {{ $pct($combo['transactions'], $addonComboMax) }}%;"></div></div>
-                            </div>
-                        @empty
-                            <div>No add-on combinations found in this period.</div>
-                        @endforelse
-                    </div>
-                </td>
-            </tr>
-        </table>
+        <div class="graph-box">
+            <div class="graph-title">Most Purchased Add-ons</div>
+            @forelse($topAddons as $addon)
+                <div class="bar-row">
+                    <div class="bar-label">{{ $addon['addon_name'] }} | Qty {{ $formatNum($addon['qty']) }} | Txns {{ $formatNum($addon['transactions']) }} | {{ $formatMoney($addon['revenue']) }}</div>
+                    <div class="bar-track"><div class="bar-fill c2" style="width: {{ $pct($addon['qty'], $addonQtyMax) }}%;"></div></div>
+                </div>
+            @empty
+                <div>No add-on data found in this period.</div>
+            @endforelse
+        </div>
 
         <div class="graph-box" style="margin-top: 8px;">
             <div class="graph-title">Package + Add-on Combination Leaderboard</div>

@@ -382,12 +382,10 @@ class ReportController extends Controller
         $totalAddonsQty = 0;
         $transactionsWithAddons = 0;
         $addonBuckets = [];
-        $addonComboBuckets = [];
         $packageAddonComboBuckets = [];
         foreach ($transactions as $transaction) {
             $cartItems = is_array($transaction->cart_items) ? $transaction->cart_items : [];
             $transactionAddonNames = [];
-            $transactionAddonRevenue = 0.0;
             $transactionHasAddons = false;
 
             foreach ($cartItems as $item) {
@@ -422,7 +420,6 @@ class ReportController extends Controller
                     $lineRevenue = $qty * $unitPrice;
 
                     $totalAddonsQty += $qty;
-                    $transactionAddonRevenue += $lineRevenue;
                     $transactionHasAddons = true;
 
                     $addonKey = strtolower($addonName);
@@ -469,31 +466,13 @@ class ReportController extends Controller
                     }
                 }
 
-                ksort($transactionAddonNames);
-                $comboLabel = implode(' + ', array_values($transactionAddonNames));
-                $comboKey = strtolower($comboLabel);
-                if (!isset($addonComboBuckets[$comboKey])) {
-                    $addonComboBuckets[$comboKey] = [
-                        'combo' => $comboLabel,
-                        'transactions' => 0,
-                        'revenue' => 0.0,
-                        'addon_count' => count($transactionAddonNames),
-                    ];
-                }
-                $addonComboBuckets[$comboKey]['transactions']++;
-                $addonComboBuckets[$comboKey]['revenue'] += (float) ($transaction->total ?? 0);
-                $addonComboBuckets[$comboKey]['addon_revenue'] = ($addonComboBuckets[$comboKey]['addon_revenue'] ?? 0) + $transactionAddonRevenue;
+                // Keep package+addon combinations as the main combination signal.
             }
         }
 
         $topAddons = collect($addonBuckets)
             ->sortByDesc('qty')
             ->take(15)
-            ->values();
-
-        $topAddonCombinations = collect($addonComboBuckets)
-            ->sortByDesc('transactions')
-            ->take(12)
             ->values();
 
         $topPackageAddonCombinations = collect($packageAddonComboBuckets)
@@ -588,9 +567,15 @@ class ReportController extends Controller
             ->values();
 
         $hourlyBuckets = collect(range(0, 23))->mapWithKeys(function ($hour) {
+            $displayHour = $hour % 12;
+            if ($displayHour === 0) {
+                $displayHour = 12;
+            }
+            $suffix = $hour < 12 ? 'AM' : 'PM';
+
             return [$hour => [
                 'hour' => $hour,
-                'label' => sprintf('%02d:00', $hour),
+                'label' => sprintf('%d %s', $displayHour, $suffix),
                 'transactions' => 0,
                 'revenue' => 0.0,
                 'guests' => 0,
@@ -612,7 +597,8 @@ class ReportController extends Controller
         $countryBuckets = [];
 
         $orderValueBands = [
-            ['label' => '$0-$99', 'min' => 0, 'max' => 99.99, 'transactions' => 0, 'revenue' => 0.0],
+            ['label' => '$0', 'exact' => 0.0, 'transactions' => 0, 'revenue' => 0.0],
+            ['label' => '$1-$99', 'min' => 0.01, 'max' => 99.99, 'transactions' => 0, 'revenue' => 0.0],
             ['label' => '$100-$249', 'min' => 100, 'max' => 249.99, 'transactions' => 0, 'revenue' => 0.0],
             ['label' => '$250-$499', 'min' => 250, 'max' => 499.99, 'transactions' => 0, 'revenue' => 0.0],
             ['label' => '$500-$999', 'min' => 500, 'max' => 999.99, 'transactions' => 0, 'revenue' => 0.0],
@@ -626,6 +612,8 @@ class ReportController extends Controller
             ['label' => '4-7 Days', 'min' => 4, 'max' => 7, 'transactions' => 0],
             ['label' => '8-14 Days', 'min' => 8, 'max' => 14, 'transactions' => 0],
             ['label' => '15+ Days', 'min' => 15, 'max' => null, 'transactions' => 0],
+            ['label' => 'Past Use Date', 'special' => 'past_use', 'transactions' => 0],
+            ['label' => 'No Use Date', 'special' => 'no_use_date', 'transactions' => 0],
         ];
 
         $leadTimeDays = [];
@@ -684,9 +672,13 @@ class ReportController extends Controller
             }
 
             foreach ($orderValueBands as $idx => $band) {
-                $inRange = $band['max'] === null
-                    ? ($amount >= $band['min'])
-                    : ($amount >= $band['min'] && $amount <= $band['max']);
+                if (array_key_exists('exact', $band)) {
+                    $inRange = abs($amount - (float) $band['exact']) < 0.00001;
+                } else {
+                    $inRange = $band['max'] === null
+                        ? ($amount >= $band['min'])
+                        : ($amount >= $band['min'] && $amount <= $band['max']);
+                }
 
                 if ($inRange) {
                     $orderValueBands[$idx]['transactions']++;
@@ -701,6 +693,9 @@ class ReportController extends Controller
                 if ($leadDays >= 0) {
                     $leadTimeDays[] = $leadDays;
                     foreach ($leadTimeBands as $idx => $band) {
+                        if (!isset($band['min'])) {
+                            continue;
+                        }
                         $inRange = $band['max'] === null
                             ? ($leadDays >= $band['min'])
                             : ($leadDays >= $band['min'] && $leadDays <= $band['max']);
@@ -709,6 +704,20 @@ class ReportController extends Controller
                             $leadTimeBands[$idx]['transactions']++;
                             break;
                         }
+                    }
+                } else {
+                    foreach ($leadTimeBands as $idx => $band) {
+                        if (($band['special'] ?? null) === 'past_use') {
+                            $leadTimeBands[$idx]['transactions']++;
+                            break;
+                        }
+                    }
+                }
+            } else {
+                foreach ($leadTimeBands as $idx => $band) {
+                    if (($band['special'] ?? null) === 'no_use_date') {
+                        $leadTimeBands[$idx]['transactions']++;
+                        break;
                     }
                 }
             }
@@ -792,6 +801,10 @@ class ReportController extends Controller
             'avg_checkin_lag_minutes' => $avgCheckinLagMinutes,
             'transactions_with_addons' => $transactionsWithAddons,
             'addon_attach_rate' => $totalTransactions > 0 ? (($transactionsWithAddons / $totalTransactions) * 100) : 0,
+            'zero_value_transactions' => (int) (collect($orderValueBands)->firstWhere('label', '$0')['transactions'] ?? 0),
+            'zero_value_share' => $totalTransactions > 0
+                ? (((int) (collect($orderValueBands)->firstWhere('label', '$0')['transactions'] ?? 0) / $totalTransactions) * 100)
+                : 0,
         ];
 
         $insights = [
@@ -825,7 +838,6 @@ class ReportController extends Controller
             'orderValueBands' => $orderValueBands,
             'leadTimeBands' => $leadTimeBands,
             'topAddons' => $topAddons,
-            'topAddonCombinations' => $topAddonCombinations,
             'topPackageAddonCombinations' => $topPackageAddonCombinations,
             'sourceSnapshot' => $sourceSnapshot,
             'insights' => $insights,
