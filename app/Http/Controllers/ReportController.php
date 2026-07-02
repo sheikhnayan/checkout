@@ -380,20 +380,126 @@ class ReportController extends Controller
         $unknownGenderGuests = max(0, $totalGuests - $knownGenderGuests);
 
         $totalAddonsQty = 0;
+        $transactionsWithAddons = 0;
+        $addonBuckets = [];
+        $addonComboBuckets = [];
+        $packageAddonComboBuckets = [];
         foreach ($transactions as $transaction) {
             $cartItems = is_array($transaction->cart_items) ? $transaction->cart_items : [];
+            $transactionAddonNames = [];
+            $transactionAddonRevenue = 0.0;
+            $transactionHasAddons = false;
+
             foreach ($cartItems as $item) {
                 if (!is_array($item) || !isset($item['addons']) || !is_array($item['addons'])) {
                     continue;
                 }
+
+                $itemAddonNames = [];
+                $packageLabel = trim((string) ($item['package_name'] ?? ''));
+                if ($packageLabel === '') {
+                    $packageLabel = trim((string) ($transaction->package_table_label ?? ''));
+                }
+                if ($packageLabel === '' || $packageLabel === 'N/A') {
+                    $packageLabel = trim((string) (optional($transaction->package)->name ?? ''));
+                }
+                if ($packageLabel === '') {
+                    $packageLabel = 'Package';
+                }
+
                 foreach ($item['addons'] as $addon) {
                     if (!is_array($addon)) {
                         continue;
                     }
-                    $totalAddonsQty += max(1, (int) ($addon['qty'] ?? $addon['quantity'] ?? 1));
+
+                    $addonName = trim((string) ($addon['name'] ?? $addon['addon_name'] ?? $addon['title'] ?? 'Addon'));
+                    if ($addonName === '') {
+                        $addonName = 'Addon';
+                    }
+
+                    $qty = max(1, (int) ($addon['qty'] ?? $addon['quantity'] ?? 1));
+                    $unitPrice = (float) ($addon['price'] ?? $addon['addon_price'] ?? $addon['amount'] ?? 0);
+                    $lineRevenue = $qty * $unitPrice;
+
+                    $totalAddonsQty += $qty;
+                    $transactionAddonRevenue += $lineRevenue;
+                    $transactionHasAddons = true;
+
+                    $addonKey = strtolower($addonName);
+                    if (!isset($addonBuckets[$addonKey])) {
+                        $addonBuckets[$addonKey] = [
+                            'addon_name' => $addonName,
+                            'qty' => 0,
+                            'transactions' => 0,
+                            'revenue' => 0.0,
+                        ];
+                    }
+                    $addonBuckets[$addonKey]['qty'] += $qty;
+                    $addonBuckets[$addonKey]['revenue'] += $lineRevenue;
+
+                    $itemAddonNames[$addonKey] = $addonName;
+                    $transactionAddonNames[$addonKey] = $addonName;
+                }
+
+                if (!empty($itemAddonNames)) {
+                    ksort($itemAddonNames);
+                    $addonComboLabel = implode(' + ', array_values($itemAddonNames));
+                    $packageComboKey = strtolower($packageLabel . ' || ' . $addonComboLabel);
+
+                    if (!isset($packageAddonComboBuckets[$packageComboKey])) {
+                        $packageAddonComboBuckets[$packageComboKey] = [
+                            'package_name' => $packageLabel,
+                            'addon_combo' => $addonComboLabel,
+                            'label' => $packageLabel . ' + ' . $addonComboLabel,
+                            'transactions' => 0,
+                            'revenue' => 0.0,
+                        ];
+                    }
+                    $packageAddonComboBuckets[$packageComboKey]['transactions']++;
+                    $packageAddonComboBuckets[$packageComboKey]['revenue'] += (float) ($transaction->total ?? 0);
                 }
             }
+
+            if ($transactionHasAddons) {
+                $transactionsWithAddons++;
+
+                foreach (array_keys($transactionAddonNames) as $addonKey) {
+                    if (isset($addonBuckets[$addonKey])) {
+                        $addonBuckets[$addonKey]['transactions']++;
+                    }
+                }
+
+                ksort($transactionAddonNames);
+                $comboLabel = implode(' + ', array_values($transactionAddonNames));
+                $comboKey = strtolower($comboLabel);
+                if (!isset($addonComboBuckets[$comboKey])) {
+                    $addonComboBuckets[$comboKey] = [
+                        'combo' => $comboLabel,
+                        'transactions' => 0,
+                        'revenue' => 0.0,
+                        'addon_count' => count($transactionAddonNames),
+                    ];
+                }
+                $addonComboBuckets[$comboKey]['transactions']++;
+                $addonComboBuckets[$comboKey]['revenue'] += (float) ($transaction->total ?? 0);
+                $addonComboBuckets[$comboKey]['addon_revenue'] = ($addonComboBuckets[$comboKey]['addon_revenue'] ?? 0) + $transactionAddonRevenue;
+            }
         }
+
+        $topAddons = collect($addonBuckets)
+            ->sortByDesc('qty')
+            ->take(15)
+            ->values();
+
+        $topAddonCombinations = collect($addonComboBuckets)
+            ->sortByDesc('transactions')
+            ->take(12)
+            ->values();
+
+        $topPackageAddonCombinations = collect($packageAddonComboBuckets)
+            ->sortByDesc('transactions')
+            ->take(14)
+            ->values();
 
         $clubSnapshot = $transactions
             ->groupBy('website_id')
@@ -635,6 +741,22 @@ class ReportController extends Controller
             ? (array_sum($checkinLagMinutes) / count($checkinLagMinutes))
             : 0;
 
+        $lastTwoDays = $dailyTrend->values()->slice(-2)->values();
+        $trendRevenueDeltaPct = 0.0;
+        $trendTxnDeltaPct = 0.0;
+        $trendGuestDeltaPct = 0.0;
+        if ($lastTwoDays->count() === 2) {
+            $prev = $lastTwoDays->get(0);
+            $curr = $lastTwoDays->get(1);
+
+            $trendRevenueDeltaPct = ((float) ($curr['revenue'] ?? 0) - (float) ($prev['revenue'] ?? 0))
+                / max(1.0, abs((float) ($prev['revenue'] ?? 0))) * 100;
+            $trendTxnDeltaPct = ((float) ($curr['transactions'] ?? 0) - (float) ($prev['transactions'] ?? 0))
+                / max(1.0, abs((float) ($prev['transactions'] ?? 0))) * 100;
+            $trendGuestDeltaPct = ((float) ($curr['guests'] ?? 0) - (float) ($prev['guests'] ?? 0))
+                / max(1.0, abs((float) ($prev['guests'] ?? 0))) * 100;
+        }
+
         $sourceSnapshot = [
             'direct' => [
                 'transactions' => (int) $transactions->filter(fn ($t) => empty($t->affiliate_id) && empty($t->entertainer_id))->count(),
@@ -668,6 +790,8 @@ class ReportController extends Controller
             'unknown_gender_guests' => $unknownGenderGuests,
             'avg_lead_days' => $avgLeadDays,
             'avg_checkin_lag_minutes' => $avgCheckinLagMinutes,
+            'transactions_with_addons' => $transactionsWithAddons,
+            'addon_attach_rate' => $totalTransactions > 0 ? (($transactionsWithAddons / $totalTransactions) * 100) : 0,
         ];
 
         $insights = [
@@ -681,6 +805,11 @@ class ReportController extends Controller
                     : null,
                 'website_name' => optional($largestTransaction->website)->name,
             ] : null,
+            'trend' => [
+                'revenue_delta_pct' => $trendRevenueDeltaPct,
+                'transactions_delta_pct' => $trendTxnDeltaPct,
+                'guests_delta_pct' => $trendGuestDeltaPct,
+            ],
         ];
 
         $payload = [
@@ -695,6 +824,9 @@ class ReportController extends Controller
             'topCountries' => $topCountries,
             'orderValueBands' => $orderValueBands,
             'leadTimeBands' => $leadTimeBands,
+            'topAddons' => $topAddons,
+            'topAddonCombinations' => $topAddonCombinations,
+            'topPackageAddonCombinations' => $topPackageAddonCombinations,
             'sourceSnapshot' => $sourceSnapshot,
             'insights' => $insights,
             'timezone' => $timezone,

@@ -169,6 +169,36 @@
         }
         .insight .k { font-size: 8px; text-transform: uppercase; color: #64748b; }
         .insight .v { font-size: 11px; color: #0f172a; font-weight: 700; margin-top: 2px; }
+        .trend-up { color: #15803d; font-weight: 700; }
+        .trend-down { color: #b91c1c; font-weight: 700; }
+        .trend-flat { color: #334155; font-weight: 700; }
+        .donut-grid {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 8px;
+            margin-top: 8px;
+        }
+        .donut-card {
+            width: 33.33%;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            text-align: center;
+            vertical-align: top;
+            padding: 7px;
+        }
+        .donut-title {
+            font-size: 8px;
+            text-transform: uppercase;
+            color: #64748b;
+            letter-spacing: 0.4px;
+            margin-bottom: 4px;
+        }
+        .donut-value {
+            font-size: 11px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-top: 3px;
+        }
         .page-break { page-break-before: always; }
         .footer {
             margin-top: 12px;
@@ -203,6 +233,50 @@
     $clubRevMax = max((float) ($clubSnapshot->max('revenue') ?? 0), 1);
     $pkgRevMax = max((float) ($topPackages->max('revenue') ?? 0), 1);
     $dailyRevMax = max((float) ($dailyTrend->max('revenue') ?? 0), 1);
+    $addonQtyMax = max((int) ($topAddons->max('qty') ?? 0), 1);
+    $addonComboMax = max((int) ($topAddonCombinations->max('transactions') ?? 0), 1);
+    $packageAddonComboMax = max((int) ($topPackageAddonCombinations->max('transactions') ?? 0), 1);
+    $trendRevenue = (float) ($insights['trend']['revenue_delta_pct'] ?? 0);
+    $trendTransactions = (float) ($insights['trend']['transactions_delta_pct'] ?? 0);
+    $trendGuests = (float) ($insights['trend']['guests_delta_pct'] ?? 0);
+
+    $directSharePct = ($sourceSnapshot['direct']['transactions'] / $totalTx) * 100;
+    $addonAttachPct = (float) ($summary['addon_attach_rate'] ?? 0);
+    $maleGuestPct = ($summary['total_men'] / $totalGuests) * 100;
+
+    $donutSvg = function ($percent, $color) {
+        $p = max(0, min(100, (float) $percent));
+        $radius = 30;
+        $circumference = 2 * pi() * $radius;
+        $offset = $circumference * (1 - ($p / 100));
+        return sprintf(
+            '<svg width="86" height="86" viewBox="0 0 86 86" xmlns="http://www.w3.org/2000/svg"><circle cx="43" cy="43" r="30" fill="none" stroke="#e2e8f0" stroke-width="10"/><circle cx="43" cy="43" r="30" fill="none" stroke="%s" stroke-width="10" stroke-linecap="round" transform="rotate(-90 43 43)" stroke-dasharray="%.2f" stroke-dashoffset="%.2f"/><text x="43" y="47" text-anchor="middle" font-size="12" font-weight="700" fill="#0f172a">%s%%</text></svg>',
+            $color,
+            $circumference,
+            $offset,
+            number_format($p, 1)
+        );
+    };
+
+    $trendClass = function ($value) {
+        if ($value > 0.01) {
+            return 'trend-up';
+        }
+        if ($value < -0.01) {
+            return 'trend-down';
+        }
+        return 'trend-flat';
+    };
+
+    $trendLabel = function ($value) {
+        if ($value > 0.01) {
+            return 'UP';
+        }
+        if ($value < -0.01) {
+            return 'DOWN';
+        }
+        return 'FLAT';
+    };
 @endphp
 
     <div class="header">
@@ -242,8 +316,14 @@
             <tr>
                 <td class="card"><div class="label">Avg Order</div><div class="value">{{ $formatMoney($summary['avg_order_value']) }}</div></td>
                 <td class="card"><div class="label">Highest Order</div><div class="value">{{ $formatMoney($summary['max_order_value']) }}</div></td>
+                <td class="card"><div class="label">Add-on Attach Rate</div><div class="value">{{ number_format($summary['addon_attach_rate'] ?? 0, 1) }}%</div></td>
+                <td class="card"><div class="label">Add-on Txns</div><div class="value">{{ $formatNum($summary['transactions_with_addons'] ?? 0) }}</div></td>
+            </tr>
+            <tr>
                 <td class="card"><div class="label">Total Commission</div><div class="value">{{ $formatMoney($summary['total_commission']) }}</div></td>
                 <td class="card"><div class="label">Net Revenue</div><div class="value">{{ $formatMoney($summary['net_revenue']) }}</div></td>
+                <td class="card"><div class="label">Avg Lead Days</div><div class="value">{{ number_format($summary['avg_lead_days'] ?? 0, 1) }}</div></td>
+                <td class="card"><div class="label">Avg Check-in Lag (min)</div><div class="value">{{ number_format($summary['avg_checkin_lag_minutes'] ?? 0, 0) }}</div></td>
             </tr>
         </table>
     </div>
@@ -275,6 +355,40 @@
                 <td class="insight"><div class="k">Male Guests</div><div class="v">{{ $formatNum($summary['total_men']) }}</div></td>
                 <td class="insight"><div class="k">Female Guests</div><div class="v">{{ $formatNum($summary['total_women']) }}</div></td>
                 <td class="insight"><div class="k">Unknown Gender Guests</div><div class="v">{{ $formatNum($summary['unknown_gender_guests']) }}</div></td>
+            </tr>
+            <tr>
+                <td class="insight">
+                    <div class="k">Revenue Change (Latest Day Vs Prior)</div>
+                    <div class="v {{ $trendClass($trendRevenue) }}">{{ $trendLabel($trendRevenue) }} {{ number_format(abs($trendRevenue), 1) }}%</div>
+                </td>
+                <td class="insight">
+                    <div class="k">Transaction Change</div>
+                    <div class="v {{ $trendClass($trendTransactions) }}">{{ $trendLabel($trendTransactions) }} {{ number_format(abs($trendTransactions), 1) }}%</div>
+                </td>
+                <td class="insight">
+                    <div class="k">Guest Change</div>
+                    <div class="v {{ $trendClass($trendGuests) }}">{{ $trendLabel($trendGuests) }} {{ number_format(abs($trendGuests), 1) }}%</div>
+                </td>
+            </tr>
+        </table>
+
+        <table class="donut-grid">
+            <tr>
+                <td class="donut-card">
+                    <div class="donut-title">Direct Source Share</div>
+                    {!! $donutSvg($directSharePct, '#0ea5e9') !!}
+                    <div class="donut-value">{{ number_format($directSharePct, 1) }}%</div>
+                </td>
+                <td class="donut-card">
+                    <div class="donut-title">Add-on Attach Rate</div>
+                    {!! $donutSvg($addonAttachPct, '#22c55e') !!}
+                    <div class="donut-value">{{ number_format($addonAttachPct, 1) }}%</div>
+                </td>
+                <td class="donut-card">
+                    <div class="donut-title">Male Guest Share</div>
+                    {!! $donutSvg($maleGuestPct, '#f97316') !!}
+                    <div class="donut-value">{{ number_format($maleGuestPct, 1) }}%</div>
+                </td>
             </tr>
         </table>
     </div>
@@ -371,6 +485,52 @@
                     <div class="bar-track"><div class="bar-fill c4" style="width: {{ $pct($band['transactions'], $leadMax) }}%;"></div></div>
                 </div>
             @endforeach
+        </div>
+    </div>
+
+    <div class="section page-break">
+        <div class="section-title">Add-on Intelligence And Combination Graphs</div>
+        <table class="two-col">
+            <tr>
+                <td class="panel">
+                    <div class="graph-box">
+                        <div class="graph-title">Most Purchased Add-ons</div>
+                        @forelse($topAddons as $addon)
+                            <div class="bar-row">
+                                <div class="bar-label">{{ $addon['addon_name'] }} | Qty {{ $formatNum($addon['qty']) }} | Txns {{ $formatNum($addon['transactions']) }} | {{ $formatMoney($addon['revenue']) }}</div>
+                                <div class="bar-track"><div class="bar-fill c2" style="width: {{ $pct($addon['qty'], $addonQtyMax) }}%;"></div></div>
+                            </div>
+                        @empty
+                            <div>No add-on data found in this period.</div>
+                        @endforelse
+                    </div>
+                </td>
+                <td class="panel">
+                    <div class="graph-box">
+                        <div class="graph-title">Top Add-on Combinations</div>
+                        @forelse($topAddonCombinations as $combo)
+                            <div class="bar-row">
+                                <div class="bar-label">{{ $combo['combo'] }} | {{ $formatNum($combo['transactions']) }} txns | {{ $formatMoney($combo['revenue']) }}</div>
+                                <div class="bar-track"><div class="bar-fill c4" style="width: {{ $pct($combo['transactions'], $addonComboMax) }}%;"></div></div>
+                            </div>
+                        @empty
+                            <div>No add-on combinations found in this period.</div>
+                        @endforelse
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <div class="graph-box" style="margin-top: 8px;">
+            <div class="graph-title">Package + Add-on Combination Leaderboard</div>
+            @forelse($topPackageAddonCombinations as $combo)
+                <div class="bar-row">
+                    <div class="bar-label">{{ $combo['label'] }} | {{ $formatNum($combo['transactions']) }} txns | {{ $formatMoney($combo['revenue']) }}</div>
+                    <div class="bar-track"><div class="bar-fill c6" style="width: {{ $pct($combo['transactions'], $packageAddonComboMax) }}%;"></div></div>
+                </div>
+            @empty
+                <div>No package/add-on combinations found in this period.</div>
+            @endforelse
         </div>
     </div>
 
