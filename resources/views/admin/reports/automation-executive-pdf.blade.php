@@ -11,11 +11,11 @@
             color: #0f172a;
             font-size: 9px;
             line-height: 1.4;
-            background: #f3f6fb;
+            background: #f5f7fb;
         }
         .header {
-            background: linear-gradient(135deg, #0b1220 0%, #111b2e 55%, #102742 100%);
-            border: 1px solid #1e334f;
+            background: #0b0e1a;
+            border: 1px solid #24304a;
             border-radius: 12px;
             padding: 10px 11px 9px;
             margin-bottom: 8px;
@@ -30,16 +30,16 @@
         }
         .subtitle {
             margin: 2px 0 4px;
-            color: #bae6fd;
+            color: #c9d4ef;
             font-size: 10px;
         }
         .header-note {
             display: inline-block;
             margin: 2px 0 0;
             padding: 2px 8px;
-            border: 1px solid #27668e;
-            background: rgba(14, 165, 233, 0.15);
-            color: #dbeafe;
+            border: 1px solid #7c3aed;
+            background: #2a1c4f;
+            color: #e9ddff;
             font-size: 8px;
             letter-spacing: 0.3px;
             border-radius: 999px;
@@ -81,9 +81,9 @@
         .section-title {
             margin: 0 0 5px;
             padding: 4px 6px;
-            background: linear-gradient(90deg, #0f172a 0%, #1e293b 100%);
-            color: #e2e8f0;
-            border-left: 4px solid #06b6d4;
+            background: #0f172a;
+            color: #f8fafc;
+            border-left: 4px solid #ffcc00;
             font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.7px;
@@ -96,8 +96,8 @@
         }
         .card {
             border: 1px solid #d0dae8;
-            border-top: 3px solid #38bdf8;
-            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            border-top: 3px solid #7c3aed;
+            background: #ffffff;
             padding: 4px 6px;
             width: 25%;
             vertical-align: top;
@@ -128,7 +128,7 @@
         }
         .graph-box {
             border: 1px solid #d0dae8;
-            background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+            background: #ffffff;
             padding: 5px;
             border-radius: 10px;
         }
@@ -144,7 +144,7 @@
             margin-bottom: 3px;
             border: 1px solid #e4ebf5;
             border-radius: 8px;
-            background: #f9fbff;
+            background: #f8fafc;
             padding: 3px 4px 4px;
         }
         .bar-label {
@@ -160,12 +160,12 @@
             border-radius: 999px;
         }
         .bar-fill { height: 8px; border-radius: 999px; }
-        .c1 { background: linear-gradient(90deg, #0ea5e9 0%, #0284c7 100%); }
-        .c2 { background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%); }
-        .c3 { background: linear-gradient(90deg, #f97316 0%, #ea580c 100%); }
-        .c4 { background: linear-gradient(90deg, #a855f7 0%, #7e22ce 100%); }
-        .c5 { background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%); }
-        .c6 { background: linear-gradient(90deg, #14b8a6 0%, #0f766e 100%); }
+        .c1 { background: #3b82f6; }
+        .c2 { background: #10b981; }
+        .c3 { background: #f59e0b; }
+        .c4 { background: #7c3aed; }
+        .c5 { background: #ef4444; }
+        .c6 { background: #ffcc00; }
         .data-table {
             width: 100%;
             border-collapse: collapse;
@@ -176,7 +176,7 @@
             overflow: hidden;
         }
         .data-table th {
-            background: linear-gradient(180deg, #edf4ff 0%, #e5eefc 100%);
+            background: #edf2fb;
             border-bottom: 1px solid #d2deee;
             padding: 4px 5px;
             text-align: left;
@@ -200,7 +200,7 @@
         }
         .insight {
             border: 1px solid #d0dae8;
-            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            background: #ffffff;
             padding: 4px;
             vertical-align: top;
             width: 33.33%;
@@ -214,7 +214,7 @@
         .pie-box {
             border: 1px solid #d0dae8;
             padding: 5px;
-            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            background: #ffffff;
             border-radius: 10px;
         }
         .pie-title {
