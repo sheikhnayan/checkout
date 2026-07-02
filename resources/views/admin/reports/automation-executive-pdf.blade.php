@@ -189,6 +189,24 @@
             text-align: center;
             margin-bottom: 6px;
         }
+        .circle-grid {
+            border-collapse: collapse;
+            margin: 0 auto;
+        }
+        .circle-grid td {
+            width: 8px;
+            height: 8px;
+            padding: 0;
+            border: 0;
+            line-height: 0;
+            font-size: 0;
+        }
+        .circle-center-label {
+            text-align: center;
+            font-size: 8px;
+            color: #475569;
+            margin-top: 3px;
+        }
         .legend-table {
             width: 100%;
             border-collapse: collapse;
@@ -302,62 +320,68 @@
         return ['segments' => $segments, 'total' => $total];
     };
 
-    $renderPie = function ($segments, $totalLabel) {
-        $size = 180;
-        $center = $size / 2;
-        $radius = 58;
-        $innerRadius = 34;
-        $angle = -90.0;
+    $renderCircleGrid = function ($segments, $totalLabel) {
+        $n = 17;
+        $mid = ($n - 1) / 2;
+        $rOuter = 7.6;
+        $rInner = 3.2;
 
-        $svg = '<svg width="' . $size . '" height="' . $size . '" viewBox="0 0 ' . $size . ' ' . $size . '" xmlns="http://www.w3.org/2000/svg">';
-        $svg .= '<circle cx="' . $center . '" cy="' . $center . '" r="' . $radius . '" fill="#e2e8f0"/>';
-
+        $ranges = [];
+        $cursor = 0.0;
         foreach ($segments as $segment) {
             $pct = max(0.0, min(100.0, (float) ($segment['pct'] ?? 0)));
-            if ($pct <= 0.0) {
+            $span = 360.0 * ($pct / 100.0);
+            if ($span <= 0) {
                 continue;
             }
-
-            $sweep = 360.0 * ($pct / 100.0);
-            $color = (string) ($segment['color'] ?? '#94a3b8');
-
-            if ($pct >= 99.999) {
-                $svg .= '<circle cx="' . $center . '" cy="' . $center . '" r="' . $radius . '" fill="' . e($color) . '"/>';
-                $angle += $sweep;
-                continue;
-            }
-
-            $startRad = deg2rad($angle);
-            $endRad = deg2rad($angle + $sweep);
-
-            $x1 = $center + ($radius * cos($startRad));
-            $y1 = $center + ($radius * sin($startRad));
-            $x2 = $center + ($radius * cos($endRad));
-            $y2 = $center + ($radius * sin($endRad));
-            $largeArc = $sweep > 180 ? 1 : 0;
-
-            $path = sprintf(
-                'M %.3f %.3f L %.3f %.3f A %.3f %.3f 0 %d 1 %.3f %.3f Z',
-                $center,
-                $center,
-                $x1,
-                $y1,
-                $radius,
-                $radius,
-                $largeArc,
-                $x2,
-                $y2
-            );
-
-            $svg .= '<path d="' . $path . '" fill="' . e($color) . '"/>';
-            $angle += $sweep;
+            $ranges[] = [
+                'start' => $cursor,
+                'end' => $cursor + $span,
+                'color' => (string) ($segment['color'] ?? '#94a3b8'),
+            ];
+            $cursor += $span;
         }
 
-        $svg .= '<circle cx="' . $center . '" cy="' . $center . '" r="' . $innerRadius . '" fill="#ffffff"/>';
-        $svg .= '<text x="' . $center . '" y="' . ($center - 3) . '" text-anchor="middle" font-size="10" font-weight="700" fill="#0f172a">Total</text>';
-        $svg .= '<text x="' . $center . '" y="' . ($center + 12) . '" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">' . e($totalLabel) . '</text>';
-        $svg .= '</svg>';
-        return $svg;
+        $html = '<table class="circle-grid">';
+        for ($y = 0; $y < $n; $y++) {
+            $html .= '<tr>';
+            for ($x = 0; $x < $n; $x++) {
+                $dx = $x - $mid;
+                $dy = $y - $mid;
+                $dist = sqrt(($dx * $dx) + ($dy * $dy));
+
+                if ($dist > $rOuter) {
+                    $html .= '<td style="background:#ffffff;"></td>';
+                    continue;
+                }
+
+                if ($dist < $rInner) {
+                    $html .= '<td style="background:#ffffff;"></td>';
+                    continue;
+                }
+
+                $angle = rad2deg(atan2($dy, $dx));
+                $angle = $angle + 90.0;
+                if ($angle < 0) {
+                    $angle += 360.0;
+                }
+
+                $color = '#e2e8f0';
+                foreach ($ranges as $range) {
+                    if ($angle >= $range['start'] && $angle < $range['end']) {
+                        $color = $range['color'];
+                        break;
+                    }
+                }
+
+                $html .= '<td style="background:' . e($color) . ';"></td>';
+            }
+            $html .= '</tr>';
+        }
+        $html .= '</table>';
+        $html .= '<div class="circle-center-label">Total: ' . e($totalLabel) . '</div>';
+
+        return $html;
     };
 
     $clubPie = $buildPieData($clubSnapshot, 'website_name', 'revenue', 6);
@@ -480,7 +504,7 @@
                 <td class="panel">
                     <div class="pie-box">
                         <div class="pie-title">Club Revenue Share</div>
-                        <div class="pie-svg-wrap">{!! $renderPie($clubPie['segments'], $formatMoney($clubPie['total'])) !!}</div>
+                        <div class="pie-svg-wrap">{!! $renderCircleGrid($clubPie['segments'], $formatMoney($clubPie['total'])) !!}</div>
                         <table class="legend-table">
                             @foreach($clubPie['segments'] as $seg)
                                 <tr>
@@ -495,7 +519,7 @@
                 <td class="panel">
                     <div class="pie-box">
                         <div class="pie-title">Package Revenue Share</div>
-                        <div class="pie-svg-wrap">{!! $renderPie($packagePie['segments'], $formatMoney($packagePie['total'])) !!}</div>
+                        <div class="pie-svg-wrap">{!! $renderCircleGrid($packagePie['segments'], $formatMoney($packagePie['total'])) !!}</div>
                         <table class="legend-table">
                             @foreach($packagePie['segments'] as $seg)
                                 <tr>
