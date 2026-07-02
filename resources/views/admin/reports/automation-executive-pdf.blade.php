@@ -10,36 +10,39 @@
             margin: 0;
             color: #0f172a;
             font-size: 9px;
-            line-height: 1.35;
+            line-height: 1.4;
             background: #f3f6fb;
         }
         .header {
-            background: #0b1220;
-            border: 1px solid #1e293b;
-            padding: 8px 9px 7px;
-            margin-bottom: 7px;
+            background: linear-gradient(135deg, #0b1220 0%, #111b2e 55%, #102742 100%);
+            border: 1px solid #1e334f;
+            border-radius: 12px;
+            padding: 10px 11px 9px;
+            margin-bottom: 8px;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.2);
         }
         .title {
             margin: 0;
-            font-size: 18px;
+            font-size: 19px;
             font-weight: 700;
-            letter-spacing: 0.2px;
+            letter-spacing: 0.25px;
             color: #f8fafc;
         }
         .subtitle {
-            margin: 2px 0 3px;
-            color: #93c5fd;
+            margin: 2px 0 4px;
+            color: #bae6fd;
             font-size: 10px;
         }
         .header-note {
             display: inline-block;
             margin: 2px 0 0;
-            padding: 2px 6px;
-            border: 1px solid #334155;
-            background: #111827;
-            color: #cbd5e1;
+            padding: 2px 8px;
+            border: 1px solid #27668e;
+            background: rgba(14, 165, 233, 0.15);
+            color: #dbeafe;
             font-size: 8px;
             letter-spacing: 0.3px;
+            border-radius: 999px;
         }
         .meta {
             width: 100%;
@@ -52,6 +55,7 @@
             background: #0f172a;
             padding: 4px 6px;
             vertical-align: top;
+            border-radius: 8px;
         }
         .meta .label {
             color: #94a3b8;
@@ -68,16 +72,22 @@
         .section {
             margin-top: 7px;
             page-break-inside: auto;
+            border: 1px solid #d6e1ef;
+            border-radius: 12px;
+            background: #ffffff;
+            padding: 7px;
+            box-shadow: 0 2px 7px rgba(15, 23, 42, 0.06);
         }
         .section-title {
             margin: 0 0 5px;
             padding: 4px 6px;
-            background: #111827;
+            background: linear-gradient(90deg, #0f172a 0%, #1e293b 100%);
             color: #e2e8f0;
             border-left: 4px solid #06b6d4;
             font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.7px;
+            border-radius: 8px;
         }
         .cards {
             width: 100%;
@@ -87,10 +97,12 @@
         .card {
             border: 1px solid #d0dae8;
             border-top: 3px solid #38bdf8;
-            background: #ffffff;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
             padding: 4px 6px;
             width: 25%;
             vertical-align: top;
+            border-radius: 10px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
         }
         .card .label {
             font-size: 8px;
@@ -103,6 +115,7 @@
             font-size: 13px;
             color: #0b1324;
             font-weight: 700;
+            line-height: 1.2;
         }
         .two-col {
             width: 100%;
@@ -115,8 +128,9 @@
         }
         .graph-box {
             border: 1px solid #d0dae8;
-            background: #ffffff;
+            background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
             padding: 5px;
+            border-radius: 10px;
         }
         .graph-title {
             margin: 0 0 4px;
@@ -128,6 +142,10 @@
         }
         .bar-row {
             margin-bottom: 3px;
+            border: 1px solid #e4ebf5;
+            border-radius: 8px;
+            background: #f9fbff;
+            padding: 3px 4px 4px;
         }
         .bar-label {
             font-size: 9px;
@@ -139,23 +157,26 @@
             height: 7px;
             background: #e8edf5;
             overflow: hidden;
+            border-radius: 999px;
         }
-        .bar-fill { height: 8px; }
-        .c1 { background: #0ea5e9; }
-        .c2 { background: #22c55e; }
-        .c3 { background: #f97316; }
-        .c4 { background: #a855f7; }
-        .c5 { background: #ef4444; }
-        .c6 { background: #14b8a6; }
+        .bar-fill { height: 8px; border-radius: 999px; }
+        .c1 { background: linear-gradient(90deg, #0ea5e9 0%, #0284c7 100%); }
+        .c2 { background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%); }
+        .c3 { background: linear-gradient(90deg, #f97316 0%, #ea580c 100%); }
+        .c4 { background: linear-gradient(90deg, #a855f7 0%, #7e22ce 100%); }
+        .c5 { background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%); }
+        .c6 { background: linear-gradient(90deg, #14b8a6 0%, #0f766e 100%); }
         .data-table {
             width: 100%;
             border-collapse: collapse;
             border: 1px solid #d2deee;
             background: #ffffff;
             margin-top: 5px;
+            border-radius: 10px;
+            overflow: hidden;
         }
         .data-table th {
-            background: #e9f0fb;
+            background: linear-gradient(180deg, #edf4ff 0%, #e5eefc 100%);
             border-bottom: 1px solid #d2deee;
             padding: 4px 5px;
             text-align: left;
@@ -179,10 +200,11 @@
         }
         .insight {
             border: 1px solid #d0dae8;
-            background: #f8fbff;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
             padding: 4px;
             vertical-align: top;
             width: 33.33%;
+            border-radius: 10px;
         }
         .insight .k { font-size: 8px; text-transform: uppercase; color: #64748b; }
         .insight .v { font-size: 11px; color: #0f172a; font-weight: 700; margin-top: 2px; }
@@ -192,7 +214,8 @@
         .pie-box {
             border: 1px solid #d0dae8;
             padding: 5px;
-            background: #ffffff;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            border-radius: 10px;
         }
         .pie-title {
             font-size: 9px;
@@ -500,7 +523,7 @@
 
     <div class="header">
         <h1 class="title">Automation Executive Intelligence Report</h1>
-        <div class="subtitle">Graph-heavy management view across guests, spending, geography, time patterns, and club/package performance</div>
+        <div class="subtitle">Modern performance brief across revenue, demand timing, club contribution, package mix, and conversion signals</div>
         <div class="header-note">Checkout Platform | Client Presentation Edition</div>
         <table class="meta">
             <tr>
@@ -662,7 +685,7 @@
     </div>
 
     <div class="section">
-        <div class="section-title">Guest Demographics And Spend Behavior</div>
+        <div class="section-title">Guest Behavior And Spend Architecture</div>
         <table class="two-col">
             <tr>
                 <td class="panel">
@@ -746,7 +769,7 @@
     </div>
 
     <div class="section">
-        <div class="section-title">Add-on Intelligence And Combination Graphs</div>
+        <div class="section-title">Add-on Intelligence And Combination Patterns</div>
         <div class="graph-box" style="margin-bottom: 8px;">
             <div class="graph-title">Top Package Revenue</div>
             @foreach($topPackages as $pkg)
