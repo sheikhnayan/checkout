@@ -493,7 +493,7 @@ body.modal-open .admin-mobile-menu-toggle {
             <div class="d-flex align-items-center gap-2 flex-wrap">
                 <div class="txn-date-range-wrap" id="txnDateRangeWrap">
                     <i class="fas fa-calendar-alt me-2" style="color:rgba(255,255,255,0.4);font-size:0.85rem"></i>
-                    <input type="text" id="txnDateRange" class="txn-date-input" readonly placeholder="All time" value="{{ $initialDateRange }}">
+                        <input type="text" id="txnDateRange" class="txn-date-input" readonly placeholder="All time" value="{{ $initialDateRange }}">
                 </div>
             </div>
         </div>
@@ -618,7 +618,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
                     <div class="txn-search-wrap">
                         <i class="fas fa-search txn-search-icon"></i>
-                        <input type="text" id="txnSearch" class="txn-search-input" placeholder="Search by name, email, order ID…">
+                                <input type="text" id="txnSearch" class="txn-search-input" placeholder="Search by name, email, order ID…">
                     </div>
                     <div class="dropdown">
                         <button class="txn-export-btn btn dropdown-toggle" data-bs-toggle="dropdown" type="button">
@@ -1074,6 +1074,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                         data-host_name="{{ $item->host_name }}"
                                         data-package_number_of_guest="{{ $item->package_number_of_guest }}"
                                         data-transportation_pickup_time="{{ $item->transportation_pickup_time }}"
+                                        data-transportation_arrival_time="{{ $item->transportation_arrival_time }}"
                                         data-transportation_address="{{ $item->transportation_address }}"
                                         data-transportation_phone="{{ $item->transportation_phone }}"
                                         data-transportation_guest="{{ $item->transportation_guest }}"
@@ -2565,6 +2566,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += '<div class="txn-detail-title">Transportation</div>';
                 html += row('Transport Mode', transportMode);
                 html += row('Pickup Time', formatPickupTime($(this).data('transportation_pickup_time')));
+                html += row('Arrival Time', formatPickupTime($(this).data('transportation_arrival_time')));
                 html += row('Transport Phone', $(this).data('transportation_phone') || 'N/A');
                 html += row('Transport Address', $(this).data('transportation_address') || 'N/A');
                 html += row('Transport Note', $(this).data('transportation_note') || 'N/A');
@@ -2909,10 +2911,15 @@ body.modal-open .admin-mobile-menu-toggle {
                 }
                 var transportationPickup = String($(this).data('transportation_pickup_time') || '').trim();
                 var transportationPickupDisplay = formatPickupTime(transportationPickup);
+                var transportationArrival = String(
+                    $(this).data('transportation_arrival_time') ||
+                    ($(this).closest('tr').find('.view-btn').data('transportation_arrival_time') || '')
+                ).trim();
+                var transportationArrivalDisplay = formatPickupTime(transportationArrival);
                 var transportationAddress = String($(this).data('transportation_address') || '').trim();
                 var transportationPhone = String($(this).data('transportation_phone') || '').trim();
                 var transportationNote = String($(this).data('transportation_note') || '').trim();
-                var hasTransportation = [transportationPickup, transportationAddress, transportationPhone, transportationNote].some(function(v) {
+                var hasTransportation = [transportationPickup, transportationArrival, transportationAddress, transportationPhone, transportationNote].some(function(v) {
                     return v !== '';
                 });
                 var parseAddonLabel = function(label) {
@@ -2991,6 +2998,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row('Transportation', hasTransportation ? 'Provided' : 'Self Drive Selected');
                 html += row('Transportation Date', transportationDate || 'N/A');
                 html += row('Pickup Time', transportationPickupDisplay);
+                html += row('Arrival Time', transportationArrivalDisplay);
                 html += row('Pickup Address', transportationAddress || 'N/A');
                 html += row('Transport Phone', transportationPhone || 'N/A');
                 html += row('Transport Note', transportationNote || 'N/A');
