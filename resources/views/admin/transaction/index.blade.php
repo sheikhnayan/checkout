@@ -2518,8 +2518,29 @@ body.modal-open .admin-mobile-menu-toggle {
                     var safeEsc = window.txnEsc || esc;
                     return '<div class="txn-detail-row"><span class="txn-detail-label">' + safeEsc(label) + ':</span><span class="txn-detail-value">' + safeEsc(value) + '</span></div>';
                 };
-                var row = window.txnDetailRow;
+                var baseRow = window.txnDetailRow;
+                var pdfSections = [];
+                var currentPdfSection = null;
+                var packageItemsForPdf = [];
+                var beginPdfSection = function(name) {
+                    currentPdfSection = { name: String(name || 'Details'), rows: [] };
+                    pdfSections.push(currentPdfSection);
+                };
+                var pushPdfRow = function(label, value) {
+                    if (!currentPdfSection) {
+                        beginPdfSection('Details');
+                    }
+                    currentPdfSection.rows.push([
+                        String(label == null ? '' : label),
+                        String(value == null || value === '' ? 'N/A' : value)
+                    ]);
+                };
+                var row = function(label, value) {
+                    pushPdfRow(label, value);
+                    return baseRow(label, value);
+                };
                 var line = function(label, value, opts) {
+                    pushPdfRow(label, value);
                     opts = opts || {};
                     var valueColor = opts.color || '#e0e7ff';
                     var weight = opts.weight || '600';
@@ -2530,6 +2551,15 @@ body.modal-open .admin-mobile-menu-toggle {
                 };
 
                 var html = '';
+
+                beginPdfSection('Overview');
+                pushPdfRow('Transaction', $(this).data('transaction_id') || transactionId);
+                pushPdfRow('Status', statusText);
+                pushPdfRow('Date', $(this).data('date') || 'N/A');
+                pushPdfRow('Website', $(this).data('website_id') || 'N/A');
+                if (checkedInStatus) {
+                    pushPdfRow('Checked In', checkedInAtPacific || 'Yes');
+                }
 
                 html += '<div class="txn-detail-card">';
                 html += '<div class="d-flex flex-wrap align-items-center justify-content-between gap-2">';
@@ -2546,9 +2576,17 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += '<div class="col-md-6">';
                 html += '<div class="txn-detail-card">';
                 html += '<div class="txn-detail-title">Purchase Summary</div>';
+                beginPdfSection('Purchase Summary');
+                pushPdfRow('Guests', guestsDisplay);
                 if (purchaseItems.length) {
                     purchaseItems.forEach(function(item, index) {
                         var qtyLabel = String(item.quantity) + ' ' + (item.packageType === 'ticket' ? 'tickets' : 'guests');
+                        var itemUnitText = item.unitPrice == null ? 'N/A' : money(item.unitPrice);
+                        var itemTotalText = item.packageSubtotal == null ? 'N/A' : money(item.packageSubtotal);
+                        var addonLineItems = [];
+
+                        pushPdfRow('Package ' + (index + 1), (item.name || 'Package') + ' | ' + qtyLabel + ' | Unit: ' + itemUnitText + ' | Total: ' + itemTotalText);
+
                         html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px;margin-bottom:' + (index === purchaseItems.length - 1 ? '0' : '10px') + ';">';
                         html += '<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:8px;">';
                         html += '<div style="min-width:0;">';
@@ -2583,14 +2621,29 @@ body.modal-open .admin-mobile-menu-toggle {
                                 } else if (addon.lineTotal != null) {
                                     addonText += ' = ' + money(addon.lineTotal);
                                 }
+                                addonLineItems.push(addonText);
                                 html += '<div style="color:#e0e7ff;font-size:0.85rem;margin-bottom:4px;">• ' + esc(addonText) + '</div>';
                             });
                             html += '</div>';
                         }
+
+                        packageItemsForPdf.push({
+                            name: String(item.name || 'Package'),
+                            quantity: qtyLabel,
+                            unitPrice: itemUnitText,
+                            total: itemTotalText,
+                            addons: addonLineItems
+                        });
+
+                        if (addonLineItems.length) {
+                            pushPdfRow('Add-ons ' + (index + 1), addonLineItems.join('; '));
+                        }
+
                         html += '</div>';
                     });
                 } else {
                     html += '<div style="color:#94a3b8;font-size:0.9rem;">No package or add-on details available.</div>';
+                    pushPdfRow('Package Details', 'No package or add-on details available');
                 }
                 html += '</div>';
                 html += '</div>';
@@ -2598,6 +2651,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += '<div class="col-md-6">';
                 html += '<div class="txn-detail-card">';
                 html += '<div class="txn-detail-title">Guest & Reservation</div>';
+                beginPdfSection('Guest & Reservation');
                 html += row('Guest', ($(this).data('package_first_name') || '') + ' ' + ($(this).data('package_last_name') || ''));
                 html += row('Email', $(this).data('package_email') || '');
                 html += row('Phone', $(this).data('package_phone') || '');
@@ -2612,6 +2666,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += '<div class="col-md-6">';
                 html += '<div class="txn-detail-card">';
                 html += '<div class="txn-detail-title">Payment & Charges</div>';
+                beginPdfSection('Payment & Charges');
                 if (breakdownData && typeof breakdownData === 'object') {
                     html += line('Subtotal', money(breakdownData.items_subtotal));
                     if (parseFloat(breakdownData.promo_discount) > 0) {
@@ -2674,6 +2729,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += '<div class="col-md-6">';
                 html += '<div class="txn-detail-card">';
                 html += '<div class="txn-detail-title">Transportation</div>';
+                beginPdfSection('Transportation');
                 html += row('Transport Mode', transportMode);
                 html += row('Pickup Time', formatPickupTime($(this).data('transportation_pickup_time')));
                 html += row('Arrival Time', formatPickupTime($(this).data('transportation_arrival_time')));
@@ -2686,6 +2742,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += '<div class="col-md-6">';
                 html += '<div class="txn-detail-card">';
                 html += '<div class="txn-detail-title">Payment Contact</div>';
+                beginPdfSection('Payment Contact');
                 html += row('Payment Name', ($(this).data('payment_first_name') || '') + ' ' + ($(this).data('payment_last_name') || ''));
                 html += row('Payment Email', $(this).data('payment_email') || '');
                 html += row('Payment Phone', $(this).data('payment_phone') || 'N/A');
@@ -2698,6 +2755,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += '<div class="col-md-6">';
                 html += '<div class="txn-detail-card">';
                 html += '<div class="txn-detail-title">Source & Fees</div>';
+                beginPdfSection('Source & Fees');
                 html += row('Source', source);
                 html += row('Type', $(this).data('type') || 'N/A');
                 html += row('Event ID', $(this).data('event_id') || 'N/A');
@@ -2714,6 +2772,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += '<div class="col-md-6">';
                 html += '<div class="txn-detail-card">';
                 html += '<div class="txn-detail-title">Audit & Business</div>';
+                beginPdfSection('Audit & Business');
                 html += row('Check-In Status', checkedInStatus ? 'Checked In' : 'Not Checked In');
                 html += row('Check-In Time (PT)', checkedInAtPacific || 'N/A');
                 html += row('Terms Accepted', 'Yes');
@@ -2739,6 +2798,17 @@ body.modal-open .admin-mobile-menu-toggle {
                 }
 
                 $('#transactionDetailsContent').html(html);
+
+                $('#viewTransactionModal').data('pdfPayload', {
+                    title: 'Transaction #' + String($(this).data('transaction_id') || transactionId),
+                    status: statusText,
+                    meta: String($(this).data('date') || '') + ' | ' + String($(this).data('website_id') || ''),
+                    sections: pdfSections,
+                    packageItems: packageItemsForPdf,
+                    photoLinks: [frontPhotoUrl, backPhotoUrl].filter(function(link) {
+                        return String(link || '').trim() !== '';
+                    })
+                });
             });
             </script>
 
@@ -2749,6 +2819,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     alert('No transaction details available to export.');
                     return;
                 }
+                var payload = $('#viewTransactionModal').data('pdfPayload') || null;
 
                 var button = this;
                 var originalHtml = button.innerHTML;
@@ -2772,9 +2843,9 @@ body.modal-open .admin-mobile-menu-toggle {
                         ? titleNode.closest('.txn-detail-card').querySelector('div[style*="margin-top:8px"]')
                         : null;
 
-                    var titleText = titleNode ? titleNode.textContent.trim() : 'Transaction Details';
-                    var statusText = statusNode ? statusNode.textContent.trim() : 'N/A';
-                    var metaText = metaNode ? metaNode.textContent.trim() : '';
+                    var titleText = payload && payload.title ? String(payload.title) : (titleNode ? titleNode.textContent.trim() : 'Transaction Details');
+                    var statusText = payload && payload.status ? String(payload.status) : (statusNode ? statusNode.textContent.trim() : 'N/A');
+                    var metaText = payload && payload.meta ? String(payload.meta) : (metaNode ? metaNode.textContent.trim() : '');
 
                     doc.setFillColor(15, 23, 42);
                     doc.rect(0, 0, pageWidth, 26, 'F');
@@ -2798,71 +2869,90 @@ body.modal-open .admin-mobile-menu-toggle {
                     doc.setTextColor(15, 23, 42);
 
                     var blocks = [];
-                    source.querySelectorAll('.txn-detail-card').forEach(function(card) {
-                        var sectionTitleNode = card.querySelector('.txn-detail-title');
-                        var sectionTitle = sectionTitleNode ? sectionTitleNode.textContent.trim() : 'Details';
-                        var rows = [];
-
-                        card.querySelectorAll('.txn-detail-row').forEach(function(row) {
-                            var label = row.querySelector('.txn-detail-label');
-                            var value = row.querySelector('.txn-detail-value');
-                            var labelText = label ? label.textContent.replace(/:\s*$/, '').trim() : '';
-                            var valueText = value ? value.textContent.trim() : '';
-                            if (labelText || valueText) {
-                                rows.push([labelText || '-', valueText || 'N/A']);
-                            }
+                    if (payload && Array.isArray(payload.sections) && payload.sections.length) {
+                        blocks = payload.sections.map(function(section) {
+                            var rows = Array.isArray(section.rows) ? section.rows : [];
+                            return {
+                                title: String(section.name || 'Details'),
+                                rows: rows,
+                                textLines: [],
+                                imageLinks: []
+                            };
                         });
+                    } else {
+                        source.querySelectorAll('.txn-detail-card').forEach(function(card) {
+                            var sectionTitleNode = card.querySelector('.txn-detail-title');
+                            var sectionTitle = sectionTitleNode ? sectionTitleNode.textContent.trim() : 'Details';
+                            var rows = [];
 
-                        // Include card text blocks that are not in .txn-detail-row (e.g. Purchase Summary).
-                        var textLines = [];
-                        if (rows.length === 0) {
-                            var cardClone = card.cloneNode(true);
-                            cardClone.querySelectorAll('.txn-detail-title').forEach(function(n) { n.remove(); });
-                            var rawText = (cardClone.innerText || '').split('\n').map(function(line) {
-                                return line.replace(/\s+/g, ' ').trim();
-                            }).filter(function(line) {
-                                return line.length > 0;
+                            card.querySelectorAll('.txn-detail-row').forEach(function(rowEl) {
+                                var label = rowEl.querySelector('.txn-detail-label');
+                                var value = rowEl.querySelector('.txn-detail-value');
+                                var labelText = label ? label.textContent.replace(/:\s*$/, '').trim() : '';
+                                var valueText = value ? value.textContent.trim() : '';
+                                if (labelText || valueText) {
+                                    rows.push([labelText || '-', valueText || 'N/A']);
+                                }
                             });
-                            textLines = rawText;
-                        }
 
-                        var imageLinks = [];
-                        card.querySelectorAll('img').forEach(function(img) {
-                            var src = String(img.getAttribute('src') || '').trim();
-                            if (src) {
-                                imageLinks.push(src);
-                            }
-                        });
-
-                        blocks.push({
-                            title: sectionTitle,
-                            rows: rows,
-                            textLines: textLines,
-                            imageLinks: imageLinks
-                        });
-                    });
-
-                    // Extra safeguard: collect any images outside cards.
-                    if (!blocks.some(function(block) { return block.imageLinks.length; })) {
-                        var looseImageLinks = [];
-                        source.querySelectorAll('img').forEach(function(img) {
-                            var src = String(img.getAttribute('src') || '').trim();
-                            if (src) {
-                                looseImageLinks.push(src);
-                            }
-                        });
-                        if (looseImageLinks.length) {
                             blocks.push({
-                                title: 'Check-In ID Photos',
-                                rows: [],
-                                textLines: looseImageLinks.map(function(link, idx) { return 'Image ' + (idx + 1) + ': ' + link; }),
+                                title: sectionTitle,
+                                rows: rows,
+                                textLines: [],
                                 imageLinks: []
                             });
-                        }
+                        });
                     }
 
                     var currentY = startY;
+
+                    if (payload && Array.isArray(payload.packageItems) && payload.packageItems.length) {
+                        if (currentY > 250) {
+                            doc.addPage();
+                            currentY = 14;
+                        }
+                        doc.setFont('helvetica', 'bold');
+                        doc.setFontSize(11);
+                        doc.setTextColor(30, 41, 59);
+                        doc.text('Purchase Summary', margin, currentY);
+                        currentY += 3;
+
+                        var packageBody = payload.packageItems.map(function(item) {
+                            var addonsText = Array.isArray(item.addons) && item.addons.length
+                                ? item.addons.join('\n')
+                                : 'None';
+                            return [
+                                String(item.name || 'Package'),
+                                String(item.quantity || 'N/A'),
+                                String(item.unitPrice || 'N/A'),
+                                String(item.total || 'N/A'),
+                                addonsText
+                            ];
+                        });
+
+                        doc.autoTable({
+                            startY: currentY,
+                            head: [['Package', 'Qty', 'Unit Price', 'Line Total', 'Add-ons']],
+                            body: packageBody,
+                            theme: 'grid',
+                            margin: { left: margin, right: margin },
+                            styles: { fontSize: 8.2, cellPadding: 2.2, textColor: [15, 23, 42], valign: 'top' },
+                            headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
+                            columnStyles: {
+                                0: { cellWidth: 36 },
+                                1: { cellWidth: 22 },
+                                2: { cellWidth: 24 },
+                                3: { cellWidth: 24 },
+                                4: { cellWidth: contentWidth - (36 + 22 + 24 + 24) }
+                            }
+                        });
+                        currentY = doc.lastAutoTable.finalY + 5;
+                    }
+
                     blocks.forEach(function(block) {
+                        if (block.title === 'Purchase Summary') {
+                            return;
+                        }
                         if (currentY > 265) {
                             doc.addPage();
                             currentY = 14;
@@ -2930,6 +3020,32 @@ body.modal-open .admin-mobile-menu-toggle {
                             currentY += 2;
                         }
                     });
+
+                    var photoLinks = payload && Array.isArray(payload.photoLinks) ? payload.photoLinks : [];
+                    if (photoLinks.length) {
+                        if (currentY > 265) {
+                            doc.addPage();
+                            currentY = 14;
+                        }
+                        doc.setFont('helvetica', 'bold');
+                        doc.setFontSize(11);
+                        doc.setTextColor(30, 41, 59);
+                        doc.text('Check-In ID Photos', margin, currentY);
+                        currentY += 4;
+                        doc.setFont('helvetica', 'normal');
+                        doc.setFontSize(8.5);
+                        doc.setTextColor(30, 64, 175);
+                        photoLinks.forEach(function(link, idx) {
+                            var txt = (idx === 0 ? 'Front ID: ' : 'Back ID: ') + String(link || '');
+                            var wrapped = doc.splitTextToSize(txt, contentWidth);
+                            if (currentY + (wrapped.length * 4.1) > 285) {
+                                doc.addPage();
+                                currentY = 14;
+                            }
+                            doc.text(wrapped, margin, currentY);
+                            currentY += (wrapped.length * 4.1) + 2;
+                        });
+                    }
 
                     var fileSafeTitle = String(titleText || 'transaction-details')
                         .toLowerCase()
