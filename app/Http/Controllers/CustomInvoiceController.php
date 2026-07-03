@@ -443,6 +443,21 @@ class CustomInvoiceController extends Controller
                 "description" => "Custom Invoice #" . $invoice->id . " - " . ucfirst($paymentType) . " Payment",
             ]);
 
+            $stripeCardLast4 = null;
+            $stripeCardBrand = null;
+            $paymentMethodDetails = $charge->payment_method_details ?? null;
+            $paymentMethodCard = $paymentMethodDetails->card ?? null;
+            if ($paymentMethodCard) {
+                $stripeCardLast4 = trim((string) ($paymentMethodCard->last4 ?? '')) ?: null;
+                $stripeCardBrand = trim((string) ($paymentMethodCard->brand ?? '')) ?: null;
+            }
+            if (!$stripeCardLast4 && isset($charge->source)) {
+                $stripeCardLast4 = trim((string) ($charge->source->last4 ?? '')) ?: null;
+                if (!$stripeCardBrand) {
+                    $stripeCardBrand = trim((string) ($charge->source->brand ?? '')) ?: null;
+                }
+            }
+
             // Update invoice status based on payment type
             $status = $paymentType === 'full' ? 'paid' : 'sent'; // Partial payment keeps it as 'sent'
             
@@ -459,6 +474,8 @@ class CustomInvoiceController extends Controller
             $transaction->package_email = $invoice->client_email;
             $transaction->payment_first_name = $request->cardholder_name ?? $invoice->client_name;
             $transaction->payment_email = $invoice->client_email;
+            $transaction->payment_card_last4 = $stripeCardLast4;
+            $transaction->payment_card_brand = $stripeCardBrand;
             $transaction->event_id = null;
             $transaction->website_id = $invoice->website_id;
             $transaction->total = $amount;
@@ -561,6 +578,13 @@ class CustomInvoiceController extends Controller
                 // cases). 2 = declined, 3 = error -> fall through to the error handler
                 // below. A top-level resultCode of "Ok" alone does NOT mean approved.
                 if ($tresponse != null && ($rc === '1' || $rc === '4')) {
+                    $maskedAccount = trim((string) ($tresponse->getAccountNumber() ?? ''));
+                    $accountDigits = preg_replace('/\D/', '', $maskedAccount);
+                    $authCardLast4 = (is_string($accountDigits) && strlen($accountDigits) >= 4)
+                        ? substr($accountDigits, -4)
+                        : null;
+                    $authCardBrand = trim((string) ($tresponse->getAccountType() ?? '')) ?: null;
+
                     // Update invoice status based on payment type
                     $status = $paymentType === 'full' ? 'paid' : 'sent';
                     
@@ -577,6 +601,8 @@ class CustomInvoiceController extends Controller
                     $transaction->package_email = $invoice->client_email;
                     $transaction->payment_first_name = $request->firstName . ' ' . $request->lastName;
                     $transaction->payment_email = $invoice->client_email;
+                    $transaction->payment_card_last4 = $authCardLast4;
+                    $transaction->payment_card_brand = $authCardBrand;
                     $transaction->event_id = null;
                     $transaction->website_id = $invoice->website_id;
                     $transaction->total = $amount;

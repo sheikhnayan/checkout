@@ -78,6 +78,55 @@ class TransactionController extends Controller
     }
 
     /**
+     * Extract last-4 digits from a masked account number like XXXX1111.
+     */
+    private function extractLast4FromMaskedAccount(?string $maskedAccountNumber): ?string
+    {
+        $digits = preg_replace('/\D/', '', (string) ($maskedAccountNumber ?? ''));
+        if ($digits === null || strlen($digits) < 4) {
+            return null;
+        }
+
+        return substr($digits, -4);
+    }
+
+    /**
+     * Read card metadata from a Stripe charge response.
+     */
+    private function extractStripeCardMeta($charge): array
+    {
+        $cardLast4 = null;
+        $cardBrand = null;
+
+        if (!$charge) {
+            return [$cardLast4, $cardBrand];
+        }
+
+        $paymentMethodDetails = $charge->payment_method_details ?? null;
+        $paymentMethodCard = $paymentMethodDetails->card ?? null;
+        if ($paymentMethodCard) {
+            $cardLast4 = (string) ($paymentMethodCard->last4 ?? '');
+            $cardBrand = (string) ($paymentMethodCard->brand ?? '');
+        }
+
+        if ($cardLast4 === '' || $cardLast4 === null) {
+            $source = $charge->source ?? null;
+            $cardLast4 = (string) ($source->last4 ?? '');
+            if ($cardBrand === '' || $cardBrand === null) {
+                $cardBrand = (string) ($source->brand ?? '');
+            }
+        }
+
+        $cardLast4 = trim((string) $cardLast4);
+        $cardBrand = trim((string) $cardBrand);
+
+        return [
+            $cardLast4 !== '' ? $cardLast4 : null,
+            $cardBrand !== '' ? $cardBrand : null,
+        ];
+    }
+
+    /**
      * Resolve the Authorize.Net environment URL, honoring the per-website sandbox
      * toggle, then the global setting, defaulting to sandbox when neither is
      * configured (same precedence used by CustomInvoiceController).
@@ -123,6 +172,9 @@ class TransactionController extends Controller
             'trans_id' => null,
             'avs' => null,
             'cvv' => null,
+            'account_number' => null,
+            'account_type' => null,
+            'card_last4' => null,
             'message' => 'Payment could not be processed. You have not been charged.',
         ];
 
@@ -147,6 +199,9 @@ class TransactionController extends Controller
         $out['trans_id'] = $tresponse->getTransId();
         $out['avs'] = $tresponse->getAvsResultCode();
         $out['cvv'] = $tresponse->getCvvResultCode();
+        $out['account_number'] = $tresponse->getAccountNumber();
+        $out['account_type'] = $tresponse->getAccountType();
+        $out['card_last4'] = $this->extractLast4FromMaskedAccount($out['account_number']);
 
         if ($code === '1' || $code === '4') {
             $out['ok'] = true;
@@ -313,6 +368,7 @@ class TransactionController extends Controller
                         }
 
                     $transaction_id = $charge ? $charge->id : ('FREE-' . strtoupper(Str::random(16)));
+                    [$stripeCardLast4, $stripeCardBrand] = $this->extractStripeCardMeta($charge);
     
                     $ipAddress = $request->ip();
     
@@ -321,6 +377,8 @@ class TransactionController extends Controller
                     // Stripe charges are captured immediately on success (no held state).
                     $add->payment_status = 'approved';
                     $add->gateway_response_code = $charge ? 'stripe_succeeded' : 'free_checkout';
+                    $add->payment_card_last4 = $stripeCardLast4;
+                    $add->payment_card_brand = $stripeCardBrand;
                     $add->ticket_qr_code = $this->generateTicketQrCode();
                     $add->package_first_name = $request->input('package_first_name');
                     $add->ip_address = $ipAddress;
@@ -640,6 +698,8 @@ class TransactionController extends Controller
                     $add->gateway_avs_result = $anet['avs'];
                     $add->gateway_cvv_result = $anet['cvv'];
                     $add->gateway_message = $anet['message'];
+                    $add->payment_card_last4 = $anet['card_last4'];
+                    $add->payment_card_brand = $anet['account_type'];
                     $add->ticket_qr_code = $this->generateTicketQrCode();
                     $add->package_first_name = $request->input('package_first_name');
                     $add->ip_address = $ipAddress;
@@ -1573,6 +1633,8 @@ class TransactionController extends Controller
             $transaction->payment_zip_code ?? null,
         ], static fn ($v) => trim((string) $v) !== '')))));
         $html .= $row('Payment Country', $esc($transaction->payment_country ?: 'N/A'));
+        $html .= $row('Card Brand', $esc($transaction->payment_card_brand ?: 'N/A'));
+        $html .= $row('Card Last 4', $esc($transaction->payment_card_last4 ?: 'N/A'));
         $html .= $row('Payment DOB', $esc($formatDate($transaction->payment_dob)));
         $html .= $row('Promo Code', $esc($transaction->promo_code ?: 'N/A'));
         $html .= $row('Discounted Amount', $esc($money($transaction->discount ?? 0)));

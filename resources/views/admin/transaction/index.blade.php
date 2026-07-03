@@ -1112,6 +1112,8 @@ body.modal-open .admin-mobile-menu-toggle {
                                         data-payment_country="{{ $item->payment_country }}"
                                         data-payment_dob="{{ $item->payment_dob }}"
                                         data-payment_zip_code="{{ $item->payment_zip_code }}"
+                                        data-payment_card_last4="{{ $item->payment_card_last4 ?? '' }}"
+                                        data-payment_card_brand="{{ $item->payment_card_brand ?? '' }}"
                                         data-type="{{ $item->type }}"
                                         data-status="{{ $item->status }}"
                                         data-ip_address="{{ $item->ip_address }}"
@@ -2664,6 +2666,8 @@ body.modal-open .admin-mobile-menu-toggle {
                     html += row('Amount Paid', money(amountPaid));
                     html += row('Amount Due', money(dueAmount));
                 }
+                html += row('Card Brand', $(this).data('payment_card_brand') || 'N/A');
+                html += row('Card Last 4', $(this).data('payment_card_last4') || 'N/A');
                 html += '</div>';
                 html += '</div>';
 
