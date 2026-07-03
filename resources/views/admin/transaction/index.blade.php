@@ -2770,10 +2770,15 @@ body.modal-open .admin-mobile-menu-toggle {
 
                     var wrapper = document.createElement('div');
                     wrapper.className = 'txn-pdf-export-root';
+                    // Keep the node in the viewport rendering tree; extreme off-screen
+                    // positions can produce blank html2canvas captures in some browsers.
                     wrapper.style.position = 'fixed';
-                    wrapper.style.left = '-100000px';
+                    wrapper.style.left = '0';
                     wrapper.style.top = '0';
                     wrapper.style.width = '1000px';
+                    wrapper.style.opacity = '0.01';
+                    wrapper.style.pointerEvents = 'none';
+                    wrapper.style.zIndex = '-1';
                     wrapper.style.background = '#ffffff';
                     wrapper.style.padding = '18px';
 
@@ -2813,6 +2818,12 @@ body.modal-open .admin-mobile-menu-toggle {
                         .toLowerCase()
                         .replace(/[^a-z0-9]+/g, '-')
                         .replace(/^-+|-+$/g, '');
+
+                    await new Promise(function(resolve) {
+                        requestAnimationFrame(function() {
+                            setTimeout(resolve, 20);
+                        });
+                    });
 
                     await html2pdf()
                         .set({
