@@ -2743,24 +2743,104 @@ body.modal-open .admin-mobile-menu-toggle {
             </script>
 
             <script>
-            $(document).on('click', '#download-transaction-pdf', function() {
-                var rows = [];
-                $('#transactionDetailsContent .txn-detail-row').each(function() {
-                    var label = $(this).find('.txn-detail-label').text().trim();
-                    var value = $(this).find('.txn-detail-value').text().trim();
-                    rows.push([label, value]);
-                });
-                var { jsPDF } = window.jspdf;
-                var doc = new jsPDF();
-                doc.text('Transaction Details', 14, 14);
-                doc.autoTable({
-                    head: [['Field', 'Value']],
-                    body: rows,
-                    startY: 20,
-                    styles: { fontSize: 10, cellPadding: 2 },
-                    headStyles: { fillColor: [41, 128, 185] }
-                });
-                doc.save('transaction-details.pdf');
+            $(document).on('click', '#download-transaction-pdf', async function() {
+                var source = document.getElementById('transactionDetailsContent');
+                if (!source || !source.innerHTML.trim()) {
+                    alert('No transaction details available to export.');
+                    return;
+                }
+
+                var button = this;
+                var originalHtml = button.innerHTML;
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
+
+                try {
+                    var clone = source.cloneNode(true);
+
+                    clone.querySelectorAll('img').forEach(function(img) {
+                        img.style.maxWidth = '100%';
+                        img.style.height = 'auto';
+                        img.style.objectFit = 'contain';
+                    });
+
+                    var titleNode = source.querySelector('.txn-detail-title.mb-0');
+                    var titleText = titleNode ? titleNode.textContent.trim() : 'Transaction Details';
+                    var generatedAt = new Date().toLocaleString();
+
+                    var wrapper = document.createElement('div');
+                    wrapper.className = 'txn-pdf-export-root';
+                    wrapper.style.position = 'fixed';
+                    wrapper.style.left = '-100000px';
+                    wrapper.style.top = '0';
+                    wrapper.style.width = '1000px';
+                    wrapper.style.background = '#ffffff';
+                    wrapper.style.padding = '18px';
+
+                    var style = document.createElement('style');
+                    style.textContent = [
+                        '.txn-pdf-export-root { font-family: Helvetica, Arial, sans-serif; color: #0f172a; line-height: 1.4; }',
+                        '.txn-pdf-export-root * { box-shadow: none !important; text-shadow: none !important; }',
+                        '.txn-pdf-export-root .txn-pdf-header { border-bottom: 2px solid #0f172a; padding-bottom: 10px; margin-bottom: 14px; }',
+                        '.txn-pdf-export-root .txn-pdf-title { font-size: 20px; font-weight: 700; color: #0f172a !important; margin-bottom: 3px; }',
+                        '.txn-pdf-export-root .txn-pdf-meta { font-size: 11px; color: #475569 !important; }',
+                        '.txn-pdf-export-root .row { display: block !important; margin: 0 !important; }',
+                        '.txn-pdf-export-root [class*="col-"] { width: 100% !important; max-width: 100% !important; flex: 0 0 100% !important; padding: 0 !important; }',
+                        '.txn-pdf-export-root .txn-detail-card { background: #ffffff !important; border: 1px solid #cbd5e1 !important; border-radius: 10px !important; padding: 12px !important; margin-bottom: 12px !important; break-inside: avoid !important; page-break-inside: avoid !important; }',
+                        '.txn-pdf-export-root .txn-detail-title { color: #0f172a !important; font-size: 13px !important; font-weight: 700 !important; margin-bottom: 8px !important; }',
+                        '.txn-pdf-export-root .txn-status-pill { border: 1px solid #94a3b8 !important; color: #0f172a !important; background: #f8fafc !important; }',
+                        '.txn-pdf-export-root .txn-detail-row { display: flex !important; justify-content: space-between !important; gap: 12px !important; border-bottom: 1px dashed #cbd5e1 !important; padding: 6px 0 !important; }',
+                        '.txn-pdf-export-root .txn-detail-label { color: #334155 !important; font-weight: 600 !important; }',
+                        '.txn-pdf-export-root .txn-detail-value { color: #0f172a !important; font-weight: 600 !important; text-align: right !important; }',
+                        '.txn-pdf-export-root img { border: 1px solid #cbd5e1 !important; border-radius: 8px !important; break-inside: avoid !important; page-break-inside: avoid !important; }',
+                        '.txn-pdf-export-root [style*="background:"] { background: #ffffff !important; }',
+                        '.txn-pdf-export-root [style*="color:"] { color: #0f172a !important; }',
+                        '.txn-pdf-export-root [style*="border:"] { border-color: #cbd5e1 !important; }'
+                    ].join('');
+
+                    var header = document.createElement('div');
+                    header.className = 'txn-pdf-header';
+                    header.innerHTML = ''
+                        + '<div class="txn-pdf-title">' + (titleText || 'Transaction Details') + '</div>'
+                        + '<div class="txn-pdf-meta">Generated on: ' + generatedAt + '</div>';
+
+                    wrapper.appendChild(style);
+                    wrapper.appendChild(header);
+                    wrapper.appendChild(clone);
+                    document.body.appendChild(wrapper);
+
+                    var fileSafeTitle = String(titleText || 'transaction-details')
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]+/g, '-')
+                        .replace(/^-+|-+$/g, '');
+
+                    await html2pdf()
+                        .set({
+                            margin: [10, 10, 10, 10],
+                            filename: (fileSafeTitle || 'transaction-details') + '.pdf',
+                            image: { type: 'jpeg', quality: 0.98 },
+                            html2canvas: {
+                                scale: 2,
+                                useCORS: true,
+                                backgroundColor: '#ffffff',
+                                windowWidth: 1200,
+                                scrollX: 0,
+                                scrollY: 0,
+                            },
+                            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                            pagebreak: { mode: ['css', 'legacy'] }
+                        })
+                        .from(wrapper)
+                        .save();
+
+                    wrapper.remove();
+                } catch (error) {
+                    console.error('Transaction PDF export failed:', error);
+                    alert('PDF export failed. Please try again.');
+                } finally {
+                    button.disabled = false;
+                    button.innerHTML = originalHtml;
+                }
             });
 
             // Handle Package Details Modal
