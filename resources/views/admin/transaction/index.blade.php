@@ -2743,7 +2743,7 @@ body.modal-open .admin-mobile-menu-toggle {
             </script>
 
             <script>
-            $(document).on('click', '#download-transaction-pdf', async function() {
+            $(document).on('click', '#download-transaction-pdf', function() {
                 var source = document.getElementById('transactionDetailsContent');
                 if (!source || !source.innerHTML.trim()) {
                     alert('No transaction details available to export.');
@@ -2756,95 +2756,196 @@ body.modal-open .admin-mobile-menu-toggle {
                 button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
 
                 try {
-                    var clone = source.cloneNode(true);
+                    var jsPDFRef = window.jspdf && window.jspdf.jsPDF ? window.jspdf.jsPDF : null;
+                    if (!jsPDFRef || typeof jsPDFRef !== 'function' || typeof window.jspdf.jsPDF.API.autoTable !== 'function') {
+                        throw new Error('jsPDF AutoTable is not available');
+                    }
 
-                    clone.querySelectorAll('img').forEach(function(img) {
-                        img.style.maxWidth = '100%';
-                        img.style.height = 'auto';
-                        img.style.objectFit = 'contain';
-                    });
+                    var doc = new jsPDFRef({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+                    var margin = 10;
+                    var pageWidth = doc.internal.pageSize.getWidth();
+                    var contentWidth = pageWidth - (margin * 2);
 
                     var titleNode = source.querySelector('.txn-detail-title.mb-0');
+                    var statusNode = source.querySelector('.txn-status-pill');
+                    var metaNode = titleNode && titleNode.closest('.txn-detail-card')
+                        ? titleNode.closest('.txn-detail-card').querySelector('div[style*="margin-top:8px"]')
+                        : null;
+
                     var titleText = titleNode ? titleNode.textContent.trim() : 'Transaction Details';
-                    var generatedAt = new Date().toLocaleString();
+                    var statusText = statusNode ? statusNode.textContent.trim() : 'N/A';
+                    var metaText = metaNode ? metaNode.textContent.trim() : '';
 
-                    var wrapper = document.createElement('div');
-                    wrapper.className = 'txn-pdf-export-root';
-                    // Keep the node in the viewport rendering tree; extreme off-screen
-                    // positions can produce blank html2canvas captures in some browsers.
-                    wrapper.style.position = 'fixed';
-                    wrapper.style.left = '0';
-                    wrapper.style.top = '0';
-                    wrapper.style.width = '1000px';
-                    wrapper.style.opacity = '0.01';
-                    wrapper.style.pointerEvents = 'none';
-                    wrapper.style.zIndex = '-1';
-                    wrapper.style.background = '#ffffff';
-                    wrapper.style.padding = '18px';
+                    doc.setFillColor(15, 23, 42);
+                    doc.rect(0, 0, pageWidth, 26, 'F');
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(15);
+                    doc.text(titleText, margin, 10);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(9);
+                    doc.text('Status: ' + statusText, margin, 16);
+                    doc.text('Generated: ' + new Date().toLocaleString(), margin, 21);
 
-                    var style = document.createElement('style');
-                    style.textContent = [
-                        '.txn-pdf-export-root { font-family: Helvetica, Arial, sans-serif; color: #0f172a; line-height: 1.4; }',
-                        '.txn-pdf-export-root * { box-shadow: none !important; text-shadow: none !important; }',
-                        '.txn-pdf-export-root .txn-pdf-header { border-bottom: 2px solid #0f172a; padding-bottom: 10px; margin-bottom: 14px; }',
-                        '.txn-pdf-export-root .txn-pdf-title { font-size: 20px; font-weight: 700; color: #0f172a !important; margin-bottom: 3px; }',
-                        '.txn-pdf-export-root .txn-pdf-meta { font-size: 11px; color: #475569 !important; }',
-                        '.txn-pdf-export-root .row { display: block !important; margin: 0 !important; }',
-                        '.txn-pdf-export-root [class*="col-"] { width: 100% !important; max-width: 100% !important; flex: 0 0 100% !important; padding: 0 !important; }',
-                        '.txn-pdf-export-root .txn-detail-card { background: #ffffff !important; border: 1px solid #cbd5e1 !important; border-radius: 10px !important; padding: 12px !important; margin-bottom: 12px !important; break-inside: avoid !important; page-break-inside: avoid !important; }',
-                        '.txn-pdf-export-root .txn-detail-title { color: #0f172a !important; font-size: 13px !important; font-weight: 700 !important; margin-bottom: 8px !important; }',
-                        '.txn-pdf-export-root .txn-status-pill { border: 1px solid #94a3b8 !important; color: #0f172a !important; background: #f8fafc !important; }',
-                        '.txn-pdf-export-root .txn-detail-row { display: flex !important; justify-content: space-between !important; gap: 12px !important; border-bottom: 1px dashed #cbd5e1 !important; padding: 6px 0 !important; }',
-                        '.txn-pdf-export-root .txn-detail-label { color: #334155 !important; font-weight: 600 !important; }',
-                        '.txn-pdf-export-root .txn-detail-value { color: #0f172a !important; font-weight: 600 !important; text-align: right !important; }',
-                        '.txn-pdf-export-root img { border: 1px solid #cbd5e1 !important; border-radius: 8px !important; break-inside: avoid !important; page-break-inside: avoid !important; }',
-                        '.txn-pdf-export-root [style*="background:"] { background: #ffffff !important; }',
-                        '.txn-pdf-export-root [style*="color:"] { color: #0f172a !important; }',
-                        '.txn-pdf-export-root [style*="border:"] { border-color: #cbd5e1 !important; }'
-                    ].join('');
+                    var startY = 30;
+                    if (metaText) {
+                        doc.setTextColor(71, 85, 105);
+                        doc.setFontSize(9);
+                        doc.text(metaText, margin, startY);
+                        startY += 4;
+                    }
 
-                    var header = document.createElement('div');
-                    header.className = 'txn-pdf-header';
-                    header.innerHTML = ''
-                        + '<div class="txn-pdf-title">' + (titleText || 'Transaction Details') + '</div>'
-                        + '<div class="txn-pdf-meta">Generated on: ' + generatedAt + '</div>';
+                    doc.setTextColor(15, 23, 42);
 
-                    wrapper.appendChild(style);
-                    wrapper.appendChild(header);
-                    wrapper.appendChild(clone);
-                    document.body.appendChild(wrapper);
+                    var blocks = [];
+                    source.querySelectorAll('.txn-detail-card').forEach(function(card) {
+                        var sectionTitleNode = card.querySelector('.txn-detail-title');
+                        var sectionTitle = sectionTitleNode ? sectionTitleNode.textContent.trim() : 'Details';
+                        var rows = [];
+
+                        card.querySelectorAll('.txn-detail-row').forEach(function(row) {
+                            var label = row.querySelector('.txn-detail-label');
+                            var value = row.querySelector('.txn-detail-value');
+                            var labelText = label ? label.textContent.replace(/:\s*$/, '').trim() : '';
+                            var valueText = value ? value.textContent.trim() : '';
+                            if (labelText || valueText) {
+                                rows.push([labelText || '-', valueText || 'N/A']);
+                            }
+                        });
+
+                        // Include card text blocks that are not in .txn-detail-row (e.g. Purchase Summary).
+                        var textLines = [];
+                        if (rows.length === 0) {
+                            var cardClone = card.cloneNode(true);
+                            cardClone.querySelectorAll('.txn-detail-title').forEach(function(n) { n.remove(); });
+                            var rawText = (cardClone.innerText || '').split('\n').map(function(line) {
+                                return line.replace(/\s+/g, ' ').trim();
+                            }).filter(function(line) {
+                                return line.length > 0;
+                            });
+                            textLines = rawText;
+                        }
+
+                        var imageLinks = [];
+                        card.querySelectorAll('img').forEach(function(img) {
+                            var src = String(img.getAttribute('src') || '').trim();
+                            if (src) {
+                                imageLinks.push(src);
+                            }
+                        });
+
+                        blocks.push({
+                            title: sectionTitle,
+                            rows: rows,
+                            textLines: textLines,
+                            imageLinks: imageLinks
+                        });
+                    });
+
+                    // Extra safeguard: collect any images outside cards.
+                    if (!blocks.some(function(block) { return block.imageLinks.length; })) {
+                        var looseImageLinks = [];
+                        source.querySelectorAll('img').forEach(function(img) {
+                            var src = String(img.getAttribute('src') || '').trim();
+                            if (src) {
+                                looseImageLinks.push(src);
+                            }
+                        });
+                        if (looseImageLinks.length) {
+                            blocks.push({
+                                title: 'Check-In ID Photos',
+                                rows: [],
+                                textLines: looseImageLinks.map(function(link, idx) { return 'Image ' + (idx + 1) + ': ' + link; }),
+                                imageLinks: []
+                            });
+                        }
+                    }
+
+                    var currentY = startY;
+                    blocks.forEach(function(block) {
+                        if (currentY > 265) {
+                            doc.addPage();
+                            currentY = 14;
+                        }
+
+                        doc.setFont('helvetica', 'bold');
+                        doc.setFontSize(11);
+                        doc.setTextColor(30, 41, 59);
+                        doc.text(block.title, margin, currentY);
+                        currentY += 3;
+
+                        if (block.rows.length) {
+                            doc.autoTable({
+                                startY: currentY,
+                                head: [['Field', 'Value']],
+                                body: block.rows,
+                                theme: 'grid',
+                                margin: { left: margin, right: margin },
+                                styles: { fontSize: 8.5, cellPadding: 2.2, textColor: [15, 23, 42] },
+                                headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
+                                columnStyles: {
+                                    0: { cellWidth: 58, fontStyle: 'bold', textColor: [51, 65, 85] },
+                                    1: { cellWidth: contentWidth - 58 }
+                                },
+                                didParseCell: function (data) {
+                                    if (data.section === 'body' && data.column.index === 1 && (!data.cell.text || !data.cell.text.length)) {
+                                        data.cell.text = ['N/A'];
+                                    }
+                                }
+                            });
+                            currentY = doc.lastAutoTable.finalY + 5;
+                        } else if (block.textLines.length) {
+                            var wrapped = [];
+                            block.textLines.forEach(function(line) {
+                                var split = doc.splitTextToSize(line, contentWidth - 4);
+                                wrapped = wrapped.concat(split);
+                            });
+                            doc.setFont('helvetica', 'normal');
+                            doc.setFontSize(9);
+                            doc.setTextColor(15, 23, 42);
+                            doc.text(wrapped, margin + 2, currentY + 4);
+                            currentY += (wrapped.length * 4.2) + 6;
+                        } else {
+                            doc.setFont('helvetica', 'normal');
+                            doc.setFontSize(9);
+                            doc.setTextColor(100, 116, 139);
+                            doc.text('No details available.', margin + 2, currentY + 4);
+                            currentY += 8;
+                        }
+
+                        if (block.imageLinks.length) {
+                            doc.setFont('helvetica', 'italic');
+                            doc.setFontSize(8.5);
+                            doc.setTextColor(30, 64, 175);
+                            block.imageLinks.forEach(function(link, idx) {
+                                if (currentY > 280) {
+                                    doc.addPage();
+                                    currentY = 14;
+                                }
+                                var text = 'Image ' + (idx + 1) + ': ' + link;
+                                var splitText = doc.splitTextToSize(text, contentWidth);
+                                doc.text(splitText, margin, currentY);
+                                currentY += (splitText.length * 4.1) + 2;
+                            });
+                            currentY += 2;
+                        }
+                    });
 
                     var fileSafeTitle = String(titleText || 'transaction-details')
                         .toLowerCase()
                         .replace(/[^a-z0-9]+/g, '-')
                         .replace(/^-+|-+$/g, '');
 
-                    await new Promise(function(resolve) {
-                        requestAnimationFrame(function() {
-                            setTimeout(resolve, 20);
-                        });
-                    });
+                    var pageCount = doc.getNumberOfPages();
+                    for (var i = 1; i <= pageCount; i += 1) {
+                        doc.setPage(i);
+                        doc.setFont('helvetica', 'normal');
+                        doc.setFontSize(8);
+                        doc.setTextColor(100, 116, 139);
+                        doc.text('Page ' + i + ' of ' + pageCount, pageWidth - margin - 22, doc.internal.pageSize.getHeight() - 6);
+                    }
 
-                    await html2pdf()
-                        .set({
-                            margin: [10, 10, 10, 10],
-                            filename: (fileSafeTitle || 'transaction-details') + '.pdf',
-                            image: { type: 'jpeg', quality: 0.98 },
-                            html2canvas: {
-                                scale: 2,
-                                useCORS: true,
-                                backgroundColor: '#ffffff',
-                                windowWidth: 1200,
-                                scrollX: 0,
-                                scrollY: 0,
-                            },
-                            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                            pagebreak: { mode: ['css', 'legacy'] }
-                        })
-                        .from(wrapper)
-                        .save();
-
-                    wrapper.remove();
+                    doc.save((fileSafeTitle || 'transaction-details') + '.pdf');
                 } catch (error) {
                     console.error('Transaction PDF export failed:', error);
                     alert('PDF export failed. Please try again.');
