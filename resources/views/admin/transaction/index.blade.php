@@ -1757,6 +1757,14 @@ body.modal-open .admin-mobile-menu-toggle {
                     headers.push('Package Details');
 
                     const rows = [];
+                    const summary = {
+                        totalTransactions: 0,
+                        completedTransactions: 0,
+                        totalRevenue: 0,
+                        pendingFee: 0,
+                        payoutAmount: 0,
+                        totalEarning: 0,
+                    };
 
                     // Get DataTable instance - try both ways
                     let dt = table;
@@ -1788,6 +1796,47 @@ body.modal-open .admin-mobile-menu-toggle {
                                     return true; // continue
                                 }
 
+                                const $rowNode = $(rowNode);
+                                const $viewBtn = $rowNode.find('.view-btn').first();
+
+                                const statusValue = String($viewBtn.data('status') || '').trim().toLowerCase();
+                                const isCompleted = statusValue === '1' || statusValue === 'completed' || statusValue === 'approved';
+
+                                const amountText = String($rowNode.find('td.txn-amount').first().text() || '');
+                                const rowRevenue = parseFloat(amountText.replace(/[^0-9.-]+/g, '')) || 0;
+
+                                const affAmount = parseFloat($viewBtn.data('affiliate_commission_amount')) || 0;
+                                const entAmount = parseFloat($viewBtn.data('entertainer_commission_amount')) || 0;
+                                const affStatus = String($viewBtn.data('affiliate_commission_status') || '').trim().toLowerCase();
+                                const entStatus = String($viewBtn.data('entertainer_commission_status') || '').trim().toLowerCase();
+
+                                summary.totalTransactions += 1;
+                                if (isCompleted) {
+                                    summary.completedTransactions += 1;
+                                }
+                                summary.totalRevenue += rowRevenue;
+
+                                if (affStatus === 'pending') {
+                                    summary.pendingFee += affAmount;
+                                }
+                                if (entStatus === 'pending') {
+                                    summary.pendingFee += entAmount;
+                                }
+
+                                if (affStatus === 'paid') {
+                                    summary.payoutAmount += affAmount;
+                                }
+                                if (entStatus === 'paid') {
+                                    summary.payoutAmount += entAmount;
+                                }
+
+                                if (affStatus !== 'reversed') {
+                                    summary.totalEarning += affAmount;
+                                }
+                                if (entStatus !== 'reversed') {
+                                    summary.totalEarning += entAmount;
+                                }
+
                                 const row = exportColumnIndexes.map(function (colIdx) {
                                     return stripHtml(rowData[colIdx] || '');
                                 });
@@ -1799,7 +1848,13 @@ body.modal-open .admin-mobile-menu-toggle {
                         }
                     }
 
-                    return { headers, rows };
+                    return {
+                        headers,
+                        rows,
+                        summary,
+                        selectedOnly,
+                        selectedCount: selected.length,
+                    };
                 }
 
                 function downloadBlob(filename, content, type) {
@@ -1869,14 +1924,42 @@ body.modal-open .admin-mobile-menu-toggle {
 
                     const { jsPDF } = window.jspdf;
                     const doc = new jsPDF({ orientation: 'landscape' });
-                    doc.setFontSize(12);
-                    doc.text('Transactions', 14, 12);
+                    const summary = dataset.summary || {};
+                    const money = function(value) {
+                        const n = Number(value || 0);
+                        return '$' + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    };
+
+                    doc.setFontSize(13);
+                    doc.text('Transactions Export', 14, 12);
+                    doc.setFontSize(9);
+                    doc.text('Scope: ' + (dataset.selectedOnly ? ('Selected Rows (' + (summary.totalTransactions || 0) + ')') : 'All Filtered Rows'), 14, 17);
+                    doc.text('Generated: ' + new Date().toLocaleString(), 14, 21);
+
+                    doc.autoTable({
+                        startY: 24,
+                        head: [['Metric', 'Value', 'Metric', 'Value']],
+                        body: [[
+                            'Total Transactions', String(summary.totalTransactions || 0),
+                            'Completed Transactions', String(summary.completedTransactions || 0)
+                        ], [
+                            'Total Revenue', money(summary.totalRevenue || 0),
+                            'Pending Fee', money(summary.pendingFee || 0)
+                        ], [
+                            'Payout Amount', money(summary.payoutAmount || 0),
+                            'Total Earning', money(summary.totalEarning || 0)
+                        ]],
+                        styles: { fontSize: 8, cellPadding: 2 },
+                        headStyles: { fillColor: [41, 128, 185] },
+                    });
+
                     doc.autoTable({
                         head: [dataset.headers],
                         body: dataset.rows,
-                        startY: 16,
-                        styles: { fontSize: 8 },
+                        startY: (doc.lastAutoTable && doc.lastAutoTable.finalY ? doc.lastAutoTable.finalY + 4 : 42),
+                        styles: { fontSize: 6.5, cellPadding: 1.5, overflow: 'linebreak', valign: 'top' },
                         headStyles: { fillColor: [41, 128, 185] },
+                        bodyStyles: { textColor: [25, 25, 25] },
                     });
                     doc.save('transactions.pdf');
                 }
