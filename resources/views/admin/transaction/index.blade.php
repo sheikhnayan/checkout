@@ -842,6 +842,16 @@ body.modal-open .admin-mobile-menu-toggle {
                                     ? \App\Models\Package::whereIn('id', $packageIds)->get(['id', 'name', 'description'])
                                     : collect();
 
+                                $packageNames = collect($cartItems)
+                                    ->map(fn ($ci) => trim((string) ($ci['package_name'] ?? $ci['packageName'] ?? $ci['pkgName'] ?? '')))
+                                    ->filter(fn ($name) => $name !== '')
+                                    ->unique()
+                                    ->values();
+
+                                $packageRowsByName = $packageNames->isNotEmpty()
+                                    ? \App\Models\Package::whereIn('name', $packageNames)->get(['id', 'name', 'description'])
+                                    : collect();
+
                                 $packageDescriptionsById = $packageRows
                                     ->mapWithKeys(fn ($pkg) => [(string) $pkg->id => (string) ($pkg->description ?? '')])
                                     ->all();
@@ -852,6 +862,22 @@ body.modal-open .admin-mobile-menu-toggle {
                                         return $key !== '' ? [$key => (string) ($pkg->description ?? '')] : [];
                                     })
                                     ->all();
+
+                                foreach ($packageRowsByName as $pkgByName) {
+                                    $nameKey = strtolower(trim((string) ($pkgByName->name ?? '')));
+                                    if ($nameKey === '') {
+                                        continue;
+                                    }
+
+                                    if (!isset($packageDescriptionsByName[$nameKey]) || trim((string) $packageDescriptionsByName[$nameKey]) === '') {
+                                        $packageDescriptionsByName[$nameKey] = (string) ($pkgByName->description ?? '');
+                                    }
+
+                                    $idKey = (string) ($pkgByName->id ?? '');
+                                    if ($idKey !== '' && (!isset($packageDescriptionsById[$idKey]) || trim((string) $packageDescriptionsById[$idKey]) === '')) {
+                                        $packageDescriptionsById[$idKey] = (string) ($pkgByName->description ?? '');
+                                    }
+                                }
 
                                 foreach ($cartItems as $ci) {
                                     if (!is_array($ci)) {
@@ -913,7 +939,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td class="txn-confirmation-num">{{ $item->transaction_id ?? 'N/A' }}</td>
                             <td class="txn-pkg-name">
                                 <div style="font-size:0.85rem;font-weight:600;margin-bottom:8px;">{{ $venueName }}</div>
-                                <button type="button" class="btn btn-sm btn-link-package" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-confirmation-number="{{ $item->transaction_id ?? 'N/A' }}" data-cart-items='@json($cartItems)' data-package-descriptions='@json($packageDescriptionsPayload)' data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" data-package_use_date="{{ $item->package_use_date ?? '' }}" data-package_number_of_guest="{{ $item->package_number_of_guest ?? 0 }}" data-package_first_name="{{ $item->package_first_name ?? '' }}" data-package_last_name="{{ $item->package_last_name ?? '' }}" data-package_phone="{{ $item->package_phone ?? '' }}" data-package_email="{{ $item->package_email ?? '' }}" data-package_dob="{{ $item->package_dob ?? '' }}" data-package_note="{{ $item->package_note ?? '' }}" data-host_name="{{ $item->host_name ?? '' }}" data-transportation_pickup_time="{{ $item->transportation_pickup_time ?? '' }}" data-transportation_address="{{ $item->transportation_address ?? '' }}" data-transportation_phone="{{ $item->transportation_phone ?? '' }}" data-transportation_note="{{ $item->transportation_note ?? '' }}" data-payment_first_name="{{ $item->payment_first_name ?? '' }}" data-payment_last_name="{{ $item->payment_last_name ?? '' }}" data-payment_phone="{{ $item->payment_phone ?? '' }}" data-payment_email="{{ $item->payment_email ?? '' }}" data-payment_address="{{ $item->payment_address ?? '' }}" data-payment_city="{{ $item->payment_city ?? '' }}" data-payment_state="{{ $item->payment_state ?? '' }}" data-payment_country="{{ $item->payment_country ?? '' }}" data-payment_dob="{{ $item->payment_dob ?? '' }}" data-payment_zip_code="{{ $item->payment_zip_code ?? '' }}" data-type="{{ $item->type }}" data-status="{{ $item->status }}" data-ip_address="{{ $item->ip_address ?? '' }}" data-website_id="{{ $item->website->name ?? '' }}" data-addons="{{ $addons }}" style="font-size:0.85rem;min-width:72px;">View</button>
+                                <button type="button" class="btn btn-sm btn-link-package" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-confirmation-number="{{ $item->transaction_id ?? 'N/A' }}" data-cart-items='@json($cartItems)' data-package-descriptions-b64="{{ base64_encode(json_encode($packageDescriptionsPayload)) }}" data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" data-package_use_date="{{ $item->package_use_date ?? '' }}" data-package_number_of_guest="{{ $item->package_number_of_guest ?? 0 }}" data-package_first_name="{{ $item->package_first_name ?? '' }}" data-package_last_name="{{ $item->package_last_name ?? '' }}" data-package_phone="{{ $item->package_phone ?? '' }}" data-package_email="{{ $item->package_email ?? '' }}" data-package_dob="{{ $item->package_dob ?? '' }}" data-package_note="{{ $item->package_note ?? '' }}" data-host_name="{{ $item->host_name ?? '' }}" data-transportation_pickup_time="{{ $item->transportation_pickup_time ?? '' }}" data-transportation_address="{{ $item->transportation_address ?? '' }}" data-transportation_phone="{{ $item->transportation_phone ?? '' }}" data-transportation_note="{{ $item->transportation_note ?? '' }}" data-payment_first_name="{{ $item->payment_first_name ?? '' }}" data-payment_last_name="{{ $item->payment_last_name ?? '' }}" data-payment_phone="{{ $item->payment_phone ?? '' }}" data-payment_email="{{ $item->payment_email ?? '' }}" data-payment_address="{{ $item->payment_address ?? '' }}" data-payment_city="{{ $item->payment_city ?? '' }}" data-payment_state="{{ $item->payment_state ?? '' }}" data-payment_country="{{ $item->payment_country ?? '' }}" data-payment_dob="{{ $item->payment_dob ?? '' }}" data-payment_zip_code="{{ $item->payment_zip_code ?? '' }}" data-type="{{ $item->type }}" data-status="{{ $item->status }}" data-ip_address="{{ $item->ip_address ?? '' }}" data-website_id="{{ $item->website->name ?? '' }}" data-addons="{{ $addons }}" style="font-size:0.85rem;min-width:72px;">View</button>
                             </td>
                             <td>
                                 @php
@@ -3152,8 +3178,20 @@ body.modal-open .admin-mobile-menu-toggle {
                     return [];
                 };
                 var cartItems = normalizeCartItems(parsedCartItems);
-                var rawPackageDescriptions = $(this).attr('data-package-descriptions') || $(this).data('package-descriptions') || null;
-                var packageDescriptionsPayload = window.parseJsonLike ? window.parseJsonLike(rawPackageDescriptions) : null;
+                var rawPackageDescriptionsB64 = $(this).attr('data-package-descriptions-b64') || $(this).data('package-descriptions-b64') || null;
+                var packageDescriptionsPayload = null;
+                if (rawPackageDescriptionsB64) {
+                    try {
+                        var decodedPackageDescriptions = window.atob(String(rawPackageDescriptionsB64));
+                        packageDescriptionsPayload = window.parseJsonLike ? window.parseJsonLike(decodedPackageDescriptions) : JSON.parse(decodedPackageDescriptions);
+                    } catch (e) {
+                        packageDescriptionsPayload = null;
+                    }
+                }
+                if (!packageDescriptionsPayload) {
+                    var rawPackageDescriptions = $(this).attr('data-package-descriptions') || $(this).data('package-descriptions') || null;
+                    packageDescriptionsPayload = window.parseJsonLike ? window.parseJsonLike(rawPackageDescriptions) : null;
+                }
                 if (!packageDescriptionsPayload || typeof packageDescriptionsPayload !== 'object') {
                     packageDescriptionsPayload = { byId: {}, byName: {} };
                 }
