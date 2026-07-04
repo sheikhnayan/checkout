@@ -1268,6 +1268,9 @@ body.modal-open .admin-mobile-menu-toggle {
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" id="download-package-pdf">
+                                <i class="fas fa-file-pdf"></i> Download PDF
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -3322,6 +3325,17 @@ body.modal-open .admin-mobile-menu-toggle {
                 var orderDateMain = String($(this).closest('tr').find('.txn-date-main').text() || '').trim();
                 var orderDateTime = String($(this).closest('tr').find('.txn-date-time').text() || '').trim();
                 var orderDate = [orderDateMain, orderDateTime].filter(Boolean).join(' ') || 'N/A';
+
+                var guestFirstName = String($(this).data('package_first_name') || '').trim();
+                var guestLastName = String($(this).data('package_last_name') || '').trim();
+                var guestName = [guestFirstName, guestLastName].filter(Boolean).join(' ').trim() || 'N/A';
+                var guestEmail = String($(this).data('package_email') || '').trim() || 'N/A';
+                var guestPhone = String($(this).data('package_phone') || '').trim() || 'N/A';
+                var guestDob = formatDateUS($(this).data('package_dob'));
+                var guestUseDate = formatDateUS($(this).data('package_use_date'));
+                var guestNote = String($(this).data('package_note') || '').trim() || 'N/A';
+                var hostName = String($(this).data('host_name') || '').trim() || 'N/A';
+
                 var transportationDateRaw = String($(this).data('package-use-date') || $(this).data('package_use_date') || '').trim();
                 var transportationDate = formatDateUS(transportationDateRaw);
                 if (transportationDate === 'N/A' && transportationDateRaw) {
@@ -3366,6 +3380,125 @@ body.modal-open .admin-mobile-menu-toggle {
                         raw: raw
                     };
                 };
+
+                var sectionRows = function(rows) {
+                    return rows.map(function(pair) {
+                        return [
+                            String(pair[0] == null ? '' : pair[0]),
+                            String(pair[1] == null || pair[1] === '' ? 'N/A' : pair[1])
+                        ];
+                    });
+                };
+
+                var bookingRows = sectionRows([
+                    ['Order ID', orderId],
+                    ['Confirmation #', confirmationNumber],
+                    ['Package Summary', purchaseSummaryTitle],
+                    ['Package Count', String(packageCount)],
+                    ['Total Units', String(totalUnits)],
+                    ['Add-ons', addonDetails],
+                    ['Transaction Type', transactionType.charAt(0).toUpperCase() + transactionType.slice(1)],
+                    ['Order Date', orderDate],
+                    ['Website / Venue', $(this).data('website_id') || 'N/A'],
+                    ['Status', statusText]
+                ]);
+
+                var guestRows = sectionRows([
+                    ['Guest Name', guestName],
+                    ['Guest Email', guestEmail],
+                    ['Guest Phone', guestPhone],
+                    ['Date Of Birth', guestDob],
+                    ['Date Of Use', guestUseDate],
+                    ['Guest Count', String(totalUnits)],
+                    ['Men', String(menCount)],
+                    ['Women', String(womenCount)],
+                    ['Host Name', hostName],
+                    ['Guest Note', guestNote]
+                ]);
+
+                var transportationRows = sectionRows([
+                    ['Transportation', hasTransportation ? 'Provided' : 'Self Drive Selected'],
+                    ['Transportation Date', transportationDate || 'N/A'],
+                    ['Pickup Time', transportationPickupDisplay],
+                    ['Arrival Time', transportationArrivalDisplay],
+                    ['Pickup Address', transportationAddress || 'N/A'],
+                    ['Transport Phone', transportationPhone || 'N/A'],
+                    ['Transport Note', transportationNote || 'N/A']
+                ]);
+
+                var priceRows = [];
+                if (breakdownData && typeof breakdownData === 'object') {
+                    var pushPriceRow = function(label, value) {
+                        priceRows.push([String(label), String(value)]);
+                    };
+                    var moneyPdf = function(v) {
+                        var n = parseFloat(v);
+                        return '$' + (isNaN(n) ? 0 : n).toFixed(2);
+                    };
+
+                    pushPriceRow('Items Subtotal', moneyPdf(breakdownData.items_subtotal));
+                    if (parseFloat(breakdownData.promo_discount) > 0) {
+                        pushPriceRow('Discount', '-' + moneyPdf(breakdownData.promo_discount));
+                    }
+                    if (breakdownData.service_charge && breakdownData.service_charge.enabled) {
+                        pushPriceRow(breakdownData.service_charge.name || 'Service Charge', moneyPdf(breakdownData.service_charge.amount));
+                    }
+                    if (breakdownData.gratuity && breakdownData.gratuity.enabled) {
+                        pushPriceRow(breakdownData.gratuity.name || 'Gratuity', moneyPdf(breakdownData.gratuity.amount));
+                    }
+                    if (breakdownData.sales_tax && breakdownData.sales_tax.enabled) {
+                        pushPriceRow(breakdownData.sales_tax.name || 'Sales Tax', moneyPdf(breakdownData.sales_tax.amount));
+                    }
+                    if (breakdownData.processing_fee && breakdownData.processing_fee.enabled) {
+                        pushPriceRow('Processing Fee', moneyPdf(breakdownData.processing_fee.amount));
+                    }
+                    pushPriceRow('Grand Total', moneyPdf(breakdownData.grand_total));
+                    if (breakdownData.refundable && breakdownData.refundable.enabled && parseFloat(breakdownData.refundable.amount) > 0) {
+                        pushPriceRow((breakdownData.refundable.name || 'Non-refundable Deposit') + ' (incl. in total)', moneyPdf(breakdownData.refundable.amount));
+                    }
+                    pushPriceRow('Amount Paid', moneyPdf(breakdownData.amount_paid_now));
+                    if (parseFloat(breakdownData.remaining_due) > 0) {
+                        pushPriceRow('Remaining Due', moneyPdf(breakdownData.remaining_due));
+                    }
+                }
+
+                var packageItemsForPdf = packageLineupItems.map(function(item) {
+                    var itemUnitPrice = typeof item.unitPrice === 'number' ? item.unitPrice : null;
+                    var itemLineTotal = typeof item.lineTotal === 'number' ? item.lineTotal : null;
+                    var addonEntries = Array.isArray(item.addonsStructured) && item.addonsStructured.length
+                        ? item.addonsStructured.map(function(addon) {
+                            return {
+                                name: addon.name,
+                                quantity: addon.quantity,
+                                unitPrice: addon.unitPrice,
+                                lineTotal: addon.lineTotal
+                            };
+                        })
+                        : (Array.isArray(item.addonLabels) ? item.addonLabels.map(parseAddonLabel).filter(Boolean) : []);
+
+                    var descriptionText = (item.packageType === 'ticket' ? 'Ticket Package' : 'Guest Package')
+                        + ' | Qty: ' + String(item.quantity) + ' ' + (item.packageType === 'ticket' ? 'tickets' : 'guests');
+                    if (addonEntries.length) {
+                        descriptionText += ' | Add-ons: ' + String(addonEntries.length);
+                    }
+
+                    var addonsText = addonEntries.map(function(addon) {
+                        var addonLine = addon.name + ' x' + addon.quantity;
+                        if (addon.unitPrice != null && addon.lineTotal != null) {
+                            addonLine += ' @ $' + addon.unitPrice.toFixed(2) + ' = $' + addon.lineTotal.toFixed(2);
+                        }
+                        return addonLine;
+                    });
+
+                    return {
+                        name: String(item.name || 'Package'),
+                        description: descriptionText,
+                        quantity: String(item.quantity) + ' ' + (item.packageType === 'ticket' ? 'tickets' : 'guests'),
+                        unitPrice: itemUnitPrice == null ? 'N/A' : ('$' + itemUnitPrice.toFixed(2)),
+                        lineTotal: itemLineTotal == null ? 'N/A' : ('$' + itemLineTotal.toFixed(2)),
+                        addons: addonsText.length ? addonsText : ['None']
+                    };
+                });
 
                 var html = '<div>';
 
@@ -3420,6 +3553,22 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row('Pickup Address', transportationAddress || 'N/A');
                 html += row('Transport Phone', transportationPhone || 'N/A');
                 html += row('Transport Note', transportationNote || 'N/A');
+                html += '</div>';
+                html += '</div>';
+
+                html += '<div class="col-md-6">';
+                html += '<div class="txn-detail-card" style="margin-bottom:0;">';
+                html += '<div class="txn-detail-title">Guest Details</div>';
+                html += row('Guest Name', guestName);
+                html += row('Guest Email', guestEmail);
+                html += row('Guest Phone', guestPhone);
+                html += row('Date Of Birth', guestDob);
+                html += row('Date Of Use', guestUseDate);
+                html += row('Guest Count', String(totalUnits));
+                html += row('Men', String(menCount));
+                html += row('Women', String(womenCount));
+                html += row('Host Name', hostName);
+                html += row('Guest Note', guestNote);
                 html += '</div>';
                 html += '</div>';
                 html += '</div>';
@@ -3540,13 +3689,206 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += '</div>';
 
                 $('#packageDetailsContent').html(html);
+                $('#packageDetailsModal').data('pdfPayload', {
+                    title: 'Package Details - Order #' + String(orderId),
+                    status: statusText,
+                    meta: 'Confirmation: ' + String(confirmationNumber) + ' | ' + String(orderDate),
+                    sections: [
+                        { name: 'Booking Details', rows: bookingRows },
+                        { name: 'Guest Details', rows: guestRows },
+                        { name: 'Transportation Details', rows: transportationRows }
+                    ],
+                    packageItems: packageItemsForPdf,
+                    priceRows: priceRows
+                });
                 var packageModal = new bootstrap.Modal(document.getElementById('packageDetailsModal'));
                 packageModal.show();
+            });
+
+            $(document).on('click', '#download-package-pdf', function() {
+                var payload = $('#packageDetailsModal').data('pdfPayload') || null;
+                if (!payload) {
+                    alert('No package details available to export.');
+                    return;
+                }
+
+                var button = this;
+                var originalHtml = button.innerHTML;
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
+
+                try {
+                    var jsPDFRef = window.jspdf && window.jspdf.jsPDF ? window.jspdf.jsPDF : null;
+                    if (!jsPDFRef || typeof jsPDFRef !== 'function' || typeof window.jspdf.jsPDF.API.autoTable !== 'function') {
+                        throw new Error('jsPDF AutoTable is not available');
+                    }
+
+                    var doc = new jsPDFRef({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+                    var margin = 10;
+                    var pageWidth = doc.internal.pageSize.getWidth();
+                    var contentWidth = pageWidth - (margin * 2);
+
+                    var titleText = String(payload.title || 'Package Details');
+                    var statusText = String(payload.status || 'N/A');
+                    var metaText = String(payload.meta || '');
+
+                    doc.setFillColor(15, 23, 42);
+                    doc.rect(0, 0, pageWidth, 26, 'F');
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(15);
+                    doc.text(titleText, margin, 10);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(9);
+                    doc.text('Status: ' + statusText, margin, 16);
+                    doc.text('Generated: ' + new Date().toLocaleString(), margin, 21);
+
+                    var currentY = 30;
+                    if (metaText) {
+                        doc.setTextColor(71, 85, 105);
+                        doc.setFontSize(9);
+                        doc.text(metaText, margin, currentY);
+                        currentY += 4;
+                    }
+
+                    doc.setTextColor(15, 23, 42);
+
+                    if (Array.isArray(payload.packageItems) && payload.packageItems.length) {
+                        if (currentY > 250) {
+                            doc.addPage();
+                            currentY = 14;
+                        }
+                        doc.setFont('helvetica', 'bold');
+                        doc.setFontSize(11);
+                        doc.setTextColor(30, 41, 59);
+                        doc.text('Purchased Packages', margin, currentY);
+                        currentY += 3;
+
+                        var packageBody = payload.packageItems.map(function(item) {
+                            return [
+                                String(item.name || 'Package'),
+                                String(item.description || 'N/A'),
+                                String(item.quantity || 'N/A'),
+                                String(item.unitPrice || 'N/A'),
+                                String(item.lineTotal || 'N/A'),
+                                Array.isArray(item.addons) ? item.addons.join('\n') : 'None'
+                            ];
+                        });
+
+                        doc.autoTable({
+                            startY: currentY,
+                            head: [['Package', 'Description', 'Qty', 'Unit', 'Total', 'Add-ons']],
+                            body: packageBody,
+                            theme: 'grid',
+                            margin: { left: margin, right: margin },
+                            styles: { fontSize: 8, cellPadding: 2.1, textColor: [15, 23, 42], valign: 'top' },
+                            headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
+                            columnStyles: {
+                                0: { cellWidth: 28 },
+                                1: { cellWidth: 42 },
+                                2: { cellWidth: 20 },
+                                3: { cellWidth: 20 },
+                                4: { cellWidth: 20 },
+                                5: { cellWidth: contentWidth - (28 + 42 + 20 + 20 + 20) }
+                            }
+                        });
+                        currentY = doc.lastAutoTable.finalY + 5;
+                    }
+
+                    (Array.isArray(payload.sections) ? payload.sections : []).forEach(function(section) {
+                        var rows = Array.isArray(section.rows) ? section.rows : [];
+                        if (!rows.length) {
+                            return;
+                        }
+
+                        if (currentY > 265) {
+                            doc.addPage();
+                            currentY = 14;
+                        }
+
+                        doc.setFont('helvetica', 'bold');
+                        doc.setFontSize(11);
+                        doc.setTextColor(30, 41, 59);
+                        doc.text(String(section.name || 'Details'), margin, currentY);
+                        currentY += 3;
+
+                        doc.autoTable({
+                            startY: currentY,
+                            head: [['Field', 'Value']],
+                            body: rows,
+                            theme: 'grid',
+                            margin: { left: margin, right: margin },
+                            styles: { fontSize: 8.5, cellPadding: 2.2, textColor: [15, 23, 42] },
+                            headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
+                            columnStyles: {
+                                0: { cellWidth: 58, fontStyle: 'bold', textColor: [51, 65, 85] },
+                                1: { cellWidth: contentWidth - 58 }
+                            },
+                            didParseCell: function(data) {
+                                if (data.section === 'body' && data.column.index === 1 && (!data.cell.text || !data.cell.text.length)) {
+                                    data.cell.text = ['N/A'];
+                                }
+                            }
+                        });
+                        currentY = doc.lastAutoTable.finalY + 5;
+                    });
+
+                    if (Array.isArray(payload.priceRows) && payload.priceRows.length) {
+                        if (currentY > 265) {
+                            doc.addPage();
+                            currentY = 14;
+                        }
+
+                        doc.setFont('helvetica', 'bold');
+                        doc.setFontSize(11);
+                        doc.setTextColor(30, 41, 59);
+                        doc.text('Price Breakdown', margin, currentY);
+                        currentY += 3;
+
+                        doc.autoTable({
+                            startY: currentY,
+                            head: [['Charge', 'Amount']],
+                            body: payload.priceRows,
+                            theme: 'grid',
+                            margin: { left: margin, right: margin },
+                            styles: { fontSize: 8.6, cellPadding: 2.3, textColor: [15, 23, 42] },
+                            headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
+                            columnStyles: {
+                                0: { cellWidth: contentWidth - 45, fontStyle: 'bold', textColor: [51, 65, 85] },
+                                1: { cellWidth: 45, halign: 'right' }
+                            }
+                        });
+                        currentY = doc.lastAutoTable.finalY + 5;
+                    }
+
+                    var fileSafeTitle = titleText
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]+/g, '-')
+                        .replace(/^-+|-+$/g, '');
+
+                    var pageCount = doc.getNumberOfPages();
+                    for (var i = 1; i <= pageCount; i += 1) {
+                        doc.setPage(i);
+                        doc.setFont('helvetica', 'normal');
+                        doc.setFontSize(8);
+                        doc.setTextColor(100, 116, 139);
+                        doc.text('Page ' + i + ' of ' + pageCount, pageWidth - margin - 22, doc.internal.pageSize.getHeight() - 6);
+                    }
+
+                    doc.save((fileSafeTitle || 'package-details') + '.pdf');
+                } catch (error) {
+                    console.error('Package PDF export failed:', error);
+                    alert('PDF export failed. Please try again.');
+                } finally {
+                    button.disabled = false;
+                    button.innerHTML = originalHtml;
+                }
             });
 
             // Clean up modal properly when it's fully hidden
             $('#packageDetailsModal').on('hidden.bs.modal', function() {
                 $('#packageDetailsContent').empty();
+                $('#packageDetailsModal').removeData('pdfPayload');
 
                 // Ensure body is back to normal
                 $('body').removeAttr('style');
