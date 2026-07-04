@@ -1682,7 +1682,28 @@ body.modal-open .admin-mobile-menu-toggle {
                     reloadWithServerFilters();
                 });
 
-                $('#txnDateRange').daterangepicker({
+                const $txnDateRange = $('#txnDateRange');
+                const $txnDateRangeWrap = $('#txnDateRangeWrap');
+
+                if ($txnDateRange.data('daterangepicker')) {
+                    $txnDateRange.data('daterangepicker').remove();
+                }
+
+                const initialRangeValue = String($txnDateRange.val() || '').trim();
+                let initialStartDate = null;
+                let initialEndDate = null;
+
+                if (initialRangeValue && initialRangeValue.includes(' - ')) {
+                    const initialParts = initialRangeValue.split(' - ');
+                    const parsedStart = moment(initialParts[0], 'MM/DD/YYYY', true);
+                    const parsedEnd = moment(initialParts[1], 'MM/DD/YYYY', true);
+                    if (parsedStart.isValid() && parsedEnd.isValid()) {
+                        initialStartDate = parsedStart;
+                        initialEndDate = parsedEnd;
+                    }
+                }
+
+                const dateRangeOptions = {
                     autoUpdateInput: false,
                     linkedCalendars: false,
                     opens: 'left',
@@ -1695,15 +1716,45 @@ body.modal-open .admin-mobile-menu-toggle {
                         'This Month': [moment().startOf('month'), moment().endOf('month')],
                         'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
                     }
-                });
+                };
 
-                $('#txnDateRange').on('apply.daterangepicker', function(ev, picker) {
+                if (initialStartDate && initialEndDate) {
+                    dateRangeOptions.startDate = initialStartDate;
+                    dateRangeOptions.endDate = initialEndDate;
+                }
+
+                $txnDateRange.daterangepicker(dateRangeOptions);
+
+                if (initialStartDate && initialEndDate) {
+                    $txnDateRange.val(initialStartDate.format('MM/DD/YYYY') + ' - ' + initialEndDate.format('MM/DD/YYYY'));
+                }
+
+                $txnDateRange.off('apply.daterangepicker.txnDateRange').on('apply.daterangepicker.txnDateRange', function(ev, picker) {
                     $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
                     reloadWithServerFilters();
                 });
-                $('#txnDateRange').on('cancel.daterangepicker', function() {
+
+                $txnDateRange.off('cancel.daterangepicker.txnDateRange').on('cancel.daterangepicker.txnDateRange', function() {
                     $(this).val('');
                     reloadWithServerFilters();
+                });
+
+                $txnDateRangeWrap.off('click.txnDateRange').on('click.txnDateRange', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const picker = $txnDateRange.data('daterangepicker');
+                    if (picker) {
+                        picker.show();
+                    } else {
+                        $txnDateRange.trigger('click');
+                    }
+                });
+
+                $txnDateRange.off('focus.txnDateRange').on('focus.txnDateRange', function() {
+                    const picker = $(this).data('daterangepicker');
+                    if (picker) {
+                        picker.show();
+                    }
                 });
 
                 // ── Export button wiring (custom, reliable across pages) ─────
