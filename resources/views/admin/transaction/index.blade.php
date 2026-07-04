@@ -3891,12 +3891,12 @@ body.modal-open .admin-mobile-menu-toggle {
                     doc.text('Status: ' + statusText, margin, 16);
                     doc.text('Generated: ' + new Date().toLocaleString(), margin, 21);
 
-                    var currentY = 28;
+                    var currentY = 24;
                     if (metaText) {
                         doc.setTextColor(71, 85, 105);
                         doc.setFontSize(8);
                         doc.text(metaText, margin, currentY);
-                        currentY += 3;
+                        currentY += 4;
                     }
 
                     doc.setTextColor(15, 23, 42);
