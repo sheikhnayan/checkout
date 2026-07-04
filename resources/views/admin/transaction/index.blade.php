@@ -3114,6 +3114,31 @@ body.modal-open .admin-mobile-menu-toggle {
                     return [];
                 };
                 var cartItems = normalizeCartItems(parsedCartItems);
+                var extractDescription = function(source) {
+                    if (!source || typeof source !== 'object') {
+                        return '';
+                    }
+                    var candidates = [
+                        source.package_description,
+                        source.packageDescription,
+                        source.description,
+                        source.package_details,
+                        source.packageDetails,
+                        source.details,
+                        source.package_note,
+                        source.note,
+                        source.summary,
+                        source.package_summary
+                    ];
+                    for (var i = 0; i < candidates.length; i += 1) {
+                        var text = String(candidates[i] == null ? '' : candidates[i]).trim();
+                        if (!text) {
+                            continue;
+                        }
+                        return text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+                    }
+                    return '';
+                };
                 var transactionType = $(this).data('transaction-type') || 'package';
                 var menCount = $(this).data('men') || 0;
                 var womenCount = $(this).data('women') || 0;
@@ -3168,6 +3193,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             packageType: String(rawItem.package_type || rawItem.type || rawItem.packageType || '').toLowerCase() || 'package',
                             unitPrice: resolvedUnitPrice,
                             lineTotal: resolvedLineTotal,
+                            description: extractDescription(rawItem),
                             addonLabels: structuredAddons.map(function(addon) {
                                 var label = addon.name + ' x' + addon.quantity;
                                 if (addon.unitPrice != null) {
@@ -3315,6 +3341,17 @@ body.modal-open .admin-mobile-menu-toggle {
                 packageLineupItems.forEach(function(item, idx) {
                     var key = String(item.name || '').trim().toLowerCase();
                     var mapped = key && addonMapByPackage[key] ? addonMapByPackage[key] : [];
+                    if (!item.description) {
+                        var sourceByName = cartItems.find(function(cartItem) {
+                            if (!cartItem || typeof cartItem !== 'object') {
+                                return false;
+                            }
+                            var cartName = String(cartItem.package_name || cartItem.packageName || cartItem.pkgName || '').trim().toLowerCase();
+                            return cartName && cartName === key;
+                        });
+                        var sourceByIndex = cartItems[idx] && typeof cartItems[idx] === 'object' ? cartItems[idx] : null;
+                        item.description = extractDescription(sourceByName || sourceByIndex || item);
+                    }
                     if (!Array.isArray(item.addonLabels) || !item.addonLabels.length) {
                         item.addonLabels = mapped.slice();
                     }
@@ -3476,8 +3513,11 @@ body.modal-open .admin-mobile-menu-toggle {
                         })
                         : (Array.isArray(item.addonLabels) ? item.addonLabels.map(parseAddonLabel).filter(Boolean) : []);
 
-                    var descriptionText = (item.packageType === 'ticket' ? 'Ticket Package' : 'Guest Package')
-                        + ' | Qty: ' + String(item.quantity) + ' ' + (item.packageType === 'ticket' ? 'tickets' : 'guests');
+                    var descriptionText = String(item.description || '').trim();
+                    if (!descriptionText) {
+                        descriptionText = (item.packageType === 'ticket' ? 'Ticket Package' : 'Guest Package')
+                            + ' | Qty: ' + String(item.quantity) + ' ' + (item.packageType === 'ticket' ? 'tickets' : 'guests');
+                    }
                     if (addonEntries.length) {
                         descriptionText += ' | Add-ons: ' + String(addonEntries.length);
                     }
@@ -3505,6 +3545,22 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += '<div class="row g-3" style="margin-bottom:8px;">';
                 html += '<div class="col-md-6">';
                 html += '<div class="txn-detail-card" style="margin-bottom:0;">';
+                html += '<div class="txn-detail-title">Guest Details</div>';
+                html += row('Guest Name', guestName);
+                html += row('Guest Email', guestEmail);
+                html += row('Guest Phone', guestPhone);
+                html += row('Date Of Birth', guestDob);
+                html += row('Date Of Use', guestUseDate);
+                html += row('Guest Count', String(totalUnits));
+                html += row('Men', String(menCount));
+                html += row('Women', String(womenCount));
+                html += row('Host Name', hostName);
+                html += row('Guest Note', guestNote);
+                html += '</div>';
+                html += '</div>';
+
+                html += '<div class="col-md-6">';
+                html += '<div class="txn-detail-card" style="margin-bottom:0;">';
                 html += '<div class="txn-detail-title">Booking Details</div>';
                 html += row('Order ID', orderId);
                 html += row('Confirmation #', confirmationNumber);
@@ -3517,6 +3573,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     html += '<div style="font-size:0.78rem;color:#cbd5e1;font-weight:700;margin-bottom:8px;letter-spacing:0.03em;">Package Lineup</div>';
                     packageLineupItems.forEach(function(item) {
                         var qtyText = String(item.quantity) + ' ' + (item.packageType === 'ticket' ? 'tickets' : 'guests');
+                        var descriptionText = String(item.description || '').trim();
                         var itemAddons = Array.isArray(item.addonLabels) ? item.addonLabels : [];
                         var addonEntries = itemAddons.map(parseAddonLabel).filter(Boolean);
                         var addonQtyTotal = addonEntries.reduce(function(sum, addon) { return sum + (addon.quantity || 0); }, 0);
@@ -3525,6 +3582,9 @@ body.modal-open .admin-mobile-menu-toggle {
                         html += '<span style="color:#e2e8f0;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(item.name) + '</span>';
                         html += '<span style="color:#fbbf24;font-weight:700;white-space:nowrap;">x ' + esc(qtyText) + '</span>';
                         html += '</div>';
+                        if (descriptionText) {
+                            html += '<div style="margin-top:5px;font-size:0.76rem;color:#cbd5e1;line-height:1.35;">' + esc(descriptionText) + '</div>';
+                        }
                         if (addonEntries.length) {
                             html += '<div style="margin-top:6px;font-size:0.78rem;color:#93c5fd;line-height:1.45;font-weight:700;">Add-ons: ' + esc(String(addonEntries.length)) + ' | Qty: ' + esc(String(addonQtyTotal)) + '</div>';
                             addonEntries.forEach(function(addon) {
@@ -3555,22 +3615,6 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row('Transport Note', transportationNote || 'N/A');
                 html += '</div>';
                 html += '</div>';
-
-                html += '<div class="col-md-6">';
-                html += '<div class="txn-detail-card" style="margin-bottom:0;">';
-                html += '<div class="txn-detail-title">Guest Details</div>';
-                html += row('Guest Name', guestName);
-                html += row('Guest Email', guestEmail);
-                html += row('Guest Phone', guestPhone);
-                html += row('Date Of Birth', guestDob);
-                html += row('Date Of Use', guestUseDate);
-                html += row('Guest Count', String(totalUnits));
-                html += row('Men', String(menCount));
-                html += row('Women', String(womenCount));
-                html += row('Host Name', hostName);
-                html += row('Guest Note', guestNote);
-                html += '</div>';
-                html += '</div>';
                 html += '</div>';
 
                 // Display packages with details
@@ -3597,7 +3641,8 @@ body.modal-open .admin-mobile-menu-toggle {
                         html += '<div style="display:flex;justify-content:space-between;align-items:start;gap:12px;margin-bottom:8px;">';
                         html += '<div style="min-width:0;">';
                         html += '<div style="font-weight:700;color:#e0e7ff;">' + esc(item.name) + '</div>';
-                        html += '<div style="font-size:0.8rem;color:#94a3b8;margin-top:4px;">Item ' + (index + 1) + ' of ' + packageLineupItems.length + '</div>';
+                        var cardDescription = String(item.description || '').trim();
+                        html += '<div style="font-size:0.8rem;color:#94a3b8;margin-top:4px;">Item ' + (index + 1) + ' of ' + packageLineupItems.length + (cardDescription ? ' | ' + esc(cardDescription) : '') + '</div>';
                         html += '</div>';
                         html += '<div style="text-align:right;flex-shrink:0;">';
                         html += '<div style="display:inline-block;background:' + (item.packageType === 'ticket' ? 'rgba(245,158,11,0.18)' : 'rgba(124,58,237,0.18)') + ';color:' + (item.packageType === 'ticket' ? '#fbbf24' : '#a5b4fc') + ';border:1px solid ' + (item.packageType === 'ticket' ? 'rgba(245,158,11,0.3)' : 'rgba(124,58,237,0.28)') + ';border-radius:999px;padding:3px 10px;font-size:0.72rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;">' + esc(item.packageType === 'ticket' ? 'Ticket Package' : 'Guest Package') + '</div>';
@@ -3694,8 +3739,8 @@ body.modal-open .admin-mobile-menu-toggle {
                     status: statusText,
                     meta: 'Confirmation: ' + String(confirmationNumber) + ' | ' + String(orderDate),
                     sections: [
-                        { name: 'Booking Details', rows: bookingRows },
                         { name: 'Guest Details', rows: guestRows },
+                        { name: 'Booking Details', rows: bookingRows },
                         { name: 'Transportation Details', rows: transportationRows }
                     ],
                     packageItems: packageItemsForPdf,
@@ -3753,6 +3798,44 @@ body.modal-open .admin-mobile-menu-toggle {
 
                     doc.setTextColor(15, 23, 42);
 
+                    (Array.isArray(payload.sections) ? payload.sections : []).forEach(function(section) {
+                        var rows = Array.isArray(section.rows) ? section.rows : [];
+                        if (!rows.length) {
+                            return;
+                        }
+
+                        if (currentY > 265) {
+                            doc.addPage();
+                            currentY = 14;
+                        }
+
+                        doc.setFont('helvetica', 'bold');
+                        doc.setFontSize(11);
+                        doc.setTextColor(30, 41, 59);
+                        doc.text(String(section.name || 'Details'), margin, currentY);
+                        currentY += 3;
+
+                        doc.autoTable({
+                            startY: currentY,
+                            head: [['Field', 'Value']],
+                            body: rows,
+                            theme: 'grid',
+                            margin: { left: margin, right: margin },
+                            styles: { fontSize: 8.5, cellPadding: 2.2, textColor: [15, 23, 42] },
+                            headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
+                            columnStyles: {
+                                0: { cellWidth: 58, fontStyle: 'bold', textColor: [51, 65, 85] },
+                                1: { cellWidth: contentWidth - 58 }
+                            },
+                            didParseCell: function(data) {
+                                if (data.section === 'body' && data.column.index === 1 && (!data.cell.text || !data.cell.text.length)) {
+                                    data.cell.text = ['N/A'];
+                                }
+                            }
+                        });
+                        currentY = doc.lastAutoTable.finalY + 5;
+                    });
+
                     if (Array.isArray(payload.packageItems) && payload.packageItems.length) {
                         if (currentY > 250) {
                             doc.addPage();
@@ -3794,44 +3877,6 @@ body.modal-open .admin-mobile-menu-toggle {
                         });
                         currentY = doc.lastAutoTable.finalY + 5;
                     }
-
-                    (Array.isArray(payload.sections) ? payload.sections : []).forEach(function(section) {
-                        var rows = Array.isArray(section.rows) ? section.rows : [];
-                        if (!rows.length) {
-                            return;
-                        }
-
-                        if (currentY > 265) {
-                            doc.addPage();
-                            currentY = 14;
-                        }
-
-                        doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(11);
-                        doc.setTextColor(30, 41, 59);
-                        doc.text(String(section.name || 'Details'), margin, currentY);
-                        currentY += 3;
-
-                        doc.autoTable({
-                            startY: currentY,
-                            head: [['Field', 'Value']],
-                            body: rows,
-                            theme: 'grid',
-                            margin: { left: margin, right: margin },
-                            styles: { fontSize: 8.5, cellPadding: 2.2, textColor: [15, 23, 42] },
-                            headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
-                            columnStyles: {
-                                0: { cellWidth: 58, fontStyle: 'bold', textColor: [51, 65, 85] },
-                                1: { cellWidth: contentWidth - 58 }
-                            },
-                            didParseCell: function(data) {
-                                if (data.section === 'body' && data.column.index === 1 && (!data.cell.text || !data.cell.text.length)) {
-                                    data.cell.text = ['N/A'];
-                                }
-                            }
-                        });
-                        currentY = doc.lastAutoTable.finalY + 5;
-                    });
 
                     if (Array.isArray(payload.priceRows) && payload.priceRows.length) {
                         if (currentY > 265) {
