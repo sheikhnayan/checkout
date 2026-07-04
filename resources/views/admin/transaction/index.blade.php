@@ -2899,8 +2899,8 @@ body.modal-open .admin-mobile-menu-toggle {
                         throw new Error('jsPDF AutoTable is not available');
                     }
 
-                    var doc = new jsPDFRef({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-                    var margin = 10;
+                    var doc = new jsPDFRef({ unit: 'mm', format: [297, 420], orientation: 'landscape' });
+                    var margin = 8;
                     var pageWidth = doc.internal.pageSize.getWidth();
                     var contentWidth = pageWidth - (margin * 2);
 
@@ -3891,12 +3891,12 @@ body.modal-open .admin-mobile-menu-toggle {
                     doc.text('Status: ' + statusText, margin, 16);
                     doc.text('Generated: ' + new Date().toLocaleString(), margin, 21);
 
-                    var currentY = 30;
+                    var currentY = 28;
                     if (metaText) {
                         doc.setTextColor(71, 85, 105);
-                        doc.setFontSize(9);
+                        doc.setFontSize(8);
                         doc.text(metaText, margin, currentY);
-                        currentY += 4;
+                        currentY += 3;
                     }
 
                     doc.setTextColor(15, 23, 42);
@@ -3907,28 +3907,25 @@ body.modal-open .admin-mobile-menu-toggle {
                             return;
                         }
 
-                        if (currentY > 265) {
-                            doc.addPage();
-                            currentY = 14;
-                        }
-
                         doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(11);
+                        doc.setFontSize(9);
                         doc.setTextColor(30, 41, 59);
                         doc.text(String(section.name || 'Details'), margin, currentY);
-                        currentY += 3;
+                        currentY += 2;
 
                         doc.autoTable({
                             startY: currentY,
                             head: [['Field', 'Value']],
                             body: rows,
                             theme: 'grid',
+                            pageBreak: 'avoid',
+                            rowPageBreak: 'avoid',
                             margin: { left: margin, right: margin },
-                            styles: { fontSize: 8.5, cellPadding: 2.2, textColor: [15, 23, 42] },
+                            styles: { fontSize: 7, cellPadding: 1.3, textColor: [15, 23, 42] },
                             headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
                             columnStyles: {
-                                0: { cellWidth: 58, fontStyle: 'bold', textColor: [51, 65, 85] },
-                                1: { cellWidth: contentWidth - 58 }
+                                0: { cellWidth: 52, fontStyle: 'bold', textColor: [51, 65, 85] },
+                                1: { cellWidth: contentWidth - 52 }
                             },
                             didParseCell: function(data) {
                                 if (data.section === 'body' && data.column.index === 1 && (!data.cell.text || !data.cell.text.length)) {
@@ -3936,19 +3933,15 @@ body.modal-open .admin-mobile-menu-toggle {
                                 }
                             }
                         });
-                        currentY = doc.lastAutoTable.finalY + 5;
+                        currentY = doc.lastAutoTable.finalY + 3;
                     });
 
                     if (Array.isArray(payload.packageItems) && payload.packageItems.length) {
-                        if (currentY > 250) {
-                            doc.addPage();
-                            currentY = 14;
-                        }
                         doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(11);
+                        doc.setFontSize(9);
                         doc.setTextColor(30, 41, 59);
                         doc.text('Purchased Packages', margin, currentY);
-                        currentY += 3;
+                        currentY += 2;
 
                         var packageBody = payload.packageItems.map(function(item) {
                             return [
@@ -3966,47 +3959,46 @@ body.modal-open .admin-mobile-menu-toggle {
                             head: [['Package', 'Description', 'Qty', 'Unit', 'Total', 'Add-ons']],
                             body: packageBody,
                             theme: 'grid',
+                            pageBreak: 'avoid',
+                            rowPageBreak: 'avoid',
                             margin: { left: margin, right: margin },
-                            styles: { fontSize: 8, cellPadding: 2.1, textColor: [15, 23, 42], valign: 'top' },
+                            styles: { fontSize: 6.4, cellPadding: 1.1, textColor: [15, 23, 42], valign: 'top' },
                             headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
                             columnStyles: {
-                                0: { cellWidth: 28 },
-                                1: { cellWidth: 42 },
+                                0: { cellWidth: 38 },
+                                1: { cellWidth: 92 },
                                 2: { cellWidth: 20 },
-                                3: { cellWidth: 20 },
-                                4: { cellWidth: 20 },
-                                5: { cellWidth: contentWidth - (28 + 42 + 20 + 20 + 20) }
+                                3: { cellWidth: 22 },
+                                4: { cellWidth: 22 },
+                                5: { cellWidth: contentWidth - (38 + 92 + 20 + 22 + 22) }
                             }
                         });
-                        currentY = doc.lastAutoTable.finalY + 5;
+                        currentY = doc.lastAutoTable.finalY + 3;
                     }
 
                     if (Array.isArray(payload.priceRows) && payload.priceRows.length) {
-                        if (currentY > 265) {
-                            doc.addPage();
-                            currentY = 14;
-                        }
-
                         doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(11);
+                        doc.setFontSize(9);
                         doc.setTextColor(30, 41, 59);
                         doc.text('Price Breakdown', margin, currentY);
-                        currentY += 3;
+                        currentY += 2;
 
                         doc.autoTable({
                             startY: currentY,
                             head: [['Charge', 'Amount']],
                             body: payload.priceRows,
                             theme: 'grid',
+                            pageBreak: 'avoid',
+                            rowPageBreak: 'avoid',
                             margin: { left: margin, right: margin },
-                            styles: { fontSize: 8.6, cellPadding: 2.3, textColor: [15, 23, 42] },
+                            styles: { fontSize: 7, cellPadding: 1.3, textColor: [15, 23, 42] },
                             headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
                             columnStyles: {
-                                0: { cellWidth: contentWidth - 45, fontStyle: 'bold', textColor: [51, 65, 85] },
-                                1: { cellWidth: 45, halign: 'right' }
+                                0: { cellWidth: contentWidth - 50, fontStyle: 'bold', textColor: [51, 65, 85] },
+                                1: { cellWidth: 50, halign: 'right' }
                             }
                         });
-                        currentY = doc.lastAutoTable.finalY + 5;
+                        currentY = doc.lastAutoTable.finalY + 3;
                     }
 
                     var fileSafeTitle = titleText
