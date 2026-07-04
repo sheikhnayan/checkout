@@ -2899,8 +2899,8 @@ body.modal-open .admin-mobile-menu-toggle {
                         throw new Error('jsPDF AutoTable is not available');
                     }
 
-                    var doc = new jsPDFRef({ unit: 'mm', format: [297, 420], orientation: 'landscape' });
-                    var margin = 8;
+                    var doc = new jsPDFRef({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+                    var margin = 7;
                     var pageWidth = doc.internal.pageSize.getWidth();
                     var contentWidth = pageWidth - (margin * 2);
 
@@ -2915,22 +2915,22 @@ body.modal-open .admin-mobile-menu-toggle {
                     var metaText = payload && payload.meta ? String(payload.meta) : (metaNode ? metaNode.textContent.trim() : '');
 
                     doc.setFillColor(15, 23, 42);
-                    doc.rect(0, 0, pageWidth, 26, 'F');
+                    doc.rect(0, 0, pageWidth, 17, 'F');
                     doc.setTextColor(255, 255, 255);
                     doc.setFont('helvetica', 'bold');
-                    doc.setFontSize(15);
-                    doc.text(titleText, margin, 10);
-                    doc.setFont('helvetica', 'normal');
                     doc.setFontSize(9);
-                    doc.text('Status: ' + statusText, margin, 16);
-                    doc.text('Generated: ' + new Date().toLocaleString(), margin, 21);
+                    doc.text(titleText, margin, 7);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(5.4);
+                    doc.text('Status: ' + statusText, margin, 11);
+                    doc.text('Generated: ' + new Date().toLocaleString(), margin, 14);
 
-                    var startY = 30;
+                    var startY = 19;
                     if (metaText) {
                         doc.setTextColor(71, 85, 105);
-                        doc.setFontSize(9);
+                        doc.setFontSize(5.4);
                         doc.text(metaText, margin, startY);
-                        startY += 4;
+                        startY += 2.5;
                     }
 
                     doc.setTextColor(15, 23, 42);
@@ -2974,15 +2974,15 @@ body.modal-open .admin-mobile-menu-toggle {
                     var currentY = startY;
 
                     if (payload && Array.isArray(payload.packageItems) && payload.packageItems.length) {
-                        if (currentY > 250) {
+                        if (currentY > 282) {
                             doc.addPage();
-                            currentY = 14;
+                            currentY = 10;
                         }
                         doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(11);
+                        doc.setFontSize(6.6);
                         doc.setTextColor(30, 41, 59);
                         doc.text('Purchase Summary', margin, currentY);
-                        currentY += 3;
+                        currentY += 1.8;
 
                         var packageBody = payload.packageItems.map(function(item) {
                             var addonsText = Array.isArray(item.addons) && item.addons.length
@@ -3003,8 +3003,10 @@ body.modal-open .admin-mobile-menu-toggle {
                             body: packageBody,
                             theme: 'grid',
                             margin: { left: margin, right: margin },
-                            styles: { fontSize: 8.2, cellPadding: 2.2, textColor: [15, 23, 42], valign: 'top' },
+                            styles: { fontSize: 4.9, cellPadding: 1.2, textColor: [15, 23, 42], valign: 'top' },
                             headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
+                            pageBreak: 'auto',
+                            rowPageBreak: 'auto',
                             columnStyles: {
                                 0: { cellWidth: 36 },
                                 1: { cellWidth: 22 },
@@ -3013,23 +3015,23 @@ body.modal-open .admin-mobile-menu-toggle {
                                 4: { cellWidth: contentWidth - (36 + 22 + 24 + 24) }
                             }
                         });
-                        currentY = doc.lastAutoTable.finalY + 5;
+                        currentY = doc.lastAutoTable.finalY + 2.5;
                     }
 
                     blocks.forEach(function(block) {
                         if (block.title === 'Purchase Summary') {
                             return;
                         }
-                        if (currentY > 265) {
+                        if (currentY > 286) {
                             doc.addPage();
-                            currentY = 14;
+                            currentY = 10;
                         }
 
                         doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(11);
+                        doc.setFontSize(6.6);
                         doc.setTextColor(30, 41, 59);
                         doc.text(block.title, margin, currentY);
-                        currentY += 3;
+                        currentY += 1.8;
 
                         if (block.rows.length) {
                             doc.autoTable({
@@ -3038,7 +3040,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                 body: block.rows,
                                 theme: 'grid',
                                 margin: { left: margin, right: margin },
-                                styles: { fontSize: 8.5, cellPadding: 2.2, textColor: [15, 23, 42] },
+                                styles: { fontSize: 5.1, cellPadding: 1.2, textColor: [15, 23, 42] },
                                 headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
                                 columnStyles: {
                                     0: { cellWidth: 58, fontStyle: 'bold', textColor: [51, 65, 85] },
@@ -3050,7 +3052,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                     }
                                 }
                             });
-                            currentY = doc.lastAutoTable.finalY + 5;
+                            currentY = doc.lastAutoTable.finalY + 2.5;
                         } else if (block.textLines.length) {
                             var wrapped = [];
                             block.textLines.forEach(function(line) {
@@ -3058,59 +3060,59 @@ body.modal-open .admin-mobile-menu-toggle {
                                 wrapped = wrapped.concat(split);
                             });
                             doc.setFont('helvetica', 'normal');
-                            doc.setFontSize(9);
+                            doc.setFontSize(5.4);
                             doc.setTextColor(15, 23, 42);
-                            doc.text(wrapped, margin + 2, currentY + 4);
-                            currentY += (wrapped.length * 4.2) + 6;
+                            doc.text(wrapped, margin + 1.2, currentY + 2.5);
+                            currentY += (wrapped.length * 2.5) + 3.5;
                         } else {
                             doc.setFont('helvetica', 'normal');
-                            doc.setFontSize(9);
+                            doc.setFontSize(5.4);
                             doc.setTextColor(100, 116, 139);
-                            doc.text('No details available.', margin + 2, currentY + 4);
-                            currentY += 8;
+                            doc.text('No details available.', margin + 1.2, currentY + 2.5);
+                            currentY += 5;
                         }
 
                         if (block.imageLinks.length) {
                             doc.setFont('helvetica', 'italic');
-                            doc.setFontSize(8.5);
+                            doc.setFontSize(5.1);
                             doc.setTextColor(30, 64, 175);
                             block.imageLinks.forEach(function(link, idx) {
-                                if (currentY > 280) {
+                                if (currentY > 289) {
                                     doc.addPage();
-                                    currentY = 14;
+                                    currentY = 10;
                                 }
                                 var text = 'Image ' + (idx + 1) + ': ' + link;
                                 var splitText = doc.splitTextToSize(text, contentWidth);
                                 doc.text(splitText, margin, currentY);
-                                currentY += (splitText.length * 4.1) + 2;
+                                currentY += (splitText.length * 2.5) + 1.2;
                             });
-                            currentY += 2;
+                            currentY += 1;
                         }
                     });
 
                     var photoLinks = payload && Array.isArray(payload.photoLinks) ? payload.photoLinks : [];
                     if (photoLinks.length) {
-                        if (currentY > 265) {
+                        if (currentY > 286) {
                             doc.addPage();
-                            currentY = 14;
+                            currentY = 10;
                         }
                         doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(11);
+                        doc.setFontSize(6.6);
                         doc.setTextColor(30, 41, 59);
                         doc.text('Check-In ID Photos', margin, currentY);
-                        currentY += 4;
+                        currentY += 2.3;
                         doc.setFont('helvetica', 'normal');
-                        doc.setFontSize(8.5);
+                        doc.setFontSize(5.1);
                         doc.setTextColor(30, 64, 175);
                         photoLinks.forEach(function(link, idx) {
                             var txt = (idx === 0 ? 'Front ID: ' : 'Back ID: ') + String(link || '');
                             var wrapped = doc.splitTextToSize(txt, contentWidth);
-                            if (currentY + (wrapped.length * 4.1) > 285) {
+                            if (currentY + (wrapped.length * 2.5) > 291) {
                                 doc.addPage();
-                                currentY = 14;
+                                currentY = 10;
                             }
                             doc.text(wrapped, margin, currentY);
-                            currentY += (wrapped.length * 4.1) + 2;
+                            currentY += (wrapped.length * 2.5) + 1.2;
                         });
                     }
 
@@ -3123,9 +3125,9 @@ body.modal-open .admin-mobile-menu-toggle {
                     for (var i = 1; i <= pageCount; i += 1) {
                         doc.setPage(i);
                         doc.setFont('helvetica', 'normal');
-                        doc.setFontSize(8);
+                        doc.setFontSize(4.8);
                         doc.setTextColor(100, 116, 139);
-                        doc.text('Page ' + i + ' of ' + pageCount, pageWidth - margin - 22, doc.internal.pageSize.getHeight() - 6);
+                        doc.text('Page ' + i + ' of ' + pageCount, pageWidth - margin - 14, doc.internal.pageSize.getHeight() - 4);
                     }
 
                     doc.save((fileSafeTitle || 'transaction-details') + '.pdf');
@@ -3872,7 +3874,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     }
 
                     var doc = new jsPDFRef({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-                    var margin = 10;
+                    var margin = 7;
                     var pageWidth = doc.internal.pageSize.getWidth();
                     var contentWidth = pageWidth - (margin * 2);
 
@@ -3881,22 +3883,22 @@ body.modal-open .admin-mobile-menu-toggle {
                     var metaText = String(payload.meta || '');
 
                     doc.setFillColor(15, 23, 42);
-                    doc.rect(0, 0, pageWidth, 26, 'F');
+                    doc.rect(0, 0, pageWidth, 17, 'F');
                     doc.setTextColor(255, 255, 255);
                     doc.setFont('helvetica', 'bold');
-                    doc.setFontSize(15);
-                    doc.text(titleText, margin, 10);
-                    doc.setFont('helvetica', 'normal');
                     doc.setFontSize(9);
-                    doc.text('Status: ' + statusText, margin, 16);
-                    doc.text('Generated: ' + new Date().toLocaleString(), margin, 21);
+                    doc.text(titleText, margin, 7);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(5.4);
+                    doc.text('Status: ' + statusText, margin, 11);
+                    doc.text('Generated: ' + new Date().toLocaleString(), margin, 14);
 
-                    var currentY = 24;
+                    var currentY = 19;
                     if (metaText) {
                         doc.setTextColor(71, 85, 105);
-                        doc.setFontSize(8);
+                        doc.setFontSize(5.4);
                         doc.text(metaText, margin, currentY);
-                        currentY += 4;
+                        currentY += 2.5;
                     }
 
                     doc.setTextColor(15, 23, 42);
@@ -3907,25 +3909,28 @@ body.modal-open .admin-mobile-menu-toggle {
                             return;
                         }
 
+                        if (currentY > 286) {
+                            doc.addPage();
+                            currentY = 10;
+                        }
+
                         doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(9);
+                        doc.setFontSize(6.6);
                         doc.setTextColor(30, 41, 59);
                         doc.text(String(section.name || 'Details'), margin, currentY);
-                        currentY += 2;
+                        currentY += 1.8;
 
                         doc.autoTable({
                             startY: currentY,
                             head: [['Field', 'Value']],
                             body: rows,
                             theme: 'grid',
-                            pageBreak: 'avoid',
-                            rowPageBreak: 'avoid',
                             margin: { left: margin, right: margin },
-                            styles: { fontSize: 7, cellPadding: 1.3, textColor: [15, 23, 42] },
+                            styles: { fontSize: 5.1, cellPadding: 1.2, textColor: [15, 23, 42] },
                             headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
                             columnStyles: {
-                                0: { cellWidth: 52, fontStyle: 'bold', textColor: [51, 65, 85] },
-                                1: { cellWidth: contentWidth - 52 }
+                                0: { cellWidth: 58, fontStyle: 'bold', textColor: [51, 65, 85] },
+                                1: { cellWidth: contentWidth - 58 }
                             },
                             didParseCell: function(data) {
                                 if (data.section === 'body' && data.column.index === 1 && (!data.cell.text || !data.cell.text.length)) {
@@ -3933,15 +3938,19 @@ body.modal-open .admin-mobile-menu-toggle {
                                 }
                             }
                         });
-                        currentY = doc.lastAutoTable.finalY + 3;
+                        currentY = doc.lastAutoTable.finalY + 2.5;
                     });
 
                     if (Array.isArray(payload.packageItems) && payload.packageItems.length) {
+                        if (currentY > 282) {
+                            doc.addPage();
+                            currentY = 10;
+                        }
                         doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(9);
+                        doc.setFontSize(6.6);
                         doc.setTextColor(30, 41, 59);
                         doc.text('Purchased Packages', margin, currentY);
-                        currentY += 2;
+                        currentY += 1.8;
 
                         var packageBody = payload.packageItems.map(function(item) {
                             return [
@@ -3959,46 +3968,49 @@ body.modal-open .admin-mobile-menu-toggle {
                             head: [['Package', 'Description', 'Qty', 'Unit', 'Total', 'Add-ons']],
                             body: packageBody,
                             theme: 'grid',
-                            pageBreak: 'avoid',
-                            rowPageBreak: 'avoid',
                             margin: { left: margin, right: margin },
-                            styles: { fontSize: 6.4, cellPadding: 1.1, textColor: [15, 23, 42], valign: 'top' },
+                            styles: { fontSize: 4.8, cellPadding: 1.1, textColor: [15, 23, 42], valign: 'top' },
                             headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
+                            pageBreak: 'auto',
+                            rowPageBreak: 'auto',
                             columnStyles: {
-                                0: { cellWidth: 38 },
-                                1: { cellWidth: 92 },
+                                0: { cellWidth: 28 },
+                                1: { cellWidth: 42 },
                                 2: { cellWidth: 20 },
-                                3: { cellWidth: 22 },
-                                4: { cellWidth: 22 },
-                                5: { cellWidth: contentWidth - (38 + 92 + 20 + 22 + 22) }
+                                3: { cellWidth: 20 },
+                                4: { cellWidth: 20 },
+                                5: { cellWidth: contentWidth - (28 + 42 + 20 + 20 + 20) }
                             }
                         });
-                        currentY = doc.lastAutoTable.finalY + 3;
+                        currentY = doc.lastAutoTable.finalY + 2.5;
                     }
 
                     if (Array.isArray(payload.priceRows) && payload.priceRows.length) {
+                        if (currentY > 286) {
+                            doc.addPage();
+                            currentY = 10;
+                        }
+
                         doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(9);
+                        doc.setFontSize(6.6);
                         doc.setTextColor(30, 41, 59);
                         doc.text('Price Breakdown', margin, currentY);
-                        currentY += 2;
+                        currentY += 1.8;
 
                         doc.autoTable({
                             startY: currentY,
                             head: [['Charge', 'Amount']],
                             body: payload.priceRows,
                             theme: 'grid',
-                            pageBreak: 'avoid',
-                            rowPageBreak: 'avoid',
                             margin: { left: margin, right: margin },
-                            styles: { fontSize: 7, cellPadding: 1.3, textColor: [15, 23, 42] },
+                            styles: { fontSize: 5.2, cellPadding: 1.2, textColor: [15, 23, 42] },
                             headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold' },
                             columnStyles: {
-                                0: { cellWidth: contentWidth - 50, fontStyle: 'bold', textColor: [51, 65, 85] },
-                                1: { cellWidth: 50, halign: 'right' }
+                                0: { cellWidth: contentWidth - 45, fontStyle: 'bold', textColor: [51, 65, 85] },
+                                1: { cellWidth: 45, halign: 'right' }
                             }
                         });
-                        currentY = doc.lastAutoTable.finalY + 3;
+                        currentY = doc.lastAutoTable.finalY + 2.5;
                     }
 
                     var fileSafeTitle = titleText
@@ -4010,9 +4022,9 @@ body.modal-open .admin-mobile-menu-toggle {
                     for (var i = 1; i <= pageCount; i += 1) {
                         doc.setPage(i);
                         doc.setFont('helvetica', 'normal');
-                        doc.setFontSize(8);
+                        doc.setFontSize(4.8);
                         doc.setTextColor(100, 116, 139);
-                        doc.text('Page ' + i + ' of ' + pageCount, pageWidth - margin - 22, doc.internal.pageSize.getHeight() - 6);
+                        doc.text('Page ' + i + ' of ' + pageCount, pageWidth - margin - 14, doc.internal.pageSize.getHeight() - 4);
                     }
 
                     doc.save((fileSafeTitle || 'package-details') + '.pdf');
