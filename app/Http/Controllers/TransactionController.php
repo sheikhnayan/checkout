@@ -2497,6 +2497,7 @@ class TransactionController extends Controller
     {
         $pickupDate = (string) $request->input('package_use_date');
         $pickupTime = (string) $request->input('transportation_pickup_time');
+        $arrivalTime = (string) $request->input('transportation_arrival_time');
 
         if ($pickupDate !== '' && !($selectedPackage && $selectedPackage->event_id) && !$this->isWebsiteOpenOnDate($website, $pickupDate)) {
             throw ValidationException::withMessages([
@@ -2507,6 +2508,12 @@ class TransactionController extends Controller
         if ($pickupTime !== '' && !$this->isWithinWebsiteOperatingHours($website, $pickupTime)) {
             throw ValidationException::withMessages([
                 'transportation_pickup_time' => 'Please Enter Valid Pickup Time.',
+            ]);
+        }
+
+        if ($arrivalTime !== '' && !$this->isWithinWebsiteArrivalHours($website, $arrivalTime)) {
+            throw ValidationException::withMessages([
+                'transportation_arrival_time' => 'Please Enter Valid Arrival Time.',
             ]);
         }
     }
@@ -2547,6 +2554,27 @@ class TransactionController extends Controller
         }
 
         return $pickupMinutes >= $startMinutes && $pickupMinutes <= $endMinutes;
+    }
+
+    private function isWithinWebsiteArrivalHours(Website $website, string $arrivalTime): bool
+    {
+        $startMinutes = $this->convertTimeStringToMinutes($website->operating_start_time);
+        $endMinutes = $this->convertTimeStringToMinutes($website->operating_end_time);
+        $arrivalMinutes = $this->convertTimeStringToMinutes($arrivalTime);
+
+        if ($arrivalMinutes === null) {
+            return false;
+        }
+
+        if ($startMinutes === null || $endMinutes === null) {
+            return true;
+        }
+
+        if ($endMinutes < $startMinutes) {
+            return $arrivalMinutes >= $startMinutes || $arrivalMinutes <= $endMinutes;
+        }
+
+        return $arrivalMinutes >= $startMinutes && $arrivalMinutes <= $endMinutes;
     }
 
     private function normalizedOperatingDays(Website $website): array

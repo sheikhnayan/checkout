@@ -9151,6 +9151,16 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                         isValid = false;
                         firstInvalidField = firstInvalidField || transportationArrivalTimeField;
                         alertMessage = 'Please enter time of arrival.';
+                    } else {
+                        const arrivalSchedule = (typeof arrivalTransportationSchedule !== 'undefined')
+                            ? arrivalTransportationSchedule
+                            : transportationSchedule;
+                        if (!isTimeWithinOperatingHours(transportationArrivalTimeValue, arrivalSchedule)) {
+                            transportationArrivalTimeField.addClass('required-field');
+                            isValid = false;
+                            firstInvalidField = firstInvalidField || transportationArrivalTimeField;
+                            alertMessage = 'Please Enter Valid Arrival Time.';
+                        }
                     }
                 }
 
@@ -9815,24 +9825,26 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 return null;
             }
 
-            function isTimeWithinOperatingHours(timeValue) {
-                const pickupMinutes = parseTimeToMinutes(timeValue);
-                if (pickupMinutes === null) {
+            function isTimeWithinOperatingHours(timeValue, schedule) {
+                const inputMinutes = parseTimeToMinutes(timeValue);
+                if (inputMinutes === null) {
                     return false;
                 }
 
-                const startMinutes = parseTimeToMinutes(transportationSchedule.startTime);
-                const endMinutes = parseTimeToMinutes(transportationSchedule.endTime);
+                const activeSchedule = schedule || transportationSchedule;
+
+                const startMinutes = parseTimeToMinutes(activeSchedule.startTime);
+                const endMinutes = parseTimeToMinutes(activeSchedule.endTime);
 
                 if (startMinutes === null || endMinutes === null) {
                     return true;
                 }
 
                 if (endMinutes < startMinutes) {
-                    return pickupMinutes >= startMinutes || pickupMinutes <= endMinutes;
+                    return inputMinutes >= startMinutes || inputMinutes <= endMinutes;
                 }
 
-                return pickupMinutes >= startMinutes && pickupMinutes <= endMinutes;
+                return inputMinutes >= startMinutes && inputMinutes <= endMinutes;
             }
 
             function formatMinutesAsTwelveHour(totalMinutes) {
