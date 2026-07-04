@@ -9389,8 +9389,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     }
                     return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
                 }
-                var minT = to24h(typeof transportationSchedule !== 'undefined' ? transportationSchedule.startTime : null);
-                var maxT = to24h(typeof transportationSchedule !== 'undefined' ? transportationSchedule.endTime : null);
+                var minT = to24h(@json($data->operating_start_time));
+                var maxT = to24h(@json($data->operating_end_time));
                 var isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
                     || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 

@@ -9785,6 +9785,11 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 endTime: @json($data->pickup_end_time),
             };
 
+            const arrivalTransportationSchedule = {
+                startTime: @json($data->operating_start_time),
+                endTime: @json($data->operating_end_time),
+            };
+
             function parseTimeToMinutes(timeValue) {
                 if (!timeValue) {
                     return null;
@@ -9932,11 +9937,11 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     }
                     return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
                 }
-                var minT = to24h(transportationSchedule.startTime);
-                var maxT = to24h(transportationSchedule.endTime);
+                var minT = to24h(arrivalTransportationSchedule.startTime);
+                var maxT = to24h(arrivalTransportationSchedule.endTime);
                 var hasSameDayRange = false;
-                var startMinutes = parseTimeToMinutes(transportationSchedule.startTime);
-                var endMinutes = parseTimeToMinutes(transportationSchedule.endTime);
+                var startMinutes = parseTimeToMinutes(arrivalTransportationSchedule.startTime);
+                var endMinutes = parseTimeToMinutes(arrivalTransportationSchedule.endTime);
                 if (startMinutes !== null && endMinutes !== null) {
                     hasSameDayRange = endMinutes >= startMinutes;
                 }
