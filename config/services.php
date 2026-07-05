@@ -72,7 +72,7 @@ return [
     'clublifter' => [
         'key' => env('CLUBLIFTER_API_KEY'),
         'base_url' => env('CLUBLIFTER_BASE_URL', 'https://www.clublifter.com'),
-        'enabled' => env('CLUBLIFTER_ENABLED', true),
+        'enabled' => env('CLUBLIFTER_ENABLED', false), // set CLUBLIFTER_ENABLED=true in .env to re-enable
     ],
 
 ];

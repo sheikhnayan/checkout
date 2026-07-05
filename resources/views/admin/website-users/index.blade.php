@@ -1,6 +1,21 @@
 @extends('admin.main')
 
 @section('content')
+        @php
+            $websiteOptions = $users
+                ->filter(fn ($user) => $user->website)
+                ->pluck('website')
+                ->unique('id')
+                ->sortBy('name')
+                ->values();
+
+            $roleOptions = $users
+                ->pluck('websiteRole')
+                ->filter()
+                ->unique('id')
+                ->sortBy('name')
+                ->values();
+        @endphp
         <!-- Include custom CSS -->
         <link rel="stylesheet" href="{{ asset('public/assets/main.css') }}">
         <link rel="stylesheet" href="{{ asset('public/assets/base.css') }}">
@@ -70,6 +85,54 @@
                                 </div>
                             @endif
 
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="row g-3 align-items-end">
+                                        <div class="col-md-4">
+                                            <label class="form-label">Search</label>
+                                            <input type="search" class="form-control user-table-search" placeholder="Search name, email, website, role">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Website</label>
+                                            <select class="form-select user-table-website-filter">
+                                                <option value="">All websites</option>
+                                                @foreach($websiteOptions as $website)
+                                                    <option value="{{ $website->id }}">{{ $website->name }}</option>
+                                                @endforeach
+                                                <option value="none">No website assigned</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Role</label>
+                                            <select class="form-select user-table-role-filter">
+                                                <option value="">All roles</option>
+                                                @foreach($roleOptions as $role)
+                                                    <option value="{{ $role->id }}">{{ $role->name }}</option>
+                                                @endforeach
+                                                <option value="none">Unassigned</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label">Sort by</label>
+                                            <select class="form-select user-table-sort-by">
+                                                <option value="1">Name</option>
+                                                <option value="2">Email</option>
+                                                <option value="3">Website</option>
+                                                <option value="4">Role</option>
+                                                <option value="5" selected>Created At</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label">Order</label>
+                                            <select class="form-select user-table-sort-order">
+                                                <option value="desc" selected>Newest / Z-A</option>
+                                                <option value="asc">Oldest / A-Z</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Tabs for Active and Inactive Users -->
                             <ul class="nav nav-tabs mb-3" id="userTabs" role="tablist">
                                 <li class="nav-item" role="presentation">
@@ -104,7 +167,7 @@
                                                         @php $activeIndex = 1; @endphp
                                                         @foreach ($users as $user)
                                                             @if (!$user->deleted_at)
-                                                            <tr>
+                                                            <tr data-website-id="{{ $user->website_id ?: '' }}" data-role-id="{{ $user->website_role_id ?: '' }}" data-search="{{ strtolower(trim($user->name . ' ' . $user->email . ' ' . optional($user->website)->name . ' ' . optional($user->website)->domain . ' ' . optional($user->websiteRole)->name)) }}">
                                                                 <td>{{ $activeIndex++ }}</td>
                                                                 <td>{{ $user->name }}</td>
                                                                 <td>{{ $user->email }}</td>
@@ -117,7 +180,7 @@
                                                                     @endif
                                                                 </td>
                                                                 <td>{{ $user->websiteRole->name ?? 'Unassigned' }}</td>
-                                                                <td>{{ $user->created_at->timezone('America/Los_Angeles')->format('M d, Y h:i A') }} PT</td>
+                                                                <td data-order="{{ $user->created_at?->timestamp ?? 0 }}">{{ $user->created_at->timezone('America/Los_Angeles')->format('M d, Y h:i A') }} PT</td>
                                                                 <td>
                                                                     <a href="{{ route('admin.website-users.edit', $user->id) }}" class="btn btn-primary">Edit</a>
                                                                     <form action="{{ route('admin.website-users.archive', $user->id) }}" method="POST" style="display:inline;">
@@ -156,7 +219,7 @@
                                                         @php $inactiveIndex = 1; @endphp
                                                         @foreach ($users as $user)
                                                             @if ($user->deleted_at)
-                                                            <tr>
+                                                            <tr data-website-id="{{ $user->website_id ?: '' }}" data-role-id="{{ $user->website_role_id ?: '' }}" data-search="{{ strtolower(trim($user->name . ' ' . $user->email . ' ' . optional($user->website)->name . ' ' . optional($user->website)->domain . ' ' . optional($user->websiteRole)->name)) }}">
                                                                 <td>{{ $inactiveIndex++ }}</td>
                                                                 <td>{{ $user->name }}</td>
                                                                 <td>{{ $user->email }}</td>
@@ -169,7 +232,7 @@
                                                                     @endif
                                                                 </td>
                                                                 <td>{{ $user->websiteRole->name ?? 'Unassigned' }}</td>
-                                                                <td>{{ $user->created_at->timezone('America/Los_Angeles')->format('M d, Y h:i A') }} PT</td>
+                                                                <td data-order="{{ $user->created_at?->timestamp ?? 0 }}">{{ $user->created_at->timezone('America/Los_Angeles')->format('M d, Y h:i A') }} PT</td>
                                                                 <td>
                                                                     <form action="{{ route('admin.website-users.archive', $user->id) }}" method="POST" style="display:inline;">
                                                                         @csrf
@@ -201,9 +264,91 @@
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
             <script>
                 $(document).ready(function() {
-                    // Only initialize each table once
-                    let table = new DataTable('#activeUsersTable');
-                    let table2 = new DataTable('#inactiveUsersTable');
+                    const activeUsersTable = new DataTable('#activeUsersTable', {
+                        order: [[5, 'desc']],
+                        pageLength: 10
+                    });
+
+                    const inactiveUsersTable = new DataTable('#inactiveUsersTable', {
+                        order: [[5, 'desc']],
+                        pageLength: 10
+                    });
+
+                    const filterState = {
+                        search: '',
+                        websiteId: '',
+                        roleId: '',
+                        sortBy: 5,
+                        sortOrder: 'desc'
+                    };
+
+                    function matchesFilter(rowData) {
+                        const searchText = (rowData.searchText || '').toLowerCase();
+                        const matchesSearch = !filterState.search || searchText.includes(filterState.search);
+                        const matchesWebsite = !filterState.websiteId
+                            || (filterState.websiteId === 'none' ? !rowData.websiteId : String(rowData.websiteId) === String(filterState.websiteId));
+                        const matchesRole = !filterState.roleId
+                            || (filterState.roleId === 'none' ? !rowData.roleId : String(rowData.roleId) === String(filterState.roleId));
+
+                        return matchesSearch && matchesWebsite && matchesRole;
+                    }
+
+                    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                        if (settings.nTable.id !== 'activeUsersTable' && settings.nTable.id !== 'inactiveUsersTable') {
+                            return true;
+                        }
+
+                        const row = settings.aoData[dataIndex].nTr;
+                        if (!row) {
+                            return true;
+                        }
+
+                        return matchesFilter({
+                            websiteId: row.dataset.websiteId || '',
+                            roleId: row.dataset.roleId || '',
+                            searchText: row.dataset.search || ''
+                        });
+                    });
+
+                    function applyUserTableSorting() {
+                        activeUsersTable.order([[filterState.sortBy, filterState.sortOrder]]).draw();
+                        inactiveUsersTable.order([[filterState.sortBy, filterState.sortOrder]]).draw();
+                    }
+
+                    $('.user-table-search').on('input', function() {
+                        filterState.search = String(this.value || '').trim().toLowerCase();
+                        activeUsersTable.draw();
+                        inactiveUsersTable.draw();
+                    });
+
+                    $('.user-table-website-filter').on('change', function() {
+                        filterState.websiteId = this.value;
+                        activeUsersTable.draw();
+                        inactiveUsersTable.draw();
+                    });
+
+                    $('.user-table-role-filter').on('change', function() {
+                        filterState.roleId = this.value;
+                        activeUsersTable.draw();
+                        inactiveUsersTable.draw();
+                    });
+
+                    $('.user-table-sort-by').on('change', function() {
+                        filterState.sortBy = parseInt(this.value, 10) || 5;
+                        applyUserTableSorting();
+                    });
+
+                    $('.user-table-sort-order').on('change', function() {
+                        filterState.sortOrder = this.value === 'asc' ? 'asc' : 'desc';
+                        applyUserTableSorting();
+                    });
+
+                    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function() {
+                        activeUsersTable.columns.adjust();
+                        inactiveUsersTable.columns.adjust();
+                    });
+
+                    applyUserTableSorting();
                 });
             </script>
         @endsection

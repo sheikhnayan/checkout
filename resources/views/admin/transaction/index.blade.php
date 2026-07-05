@@ -1039,6 +1039,27 @@ body.modal-open .admin-mobile-menu-toggle {
                                         }
                                     }
 
+                                    $transportModeRaw = strtolower(trim((string) ($item->transportation_mode ?? '')));
+                                    $hasTransportationDetails = trim((string) ($item->transportation_pickup_time ?? '')) !== ''
+                                        || trim((string) ($item->transportation_arrival_time ?? '')) !== ''
+                                        || trim((string) ($item->transportation_address ?? '')) !== ''
+                                        || trim((string) ($item->transportation_phone ?? '')) !== ''
+                                        || trim((string) ($item->transportation_guest ?? '')) !== ''
+                                        || trim((string) ($item->transportation_note ?? '')) !== '';
+                                    $transportModeLabel = null;
+
+                                    if ($transportModeRaw !== '') {
+                                        if (str_contains($transportModeRaw, 'self')) {
+                                            $transportModeLabel = 'Self Drive';
+                                        } elseif (str_contains($transportModeRaw, 'pickup') || str_contains($transportModeRaw, 'transport')) {
+                                            $transportModeLabel = 'Transportation';
+                                        }
+                                    }
+
+                                    if ($transportModeLabel === null && $hasTransportationDetails) {
+                                        $transportModeLabel = 'Transportation';
+                                    }
+
                                     $reservationStatusValue = 'Upcoming';
                                     $reservationStatusClass = 'badge-reservation-upcoming';
 
@@ -1084,6 +1105,9 @@ body.modal-open .admin-mobile-menu-toggle {
                                     @endif
                                 @else
                                     <span style="color:rgba(255,255,255,0.25);font-size:0.78rem">-</span>
+                                @endif
+                                @if(!empty($transportModeLabel))
+                                    <div style="margin-top:4px;display:inline-block;padding:2px 8px;border-radius:999px;font-size:0.72rem;font-weight:700;line-height:1.2;background:{{ $transportModeLabel === 'Self Drive' ? 'rgba(16,185,129,0.14)' : 'rgba(59,130,246,0.14)' }};color:{{ $transportModeLabel === 'Self Drive' ? '#34d399' : '#93c5fd' }};border:1px solid {{ $transportModeLabel === 'Self Drive' ? 'rgba(16,185,129,0.25)' : 'rgba(59,130,246,0.25)' }};">{{ $transportModeLabel }}</div>
                                 @endif
                             </td>
                             <td>
