@@ -1039,26 +1039,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                         }
                                     }
 
-                                    $transportModeRaw = strtolower(trim((string) ($item->transportation_mode ?? '')));
-                                    $hasTransportationDetails = trim((string) ($item->transportation_pickup_time ?? '')) !== ''
-                                        || trim((string) ($item->transportation_arrival_time ?? '')) !== ''
-                                        || trim((string) ($item->transportation_address ?? '')) !== ''
-                                        || trim((string) ($item->transportation_phone ?? '')) !== ''
-                                        || trim((string) ($item->transportation_guest ?? '')) !== ''
-                                        || trim((string) ($item->transportation_note ?? '')) !== '';
-                                    $transportModeLabel = null;
-
-                                    if ($transportModeRaw !== '') {
-                                        if (str_contains($transportModeRaw, 'self')) {
-                                            $transportModeLabel = 'Self Drive';
-                                        } elseif (str_contains($transportModeRaw, 'pickup') || str_contains($transportModeRaw, 'transport')) {
-                                            $transportModeLabel = 'Transportation';
-                                        }
-                                    }
-
-                                    if ($transportModeLabel === null && $hasTransportationDetails) {
-                                        $transportModeLabel = 'Transportation';
-                                    }
+                                    $transportModeLabel = $item->transport_mode_label ?? null;
 
                                     $reservationStatusValue = 'Upcoming';
                                     $reservationStatusClass = 'badge-reservation-upcoming';

@@ -138,6 +138,60 @@ class Transaction extends Model
         return 'N/A';
     }
 
+    public function getTransportModeLabelAttribute(): ?string
+    {
+        if (! $this->requiresTransportation()) {
+            return null;
+        }
+
+        return $this->hasTransportationPickupDetails() ? 'Transportation' : 'Self Drive';
+    }
+
+    private function requiresTransportation(): bool
+    {
+        $cartItems = is_array($this->cart_items) ? $this->cart_items : [];
+
+        foreach ($cartItems as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            if ($this->isTruthy($item['transportation'] ?? ($item['transport'] ?? false))) {
+                return true;
+            }
+        }
+
+        if ($this->package) {
+            return $this->package->transportation == 1
+                || $this->package->transportation === true
+                || $this->package->transportation === '1';
+        }
+
+        return false;
+    }
+
+    private function hasTransportationPickupDetails(): bool
+    {
+        return trim((string) ($this->transportation_pickup_time ?? '')) !== ''
+            || trim((string) ($this->transportation_address ?? '')) !== ''
+            || trim((string) ($this->transportation_phone ?? '')) !== ''
+            || trim((string) ($this->transportation_guest ?? '')) !== ''
+            || trim((string) ($this->transportation_note ?? '')) !== '';
+    }
+
+    private function isTruthy($value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_numeric($value)) {
+            return (int) $value === 1;
+        }
+
+        return in_array(strtolower(trim((string) $value)), ['1', 'true', 'yes', 'on'], true);
+    }
+
     public function getHasMultiplePackagesAttribute(): bool
     {
         return $this->package_table_label === 'Multiple';

@@ -137,26 +137,7 @@
                                 $reservationStatusColor = '#3b82f6';
                                 $statusEmoji = '🟦';
 
-                                $transportModeRaw = strtolower(trim((string) ($transaction->transportation_mode ?? '')));
-                                $hasTransportationDetails = trim((string) ($transaction->transportation_pickup_time ?? '')) !== ''
-                                    || trim((string) ($transaction->transportation_arrival_time ?? '')) !== ''
-                                    || trim((string) ($transaction->transportation_address ?? '')) !== ''
-                                    || trim((string) ($transaction->transportation_phone ?? '')) !== ''
-                                    || trim((string) ($transaction->transportation_guest ?? '')) !== ''
-                                    || trim((string) ($transaction->transportation_note ?? '')) !== '';
-                                $transportModeLabel = null;
-
-                                if ($transportModeRaw !== '') {
-                                    if (str_contains($transportModeRaw, 'self')) {
-                                        $transportModeLabel = 'Self Drive';
-                                    } elseif (str_contains($transportModeRaw, 'pickup') || str_contains($transportModeRaw, 'transport')) {
-                                        $transportModeLabel = 'Transportation';
-                                    }
-                                }
-
-                                if ($transportModeLabel === null && $hasTransportationDetails) {
-                                    $transportModeLabel = 'Transportation';
-                                }
+                                $transportModeLabel = $transaction->transport_mode_label ?? null;
 
                                 if ($reservationDate && $reservationDate->isValid()) {
                                     if ($reservationDate->isToday()) {
