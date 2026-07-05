@@ -12,8 +12,15 @@
             $roleOptions = $users
                 ->pluck('websiteRole')
                 ->filter()
-                ->unique('id')
-                ->sortBy('name')
+                ->map(function ($role) {
+                    return (object) [
+                        'key' => $role->is_website_admin ? 'website_admin' : ('role_' . $role->id),
+                        'label' => $role->is_website_admin ? 'Website Admin' : $role->name,
+                        'is_website_admin' => (bool) $role->is_website_admin,
+                    ];
+                })
+                ->unique('key')
+                ->sortBy('label')
                 ->values();
         @endphp
         <!-- Include custom CSS -->
@@ -107,7 +114,7 @@
                                             <select class="form-select user-table-role-filter">
                                                 <option value="">All roles</option>
                                                 @foreach($roleOptions as $role)
-                                                    <option value="{{ $role->id }}">{{ $role->name }}</option>
+                                                    <option value="{{ $role->key }}">{{ $role->label }}</option>
                                                 @endforeach
                                                 <option value="none">Unassigned</option>
                                             </select>
@@ -167,7 +174,7 @@
                                                         @php $activeIndex = 1; @endphp
                                                         @foreach ($users as $user)
                                                             @if (!$user->deleted_at)
-                                                            <tr data-website-id="{{ $user->website_id ?: '' }}" data-role-id="{{ $user->website_role_id ?: '' }}" data-search="{{ strtolower(trim($user->name . ' ' . $user->email . ' ' . optional($user->website)->name . ' ' . optional($user->website)->domain . ' ' . optional($user->websiteRole)->name)) }}">
+                                                            <tr data-website-id="{{ $user->website_id ?: '' }}" data-role-id="{{ $user->website_role_id ?: '' }}" data-role-key="{{ $user->websiteRole?->is_website_admin ? 'website_admin' : ('role_' . $user->website_role_id) }}" data-search="{{ strtolower(trim($user->name . ' ' . $user->email . ' ' . optional($user->website)->name . ' ' . optional($user->website)->domain . ' ' . optional($user->websiteRole)->name)) }}">
                                                                 <td>{{ $activeIndex++ }}</td>
                                                                 <td>{{ $user->name }}</td>
                                                                 <td>{{ $user->email }}</td>
@@ -219,7 +226,7 @@
                                                         @php $inactiveIndex = 1; @endphp
                                                         @foreach ($users as $user)
                                                             @if ($user->deleted_at)
-                                                            <tr data-website-id="{{ $user->website_id ?: '' }}" data-role-id="{{ $user->website_role_id ?: '' }}" data-search="{{ strtolower(trim($user->name . ' ' . $user->email . ' ' . optional($user->website)->name . ' ' . optional($user->website)->domain . ' ' . optional($user->websiteRole)->name)) }}">
+                                                            <tr data-website-id="{{ $user->website_id ?: '' }}" data-role-id="{{ $user->website_role_id ?: '' }}" data-role-key="{{ $user->websiteRole?->is_website_admin ? 'website_admin' : ('role_' . $user->website_role_id) }}" data-search="{{ strtolower(trim($user->name . ' ' . $user->email . ' ' . optional($user->website)->name . ' ' . optional($user->website)->domain . ' ' . optional($user->websiteRole)->name)) }}">
                                                                 <td>{{ $inactiveIndex++ }}</td>
                                                                 <td>{{ $user->name }}</td>
                                                                 <td>{{ $user->email }}</td>
@@ -288,7 +295,7 @@
                         const matchesWebsite = !filterState.websiteId
                             || (filterState.websiteId === 'none' ? !rowData.websiteId : String(rowData.websiteId) === String(filterState.websiteId));
                         const matchesRole = !filterState.roleId
-                            || (filterState.roleId === 'none' ? !rowData.roleId : String(rowData.roleId) === String(filterState.roleId));
+                            || (filterState.roleId === 'none' ? !rowData.roleId : String(rowData.roleKey) === String(filterState.roleId));
 
                         return matchesSearch && matchesWebsite && matchesRole;
                     }
@@ -306,6 +313,7 @@
                         return matchesFilter({
                             websiteId: row.dataset.websiteId || '',
                             roleId: row.dataset.roleId || '',
+                            roleKey: row.dataset.roleKey || '',
                             searchText: row.dataset.search || ''
                         });
                     });
