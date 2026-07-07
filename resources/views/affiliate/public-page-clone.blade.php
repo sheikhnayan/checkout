@@ -5953,7 +5953,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body" id="addonSelectionModalBody"></div>
-                            <button type="button" class="addon-scroll-down-fab" aria-label="Scroll down add-ons" style="position:absolute;left:50%;bottom:104px;transform:translateX(-50%);z-index:20;width:48px;height:48px;min-width:48px;min-height:48px;padding:0;aspect-ratio:1/1;border:0;border-radius:50%;background:linear-gradient(135deg,var(--aff-accent,var(--ent-accent,#8b5cf6)) 0%,#7c3aed 100%);color:#fff;font-size:22px;font-weight:800;line-height:1;display:none;align-items:center;justify-content:center;box-shadow:0 10px 24px rgba(76,29,149,0.45);">&darr;</button>
+                            <button type="button" class="addon-scroll-down-fab" aria-label="Scroll down add-ons" style="position:absolute;left:50%;bottom:104px;transform:translateX(-50%);z-index:20;width:48px;height:48px;min-width:48px;min-height:48px;padding:0;aspect-ratio:1/1;border:2px solid rgba(255,255,255,0.78);border-radius:50%;background:linear-gradient(135deg,#22a6ff 0%,#0d6efd 100%);color:#fff;font-size:22px;font-weight:800;line-height:1;display:none;align-items:center;justify-content:center;box-shadow:0 12px 28px rgba(13,110,253,0.55);">&darr;</button>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" id="addonModalNoAddonsBtn">No Add-ons</button>
                                 <button type="button" class="btn" id="addonModalConfirmBtn" style="background:var(--aff-accent);color:#000;font-weight:700;">Confirm & Add to Cart</button>
@@ -6407,47 +6407,21 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                     modal.dataset.scrollArrowBound = '1';
 
-                    var modalDialog = modal.querySelector('.modal-dialog');
-                    var modalContent = modal.querySelector('.modal-content');
-                    var activeScrollContainer = modalBody;
-
-                    function resolveScrollContainer() {
-                        var candidates = [modalBody, modalDialog, modalContent];
-                        activeScrollContainer = modalBody;
-
-                        candidates.forEach(function (candidate) {
-                            if (!candidate) return;
-                            if ((candidate.scrollHeight - candidate.clientHeight) > 8) {
-                                activeScrollContainer = candidate;
-                            }
-                        });
-
-                        return activeScrollContainer;
-                    }
-
                     function updateArrowVisibility() {
-                        var container = resolveScrollContainer();
-                        var canScroll = (container.scrollHeight - container.clientHeight) > 8;
-                        var atBottom = (container.scrollTop + container.clientHeight) >= (container.scrollHeight - 6);
+                        var canScroll = (modalBody.scrollHeight - modalBody.clientHeight) > 8;
+                        var atBottom = (modalBody.scrollTop + modalBody.clientHeight) >= (modalBody.scrollHeight - 6);
                         scrollButton.style.display = (!canScroll || atBottom) ? 'none' : 'flex';
                     }
 
                     scrollButton.addEventListener('click', function () {
-                        var container = resolveScrollContainer();
-                        var step = Math.max(container.clientHeight * 0.8, 220);
-                        container.scrollBy({ top: step, behavior: 'smooth' });
+                        var step = Math.max(modalBody.clientHeight * 0.8, 220);
+                        modalBody.scrollBy({ top: step, behavior: 'smooth' });
                     });
 
-                    [modalBody, modalDialog, modalContent].forEach(function (element) {
-                        if (!element) return;
-                        element.addEventListener('scroll', updateArrowVisibility, { passive: true });
-                    });
-
+                    modalBody.addEventListener('scroll', updateArrowVisibility, { passive: true });
                     modal.addEventListener('shown.bs.modal', function () {
-                        scrollButton.style.display = 'flex';
                         window.requestAnimationFrame(updateArrowVisibility);
                         setTimeout(updateArrowVisibility, 120);
-                        setTimeout(updateArrowVisibility, 280);
                     });
                     modal.addEventListener('hidden.bs.modal', function () {
                         scrollButton.style.display = 'none';
