@@ -9904,6 +9904,27 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 return String(hours12) + ':' + String(minutes).padStart(2, '0') + ' ' + meridiem;
             }
 
+            function formatMinutesAsTwentyFourHour(totalMinutes) {
+                const normalizedMinutes = ((totalMinutes % 1440) + 1440) % 1440;
+                const hours24 = Math.floor(normalizedMinutes / 60);
+                const minutes = normalizedMinutes % 60;
+                return String(hours24).padStart(2, '0') + ':' + String(minutes).padStart(2, '0');
+            }
+
+            function normalizeTimeToQuarterHour(timeValue, outputMode) {
+                const parsedMinutes = parseTimeToMinutes(timeValue);
+                if (parsedMinutes === null) {
+                    return null;
+                }
+
+                const roundedMinutes = Math.ceil(parsedMinutes / 15) * 15;
+                if (outputMode === '24h') {
+                    return formatMinutesAsTwentyFourHour(roundedMinutes);
+                }
+
+                return formatMinutesAsTwelveHour(roundedMinutes);
+            }
+
             function formatOperatingTimeForDisplay(timeValue) {
                 const minutes = parseTimeToMinutes(timeValue);
                 if (minutes === null) {
@@ -10022,6 +10043,12 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     el.addEventListener('input', function () {
                         $(el).removeClass('required-field');
                     });
+                    el.addEventListener('change', function () {
+                        const normalizedTime = normalizeTimeToQuarterHour(el.value, '24h');
+                        if (normalizedTime) {
+                            el.value = normalizedTime;
+                        }
+                    });
                     return;
                 }
 
@@ -10048,7 +10075,11 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     dateFormat: 'h:i K',
                     allowInput: true,
                     clickOpens: true,
-                    onChange: function () {
+                    onChange: function (selectedDates, dateStr, instance) {
+                        const normalizedTime = normalizeTimeToQuarterHour(instance.input.value, '12h');
+                        if (normalizedTime && normalizedTime !== instance.input.value) {
+                            instance.setDate(normalizedTime, true, 'h:i K');
+                        }
                         $(el).removeClass('required-field');
                     }
                 };
@@ -10114,6 +10145,12 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     el.addEventListener('input', function () {
                         $(el).removeClass('required-field');
                     });
+                    el.addEventListener('change', function () {
+                        const normalizedTime = normalizeTimeToQuarterHour(el.value, '24h');
+                        if (normalizedTime) {
+                            el.value = normalizedTime;
+                        }
+                    });
                     return;
                 }
 
@@ -10140,7 +10177,11 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     dateFormat: 'h:i K',
                     allowInput: true,
                     clickOpens: true,
-                    onChange: function () {
+                    onChange: function (selectedDates, dateStr, instance) {
+                        const normalizedTime = normalizeTimeToQuarterHour(instance.input.value, '12h');
+                        if (normalizedTime && normalizedTime !== instance.input.value) {
+                            instance.setDate(normalizedTime, true, 'h:i K');
+                        }
                         $(el).removeClass('required-field');
                     }
                 };

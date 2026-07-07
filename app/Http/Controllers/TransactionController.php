@@ -242,6 +242,8 @@ class TransactionController extends Controller
         $isSelfDriveTransportation = $requiresTransportation && $request->boolean('transportation_self_drive_ack');
         $requiresArrivalTime = !$requiresTransportation || $isSelfDriveTransportation;
 
+        $this->normalizeTransportationTimeInputs($request, !$isSelfDriveTransportation, $requiresArrivalTime);
+
         $this->ensureCartEventCapacitiesAvailable($cartItems, $requestedUseDate);
 
         // Validate daily package limits
@@ -910,6 +912,8 @@ class TransactionController extends Controller
         $requiresTransportation = $this->cartRequiresTransportation($cartItems, $selectedPackage);
         $isSelfDriveTransportation = $requiresTransportation && $request->boolean('transportation_self_drive_ack');
         $requiresArrivalTime = !$requiresTransportation || $isSelfDriveTransportation;
+
+        $this->normalizeTransportationTimeInputs($request, !$isSelfDriveTransportation, $requiresArrivalTime);
 
         $transaction = new Transaction();
         $transaction->transaction_id = $transactionId;
@@ -2609,6 +2613,45 @@ class TransactionController extends Controller
             ->unique()
             ->values()
             ->all();
+    }
+
+    private function normalizeTransportationTimeInputs(Request $request, bool $normalizePickup, bool $normalizeArrival): void
+    {
+        $payload = [];
+
+        if ($normalizePickup) {
+            $normalizedPickup = $this->normalizeTimeToNextQuarter((string) $request->input('transportation_pickup_time'));
+            if ($normalizedPickup !== null) {
+                $payload['transportation_pickup_time'] = $normalizedPickup;
+            }
+        }
+
+        if ($normalizeArrival) {
+            $normalizedArrival = $this->normalizeTimeToNextQuarter((string) $request->input('transportation_arrival_time'));
+            if ($normalizedArrival !== null) {
+                $payload['transportation_arrival_time'] = $normalizedArrival;
+            }
+        }
+
+        if ($payload !== []) {
+            $request->merge($payload);
+        }
+    }
+
+    private function normalizeTimeToNextQuarter(?string $time): ?string
+    {
+        $minutes = $this->convertTimeStringToMinutes($time);
+        if ($minutes === null) {
+            return null;
+        }
+
+        $roundedMinutes = (int) (ceil($minutes / 15) * 15);
+        $roundedMinutes = (($roundedMinutes % 1440) + 1440) % 1440;
+
+        $hour = intdiv($roundedMinutes, 60);
+        $minute = $roundedMinutes % 60;
+
+        return sprintf('%02d:%02d', $hour, $minute);
     }
 
     private function convertTimeStringToMinutes(?string $time): ?int

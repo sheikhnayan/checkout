@@ -9650,6 +9650,36 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 return null;
             }
 
+            function formatMinutesAsTwelveHour(totalMinutes) {
+                const normalizedMinutes = ((totalMinutes % 1440) + 1440) % 1440;
+                const hours24 = Math.floor(normalizedMinutes / 60);
+                const minutes = normalizedMinutes % 60;
+                const meridiem = hours24 >= 12 ? 'PM' : 'AM';
+                const hours12 = (hours24 % 12) || 12;
+                return String(hours12) + ':' + String(minutes).padStart(2, '0') + ' ' + meridiem;
+            }
+
+            function formatMinutesAsTwentyFourHour(totalMinutes) {
+                const normalizedMinutes = ((totalMinutes % 1440) + 1440) % 1440;
+                const hours24 = Math.floor(normalizedMinutes / 60);
+                const minutes = normalizedMinutes % 60;
+                return String(hours24).padStart(2, '0') + ':' + String(minutes).padStart(2, '0');
+            }
+
+            function normalizeTimeToQuarterHour(timeValue, outputMode) {
+                const parsedMinutes = parseTimeToMinutes(timeValue);
+                if (parsedMinutes === null) {
+                    return null;
+                }
+
+                const roundedMinutes = Math.ceil(parsedMinutes / 15) * 15;
+                if (outputMode === '24h') {
+                    return formatMinutesAsTwentyFourHour(roundedMinutes);
+                }
+
+                return formatMinutesAsTwelveHour(roundedMinutes);
+            }
+
             function isTimeWithinOperatingHours(timeValue, schedule) {
                 const inputMinutes = parseTimeToMinutes(timeValue);
                 if (inputMinutes === null) {
@@ -9750,6 +9780,12 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     el.addEventListener('input', function () {
                         $(el).removeClass('required-field');
                     });
+                    el.addEventListener('change', function () {
+                        const normalizedTime = normalizeTimeToQuarterHour(el.value, '24h');
+                        if (normalizedTime) {
+                            el.value = normalizedTime;
+                        }
+                    });
                     return;
                 }
 
@@ -9769,7 +9805,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     minuteIncrement: 15,
                     dateFormat: 'h:i K',
                     allowInput: false,
-                    onChange: function () {
+                    onChange: function (selectedDates, dateStr, instance) {
+                        const normalizedTime = normalizeTimeToQuarterHour(instance.input.value, '12h');
+                        if (normalizedTime && normalizedTime !== instance.input.value) {
+                            instance.setDate(normalizedTime, true, 'h:i K');
+                        }
                         $(el).removeClass('required-field');
                     },
                     minTime: minT || undefined,
@@ -9808,6 +9848,12 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     el.addEventListener('input', function () {
                         $(el).removeClass('required-field');
                     });
+                    el.addEventListener('change', function () {
+                        const normalizedTime = normalizeTimeToQuarterHour(el.value, '24h');
+                        if (normalizedTime) {
+                            el.value = normalizedTime;
+                        }
+                    });
                     return;
                 }
 
@@ -9827,7 +9873,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     minuteIncrement: 15,
                     dateFormat: 'h:i K',
                     allowInput: false,
-                    onChange: function () {
+                    onChange: function (selectedDates, dateStr, instance) {
+                        const normalizedTime = normalizeTimeToQuarterHour(instance.input.value, '12h');
+                        if (normalizedTime && normalizedTime !== instance.input.value) {
+                            instance.setDate(normalizedTime, true, 'h:i K');
+                        }
                         $(el).removeClass('required-field');
                     },
                     minTime: minT || undefined,
