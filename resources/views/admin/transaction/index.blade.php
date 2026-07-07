@@ -374,12 +374,28 @@ body.modal-open .admin-mobile-menu-toggle {
 
             $reportableData = $data->where('status', 1);
 
+            $guestCountForTransaction = function ($t) {
+                $menGuests = (int) ($t->men ?? 0);
+                $womenGuests = (int) ($t->women ?? 0);
+                if ($menGuests > 0 || $womenGuests > 0) {
+                    return max(0, $menGuests + $womenGuests);
+                }
+
+                $packageGuests = (int) ($t->package_number_of_guest ?? 0);
+                if ($packageGuests > 0) {
+                    return $packageGuests;
+                }
+
+                return 0;
+            };
+
             $thisWeekData = $reportableData->filter(fn($t) => $t->created_at->timezone($tz)->between($weekStart, $now));
             $prevWeekData = $reportableData->filter(fn($t) => $t->created_at->timezone($tz)->between($prevWeekStart, $prevWeekEnd));
 
             $totalTxns         = $reportableData->count();
             $completedTxns     = $reportableData->count();
             $totalRevenue      = (float) $reportableData->sum('total');
+            $totalGuests       = (int) $reportableData->sum($guestCountForTransaction);
             $pendingCommission = $reportableData->filter(fn($t) =>
                 ($t->affiliate_commission_status === 'pending') ||
                 ($t->entertainer_commission_status === 'pending')
@@ -543,6 +559,16 @@ body.modal-open .admin-mobile-menu-toggle {
                         <div class="txn-stat-label">Pending Fee</div>
                         <div class="txn-stat-value">${{ number_format($pendingCommission, 2) }}</div>
                         <div class="txn-stat-note">Awaiting hold period</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="txn-stat-card">
+                    <div class="txn-stat-icon" style="background:rgba(56,189,248,0.15);color:#38bdf8"><i class="fas fa-users"></i></div>
+                    <div>
+                        <div class="txn-stat-label">Total Guests</div>
+                        <div class="txn-stat-value">{{ number_format($totalGuests) }}</div>
+                        <div class="txn-stat-note">Guests in filtered transactions</div>
                     </div>
                 </div>
             </div>
@@ -1870,6 +1896,18 @@ body.modal-open .admin-mobile-menu-toggle {
                     return details.join(' | ');
                 }
 
+                function getRowGuestCountFromButton($viewBtn) {
+                    const menCount = parseInt($viewBtn.data('men') || 0, 10) || 0;
+                    const womenCount = parseInt($viewBtn.data('women') || 0, 10) || 0;
+                    const reservationGuests = Math.max(0, menCount + womenCount);
+                    if (reservationGuests > 0) {
+                        return reservationGuests;
+                    }
+
+                    const packageGuests = parseInt($viewBtn.data('package_number_of_guest') || 0, 10) || 0;
+                    return Math.max(0, packageGuests);
+                }
+
                 function getExportDataset() {
                     const exportColumnIndexes = getExportColumnIndexes();
                     const selected = $('.row-check:checked');
@@ -1878,6 +1916,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     const headers = exportColumnIndexes.map(function (idx) {
                         return stripHtml($('#txnDataTable thead th').eq(idx).text());
                     });
+                    headers.push('Guest Count');
                     headers.push('Package Details');
 
                     const rows = [];
@@ -1885,6 +1924,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         totalTransactions: 0,
                         completedTransactions: 0,
                         totalRevenue: 0,
+                        totalGuests: 0,
                         pendingFee: 0,
                         payoutAmount: 0,
                         totalEarning: 0,
@@ -1924,6 +1964,7 @@ body.modal-open .admin-mobile-menu-toggle {
 
                                 const $rowNode = $(rowNode);
                                 const $viewBtn = $rowNode.find('.view-btn').first();
+                                const guestCount = getRowGuestCountFromButton($viewBtn);
 
                                 const statusValue = (typeof normalizeStatusValue === 'function')
                                     ? normalizeStatusValue($viewBtn.data('status'))
@@ -1939,6 +1980,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                 const entStatus = String($viewBtn.data('entertainer_commission_status') || '').trim().toLowerCase();
 
                                 summary.totalTransactions += 1;
+                                summary.totalGuests += guestCount;
                                 if (isCompleted) {
                                     summary.completedTransactions += 1;
                                     summary.totalRevenue += rowRevenue;
@@ -1968,6 +2010,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                 const row = exportColumnIndexes.map(function (colIdx) {
                                     return stripHtml(rowData[colIdx] || '');
                                 });
+                                row.push(String(guestCount));
                                 row.push(getExportPackageDetails(rowNode));
                                 rows.push(row);
                             });
@@ -2074,8 +2117,11 @@ body.modal-open .admin-mobile-menu-toggle {
                             'Total Revenue', money(summary.totalRevenue || 0),
                             'Pending Fee', money(summary.pendingFee || 0)
                         ], [
-                            'Payout Amount', money(summary.payoutAmount || 0),
-                            'Total Earning', money(summary.totalEarning || 0)
+                            'Total Guests', String(summary.totalGuests || 0),
+                            'Payout Amount', money(summary.payoutAmount || 0)
+                        ], [
+                            'Total Earning', money(summary.totalEarning || 0),
+                            '', ''
                         ]],
                         styles: { fontSize: 8, cellPadding: 2 },
                         headStyles: { fillColor: [41, 128, 185] },
@@ -2352,6 +2398,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     let totalTransactions = 0;
                     let completedTransactions = 0;
                     let totalRevenue = 0;
+                    let totalGuests = 0;
                     let pendingFee = 0;
                     let pendingAmount = 0;
                     let payoutAmount = 0;
@@ -2370,6 +2417,7 @@ body.modal-open .admin-mobile-menu-toggle {
 
                         const $row = $(row);
                         const $viewBtn = $row.find('.view-btn').first();
+                        const guestCount = getRowGuestCountFromButton($viewBtn);
 
                         const normalizedStatus = normalizeStatusValue($viewBtn.data('status'));
                         const isCompleted = normalizedStatus === 'completed';
@@ -2385,6 +2433,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         const entHold = parseRowDateToMoment($viewBtn.data('entertainer_commission_hold_until'));
 
                         totalTransactions += 1;
+                        totalGuests += guestCount;
                         if (isCompleted) {
                             completedTransactions += 1;
                             totalRevenue += rowRevenue;
@@ -2437,6 +2486,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     setStatValueByLabel('Completed Transactions', completedTransactions.toLocaleString());
                     setStatValueByLabel('Total Revenue', '$' + totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
                     setStatValueByLabel('Pending Fee', '$' + pendingFee.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                    setStatValueByLabel('Total Guests', totalGuests.toLocaleString());
                     setStatValueByLabel('Pending Amount', '$' + pendingAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
                     setStatValueByLabel('Payout Amount', '$' + payoutAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
                     setStatValueByLabel('Total Earning', '$' + totalEarning.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
