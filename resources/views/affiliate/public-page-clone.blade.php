@@ -5953,6 +5953,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body" id="addonSelectionModalBody"></div>
+                            <button type="button" class="addon-scroll-down-fab" aria-label="Scroll down add-ons" style="position:absolute;right:16px;bottom:88px;z-index:20;width:42px;height:42px;border:0;border-radius:999px;background:rgba(59,130,246,0.92);color:#fff;font-size:20px;line-height:1;display:none;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(0,0,0,0.35);">&darr;</button>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" id="addonModalNoAddonsBtn">No Add-ons</button>
                                 <button type="button" class="btn" id="addonModalConfirmBtn" style="background:var(--aff-accent);color:#000;font-weight:700;">Confirm & Add to Cart</button>
@@ -6393,6 +6394,53 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 // Re-inject after JS moves pricing-shell into the sidebar.
                 setTimeout(inject, 50);
                 setTimeout(inject, 500);
+            })();
+
+            (function () {
+                function initAddonModalScrollArrow() {
+                    var modal = document.getElementById('addonSelectionModal');
+                    if (!modal || modal.dataset.scrollArrowBound === '1') return;
+
+                    var modalBody = modal.querySelector('#addonSelectionModalBody') || modal.querySelector('.modal-body');
+                    var scrollButton = modal.querySelector('.addon-scroll-down-fab');
+                    if (!modalBody || !scrollButton) return;
+
+                    modal.dataset.scrollArrowBound = '1';
+
+                    function updateArrowVisibility() {
+                        var canScroll = (modalBody.scrollHeight - modalBody.clientHeight) > 8;
+                        var atBottom = (modalBody.scrollTop + modalBody.clientHeight) >= (modalBody.scrollHeight - 6);
+                        scrollButton.style.display = (!canScroll || atBottom) ? 'none' : 'flex';
+                    }
+
+                    scrollButton.addEventListener('click', function () {
+                        var step = Math.max(modalBody.clientHeight * 0.8, 220);
+                        modalBody.scrollBy({ top: step, behavior: 'smooth' });
+                    });
+
+                    modalBody.addEventListener('scroll', updateArrowVisibility, { passive: true });
+                    modal.addEventListener('shown.bs.modal', function () {
+                        window.requestAnimationFrame(updateArrowVisibility);
+                        setTimeout(updateArrowVisibility, 120);
+                    });
+                    modal.addEventListener('hidden.bs.modal', function () {
+                        scrollButton.style.display = 'none';
+                    });
+
+                    if (window.MutationObserver) {
+                        var observer = new MutationObserver(updateArrowVisibility);
+                        observer.observe(modalBody, { childList: true, subtree: true, characterData: true });
+                    }
+
+                    window.addEventListener('resize', updateArrowVisibility);
+                    updateArrowVisibility();
+                }
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', initAddonModalScrollArrow);
+                } else {
+                    initAddonModalScrollArrow();
+                }
             })();
         </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
