@@ -700,6 +700,9 @@ body.modal-open .admin-mobile-menu-toggle {
                         @foreach($referralRows as $rn)
                             <option value="{{ $rn }}" {{ $filterAffiliate === $rn ? 'selected' : '' }}>{{ $rn }}</option>
                         @endforeach
+                        @if($filterAffiliate !== '' && $filterAffiliate !== 'Direct' && !$referralRows->contains($filterAffiliate))
+                            <option value="{{ $filterAffiliate }}" selected>{{ $filterAffiliate }}</option>
+                        @endif
                         <option value="Direct" {{ $filterAffiliate === 'Direct' ? 'selected' : '' }}>Direct (No affiliate)</option>
                     </select>
                 </div>
@@ -709,6 +712,11 @@ body.modal-open .admin-mobile-menu-toggle {
                         <option value="Completed" {{ $filterStatus === 'Completed' ? 'selected' : '' }}>Completed</option>
                         <option value="Canceled" {{ $filterStatus === 'Canceled' ? 'selected' : '' }}>Canceled</option>
                         <option value="Refunded" {{ $filterStatus === 'Refunded' ? 'selected' : '' }}>Refunded</option>
+                        <option value="Pending" {{ $filterStatus === 'Pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="Approved" {{ $filterStatus === 'Approved' ? 'selected' : '' }}>Approved</option>
+                        <option value="Paid" {{ $filterStatus === 'Paid' ? 'selected' : '' }}>Paid</option>
+                        <option value="Reversed" {{ $filterStatus === 'Reversed' ? 'selected' : '' }}>Reversed</option>
+                        <option value="N/A" {{ $filterStatus === 'N/A' ? 'selected' : '' }}>N/A</option>
                     </select>
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
@@ -718,6 +726,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         <option value="today" {{ $filterReservation === 'today' ? 'selected' : '' }}>Today</option>
                         <option value="weekend" {{ $filterReservation === 'weekend' ? 'selected' : '' }}>This Weekend</option>
                         <option value="past" {{ $filterReservation === 'past' ? 'selected' : '' }}>Past</option>
+                        <option value="no_show" {{ $filterReservation === 'no_show' ? 'selected' : '' }}>No Show</option>
                     </select>
                 </div>
             </div>
@@ -1712,6 +1721,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     autoUpdateInput: false,
                     linkedCalendars: false,
                     opens: 'left',
+                    showDropdowns: true,
                     locale: { cancelLabel: 'Clear', format: 'MM/DD/YYYY' },
                     ranges: {
                         'Today': [moment(), moment()],
@@ -1744,18 +1754,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     reloadWithServerFilters();
                 });
 
-                $txnDateRangeWrap.off('click.txnDateRange').on('click.txnDateRange', function(event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    const picker = $txnDateRange.data('daterangepicker');
-                    if (picker) {
-                        picker.show();
-                    } else {
-                        $txnDateRange.trigger('click');
-                    }
-                });
-
-                $txnDateRange.off('focus.txnDateRange').on('focus.txnDateRange', function() {
+                $txnDateRange.off('click.txnDateRange').on('click.txnDateRange', function() {
                     const picker = $(this).data('daterangepicker');
                     if (picker) {
                         picker.show();
@@ -1911,8 +1910,10 @@ body.modal-open .admin-mobile-menu-toggle {
 
                     if (dt && dt.rows && typeof dt.rows === 'function') {
                         try {
-                            // Get ALL rows including paginated ones
-                            dt.rows().every(function (rowIndex) {
+                            // Export selected rows if any are checked, otherwise export currently filtered rows.
+                            const exportRowsApi = selectedOnly ? dt.rows() : dt.rows({ search: 'applied' });
+
+                            exportRowsApi.every(function (rowIndex) {
                                 const rowNode = this.node();
                                 const rowData = this.data();
 
@@ -1924,8 +1925,10 @@ body.modal-open .admin-mobile-menu-toggle {
                                 const $rowNode = $(rowNode);
                                 const $viewBtn = $rowNode.find('.view-btn').first();
 
-                                const statusValue = String($viewBtn.data('status') || '').trim().toLowerCase();
-                                const isCompleted = statusValue === '1' || statusValue === 'completed' || statusValue === 'approved';
+                                const statusValue = (typeof normalizeStatusValue === 'function')
+                                    ? normalizeStatusValue($viewBtn.data('status'))
+                                    : String($viewBtn.data('status') || '').trim().toLowerCase();
+                                const isCompleted = statusValue === 'completed' || statusValue === '1';
 
                                 const amountText = String($rowNode.find('td.txn-amount').first().text() || '');
                                 const rowRevenue = parseFloat(amountText.replace(/[^0-9.-]+/g, '')) || 0;
@@ -1938,8 +1941,8 @@ body.modal-open .admin-mobile-menu-toggle {
                                 summary.totalTransactions += 1;
                                 if (isCompleted) {
                                     summary.completedTransactions += 1;
+                                    summary.totalRevenue += rowRevenue;
                                 }
-                                summary.totalRevenue += rowRevenue;
 
                                 if (affStatus === 'pending') {
                                     summary.pendingFee += affAmount;
@@ -2264,14 +2267,195 @@ body.modal-open .admin-mobile-menu-toggle {
                     });
                     $('#amount-total').text('$' + total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
                 }
+
+                function parseRowDateToMoment(rawDate) {
+                    const dateStr = String(rawDate || '').trim();
+                    if (!dateStr) {
+                        return null;
+                    }
+
+                    const parsed = moment(dateStr, [
+                        'MMM DD, YYYY hh:mm A z',
+                        'MMM D, YYYY hh:mm A z',
+                        'MMM DD, YYYY h:mm A z',
+                        'MMM D, YYYY h:mm A z',
+                        'YYYY-MM-DD h:mm A z',
+                        'YYYY-MM-DD hh:mm A z',
+                        'YYYY-MM-DD h:mm A',
+                        'YYYY-MM-DD hh:mm A',
+                        'YYYY-MM-DD HH:mm:ss',
+                        'YYYY-MM-DD'
+                    ], true);
+
+                    return parsed.isValid() ? parsed : null;
+                }
+
+                function normalizeStatusValue(raw) {
+                    const value = String(raw == null ? '' : raw).trim().toLowerCase();
+                    if (value === '1' || value === 'completed') {
+                        return 'completed';
+                    }
+                    if (value === '0' || value === 'canceled' || value === 'cancelled') {
+                        return 'canceled';
+                    }
+                    if (value === '2' || value === 'refunded') {
+                        return 'refunded';
+                    }
+                    return value;
+                }
+
+                function setStatValueByLabel(label, valueText) {
+                    $('.txn-stat-label').each(function() {
+                        if ($(this).text().trim().toLowerCase() !== String(label).trim().toLowerCase()) {
+                            return;
+                        }
+                        const card = $(this).closest('.txn-stat-card');
+                        card.find('.txn-stat-value').first().text(valueText);
+                    });
+                }
+
+                function setTrendByLabel(label, current, previous) {
+                    const prev = Number(previous || 0);
+                    const curr = Number(current || 0);
+                    let pct = 0;
+                    if (prev > 0) {
+                        pct = ((curr - prev) / prev) * 100;
+                    }
+
+                    const absPct = Math.abs(pct).toFixed(1) + '%';
+                    const isUp = pct >= 0;
+
+                    $('.txn-stat-label').each(function() {
+                        if ($(this).text().trim().toLowerCase() !== String(label).trim().toLowerCase()) {
+                            return;
+                        }
+
+                        const card = $(this).closest('.txn-stat-card');
+                        const trendEl = card.find('.txn-stat-trend').first();
+                        if (!trendEl.length) {
+                            return;
+                        }
+
+                        trendEl.removeClass('trend-up trend-down').addClass(isUp ? 'trend-up' : 'trend-down');
+                        trendEl.html('<i class="fas fa-arrow-' + (isUp ? 'up' : 'down') + ' me-1"></i>' + absPct + ' <span>vs last week</span>');
+                    });
+                }
+
+                function updateDashboardCardsFromFilteredRows() {
+                    if (!table) return;
+
+                    const now = moment();
+                    const weekStart = now.clone().startOf('week');
+                    const prevWeekStart = weekStart.clone().subtract(1, 'week');
+                    const prevWeekEnd = prevWeekStart.clone().endOf('week');
+
+                    let totalTransactions = 0;
+                    let completedTransactions = 0;
+                    let totalRevenue = 0;
+                    let pendingFee = 0;
+                    let pendingAmount = 0;
+                    let payoutAmount = 0;
+                    let totalEarning = 0;
+
+                    let thisWeekTotal = 0;
+                    let prevWeekTotal = 0;
+                    let thisWeekCompleted = 0;
+                    let prevWeekCompleted = 0;
+                    let thisWeekRevenue = 0;
+                    let prevWeekRevenue = 0;
+
+                    table.rows({ search: 'applied' }).every(function() {
+                        const row = this.node();
+                        if (!row) return;
+
+                        const $row = $(row);
+                        const $viewBtn = $row.find('.view-btn').first();
+
+                        const normalizedStatus = normalizeStatusValue($viewBtn.data('status'));
+                        const isCompleted = normalizedStatus === 'completed';
+
+                        const amountText = String($row.find('td.txn-amount').first().text() || '');
+                        const rowRevenue = parseFloat(amountText.replace(/[^0-9.-]+/g, '')) || 0;
+
+                        const affAmount = parseFloat($viewBtn.data('affiliate_commission_amount')) || 0;
+                        const entAmount = parseFloat($viewBtn.data('entertainer_commission_amount')) || 0;
+                        const affStatus = String($viewBtn.data('affiliate_commission_status') || '').trim().toLowerCase();
+                        const entStatus = String($viewBtn.data('entertainer_commission_status') || '').trim().toLowerCase();
+                        const affHold = parseRowDateToMoment($viewBtn.data('affiliate_commission_hold_until'));
+                        const entHold = parseRowDateToMoment($viewBtn.data('entertainer_commission_hold_until'));
+
+                        totalTransactions += 1;
+                        if (isCompleted) {
+                            completedTransactions += 1;
+                            totalRevenue += rowRevenue;
+                        }
+
+                        if (affStatus === 'pending') {
+                            pendingFee += affAmount;
+                            if (affHold && affHold.isAfter(now)) {
+                                pendingAmount += affAmount;
+                            }
+                        }
+                        if (entStatus === 'pending') {
+                            pendingFee += entAmount;
+                            if (entHold && entHold.isAfter(now)) {
+                                pendingAmount += entAmount;
+                            }
+                        }
+                        if (affStatus === 'paid') {
+                            payoutAmount += affAmount;
+                        }
+                        if (entStatus === 'paid') {
+                            payoutAmount += entAmount;
+                        }
+                        if (affStatus !== 'reversed') {
+                            totalEarning += affAmount;
+                        }
+                        if (entStatus !== 'reversed') {
+                            totalEarning += entAmount;
+                        }
+
+                        const createdMoment = parseRowDateToMoment($viewBtn.data('date'));
+                        if (createdMoment) {
+                            if (createdMoment.isSameOrAfter(weekStart) && createdMoment.isSameOrBefore(now)) {
+                                thisWeekTotal += 1;
+                                if (isCompleted) {
+                                    thisWeekCompleted += 1;
+                                    thisWeekRevenue += rowRevenue;
+                                }
+                            } else if (createdMoment.isSameOrAfter(prevWeekStart) && createdMoment.isSameOrBefore(prevWeekEnd)) {
+                                prevWeekTotal += 1;
+                                if (isCompleted) {
+                                    prevWeekCompleted += 1;
+                                    prevWeekRevenue += rowRevenue;
+                                }
+                            }
+                        }
+                    });
+
+                    setStatValueByLabel('Total Transactions', totalTransactions.toLocaleString());
+                    setStatValueByLabel('Completed Transactions', completedTransactions.toLocaleString());
+                    setStatValueByLabel('Total Revenue', '$' + totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                    setStatValueByLabel('Pending Fee', '$' + pendingFee.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                    setStatValueByLabel('Pending Amount', '$' + pendingAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                    setStatValueByLabel('Payout Amount', '$' + payoutAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                    setStatValueByLabel('Total Earning', '$' + totalEarning.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+
+                    setTrendByLabel('Total Transactions', thisWeekTotal, prevWeekTotal);
+                    setTrendByLabel('Completed Transactions', thisWeekCompleted, prevWeekCompleted);
+                    setTrendByLabel('Total Revenue', thisWeekRevenue, prevWeekRevenue);
+                }
+
                 if (table) {
                     table.on('draw', function() {
                         applyCheckedStateToVisibleRows();
                         updateSelectionUi();
                         updateTotal();
+                        updateDashboardCardsFromFilteredRows();
                     });
                     updateTotal();
                     updateSelectionUi();
+                    updateDashboardCardsFromFilteredRows();
                 }
 
             }); // end document.ready

@@ -1197,6 +1197,21 @@ class TransactionController extends Controller
         $statusKey = strtolower(trim((string) $request->query('status', '')));
         if (array_key_exists($statusKey, $statusMap)) {
             $query->where('status', $statusMap[$statusKey]);
+        } elseif (in_array($statusKey, ['pending', 'approved', 'paid', 'reversed'], true)) {
+            $query->where(function ($statusQuery) use ($statusKey) {
+                $statusQuery->where('affiliate_commission_status', $statusKey)
+                    ->orWhere('entertainer_commission_status', $statusKey);
+            });
+        } elseif (in_array($statusKey, ['n/a', 'na'], true)) {
+            $query->where(function ($statusQuery) {
+                $statusQuery->where(function ($affiliateStatusQuery) {
+                    $affiliateStatusQuery->whereNull('affiliate_commission_status')
+                        ->orWhere('affiliate_commission_status', '');
+                })->where(function ($entertainerStatusQuery) {
+                    $entertainerStatusQuery->whereNull('entertainer_commission_status')
+                        ->orWhere('entertainer_commission_status', '');
+                });
+            });
         }
 
         $affiliateFilter = trim((string) $request->query('affiliate', ''));
@@ -1249,6 +1264,13 @@ class TransactionController extends Controller
                 ]);
             } elseif ($reservationFilter === 'past') {
                 $query->whereDate('package_use_date', '<', $today->toDateString());
+            } elseif ($reservationFilter === 'no_show') {
+                $query->whereDate('package_use_date', '<', $today->toDateString())
+                    ->where('status', 1)
+                    ->where(function ($noShowQuery) {
+                        $noShowQuery->whereNull('checked_in_status')
+                            ->orWhere('checked_in_status', 0);
+                    });
             }
         }
 
