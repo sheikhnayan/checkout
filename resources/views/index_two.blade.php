@@ -7867,21 +7867,47 @@
 
                     modal.dataset.scrollArrowBound = '1';
 
+                    var modalDialog = modal.querySelector('.modal-dialog');
+                    var modalContent = modal.querySelector('.modal-content');
+                    var activeScrollContainer = modalBody;
+
+                    function resolveScrollContainer() {
+                        var candidates = [modalBody, modalDialog, modalContent];
+                        activeScrollContainer = modalBody;
+
+                        candidates.forEach(function (candidate) {
+                            if (!candidate) return;
+                            if ((candidate.scrollHeight - candidate.clientHeight) > 8) {
+                                activeScrollContainer = candidate;
+                            }
+                        });
+
+                        return activeScrollContainer;
+                    }
+
                     function updateArrowVisibility() {
-                        var canScroll = (modalBody.scrollHeight - modalBody.clientHeight) > 8;
-                        var atBottom = (modalBody.scrollTop + modalBody.clientHeight) >= (modalBody.scrollHeight - 6);
+                        var container = resolveScrollContainer();
+                        var canScroll = (container.scrollHeight - container.clientHeight) > 8;
+                        var atBottom = (container.scrollTop + container.clientHeight) >= (container.scrollHeight - 6);
                         scrollButton.style.display = (!canScroll || atBottom) ? 'none' : 'flex';
                     }
 
                     scrollButton.addEventListener('click', function () {
-                        var step = Math.max(modalBody.clientHeight * 0.8, 220);
-                        modalBody.scrollBy({ top: step, behavior: 'smooth' });
+                        var container = resolveScrollContainer();
+                        var step = Math.max(container.clientHeight * 0.8, 220);
+                        container.scrollBy({ top: step, behavior: 'smooth' });
                     });
 
-                    modalBody.addEventListener('scroll', updateArrowVisibility, { passive: true });
+                    [modalBody, modalDialog, modalContent].forEach(function (element) {
+                        if (!element) return;
+                        element.addEventListener('scroll', updateArrowVisibility, { passive: true });
+                    });
+
                     modal.addEventListener('shown.bs.modal', function () {
+                        scrollButton.style.display = 'flex';
                         window.requestAnimationFrame(updateArrowVisibility);
                         setTimeout(updateArrowVisibility, 120);
+                        setTimeout(updateArrowVisibility, 280);
                     });
                     modal.addEventListener('hidden.bs.modal', function () {
                         scrollButton.style.display = 'none';
