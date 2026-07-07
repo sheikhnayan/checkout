@@ -5490,7 +5490,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                             class="form-control"
                                                                             placeholder="Select pick-up time" />
                                                                     </div>
-                                                                    <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:rgba(255,255,255,0.6);">Select time in 15-minute intervals.</small>
+                                                                    <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:#ffdc66;">Times are available in 15-minute intervals.</small>
                                                                 </div>
                                                             </div>
                                                             <div class="form-row" style="margin-top: 14px;">
