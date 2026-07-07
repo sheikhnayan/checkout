@@ -6733,7 +6733,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body" id="addonSelectionModalBody"></div>
-                            <button type="button" class="addon-scroll-down-fab" aria-label="Scroll down add-ons" style="position:absolute;right:16px;bottom:88px;z-index:20;width:42px;height:42px;border:0;border-radius:999px;background:rgba(59,130,246,0.92);color:#fff;font-size:20px;line-height:1;display:none;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(0,0,0,0.35);">&darr;</button>
+                            <button type="button" class="addon-scroll-down-fab" aria-label="Scroll down add-ons" style="position:absolute;left:50%;bottom:104px;transform:translateX(-50%);z-index:20;width:48px;height:48px;border:1px solid rgba(255,255,255,0.24);border-radius:999px;background:linear-gradient(135deg,var(--aff-accent,var(--ent-accent,#8b5cf6)) 0%,rgba(124,58,237,0.92) 100%);color:#fff;font-size:22px;font-weight:700;line-height:1;display:none;align-items:center;justify-content:center;box-shadow:0 10px 28px rgba(0,0,0,0.38);backdrop-filter:blur(2px);">&darr;</button>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" id="addonModalNoAddonsBtn">No add-ons</button>
                                 <button type="button" class="btn" id="addonModalConfirmBtn" style="background:var(--aff-accent);color:#000;font-weight:700;">Confirm & Add to Cart</button>
