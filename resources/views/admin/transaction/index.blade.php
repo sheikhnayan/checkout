@@ -515,8 +515,8 @@ body.modal-open .admin-mobile-menu-toggle {
         </div>
 
         {{-- ── STAT CARDS ──────────────────────────────────────────── --}}
-        <div class="row g-4 mb-4">
-            <div class="col-sm-6 col-xl-3">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-5 g-4 mb-4">
+            <div class="col">
                 <div class="txn-stat-card">
                     <div class="txn-stat-icon" style="background:rgba(124,58,237,0.15);color:#7c3aed"><i class="fas fa-receipt"></i></div>
                     <div>
@@ -528,7 +528,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     </div>
                 </div>
             </div>
-            <div class="col-sm-6 col-xl-3">
+            <div class="col">
                 <div class="txn-stat-card">
                     <div class="txn-stat-icon" style="background:rgba(16,185,129,0.15);color:#10b981"><i class="fas fa-check-circle"></i></div>
                     <div>
@@ -540,7 +540,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     </div>
                 </div>
             </div>
-            <div class="col-sm-6 col-xl-3">
+            <div class="col">
                 <div class="txn-stat-card">
                     <div class="txn-stat-icon" style="background:rgba(245,158,11,0.15);color:#f59e0b"><i class="fas fa-dollar-sign"></i></div>
                     <div>
@@ -552,7 +552,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     </div>
                 </div>
             </div>
-            <div class="col-sm-6 col-xl-3">
+            <div class="col">
                 <div class="txn-stat-card">
                     <div class="txn-stat-icon" style="background:rgba(249,115,22,0.15);color:#f97316"><i class="fas fa-clock"></i></div>
                     <div>
@@ -562,7 +562,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     </div>
                 </div>
             </div>
-            <div class="col-sm-6 col-xl-3">
+            <div class="col">
                 <div class="txn-stat-card">
                     <div class="txn-stat-icon" style="background:rgba(56,189,248,0.15);color:#38bdf8"><i class="fas fa-users"></i></div>
                     <div>
@@ -574,7 +574,7 @@ body.modal-open .admin-mobile-menu-toggle {
             </div>
 
             @if($isPayoutPage)
-            <div class="col-sm-6 col-xl-3">
+            <div class="col">
                 <div class="txn-stat-card">
                     <div class="txn-stat-icon" style="background:rgba(245,158,11,0.15);color:#f59e0b"><i class="fas fa-hourglass-half"></i></div>
                     <div>
@@ -584,7 +584,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     </div>
                 </div>
             </div>
-            <div class="col-sm-6 col-xl-3">
+            <div class="col">
                 <div class="txn-stat-card">
                     <div class="txn-stat-icon" style="background:rgba(16,185,129,0.15);color:#10b981"><i class="fas fa-hand-holding-dollar"></i></div>
                     <div>
@@ -594,7 +594,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     </div>
                 </div>
             </div>
-            <div class="col-sm-6 col-xl-3">
+            <div class="col">
                 <div class="txn-stat-card">
                     <div class="txn-stat-icon" style="background:rgba(56,189,248,0.15);color:#38bdf8"><i class="fas fa-sack-dollar"></i></div>
                     <div>
