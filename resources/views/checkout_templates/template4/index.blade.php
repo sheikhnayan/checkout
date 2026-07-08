@@ -5945,7 +5945,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
 
 
 
-                                            <div class="default-deposit" style="border-top: unset !important; background: transparent !important; padding: 21px 29px !important;"><span>Total</span><span>$0.00</span></div>
+                                            <div class="default-deposit" style="padding: 14px 16px;"><span>Total</span><span>$0.00</span></div>
                                             @if ($data->refundable_fee > 0)
                                                 <div style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;"
                                                     class="vip-price default-refundable">
@@ -6124,7 +6124,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                     <div class="col-md-12">
 
                                                         <h2 style="margin-bottom: 8px;">Transportation</h2>
-                                                        <div id="transportation-hours-range" style="display: none; margin-bottom: 24px; font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.92);"></div>
+                                                        <div id="transportation-hours-range" style="display: none; margin-bottom: 24px; font-size: 16px; font-weight: 700;"></div>
 
                                                         <!-- Left: Form Fields -->
                                                         <div class="form-left">
@@ -6140,7 +6140,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                                             class="form-control"
                                                                             placeholder="Select pick-up time" />
                                                                     </div>
-                                                                    <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:#ffdc66;">Times are available in 15-minute intervals.</small>
+                                                                    <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;">Times are available in 15-minute intervals.</small>
                                                                 </div>
                                                             </div>
                                                             <div class="form-row" style="margin-top: 14px;">
@@ -6165,9 +6165,9 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                                 <div class="num-guest" style="width: 100%; display: flex;">
                                                                     <label for="">Number of Guest(s)</label>
     
-                                                                    <input type="number" class="form-control"
-                                                                        name="transportation_guest" value="0" min="0"
-                                                                        style="width: 120px; max-width: 120px; color: #fff;" required />
+                                                                        <input type="number" class="form-control"
+                                                                            name="transportation_guest" value="0" min="0"
+                                                                            style="width: 120px; max-width: 120px;" required />
     
     
     
@@ -6191,7 +6191,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                                             class="form-control"
                                                                             placeholder="Select time of arrival" />
                                                                     </div>
-                                                                    <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:rgba(255,255,255,0.6);">Required when self-driving or when package transportation is not included.</small>
+                                                                        <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;">Required when self-driving or when package transportation is not included.</small>
                                                                 </div>
                                                             </div>
 
@@ -6202,10 +6202,10 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                                 </label>
                                                             </div>
 
-                                                            <div class="checkbox-container transportaiton" style="margin-top: 14px; border-color: rgba(255, 204, 0, 0.45) !important; background: linear-gradient(180deg, rgba(51, 34, 5, 0.72), rgba(27, 18, 4, 0.85)) !important;">
+                                                            <div class="checkbox-container transportaiton" style="margin-top: 14px;">
                                                                 <div style="display:flex; align-items:flex-start; gap:10px; color:rgba(255,255,255,0.95); font-size:14px; line-height:1.55;">
                                                                     <i class="fas fa-triangle-exclamation" style="color:#ffcc00; font-size:16px; margin-top:2px; flex-shrink:0;"></i>
-                                                                    <span><strong style="color:#ffdc66;">Transportation Notice:</strong> Transportation is subject to availability. Requests made shortly before your desired pickup time may not be able to be accommodated. Please allow a reasonable amount of advance notice so we have time to coordinate a driver. While we will always do our best to assist, last-minute transportation cannot be guaranteed.</span>
+                                                                    <span><strong>Transportation Notice:</strong> Transportation is subject to availability. Requests made shortly before your desired pickup time may not be able to be accommodated. Please allow a reasonable amount of advance notice so we have time to coordinate a driver. While we will always do our best to assist, last-minute transportation cannot be guaranteed.</span>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -7310,16 +7310,51 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
 
             /* Template 4 hard-lock cleanup: final consistency pass */
             body,
+            html,
             main,
             header,
             .cv-events-shell {
                 background: #ffffff !important;
             }
 
+            .cv-hero-stage *,
+            .cv-checkout-body *,
+            .cv-events-shell *,
+            .aff-footer *,
+            .cv-top-nav * {
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+            }
+
+            .btn-next,
+            .btn-prev,
+            .submit-btn,
+            .vip-btn,
+            .same-as-info,
+            .same-as-info-transport,
+            #addonSelectionModal #addonModalConfirmBtn,
+            #checkoutPopupModal .popup-cta {
+                color: #06210f !important;
+                -webkit-text-fill-color: #06210f !important;
+            }
+
+            input::placeholder,
+            textarea::placeholder,
+            .form-control::placeholder,
+            .form-select:invalid {
+                color: #606060 !important;
+                -webkit-text-fill-color: #606060 !important;
+                opacity: 1 !important;
+            }
+
             #package_use_date,
+            #package_use_date:read-only,
+            #package_use_date:disabled,
             #package_use_date[readonly],
             #package_use_date.flatpickr-input[readonly],
             #package_use_date_iframe,
+            #package_use_date_iframe:read-only,
+            #package_use_date_iframe:disabled,
             #package_use_date_iframe[readonly],
             #package_use_date_iframe.flatpickr-input[readonly] {
                 color: #111111 !important;
@@ -7355,12 +7390,36 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 box-shadow: 6px 6px 0 #0b0b0b !important;
             }
 
+            .cv-main-col #section-2 .checkbox-container.transportaiton,
+            .cv-main-col #section-2 .checkbox-container.transportaiton label,
+            .cv-main-col #section-2 .checkbox-container.transportaiton span,
+            .cv-main-col #section-2 .checkbox-container.transportaiton strong,
+            .cv-main-col #section-2 #transportation-hours-range,
+            .cv-main-col #section-2 small {
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+            }
+
+            .cv-main-col #section-2 .checkbox-container.transportaiton {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 3px 3px 0 #0b0b0b !important;
+            }
+
             #cv-order-sidebar .default-total,
             #cv-order-sidebar .default-total *,
             #cv-order-sidebar .default-deposit,
             #cv-order-sidebar .default-deposit *,
             #cv-order-sidebar #cart-total,
             #cv-order-sidebar #cart-total * {
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+            }
+
+            #cv-order-sidebar .pricing-shell .default-total span,
+            #cv-order-sidebar .pricing-shell .default-deposit > span,
+            #cv-order-sidebar .pricing-shell .default-total > span:last-child,
+            #cv-order-sidebar .pricing-shell .default-deposit > span:last-child {
                 color: #111111 !important;
                 -webkit-text-fill-color: #111111 !important;
             }
@@ -7373,6 +7432,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
 
             .cv-events-shell,
             .cv-events-shell .events-section-container,
+            .cv-events-shell .events-section-container .event-header h2,
             .cv-events-shell .event-header,
             .cv-events-shell .event-header h2,
             .cv-events-shell .event-filter,
@@ -7406,6 +7466,12 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 box-shadow: 4px 4px 0 #0b0b0b !important;
                 border-radius: 2px !important;
                 padding: 14px !important;
+            }
+
+            .cv-footer-brand .cv-footer-powered,
+            .cv-footer-brand .cv-footer-tagline {
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
             }
 
             @media (max-width: 768px) {
