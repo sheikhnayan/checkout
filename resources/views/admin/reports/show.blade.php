@@ -335,7 +335,7 @@ function renderTable(data) {
     data.data.forEach(row => {
         html += '<tr>';
         headers.forEach(header => {
-            html += '<td>' + (row[header] || '-') + '</td>';
+            html += '<td>' + formatReportValue(row[header]) + '</td>';
         });
         html += '</tr>';
     });
@@ -372,7 +372,7 @@ function renderMetrics(data) {
                 <div class="card border-0 bg-light">
                     <div class="card-body text-center">
                         <small class="text-muted">${metric.label}</small>
-                        <h3 class="mb-0 mt-2">${metric.value}</h3>
+                        <h3 class="mb-0 mt-2">${formatReportValue(metric.value)}</h3>
                     </div>
                 </div>
             </div>
@@ -387,6 +387,25 @@ function humanizeMetricLabel(key) {
     return key
         .replace(/_/g, ' ')
         .replace(/\b\w/g, char => char.toUpperCase());
+}
+
+function formatReportValue(value) {
+    if (value === null || value === undefined || value === '') {
+        return '-';
+    }
+
+    if (typeof value === 'number' && Number.isFinite(value)) {
+        if (Number.isInteger(value)) {
+            return value.toLocaleString('en-US');
+        }
+
+        return value.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        });
+    }
+
+    return value;
 }
 
 function exportReport(format) {
