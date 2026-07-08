@@ -1682,13 +1682,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     setOrDelete('type', $('#typeFilter').val());
                     setOrDelete('affiliate', $('#affiliateFilter').val());
                     setOrDelete('status', $('#statusFilter').val());
-                    const reservationValue = String($('#reservationFilter').val() || '').trim();
-                    if (reservationValue) {
-                        params.set('type', 'Reservation');
-                        setOrDelete('reservation', reservationValue);
-                    } else {
-                        params.delete('reservation');
-                    }
+                    setOrDelete('reservation', $('#reservationFilter').val());
 
                     const rangeStr = String($('#txnDateRange').val() || '').trim();
                     if (rangeStr && rangeStr.includes(' - ')) {
