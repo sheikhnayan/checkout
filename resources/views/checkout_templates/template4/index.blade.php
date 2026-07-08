@@ -6910,6 +6910,173 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 }
             }
         </style>
+        <style>
+            /* Template 4 final visibility + brutalist coherence overrides */
+            .cv-hero-stage,
+            .cv-hero-stage .hero-date-card,
+            .cv-hero-stage .cv-hero-location,
+            .cv-main-col .cv-desktop-shell,
+            .cv-main-col .checkout-section,
+            .cv-main-col .guest > form > section,
+            .cv-main-col .package > section {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 6px 6px 0 #0b0b0b !important;
+                border-radius: 2px !important;
+            }
+
+            .cv-hero-stage,
+            .cv-hero-stage *,
+            .cv-main-col,
+            .cv-main-col * {
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+            }
+
+            .cv-main-col .section-kicker-lg,
+            .cv-main-col .cv-package-section-header p,
+            .cv-main-col .phone-note,
+            .cv-main-col .cv-price-meta,
+            .cv-main-col .cv-pkg-sub,
+            .cv-main-col .reservation-date-error {
+                color: #3a3a3a !important;
+                -webkit-text-fill-color: #3a3a3a !important;
+            }
+
+            .cv-main-col .reservation-date-error {
+                color: #a60f0f !important;
+                -webkit-text-fill-color: #a60f0f !important;
+            }
+
+            .cv-main-col #package_use_date,
+            .cv-main-col #package_use_date_iframe,
+            .cv-main-col .custom-calendar-input,
+            .cv-main-col input,
+            .cv-main-col select,
+            .cv-main-col textarea,
+            .cv-main-col .form-select,
+            .cv-main-col .form-control,
+            .cv-main-col .StripeElement {
+                background: #ffffff !important;
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                box-shadow: none !important;
+            }
+
+            .cv-main-col input::placeholder,
+            .cv-main-col textarea::placeholder,
+            .cv-main-col select:invalid {
+                color: #5a5a5a !important;
+                -webkit-text-fill-color: #5a5a5a !important;
+                opacity: 1 !important;
+            }
+
+            .cv-main-col .cv-access-card,
+            .cv-main-col .package-category-tile {
+                background: #f6f7f9 !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 4px 4px 0 #0b0b0b !important;
+            }
+
+            .cv-main-col .cv-access-card .cv-ac-body strong,
+            .cv-main-col .cv-access-card .cv-ac-body span,
+            .cv-main-col .package-category-tile,
+            .cv-main-col .package-category-tile * {
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+            }
+
+            .cv-main-col .vip-card.cv-exact-card,
+            .cv-main-col .vip-card.cv-exact-card.cv-tier-1,
+            .cv-main-col .vip-card.cv-exact-card.cv-tier-2,
+            .cv-main-col .vip-card.cv-exact-card.cv-tier-3,
+            .cv-main-col .vip-card.cv-exact-card.cv-tier-4,
+            .cv-main-col .vip-card.cv-exact-card.cv-tier-5 {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 6px 6px 0 #0b0b0b !important;
+            }
+
+            .cv-main-col .vip-card.cv-exact-card::before {
+                opacity: 0 !important;
+            }
+
+            .cv-main-col .vip-card.cv-exact-card .cv-pkg-title,
+            .cv-main-col .vip-card.cv-exact-card .cv-pkg-desc,
+            .cv-main-col .vip-card.cv-exact-card .cv-pkg-feature,
+            .cv-main-col .vip-card.cv-exact-card .vip-price-tag,
+            .cv-main-col .vip-card.cv-exact-card .cv-pkg-title-icon,
+            .cv-main-col .vip-card.cv-exact-card .cv-pkg-sub,
+            .cv-main-col .vip-card.cv-exact-card .package-guest-error,
+            .cv-main-col .vip-card.cv-exact-card .package-soldout {
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+            }
+
+            .cv-main-col .vip-card.cv-exact-card .vip-price-tag {
+                font-family: IBM Plex Mono, monospace !important;
+                font-weight: 700 !important;
+            }
+
+            .cv-main-col .cv-popular-pill {
+                background: #0b0b0b !important;
+                color: #00e062 !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 3px 3px 0 #00c853 !important;
+            }
+
+            .cv-hero-stage .cv-hero-location-map-btn {
+                background: #00c853 !important;
+                color: #06210f !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 3px 3px 0 #0b0b0b !important;
+                border-radius: 2px !important;
+                font-family: IBM Plex Mono, monospace !important;
+                font-weight: 700 !important;
+                text-transform: uppercase;
+            }
+
+            .cv-hero-stage .cv-hero-location-contact,
+            .cv-hero-stage .location-contact-chip {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                box-shadow: 2px 2px 0 #0b0b0b !important;
+            }
+
+            .cv-main-col .checkbox-container .consent-label span,
+            .cv-main-col .checkbox-container .consent-label a,
+            .cv-main-col .payment-consent-group .consent-label span,
+            .cv-main-col .payment-consent-group .consent-label a,
+            .cv-main-col #payment-consent-group .consent-label span,
+            .cv-main-col #payment-consent-group .consent-label a {
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+            }
+
+            .cv-main-col .btn-next,
+            .cv-main-col .btn-prev,
+            .cv-main-col .submit-btn,
+            .cv-main-col .vip-btn,
+            .cv-main-col .same-as-info,
+            .cv-main-col .same-as-info-transport {
+                color: #06210f !important;
+                -webkit-text-fill-color: #06210f !important;
+            }
+
+            @media (max-width: 768px) {
+                .cv-main-col .vip-card.cv-exact-card,
+                .cv-main-col .checkout-section,
+                .cv-main-col .guest > form > section,
+                .cv-main-col .package > section,
+                .cv-hero-stage .hero-date-card,
+                .cv-hero-stage .cv-hero-location {
+                    box-shadow: 4px 4px 0 #0b0b0b !important;
+                }
+            }
+        </style>
         <div id="cv-cart-toast" role="status" aria-live="polite" aria-atomic="true">
             <span class="cv-toast-icon"><i class="fas fa-check"></i></span>
             <span class="cv-toast-body">
