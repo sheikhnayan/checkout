@@ -5114,17 +5114,55 @@
         .package { display: block; }
 
         /* Enhanced step indicator */
-        .cv-steps { display:flex; align-items:center; margin:0 0 24px; padding:14px 16px; background:rgba(255,255,255,.025); border-radius:14px; border:1px solid rgba(255,255,255,.07); }
+        .cv-steps {
+            display: flex;
+            align-items: center;
+            margin: 0 0 24px;
+            padding: 12px 14px;
+            background: #ffffff;
+            border-radius: 2px;
+            border: 2px solid #0b0b0b;
+            box-shadow: 4px 4px 0 #0b0b0b;
+        }
         .cv-step { display:flex; align-items:center; flex:1; }
         .cv-step-inner { display:flex; align-items:center; gap:7px; }
-        .cv-step-circle { width:28px; height:28px; border-radius:50%; border:2px solid rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:rgba(255,255,255,.35) !important; flex-shrink:0; transition:all .3s; background:transparent; }
-        .cv-step.cv-step-active .cv-step-circle { border-color:var(--accent); background:var(--accent); color:#000 !important; }
-        .cv-step.cv-step-done .cv-step-circle { border-color:rgba(255,204,0,.5); background:rgba(255,204,0,.1); color:var(--accent) !important; }
-        .cv-step-label { font-size:10px; font-weight:600; color:rgba(255,255,255,.4) !important; line-height:1.2; white-space:nowrap; }
-        .cv-step.cv-step-active .cv-step-label { color:var(--accent) !important; }
-        .cv-step.cv-step-done .cv-step-label { color:rgba(255,255,255,.65) !important; }
-        .cv-step-connector { flex:1; height:2px; background:rgba(255,255,255,.1); margin:0 6px; }
-        .cv-step.cv-step-done .cv-step-connector { background:rgba(255,204,0,.35); }
+        .cv-step-circle {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid #0b0b0b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: #111111 !important;
+            flex-shrink: 0;
+            transition: all .2s;
+            background: #ffffff;
+        }
+        .cv-step.cv-step-active .cv-step-circle {
+            border-color: #0b0b0b;
+            background: #00c853;
+            color: #05210f !important;
+            box-shadow: 2px 2px 0 #0b0b0b;
+        }
+        .cv-step.cv-step-done .cv-step-circle {
+            border-color: #0b0b0b;
+            background: #dff5e7;
+            color: #111111 !important;
+        }
+        .cv-step-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #111111 !important;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+        .cv-step.cv-step-active .cv-step-label { color: #05210f !important; }
+        .cv-step.cv-step-done .cv-step-label { color: #111111 !important; }
+        .cv-step-connector { flex:1; height:2px; background:#0b0b0b; opacity:.2; margin:0 6px; }
+        .cv-step.cv-step-done .cv-step-connector { opacity:.45; }
 
         /* Package tier badges */
         .cv-pkg-tier-badge { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:3px 9px; border-radius:20px; margin-bottom:5px; }
@@ -5642,7 +5680,7 @@
         <link rel="stylesheet" href="{{ asset('styles/checkout-template-4.css') }}">
     </head>
 
-    <body class="{{ !empty($isIframeCheckout) ? 'embed-checkout-mode' : '' }} {{ !empty($isSinglePackageCheckout) ? 'single-package-checkout-mode' : '' }}" style="background: #000 !important;">
+    <body class="{{ !empty($isIframeCheckout) ? 'embed-checkout-mode' : '' }} {{ !empty($isSinglePackageCheckout) ? 'single-package-checkout-mode' : '' }}">
         @php
             $isSharedLink = request()->hasAny([
                 'package',
@@ -5681,7 +5719,7 @@
 
         {{-- Duplicate venue header removed - club details are shown in the hero section --}}
 
-        <header>
+        <header style="background: radial-gradient(circle at 18% 60px, rgba(232,190,106,.10), transparent 340px), radial-gradient(circle at 82% 180px, rgba(124,92,255,.10), transparent 360px), linear-gradient(180deg,#050507 0%,#06070a 100%);">
             <div class="container py-1">
                 @session('success')
                     <div class="alert alert-success" role="alert">Purchase Successfull!</div>
@@ -5825,7 +5863,7 @@
                 @endif
             </div>
         </header>
-        <main>
+        <main style="background: radial-gradient(circle at 18% 60px, rgba(232,190,106,.10), transparent 340px), radial-gradient(circle at 82% 180px, rgba(124,92,255,.10), transparent 360px), linear-gradient(180deg,#050507 0%,#06070a 100%);">
             <div class="container mt-4">
                 <div class="cv-checkout-body" id="cv-checkout-layout">
                 {{-- Mobile: toggle to show/hide order summary --}}
@@ -6454,26 +6492,26 @@
                                             </div>
 
                                             <!-- Shareable Link Button -->
-                                            <div class="mt-3" id="shareLinkContainer">
-                                                <button type="button" id="generateShareLink">Generate
+                                            <div class="mt-3" id="shareLinkContainer" style="background:#fff;border:2px solid #0b0b0b;border-radius:2px;padding:12px;">
+                                                <button type="button" id="generateShareLink" style="background:#fff;color:#111;border:2px solid #0b0b0b;padding:8px 12px;border-radius:2px;font-size:12px;font-weight:700;">Generate
                                                     Shareable Link</button>
                                                 <div style="position: relative;">
                                                     <input type="text" id="shareableLink" readonly
-                                                        style="width:100%;margin-top:8px;display:none;padding-right:40px;"
+                                                        style="width:100%;margin-top:8px;display:none;padding-right:40px;background:#fff;color:#111;border:2px solid #0b0b0b;border-radius:2px;"
   required />
-                                                    <div id="copyTooltip" style="position: absolute; top: -35px; right: 0; background: #d6a857; color: #1f1400; padding: 8px 12px; border-radius: 4px; font-size: 12px; display: none; white-space: nowrap; z-index: 1000;">
+                                                    <div id="copyTooltip" style="position: absolute; top: -35px; right: 0; background: #ffffff; color: #111111; padding: 8px 12px; border-radius: 2px; border: 2px solid #0b0b0b; font-size: 12px; display: none; white-space: nowrap; z-index: 1000;">
                                                         Link copied!
                                                     </div>
                                                 </div>
                                                 <div id="shareActions" style="display:none;gap:8px;flex-wrap:wrap;margin-top:8px;">
-                                                    <button type="button" class="checkout-share-btn" data-share="email" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">Email</button>
-                                                    <button type="button" class="checkout-share-btn" data-share="whatsapp" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">WhatsApp</button>
-                                                    <button type="button" class="checkout-share-btn" data-share="facebook" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">Facebook</button>
-                                                    <button type="button" class="checkout-share-btn" data-share="copy" style="background:#0f172a;color:#fff;border:1px solid #334155;padding:6px 10px;border-radius:8px;font-size:12px;">Copy</button>
+                                                    <button type="button" class="checkout-share-btn" data-share="email" style="background:#ffffff;color:#111111;border:2px solid #0b0b0b;padding:6px 10px;border-radius:2px;font-size:12px;">Email</button>
+                                                    <button type="button" class="checkout-share-btn" data-share="whatsapp" style="background:#ffffff;color:#111111;border:2px solid #0b0b0b;padding:6px 10px;border-radius:2px;font-size:12px;">WhatsApp</button>
+                                                    <button type="button" class="checkout-share-btn" data-share="facebook" style="background:#ffffff;color:#111111;border:2px solid #0b0b0b;padding:6px 10px;border-radius:2px;font-size:12px;">Facebook</button>
+                                                    <button type="button" class="checkout-share-btn" data-share="copy" style="background:#ffffff;color:#111111;border:2px solid #0b0b0b;padding:6px 10px;border-radius:2px;font-size:12px;">Copy</button>
                                                 </div>
                                             </div>
 
-                                            <div class="default-deposit" style="padding: 14px 16px;"><span>Total</span><span>$0.00</span></div>
+                                            <div class="default-deposit" style="background:#fff;color:#111;border:2px solid #0b0b0b;padding:14px 16px;"><span>Total</span><span>$0.00</span></div>
                                             @if ($data->refundable_fee > 0)
                                                 <div style="font-size: 16px; font-weight: 700; color: {{ $brandSecondary }} !important;"
                                                     class="vip-price default-refundable">
@@ -6675,7 +6713,7 @@
                                                         <div class="col-md-12">
 
                                                             <h2 style="margin-bottom: 8px;">Transportation</h2>
-                                                            <div id="transportation-hours-range" style="display: none; margin-bottom: 24px; font-size: 16px; font-weight: 700;"></div>
+                                                            <div id="transportation-hours-range" style="display: none; margin-bottom: 24px; font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.92);"></div>
 
                                                             <!-- Left: Form Fields -->
                                                             <div class="form-left">
@@ -6691,7 +6729,7 @@
                                                                                 class="form-control"
                                                                                 placeholder="Select pick-up time" required />
                                                                         </div>
-                                                                        <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;">Times are available in 15-minute intervals.</small>
+                                                                        <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:#ffdc66;">Times are available in 15-minute intervals.</small>
                                                                     </div>
                                                                 </div>
                                                                 <div class="form-row" style="margin-top: 14px;">
@@ -6723,7 +6761,7 @@
 
                                                                         <input type="number" class="form-control"
                                                                             name="transportation_guest" value="0" min="0"
-                                                                            style="width: 120px; max-width: 120px;" required />
+                                                                            style="width: 120px; max-width: 120px; color: #fff;" required />
 
 
 
@@ -6746,7 +6784,7 @@
                                                                                 class="form-control"
                                                                                 placeholder="Select time of arrival" />
                                                                         </div>
-                                                                        <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;">Required when self-driving or when package transportation is not included.</small>
+                                                                        <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:rgba(255,255,255,0.6);">Required when self-driving or when package transportation is not included.</small>
                                                                     </div>
                                                                 </div>
 
@@ -6757,10 +6795,10 @@
                                                                     </label>
                                                                 </div>
 
-                                                                <div class="checkbox-container transportaiton" style="margin-top: 14px;">
+                                                                <div class="checkbox-container transportaiton" style="margin-top: 14px; border-color: rgba(255, 204, 0, 0.45) !important; background: linear-gradient(180deg, rgba(51, 34, 5, 0.72), rgba(27, 18, 4, 0.85)) !important;">
                                                                     <div style="display:flex; align-items:flex-start; gap:10px; color:rgba(255,255,255,0.95); font-size:14px; line-height:1.55;">
                                                                         <i class="fas fa-triangle-exclamation" style="color:#ffcc00; font-size:16px; margin-top:2px; flex-shrink:0;"></i>
-                                                                        <span><strong>Transportation Notice:</strong> Transportation is subject to availability. Requests made shortly before your desired pickup time may not be able to be accommodated. Please allow a reasonable amount of advance notice so we have time to coordinate a driver. While we will always do our best to assist, last-minute transportation cannot be guaranteed.</span>
+                                                                        <span><strong style="color:#ffdc66;">Transportation Notice:</strong> Transportation is subject to availability. Requests made shortly before your desired pickup time may not be able to be accommodated. Please allow a reasonable amount of advance notice so we have time to coordinate a driver. While we will always do our best to assist, last-minute transportation cannot be guaranteed.</span>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -7934,51 +7972,16 @@
 
             /* Template 4 hard-lock cleanup: final consistency pass */
             body,
-            html,
             main,
             header,
             .cv-events-shell {
                 background: #ffffff !important;
             }
 
-            .cv-hero-stage *,
-            .cv-checkout-body *,
-            .cv-events-shell *,
-            .aff-footer *,
-            .cv-top-nav * {
-                color: #111111 !important;
-                -webkit-text-fill-color: #111111 !important;
-            }
-
-            .btn-next,
-            .btn-prev,
-            .submit-btn,
-            .vip-btn,
-            .same-as-info,
-            .same-as-info-transport,
-            #addonSelectionModal #addonModalConfirmBtn,
-            #checkoutPopupModal .popup-cta {
-                color: #06210f !important;
-                -webkit-text-fill-color: #06210f !important;
-            }
-
-            input::placeholder,
-            textarea::placeholder,
-            .form-control::placeholder,
-            .form-select:invalid {
-                color: #606060 !important;
-                -webkit-text-fill-color: #606060 !important;
-                opacity: 1 !important;
-            }
-
             #package_use_date,
-            #package_use_date:read-only,
-            #package_use_date:disabled,
             #package_use_date[readonly],
             #package_use_date.flatpickr-input[readonly],
             #package_use_date_iframe,
-            #package_use_date_iframe:read-only,
-            #package_use_date_iframe:disabled,
             #package_use_date_iframe[readonly],
             #package_use_date_iframe.flatpickr-input[readonly] {
                 color: #111111 !important;
@@ -8014,36 +8017,12 @@
                 box-shadow: 6px 6px 0 #0b0b0b !important;
             }
 
-            .cv-main-col #section-2 .checkbox-container.transportaiton,
-            .cv-main-col #section-2 .checkbox-container.transportaiton label,
-            .cv-main-col #section-2 .checkbox-container.transportaiton span,
-            .cv-main-col #section-2 .checkbox-container.transportaiton strong,
-            .cv-main-col #section-2 #transportation-hours-range,
-            .cv-main-col #section-2 small {
-                color: #111111 !important;
-                -webkit-text-fill-color: #111111 !important;
-            }
-
-            .cv-main-col #section-2 .checkbox-container.transportaiton {
-                background: #ffffff !important;
-                border: 2px solid #0b0b0b !important;
-                box-shadow: 3px 3px 0 #0b0b0b !important;
-            }
-
             #cv-order-sidebar .default-total,
             #cv-order-sidebar .default-total *,
             #cv-order-sidebar .default-deposit,
             #cv-order-sidebar .default-deposit *,
             #cv-order-sidebar #cart-total,
             #cv-order-sidebar #cart-total * {
-                color: #111111 !important;
-                -webkit-text-fill-color: #111111 !important;
-            }
-
-            #cv-order-sidebar .pricing-shell .default-total span,
-            #cv-order-sidebar .pricing-shell .default-deposit > span,
-            #cv-order-sidebar .pricing-shell .default-total > span:last-child,
-            #cv-order-sidebar .pricing-shell .default-deposit > span:last-child {
                 color: #111111 !important;
                 -webkit-text-fill-color: #111111 !important;
             }
@@ -8056,7 +8035,6 @@
 
             .cv-events-shell,
             .cv-events-shell .events-section-container,
-            .cv-events-shell .events-section-container .event-header h2,
             .cv-events-shell .event-header,
             .cv-events-shell .event-header h2,
             .cv-events-shell .event-filter,
@@ -8090,12 +8068,6 @@
                 box-shadow: 4px 4px 0 #0b0b0b !important;
                 border-radius: 2px !important;
                 padding: 14px !important;
-            }
-
-            .cv-footer-brand .cv-footer-powered,
-            .cv-footer-brand .cv-footer-tagline {
-                color: #111111 !important;
-                -webkit-text-fill-color: #111111 !important;
             }
 
             @media (max-width: 768px) {
