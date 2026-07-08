@@ -1300,12 +1300,6 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td class="d-none">{{ $venueName }}</td>
                             <td class="d-none">{{ $packageName }}</td>
                         </tr>
-                        @empty
-                        <tr>
-                            <td colspan="17" class="text-center py-5" style="color:rgba(255,255,255,0.3)">
-                                <i class="fas fa-inbox fa-2x mb-3 d-block"></i>No transactions found.
-                            </td>
-                        </tr>
                         @endforelse
                     </tbody>
                     <tfoot>
@@ -1653,6 +1647,9 @@ body.modal-open .admin-mobile-menu-toggle {
                     info: true,
                     lengthChange: true,
                     autoWidth: false,
+                    language: {
+                        emptyTable: 'No transactions found.'
+                    },
                     columnDefs: [
                         { orderable: false, targets: nonOrderableTargets }
                     ]
@@ -1705,22 +1702,9 @@ body.modal-open .admin-mobile-menu-toggle {
                     window.location.href = query ? (window.location.pathname + '?' + query) : window.location.pathname;
                 }
 
-                function hasTransactionRows() {
-                    return $('#txnDataTable tbody tr[data-row-id]').length > 0;
-                }
-
                 // Filters always visible, no toggle needed
 
                 $('#websiteFilter, #typeFilter, #affiliateFilter, #statusFilter, #reservationFilter').on('change', function() {
-                    if (!hasTransactionRows()) {
-                        const changedFilterId = this.id;
-                        ['websiteFilter', 'typeFilter', 'affiliateFilter', 'statusFilter', 'reservationFilter'].forEach(function(filterId) {
-                            if (filterId !== changedFilterId) {
-                                $('#' + filterId).val('');
-                            }
-                        });
-                    }
-
                     reloadWithServerFilters();
                 });
 
