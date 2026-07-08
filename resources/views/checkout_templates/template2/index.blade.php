@@ -23,7 +23,6 @@
             crossorigin="anonymous" referrerpolicy="no-referrer" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <link rel="stylesheet" href="{{ asset('styles/main.css') }}">
-        <link rel="stylesheet" href="{{ asset('styles/checkout-template-2.css') }}">
         <style>
 
 #Pick-up-time,
@@ -5089,6 +5088,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
             };
         </script>
         @endif
+        <link rel="stylesheet" href="{{ asset('styles/checkout-template-2.css') }}">
     </head>
 
     <body class="{{ !empty($isIframeCheckout) ? 'embed-checkout-mode' : '' }} {{ !empty($isSinglePackageCheckout) ? 'single-package-checkout-mode' : '' }}">

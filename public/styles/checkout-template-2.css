@@ -1,54 +1,96 @@
-/* Template 2: Clean Corporate */
+/* Template 2: Editorial Daylight */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=DM+Sans:wght@400;500;700;800&display=swap');
+
 :root {
-    --ct-accent: #0b3d91;
-    --ct-accent-2: #3b82f6;
-    --ct-bg: #f4f7fb;
-    --ct-surface: #ffffff;
-    --ct-text: #0f172a;
+    --t2-bg: #f6f5f1;
+    --t2-surface: #ffffff;
+    --t2-ink: #1d2530;
+    --t2-muted: #5c6776;
+    --t2-accent: #0d5bd7;
+    --t2-accent-2: #45a0ff;
 }
+
 body,
-main,
-header {
-    background: var(--ct-bg) !important;
+header,
+main {
+    font-family: DM Sans, sans-serif !important;
+    background: linear-gradient(180deg, #faf9f5, var(--t2-bg) 60%) !important;
 }
+
 .cv-top-nav,
 .cv-desktop-shell,
 .cv-main-col,
 .cv-summary-col,
-.checkout-section[id^="section-"] {
-    background: var(--ct-surface) !important;
-    border: 1px solid rgba(15, 23, 42, 0.12) !important;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08) !important;
+.checkout-section[id^="section-"],
+.vip-card,
+#cart-section,
+.cv-hero-stage {
+    background: var(--t2-surface) !important;
+    border: 1px solid rgba(29, 37, 48, 0.14) !important;
+    box-shadow: 0 10px 24px rgba(11, 25, 45, 0.08) !important;
 }
+
+.cv-hero-stage::before {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(246, 245, 241, 0.9)) !important;
+}
+
 .cv-hero-title,
-.cv-hero-subtitle,
-label,
+.checkout-section h2,
 .section-kicker-lg,
-.cv-dstep span,
-strong,
+.cv-package-section-header h5 {
+    font-family: Fraunces, serif !important;
+    color: var(--t2-ink) !important;
+}
+
+.cv-hero-subtitle,
 p,
-h1,
-h2,
+small,
+label,
+span,
+strong,
 h3,
 h4,
 h5,
-small,
-span {
-    color: var(--ct-text) !important;
+.cv-dstep span {
+    color: var(--t2-ink) !important;
 }
+
+.cv-hero-subtitle,
+.cv-hero-venue-meta,
+.cv-footer-tagline,
+.phone-note {
+    color: var(--t2-muted) !important;
+}
+
 .btn-next,
 .submit-btn,
 .same-as-info,
 .same-as-info-transport,
+.vip-btn,
 .cv-dstep.is-active .cv-dstep-num {
-    background: linear-gradient(135deg, var(--ct-accent), var(--ct-accent-2)) !important;
-    color: #fff !important;
+    background: linear-gradient(140deg, var(--t2-accent), var(--t2-accent-2)) !important;
+    color: #ffffff !important;
+    border: none !important;
+    font-weight: 800 !important;
 }
+
+.btn-prev {
+    background: #dbe3ef !important;
+    color: #223047 !important;
+}
+
+.cv-access-card.is-active,
+.vip-card.active,
+.vip-card.selected {
+    border-color: var(--t2-accent) !important;
+    box-shadow: 0 0 0 2px rgba(13, 91, 215, 0.2), 0 12px 20px rgba(13, 91, 215, 0.08) !important;
+}
+
 input,
 select,
 textarea,
 .StripeElement {
-    background: #fff !important;
-    color: #0f172a !important;
-    border-color: rgba(15, 23, 42, 0.18) !important;
+    background: #ffffff !important;
+    color: var(--t2-ink) !important;
+    border: 1px solid rgba(29, 37, 48, 0.22) !important;
 }

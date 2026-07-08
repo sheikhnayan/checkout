@@ -1,34 +1,78 @@
-/* Template 3: Neon Energy */
+/* Template 3: Kinetic Neon */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=Syne:wght@600;700;800&display=swap');
+
 :root {
-    --ct-accent: #ff4d6d;
-    --ct-accent-2: #00e5ff;
-    --ct-accent-3: #ffd60a;
+    --t3-pink: #ff3b78;
+    --t3-cyan: #1de9ff;
+    --t3-lime: #c7ff4d;
+    --t3-bg: #090d1a;
 }
+
 body {
-    background: radial-gradient(circle at 15% 10%, rgba(255, 77, 109, 0.2), transparent 35%), radial-gradient(circle at 85% 20%, rgba(0, 229, 255, 0.2), transparent 40%), #0b1020 !important;
+    font-family: Space Grotesk, sans-serif !important;
+    background:
+        radial-gradient(circle at 10% 0%, rgba(255, 59, 120, 0.28), transparent 30%),
+        radial-gradient(circle at 90% 10%, rgba(29, 233, 255, 0.28), transparent 34%),
+        radial-gradient(circle at 50% 100%, rgba(199, 255, 77, 0.16), transparent 35%),
+        var(--t3-bg) !important;
 }
+
+.cv-hero-title,
+.checkout-section h2,
+.section-kicker-lg {
+    font-family: Syne, sans-serif !important;
+    letter-spacing: 0.02em;
+}
+
 .cv-top-nav,
 .cv-desktop-shell,
+.cv-main-col,
 .cv-summary-col,
-.checkout-section[id^="section-"] {
-    background: rgba(11, 16, 32, 0.86) !important;
-    border: 1px solid rgba(0, 229, 255, 0.25) !important;
+.checkout-section[id^="section-"],
+.vip-card,
+#cart-section,
+.cv-hero-stage {
+    background: linear-gradient(165deg, rgba(8, 14, 30, 0.95), rgba(5, 9, 20, 0.95)) !important;
+    border: 1px solid rgba(29, 233, 255, 0.28) !important;
+    box-shadow: 0 0 0 1px rgba(29, 233, 255, 0.18), 0 16px 34px rgba(0, 0, 0, 0.45) !important;
 }
+
+.cv-access-card,
+.vip-card {
+    border-radius: 18px !important;
+}
+
+.cv-access-card.is-active,
+.vip-card.active,
+.vip-card.selected {
+    border-color: var(--t3-pink) !important;
+    box-shadow: 0 0 0 1px rgba(255, 59, 120, 0.6), 0 0 28px rgba(29, 233, 255, 0.28) !important;
+}
+
 .cv-dstep.is-active .cv-dstep-num,
 .btn-next,
 .submit-btn,
 .same-as-info,
-.same-as-info-transport {
-    background: linear-gradient(120deg, var(--ct-accent), var(--ct-accent-2), var(--ct-accent-3)) !important;
-    color: #051018 !important;
+.same-as-info-transport,
+.vip-btn {
+    background: linear-gradient(120deg, var(--t3-pink), var(--t3-cyan), var(--t3-lime)) !important;
+    color: #040915 !important;
+    border: none !important;
+    font-weight: 800 !important;
 }
-.cv-access-card.is-active,
-.vip-card.active,
-.vip-card.selected {
-    border-color: var(--ct-accent-2) !important;
-    box-shadow: 0 0 0 1px rgba(0, 229, 255, 0.55), 0 0 26px rgba(255, 77, 109, 0.3) !important;
+
+.cv-hero-title-accent,
+.vip-price,
+.cv-most-popular-tag {
+    color: var(--t3-lime) !important;
+    text-shadow: 0 0 14px rgba(199, 255, 77, 0.4);
 }
-.cv-hero-title-accent {
-    color: var(--ct-accent-3) !important;
-    text-shadow: 0 0 12px rgba(255, 214, 10, 0.45);
+
+input,
+select,
+textarea,
+.StripeElement {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(29, 233, 255, 0.34) !important;
+    color: #eef6ff !important;
 }

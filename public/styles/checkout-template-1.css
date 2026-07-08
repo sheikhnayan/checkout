@@ -1,32 +1,79 @@
-/* Template 1: Luxe Night */
+/* Template 1: Cinema Luxe */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Manrope:wght@400;600;700;800&display=swap');
+
 :root {
-    --ct-accent: #d8b25a;
-    --ct-accent-2: #8a6a2f;
-    --ct-surface: rgba(20, 16, 10, 0.82);
-    --ct-border: rgba(216, 178, 90, 0.35);
+    --t1-gold: #e6c16d;
+    --t1-gold-2: #b88a33;
+    --t1-bg: #0b0907;
+    --t1-surface: rgba(21, 15, 9, 0.86);
+    --t1-border: rgba(230, 193, 109, 0.34);
 }
+
 body {
-    background: radial-gradient(circle at 18% 0%, rgba(216, 178, 90, 0.18), transparent 38%), linear-gradient(180deg, #0a0907, #0e0b08) !important;
+    font-family: Manrope, sans-serif !important;
+    background:
+        radial-gradient(circle at 8% 8%, rgba(230, 193, 109, 0.2), transparent 34%),
+        radial-gradient(circle at 92% 2%, rgba(184, 138, 51, 0.18), transparent 40%),
+        linear-gradient(180deg, #070604, var(--t1-bg) 50%, #0e0b07) !important;
 }
+
+.cv-hero-title,
+.section-kicker-lg,
+.cv-package-section-header h5,
+.checkout-section h2 {
+    font-family: Cinzel, serif !important;
+    letter-spacing: 0.02em;
+}
+
 .cv-top-nav,
 .cv-desktop-shell,
+.cv-main-col,
 .cv-summary-col,
 .cv-side-wrap,
-.checkout-section[id^="section-"] {
-    background: var(--ct-surface) !important;
-    border-color: var(--ct-border) !important;
+.checkout-section[id^="section-"],
+.vip-card,
+#cart-section {
+    background: var(--t1-surface) !important;
+    border: 1px solid var(--t1-border) !important;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
 }
+
 .cv-dstep.is-active .cv-dstep-num,
 .btn-next,
 .submit-btn,
 .same-as-info,
-.same-as-info-transport {
-    background: linear-gradient(135deg, var(--ct-accent), #f0d489) !important;
-    color: #1c1408 !important;
+.same-as-info-transport,
+.vip-btn {
+    background: linear-gradient(135deg, var(--t1-gold), var(--t1-gold-2)) !important;
+    color: #1a1307 !important;
+    border: none !important;
+    font-weight: 800 !important;
 }
+
+.cv-access-card,
+.vip-card {
+    border-radius: 16px !important;
+}
+
 .cv-access-card.is-active,
 .vip-card.active,
 .vip-card.selected {
-    border-color: var(--ct-accent) !important;
-    box-shadow: 0 0 0 1px rgba(216, 178, 90, 0.45), 0 12px 30px rgba(216, 178, 90, 0.2) !important;
+    border-color: var(--t1-gold) !important;
+    box-shadow: 0 0 0 1px rgba(230, 193, 109, 0.52), 0 14px 32px rgba(184, 138, 51, 0.22) !important;
+}
+
+.cv-hero-title-accent,
+.vip-price,
+.cv-most-popular-tag,
+.event-capacity-chip {
+    color: var(--t1-gold) !important;
+}
+
+input,
+select,
+textarea,
+.StripeElement {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(230, 193, 109, 0.28) !important;
+    color: #f6edd8 !important;
 }

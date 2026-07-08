@@ -23,7 +23,6 @@
             crossorigin="anonymous" referrerpolicy="no-referrer"  required />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <link rel="stylesheet" href="{{ asset('styles/main.css') }}">
-        <link rel="stylesheet" href="{{ asset('styles/checkout-template-3.css') }}">
         <style>
             #Pick-up-time,
             input[name="transportation_pickup_time"] {
@@ -5640,6 +5639,7 @@
             };
         </script>
         @endif
+        <link rel="stylesheet" href="{{ asset('styles/checkout-template-3.css') }}">
     </head>
 
     <body class="{{ !empty($isIframeCheckout) ? 'embed-checkout-mode' : '' }} {{ !empty($isSinglePackageCheckout) ? 'single-package-checkout-mode' : '' }}" style="background: #000 !important;">

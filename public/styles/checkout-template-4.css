@@ -1,42 +1,113 @@
-/* Template 4: Minimal Mobile */
+/* Template 4: Mono Brutalist */
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Mono:wght@500;700&display=swap');
+
 :root {
-    --ct-accent: #16a34a;
-    --ct-accent-2: #84cc16;
+    --t4-bg: #f3f4f6;
+    --t4-ink: #0b0b0b;
+    --t4-card: #ffffff;
+    --t4-accent: #00c853;
 }
+
 body,
 main,
 header {
-    background: linear-gradient(180deg, #0f172a, #111827) !important;
+    font-family: Archivo, sans-serif !important;
+    background: repeating-linear-gradient(45deg, #f7f8fa 0px, #f7f8fa 16px, #f1f3f6 16px, #f1f3f6 32px) !important;
 }
+
 .cv-top-nav,
 .cv-desktop-shell,
-.checkout-section[id^="section-"] {
-    border-radius: 12px !important;
+.cv-main-col,
+.cv-summary-col,
+.checkout-section[id^="section-"],
+.vip-card,
+#cart-section,
+.cv-hero-stage {
+    background: var(--t4-card) !important;
+    color: var(--t4-ink) !important;
+    border: 2px solid #101010 !important;
+    border-radius: 2px !important;
+    box-shadow: 8px 8px 0 #101010 !important;
 }
+
+.cv-hero-stage::before {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0.92)) !important;
+}
+
+.cv-hero-title,
+.checkout-section h2,
+.section-kicker-lg,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+label,
+p,
+small,
+span,
+strong {
+    color: var(--t4-ink) !important;
+}
+
+.cv-dstep,
+.cv-dstep span {
+    color: #111 !important;
+}
+
+.cv-dstep.is-active .cv-dstep-num,
 .btn-next,
 .submit-btn,
 .same-as-info,
 .same-as-info-transport,
-.cv-dstep.is-active .cv-dstep-num {
-    background: linear-gradient(135deg, var(--ct-accent), var(--ct-accent-2)) !important;
-    color: #05210e !important;
+.vip-btn {
+    background: var(--t4-accent) !important;
+    color: #051b0d !important;
+    border: 2px solid #0b0b0b !important;
+    border-radius: 2px !important;
+    box-shadow: 4px 4px 0 #0b0b0b !important;
+    font-family: IBM Plex Mono, monospace !important;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
+
+.btn-prev {
+    background: #d9dde3 !important;
+    color: #111 !important;
+    border: 2px solid #111 !important;
+}
+
+.cv-access-card.is-active,
+.vip-card.active,
+.vip-card.selected {
+    outline: 3px solid var(--t4-accent) !important;
+    box-shadow: 10px 10px 0 #0b0b0b !important;
+}
+
+input,
+select,
+textarea,
+.StripeElement {
+    background: #fff !important;
+    color: #0b0b0b !important;
+    border: 2px solid #0b0b0b !important;
+    border-radius: 2px !important;
+}
+
 @media (max-width: 768px) {
     .cv-desktop-shell,
     .checkout-section[id^="section-"] {
         padding: 14px !important;
-        border-radius: 10px !important;
     }
+
     .btn-next,
     .btn-prev,
     .submit-btn,
     .same-as-info,
     .same-as-info-transport {
         min-height: 52px !important;
-        font-size: 16px !important;
         width: 100% !important;
-    }
-    .form-row {
-        gap: 10px !important;
+        font-size: 15px !important;
     }
 }
