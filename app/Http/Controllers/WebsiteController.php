@@ -16,6 +16,10 @@ use Illuminate\Validation\Rule;
 
 class WebsiteController extends Controller
 {
+    private const DEFAULT_SUCCESS_PAGE = 'https://app.cartvip.com/thank-you';
+    private const DEFAULT_DESCRIPTION_LABEL = 'Description';
+    private const DEFAULT_TEXT_DESCRIPTION = 'Plan your night with curated VIP options and seamless booking.';
+
     private const STOCK_PAYMENT_LOGO_CATALOG = [
         'visa' => [
             'name' => 'Visa',
@@ -216,10 +220,10 @@ class WebsiteController extends Controller
         $add->location = $request->location;
         $add->policy = $request->policy;
         $add->terms = $request->terms;
-        $add->success_page = $request->success_page;
-        $add->text_description = $request->text_description;
+        $add->success_page = self::DEFAULT_SUCCESS_PAGE;
+        $add->text_description = self::DEFAULT_TEXT_DESCRIPTION;
         $add->secondary_description = $request->secondary_description;
-        $add->description_label = $request->description_label;
+        $add->description_label = self::DEFAULT_DESCRIPTION_LABEL;
         $add->hero_title = $request->hero_title;
         $add->hero_subtitle = $request->hero_subtitle;
         $add->hero_badge_1_label = $request->hero_badge_1_label;
@@ -476,7 +480,7 @@ class WebsiteController extends Controller
         $add->phone = $request->phone;
         $add->email = $request->email;
         $add->policy = $request->policy;
-        $add->success_page = $request->success_page;
+        $add->success_page = self::DEFAULT_SUCCESS_PAGE;
         $add->terms = $request->terms;
         if ($request->has('gratuity_fee')) {
             $add->gratuity_fee = $request->gratuity_fee;
@@ -536,9 +540,9 @@ class WebsiteController extends Controller
         $add->operating_end_time = $request->filled('operating_end_time') ? $request->operating_end_time : null;
         $add->pickup_start_time = $request->filled('pickup_start_time') ? $request->pickup_start_time : null;
         $add->pickup_end_time = $request->filled('pickup_end_time') ? $request->pickup_end_time : null;
-        $add->text_description = $request->text_description;
+        $add->text_description = self::DEFAULT_TEXT_DESCRIPTION;
         $add->secondary_description = $request->secondary_description;
-        $add->description_label = $request->description_label;
+        $add->description_label = self::DEFAULT_DESCRIPTION_LABEL;
         $add->hero_title = $request->hero_title;
         $add->hero_subtitle = $request->hero_subtitle;
         $add->hero_badge_1_label = $request->hero_badge_1_label;

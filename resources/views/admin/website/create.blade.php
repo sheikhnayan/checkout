@@ -565,12 +565,7 @@ label{
                                                         </div>
                                                     </div>
                                                     <div class="row">
-                                                        <div class="col-md-4">
-                                                            <div class="mb-3">
-                                                                <label for="success_page" class="form-label">Success Page <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="URL customers are redirected to after a successful booking. Leave blank to use the default thank-you page."></i></label>
-                                                                <input type="text" name="success_page" class="form-control" id="success_page" placeholder="Success Page URL">
-                                                            </div>
-                                                        </div>
+                                                        <input type="hidden" name="success_page" value="https://app.cartvip.com/thank-you">
                                                         <div class="col-md-4">
                                                             <div class="mb-3">
                                                                 <label for="privacy_policy" class="form-label">Privacy & Policy Page <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="URL of your venue's privacy policy page."></i></label>
@@ -586,20 +581,8 @@ label{
                                                     </div>
 
                                                     <div class="row">
-                                                        <div class="col-md-4">
-                                                            <div class="mb-3">
-                                                                <label for="description_label" class="form-label">Description Label <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Custom label text for the description section heading on the checkout page."></i></label>
-                                                                <input type="text" name="description_label" class="form-control" id="description_label" value="Description" placeholder="Description">
-                                                                <small class="form-text text-muted">Label text that appears above the event description</small>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-4">
-                                                            <div class="mb-3">
-                                                                <label for="text_description" class="form-label">Website Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="An additional text block displayed on the checkout page."></i></label>
-                                                                <textarea name="text_description" class="form-control" id="text_description" rows="3" placeholder="Enter a description for your website that will be displayed on the front-end"></textarea>
-                                                                <small class="form-text text-muted">This text will be displayed on your website's front-end</small>
-                                                            </div>
-                                                        </div>
+                                                        <input type="hidden" name="description_label" value="Description">
+                                                        <input type="hidden" name="text_description" value="Plan your night with curated VIP options and seamless booking.">
                                                         <div class="col-md-4">
                                                             <div class="alert alert-info mb-0 mt-4">
                                                                 Theme and font colors are fixed globally.
