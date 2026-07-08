@@ -215,6 +215,12 @@
                                                                     title="Copy Single Checkout Link">
                                                                     Copy Link
                                                                 </button>
+                                                                <form action="{{ route('admin.package.duplicate', $item->id) }}" method="POST" style="display:inline;">
+                                                                    @csrf
+                                                                    <button type="submit" class="btn btn-info" onclick="return confirm('Duplicate this package?');">
+                                                                        Duplicate
+                                                                    </button>
+                                                                </form>
                                                                 <a href="/admins/package/edit/{{ $item->id }}" class="btn btn-primary">Edit</a>
                                                                 <form action="/admins/package/archive/{{ $item->id }}" method="POST" style="display:inline;">
                                                                     @csrf
@@ -281,6 +287,12 @@
                                                                     title="Copy Single Checkout Link">
                                                                     Copy Link
                                                                 </button>
+                                                                <form action="{{ route('admin.package.duplicate', $item->id) }}" method="POST" style="display:inline;">
+                                                                    @csrf
+                                                                    <button type="submit" class="btn btn-info" onclick="return confirm('Duplicate this package?');">
+                                                                        Duplicate
+                                                                    </button>
+                                                                </form>
                                                                 <form action="/admins/package/unarchive/{{ $item->id }}" method="POST" style="display:inline;">
                                                                     @csrf
                                                                     <button type="submit" class="btn btn-success" onclick="return confirm('Unarchive this package?');">
@@ -475,6 +487,10 @@
                                                                         title="Copy Single Checkout Link">
                                                                         Copy Link
                                                                     </button>
+                                                                    <form action="{{ route('admin.package.duplicate', $pkg->id) }}" method="POST" style="display:inline;">
+                                                                        @csrf
+                                                                        <button type="submit" class="btn btn-sm btn-info" onclick="return confirm('Duplicate this package?');">Duplicate</button>
+                                                                    </form>
                                                                     <a href="{{ route('admin.package.edit', $pkg->id) }}" class="btn btn-sm btn-primary">Edit</a>
                                                                 </td>
                                                             </tr>
@@ -543,6 +559,10 @@
                                                             </td>
                                                             <td>
                                                                 <a href="{{ route('admin.package.edit-targeted', $item->id) }}" class="btn btn-primary btn-sm">Edit</a>
+                                                                <form action="{{ route('admin.package.duplicate', $item->id) }}" method="POST" style="display:inline;">
+                                                                    @csrf
+                                                                    <button type="submit" class="btn btn-info btn-sm" onclick="return confirm('Duplicate this package?');">Duplicate</button>
+                                                                </form>
                                                                 @if (empty($item->is_archieved) || $item->is_archieved == 0)
                                                                     <form action="/admins/package/archive/{{ $item->id }}" method="POST" style="display:inline;">
                                                                         @csrf

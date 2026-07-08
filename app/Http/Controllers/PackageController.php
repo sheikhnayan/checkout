@@ -89,6 +89,44 @@ class PackageController extends Controller
         return back();
     }
 
+    public function duplicate(string $id)
+    {
+        $user = auth()->user();
+        $source = Package::findOrFail($id);
+
+        $this->authorizePackageManagement($source, $user);
+
+        $duplicate = $source->replicate();
+        $duplicate->name = $this->generateDuplicatePackageName($source);
+        $duplicate->is_archieved = 0;
+        $duplicate->is_most_popular = 0;
+        $duplicate->sort_order = $this->nextSortOrderForCategory(
+            (int) $source->website_id,
+            $source->package_category_id ? (int) $source->package_category_id : null,
+            (string) ($source->audience ?: Package::AUDIENCE_CLUB)
+        );
+        $duplicate->save();
+
+        $sourceAddons = Addon::where('package_id', $source->id)->get();
+        foreach ($sourceAddons as $sourceAddon) {
+            $addon = $sourceAddon->replicate();
+            $addon->package_id = $duplicate->id;
+            $addon->save();
+        }
+
+        if (in_array($duplicate->audience, [Package::AUDIENCE_AFFILIATE, Package::AUDIENCE_ENTERTAINER], true)) {
+            $this->syncTargetedMappings($duplicate);
+
+            return redirect()
+                ->route('admin.package.edit-targeted', $duplicate->id)
+                ->with('success', 'Package duplicated successfully.');
+        }
+
+        return redirect()
+            ->route('admin.package.edit', $duplicate->id)
+            ->with('success', 'Package duplicated successfully.');
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -664,6 +702,31 @@ class PackageController extends Controller
         }
 
         return ((int) $query->max('sort_order')) + 1;
+    }
+
+    private function generateDuplicatePackageName(Package $source): string
+    {
+        $baseName = trim((string) $source->name);
+        $copyName = $baseName !== '' ? $baseName . ' (Copy)' : 'Package (Copy)';
+
+        $exists = Package::where('website_id', $source->website_id)
+            ->where('name', $copyName)
+            ->exists();
+
+        if (!$exists) {
+            return mb_substr($copyName, 0, 255);
+        }
+
+        $counter = 2;
+        do {
+            $candidate = sprintf('%s (Copy %d)', $baseName !== '' ? $baseName : 'Package', $counter);
+            $exists = Package::where('website_id', $source->website_id)
+                ->where('name', $candidate)
+                ->exists();
+            $counter++;
+        } while ($exists);
+
+        return mb_substr($candidate, 0, 255);
     }
 
     private function syncPackageAddons(Package $package, string $addonList): void

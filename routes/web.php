@@ -220,6 +220,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
     Route::group(['prefix'=> 'package', 'as' => 'package.'], function () {
         Route::get('/', [PackageController::class,'index'])->name('index');
         Route::get('/show/{id}', [PackageController::class,'show'])->name('show');
+        Route::post('/duplicate/{id}', [PackageController::class,'duplicate'])->name('duplicate');
         Route::post('/archive/{id}', [PackageController::class,'archive'])->name('archive');
         Route::post('/unarchive/{id}', [PackageController::class,'unarchive'])->name('unarchive');
         Route::post('/toggle-status/{id}', [PackageController::class,'toggleStatus'])->name('toggle-status');
