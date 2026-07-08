@@ -1705,9 +1705,22 @@ body.modal-open .admin-mobile-menu-toggle {
                     window.location.href = query ? (window.location.pathname + '?' + query) : window.location.pathname;
                 }
 
+                function hasTransactionRows() {
+                    return $('#txnDataTable tbody tr[data-row-id]').length > 0;
+                }
+
                 // Filters always visible, no toggle needed
 
                 $('#websiteFilter, #typeFilter, #affiliateFilter, #statusFilter, #reservationFilter').on('change', function() {
+                    if (!hasTransactionRows()) {
+                        const changedFilterId = this.id;
+                        ['websiteFilter', 'typeFilter', 'affiliateFilter', 'statusFilter', 'reservationFilter'].forEach(function(filterId) {
+                            if (filterId !== changedFilterId) {
+                                $('#' + filterId).val('');
+                            }
+                        });
+                    }
+
                     reloadWithServerFilters();
                 });
 
