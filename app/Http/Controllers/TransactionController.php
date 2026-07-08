@@ -1253,6 +1253,7 @@ class TransactionController extends Controller
 
         $reservationFilter = strtolower(trim((string) $request->query('reservation', '')));
         if ($reservationFilter !== '') {
+            $query->where('type', 'reservation');
             $today = Carbon::now('America/Los_Angeles')->startOfDay();
             $tomorrow = $today->copy()->addDay();
             $endOfWeek = $today->copy()->endOfWeek();

@@ -1300,6 +1300,12 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td class="d-none">{{ $venueName }}</td>
                             <td class="d-none">{{ $packageName }}</td>
                         </tr>
+                        @empty
+                        <tr>
+                            <td colspan="17" class="text-center py-5" style="color:rgba(255,255,255,0.3)">
+                                <i class="fas fa-inbox fa-2x mb-3 d-block"></i>No transactions found.
+                            </td>
+                        </tr>
                         @endforelse
                     </tbody>
                     <tfoot>
@@ -1647,9 +1653,6 @@ body.modal-open .admin-mobile-menu-toggle {
                     info: true,
                     lengthChange: true,
                     autoWidth: false,
-                    language: {
-                        emptyTable: 'No transactions found.'
-                    },
                     columnDefs: [
                         { orderable: false, targets: nonOrderableTargets }
                     ]
@@ -1679,7 +1682,13 @@ body.modal-open .admin-mobile-menu-toggle {
                     setOrDelete('type', $('#typeFilter').val());
                     setOrDelete('affiliate', $('#affiliateFilter').val());
                     setOrDelete('status', $('#statusFilter').val());
-                    setOrDelete('reservation', $('#reservationFilter').val());
+                    const reservationValue = String($('#reservationFilter').val() || '').trim();
+                    if (reservationValue) {
+                        params.set('type', 'Reservation');
+                        setOrDelete('reservation', reservationValue);
+                    } else {
+                        params.delete('reservation');
+                    }
 
                     const rangeStr = String($('#txnDateRange').val() || '').trim();
                     if (rangeStr && rangeStr.includes(' - ')) {
