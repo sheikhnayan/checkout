@@ -99,7 +99,7 @@ class EventController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'hero_title' => 'nullable|string|max:255',
-            'hero_subtitle' => 'nullable|string|max:255',
+            'hero_subtitle' => 'nullable|string|max:500',
             'date' => 'nullable|date',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
@@ -257,7 +257,7 @@ class EventController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'hero_title' => 'nullable|string|max:255',
-            'hero_subtitle' => 'nullable|string|max:255',
+            'hero_subtitle' => 'nullable|string|max:500',
             'date' => 'nullable|date',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',

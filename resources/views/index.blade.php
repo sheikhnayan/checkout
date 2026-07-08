@@ -5132,6 +5132,41 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
 
                 @php
                     $eventHeroImage = !empty($event->image ?? null) ? asset('uploads/' . $event->image) : ($data->logo ? asset('uploads/' . $data->logo) : asset('images/logo.png'));
+
+                    if (!isset($eventDateOptions) || !is_array($eventDateOptions)) {
+                        $eventDateOptions = [];
+                        $eventStartRawFallback = $event->start_date ?? $event->date;
+                        $eventEndRawFallback = $event->end_date ?? $eventStartRawFallback;
+                        $eventStartFallback = $eventStartRawFallback ? \Carbon\Carbon::parse($eventStartRawFallback) : null;
+                        $eventEndFallback = $eventEndRawFallback ? \Carbon\Carbon::parse($eventEndRawFallback) : null;
+                        $specificEventDatesFallback = is_array($event->event_dates ?? null) ? array_values(array_filter($event->event_dates)) : [];
+
+                        if (!empty($specificEventDatesFallback)) {
+                            foreach ($specificEventDatesFallback as $specificDate) {
+                                try {
+                                    $sd = \Carbon\Carbon::parse($specificDate)->startOfDay();
+                                } catch (\Throwable $e) {
+                                    continue;
+                                }
+
+                                $eventDateOptions[] = [
+                                    'value' => $sd->format('Y-m-d'),
+                                    'label' => $sd->format('l, F d, Y'),
+                                ];
+                            }
+                        } elseif ($eventStartFallback) {
+                            $dateCursorFallback = $eventStartFallback->copy()->startOfDay();
+                            $dateEndFallback = ($eventEndFallback ?: $eventStartFallback)->copy()->startOfDay();
+
+                            while ($dateCursorFallback->lte($dateEndFallback)) {
+                                $eventDateOptions[] = [
+                                    'value' => $dateCursorFallback->format('Y-m-d'),
+                                    'label' => $dateCursorFallback->format('l, F d, Y'),
+                                ];
+                                $dateCursorFallback->addDay();
+                            }
+                        }
+                    }
                 @endphp
                 @if (empty($isSinglePackageCheckout))
                 <section class="cv-hero-stage" style="background-image:url('{{ $eventHeroImage }}');">
