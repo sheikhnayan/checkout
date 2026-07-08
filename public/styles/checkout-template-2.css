@@ -1,0 +1,54 @@
+/* Template 2: Clean Corporate */
+:root {
+    --ct-accent: #0b3d91;
+    --ct-accent-2: #3b82f6;
+    --ct-bg: #f4f7fb;
+    --ct-surface: #ffffff;
+    --ct-text: #0f172a;
+}
+body,
+main,
+header {
+    background: var(--ct-bg) !important;
+}
+.cv-top-nav,
+.cv-desktop-shell,
+.cv-main-col,
+.cv-summary-col,
+.checkout-section[id^="section-"] {
+    background: var(--ct-surface) !important;
+    border: 1px solid rgba(15, 23, 42, 0.12) !important;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08) !important;
+}
+.cv-hero-title,
+.cv-hero-subtitle,
+label,
+.section-kicker-lg,
+.cv-dstep span,
+strong,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+small,
+span {
+    color: var(--ct-text) !important;
+}
+.btn-next,
+.submit-btn,
+.same-as-info,
+.same-as-info-transport,
+.cv-dstep.is-active .cv-dstep-num {
+    background: linear-gradient(135deg, var(--ct-accent), var(--ct-accent-2)) !important;
+    color: #fff !important;
+}
+input,
+select,
+textarea,
+.StripeElement {
+    background: #fff !important;
+    color: #0f172a !important;
+    border-color: rgba(15, 23, 42, 0.18) !important;
+}

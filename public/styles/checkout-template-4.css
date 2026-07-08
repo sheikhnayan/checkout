@@ -1,0 +1,42 @@
+/* Template 4: Minimal Mobile */
+:root {
+    --ct-accent: #16a34a;
+    --ct-accent-2: #84cc16;
+}
+body,
+main,
+header {
+    background: linear-gradient(180deg, #0f172a, #111827) !important;
+}
+.cv-top-nav,
+.cv-desktop-shell,
+.checkout-section[id^="section-"] {
+    border-radius: 12px !important;
+}
+.btn-next,
+.submit-btn,
+.same-as-info,
+.same-as-info-transport,
+.cv-dstep.is-active .cv-dstep-num {
+    background: linear-gradient(135deg, var(--ct-accent), var(--ct-accent-2)) !important;
+    color: #05210e !important;
+}
+@media (max-width: 768px) {
+    .cv-desktop-shell,
+    .checkout-section[id^="section-"] {
+        padding: 14px !important;
+        border-radius: 10px !important;
+    }
+    .btn-next,
+    .btn-prev,
+    .submit-btn,
+    .same-as-info,
+    .same-as-info-transport {
+        min-height: 52px !important;
+        font-size: 16px !important;
+        width: 100% !important;
+    }
+    .form-row {
+        gap: 10px !important;
+    }
+}

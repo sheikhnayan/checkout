@@ -1,0 +1,32 @@
+/* Template 1: Luxe Night */
+:root {
+    --ct-accent: #d8b25a;
+    --ct-accent-2: #8a6a2f;
+    --ct-surface: rgba(20, 16, 10, 0.82);
+    --ct-border: rgba(216, 178, 90, 0.35);
+}
+body {
+    background: radial-gradient(circle at 18% 0%, rgba(216, 178, 90, 0.18), transparent 38%), linear-gradient(180deg, #0a0907, #0e0b08) !important;
+}
+.cv-top-nav,
+.cv-desktop-shell,
+.cv-summary-col,
+.cv-side-wrap,
+.checkout-section[id^="section-"] {
+    background: var(--ct-surface) !important;
+    border-color: var(--ct-border) !important;
+}
+.cv-dstep.is-active .cv-dstep-num,
+.btn-next,
+.submit-btn,
+.same-as-info,
+.same-as-info-transport {
+    background: linear-gradient(135deg, var(--ct-accent), #f0d489) !important;
+    color: #1c1408 !important;
+}
+.cv-access-card.is-active,
+.vip-card.active,
+.vip-card.selected {
+    border-color: var(--ct-accent) !important;
+    box-shadow: 0 0 0 1px rgba(216, 178, 90, 0.45), 0 12px 30px rgba(216, 178, 90, 0.2) !important;
+}

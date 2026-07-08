@@ -17,6 +17,26 @@ use Illuminate\Support\Facades\Schema;
 
 class FrontendController extends Controller
 {
+    public function checkoutTemplateOne($slug, Request $request)
+    {
+        return $this->renderCheckoutForTemplate($slug, $request, 'template1');
+    }
+
+    public function checkoutTemplateTwo($slug, Request $request)
+    {
+        return $this->renderCheckoutForTemplate($slug, $request, 'template2');
+    }
+
+    public function checkoutTemplateThree($slug, Request $request)
+    {
+        return $this->renderCheckoutForTemplate($slug, $request, 'template3');
+    }
+
+    public function checkoutTemplateFour($slug, Request $request)
+    {
+        return $this->renderCheckoutForTemplate($slug, $request, 'template4');
+    }
+
     public function singlePackageCheckout($slug, $packageId, Request $request)
     {
         $resolvedPackageId = $this->resolveSinglePackageId($packageId);
@@ -33,6 +53,44 @@ class FrontendController extends Controller
     }
 
     public function index($slug, Request $request)
+    {
+        return $this->renderCheckoutWithViews($slug, $request, 'index', 'index_two');
+    }
+
+    private function renderCheckoutForTemplate(string $slug, Request $request, string $templateKey)
+    {
+        $templateViewMap = [
+            'template1' => [
+                'event' => 'checkout_templates.template1.index',
+                'default' => 'checkout_templates.template1.index_two',
+            ],
+            'template2' => [
+                'event' => 'checkout_templates.template2.index',
+                'default' => 'checkout_templates.template2.index_two',
+            ],
+            'template3' => [
+                'event' => 'checkout_templates.template3.index',
+                'default' => 'checkout_templates.template3.index_two',
+            ],
+            'template4' => [
+                'event' => 'checkout_templates.template4.index',
+                'default' => 'checkout_templates.template4.index_two',
+            ],
+        ];
+
+        if (!isset($templateViewMap[$templateKey])) {
+            abort(404, 'Checkout template not found');
+        }
+
+        return $this->renderCheckoutWithViews(
+            $slug,
+            $request,
+            $templateViewMap[$templateKey]['event'],
+            $templateViewMap[$templateKey]['default']
+        );
+    }
+
+    private function renderCheckoutWithViews(string $slug, Request $request, string $eventView, string $defaultView)
     {
         $isIframeCheckout = $request->boolean('embed');
         $singlePackageCheckout = $request->boolean('single_package_checkout');
@@ -112,10 +170,10 @@ class FrontendController extends Controller
 
             if ($singleCheckoutPackage->event) {
                 $event = $this->decorateEventAttendanceData($singleCheckoutPackage->event);
-                return view('index', compact('data', 'event', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout', 'isSinglePackageCheckout'));
+                return view($eventView, compact('data', 'event', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout', 'isSinglePackageCheckout'));
             }
 
-            return view('index_two', compact('data', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout', 'isSinglePackageCheckout'));
+            return view($defaultView, compact('data', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout', 'isSinglePackageCheckout'));
         }
 
         $checkoutPopup = CheckoutPopup::activeForCheckout((int) $data->id)
@@ -138,7 +196,7 @@ class FrontendController extends Controller
 
                 $data->setRelation('events', $this->activeWebsiteEvents($data->id));
 
-                return view('index', compact('data', 'event', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout', 'isSinglePackageCheckout'));
+                return view($eventView, compact('data', 'event', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout', 'isSinglePackageCheckout'));
             }
         }
 
@@ -146,7 +204,7 @@ class FrontendController extends Controller
 
         $data->setRelation('events', $this->activeWebsiteEvents($data->id));
 
-        return view('index_two', compact('data', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout', 'isSinglePackageCheckout'));
+        return view($defaultView, compact('data', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout', 'isSinglePackageCheckout'));
 
     }
 

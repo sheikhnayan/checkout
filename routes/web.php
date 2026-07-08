@@ -496,6 +496,12 @@ Route::post('/webhooks/telnyx/sms', [TelnyxWebhookController::class, 'handleSmsW
 Route::get('/reports/automation/public-preview-signed', [ReportController::class, 'automationPreviewSigned'])
     ->name('reports.automation.publicPreviewSigned');
 
+// Standalone client demo checkout templates (kept separate from main checkout pages)
+Route::get('/demo-checkout/template-1/{slug}', [FrontendController::class, 'checkoutTemplateOne'])->name('demo.checkout.template1');
+Route::get('/demo-checkout/template-2/{slug}', [FrontendController::class, 'checkoutTemplateTwo'])->name('demo.checkout.template2');
+Route::get('/demo-checkout/template-3/{slug}', [FrontendController::class, 'checkoutTemplateThree'])->name('demo.checkout.template3');
+Route::get('/demo-checkout/template-4/{slug}', [FrontendController::class, 'checkoutTemplateFour'])->name('demo.checkout.template4');
+
 // Frontend catch-all route with slug parameter
 // Keep this at the very end so it does not shadow admin/auth/portal routes.
 Route::get('/{slug}', [FrontendController::class, 'index'])->name('index');
