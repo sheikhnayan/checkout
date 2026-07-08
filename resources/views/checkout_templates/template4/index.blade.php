@@ -7066,6 +7066,248 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 -webkit-text-fill-color: #06210f !important;
             }
 
+            .cv-main-col .cv-desktop-steps,
+            .cv-main-col #cv-checkout-steps,
+            .cv-main-col #cv-checkout-steps-res {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                box-shadow: 4px 4px 0 #0b0b0b !important;
+                padding: 10px 8px !important;
+            }
+
+            .cv-main-col .cv-dstep {
+                color: #3d3d3d !important;
+                -webkit-text-fill-color: #3d3d3d !important;
+            }
+
+            .cv-main-col .cv-dstep::before {
+                background: #0b0b0b !important;
+                opacity: 0.25;
+            }
+
+            .cv-main-col .cv-dstep .cv-dstep-num {
+                background: #ffffff !important;
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: none !important;
+            }
+
+            .cv-main-col .cv-dstep.is-active,
+            .cv-main-col .cv-dstep.is-complete {
+                color: #0b0b0b !important;
+                -webkit-text-fill-color: #0b0b0b !important;
+            }
+
+            .cv-main-col .cv-dstep.is-active .cv-dstep-num,
+            .cv-main-col .cv-dstep.is-complete .cv-dstep-num {
+                background: #00c853 !important;
+                color: #05210f !important;
+                -webkit-text-fill-color: #05210f !important;
+                border-color: #0b0b0b !important;
+                box-shadow: 2px 2px 0 #0b0b0b !important;
+            }
+
+            .cv-main-col .checkout-section,
+            .cv-main-col .checkout-section.holder-info,
+            .cv-main-col .checkout-section.transport,
+            .cv-main-col .checkout-section.payment-section,
+            .cv-main-col .checkout-section[id^="section-"] {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 6px 6px 0 #0b0b0b !important;
+            }
+
+            .cv-main-col .checkout-section[id^="section-"]::before {
+                display: none !important;
+            }
+
+            .cv-main-col #package_use_date::placeholder,
+            .cv-main-col #package_use_date_iframe::placeholder,
+            .cv-main-col input[name="transportation_pickup_time"]::placeholder,
+            .cv-main-col input[name="transportation_arrival_time"]::placeholder,
+            .cv-main-col #Pick-up-time::placeholder,
+            .cv-main-col #Arrival-time::placeholder {
+                color: #626262 !important;
+                -webkit-text-fill-color: #626262 !important;
+                opacity: 1 !important;
+            }
+
+            .cv-main-col select.form-select,
+            .cv-main-col .package_number_of_guestss,
+            .cv-main-col .package-guest-input-wrap select {
+                background: #ffffff !important;
+                color: #111111 !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                box-shadow: 2px 2px 0 #0b0b0b !important;
+                appearance: none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                background-image: linear-gradient(45deg, transparent 50%, #111 50%), linear-gradient(135deg, #111 50%, transparent 50%);
+                background-position: calc(100% - 16px) calc(50% - 3px), calc(100% - 11px) calc(50% - 3px);
+                background-size: 5px 5px, 5px 5px;
+                background-repeat: no-repeat;
+                padding-right: 34px !important;
+            }
+
+            .cv-main-col select.form-select option,
+            .cv-main-col .package_number_of_guestss option {
+                background: #ffffff !important;
+                color: #111111 !important;
+            }
+
+            .cv-main-col select.form-select option[value=""],
+            .cv-main-col .package_number_of_guestss option[value=""] {
+                color: #5f5f5f !important;
+            }
+
+            .cv-main-col .cv-pkg-tooltip-trigger {
+                background: #ffffff !important;
+                color: #0b0b0b !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 2px 2px 0 #0b0b0b !important;
+            }
+
+            .cv-main-col .cv-pkg-tooltip-trigger:hover {
+                background: #f1f3f6 !important;
+            }
+
+            #infoTooltipModal .modal-content,
+            #addonSelectionModal .modal-content,
+            #checkoutPopupModal .modal-content {
+                background: #ffffff !important;
+                color: #111111 !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                box-shadow: 8px 8px 0 #0b0b0b !important;
+            }
+
+            #infoTooltipModal .modal-header,
+            #addonSelectionModal .modal-header,
+            #checkoutPopupModal .modal-header,
+            #infoTooltipModal .modal-footer,
+            #addonSelectionModal .modal-footer,
+            #checkoutPopupModal .modal-footer {
+                background: #f2f4f7 !important;
+                border-color: #0b0b0b !important;
+            }
+
+            #infoTooltipModal .modal-title,
+            #addonSelectionModal .modal-title,
+            #checkoutPopupModal .modal-title,
+            #infoTooltipModal .modal-body,
+            #addonSelectionModal .modal-body,
+            #checkoutPopupModal .modal-body,
+            #infoTooltipModal .modal-body p,
+            #addonSelectionModal .modal-body p,
+            #checkoutPopupModal .modal-body p,
+            #addonSelectionModal .addon-modal-label,
+            #addonSelectionModal .addon-modal-unit,
+            #addonSelectionModal .addon-modal-desc,
+            #addonSelectionModal .addon-line-total {
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+            }
+
+            #addonSelectionModal .addon-modal-row {
+                background: #ffffff !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+            }
+
+            #addonSelectionModal .addon-qty-btn,
+            #addonSelectionModal .btn-secondary,
+            #infoTooltipModal .btn-secondary,
+            #checkoutPopupModal .btn-secondary {
+                background: #dfe4ea !important;
+                color: #111111 !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                box-shadow: 2px 2px 0 #0b0b0b !important;
+            }
+
+            #addonSelectionModal #addonModalConfirmBtn,
+            #checkoutPopupModal .popup-cta {
+                background: #00c853 !important;
+                color: #06210f !important;
+                border: 2px solid #0b0b0b !important;
+                border-radius: 2px !important;
+                box-shadow: 2px 2px 0 #0b0b0b !important;
+                font-family: IBM Plex Mono, monospace !important;
+                font-weight: 700 !important;
+                text-transform: uppercase;
+            }
+
+            #copyTooltip,
+            .tooltip-inner {
+                background: #0b0b0b !important;
+                color: #00e062 !important;
+                border: 1px solid #00c853 !important;
+                font-family: IBM Plex Mono, monospace !important;
+            }
+
+            .cv-top-nav {
+                background: #ffffff !important;
+                border-bottom: 2px solid #0b0b0b !important;
+                box-shadow: 0 4px 0 #0b0b0b !important;
+            }
+
+            .cv-top-nav::after {
+                display: none !important;
+            }
+
+            .cv-top-nav,
+            .cv-top-nav *,
+            .cv-nav-name,
+            .cv-nav-back,
+            .cv-nav-status,
+            .cv-nav-trust,
+            .cv-nav-brand {
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+            }
+
+            .cv-nav-back {
+                background: #f2f4f7 !important;
+                border: 2px solid #0b0b0b !important;
+                box-shadow: 2px 2px 0 #0b0b0b !important;
+                border-radius: 2px !important;
+            }
+
+            .aff-footer {
+                background: #ffffff !important;
+                border-top: 2px solid #0b0b0b !important;
+            }
+
+            .aff-footer::before,
+            .aff-footer::after {
+                display: none !important;
+            }
+
+            .aff-footer,
+            .aff-footer *,
+            .cv-footer-inner,
+            .cv-footer-legal,
+            .cv-footer-bar,
+            .cv-footer-powered,
+            .cv-footer-tagline,
+            .cv-footer-legal-title,
+            .cv-footer-bar-copy,
+            .cv-footer-bar-copy strong,
+            .cv-footer-bar-social,
+            .cv-footer-legal a {
+                color: #111111 !important;
+                -webkit-text-fill-color: #111111 !important;
+            }
+
+            .cv-footer-bar-social,
+            .cv-footer-legal,
+            .cv-footer-brand {
+                border-color: #0b0b0b !important;
+            }
+
             @media (max-width: 768px) {
                 .cv-main-col .vip-card.cv-exact-card,
                 .cv-main-col .checkout-section,
