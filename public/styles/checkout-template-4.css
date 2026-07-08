@@ -111,3 +111,265 @@ textarea,
         font-size: 15px !important;
     }
 }
+
+/* Template 4: Order Summary Brutalist Skin */
+#cv-order-sidebar,
+.cv-sidebar {
+    background: #ffffff !important;
+    color: #0b0b0b !important;
+    border: 2px solid #0b0b0b !important;
+    border-radius: 2px !important;
+    box-shadow: 8px 8px 0 #0b0b0b !important;
+}
+
+#cv-order-sidebar .cv-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 12px 10px;
+    border-bottom: 2px solid #0b0b0b !important;
+    background: #f1f3f6 !important;
+}
+
+#cv-order-sidebar .cv-sidebar-header span {
+    color: #0b0b0b !important;
+    font-family: IBM Plex Mono, monospace !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.09em;
+}
+
+#cv-order-sidebar .cv-sidebar-venue-image {
+    border-bottom: 2px solid #0b0b0b !important;
+}
+
+#cv-order-sidebar .cv-sidebar-venue-row {
+    border-bottom: 2px solid #0b0b0b !important;
+    margin-bottom: 10px !important;
+    padding: 12px 12px 10px !important;
+}
+
+#cv-order-sidebar .cv-sidebar-venue-name,
+#cv-order-sidebar .cv-sidebar-venue-date {
+    color: #0b0b0b !important;
+}
+
+#cv-order-sidebar .cv-sidebar-venue-name {
+    font-family: Archivo, sans-serif !important;
+    font-size: 18px !important;
+    font-weight: 800 !important;
+}
+
+#cv-order-sidebar .cv-sidebar-venue-date {
+    font-family: IBM Plex Mono, monospace !important;
+    font-size: 12px !important;
+    opacity: 0.85;
+}
+
+#cv-order-sidebar #cv-sidebar-body {
+    padding: 0 12px 6px !important;
+}
+
+#cv-order-sidebar #cart-section {
+    background: #ffffff !important;
+    border: 2px solid #0b0b0b !important;
+    border-radius: 2px !important;
+    box-shadow: 4px 4px 0 #0b0b0b !important;
+    padding: 10px 12px !important;
+    margin-bottom: 12px !important;
+}
+
+#cv-order-sidebar #cart-section .cart-heading {
+    color: #0b0b0b !important;
+    font-family: IBM Plex Mono, monospace !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 1 !important;
+}
+
+#cv-order-sidebar #cart-section #cart-list .cart-line {
+    border-bottom: 2px dashed #0b0b0b !important;
+    padding: 10px 0 !important;
+}
+
+#cv-order-sidebar #cart-section #cart-list .cart-line:last-child {
+    border-bottom: none !important;
+}
+
+#cv-order-sidebar #cart-section .cart-item-name,
+#cv-order-sidebar #cart-section .cart-item-price,
+#cv-order-sidebar #cart-section .cart-line-guests,
+#cv-order-sidebar #cart-total {
+    color: #0b0b0b !important;
+}
+
+#cv-order-sidebar #cart-section .cart-item-price,
+#cv-order-sidebar #cart-total {
+    font-family: IBM Plex Mono, monospace !important;
+    font-weight: 700 !important;
+}
+
+#cv-order-sidebar #cart-section .cart-remove-btn {
+    background: #ffe8e8 !important;
+    color: #7c1212 !important;
+    border: 1px solid #7c1212 !important;
+    border-radius: 2px !important;
+    opacity: 1 !important;
+}
+
+#cv-order-sidebar .pricing-shell {
+    margin-top: 0 !important;
+    border-top: 2px solid #0b0b0b !important;
+    padding-top: 10px !important;
+}
+
+#cv-order-sidebar .pricing-shell .default-package-price,
+#cv-order-sidebar .pricing-shell .default-service-charge,
+#cv-order-sidebar .pricing-shell .default-sales-tax,
+#cv-order-sidebar .pricing-shell .default-gratuity,
+#cv-order-sidebar .pricing-shell .addonns > div,
+#cv-order-sidebar .pricing-shell .sales_tax > div,
+#cv-order-sidebar .pricing-shell .default-promo-discount {
+    background: #ffffff !important;
+    color: #0b0b0b !important;
+    border: 2px solid #0b0b0b !important;
+    border-radius: 2px !important;
+    box-shadow: 3px 3px 0 #0b0b0b !important;
+    padding: 8px 10px !important;
+    margin-bottom: 8px !important;
+}
+
+#cv-order-sidebar .pricing-shell .default-package-price > span,
+#cv-order-sidebar .pricing-shell .default-service-charge > span,
+#cv-order-sidebar .pricing-shell .default-sales-tax > span,
+#cv-order-sidebar .pricing-shell .default-gratuity > span,
+#cv-order-sidebar .pricing-shell .addonns > div > span,
+#cv-order-sidebar .pricing-shell .sales_tax > div > span,
+#cv-order-sidebar .pricing-shell .default-promo-discount > span {
+    color: #0b0b0b !important;
+    font-family: IBM Plex Mono, monospace !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+}
+
+#cv-order-sidebar .pricing-shell .default-deposit {
+    background: #0b0b0b !important;
+    border: 2px solid #0b0b0b !important;
+    box-shadow: 4px 4px 0 #00c853 !important;
+    border-radius: 2px !important;
+}
+
+#cv-order-sidebar .pricing-shell .default-deposit > span:first-child {
+    color: #d8ffe7 !important;
+    font-family: IBM Plex Mono, monospace !important;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+#cv-order-sidebar .pricing-shell .default-deposit > span:last-child {
+    color: #00ff66 !important;
+    font-family: IBM Plex Mono, monospace !important;
+    font-size: 24px !important;
+    font-weight: 700 !important;
+}
+
+#cv-order-sidebar .dynamic-price.col-md-6 {
+    background: #ffffff !important;
+    border: 2px solid #0b0b0b !important;
+    border-radius: 2px !important;
+    box-shadow: 3px 3px 0 #0b0b0b !important;
+    padding: 10px !important;
+}
+
+#cv-order-sidebar .dynamic-price.col-md-6 > label,
+#cv-order-sidebar .dynamic-price.col-md-6 .promo_code,
+#cv-order-sidebar .dynamic-price.col-md-6 .default-promo-code {
+    color: #0b0b0b !important;
+    font-family: IBM Plex Mono, monospace !important;
+    font-weight: 700 !important;
+}
+
+#cv-order-sidebar .dynamic-price.col-md-6 #promo_code {
+    background: #ffffff !important;
+    color: #0b0b0b !important;
+    border: 2px solid #0b0b0b !important;
+    border-radius: 2px !important;
+    font-family: IBM Plex Mono, monospace !important;
+}
+
+#cv-order-sidebar .dynamic-price.col-md-6 #applyPromoBtn,
+#cv-order-sidebar .dynamic-price.col-md-6 .vip-btn-submit {
+    background: #00c853 !important;
+    color: #04210f !important;
+    border: 2px solid #0b0b0b !important;
+    border-radius: 2px !important;
+    box-shadow: 3px 3px 0 #0b0b0b !important;
+    font-family: IBM Plex Mono, monospace !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+}
+
+#cv-order-sidebar #shareLinkContainer {
+    margin-top: 6px !important;
+}
+
+#cv-order-sidebar #generateShareLink {
+    background: #0b0b0b !important;
+    color: #ffffff !important;
+    border: 2px solid #0b0b0b !important;
+    border-radius: 2px !important;
+    box-shadow: 3px 3px 0 #00c853 !important;
+    font-family: IBM Plex Mono, monospace !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+#cv-order-sidebar #generateShareLink:hover {
+    transform: translate(-1px, -1px);
+}
+
+#cv-order-sidebar .cv-trust-list {
+    background: #ffffff !important;
+    border: 2px solid #0b0b0b !important;
+    border-radius: 2px !important;
+    box-shadow: 3px 3px 0 #0b0b0b !important;
+    padding: 10px !important;
+}
+
+#cv-order-sidebar .cv-trust-item {
+    border-bottom: 1px dashed #0b0b0b !important;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+}
+
+#cv-order-sidebar .cv-trust-item:last-child {
+    border-bottom: none !important;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+#cv-order-sidebar .cv-trust-item i,
+#cv-order-sidebar .cv-trust-item strong,
+#cv-order-sidebar .cv-trust-item span,
+#cv-order-sidebar .cv-cta-terms,
+#cv-order-sidebar .cv-cta-terms a {
+    color: #0b0b0b !important;
+}
+
+@media (max-width: 768px) {
+    #cv-order-sidebar,
+    .cv-sidebar {
+        box-shadow: 5px 5px 0 #0b0b0b !important;
+    }
+
+    #cv-order-sidebar .cv-sidebar-header,
+    #cv-order-sidebar #cv-sidebar-body,
+    #cv-order-sidebar .cv-sidebar-venue-row {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+}
