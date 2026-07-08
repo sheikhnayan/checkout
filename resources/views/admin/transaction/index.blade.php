@@ -738,11 +738,6 @@ body.modal-open .admin-mobile-menu-toggle {
                         <option value="Completed" {{ $filterStatus === 'Completed' ? 'selected' : '' }}>Completed</option>
                         <option value="Canceled" {{ $filterStatus === 'Canceled' ? 'selected' : '' }}>Canceled</option>
                         <option value="Refunded" {{ $filterStatus === 'Refunded' ? 'selected' : '' }}>Refunded</option>
-                        <option value="Pending" {{ $filterStatus === 'Pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="Approved" {{ $filterStatus === 'Approved' ? 'selected' : '' }}>Approved</option>
-                        <option value="Paid" {{ $filterStatus === 'Paid' ? 'selected' : '' }}>Paid</option>
-                        <option value="Reversed" {{ $filterStatus === 'Reversed' ? 'selected' : '' }}>Reversed</option>
-                        <option value="N/A" {{ $filterStatus === 'N/A' ? 'selected' : '' }}>N/A</option>
                     </select>
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
