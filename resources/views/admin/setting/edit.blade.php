@@ -27,6 +27,37 @@
 label{
     color: #000 !important;
 }
+
+.mode-card {
+    border: 1px solid #dbe3ea;
+    border-radius: 10px;
+    background: #f8fafc;
+    padding: 16px;
+}
+
+.mode-card .mode-title {
+    color: #0f172a;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mode-card .form-check-label {
+    color: #111827 !important;
+    font-weight: 600;
+}
+
+.mode-current {
+    margin-top: 10px;
+    color: #334155;
+    font-size: 13px;
+}
+
+.mode-current strong {
+    font-size: 13px;
+}
 </style>
 <style>
   #suggestions {
@@ -137,24 +168,34 @@ label{
                                                     </div>
                                                 </div>
 
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="google_analytics_measurement_id" class="form-label">Google Analytics Measurement ID (Optional) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Global GA4 Measurement ID used for promoter and entertainer public pages."></i></label>
+                                                        <input type="text" name="google_analytics_measurement_id" class="form-control @error('google_analytics_measurement_id') is-invalid @enderror" id="google_analytics_measurement_id" value="{{ old('google_analytics_measurement_id', $data->google_analytics_measurement_id) }}" placeholder="e.g. G-XXXXXXXXXX">
+                                                        @error('google_analytics_measurement_id')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+
                                                 <div class="col-md-12">
-                                                    <div class="mb-3 p-3" style="border:1px solid #e5e7eb; border-radius:8px; background:#f9fafb;">
-                                                        <label class="form-label d-block mb-2">
-                                                            Payment Gateway Mode
+                                                    <div class="mb-3 mode-card">
+                                                        <p class="mode-title">
+                                                            <span>Payment Gateway Mode</span>
                                                             <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Controls the Authorize.Net / Stripe environment for clubs that use the GLOBAL keys above. Sandbox = test only, no real charges. Uncheck to process REAL payments. A per-club override on the website Payment Settings page still takes precedence."></i>
-                                                        </label>
+                                                        </p>
                                                         <div class="form-check form-switch">
                                                             <input class="form-check-input" type="checkbox" role="switch" name="sandbox_mode" id="sandbox_mode" value="1" @checked(old('sandbox_mode', $data->sandbox_mode ?? true))>
                                                             <label class="form-check-label" for="sandbox_mode">
-                                                                Sandbox (test) mode — <strong>uncheck to go LIVE</strong> and process real payments
+                                                                Sandbox (test) mode. Uncheck to go live and process real payments.
                                                             </label>
                                                         </div>
-                                                        <small class="d-block mt-2">
-                                                            Current global mode:
+                                                        <div class="mode-current">
+                                                            <span>Current global mode:</span>
                                                             <strong class="{{ ($data->sandbox_mode ?? true) ? 'text-warning' : 'text-success' }}">
                                                                 {{ ($data->sandbox_mode ?? true) ? 'SANDBOX (test)' : 'LIVE (real charges)' }}
                                                             </strong>
-                                                        </small>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>

@@ -14,6 +14,7 @@ class Setting extends Model
         'payment_method',
         'sandbox_mode',
         'affiliate_withdraw_charge',
+        'google_analytics_measurement_id',
     ];
 
     protected $casts = [

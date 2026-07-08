@@ -5555,7 +5555,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
         </style>
         @php
-            $gaMeasurementId = preg_replace('/[^A-Za-z0-9_-]/', '', (string) ($data->google_analytics_id ?? ''));
+            $gaMeasurementId = preg_replace('/[^A-Za-z0-9_-]/', '', (string) (optional($setting)->google_analytics_measurement_id ?? ''));
         @endphp
         @if(!empty($gaMeasurementId))
             <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaMeasurementId }}"></script>
