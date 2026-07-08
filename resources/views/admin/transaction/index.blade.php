@@ -745,7 +745,6 @@ body.modal-open .admin-mobile-menu-toggle {
                         <option value="" {{ $filterReservation === '' ? 'selected' : '' }}>All Reservations</option>
                         <option value="upcoming" {{ $filterReservation === 'upcoming' ? 'selected' : '' }}>Upcoming</option>
                         <option value="today" {{ $filterReservation === 'today' ? 'selected' : '' }}>Today</option>
-                        <option value="weekend" {{ $filterReservation === 'weekend' ? 'selected' : '' }}>This Weekend</option>
                         <option value="past" {{ $filterReservation === 'past' ? 'selected' : '' }}>Past</option>
                         <option value="checked_in" {{ $filterReservation === 'checked_in' ? 'selected' : '' }}>Checked In</option>
                         <option value="no_show" {{ $filterReservation === 'no_show' ? 'selected' : '' }}>No Show</option>
@@ -1683,9 +1682,10 @@ body.modal-open .admin-mobile-menu-toggle {
                     setOrDelete('type', $('#typeFilter').val());
                     setOrDelete('affiliate', $('#affiliateFilter').val());
                     setOrDelete('status', $('#statusFilter').val());
-                    const typeValue = String($('#typeFilter').val() || '').trim().toLowerCase();
-                    if (typeValue === 'reservation') {
-                        setOrDelete('reservation', $('#reservationFilter').val());
+                    const reservationValue = String($('#reservationFilter').val() || '').trim();
+                    if (reservationValue) {
+                        params.set('type', 'Reservation');
+                        setOrDelete('reservation', reservationValue);
                     } else {
                         params.delete('reservation');
                     }
