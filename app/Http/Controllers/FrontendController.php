@@ -104,6 +104,24 @@ class FrontendController extends Controller
         
         // Return 404 if website not found
         if (!$data) {
+            if (auth()->check()) {
+                $user = auth()->user();
+
+                if ($user->isAffiliate()) {
+                    return redirect()->route('affiliate.portal.dashboard');
+                }
+
+                if ($user->isEntertainer()) {
+                    return redirect()->route('entertainer.portal.dashboard');
+                }
+
+                if ($user->isWebsiteUser() || $user->isBouncer() || $user->isManager()) {
+                    return redirect()->route('admin.index');
+                }
+
+                return redirect()->route('admin.transaction.index');
+            }
+
             abort(404, 'Website not found');
         }
 

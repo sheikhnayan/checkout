@@ -485,6 +485,29 @@ Route::group(['prefix'=> 'entertainer-portal', 'as' => 'entertainer.portal.', 'm
     Route::post('/withdraw/methods/{id}/default', [WithdrawController::class, 'setDefaultMethod'])->name('withdraw.methods.default');
 });
 
+// Legacy portal aliases to prevent 404s when browser back lands on old URLs.
+Route::get('/{legacyPortal}', function (string $legacyPortal) {
+    if (!auth()->check()) {
+        return redirect()->route('login');
+    }
+
+    $user = auth()->user();
+
+    if ($user->isAffiliate()) {
+        return redirect()->route('affiliate.portal.dashboard');
+    }
+
+    if ($user->isEntertainer()) {
+        return redirect()->route('entertainer.portal.dashboard');
+    }
+
+    if ($user->isWebsiteUser() || $user->isBouncer() || $user->isManager()) {
+        return redirect()->route('admin.index');
+    }
+
+    return redirect()->route('admin.transaction.index');
+})->where('legacyPortal', 'promoter-page|affiliate-page|entertainer-page|promoter-dashboard|affiliate-dashboard|entertainer-dashboard');
+
 // Payment Logo routes (outside admin group for direct access)
 Route::post('/payment-logos', [PaymentLogoController::class, 'store'])->middleware('image.upload.guard')->name('payment-logos.store');
 Route::delete('/payment-logos/{id}', [PaymentLogoController::class, 'destroy'])->name('payment-logos.destroy');
