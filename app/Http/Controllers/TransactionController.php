@@ -1252,7 +1252,7 @@ class TransactionController extends Controller
         }
 
         $reservationFilter = strtolower(trim((string) $request->query('reservation', '')));
-        if ($reservationFilter !== '') {
+        if ($reservationFilter !== '' && $type === 'reservation') {
             $today = Carbon::now('America/Los_Angeles')->startOfDay();
             $tomorrow = $today->copy()->addDay();
             $endOfWeek = $today->copy()->endOfWeek();
@@ -1275,6 +1275,8 @@ class TransactionController extends Controller
                         $noShowQuery->whereNull('checked_in_status')
                             ->orWhere('checked_in_status', 0);
                     });
+            } elseif ($reservationFilter === 'checked_in') {
+                $query->where('checked_in_status', 1);
             }
         }
 

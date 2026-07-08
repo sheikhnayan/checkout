@@ -747,6 +747,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         <option value="today" {{ $filterReservation === 'today' ? 'selected' : '' }}>Today</option>
                         <option value="weekend" {{ $filterReservation === 'weekend' ? 'selected' : '' }}>This Weekend</option>
                         <option value="past" {{ $filterReservation === 'past' ? 'selected' : '' }}>Past</option>
+                        <option value="checked_in" {{ $filterReservation === 'checked_in' ? 'selected' : '' }}>Checked In</option>
                         <option value="no_show" {{ $filterReservation === 'no_show' ? 'selected' : '' }}>No Show</option>
                     </select>
                 </div>
@@ -1265,15 +1266,9 @@ body.modal-open .admin-mobile-menu-toggle {
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end" style="background:#1e293b;border:1px solid rgba(255,255,255,0.1)">
                                             @if(!$isArchivedView)
-                                            @if($item->type === 'package')
-                                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="/admins/transaction/change/{{ $item->id }}/1"><i class="fas fa-check me-2 text-success"></i>Mark Completed</a></li>
-                                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="/admins/transaction/change/{{ $item->id }}/0"><i class="fas fa-times me-2 text-danger"></i>Mark Canceled</a></li>
-                                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="/admins/transaction/change/{{ $item->id }}/2"><i class="fas fa-undo me-2 text-warning"></i>Mark Refunded</a></li>
-                                            @else
-                                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="/transaction/{{ $item->id }}/1"><i class="fas fa-check me-2 text-success"></i>Mark Completed</a></li>
-                                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="/transaction/{{ $item->id }}/0"><i class="fas fa-times me-2 text-danger"></i>Mark Canceled</a></li>
-                                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="/transaction/{{ $item->id }}/2"><i class="fas fa-undo me-2 text-warning"></i>Mark Refunded</a></li>
-                                            @endif
+                                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="{{ route('admin.transaction.update', ['id' => $item->id, 'status' => 1]) }}"><i class="fas fa-check me-2 text-success"></i>Mark Completed</a></li>
+                                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="{{ route('admin.transaction.update', ['id' => $item->id, 'status' => 0]) }}"><i class="fas fa-times me-2 text-danger"></i>Mark Canceled</a></li>
+                                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="{{ route('admin.transaction.update', ['id' => $item->id, 'status' => 2]) }}"><i class="fas fa-undo me-2 text-warning"></i>Mark Refunded</a></li>
                                             @endif
                                             @if($canArchiveTransactions)
                                             <li><hr class="dropdown-divider" style="border-color:rgba(255,255,255,0.12)"></li>
@@ -1688,7 +1683,12 @@ body.modal-open .admin-mobile-menu-toggle {
                     setOrDelete('type', $('#typeFilter').val());
                     setOrDelete('affiliate', $('#affiliateFilter').val());
                     setOrDelete('status', $('#statusFilter').val());
-                    setOrDelete('reservation', $('#reservationFilter').val());
+                    const typeValue = String($('#typeFilter').val() || '').trim().toLowerCase();
+                    if (typeValue === 'reservation') {
+                        setOrDelete('reservation', $('#reservationFilter').val());
+                    } else {
+                        params.delete('reservation');
+                    }
 
                     const rangeStr = String($('#txnDateRange').val() || '').trim();
                     if (rangeStr && rangeStr.includes(' - ')) {
