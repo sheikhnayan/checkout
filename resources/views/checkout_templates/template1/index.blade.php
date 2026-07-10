@@ -6123,7 +6123,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
     
                                                     <div class="col-md-12">
 
-                                                        <h2 style="margin-bottom: 8px;">Transportation</h2>
+                                                        <h2 id="transport-section-title" style="margin-bottom: 8px;">Transportation</h2>
                                                         <div id="transportation-hours-range" style="display: none; margin-bottom: 24px; font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.92);"></div>
 
                                                         <!-- Left: Form Fields -->
@@ -6202,7 +6202,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                                 </label>
                                                             </div>
 
-                                                            <div class="checkbox-container transportaiton" style="margin-top: 14px; border-color: rgba(255, 204, 0, 0.45) !important; background: linear-gradient(180deg, rgba(51, 34, 5, 0.72), rgba(27, 18, 4, 0.85)) !important;">
+                                                            <div id="transportation-notice-wrap" class="checkbox-container transportaiton" style="margin-top: 14px; border-color: rgba(255, 204, 0, 0.45) !important; background: linear-gradient(180deg, rgba(51, 34, 5, 0.72), rgba(27, 18, 4, 0.85)) !important;">
                                                                 <div style="display:flex; align-items:flex-start; gap:10px; color:rgba(255,255,255,0.95); font-size:14px; line-height:1.55;">
                                                                     <i class="fas fa-triangle-exclamation" style="color:#ffcc00; font-size:16px; margin-top:2px; flex-shrink:0;"></i>
                                                                     <span><strong style="color:#ffdc66;">Transportation Notice:</strong> Transportation is subject to availability. Requests made shortly before your desired pickup time may not be able to be accommodated. Please allow a reasonable amount of advance notice so we have time to coordinate a driver. While we will always do our best to assist, last-minute transportation cannot be guaranteed.</span>
@@ -7667,12 +7667,17 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 const transportationPickupTimeField = $('input[name="transportation_pickup_time"]');
                 const transportationArrivalTimeField = $('input[name="transportation_arrival_time"]');
                 const transportationGuestField = $('input[name="transportation_guest"]');
+                const transportSectionTitle = $('#transport-section-title');
+                const transportNoticeWrap = $('#transportation-notice-wrap');
                 const pickupDateField = $('input[name="package_use_date"]');
                 const driverNotificationConsentWrap = $('.driver-notification-consent-wrap');
                 const driverNotificationConsentInputs = $('.driver-notification-consent-input');
                 if (window.requiresTransportation) {
                     $('#step-2 .step-title').text('Transportation');
                     $('#next-to-transport').text('Next: Transportation Details');
+                    $('#prev-to-transport').text('Previous: Transportation');
+                    transportSectionTitle.text('Transportation');
+                    transportNoticeWrap.show();
                     transportationFields.prop('disabled', false);
                     transportationPickupTimeField.prop('disabled', false).prop('readonly', false);
                     transportationArrivalTimeField.prop('required', false).prop('disabled', false).removeClass('required-field').removeAttr('aria-required');
@@ -7687,8 +7692,11 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     driverNotificationConsentWrap.css('display', 'flex');
                     driverNotificationConsentInputs.prop('required', true).attr('aria-required', 'true');
                 } else {
-                    $('#step-2 .step-title').text('Arrival');
-                    $('#next-to-transport').text('Next: Arrival Details');
+                    $('#step-2 .step-title').text('Arrival Time');
+                    $('#next-to-transport').text('Next: Arrival Time Details');
+                    $('#prev-to-transport').text('Previous: Arrival Time');
+                    transportSectionTitle.text('Arrival Time');
+                    transportNoticeWrap.hide();
                     transportationFields.prop('disabled', false);
                     transportationPhoneField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
                     transportationAddressField.prop('required', false).removeClass('required-field').removeAttr('aria-required');
@@ -7718,9 +7726,11 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 const transportationPickupTimeField = $('input[name="transportation_pickup_time"]');
                 const transportationArrivalTimeField = $('input[name="transportation_arrival_time"]');
                 const transportationGuestField = $('input[name="transportation_guest"]');
+                const transportNoticeWrap = $('#transportation-notice-wrap');
                 const isSelfDrive = selfDriveAck.is(':checked');
 
                 if (!window.requiresTransportation) {
+                    transportNoticeWrap.hide();
                     selfDriveWrap.hide();
                     selfDriveAck.prop('checked', false).prop('disabled', true);
                     transportationDetailsFields.hide();
@@ -7737,6 +7747,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 selfDriveAck.prop('disabled', false);
 
                 if (isSelfDrive) {
+                    transportNoticeWrap.hide();
                     transportationDetailsFields.hide();
                     setArrivalTimeVisibility(true);
                     transportationPhoneField.prop('required', false).prop('disabled', true).removeClass('required-field').removeAttr('aria-required');
@@ -7745,6 +7756,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     transportationGuestField.prop('required', false).prop('disabled', true).removeClass('required-field').removeAttr('aria-required');
                     transportationArrivalTimeField.prop('required', true).prop('disabled', false).attr('aria-required', 'true');
                 } else {
+                    transportNoticeWrap.show();
                     transportationDetailsFields.show();
                     setArrivalTimeVisibility(false);
                     transportationPhoneField.prop('required', true).prop('disabled', false).attr('aria-required', 'true');
