@@ -186,11 +186,6 @@ class FrontendController extends Controller
 
             $data->setRelation('events', $this->activeWebsiteEvents($data->id));
 
-            if ($singleCheckoutPackage->event) {
-                $event = $this->decorateEventAttendanceData($singleCheckoutPackage->event);
-                return view($eventView, compact('data', 'event', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout', 'isSinglePackageCheckout'));
-            }
-
             return view($defaultView, compact('data', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout', 'isSinglePackageCheckout'));
         }
 

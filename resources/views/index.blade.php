@@ -1723,6 +1723,169 @@ body {
     display: block;
 }
 
+.hero-gallery-carousel {
+    margin-bottom: 24px;
+    position: relative;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(8,11,22,0.45);
+    overflow: hidden;
+}
+
+.hero-gallery-carousel-track {
+    display: flex;
+    width: 100%;
+    transition: transform .38s ease;
+}
+
+.hero-gallery-carousel-slide {
+    flex: 0 0 100%;
+    width: 100%;
+    height: clamp(220px, 56vw, 360px);
+    border: 0;
+    padding: 0;
+    background: #06090f;
+    cursor: pointer;
+}
+
+.hero-gallery-carousel-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.hero-gallery-carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.26);
+    background: rgba(3,6,16,0.72);
+    color: #fff !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.hero-gallery-carousel-prev { left: 10px; }
+.hero-gallery-carousel-next { right: 10px; }
+
+.hero-gallery-carousel-dots {
+    position: absolute;
+    left: 50%;
+    bottom: 12px;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 2;
+}
+
+.hero-gallery-carousel-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    border: 0;
+    background: rgba(255,255,255,0.46);
+    padding: 0;
+}
+
+.hero-gallery-carousel-dot.is-active,
+.hero-gallery-carousel-dot[aria-selected="true"] {
+    width: 22px;
+    background: var(--accent);
+}
+
+.cv-hero-carousel-panel {
+    flex: 0 0 460px;
+    background: linear-gradient(180deg, rgba(12,8,20,0.72), rgba(6,4,14,0.85)) !important;
+    backdrop-filter: blur(20px) saturate(1.6);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    border: 1px solid rgba(255,255,255,0.18) !important;
+    border-radius: 20px;
+    padding: 12px;
+    align-self: stretch;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 16px 44px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.14), inset 0 -1px 0 rgba(251,113,133,0.18);
+}
+
+.cv-hero-carousel-track {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform .4s ease;
+}
+
+.cv-hero-carousel-slide {
+    flex: 0 0 100%;
+    width: 100%;
+    min-height: 240px;
+    border: 0;
+    padding: 0;
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(0,0,0,0.52);
+    cursor: pointer;
+}
+
+.cv-hero-carousel-slide img {
+    width: 100%;
+    height: 100%;
+    min-height: 240px;
+    object-fit: contain;
+    display: block;
+}
+
+.cv-hero-carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.24);
+    background: rgba(3,6,16,0.72);
+    color: #fff !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 3;
+}
+
+.cv-hero-carousel-prev { left: 14px; }
+.cv-hero-carousel-next { right: 14px; }
+
+.cv-hero-carousel-dots {
+    position: absolute;
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 3;
+}
+
+.cv-hero-carousel-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    border: 0;
+    background: rgba(255,255,255,0.44);
+    padding: 0;
+}
+
+.cv-hero-carousel-dot.is-active,
+.cv-hero-carousel-dot[aria-selected="true"] {
+    width: 24px;
+    background: var(--accent);
+}
+
 .checkout-gallery-modal .modal-content {
     background: rgba(9, 13, 24, 0.96);
     border: 1px solid rgba(255,255,255,0.12);
@@ -2545,6 +2708,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
     .vip-card-side { flex: 1 1 100%; }
     .hero-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .hero-gallery-carousel-slide { height: clamp(210px, 58vw, 320px); }
     .location-shell { grid-template-columns: 1fr; }
     .location-map-wrap,
     .location-map-wrap iframe { min-height: 260px; }
@@ -2600,6 +2764,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
 
     .hero-gallery-grid { grid-template-columns: 1fr; }
+    .hero-gallery-carousel-slide { height: clamp(200px, 66vw, 300px); }
 }
 
 /* ====== CartVIP Redesign UI 2025 ====== */
@@ -2976,12 +3141,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 @media (max-width: 1199px) {
     .cv-hero-location { flex: 0 0 400px; }
     .cv-hero-location-map { min-height: 200px; }
+    .cv-hero-carousel-panel { flex: 0 0 400px; }
 }
 
 @media (max-width: 991px) {
     .cv-hero-bottom { flex-direction: column; align-items: stretch; gap: 18px; }
     .cv-hero-location { flex: 0 0 auto; }
     .cv-hero-location-map { min-height: 200px; }
+    .cv-hero-carousel-panel { flex: 0 0 auto; min-height: 240px; }
 }
 
 @media (max-width: 767px) {
@@ -4927,6 +5094,7 @@ input[type="checkbox"],
     .cv-hamburger { display: none !important; }
     .mobile-top-actions { display: none !important; }
     .aff-hero.cv-venue-header .aff-hero-badges { order: 3; width: 100%; margin-top: 8px; }
+    .cv-hero-carousel-panel { display: none !important; }
 }
 @media (max-width: 420px) {
     .cv-nav-back { padding: 6px 10px !important; font-size: 11.5px !important; }
@@ -4938,6 +5106,7 @@ input[type="checkbox"],
 @media (min-width: 992px) {
     .aff-hero.cv-venue-header { display: none; }
     .hero-gallery-grid { display: none !important; }
+    .hero-gallery-carousel { display: none !important; }
 }
 
 /* Embed-only checkout mode: keep forms and purchase flow, hide page chrome. */
@@ -5132,6 +5301,14 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
 
                 @php
                     $eventHeroImage = !empty($event->image ?? null) ? asset('uploads/' . $event->image) : ($data->logo ? asset('uploads/' . $data->logo) : asset('images/logo.png'));
+                    $eventHeroSlides = [$eventHeroImage];
+                    $eventGalleryImages = is_array($event->gallery_images ?? null) ? array_values(array_filter($event->gallery_images)) : [];
+                    foreach ($eventGalleryImages as $galleryImage) {
+                        $galleryAsset = asset('uploads/' . $galleryImage);
+                        if (!in_array($galleryAsset, $eventHeroSlides, true)) {
+                            $eventHeroSlides[] = $galleryAsset;
+                        }
+                    }
 
                     if (!isset($eventDateOptions) || !is_array($eventDateOptions)) {
                         $eventDateOptions = [];
@@ -5307,42 +5484,47 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                 </div>
                             </div>
 
-                            <aside class="cv-hero-location">
-                                <div class="cv-hero-location-header">
-                                    <div class="cv-hero-location-titles">
-                                        <div class="cv-hero-location-label">Find Us</div>
-                                        <div class="cv-hero-location-name">{{ $data->name }}</div>
-                                        <div class="cv-hero-location-addr">{{ $data->location }}</div>
+                            <aside class="cv-hero-carousel-panel js-event-carousel" data-autoplay="1" data-interval="4600" aria-label="Event images carousel">
+                                <div class="cv-hero-carousel-track">
+                                    @foreach($eventHeroSlides as $slideSrc)
+                                        <button type="button" class="cv-hero-carousel-slide js-checkout-gallery-trigger" data-gallery-src="{{ $slideSrc }}" data-gallery-alt="{{ $event->name }} image {{ $loop->iteration }}" aria-label="View image {{ $loop->iteration }}">
+                                            <img src="{{ $slideSrc }}" alt="{{ $event->name }} image {{ $loop->iteration }}" loading="lazy">
+                                        </button>
+                                    @endforeach
+                                </div>
+                                @if(count($eventHeroSlides) > 1)
+                                    <button type="button" class="cv-hero-carousel-nav cv-hero-carousel-prev" data-dir="prev" aria-label="Previous image"><i class="fas fa-chevron-left"></i></button>
+                                    <button type="button" class="cv-hero-carousel-nav cv-hero-carousel-next" data-dir="next" aria-label="Next image"><i class="fas fa-chevron-right"></i></button>
+                                    <div class="cv-hero-carousel-dots" role="tablist" aria-label="Choose image">
+                                        @foreach($eventHeroSlides as $unusedSlide)
+                                            <button type="button" class="cv-hero-carousel-dot" data-index="{{ $loop->index }}" role="tab" aria-label="Go to image {{ $loop->iteration }}" aria-selected="{{ $loop->first ? 'true' : 'false' }}"></button>
+                                        @endforeach
                                     </div>
-                                    {{-- <span class="cv-hero-location-badge"><i class="fas fa-map-marker-alt"></i>VIP Venue</span> --}}
-                                </div>
-                                <button type="button" class="cv-hero-location-map-btn" data-location="{{ urlencode($data->location) }}">
-                                    <i class="fas fa-map-location-dot"></i>Open in Map
-                                </button>
-                                <div class="cv-hero-location-map">
-                                    <iframe src="https://www.google.com/maps?q={{ urlencode($data->location) }}&output=embed" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                                </div>
-                                <div class="cv-hero-location-contacts">
-                                    @if($data->phone)
-                                        <a href="tel:{{ $data->phone }}" class="cv-hero-location-contact"><i class="fas fa-phone"></i><span>{{ $data->phone }}</span></a>
-                                    @endif
-                                    @if($data->email)
-                                        <a href="mailto:{{ $data->email }}" class="cv-hero-location-contact"><i class="fas fa-envelope"></i><span>{{ $data->email }}</span></a>
-                                    @endif
-                                </div>
+                                @endif
                             </aside>
                         </div>
                     </div>
                 </section>
                 @endif
 
-                @if(!empty($event->gallery_images))
-                    <div class="hero-gallery-grid">
-                        @foreach((array) $event->gallery_images as $galleryImage)
-                            <button type="button" class="hero-gallery-item js-checkout-gallery-trigger" data-gallery-src="{{ asset('uploads/' . $galleryImage) }}" data-gallery-alt="Gallery image {{ $loop->iteration }}">
-                                <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image {{ $loop->iteration }}">
-                            </button>
-                        @endforeach
+                @if(count($eventHeroSlides) > 0)
+                    <div class="hero-gallery-carousel js-event-carousel" data-autoplay="1" data-interval="5000" aria-label="Event gallery carousel">
+                        <div class="hero-gallery-carousel-track">
+                            @foreach($eventHeroSlides as $slideSrc)
+                                <button type="button" class="hero-gallery-carousel-slide js-checkout-gallery-trigger" data-gallery-src="{{ $slideSrc }}" data-gallery-alt="{{ $event->name }} gallery image {{ $loop->iteration }}" aria-label="View gallery image {{ $loop->iteration }}">
+                                    <img src="{{ $slideSrc }}" alt="{{ $event->name }} gallery image {{ $loop->iteration }}" loading="lazy">
+                                </button>
+                            @endforeach
+                        </div>
+                        @if(count($eventHeroSlides) > 1)
+                            <button type="button" class="hero-gallery-carousel-nav hero-gallery-carousel-prev" data-dir="prev" aria-label="Previous gallery image"><i class="fas fa-chevron-left"></i></button>
+                            <button type="button" class="hero-gallery-carousel-nav hero-gallery-carousel-next" data-dir="next" aria-label="Next gallery image"><i class="fas fa-chevron-right"></i></button>
+                            <div class="hero-gallery-carousel-dots" role="tablist" aria-label="Choose gallery image">
+                                @foreach($eventHeroSlides as $unusedSlide)
+                                    <button type="button" class="hero-gallery-carousel-dot" data-index="{{ $loop->index }}" role="tab" aria-label="Go to gallery image {{ $loop->iteration }}" aria-selected="{{ $loop->first ? 'true' : 'false' }}"></button>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
                 @endif
 
@@ -10498,6 +10680,108 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                         sessionStorage.setItem(seenKey, '1');
                     }
                 }, 450);
+            });
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                function setupCarousel(root, config) {
+                    if (!root) {
+                        return;
+                    }
+
+                    const track = root.querySelector(config.trackSelector);
+                    const slides = Array.from(root.querySelectorAll(config.slideSelector));
+                    if (!track || slides.length === 0) {
+                        return;
+                    }
+
+                    const dots = Array.from(root.querySelectorAll(config.dotSelector));
+                    const prevBtn = root.querySelector(config.prevSelector);
+                    const nextBtn = root.querySelector(config.nextSelector);
+                    const autoplayEnabled = root.getAttribute('data-autoplay') === '1' && slides.length > 1;
+                    const intervalMs = Number(root.getAttribute('data-interval') || 5000);
+                    let currentIndex = 0;
+                    let autoplayTimer = null;
+
+                    function render(index) {
+                        const safeIndex = ((index % slides.length) + slides.length) % slides.length;
+                        currentIndex = safeIndex;
+                        track.style.transform = 'translateX(' + (-100 * safeIndex) + '%)';
+
+                        dots.forEach(function(dot, dotIndex) {
+                            const isActive = dotIndex === safeIndex;
+                            dot.classList.toggle('is-active', isActive);
+                            dot.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                        });
+                    }
+
+                    function stopAutoplay() {
+                        if (autoplayTimer) {
+                            clearInterval(autoplayTimer);
+                            autoplayTimer = null;
+                        }
+                    }
+
+                    function startAutoplay() {
+                        if (!autoplayEnabled) {
+                            return;
+                        }
+                        stopAutoplay();
+                        autoplayTimer = setInterval(function() {
+                            render(currentIndex + 1);
+                        }, Math.max(2500, intervalMs));
+                    }
+
+                    if (prevBtn) {
+                        prevBtn.addEventListener('click', function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            render(currentIndex - 1);
+                        });
+                    }
+
+                    if (nextBtn) {
+                        nextBtn.addEventListener('click', function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            render(currentIndex + 1);
+                        });
+                    }
+
+                    dots.forEach(function(dot) {
+                        dot.addEventListener('click', function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            const dotIndex = Number(dot.getAttribute('data-index') || 0);
+                            render(dotIndex);
+                        });
+                    });
+
+                    root.addEventListener('mouseenter', stopAutoplay);
+                    root.addEventListener('mouseleave', startAutoplay);
+                    root.addEventListener('focusin', stopAutoplay);
+                    root.addEventListener('focusout', startAutoplay);
+
+                    render(0);
+                    startAutoplay();
+                }
+
+                setupCarousel(document.querySelector('.cv-hero-carousel-panel.js-event-carousel'), {
+                    trackSelector: '.cv-hero-carousel-track',
+                    slideSelector: '.cv-hero-carousel-slide',
+                    dotSelector: '.cv-hero-carousel-dot',
+                    prevSelector: '.cv-hero-carousel-prev',
+                    nextSelector: '.cv-hero-carousel-next'
+                });
+
+                setupCarousel(document.querySelector('.hero-gallery-carousel.js-event-carousel'), {
+                    trackSelector: '.hero-gallery-carousel-track',
+                    slideSelector: '.hero-gallery-carousel-slide',
+                    dotSelector: '.hero-gallery-carousel-dot',
+                    prevSelector: '.hero-gallery-carousel-prev',
+                    nextSelector: '.hero-gallery-carousel-next'
+                });
             });
         </script>
 
