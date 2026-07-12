@@ -9309,7 +9309,9 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 $(document).on('change', '#transportation_self_drive_ack', function() {
                     updateTransportationSelfDriveState();
                 });
-                        triggerEmbedCheckoutScrollFallback(900);
+                        if (typeof triggerEmbedCheckoutScrollFallback === 'function') {
+                            triggerEmbedCheckoutScrollFallback(900);
+                        }
                 
                 // Previous to Package from Transportation confirmation
                 $('#prev-to-package').click(function() {
@@ -9328,7 +9330,9 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                         showStep(3);
                     }
                 });
-                        triggerEmbedCheckoutScrollFallback(900);
+                        if (typeof triggerEmbedCheckoutScrollFallback === 'function') {
+                            triggerEmbedCheckoutScrollFallback(900);
+                        }
                 
                 // Next to Payment from Transportation form
                 $('#next-to-payment').click(function() {
