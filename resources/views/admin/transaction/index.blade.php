@@ -832,7 +832,8 @@ body.modal-open .admin-mobile-menu-toggle {
                                 $packageName = $item->type === 'package' ? ($item->package_table_label ?: 'Package') : 'Reservation';
                                 $websiteName = $item->website->name ?? 'N/A';
                                 $eventName = optional($item->event)->name;
-                                $venueName = $eventName ?: $websiteName;
+                                $checkoutContextLabel = $eventName ? ('Event Checkout - ' . $eventName) : 'Direct Checkout';
+                                $venueName = $checkoutContextLabel;
 
                                 $cartItems = is_array($item->cart_items ?? null) ? $item->cart_items : json_decode($item->cart_items ?? '[]', true);
                                 $packageDetails = collect($cartItems)->map(function ($ci) {
@@ -949,7 +950,9 @@ body.modal-open .admin-mobile-menu-toggle {
                                 $commission = 0;
                                 $packageName = 'N/A';
                                 $websiteName = 'N/A';
-                                $venueName = 'N/A';
+                                $eventName = null;
+                                $checkoutContextLabel = 'Direct Checkout';
+                                $venueName = $checkoutContextLabel;
                                 $packageDetails = collect([]);
                                 $packageDetailsText = 'N/A';
                                 $packageDescriptionsPayload = ['byId' => [], 'byName' => []];
@@ -1221,6 +1224,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                         data-ip_address="{{ $item->ip_address }}"
                                         data-website_id="{{ $item->website->name ?? '' }}"
                                         data-event_id="{{ $item->event->name ?? '' }}"
+                                        data-checkout_context="{{ $checkoutContextLabel }}"
                                         data-addons="{{ $addons }}"
                                         data-business_company="{{ $item->business_company }}"
                                         data-business_vat="{{ $item->business_vat }}"
@@ -2683,7 +2687,10 @@ body.modal-open .admin-mobile-menu-toggle {
                 var affiliateName = String($(this).data('affiliate_name') || '').trim();
                 var entertainerName = String($(this).data('entertainer_name') || '').trim();
                 var checkoutEventName = String($(this).data('event_id') || '').trim();
-                var checkoutContextLabel = checkoutEventName ? ('Event Checkout - ' + checkoutEventName) : 'General Checkout';
+                var checkoutContextLabel = String($(this).data('checkout_context') || '').trim();
+                if (!checkoutContextLabel) {
+                    checkoutContextLabel = checkoutEventName ? ('Event Checkout - ' + checkoutEventName) : 'Direct Checkout';
+                }
                 var source = 'Direct';
                 if (affiliateName) source = 'Promoter - ' + affiliateName;
                 else if (entertainerName) source = 'Entertainer - ' + entertainerName;
