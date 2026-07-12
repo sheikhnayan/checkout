@@ -177,21 +177,14 @@ class ReportGenerationService
             ->where('transactions.status', 1)
             ->whereBetween('transactions.created_at', [$startDate, $endDate])
             ->join('packages', 'transactions.package_id', '=', 'packages.id')
-            ->leftJoin('websites', 'packages.website_id', '=', 'websites.id')
-            ->select(
-                'packages.name',
-                'websites.name as website_name',
-                DB::raw('SUM(transactions.total) as revenue'),
-                DB::raw('COUNT(transactions.id) as orders')
-            )
-            ->groupBy('packages.id', 'packages.name', 'websites.name')
+            ->select('packages.name', DB::raw('SUM(transactions.total) as revenue'), DB::raw('COUNT(transactions.id) as orders'))
+            ->groupBy('packages.id', 'packages.name')
             ->orderByDesc('revenue')
             ->limit(15)
             ->get()
             ->map(fn ($row) => [
                 'package' => $row->name,
-                'website' => $row->website_name ?: '-',
-                'revenue' => round((float) $row->revenue, 2),
+                'revenue' => (float) $row->revenue,
                 'orders' => (int) $row->orders,
             ]);
 
@@ -638,15 +631,23 @@ class ReportGenerationService
             ->where('transactions.status', 1)
             ->whereBetween('transactions.created_at', [$startDate, $endDate])
             ->join('packages', 'transactions.package_id', '=', 'packages.id')
-            ->select('packages.id', 'packages.name', DB::raw('COUNT(*) as orders'), DB::raw('SUM(transactions.total) as revenue'))
-            ->groupBy('packages.id', 'packages.name')
+            ->leftJoin('websites', 'packages.website_id', '=', 'websites.id')
+            ->select(
+                'packages.id',
+                'packages.name',
+                'websites.name as website_name',
+                DB::raw('COUNT(*) as orders'),
+                DB::raw('SUM(transactions.total) as revenue')
+            )
+            ->groupBy('packages.id', 'packages.name', 'websites.name')
             ->orderByDesc('orders')
             ->limit(20)
             ->get()
             ->map(fn ($row) => [
                 'package' => $row->name,
+                'website' => $row->website_name ?: '-',
                 'orders' => (int) $row->orders,
-                'revenue' => (float) $row->revenue,
+                'revenue' => number_format((float) $row->revenue, 2, '.', ''),
             ]);
 
         return [
