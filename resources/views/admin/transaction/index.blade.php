@@ -806,6 +806,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             <th>Customer</th>
                             <th>Amount</th>
                             <th>Payment</th>
+                            <th>Card Last 4</th>
                             <th>Due Amount</th>
                             <th>Reservation Status</th>
                             <th>Reservation Date</th>
@@ -1013,6 +1014,12 @@ body.modal-open .admin-mobile-menu-toggle {
                                     }
                                 @endphp
                                 <span class="badge-{{ $paymentStatus === 'Paid' ? 'completed' : ($paymentStatus === 'Partial' ? 'warning' : 'canceled') }}" style="font-size:0.85rem;">{{ $paymentText }}</span>
+                            </td>
+                            <td>
+                                @php
+                                    $cardLast4 = trim((string) ($item->payment_card_last4 ?? ''));
+                                @endphp
+                                <span style="font-size:0.85rem;font-weight:600;color:{{ $cardLast4 !== '' ? '#fff' : 'rgba(255,255,255,0.3)' }};">{{ $cardLast4 !== '' ? '**** ' . $cardLast4 : '-' }}</span>
                             </td>
                             <td class="txn-amount">
                                 @if($dueAmount > 0)
@@ -1302,7 +1309,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="17" class="text-center py-5" style="color:rgba(255,255,255,0.3)">
+                            <td colspan="18" class="text-center py-5" style="color:rgba(255,255,255,0.3)">
                                 <i class="fas fa-inbox fa-2x mb-3 d-block"></i>No transactions found.
                             </td>
                         </tr>
