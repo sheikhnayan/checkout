@@ -127,6 +127,57 @@ class TransactionController extends Controller
     }
 
     /**
+     * Only tag a package transaction with event_id when checkout was opened
+     * from explicit event context (event query/referrer), not from general checkout.
+     */
+    private function resolvePackageTransactionEventId(Request $request, ?Package $selectedPackage): ?int
+    {
+        $packageEventId = (int) optional($selectedPackage)->event_id;
+        if ($packageEventId <= 0) {
+            return null;
+        }
+
+        $requestEventId = (int) $request->input('event_id');
+        if ($requestEventId > 0 && $requestEventId === $packageEventId) {
+            return $packageEventId;
+        }
+
+        $requestedEventName = trim((string) $request->input('event_name', ''));
+        if ($requestedEventName !== '') {
+            $matchedEventId = (int) Event::query()
+                ->where('website_id', (int) optional($selectedPackage)->website_id)
+                ->where('name', $requestedEventName)
+                ->value('id');
+
+            if ($matchedEventId > 0 && $matchedEventId === $packageEventId) {
+                return $packageEventId;
+            }
+        }
+
+        $referrer = (string) $request->headers->get('referer', '');
+        if ($referrer !== '') {
+            $query = parse_url($referrer, PHP_URL_QUERY);
+            if (is_string($query) && $query !== '') {
+                parse_str($query, $queryParams);
+                $referrerEventName = trim((string) ($queryParams['event_name'] ?? ''));
+
+                if ($referrerEventName !== '') {
+                    $matchedReferrerEventId = (int) Event::query()
+                        ->where('website_id', (int) optional($selectedPackage)->website_id)
+                        ->where('name', $referrerEventName)
+                        ->value('id');
+
+                    if ($matchedReferrerEventId > 0 && $matchedReferrerEventId === $packageEventId) {
+                        return $packageEventId;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Resolve the Authorize.Net environment URL, honoring the per-website sandbox
      * toggle, then the global setting, defaulting to sandbox when neither is
      * configured (same precedence used by CustomInvoiceController).
@@ -427,7 +478,7 @@ class TransactionController extends Controller
                     $add->payment_zip_code = $request->input('payment_zip_code');
     
     
-                    $event_id = optional($selectedPackage)->event_id;
+                    $event_id = $this->resolvePackageTransactionEventId($request, $selectedPackage);
                     $website_id = $request->website_id;
     
     
@@ -748,7 +799,7 @@ class TransactionController extends Controller
                     $add->payment_zip_code = $request->input('payment_zip_code');
     
     
-                    $event_id = optional($selectedPackage)->event_id;
+                    $event_id = $this->resolvePackageTransactionEventId($request, $selectedPackage);
                     $website_id = $request->website_id;
     
     
@@ -907,7 +958,7 @@ class TransactionController extends Controller
     ) {
         $transactionId = 'FREE-' . strtoupper(Str::random(16));
         $ipAddress = $request->ip();
-        $eventId = optional($selectedPackage)->event_id;
+        $eventId = $this->resolvePackageTransactionEventId($request, $selectedPackage);
         $websiteId = (int) $request->website_id;
         $requiresTransportation = $this->cartRequiresTransportation($cartItems, $selectedPackage);
         $isSelfDriveTransportation = $requiresTransportation && $request->boolean('transportation_self_drive_ack');

@@ -227,11 +227,23 @@ label{
                                                     <div class="mb-3">
                                                         <label for="event_id" class="form-label">Event <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optionally link this package to a specific event. Leave as 'No Event' for standalone packages."></i></label>
                                                         <select name="event_id" class="form-control" id="event_id">
-                                                            <option value="" {{ empty($data->event_id) ? 'selected' : '' }}>No Event</option>
+                                                            <option value="" {{ old('event_id', $data->event_id) ? '' : 'selected' }}>No Event</option>
                                                             @foreach($events as $event)
-                                                                <option value="{{ $event->id }}" {{ $data->event_id == $event->id ? 'selected' : '' }}>{{ $event->name }}</option>
+                                                                <option value="{{ $event->id }}" {{ (string) old('event_id', $data->event_id) === (string) $event->id ? 'selected' : '' }}>{{ $event->name }}</option>
                                                             @endforeach
                                                         </select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6" id="only-for-events-wrap" style="display: {{ old('event_id', $data->event_id) ? 'block' : 'none' }};">
+                                                    <div class="mb-3">
+                                                        <div class="toggle-field">
+                                                            <p class="toggle-text">Only for Events? <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="If enabled, this package appears only on event checkout pages and is hidden from the main checkout page."></i></p>
+                                                            <label class="toggle-switch" for="only_for_events">
+                                                                <input id="only_for_events" type="checkbox" name="only_for_events" class="toggle-switch-input" @checked(old('only_for_events', (int) ($data->only_for_events ?? 0) === 1))>
+                                                                <span class="toggle-switch-slider"></span>
+                                                            </label>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
@@ -711,6 +723,28 @@ label{
         addButton.addEventListener('click', function () {
             addRow('fa-chair', '');
         });
+    })();
+
+    (function () {
+        const eventSelect = document.getElementById('event_id');
+        const wrap = document.getElementById('only-for-events-wrap');
+        const toggle = document.getElementById('only_for_events');
+
+        if (!eventSelect || !wrap || !toggle) {
+            return;
+        }
+
+        function syncOnlyForEventsVisibility() {
+            const hasEvent = String(eventSelect.value || '').trim() !== '';
+            wrap.style.display = hasEvent ? 'block' : 'none';
+
+            if (!hasEvent) {
+                toggle.checked = false;
+            }
+        }
+
+        eventSelect.addEventListener('change', syncOnlyForEventsVisibility);
+        syncOnlyForEventsVisibility();
     })();
 
     // Initialize package type fields on page load

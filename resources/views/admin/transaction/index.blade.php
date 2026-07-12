@@ -2679,6 +2679,8 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 var affiliateName = String($(this).data('affiliate_name') || '').trim();
                 var entertainerName = String($(this).data('entertainer_name') || '').trim();
+                var checkoutEventName = String($(this).data('event_id') || '').trim();
+                var checkoutContextLabel = checkoutEventName ? ('Event Checkout - ' + checkoutEventName) : 'General Checkout';
                 var source = 'Direct';
                 if (affiliateName) source = 'Promoter - ' + affiliateName;
                 else if (entertainerName) source = 'Entertainer - ' + entertainerName;
@@ -3102,7 +3104,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 beginPdfSection('Source & Fees');
                 html += row('Source', source);
                 html += row('Type', $(this).data('type') || 'N/A');
-                html += row('Event ID', $(this).data('event_id') || 'N/A');
+                html += row('Checkout Context', checkoutContextLabel);
                 html += row('Total Fee', money($(this).data('total_commission') || 0));
                 if (affiliateName || affAmt > 0 || affPct > 0 || affStatus) {
                     html += row('Promoter Fee', (affiliateName || 'N/A') + ' | ' + affPct.toFixed(2) + '% | ' + money(affAmt) + (affStatus ? (' | ' + affStatus.toUpperCase()) : '') + (affHold ? (' | ' + affHold) : ''));

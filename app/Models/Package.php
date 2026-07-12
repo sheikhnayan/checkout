@@ -31,11 +31,13 @@ class Package extends Model
         'transportation',
         'package_category_id',
         'event_id',
+        'only_for_events',
         'is_archieved',
     ];
 
     protected $casts = [
         'package_features' => 'array',
+        'only_for_events' => 'boolean',
     ];
     
     public const AUDIENCE_CLUB = 'club';

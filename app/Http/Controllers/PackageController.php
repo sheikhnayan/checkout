@@ -592,6 +592,7 @@ class PackageController extends Controller
             'multiple' => 'nullable',
             'transportation' => 'nullable',
             'is_most_popular' => 'nullable',
+            'only_for_events' => 'nullable|boolean',
             'event_id' => $isTargeted ? 'prohibited' : 'nullable|integer',
             'category_id' => 'nullable|integer',
             'new_category_name' => 'nullable|string|max:255',
@@ -676,9 +677,13 @@ class PackageController extends Controller
         }
 
         $package->package_category_id = $resolvedCategoryId;
-        $package->event_id = $audience === Package::AUDIENCE_CLUB
+        $resolvedEventId = $audience === Package::AUDIENCE_CLUB
             ? $this->resolveEventId($request, $websiteId)
             : null;
+        $package->event_id = $resolvedEventId;
+        $package->only_for_events = $resolvedEventId
+            ? ($request->boolean('only_for_events') ? 1 : 0)
+            : 0;
     }
 
     private function nextSortOrderForCategory(int $websiteId, ?int $categoryId, string $audience, ?int $ignorePackageId = null): int

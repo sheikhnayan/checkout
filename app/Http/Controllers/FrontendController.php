@@ -213,7 +213,7 @@ class FrontendController extends Controller
             }
         }
 
-        $packageCategories = $this->buildPackageCategories($data, null, true);
+        $packageCategories = $this->buildPackageCategories($data, null, false);
 
         $data->setRelation('events', $this->activeWebsiteEvents($data->id));
 
@@ -500,11 +500,18 @@ class FrontendController extends Controller
             ->clubVisible()
             ->where('packages.status', 1)
             ->where('packages.is_archieved', 0)
-            ->when($nullEventOnly, function ($query) {
-                $query->whereNull('packages.event_id');
-            })
             ->when(!$nullEventOnly && $eventId !== null, function ($query) use ($eventId) {
                 $query->where('packages.event_id', $eventId);
+            })
+            ->when($eventId === null, function ($query) {
+                if (!Schema::hasColumn('packages', 'only_for_events')) {
+                    return;
+                }
+
+                $query->where(function ($visibilityQuery) {
+                    $visibilityQuery->whereNull('packages.only_for_events')
+                        ->orWhere('packages.only_for_events', 0);
+                });
             });
 
         if (Schema::hasTable('package_categories') && Schema::hasColumn('package_categories', 'is_archieved')) {
