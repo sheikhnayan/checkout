@@ -830,7 +830,9 @@ body.modal-open .admin-mobile-menu-toggle {
 
                                 $commission  = (float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0);
                                 $packageName = $item->type === 'package' ? ($item->package_table_label ?: 'Package') : 'Reservation';
-                                $venueName   = $item->website->name ?? ($item->event->name ?? 'N/A');
+                                $websiteName = $item->website->name ?? 'N/A';
+                                $eventName = optional($item->event)->name;
+                                $venueName = $eventName ?: $websiteName;
 
                                 $cartItems = is_array($item->cart_items ?? null) ? $item->cart_items : json_decode($item->cart_items ?? '[]', true);
                                 $packageDetails = collect($cartItems)->map(function ($ci) {
@@ -946,6 +948,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                 $affiliateName = '';
                                 $commission = 0;
                                 $packageName = 'N/A';
+                                $websiteName = 'N/A';
                                 $venueName = 'N/A';
                                 $packageDetails = collect([]);
                                 $packageDetailsText = 'N/A';
@@ -1297,7 +1300,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             </td>
                             <td class="d-none">{{ $affiliateName ?: 'DIRECT' }}</td>
                             <td class="d-none">@if($isPayoutPage)@if($commission == 0)N/A@elseif($commStatus === 'paid')PAID OUT@elseif($commStatus === 'reversed')REVERSED@else{{ $commStatus }}@endif@else-@endif</td>
-                            <td class="d-none">{{ $venueName }}</td>
+                            <td class="d-none">{{ $websiteName }}</td>
                             <td class="d-none">{{ $packageName }}</td>
                         </tr>
                         @empty
