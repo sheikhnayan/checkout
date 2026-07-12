@@ -830,10 +830,7 @@ body.modal-open .admin-mobile-menu-toggle {
 
                                 $commission  = (float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0);
                                 $packageName = $item->type === 'package' ? ($item->package_table_label ?: 'Package') : 'Reservation';
-                                $websiteName = $item->website->name ?? 'N/A';
-                                $eventName = optional($item->event)->name;
-                                $checkoutContextLabel = $eventName ? ('Event Checkout - ' . $eventName) : 'Direct Checkout';
-                                $venueName = $checkoutContextLabel;
+                                $venueName   = $item->website->name ?? ($item->event->name ?? 'N/A');
 
                                 $cartItems = is_array($item->cart_items ?? null) ? $item->cart_items : json_decode($item->cart_items ?? '[]', true);
                                 $packageDetails = collect($cartItems)->map(function ($ci) {
@@ -949,10 +946,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                 $affiliateName = '';
                                 $commission = 0;
                                 $packageName = 'N/A';
-                                $websiteName = 'N/A';
-                                $eventName = null;
-                                $checkoutContextLabel = 'Direct Checkout';
-                                $venueName = $checkoutContextLabel;
+                                $venueName = 'N/A';
                                 $packageDetails = collect([]);
                                 $packageDetailsText = 'N/A';
                                 $packageDescriptionsPayload = ['byId' => [], 'byName' => []];
@@ -1224,7 +1218,6 @@ body.modal-open .admin-mobile-menu-toggle {
                                         data-ip_address="{{ $item->ip_address }}"
                                         data-website_id="{{ $item->website->name ?? '' }}"
                                         data-event_id="{{ $item->event->name ?? '' }}"
-                                        data-checkout_context="{{ $checkoutContextLabel }}"
                                         data-addons="{{ $addons }}"
                                         data-business_company="{{ $item->business_company }}"
                                         data-business_vat="{{ $item->business_vat }}"
@@ -1304,7 +1297,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             </td>
                             <td class="d-none">{{ $affiliateName ?: 'DIRECT' }}</td>
                             <td class="d-none">@if($isPayoutPage)@if($commission == 0)N/A@elseif($commStatus === 'paid')PAID OUT@elseif($commStatus === 'reversed')REVERSED@else{{ $commStatus }}@endif@else-@endif</td>
-                            <td class="d-none">{{ $websiteName }}</td>
+                            <td class="d-none">{{ $venueName }}</td>
                             <td class="d-none">{{ $packageName }}</td>
                         </tr>
                         @empty
@@ -2687,10 +2680,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 var affiliateName = String($(this).data('affiliate_name') || '').trim();
                 var entertainerName = String($(this).data('entertainer_name') || '').trim();
                 var checkoutEventName = String($(this).data('event_id') || '').trim();
-                var checkoutContextLabel = String($(this).data('checkout_context') || '').trim();
-                if (!checkoutContextLabel) {
-                    checkoutContextLabel = checkoutEventName ? ('Event Checkout - ' + checkoutEventName) : 'Direct Checkout';
-                }
+                var checkoutContextLabel = checkoutEventName ? ('Event Checkout - ' + checkoutEventName) : 'General Checkout';
                 var source = 'Direct';
                 if (affiliateName) source = 'Promoter - ' + affiliateName;
                 else if (entertainerName) source = 'Entertainer - ' + entertainerName;
