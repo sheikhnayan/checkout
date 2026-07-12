@@ -393,7 +393,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 return '<div><strong>Guests:</strong> <span style="font-weight:700;color:#fbbf24;">' + totalGuests + ' Total</span></div>';
             })(),
-            '<div><strong>Event Date (PST):</strong> ' + (transaction.package_use_date || '-') + '</div>',
+            '<div><strong>Event Date (PT):</strong> ' + (transaction.package_use_date || '-') + '</div>',
             packageListHtml,
             businessDetailsHtml,
             checkedInText

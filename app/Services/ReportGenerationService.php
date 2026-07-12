@@ -177,14 +177,21 @@ class ReportGenerationService
             ->where('transactions.status', 1)
             ->whereBetween('transactions.created_at', [$startDate, $endDate])
             ->join('packages', 'transactions.package_id', '=', 'packages.id')
-            ->select('packages.name', DB::raw('SUM(transactions.total) as revenue'), DB::raw('COUNT(transactions.id) as orders'))
-            ->groupBy('packages.id', 'packages.name')
+            ->leftJoin('websites', 'packages.website_id', '=', 'websites.id')
+            ->select(
+                'packages.name',
+                'websites.name as website_name',
+                DB::raw('SUM(transactions.total) as revenue'),
+                DB::raw('COUNT(transactions.id) as orders')
+            )
+            ->groupBy('packages.id', 'packages.name', 'websites.name')
             ->orderByDesc('revenue')
             ->limit(15)
             ->get()
             ->map(fn ($row) => [
                 'package' => $row->name,
-                'revenue' => (float) $row->revenue,
+                'website' => $row->website_name ?: '-',
+                'revenue' => round((float) $row->revenue, 2),
                 'orders' => (int) $row->orders,
             ]);
 

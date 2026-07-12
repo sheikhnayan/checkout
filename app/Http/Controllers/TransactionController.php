@@ -2126,7 +2126,7 @@ class TransactionController extends Controller
             }
         }
 
-        // Format use date in PST with time (default to midnight if no time)
+        // Format use date in PT with time (default to midnight if no time)
         $useDateFormatted = '-';
         if ($transaction->package_use_date) {
             try {

@@ -93,7 +93,7 @@
                     <div class="col-md-12">
                         <label class="form-label">Send Time</label>
                         <input type="time" name="send_time" class="form-control" value="{{ old('send_time', $schedule->send_time ? substr((string) $schedule->send_time, 0, 5) : '06:00') }}">
-                        <small class="text-muted">If left blank, default is 6:00 AM PST.</small>
+                        <small class="text-muted">If left blank, default is 6:00 AM PT.</small>
                     </div>
 
                     <div class="col-md-6">

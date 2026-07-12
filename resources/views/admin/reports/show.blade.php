@@ -328,14 +328,19 @@ function renderTable(data) {
     
     const headers = Object.keys(data.data[0]);
     headers.forEach(header => {
-        html += '<th>' + header + '</th>';
+        html += '<th>' + humanizeMetricLabel(header) + '</th>';
     });
     html += '</tr></thead><tbody>';
     
     data.data.forEach(row => {
         html += '<tr>';
         headers.forEach(header => {
-            html += '<td>' + formatReportValue(row[header]) + '</td>';
+            if (header === 'revenue') {
+                const revenueValue = Number(row[header]);
+                html += '<td>' + (Number.isFinite(revenueValue) ? revenueValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-') + '</td>';
+            } else {
+                html += '<td>' + formatReportValue(row[header]) + '</td>';
+            }
         });
         html += '</tr>';
     });
