@@ -1689,7 +1689,6 @@ body.modal-open .admin-mobile-menu-toggle {
                     setOrDelete('status', $('#statusFilter').val());
                     const reservationValue = String($('#reservationFilter').val() || '').trim();
                     if (reservationValue) {
-                        params.set('type', 'Reservation');
                         setOrDelete('reservation', reservationValue);
                     } else {
                         params.delete('reservation');
