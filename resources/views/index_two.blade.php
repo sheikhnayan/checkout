@@ -7912,16 +7912,13 @@
                 }
 
                 function resolveTitle(trigger) {
-                    if (trigger.classList.contains('default-service-charge')) return 'Service Charge';
-                    if (trigger.classList.contains('default-sales-tax')) return 'Sales Tax';
-                    if (trigger.classList.contains('default-gratuity')) return 'Gratuity';
-                    if (trigger.classList.contains('default-processing-fee')) return 'Processing Fee';
                     if (trigger.classList.contains('cv-deposit-label')) return 'Due Today';
                     if (trigger.classList.contains('cv-deposit-shield')) return 'Secure Checkout';
 
                     var label = trigger.querySelector('span');
                     if (label) {
                         var text = String(label.textContent || '').trim();
+                        text = text.replace(/:\s*$/, '');
                         if (text) return text.replace(/\bi\s*$/i, '').trim();
                     }
                     return 'Details';
