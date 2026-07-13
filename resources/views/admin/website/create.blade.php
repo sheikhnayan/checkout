@@ -312,6 +312,25 @@ label{
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Entertainer Submission Emails <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Email recipients for entertainer application submissions only."></i></label>
+                                                        <div id="entertainer-submission-emails-wrapper">
+                                                            <div class="row mb-2 entertainer-submission-email-group">
+                                                                <div class="col-5">
+                                                                    <input type="text" class="form-control entertainer-submission-email-name" placeholder="Name">
+                                                                </div>
+                                                                <div class="col-5">
+                                                                    <input type="email" class="form-control entertainer-submission-email-address" placeholder="Email Address">
+                                                                </div>
+                                                                <div class="col-2">
+                                                                    <button type="button" class="btn btn-success add-entertainer-submission-email w-100" title="Add Email"><i class="fa fa-plus"></i></button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <input type="hidden" name="entertainer_submission_emails" id="entertainer-submission-emails-json">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12">
                                                     <div class="alert alert-info">
                                                         Payment keys and fee rules are managed in <strong>Payment Settings</strong> after website creation.
                                                     </div>
@@ -690,6 +709,26 @@ label{
             $(document).on('click', '.remove-email', function() {
                 $(this).closest('.email-group').remove();
             });
+
+            $(document).on('click', '.add-entertainer-submission-email', function() {
+                const emailGroup = `<div class="row mb-2 entertainer-submission-email-group">\
+                    <div class="col-5">\
+                        <input type="text" class="form-control entertainer-submission-email-name" placeholder="Name">\
+                    </div>\
+                    <div class="col-5">\
+                        <input type="email" class="form-control entertainer-submission-email-address" placeholder="Email Address">\
+                    </div>\
+                    <div class="col-2">\
+                        <button type="button" class="btn btn-danger remove-entertainer-submission-email w-100" title="Remove"><i class="fa fa-minus"></i></button>\
+                    </div>\
+                </div>`;
+                $('#entertainer-submission-emails-wrapper').append(emailGroup);
+            });
+
+            $(document).on('click', '.remove-entertainer-submission-email', function() {
+                $(this).closest('.entertainer-submission-email-group').remove();
+            });
+
             // Serialize name/email pairs to JSON on submit
             $('form').on('submit', function(e) {
                 var emails = [];
@@ -701,6 +740,16 @@ label{
                     }
                 });
                 $('#emails-json').val(JSON.stringify(emails));
+
+                var entertainerSubmissionEmails = [];
+                $('#entertainer-submission-emails-wrapper .entertainer-submission-email-group').each(function() {
+                    var name = $(this).find('.entertainer-submission-email-name').val();
+                    var address = $(this).find('.entertainer-submission-email-address').val();
+                    if (name && address) {
+                        entertainerSubmissionEmails.push({name: name, email: address});
+                    }
+                });
+                $('#entertainer-submission-emails-json').val(JSON.stringify(entertainerSubmissionEmails));
             });
 
             (function restoreOldFormValues() {
@@ -710,7 +759,7 @@ label{
                 }
 
                 Object.keys(oldInput).forEach(function (name) {
-                    if (['emails', '_token'].includes(name)) {
+                    if (['emails', 'entertainer_submission_emails', '_token'].includes(name)) {
                         return;
                     }
 
@@ -777,6 +826,45 @@ label{
                 });
 
                 $('#emails-json').val(JSON.stringify(parsedEmails));
+
+                const rawEntertainerSubmissionEmails = oldInput.entertainer_submission_emails;
+                if (!rawEntertainerSubmissionEmails) {
+                    return;
+                }
+
+                let parsedEntertainerSubmissionEmails = [];
+                try {
+                    parsedEntertainerSubmissionEmails = typeof rawEntertainerSubmissionEmails === 'string'
+                        ? JSON.parse(rawEntertainerSubmissionEmails)
+                        : rawEntertainerSubmissionEmails;
+                } catch (e) {
+                    parsedEntertainerSubmissionEmails = [];
+                }
+
+                if (!Array.isArray(parsedEntertainerSubmissionEmails) || parsedEntertainerSubmissionEmails.length === 0) {
+                    return;
+                }
+
+                const entertainerWrapper = $('#entertainer-submission-emails-wrapper');
+                entertainerWrapper.empty();
+
+                parsedEntertainerSubmissionEmails.forEach(function (item, index) {
+                    const name = item && item.name ? item.name : '';
+                    const email = item && item.email ? item.email : '';
+                    const actionBtn = index === 0
+                        ? '<button type="button" class="btn btn-success add-entertainer-submission-email w-100" title="Add Email"><i class="fa fa-plus"></i></button>'
+                        : '<button type="button" class="btn btn-danger remove-entertainer-submission-email w-100" title="Remove"><i class="fa fa-minus"></i></button>';
+
+                    const row = '<div class="row mb-2 entertainer-submission-email-group">'
+                        + '<div class="col-5"><input type="text" class="form-control entertainer-submission-email-name" placeholder="Name" value="' + $('<div>').text(name).html() + '"></div>'
+                        + '<div class="col-5"><input type="email" class="form-control entertainer-submission-email-address" placeholder="Email Address" value="' + $('<div>').text(email).html() + '"></div>'
+                        + '<div class="col-2">' + actionBtn + '</div>'
+                        + '</div>';
+
+                    entertainerWrapper.append(row);
+                });
+
+                $('#entertainer-submission-emails-json').val(JSON.stringify(parsedEntertainerSubmissionEmails));
             })();
 
             @if($errors->has('website_admin_email'))

@@ -73,6 +73,7 @@ class Website extends Model
         'long',
         'phone',
         'email',
+        'entertainer_submission_emails',
         'emails',
         'reservation',
         'payment_method',
@@ -93,6 +94,7 @@ class Website extends Model
     protected $casts = [
         'gallery_images' => 'array',
         'operating_days' => 'array',
+        'entertainer_submission_emails' => 'array',
     ];
    
     /**

@@ -180,6 +180,7 @@ class WebsiteController extends Controller
             'operating_end_time' => 'nullable|date_format:H:i',
             'pickup_start_time' => 'nullable|date_format:H:i',
             'pickup_end_time' => 'nullable|date_format:H:i',
+            'entertainer_submission_emails' => 'nullable|string',
         ]);
 
         // Website admins (user_type = website_user) may reuse an email across websites; block
@@ -200,7 +201,8 @@ class WebsiteController extends Controller
 
         Permission::syncFromAdminRoutes();
 
-        $emails = json_decode($request->emails);
+        $emails = $this->normalizeNotificationEmails($request->input('emails', '[]'));
+        $entertainerSubmissionEmails = $this->normalizeNotificationEmails($request->input('entertainer_submission_emails', '[]'));
 
         $add = new Website;
         $add->name = $request->name;
@@ -235,6 +237,7 @@ class WebsiteController extends Controller
         $add->phone = $request->phone;
         $add->reservation = $request->reservation;
         $add->email = $request->email;
+        $add->entertainer_submission_emails = $entertainerSubmissionEmails;
         $add->gratuity_fee = $request->gratuity_fee;
         $add->gratuity_name = $request->gratuity_name;
         $add->refundable_fee = $request->refundable_fee;
@@ -348,12 +351,11 @@ class WebsiteController extends Controller
             'user_type' => 'website_user',
         ]);
 
-        foreach (($emails ?: []) as $key => $value) {
-            # code...
+        foreach ($emails as $key => $value) {
             $email = new Email;
-            $email->name = $value->name;
+            $email->name = $value['name'] ?? null;
             $email->website_id = $add->id;
-            $email->email = $value->email;
+            $email->email = $value['email'] ?? null;
             $email->save();
         }
 
@@ -450,6 +452,7 @@ class WebsiteController extends Controller
             'operating_end_time' => 'nullable|date_format:H:i',
             'pickup_start_time' => 'nullable|date_format:H:i',
             'pickup_end_time' => 'nullable|date_format:H:i',
+            'entertainer_submission_emails' => 'nullable|string',
         ]);
         
         // Check authorization for website users
@@ -585,18 +588,20 @@ class WebsiteController extends Controller
             }
         }
 
-         $emails = json_decode($request->emails);
+         $emails = $this->normalizeNotificationEmails($request->input('emails', '[]'));
+         $entertainerSubmissionEmails = $this->normalizeNotificationEmails($request->input('entertainer_submission_emails', '[]'));
 
          $de = Email::where('website_id', $id)->delete();
 
          foreach ($emails as $key => $value) {
-            # code...
             $email = new Email;
-            $email->name = $value->name;
+            $email->name = $value['name'] ?? null;
             $email->website_id = $add->id;
-            $email->email = $value->email;
+            $email->email = $value['email'] ?? null;
             $email->save();
         }
+
+        $add->entertainer_submission_emails = $entertainerSubmissionEmails;
 
         $adminEmail = $request->website_admin_email;
 
@@ -767,6 +772,46 @@ class WebsiteController extends Controller
             ->map(fn ($day) => strtolower(trim((string) $day)))
             ->filter(fn ($day) => in_array($day, $validDays, true))
             ->unique()
+            ->values()
+            ->all();
+    }
+
+    private function normalizeNotificationEmails($value): array
+    {
+        if (is_array($value)) {
+            $decoded = $value;
+        } elseif (is_string($value) && trim($value) !== '') {
+            $decoded = json_decode($value, true);
+            if (!is_array($decoded)) {
+                return [];
+            }
+        } else {
+            return [];
+        }
+
+        return collect($decoded)
+            ->map(function ($item) {
+                if (is_object($item)) {
+                    $item = (array) $item;
+                }
+
+                if (!is_array($item)) {
+                    return null;
+                }
+
+                $name = trim((string) ($item['name'] ?? ''));
+                $email = strtolower(trim((string) ($item['email'] ?? '')));
+
+                if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    return null;
+                }
+
+                return [
+                    'name' => $name,
+                    'email' => $email,
+                ];
+            })
+            ->filter()
             ->values()
             ->all();
     }

@@ -147,38 +147,65 @@ class EntertainerRegistrationController extends Controller
             // Send W-9 form email
             Mail::to($user->email)->send(new \App\Mail\W9FormLink($formUrl, $user->name, 'entertainer'));
 
-            $adminEmails = User::where('user_type', 'admin')->pluck('email')->filter()->toArray();
-            $adminEmails[] = 'hello@cartvip.com';
-            $adminEmails = array_unique($adminEmails);
+            $submissionRecipients = collect((array) ($club->entertainer_submission_emails ?? []))
+                ->map(function ($entry) {
+                    if (!is_array($entry)) {
+                        return null;
+                    }
 
-            foreach ($adminEmails as $adminEmail) {
-                Mail::to($adminEmail)->send(new \App\Mail\AdminApplicationNotificationMail(
-                    'Entertainer',
-                    'Public Registration',
-                    $user->name,
-                    $user->email,
-                    $club->name,
-                    $request->input('phone'),
-                    "Experience: " . ($request->input('experience') ? substr($request->input('experience'), 0, 100) . '...' : 'Not provided')
-                ));
-            }
-
-            $websiteUserEmails = User::where('user_type', 'website_user')
-                ->where('website_id', $club->id)
-                ->pluck('email')
+                    $email = strtolower(trim((string) ($entry['email'] ?? '')));
+                    return filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : null;
+                })
                 ->filter()
-                ->toArray();
+                ->unique()
+                ->values();
 
-            foreach ($websiteUserEmails as $websiteUserEmail) {
-                Mail::to($websiteUserEmail)->send(new \App\Mail\AdminApplicationNotificationMail(
-                    'Entertainer',
-                    'Club Application',
-                    $user->name,
-                    $user->email,
-                    $club->name,
-                    $request->input('phone'),
-                    "Experience: " . ($request->input('experience') ? substr($request->input('experience'), 0, 100) . '...' : 'Not provided')
-                ));
+            if ($submissionRecipients->isNotEmpty()) {
+                foreach ($submissionRecipients as $recipientEmail) {
+                    Mail::to($recipientEmail)->send(new \App\Mail\AdminApplicationNotificationMail(
+                        'Entertainer',
+                        'Club Application',
+                        $user->name,
+                        $user->email,
+                        $club->name,
+                        $request->input('phone'),
+                        "Experience: " . ($request->input('experience') ? substr($request->input('experience'), 0, 100) . '...' : 'Not provided')
+                    ));
+                }
+            } else {
+                $adminEmails = User::where('user_type', 'admin')->pluck('email')->filter()->toArray();
+                $adminEmails[] = 'hello@cartvip.com';
+                $adminEmails = array_unique($adminEmails);
+
+                foreach ($adminEmails as $adminEmail) {
+                    Mail::to($adminEmail)->send(new \App\Mail\AdminApplicationNotificationMail(
+                        'Entertainer',
+                        'Public Registration',
+                        $user->name,
+                        $user->email,
+                        $club->name,
+                        $request->input('phone'),
+                        "Experience: " . ($request->input('experience') ? substr($request->input('experience'), 0, 100) . '...' : 'Not provided')
+                    ));
+                }
+
+                $websiteUserEmails = User::where('user_type', 'website_user')
+                    ->where('website_id', $club->id)
+                    ->pluck('email')
+                    ->filter()
+                    ->toArray();
+
+                foreach ($websiteUserEmails as $websiteUserEmail) {
+                    Mail::to($websiteUserEmail)->send(new \App\Mail\AdminApplicationNotificationMail(
+                        'Entertainer',
+                        'Club Application',
+                        $user->name,
+                        $user->email,
+                        $club->name,
+                        $request->input('phone'),
+                        "Experience: " . ($request->input('experience') ? substr($request->input('experience'), 0, 100) . '...' : 'Not provided')
+                    ));
+                }
             }
         } catch (\Throwable $th) {
             // Keep registration successful even if mail fails.

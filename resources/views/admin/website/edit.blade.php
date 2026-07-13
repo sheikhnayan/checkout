@@ -388,6 +388,38 @@
                                                         <input type="hidden" name="emails" id="emails-json">
                                                     </div>
                                                 </div>
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Entertainer Submission Emails <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Email recipients for entertainer application submissions only."></i></label>
+                                                        <div id="entertainer-submission-emails-wrapper">
+                                                            @foreach ((array) ($data->entertainer_submission_emails ?? []) as $item)
+                                                                <div class="row mb-2 entertainer-submission-email-group">
+                                                                    <div class="col-5">
+                                                                        <input type="text" class="form-control entertainer-submission-email-name" placeholder="Name" value="{{ is_array($item) ? ($item['name'] ?? '') : '' }}">
+                                                                    </div>
+                                                                    <div class="col-5">
+                                                                        <input type="email" class="form-control entertainer-submission-email-address" placeholder="Email Address" value="{{ is_array($item) ? ($item['email'] ?? '') : '' }}">
+                                                                    </div>
+                                                                    <div class="col-2">
+                                                                        <button type="button" class="btn btn-danger remove-entertainer-submission-email w-100" title="Remove"><i class="fa fa-minus"></i></button>
+                                                                    </div>
+                                                                </div>
+                                                            @endforeach
+                                                            <div class="row mb-2 entertainer-submission-email-group">
+                                                                <div class="col-5">
+                                                                    <input type="text" class="form-control entertainer-submission-email-name" placeholder="Name">
+                                                                </div>
+                                                                <div class="col-5">
+                                                                    <input type="email" class="form-control entertainer-submission-email-address" placeholder="Email Address">
+                                                                </div>
+                                                                <div class="col-2">
+                                                                    <button type="button" class="btn btn-success add-entertainer-submission-email w-100" title="Add Email"><i class="fa fa-plus"></i></button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <input type="hidden" name="entertainer_submission_emails" id="entertainer-submission-emails-json">
+                                                    </div>
+                                                </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="reservation" class="form-label">Guest-list visible? <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Controls whether a guest-list / reservation tab is shown on the checkout page."></i></label>
@@ -804,6 +836,26 @@
             $(document).on('click', '.remove-email', function() {
                 $(this).closest('.email-group').remove();
             });
+
+            $(document).on('click', '.add-entertainer-submission-email', function() {
+                const emailGroup = `<div class="row mb-2 entertainer-submission-email-group">\
+                    <div class="col-5">\
+                        <input type="text" class="form-control entertainer-submission-email-name" placeholder="Name">\
+                    </div>\
+                    <div class="col-5">\
+                        <input type="email" class="form-control entertainer-submission-email-address" placeholder="Email Address">\
+                    </div>\
+                    <div class="col-2">\
+                        <button type="button" class="btn btn-danger remove-entertainer-submission-email w-100" title="Remove"><i class="fa fa-minus"></i></button>\
+                    </div>\
+                </div>`;
+                $('#entertainer-submission-emails-wrapper').append(emailGroup);
+            });
+
+            $(document).on('click', '.remove-entertainer-submission-email', function() {
+                $(this).closest('.entertainer-submission-email-group').remove();
+            });
+
             // Serialize name/email pairs to JSON on submit
             $('form').on('submit', function(e) {
                 var emails = [];
@@ -815,6 +867,16 @@
                     }
                 });
                 $('#emails-json').val(JSON.stringify(emails));
+
+                var entertainerSubmissionEmails = [];
+                $('#entertainer-submission-emails-wrapper .entertainer-submission-email-group').each(function() {
+                    var name = $(this).find('.entertainer-submission-email-name').val();
+                    var address = $(this).find('.entertainer-submission-email-address').val();
+                    if (name && address) {
+                        entertainerSubmissionEmails.push({name: name, email: address});
+                    }
+                });
+                $('#entertainer-submission-emails-json').val(JSON.stringify(entertainerSubmissionEmails));
             });
 
             (function () {
