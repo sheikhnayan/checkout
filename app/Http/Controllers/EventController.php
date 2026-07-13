@@ -103,7 +103,7 @@ class EventController extends Controller
             'date' => 'nullable|date',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-            'description' => 'required|string',
+            'description' => 'nullable|string',
             'secondary_description' => 'nullable|string',
             'image' => 'required|image|max:4096',
             'gallery_images' => 'nullable|array',
@@ -157,7 +157,7 @@ class EventController extends Controller
         $add->start_date = $startDate;
         $add->end_date = $endDate;
         $add->event_dates = $eventDates;
-        $add->description = $request->description;
+        $add->description = "$request->description";
         $add->secondary_description = $request->secondary_description;
         
         if ($request->hasFile('image')) {
@@ -261,7 +261,7 @@ class EventController extends Controller
             'date' => 'nullable|date',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-            'description' => 'required|string',
+            'description' => 'nullable|string',
             'secondary_description' => 'nullable|string',
             'image' => 'nullable|image|max:4096',
             'gallery_images' => 'nullable|array',
@@ -315,7 +315,7 @@ class EventController extends Controller
         $add->start_date = $startDate;
         $add->end_date = $endDate;
         $add->event_dates = $eventDates;
-        $add->description = $request->description;
+        $add->description = "$request->description";
         $add->secondary_description = $request->secondary_description;
         
         if ($request->hasFile('image')) {

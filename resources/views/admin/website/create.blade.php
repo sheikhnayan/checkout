@@ -331,6 +331,18 @@ label{
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <div class="toggle-field">
+                                                            <p class="toggle-text">Enable ClubLifter bookings</p>
+                                                            <label class="toggle-switch" for="clublifter_enabled">
+                                                                <input id="clublifter_enabled" type="checkbox" name="clublifter_enabled" value="1" class="toggle-switch-input" {{ old('clublifter_enabled') ? 'checked' : '' }}>
+                                                                <span class="toggle-switch-slider"></span>
+                                                            </label>
+                                                        </div>
+                                                        <small class="form-text text-muted">When enabled, eligible package bookings for this website are sent to ClubLifter after checkout.</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12">
                                                     <div class="alert alert-info">
                                                         Payment keys and fee rules are managed in <strong>Payment Settings</strong> after website creation.
                                                     </div>

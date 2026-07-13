@@ -252,7 +252,7 @@ label{
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-12">
+                                                {{-- <div class="col-md-12">
                                                     <div class="mb-3">
                                                         <label for="description" class="form-label">Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Main description text displayed on the event page."></i></label>
                                                         <textarea name="description" class="form-control" id="description" rows="4" placeholder="Event Description" required> {{ $data->description }} </textarea>
@@ -264,7 +264,7 @@ label{
                                                         <label for="secondary_description" class="form-label">Secondary Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional second content block shown beneath the main description on the event page."></i></label>
                                                         <textarea name="secondary_description" class="form-control" id="secondary_description" rows="3" placeholder="Optional secondary description shown on the event page">{{ $data->secondary_description }}</textarea>
                                                     </div>
-                                                </div>
+                                                </div> --}}
 
                                                 <div class="col-md-12">
                                                     <div class="mb-3">

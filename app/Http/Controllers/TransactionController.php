@@ -3408,6 +3408,10 @@ class TransactionController extends Controller
     private function sendClubLifterScheduleAfterResponse(Transaction $add): void
     {
         try {
+            if (! $this->shouldSendClubLifterForTransaction($add)) {
+                return;
+            }
+
             $payload = $this->buildClubLifterSchedulePayload($add);
             if (empty($payload)) {
                 return;
@@ -3585,6 +3589,17 @@ class TransactionController extends Controller
         }
 
         return null;
+    }
+
+    private function shouldSendClubLifterForTransaction(Transaction $transaction): bool
+    {
+        if (empty($transaction->website_id)) {
+            return false;
+        }
+
+        $website = $transaction->relationLoaded('website') ? $transaction->website : Website::find($transaction->website_id);
+
+        return (bool) ($website->clublifter_enabled ?? false);
     }
 
     private function normalizeStoredCartItems($rawCartItems): array

@@ -181,6 +181,7 @@ class WebsiteController extends Controller
             'pickup_start_time' => 'nullable|date_format:H:i',
             'pickup_end_time' => 'nullable|date_format:H:i',
             'entertainer_submission_emails' => 'nullable|string',
+            'clublifter_enabled' => 'nullable|boolean',
         ]);
 
         // Website admins (user_type = website_user) may reuse an email across websites; block
@@ -238,6 +239,7 @@ class WebsiteController extends Controller
         $add->reservation = $request->reservation;
         $add->email = $request->email;
         $add->entertainer_submission_emails = $entertainerSubmissionEmails;
+        $add->clublifter_enabled = $request->boolean('clublifter_enabled');
         $add->gratuity_fee = $request->gratuity_fee;
         $add->gratuity_name = $request->gratuity_name;
         $add->refundable_fee = $request->refundable_fee;
@@ -453,6 +455,7 @@ class WebsiteController extends Controller
             'pickup_start_time' => 'nullable|date_format:H:i',
             'pickup_end_time' => 'nullable|date_format:H:i',
             'entertainer_submission_emails' => 'nullable|string',
+            'clublifter_enabled' => 'nullable|boolean',
         ]);
         
         // Check authorization for website users
@@ -485,6 +488,7 @@ class WebsiteController extends Controller
         $add->policy = $request->policy;
         $add->success_page = self::DEFAULT_SUCCESS_PAGE;
         $add->terms = $request->terms;
+        $add->clublifter_enabled = $request->boolean('clublifter_enabled');
         if ($request->has('gratuity_fee')) {
             $add->gratuity_fee = $request->gratuity_fee;
         }

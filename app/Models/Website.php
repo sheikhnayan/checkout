@@ -74,6 +74,7 @@ class Website extends Model
         'phone',
         'email',
         'entertainer_submission_emails',
+        'clublifter_enabled',
         'emails',
         'reservation',
         'payment_method',
@@ -95,6 +96,7 @@ class Website extends Model
         'gallery_images' => 'array',
         'operating_days' => 'array',
         'entertainer_submission_emails' => 'array',
+        'clublifter_enabled' => 'boolean',
     ];
    
     /**

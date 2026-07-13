@@ -445,7 +445,7 @@
             <span class="info-value">{{ $club->location ?? 'N/A' }}</span>
         </div>
         <div class="info-row">
-            <span class="info-label">Phone</span>
+            <span class="info-label">Club Contact Phone</span>
             <span class="info-value">{{ $club->phone ?? 'N/A' }}</span>
         </div>
         <div class="info-row">
