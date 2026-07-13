@@ -1081,33 +1081,35 @@ body.modal-open .admin-mobile-menu-toggle {
                                     $reservationStatusValue = 'Upcoming';
                                     $reservationStatusClass = 'badge-reservation-upcoming';
 
-                                    if ($reservationDatePacific) {
-                                        if ($reservationDatePacific->equalTo($laToday)) {
-                                            $reservationStatusValue = 'Today';
-                                            $reservationStatusClass = 'badge-reservation-today';
-                                        } elseif ($reservationDatePacific->greaterThan($laToday)) {
-                                            $reservationStatusValue = 'Upcoming';
-                                            $reservationStatusClass = 'badge-reservation-upcoming';
-                                        } else {
-                                            if ($item->checked_in_status) {
-                                                $reservationStatusValue = 'Checked In';
-                                                $reservationStatusClass = 'badge-reservation-checked-in';
-                                            } elseif ($noShowEligibleAtPacific && $nowPacific->greaterThanOrEqualTo($noShowEligibleAtPacific)) {
-                                                $reservationStatusValue = 'No Show';
-                                                $reservationStatusClass = 'badge-reservation-no-show';
-                                            } else {
+                                    if ($item->checked_in_status) {
+                                        $reservationStatusValue = 'Checked In';
+                                        $reservationStatusClass = 'badge-reservation-checked-in';
+                                    } else {
+                                        if ($reservationDatePacific) {
+                                            if ($reservationDatePacific->equalTo($laToday)) {
+                                                $reservationStatusValue = 'Today';
+                                                $reservationStatusClass = 'badge-reservation-today';
+                                            } elseif ($reservationDatePacific->greaterThan($laToday)) {
                                                 $reservationStatusValue = 'Upcoming';
                                                 $reservationStatusClass = 'badge-reservation-upcoming';
+                                            } else {
+                                                if ($noShowEligibleAtPacific && $nowPacific->greaterThanOrEqualTo($noShowEligibleAtPacific)) {
+                                                    $reservationStatusValue = 'No Show';
+                                                    $reservationStatusClass = 'badge-reservation-no-show';
+                                                } else {
+                                                    $reservationStatusValue = 'Upcoming';
+                                                    $reservationStatusClass = 'badge-reservation-upcoming';
+                                                }
                                             }
                                         }
-                                    }
 
-                                    if ($item->status == 2) {
-                                        $reservationStatusValue = 'Refunded';
-                                        $reservationStatusClass = 'badge-reservation-refunded';
-                                    } elseif ($item->status == 0) {
-                                        $reservationStatusValue = 'Cancelled';
-                                        $reservationStatusClass = 'badge-reservation-cancelled';
+                                        if ($item->status == 2) {
+                                            $reservationStatusValue = 'Refunded';
+                                            $reservationStatusClass = 'badge-reservation-refunded';
+                                        } elseif ($item->status == 0) {
+                                            $reservationStatusValue = 'Cancelled';
+                                            $reservationStatusClass = 'badge-reservation-cancelled';
+                                        }
                                     }
                                 @endphp
                                 <span class="{{ $reservationStatusClass }}">{{ $reservationStatusValue }}</span>
