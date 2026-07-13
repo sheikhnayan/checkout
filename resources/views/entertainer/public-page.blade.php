@@ -7347,11 +7347,26 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     if (trigger.classList.contains('cv-deposit-label')) return 'Due Today';
                     if (trigger.classList.contains('cv-deposit-shield')) return 'Secure Checkout';
 
-                    var label = trigger.querySelector('span');
-                    if (label) {
-                        var text = String(label.textContent || '').trim();
-                        text = text.replace(/:\s*$/, '');
-                        if (text) return text.replace(/\bi\s*$/i, '').trim();
+                    var directText = '';
+                    Array.prototype.forEach.call(trigger.childNodes, function (node) {
+                        if (node && node.nodeType === Node.TEXT_NODE) {
+                            directText += node.textContent || '';
+                        }
+                    });
+                    directText = String(directText || '').replace(/\s+/g, ' ').trim().replace(/:\s*$/, '').trim();
+                    if (directText) return directText;
+
+                    var spans = trigger.querySelectorAll('span');
+                    for (var i = 0; i < spans.length; i++) {
+                        var clone = spans[i].cloneNode(true);
+                        if (clone.querySelectorAll) {
+                            clone.querySelectorAll('.cv-row-info-icon').forEach(function (icon) {
+                                icon.remove();
+                            });
+                        }
+
+                        var text = String(clone.textContent || '').replace(/\s+/g, ' ').trim().replace(/:\s*$/, '').trim();
+                        if (text && !/^\$/.test(text)) return text.replace(/\bi\s*$/i, '').trim();
                     }
                     return 'Details';
                 }
