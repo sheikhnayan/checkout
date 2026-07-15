@@ -1707,15 +1707,6 @@
               event.stopPropagation();
 
               const willOpen = !group.target.classList.contains('show');
-
-              groups.forEach(function (entry) {
-                if (entry === group) {
-                  return;
-                }
-
-                setGroupState(entry, false);
-              });
-
               setGroupState(group, willOpen);
             });
           });
