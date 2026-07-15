@@ -234,6 +234,20 @@
         min-height: 2rem;
       }
 
+      #layout-menu .sidebar-group-panel.collapse {
+        display: block !important;
+        overflow: hidden;
+        max-height: 0;
+        opacity: 0;
+        transition: max-height .28s ease, opacity .2s ease;
+        will-change: max-height, opacity;
+      }
+
+      #layout-menu .sidebar-group-panel.collapse.show {
+        max-height: 720px;
+        opacity: 1;
+      }
+
       .content-footer {
         border-top: 1px solid var(--admin-border);
       }
@@ -871,7 +885,7 @@
       <i class="bx bx-chevron-down ms-auto menu-group-caret"></i>
     </a>
 
-    <ul class="collapse list-unstyled ps-4 {{ $isWebsiteAccessGroupActive ? 'show' : '' }}" id="website-access-group-menu">
+    <ul class="collapse list-unstyled ps-4 sidebar-group-panel {{ $isWebsiteAccessGroupActive ? 'show' : '' }}" id="website-access-group-menu">
       @if(auth()->check() && auth()->user()->isAdmin())
       <li class="menu-item {{ request()->is('admins/website') ? 'active' : '' }}">
         <a href="/admins/website" class="menu-link">
@@ -925,7 +939,7 @@
       <i class="bx bx-chevron-down ms-auto menu-group-caret"></i>
     </a>
 
-    <ul class="collapse list-unstyled ps-4 {{ $isPackagesGroupActive ? 'show' : '' }}" id="packages-offers-group-menu">
+    <ul class="collapse list-unstyled ps-4 sidebar-group-panel {{ $isPackagesGroupActive ? 'show' : '' }}" id="packages-offers-group-menu">
       @if($authUser && $canAccessRoute('admin.event.index'))
       <li class="menu-item {{ request()->is('admins/event') ? 'active' : '' }}">
         <a href="/admins/event" class="menu-link">
@@ -997,7 +1011,7 @@
       <i class="bx bx-chevron-down ms-auto"></i>
     </a>
 
-    <ul class="collapse list-unstyled ps-4 {{ $isManagerPortalActive ? 'show' : '' }}" id="manager-portal-menu">
+    <ul class="collapse list-unstyled ps-4 sidebar-group-panel {{ $isManagerPortalActive ? 'show' : '' }}" id="manager-portal-menu">
       @if($canAccessIncidentPortal)
       <li class="menu-item {{ request()->is('admins/incident*') ? 'active' : '' }}">
         <a href="{{ route('admin.incident.index') }}" class="menu-link">
@@ -1033,7 +1047,7 @@
       <i class="bx bx-chevron-down ms-auto menu-group-caret"></i>
     </a>
 
-    <ul class="collapse list-unstyled ps-4 {{ $isPeopleFeedGroupActive ? 'show' : '' }}" id="people-feed-group-menu">
+    <ul class="collapse list-unstyled ps-4 sidebar-group-panel {{ $isPeopleFeedGroupActive ? 'show' : '' }}" id="people-feed-group-menu">
       @if($authUser && $canAccessRoute('admin.feed-model.index'))
       <li class="menu-item {{ request()->is('admins/feed-model*') ? 'active' : '' }}">
         <a href="{{ route('admin.feed-model.index') }}" class="menu-link">
@@ -1100,7 +1114,7 @@
       <i class="bx bx-chevron-down ms-auto menu-group-caret"></i>
     </a>
 
-    <ul class="collapse list-unstyled ps-4 {{ $isReportsGroupActive ? 'show' : '' }}" id="reports-group-menu">
+    <ul class="collapse list-unstyled ps-4 sidebar-group-panel {{ $isReportsGroupActive ? 'show' : '' }}" id="reports-group-menu">
       @if($authUser && ($canAccessRoute('admin.reports.index') || $authUser->isAdmin()))
       <li class="menu-item {{ request()->is('admins/reports*') ? 'active' : '' }}">
         <a href="{{ route('admin.reports.index') }}" class="menu-link">
@@ -1185,7 +1199,7 @@
       <i class="bx bx-chevron-down ms-auto menu-group-caret"></i>
     </a>
 
-    <ul class="collapse list-unstyled ps-4 {{ $isWithdrawalGroupActive ? 'show' : '' }}" id="withdrawals-group-menu">
+    <ul class="collapse list-unstyled ps-4 sidebar-group-panel {{ $isWithdrawalGroupActive ? 'show' : '' }}" id="withdrawals-group-menu">
       @if(auth()->check() && auth()->user()->isAdmin())
       <li class="menu-item {{ request()->is('admins/withdraw/affiliates*') ? 'active' : '' }}">
         <a href="{{ route('admin.withdraw.affiliates') }}" class="menu-link">
