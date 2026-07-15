@@ -230,22 +230,8 @@
         transform: rotate(180deg);
       }
 
-      .menu-sub.menu-group-sub {
-        list-style: none;
-        margin: 0;
-        padding: 0.25rem 0 0.25rem 2rem;
-      }
-
-      .menu-sub.menu-group-sub .menu-link {
+      .menu-item > ul.collapse.list-unstyled.ps-4 .menu-link {
         min-height: 2rem;
-      }
-
-      .menu-sub.menu-group-sub {
-        display: none;
-      }
-
-      .menu-sub.menu-group-sub.show {
-        display: block;
       }
 
       .content-footer {
@@ -886,7 +872,7 @@
       <i class="bx bx-chevron-down ms-auto menu-group-caret"></i>
     </a>
 
-    <ul class="menu-sub menu-group-sub collapse {{ $isWebsiteAccessGroupActive ? 'show' : '' }}" id="website-access-group-menu">
+    <ul class="collapse list-unstyled ps-4 {{ $isWebsiteAccessGroupActive ? 'show' : '' }}" id="website-access-group-menu">
       @if(auth()->check() && auth()->user()->isAdmin())
       <li class="menu-item {{ request()->is('admins/website') ? 'active' : '' }}">
         <a href="/admins/website" class="menu-link">
@@ -941,7 +927,7 @@
       <i class="bx bx-chevron-down ms-auto menu-group-caret"></i>
     </a>
 
-    <ul class="menu-sub menu-group-sub collapse {{ $isPackagesGroupActive ? 'show' : '' }}" id="packages-offers-group-menu">
+    <ul class="collapse list-unstyled ps-4 {{ $isPackagesGroupActive ? 'show' : '' }}" id="packages-offers-group-menu">
       @if($authUser && $canAccessRoute('admin.event.index'))
       <li class="menu-item {{ request()->is('admins/event') ? 'active' : '' }}">
         <a href="/admins/event" class="menu-link">
@@ -1051,7 +1037,7 @@
       <i class="bx bx-chevron-down ms-auto menu-group-caret"></i>
     </a>
 
-    <ul class="menu-sub menu-group-sub collapse {{ $isPeopleFeedGroupActive ? 'show' : '' }}" id="people-feed-group-menu">
+    <ul class="collapse list-unstyled ps-4 {{ $isPeopleFeedGroupActive ? 'show' : '' }}" id="people-feed-group-menu">
       @if($authUser && $canAccessRoute('admin.feed-model.index'))
       <li class="menu-item {{ request()->is('admins/feed-model*') ? 'active' : '' }}">
         <a href="{{ route('admin.feed-model.index') }}" class="menu-link">
@@ -1119,7 +1105,7 @@
       <i class="bx bx-chevron-down ms-auto menu-group-caret"></i>
     </a>
 
-    <ul class="menu-sub menu-group-sub collapse {{ $isReportsGroupActive ? 'show' : '' }}" id="reports-group-menu">
+    <ul class="collapse list-unstyled ps-4 {{ $isReportsGroupActive ? 'show' : '' }}" id="reports-group-menu">
       @if($authUser && ($canAccessRoute('admin.reports.index') || $authUser->isAdmin()))
       <li class="menu-item {{ request()->is('admins/reports*') ? 'active' : '' }}">
         <a href="{{ route('admin.reports.index') }}" class="menu-link">
@@ -1205,7 +1191,7 @@
       <i class="bx bx-chevron-down ms-auto menu-group-caret"></i>
     </a>
 
-    <ul class="menu-sub menu-group-sub collapse {{ $isWithdrawalGroupActive ? 'show' : '' }}" id="withdrawals-group-menu">
+    <ul class="collapse list-unstyled ps-4 {{ $isWithdrawalGroupActive ? 'show' : '' }}" id="withdrawals-group-menu">
       @if(auth()->check() && auth()->user()->isAdmin())
       <li class="menu-item {{ request()->is('admins/withdraw/affiliates*') ? 'active' : '' }}">
         <a href="{{ route('admin.withdraw.affiliates') }}" class="menu-link">
