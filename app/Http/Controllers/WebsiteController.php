@@ -181,6 +181,7 @@ class WebsiteController extends Controller
             'pickup_start_time' => 'nullable|date_format:H:i',
             'pickup_end_time' => 'nullable|date_format:H:i',
             'entertainer_submission_emails' => 'nullable|string',
+            'show_contact_info' => 'nullable|boolean',
             'clublifter_enabled' => 'nullable|boolean',
         ]);
 
@@ -238,6 +239,7 @@ class WebsiteController extends Controller
         $add->phone = $request->phone;
         $add->reservation = $request->reservation;
         $add->email = $request->email;
+        $add->show_contact_info = $request->boolean('show_contact_info', true);
         $add->entertainer_submission_emails = $entertainerSubmissionEmails;
         $add->clublifter_enabled = $request->boolean('clublifter_enabled');
         $add->gratuity_fee = $request->gratuity_fee;
@@ -455,6 +457,7 @@ class WebsiteController extends Controller
             'pickup_start_time' => 'nullable|date_format:H:i',
             'pickup_end_time' => 'nullable|date_format:H:i',
             'entertainer_submission_emails' => 'nullable|string',
+            'show_contact_info' => 'nullable|boolean',
             'clublifter_enabled' => 'nullable|boolean',
         ]);
         
@@ -485,6 +488,7 @@ class WebsiteController extends Controller
         $add->location = $request->location;
         $add->phone = $request->phone;
         $add->email = $request->email;
+        $add->show_contact_info = $request->boolean('show_contact_info', true);
         $add->policy = $request->policy;
         $add->success_page = self::DEFAULT_SUCCESS_PAGE;
         $add->terms = $request->terms;

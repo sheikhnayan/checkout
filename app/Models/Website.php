@@ -73,6 +73,7 @@ class Website extends Model
         'long',
         'phone',
         'email',
+        'show_contact_info',
         'entertainer_submission_emails',
         'clublifter_enabled',
         'emails',
@@ -95,6 +96,7 @@ class Website extends Model
     protected $casts = [
         'gallery_images' => 'array',
         'operating_days' => 'array',
+        'show_contact_info' => 'boolean',
         'entertainer_submission_emails' => 'array',
         'clublifter_enabled' => 'boolean',
     ];

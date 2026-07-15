@@ -337,6 +337,18 @@
                                                         <input type="email" name="email" class="form-control" value="{{ $data->email }}" id="email" placeholder="Email" required>
                                                     </div>
                                                 </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <div class="toggle-field">
+                                                            <p class="toggle-text">Show Phone/Email on Checkout</p>
+                                                            <label class="toggle-switch" for="show_contact_info">
+                                                                <input id="show_contact_info" type="checkbox" name="show_contact_info" value="1" class="toggle-switch-input" {{ old('show_contact_info', $data->show_contact_info ?? true) ? 'checked' : '' }}>
+                                                                <span class="toggle-switch-slider"></span>
+                                                            </label>
+                                                        </div>
+                                                        <small class="form-text text-muted">Turn off to hide the club phone and email in checkout page contact blocks.</small>
+                                                    </div>
+                                                </div>
                                                 <div class="col-md-12 mt-2">
                                                     <h5 class="website-section-title">Website Admin Access</h5>
                                                     <p class="text-muted">This user will have full access for this website (except super-admin-only platform features).</p>

@@ -261,8 +261,8 @@ body.modal-open .admin-mobile-menu-toggle {
     background: #1e293b;
     border: 1px solid rgba(255,255,255,0.12);
     border-radius: 10px;
-    padding: 10px;
-    margin-bottom: 10px;
+    padding: 12px;
+    margin-bottom: 12px;
 }
 
 #viewTransactionModal .txn-hero-card,
@@ -299,7 +299,7 @@ body.modal-open .admin-mobile-menu-toggle {
 #packageDetailsModal .txn-detail-title {
     color: #e0e7ff;
     font-weight: 700;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
 #viewTransactionModal .txn-section-grid,
@@ -321,8 +321,8 @@ body.modal-open .admin-mobile-menu-toggle {
     display: flex;
     justify-content: space-between;
     gap: 14px;
-    font-size: 0.82rem;
-    padding: 4px 0;
+    font-size: 0.85rem;
+    padding: 5px 0;
     border-bottom: 1px dashed rgba(255,255,255,0.08);
 }
 
@@ -341,10 +341,6 @@ body.modal-open .admin-mobile-menu-toggle {
     color: #e2e8f0;
     font-weight: 600;
     text-align: right;
-}
-
-#packageDetailsModal .modal-body {
-    padding: 12px;
 }
 
 #viewTransactionModal .txn-status-pill {
@@ -3779,9 +3775,6 @@ body.modal-open .admin-mobile-menu-toggle {
                     ($(this).closest('tr').find('.view-btn').data('transportation_arrival_time') || '')
                 ).trim();
                 var transportationArrivalDisplay = formatPickupTime(transportationArrival);
-                var checkedInStatus = String($(this).data('checked_in_status') || '').toLowerCase();
-                checkedInStatus = checkedInStatus === '1' || checkedInStatus === 'true' || checkedInStatus === 'yes';
-                var checkedInAtPacific = String($(this).data('checked_in_at_pacific') || '').trim();
                 var transportationAddress = String($(this).data('transportation_address') || '').trim();
                 var transportationPhone = String($(this).data('transportation_phone') || '').trim();
                 var transportationNote = String($(this).data('transportation_note') || '').trim();
@@ -3854,8 +3847,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     ['Transportation', hasTransportation ? 'Provided' : 'Self Drive Selected'],
                     ['Transportation Date', transportationDate || 'N/A'],
                     ['Pickup Time', transportationPickupDisplay],
-                    ['Arrival Time', transportationArrivalDisplay !== 'N/A' ? transportationArrivalDisplay : (checkedInStatus ? (checkedInAtPacific || 'Checked In') : 'N/A')],
-                    ['Checked-In At (PT)', checkedInStatus ? (checkedInAtPacific || 'Checked In') : 'N/A'],
+                    ['Arrival Time', transportationArrivalDisplay],
                     ['Pickup Address', transportationAddress || 'N/A'],
                     ['Transport Phone', transportationPhone || 'N/A'],
                     ['Transport Note', transportationNote || 'N/A']
@@ -3940,7 +3932,7 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 var html = '<div>';
 
-                html += '<div class="row g-2" style="margin-bottom:6px;">';
+                html += '<div class="row g-3" style="margin-bottom:8px;">';
                 html += '<div class="col-md-6">';
                 html += '<div class="txn-detail-card" style="margin-bottom:0;">';
                 html += '<div class="txn-detail-title">Guest Details</div>';
@@ -3950,8 +3942,8 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row('Date Of Birth', guestDob);
                 html += row('Date Of Use', guestUseDate);
                 html += row('Guest Count', String(totalUnits));
-                html += row('Male', String(menCount));
-                html += row('Female', String(womenCount));
+                html += row('Men', String(menCount));
+                html += row('Women', String(womenCount));
                 html += row('Host Name', hostName);
                 html += row('Guest Note', guestNote);
                 html += '</div>';
@@ -3967,15 +3959,15 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row('Total Units', String(totalUnits));
                 html += row('Add-ons', addonDetails);
                 if (packageLineupItems.length) {
-                    html += '<div style="margin-top:8px;background:rgba(15,23,42,0.55);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px;">';
-                    html += '<div style="font-size:0.76rem;color:#cbd5e1;font-weight:700;margin-bottom:6px;letter-spacing:0.03em;">Package Lineup</div>';
+                    html += '<div style="margin-top:10px;background:rgba(15,23,42,0.55);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px;">';
+                    html += '<div style="font-size:0.78rem;color:#cbd5e1;font-weight:700;margin-bottom:8px;letter-spacing:0.03em;">Package Lineup</div>';
                     packageLineupItems.forEach(function(item) {
                         var qtyText = String(item.quantity) + ' ' + (item.packageType === 'ticket' ? 'tickets' : 'guests');
                         var descriptionText = String(item.description || '').trim();
                         var itemAddons = Array.isArray(item.addonLabels) ? item.addonLabels : [];
                         var addonEntries = itemAddons.map(parseAddonLabel).filter(Boolean);
                         var addonQtyTotal = addonEntries.reduce(function(sum, addon) { return sum + (addon.quantity || 0); }, 0);
-                        html += '<div style="padding:6px 8px;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);margin-bottom:5px;">';
+                        html += '<div style="padding:7px 8px;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);margin-bottom:6px;">';
                         html += '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">';
                         html += '<span style="color:#e2e8f0;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(item.name) + '</span>';
                         html += '<span style="color:#fbbf24;font-weight:700;white-space:nowrap;">x ' + esc(qtyText) + '</span>';
@@ -3997,8 +3989,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row('Transaction Type', transactionType.charAt(0).toUpperCase() + transactionType.slice(1));
                 html += row('Order Date', orderDate);
                 html += row('Website / Venue', $(this).data('website_id') || 'N/A');
-                html += row('Payment Status', statusText);
-                html += row('Redemption Status', checkedInStatus ? 'Checked In' : 'Not Checked In');
+                html += row('Status', statusText);
                 html += '</div>';
                 html += '</div>';
 
@@ -4008,8 +3999,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row('Transportation', hasTransportation ? 'Provided' : 'Self Drive Selected');
                 html += row('Transportation Date', transportationDate || 'N/A');
                 html += row('Pickup Time', transportationPickupDisplay);
-                html += row('Arrival Time', transportationArrivalDisplay !== 'N/A' ? transportationArrivalDisplay : (checkedInStatus ? (checkedInAtPacific || 'Checked In') : 'N/A'));
-                html += row('Checked-In At (PT)', checkedInStatus ? (checkedInAtPacific || 'Checked In') : 'N/A');
+                html += row('Arrival Time', transportationArrivalDisplay);
                 html += row('Pickup Address', transportationAddress || 'N/A');
                 html += row('Transport Phone', transportationPhone || 'N/A');
                 html += row('Transport Note', transportationNote || 'N/A');
@@ -4019,7 +4009,7 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 // Display packages with details
                 if (packageLineupItems.length) {
-                    html += '<h6 style="color:#e0e7ff;margin-top:12px;margin-bottom:10px;font-weight:700;"><i class="fas fa-boxes-stacked"></i> Package Purchase Breakdown</h6>';
+                    html += '<h6 style="color:#e0e7ff;margin-top:16px;margin-bottom:16px;font-weight:700;"><i class="fas fa-boxes-stacked"></i> Package Purchase Breakdown</h6>';
 
                     packageLineupItems.forEach(function(item, index) {
                         var itemUnitPrice = typeof item.unitPrice === 'number' ? item.unitPrice : null;

@@ -5288,14 +5288,16 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                 <div class="cv-hero-location-map">
                                     <iframe src="https://www.google.com/maps?q={{ urlencode($data->location) }}&output=embed" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                                 </div>
-                                <div class="cv-hero-location-contacts">
-                                    @if($data->phone)
-                                        <a href="tel:{{ $data->phone }}" class="cv-hero-location-contact"><i class="fas fa-phone"></i><span>{{ $data->phone }}</span></a>
-                                    @endif
-                                    @if($data->email)
-                                        <a href="mailto:{{ $data->email }}" class="cv-hero-location-contact"><i class="fas fa-envelope"></i><span>{{ $data->email }}</span></a>
-                                    @endif
-                                </div>
+                                @if(($data->show_contact_info ?? true) && ($data->phone || $data->email))
+                                    <div class="cv-hero-location-contacts">
+                                        @if($data->phone)
+                                            <a href="tel:{{ $data->phone }}" class="cv-hero-location-contact"><i class="fas fa-phone"></i><span>{{ $data->phone }}</span></a>
+                                        @endif
+                                        @if($data->email)
+                                            <a href="mailto:{{ $data->email }}" class="cv-hero-location-contact"><i class="fas fa-envelope"></i><span>{{ $data->email }}</span></a>
+                                        @endif
+                                    </div>
+                                @endif
                             </aside>
                         </div>
                     </div>
