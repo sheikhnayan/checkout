@@ -10,7 +10,9 @@ use App\Models\Event;
 use App\Models\Affiliate;
 use App\Models\Entertainer;
 use App\Models\Website;
+use App\Models\WebsiteVisitorSession;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 
 class ReportGenerationService
@@ -72,6 +74,12 @@ class ReportGenerationService
             'commission-expenses' => $this->commissionExpenses(),
             'net-revenue' => $this->netRevenue(),
 
+            // SESSION / TRAFFIC REPORTS
+            'sessions-over-time' => $this->sessionsOverTime(),
+            'visitors-over-time' => $this->visitorsOverTime(),
+            'sessions-by-referrer' => $this->sessionsByReferrer(),
+            'sessions-by-landing-page' => $this->sessionsByLandingPage(),
+
             default => ['error' => 'Report not found'],
         };
     }
@@ -116,6 +124,32 @@ class ReportGenerationService
 
         if ($this->user->entertainer_id) {
             $query->where('entertainer_id', $this->user->entertainer_id);
+        }
+
+        return $query;
+    }
+
+    private function applyWebsiteScopeOnly($query)
+    {
+        if ($this->user->isAdmin()) {
+            return $query;
+        }
+
+        if ($this->user->isManager()) {
+            $websiteIds = $this->user->accessibleWebsiteIds();
+            if (!empty($websiteIds)) {
+                $query->whereIn('website_id', $websiteIds);
+            } else {
+                $query->whereRaw('1 = 0');
+            }
+
+            return $query;
+        }
+
+        if ($this->user->website_id) {
+            $query->where('website_id', $this->user->website_id);
+        } else {
+            $query->whereRaw('1 = 0');
         }
 
         return $query;
@@ -964,6 +998,162 @@ class ReportGenerationService
                 'commissions' => (float) ($affiliateCommission + $entertainerCommission),
                 'net_revenue' => (float) $netRevenue,
             ],
+        ];
+    }
+
+    // ========== TRAFFIC / SESSION REPORTS ==========
+
+    private function sessionsOverTime(): array
+    {
+        if (!Schema::hasTable('website_visitor_sessions')) {
+            return [
+                'type' => 'line_chart',
+                'title' => 'Sessions Over Time',
+                'data' => ['labels' => [], 'datasets' => [['label' => 'Sessions', 'data' => []]]],
+                'raw_data' => [],
+            ];
+        }
+
+        [$startDate, $endDate] = $this->getDateRange();
+
+        $query = WebsiteVisitorSession::query()
+            ->whereBetween('first_seen_at', [$startDate->copy()->utc(), $endDate->copy()->utc()]);
+        $this->applyWebsiteScopeOnly($query);
+
+        $rawData = $query
+            ->select(DB::raw('DATE(first_seen_at) as date'), DB::raw('COUNT(*) as sessions'))
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        $chartData = [
+            'labels' => $rawData->pluck('date')->toArray(),
+            'datasets' => [
+                [
+                    'label' => 'Sessions',
+                    'data' => $rawData->pluck('sessions')->map(fn($v) => (int) $v)->toArray(),
+                    'borderColor' => 'rgb(14, 165, 233)',
+                    'backgroundColor' => 'rgba(14, 165, 233, 0.12)',
+                    'tension' => 0.2,
+                    'fill' => true,
+                ],
+            ],
+        ];
+
+        return [
+            'type' => 'line_chart',
+            'title' => 'Sessions Over Time',
+            'data' => $chartData,
+            'raw_data' => $rawData->map(fn($row) => ['date' => $row->date, 'sessions' => (int) $row->sessions])->toArray(),
+        ];
+    }
+
+    private function visitorsOverTime(): array
+    {
+        if (!Schema::hasTable('website_visitor_sessions')) {
+            return [
+                'type' => 'line_chart',
+                'title' => 'Visitors Over Time',
+                'data' => ['labels' => [], 'datasets' => [['label' => 'Visitors', 'data' => []]]],
+                'raw_data' => [],
+            ];
+        }
+
+        [$startDate, $endDate] = $this->getDateRange();
+
+        $query = WebsiteVisitorSession::query()
+            ->whereBetween('first_seen_at', [$startDate->copy()->utc(), $endDate->copy()->utc()]);
+        $this->applyWebsiteScopeOnly($query);
+
+        $rawData = $query
+            ->select(DB::raw('DATE(first_seen_at) as date'), DB::raw('COUNT(DISTINCT visitor_key) as visitors'))
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        $chartData = [
+            'labels' => $rawData->pluck('date')->toArray(),
+            'datasets' => [
+                [
+                    'label' => 'Visitors',
+                    'data' => $rawData->pluck('visitors')->map(fn($v) => (int) $v)->toArray(),
+                    'borderColor' => 'rgb(16, 185, 129)',
+                    'backgroundColor' => 'rgba(16, 185, 129, 0.12)',
+                    'tension' => 0.2,
+                    'fill' => true,
+                ],
+            ],
+        ];
+
+        return [
+            'type' => 'line_chart',
+            'title' => 'Visitors Over Time',
+            'data' => $chartData,
+            'raw_data' => $rawData->map(fn($row) => ['date' => $row->date, 'visitors' => (int) $row->visitors])->toArray(),
+        ];
+    }
+
+    private function sessionsByReferrer(): array
+    {
+        if (!Schema::hasTable('website_visitor_sessions')) {
+            return ['type' => 'table', 'title' => 'Sessions by Referrer', 'data' => []];
+        }
+
+        [$startDate, $endDate] = $this->getDateRange();
+
+        $query = WebsiteVisitorSession::query()
+            ->whereBetween('first_seen_at', [$startDate->copy()->utc(), $endDate->copy()->utc()]);
+        $this->applyWebsiteScopeOnly($query);
+
+        $data = $query
+            ->whereNotNull('referrer_host')
+            ->where('referrer_host', '!=', '')
+            ->select('referrer_host', DB::raw('COUNT(*) as sessions'))
+            ->groupBy('referrer_host')
+            ->orderByDesc('sessions')
+            ->limit(25)
+            ->get()
+            ->map(fn($row) => [
+                'referrer' => $row->referrer_host,
+                'sessions' => (int) $row->sessions,
+            ]);
+
+        return [
+            'type' => 'table',
+            'title' => 'Sessions by Referrer',
+            'data' => $data->toArray(),
+        ];
+    }
+
+    private function sessionsByLandingPage(): array
+    {
+        if (!Schema::hasTable('website_visitor_sessions')) {
+            return ['type' => 'table', 'title' => 'Sessions by Landing Page', 'data' => []];
+        }
+
+        [$startDate, $endDate] = $this->getDateRange();
+
+        $query = WebsiteVisitorSession::query()
+            ->whereBetween('first_seen_at', [$startDate->copy()->utc(), $endDate->copy()->utc()]);
+        $this->applyWebsiteScopeOnly($query);
+
+        $data = $query
+            ->whereNotNull('landing_path')
+            ->where('landing_path', '!=', '')
+            ->select('landing_path', DB::raw('COUNT(*) as sessions'))
+            ->groupBy('landing_path')
+            ->orderByDesc('sessions')
+            ->limit(25)
+            ->get()
+            ->map(fn($row) => [
+                'landing_page' => $row->landing_path,
+                'sessions' => (int) $row->sessions,
+            ]);
+
+        return [
+            'type' => 'table',
+            'title' => 'Sessions by Landing Page',
+            'data' => $data->toArray(),
         ];
     }
 }

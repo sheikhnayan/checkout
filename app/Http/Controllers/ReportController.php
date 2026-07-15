@@ -9,12 +9,14 @@ use App\Models\AutomationReportRun;
 use App\Models\AutomationReportSchedule;
 use App\Models\Transaction;
 use App\Models\Website;
+use App\Models\WebsiteVisitorSession;
 use App\Services\AutomationReportSchedulerService;
 use App\Services\ReportGenerationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -376,6 +378,82 @@ class ReportController extends Controller
             ->when(!empty($websiteIds), fn ($q) => $q->whereIn('id', $websiteIds))
             ->orderBy('name')
             ->get(['id', 'name']);
+
+        $sessionSnapshot = [
+            'top_referrers' => collect(),
+            'top_utm_sources' => collect(),
+            'top_landing_pages' => collect(),
+        ];
+        $totalSessions = 0;
+        $uniqueVisitors = 0;
+        $averagePagesPerSession = 0.0;
+        $averageSessionDurationSeconds = 0.0;
+        $bouncedSessions = 0;
+        $bounceRate = 0.0;
+
+        if (Schema::hasTable('website_visitor_sessions')) {
+            $sessionRangeStart = $startAt->copy()->utc();
+            $sessionRangeEnd = $endAt->copy()->utc();
+
+            $sessionBaseQuery = WebsiteVisitorSession::query()
+                ->whereBetween('first_seen_at', [$sessionRangeStart, $sessionRangeEnd]);
+
+            if (!empty($websiteIds)) {
+                $sessionBaseQuery->whereIn('website_id', $websiteIds);
+            }
+
+            $sessionRows = (clone $sessionBaseQuery)->get([
+                'visitor_key',
+                'page_views',
+                'first_seen_at',
+                'last_seen_at',
+            ]);
+
+            $totalSessions = (int) $sessionRows->count();
+            $uniqueVisitors = (int) $sessionRows->pluck('visitor_key')->filter()->unique()->count();
+            $averagePagesPerSession = $totalSessions > 0
+                ? (float) $sessionRows->avg(fn ($session) => max(1, (int) ($session->page_views ?? 1)))
+                : 0.0;
+
+            $averageSessionDurationSeconds = $totalSessions > 0
+                ? (float) $sessionRows->avg(function ($session) {
+                    if (empty($session->first_seen_at) || empty($session->last_seen_at)) {
+                        return 0;
+                    }
+                    return max(0, $session->last_seen_at->diffInSeconds($session->first_seen_at));
+                })
+                : 0.0;
+
+            $bouncedSessions = (int) $sessionRows->filter(fn ($session) => max(1, (int) ($session->page_views ?? 1)) <= 1)->count();
+            $bounceRate = $totalSessions > 0 ? (($bouncedSessions / $totalSessions) * 100) : 0.0;
+
+            $sessionSnapshot['top_referrers'] = (clone $sessionBaseQuery)
+                ->select('referrer_host', DB::raw('COUNT(*) as sessions'))
+                ->whereNotNull('referrer_host')
+                ->where('referrer_host', '!=', '')
+                ->groupBy('referrer_host')
+                ->orderByDesc('sessions')
+                ->limit(10)
+                ->get();
+
+            $sessionSnapshot['top_utm_sources'] = (clone $sessionBaseQuery)
+                ->select('utm_source', DB::raw('COUNT(*) as sessions'))
+                ->whereNotNull('utm_source')
+                ->where('utm_source', '!=', '')
+                ->groupBy('utm_source')
+                ->orderByDesc('sessions')
+                ->limit(10)
+                ->get();
+
+            $sessionSnapshot['top_landing_pages'] = (clone $sessionBaseQuery)
+                ->select('landing_path', DB::raw('COUNT(*) as sessions'))
+                ->whereNotNull('landing_path')
+                ->where('landing_path', '!=', '')
+                ->groupBy('landing_path')
+                ->orderByDesc('sessions')
+                ->limit(12)
+                ->get();
+        }
 
         $totalRevenue = (float) $transactions->sum('total');
         $totalTransactions = (int) $transactions->count();
@@ -895,6 +973,12 @@ class ReportController extends Controller
             'zero_value_share' => $totalTransactions > 0
                 ? (((int) (collect($orderValueBands)->firstWhere('label', '$0')['transactions'] ?? 0) / $totalTransactions) * 100)
                 : 0,
+            'total_sessions' => $totalSessions,
+            'unique_visitors' => $uniqueVisitors,
+            'avg_pages_per_session' => $averagePagesPerSession,
+            'avg_session_duration_seconds' => $averageSessionDurationSeconds,
+            'bounced_sessions' => $bouncedSessions,
+            'bounce_rate' => $bounceRate,
         ];
 
         $insights = [
@@ -927,6 +1011,7 @@ class ReportController extends Controller
             'sourceSnapshot' => $sourceSnapshot,
             'transportSnapshot' => $transportSnapshot,
             'packageModeSnapshot' => $packageModeSnapshot,
+            'sessionSnapshot' => $sessionSnapshot,
             'insights' => $insights,
             'timezone' => $timezone,
             'periodLabel' => $periodLabel,

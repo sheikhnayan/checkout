@@ -13,10 +13,18 @@ use App\Models\AffiliateWebsite;
 use App\Models\Entertainer;
 use App\Models\CheckoutPopup;
 use App\Models\Transaction;
+use App\Services\WebsiteSessionAnalyticsService;
 use Illuminate\Support\Facades\Schema;
 
 class FrontendController extends Controller
 {
+    private WebsiteSessionAnalyticsService $sessionAnalytics;
+
+    public function __construct(WebsiteSessionAnalyticsService $sessionAnalytics)
+    {
+        $this->sessionAnalytics = $sessionAnalytics;
+    }
+
     public function checkoutTemplateOne($slug, Request $request)
     {
         return $this->renderCheckoutForTemplate($slug, $request, 'template1');
@@ -157,6 +165,13 @@ class FrontendController extends Controller
             if (!$affiliateReferral) {
                 session()->forget(['affiliate_referral_id', 'affiliate_referral_slug']);
             }
+        }
+
+        // Session analytics must never interrupt checkout rendering.
+        try {
+            $this->sessionAnalytics->trackCheckoutPageView($request, $data);
+        } catch (\Throwable $exception) {
+            report($exception);
         }
 
         $requestedPackageId = $request->filled('package') ? (int) $request->input('package') : null;

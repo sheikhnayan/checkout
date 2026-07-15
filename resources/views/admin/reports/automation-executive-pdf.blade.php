@@ -333,6 +333,10 @@
     $commissionRatePct = ($summary['total_revenue'] ?? 0) > 0
         ? (((float) ($summary['total_commission'] ?? 0) / (float) ($summary['total_revenue'] ?? 0)) * 100)
         : 0;
+    $sessionTotalCount = max(1, (int) ($summary['total_sessions'] ?? 0));
+    $sessionReferrerMax = max((int) (collect($sessionSnapshot['top_referrers'] ?? [])->max('sessions') ?? 0), 1);
+    $sessionUtmMax = max((int) (collect($sessionSnapshot['top_utm_sources'] ?? [])->max('sessions') ?? 0), 1);
+    $sessionLandingMax = max((int) (collect($sessionSnapshot['top_landing_pages'] ?? [])->max('sessions') ?? 0), 1);
     $leadTimeTotalCount = (int) $leadTimeBands->sum('transactions');
 
     $transportTx = (int) ($transportSnapshot['transport']['transactions'] ?? 0);
@@ -581,7 +585,59 @@
                 <td class="card"><div class="label">Avg Lead Days</div><div class="value">{{ number_format($summary['avg_lead_days'] ?? 0, 1) }}</div></td>
                 <td class="card"><div class="label">Avg Check-in Lag (min)</div><div class="value">{{ number_format($summary['avg_checkin_lag_minutes'] ?? 0, 0) }}</div></td>
             </tr>
+            <tr>
+                <td class="card"><div class="label">Sessions</div><div class="value">{{ $formatNum($summary['total_sessions'] ?? 0) }}</div></td>
+                <td class="card"><div class="label">Unique Visitors</div><div class="value">{{ $formatNum($summary['unique_visitors'] ?? 0) }}</div></td>
+                <td class="card"><div class="label">Avg Pages / Session</div><div class="value">{{ number_format($summary['avg_pages_per_session'] ?? 0, 2) }}</div></td>
+                <td class="card"><div class="label">Bounce Rate</div><div class="value">{{ number_format($summary['bounce_rate'] ?? 0, 1) }}%</div></td>
+            </tr>
         </table>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Website Session Intelligence</div>
+        <table class="two-col">
+            <tr>
+                <td class="panel">
+                    <div class="graph-box">
+                        <div class="graph-title">Top Referrers</div>
+                        @forelse(($sessionSnapshot['top_referrers'] ?? collect()) as $row)
+                            <div class="bar-row">
+                                <div class="bar-label">{{ $row->referrer_host }} | {{ $formatNum($row->sessions ?? 0) }} sessions | {{ number_format(((float) ($row->sessions ?? 0) / $sessionTotalCount) * 100, 1) }}%</div>
+                                <div class="bar-track"><div class="bar-fill c1" style="width: {{ $pct((float) ($row->sessions ?? 0), $sessionReferrerMax) }}%;"></div></div>
+                            </div>
+                        @empty
+                            <div class="bar-row"><div class="bar-label">No referrer data captured in this period.</div></div>
+                        @endforelse
+                    </div>
+                </td>
+                <td class="panel">
+                    <div class="graph-box">
+                        <div class="graph-title">Top UTM Sources</div>
+                        @forelse(($sessionSnapshot['top_utm_sources'] ?? collect()) as $row)
+                            <div class="bar-row">
+                                <div class="bar-label">{{ $row->utm_source }} | {{ $formatNum($row->sessions ?? 0) }} sessions | {{ number_format(((float) ($row->sessions ?? 0) / $sessionTotalCount) * 100, 1) }}%</div>
+                                <div class="bar-track"><div class="bar-fill c2" style="width: {{ $pct((float) ($row->sessions ?? 0), $sessionUtmMax) }}%;"></div></div>
+                            </div>
+                        @empty
+                            <div class="bar-row"><div class="bar-label">No UTM source data captured in this period.</div></div>
+                        @endforelse
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <div class="graph-box" style="margin-top: 8px;">
+            <div class="graph-title">Top Landing Pages</div>
+            @forelse(($sessionSnapshot['top_landing_pages'] ?? collect()) as $row)
+                <div class="bar-row">
+                    <div class="bar-label">{{ $row->landing_path }} | {{ $formatNum($row->sessions ?? 0) }} sessions</div>
+                    <div class="bar-track"><div class="bar-fill c4" style="width: {{ $pct((float) ($row->sessions ?? 0), $sessionLandingMax) }}%;"></div></div>
+                </div>
+            @empty
+                <div class="bar-row"><div class="bar-label">No landing page data captured in this period.</div></div>
+            @endforelse
+        </div>
     </div>
 
     <div class="section">

@@ -293,6 +293,44 @@ class SeedReports extends Command
                 'available_filters' => ['date_range' => ['today', 'yesterday', 'last_30_days', 'last_90_days', 'this_month', 'this_year']],
                 'display_order' => 3,
             ],
+
+            // TRAFFIC REPORTS
+            [
+                'name' => 'Sessions Over Time',
+                'slug' => 'sessions-over-time',
+                'description' => 'Track website sessions over time',
+                'category' => 'Traffic',
+                'type' => 'line_chart',
+                'available_filters' => ['date_range' => ['today', 'yesterday', 'last_7_days', 'last_30_days', 'last_90_days', 'this_month', 'last_month', 'this_year', 'custom']],
+                'display_order' => 1,
+            ],
+            [
+                'name' => 'Visitors Over Time',
+                'slug' => 'visitors-over-time',
+                'description' => 'Track unique visitors over time',
+                'category' => 'Traffic',
+                'type' => 'line_chart',
+                'available_filters' => ['date_range' => ['today', 'yesterday', 'last_7_days', 'last_30_days', 'last_90_days', 'this_month', 'last_month', 'this_year', 'custom']],
+                'display_order' => 2,
+            ],
+            [
+                'name' => 'Sessions by Referrer',
+                'slug' => 'sessions-by-referrer',
+                'description' => 'Top traffic referrers by session count',
+                'category' => 'Traffic',
+                'type' => 'table',
+                'available_filters' => ['date_range' => ['last_7_days', 'last_30_days', 'last_90_days', 'this_month', 'last_month', 'custom']],
+                'display_order' => 3,
+            ],
+            [
+                'name' => 'Sessions by Landing Page',
+                'slug' => 'sessions-by-landing-page',
+                'description' => 'Top landing pages by session count',
+                'category' => 'Traffic',
+                'type' => 'table',
+                'available_filters' => ['date_range' => ['last_7_days', 'last_30_days', 'last_90_days', 'this_month', 'last_month', 'custom']],
+                'display_order' => 4,
+            ],
         ];
 
         foreach ($reports as $reportData) {
@@ -325,7 +363,7 @@ class SeedReports extends Command
         });
 
         // Website staff (bouncer, manager) see sales, orders, customer, event reports
-        $websiteStaffReports = ['Sales', 'Orders', 'Product', 'Customers', 'Events'];
+        $websiteStaffReports = ['Sales', 'Orders', 'Product', 'Customers', 'Events', 'Traffic'];
         Report::whereIn('category', $websiteStaffReports)->each(function (Report $report) {
             foreach (['bouncer', 'manager'] as $userType) {
                 ReportPermission::updateOrCreate(
