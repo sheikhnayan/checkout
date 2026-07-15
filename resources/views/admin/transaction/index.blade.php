@@ -1133,11 +1133,13 @@ body.modal-open .admin-mobile-menu-toggle {
                                         }
                                     }
                                 @endphp
-                                <span class="{{ $reservationStatusClass }}">{{ $reservationStatusValue }}</span>
                                 @if($reservationStatusValue === 'Upcoming' && $reservationDatePacific)
-                                    <div style="margin-top:4px;font-size:0.74rem;color:rgba(255,255,255,0.62);">
-                                        {{ $reservationDatePacific->format('M d, Y') }}
+                                    <div style="font-size:0.9rem;">{{ $reservationDatePacific->format('M d, Y') }}</div>
+                                    <div style="margin-top:4px;">
+                                        <span class="{{ $reservationStatusClass }}">{{ $reservationStatusValue }}</span>
                                     </div>
+                                @else
+                                    <span class="{{ $reservationStatusClass }}">{{ $reservationStatusValue }}</span>
                                 @endif
                             </td>
                             <td>{{-- RESERVATION DATE --}}
