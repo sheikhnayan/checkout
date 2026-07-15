@@ -978,12 +978,13 @@ body.modal-open .admin-mobile-menu-toggle {
                         <tr data-row-id="{{ $item->id }}" data-row-error="{{ $rowError ?? '' }}">
                             <td><input type="checkbox" class="row-check" value="{{ $item->id }}"></td>
                             <td class="txn-order-id">#{{ str_pad($item->id, 3, '0', STR_PAD_LEFT) }}</td>
-                            <td>
-                                @php
-                                    $transactionWebsite = $item->website ?: optional($item->event)->website ?: optional($item->package)->website;
-                                    $purchaseTimezone = optional($transactionWebsite)->resolved_timezone ?? 'America/Los_Angeles';
-                                    $purchaseAtLocal = optional($item->created_at)->copy()?->timezone($purchaseTimezone);
-                                @endphp
+                            @php
+                                $transactionWebsite = $item->website ?: optional($item->event)->website ?: optional($item->package)->website;
+                                $purchaseTimezone = optional($transactionWebsite)->resolved_timezone ?? 'America/Los_Angeles';
+                                $purchaseAtLocal = optional($item->created_at)->copy()?->timezone($purchaseTimezone);
+                                $purchaseSortOrder = $purchaseAtLocal?->timestamp ?? 0;
+                            @endphp
+                            <td data-order="{{ $purchaseSortOrder }}">
                                 <div class="txn-date-main">{{ $purchaseAtLocal?->format('M d, Y') ?? '-' }}</div>
                                 <div class="txn-date-time">{{ $purchaseAtLocal?->format('h:i A T') ?? '-' }}</div>
                             </td>
@@ -1048,8 +1049,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                     <span style="color:rgba(255,255,255,0.3);">-</span>
                                 @endif
                             </td>
-                            <td>{{-- RESERVATION STATUS --}}
-                                @php
+                            @php
                                     $reservationDate = null;
                                     try {
                                         if (isset($item->package_use_date) && $item->package_use_date) {
@@ -1097,6 +1097,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                     }
 
                                     $transportModeLabel = $item->transport_mode_label ?? null;
+                                    $reservationSortOrder = $reservationDatePacific?->timestamp ?? 0;
 
                                     $reservationStatusValue = 'Upcoming';
                                     $reservationStatusClass = 'badge-reservation-upcoming';
@@ -1131,7 +1132,8 @@ body.modal-open .admin-mobile-menu-toggle {
                                             $reservationStatusClass = 'badge-reservation-cancelled';
                                         }
                                     }
-                                @endphp
+                            @endphp
+                            <td data-order="{{ $reservationSortOrder }}">{{-- RESERVATION STATUS --}}
                                 @if($reservationStatusValue === 'Upcoming' && $reservationDatePacific)
                                     <div style="font-size:0.9rem;margin-bottom:0.5rem;">{{ $reservationDatePacific->format('M d, Y') }}</div>
                                     <div style="margin-top:4px;">
@@ -1141,7 +1143,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                     <span class="{{ $reservationStatusClass }}">{{ $reservationStatusValue }}</span>
                                 @endif
                             </td>
-                            <td>{{-- RESERVATION DATE --}}
+                            <td data-order="{{ $reservationSortOrder }}">{{-- RESERVATION DATE --}}
                                 @if($reservationDatePacific)
                                     @if($reservationDatePacific->equalTo($laToday))
                                         <div style="font-size:0.95rem;font-weight:600;">Today</div>
