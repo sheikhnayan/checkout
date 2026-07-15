@@ -240,6 +240,14 @@
         min-height: 2rem;
       }
 
+      .menu-sub.menu-group-sub {
+        display: none;
+      }
+
+      .menu-sub.menu-group-sub.show {
+        display: block;
+      }
+
       .content-footer {
         border-top: 1px solid var(--admin-border);
       }
@@ -868,6 +876,7 @@
     <a
       href="#website-access-group-menu"
       class="menu-link menu-group-toggle"
+      data-sidebar-collapse-target="#website-access-group-menu"
       data-bs-toggle="collapse"
       role="button"
       aria-expanded="{{ $isWebsiteAccessGroupActive ? 'true' : 'false' }}"
@@ -922,6 +931,7 @@
     <a
       href="#packages-offers-group-menu"
       class="menu-link menu-group-toggle"
+      data-sidebar-collapse-target="#packages-offers-group-menu"
       data-bs-toggle="collapse"
       role="button"
       aria-expanded="{{ $isPackagesGroupActive ? 'true' : 'false' }}"
@@ -994,6 +1004,7 @@
     <a
       href="#manager-portal-menu"
       class="menu-link"
+      data-sidebar-collapse-target="#manager-portal-menu"
       data-bs-toggle="collapse"
       role="button"
       aria-expanded="{{ $isManagerPortalActive ? 'true' : 'false' }}"
@@ -1030,6 +1041,7 @@
     <a
       href="#people-feed-group-menu"
       class="menu-link menu-group-toggle"
+      data-sidebar-collapse-target="#people-feed-group-menu"
       data-bs-toggle="collapse"
       role="button"
       aria-expanded="{{ $isPeopleFeedGroupActive ? 'true' : 'false' }}"
@@ -1097,6 +1109,7 @@
     <a
       href="#reports-group-menu"
       class="menu-link menu-group-toggle"
+      data-sidebar-collapse-target="#reports-group-menu"
       data-bs-toggle="collapse"
       role="button"
       aria-expanded="{{ $isReportsGroupActive ? 'true' : 'false' }}"
@@ -1182,6 +1195,7 @@
     <a
       href="#withdrawals-group-menu"
       class="menu-link menu-group-toggle"
+      data-sidebar-collapse-target="#withdrawals-group-menu"
       data-bs-toggle="collapse"
       role="button"
       aria-expanded="{{ $isWithdrawalGroupActive ? 'true' : 'false' }}"
@@ -1667,6 +1681,38 @@
           syncState();
         }
 
+        function bindSidebarGroupToggles() {
+          const toggles = document.querySelectorAll('#layout-menu [data-sidebar-collapse-target]');
+
+          toggles.forEach(function (toggle) {
+            if (toggle.dataset.sidebarToggleBound === '1') {
+              return;
+            }
+
+            const targetSelector = toggle.getAttribute('data-sidebar-collapse-target');
+            const target = targetSelector ? document.querySelector(targetSelector) : null;
+            if (!target) {
+              return;
+            }
+
+            toggle.dataset.sidebarToggleBound = '1';
+
+            toggle.addEventListener('click', function (event) {
+              event.preventDefault();
+              event.stopPropagation();
+
+              const isOpen = target.classList.contains('show');
+              target.classList.toggle('show', !isOpen);
+              toggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+
+              const parentItem = toggle.closest('.menu-item');
+              if (parentItem && !parentItem.classList.contains('active')) {
+                parentItem.classList.toggle('open', !isOpen);
+              }
+            });
+          });
+        }
+
         function initFieldTooltips() {
           if (typeof bootstrap === 'undefined' || !bootstrap.Tooltip) { return; }
           document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
@@ -1888,6 +1934,7 @@
             wrapTablesForMobile();
             initAdminDataTables();
             bindMobileMenuToggle();
+            bindSidebarGroupToggles();
             initFieldTooltips();
             bindAdminBackButton();
             bindAjaxAutoNotifications();
@@ -1897,6 +1944,7 @@
           wrapTablesForMobile();
           initAdminDataTables();
           bindMobileMenuToggle();
+          bindSidebarGroupToggles();
           initFieldTooltips();
           bindAdminBackButton();
           bindAjaxAutoNotifications();
