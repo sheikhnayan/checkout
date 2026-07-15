@@ -1,6 +1,11 @@
 @extends('admin.main')
 
 @section('content')
+@php
+    $eventTimezone = $website->resolved_timezone ?? \App\Support\WebsiteTimezone::forWebsite($website);
+    $eventTimezoneLabel = \App\Support\WebsiteTimezone::label($eventTimezone);
+    $eventTimezoneShort = trim(explode(' - ', $eventTimezoneLabel)[0]);
+@endphp
 <link rel="stylesheet" href="{{ asset('user/extra.css') }}">
 <!-- Font Awesome -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -208,7 +213,7 @@ label{
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="time" class="form-label">Time Range (Pacific Time) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The start and end time of the event displayed to customers. Leave both blank if no specific time is shown."></i></label>
+                                                        <label for="time" class="form-label">Time Range ({{ $eventTimezoneShort }}) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The start and end time of the event displayed to customers. Leave both blank if no specific time is shown."></i></label>
                                                         <div style="display: flex; gap: 10px;">
                                                             <input type="text" name="time_start" class="form-control flatpickr-time" id="time_start"
                                                             style="height: 35.1166px"
@@ -220,7 +225,7 @@ label{
                                                                 placeholder="End Time"
                                                                 value="{{ old('time_end') }}">
                                                         </div>
-                                                        <small class="text-muted">Leave both fields blank if no event time is needed.</small>
+                                                        <small class="text-muted">Leave both fields blank if no event time is needed. Times use {{ $eventTimezoneLabel }}.</small>
                                                     </div>
                                                 </div>
 
