@@ -209,6 +209,8 @@ class FrontendController extends Controller
             ->latest('id')
             ->first();
 
+        $websiteTimezone = WebsiteTimezone::forWebsite($data);
+
         if (isset($request->event_name)) {
             $event = Event::where('website_id', $data->id)
                 ->where('name', $request->event_name)
@@ -218,7 +220,7 @@ class FrontendController extends Controller
                 })
                 ->first();
 
-            if ($event && $this->isEventCurrentOrUpcoming($event)) {
+            if ($event && $this->isEventCurrentOrUpcoming($event, $websiteTimezone)) {
                 $event = $this->decorateEventAttendanceData($event);
 
                 $packageCategories = $this->buildPackageCategories($data, (int) $event->id, false);

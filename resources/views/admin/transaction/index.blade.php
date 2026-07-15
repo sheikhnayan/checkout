@@ -1134,7 +1134,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                     }
                                 @endphp
                                 @if($reservationStatusValue === 'Upcoming' && $reservationDatePacific)
-                                    <div style="font-size:0.9rem;">{{ $reservationDatePacific->format('M d, Y') }}</div>
+                                    <div style="font-size:0.9rem;margin-bottom:0.5rem;">{{ $reservationDatePacific->format('M d, Y') }}</div>
                                     <div style="margin-top:4px;">
                                         <span class="{{ $reservationStatusClass }}">{{ $reservationStatusValue }}</span>
                                     </div>
