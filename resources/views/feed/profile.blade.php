@@ -685,6 +685,83 @@
             box-shadow: 0 0 0 5px rgba(216,176,103,0.24);
         }
 
+        .profile-age-gate {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            background: rgba(3, 7, 14, 0.9);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .profile-age-gate-dialog {
+            width: min(560px, 100%);
+            border: 1px solid rgba(216, 176, 103, 0.4);
+            border-radius: 18px;
+            background: linear-gradient(160deg, rgba(20, 33, 55, 0.96), rgba(9, 15, 28, 0.98));
+            box-shadow: 0 26px 70px rgba(0, 0, 0, 0.48);
+            padding: 22px;
+        }
+
+        .profile-age-gate-title {
+            margin: 0 0 10px;
+            font-size: 1.36rem;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+            color: #f8dfb5;
+        }
+
+        .profile-age-gate-copy {
+            margin: 0;
+            color: #d7e5ff;
+            line-height: 1.75;
+            font-size: 0.95rem;
+        }
+
+        .profile-age-gate-actions {
+            margin-top: 16px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .profile-age-gate-btn {
+            appearance: none;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(255, 255, 255, 0.07);
+            color: #edf3ff;
+            padding: 10px 16px;
+            font-size: 0.82rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .profile-age-gate-btn:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
+        .profile-age-gate-btn.enter {
+            border-color: rgba(216, 176, 103, 0.48);
+            background: linear-gradient(145deg, rgba(216, 176, 103, 0.32), rgba(216, 176, 103, 0.14));
+            color: #fff5df;
+            box-shadow: 0 10px 24px rgba(216, 176, 103, 0.2);
+        }
+
+        .profile-age-gate-btn.exit {
+            border-color: rgba(248, 113, 113, 0.4);
+            background: linear-gradient(145deg, rgba(248, 113, 113, 0.24), rgba(248, 113, 113, 0.08));
+            color: #ffe1e1;
+        }
+
         .profile-lightbox {
             position: fixed;
             inset: 0;
@@ -1171,6 +1248,17 @@
         </div>
     </footer>
 
+    <div class="profile-age-gate" id="profile-age-gate" role="dialog" aria-modal="true" aria-labelledby="profile-age-gate-title" data-exit-url="{{ route('club.feed', $club->slug) }}">
+        <div class="profile-age-gate-dialog">
+            <h2 class="profile-age-gate-title" id="profile-age-gate-title">18+ Age Verification</h2>
+            <p class="profile-age-gate-copy">This website contains content and offers intended for adults only. By entering, you confirm that you are at least 18 years of age (or the legal age required in your jurisdiction) and wish to proceed.</p>
+            <div class="profile-age-gate-actions">
+                <button type="button" class="profile-age-gate-btn enter" id="profile-age-gate-enter">Enter Site</button>
+                <button type="button" class="profile-age-gate-btn exit" id="profile-age-gate-exit">Exit</button>
+            </div>
+        </div>
+    </div>
+
     <div class="profile-lightbox" id="profile-lightbox" aria-hidden="true">
         <div class="profile-lightbox-dialog" role="dialog" aria-modal="true" aria-label="Media viewer">
             <div class="profile-lightbox-media">
@@ -1217,6 +1305,46 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const ageGate = document.getElementById('profile-age-gate');
+        const ageEnterButton = document.getElementById('profile-age-gate-enter');
+        const ageExitButton = document.getElementById('profile-age-gate-exit');
+
+        function lockPage() {
+            document.body.style.overflow = 'hidden';
+        }
+
+        function unlockPage() {
+            document.body.style.overflow = '';
+        }
+
+        function closeAgeGate() {
+            if (!ageGate) {
+                return;
+            }
+
+            ageGate.style.display = 'none';
+            ageGate.setAttribute('aria-hidden', 'true');
+            unlockPage();
+        }
+
+        if (ageGate) {
+            lockPage();
+            ageGate.setAttribute('aria-hidden', 'false');
+
+            if (ageEnterButton) {
+                ageEnterButton.addEventListener('click', function () {
+                    closeAgeGate();
+                });
+            }
+
+            if (ageExitButton) {
+                ageExitButton.addEventListener('click', function () {
+                    const exitUrl = ageGate.getAttribute('data-exit-url') || '/';
+                    window.location.href = exitUrl;
+                });
+            }
+        }
+
         const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent)
             || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 

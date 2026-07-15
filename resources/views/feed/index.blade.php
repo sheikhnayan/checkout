@@ -748,6 +748,83 @@
             box-shadow: 0 0 0 5px rgba(215,174,100,0.24);
         }
 
+        .feed-age-gate {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            background: rgba(3, 7, 14, 0.9);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .feed-age-gate-dialog {
+            width: min(560px, 100%);
+            border: 1px solid rgba(215, 174, 100, 0.4);
+            border-radius: 18px;
+            background: linear-gradient(160deg, rgba(20, 33, 55, 0.96), rgba(9, 15, 28, 0.98));
+            box-shadow: 0 26px 70px rgba(0, 0, 0, 0.48);
+            padding: 22px;
+        }
+
+        .feed-age-gate-title {
+            margin: 0 0 10px;
+            font-size: 1.36rem;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+            color: #f8dfb5;
+        }
+
+        .feed-age-gate-copy {
+            margin: 0;
+            color: #d7e5ff;
+            line-height: 1.75;
+            font-size: 0.95rem;
+        }
+
+        .feed-age-gate-actions {
+            margin-top: 16px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .feed-age-gate-btn {
+            appearance: none;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(255, 255, 255, 0.07);
+            color: #edf3ff;
+            padding: 10px 16px;
+            font-size: 0.82rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .feed-age-gate-btn:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
+        .feed-age-gate-btn.enter {
+            border-color: rgba(215, 174, 100, 0.48);
+            background: linear-gradient(145deg, rgba(215, 174, 100, 0.32), rgba(215, 174, 100, 0.14));
+            color: #fff5df;
+            box-shadow: 0 10px 24px rgba(215, 174, 100, 0.2);
+        }
+
+        .feed-age-gate-btn.exit {
+            border-color: rgba(248, 113, 113, 0.4);
+            background: linear-gradient(145deg, rgba(248, 113, 113, 0.24), rgba(248, 113, 113, 0.08));
+            color: #ffe1e1;
+        }
+
         @media (max-width: 767.98px) {
             .feed-shell {
                 width: calc(100% - 12px);
@@ -1118,6 +1195,19 @@
         </div>
     </footer>
 
+    @if($club)
+        <div class="feed-age-gate" id="feed-age-gate" role="dialog" aria-modal="true" aria-labelledby="feed-age-gate-title" data-exit-url="{{ route('club.feed.profile', $club->slug) }}">
+            <div class="feed-age-gate-dialog">
+                <h2 class="feed-age-gate-title" id="feed-age-gate-title">18+ Age Verification</h2>
+                <p class="feed-age-gate-copy">This website contains content and offers intended for adults only. By entering, you confirm that you are at least 18 years of age (or the legal age required in your jurisdiction) and wish to proceed.</p>
+                <div class="feed-age-gate-actions">
+                    <button type="button" class="feed-age-gate-btn enter" id="feed-age-gate-enter">Enter Site</button>
+                    <button type="button" class="feed-age-gate-btn exit" id="feed-age-gate-exit">Exit</button>
+                </div>
+            </div>
+        </div>
+    @endif
+
     @if(isset($posts) && $posts->count() > 0)
         @foreach($posts as $post)
             @php $commentModalId = 'commentModal-' . $post->id; @endphp
@@ -1299,6 +1389,9 @@
         const shareMenu = document.getElementById('feed-share-menu');
         const copyToast = document.getElementById('feed-copy-toast');
         const prefersDesktopShareMenu = window.matchMedia && window.matchMedia('(pointer: fine)').matches;
+        const ageGate = document.getElementById('feed-age-gate');
+        const ageEnterButton = document.getElementById('feed-age-gate-enter');
+        const ageExitButton = document.getElementById('feed-age-gate-exit');
 
         let copyToastTimer = null;
         function showCopiedToast() {
@@ -1311,6 +1404,42 @@
         let currentItems = [];
         let currentIndex = 0;
         let currentSharePayload = null;
+
+        function lockPage() {
+            document.body.style.overflow = 'hidden';
+        }
+
+        function unlockPage() {
+            document.body.style.overflow = '';
+        }
+
+        function closeAgeGate() {
+            if (!ageGate) {
+                return;
+            }
+
+            ageGate.style.display = 'none';
+            ageGate.setAttribute('aria-hidden', 'true');
+            unlockPage();
+        }
+
+        if (ageGate) {
+            lockPage();
+            ageGate.setAttribute('aria-hidden', 'false');
+
+            if (ageEnterButton) {
+                ageEnterButton.addEventListener('click', function () {
+                    closeAgeGate();
+                });
+            }
+
+            if (ageExitButton) {
+                ageExitButton.addEventListener('click', function () {
+                    const exitUrl = ageGate.getAttribute('data-exit-url') || '/';
+                    window.location.href = exitUrl;
+                });
+            }
+        }
 
         function buildSharePayload(data) {
             const payload = data || {};
