@@ -1668,33 +1668,55 @@
         }
 
         function bindSidebarGroupToggles() {
-          const toggles = document.querySelectorAll('#layout-menu [data-sidebar-collapse-target]');
+          const toggles = Array.from(document.querySelectorAll('#layout-menu [data-sidebar-collapse-target]'));
+          const groups = toggles
+            .map(function (toggle) {
+              const targetSelector = toggle.getAttribute('data-sidebar-collapse-target');
+              const target = targetSelector ? document.querySelector(targetSelector) : null;
+              if (!target) {
+                return null;
+              }
 
-          toggles.forEach(function (toggle) {
-            if (toggle.dataset.sidebarToggleBound === '1') {
+              return {
+                toggle: toggle,
+                target: target,
+                parentItem: toggle.closest('.menu-item')
+              };
+            })
+            .filter(Boolean);
+
+          function setGroupState(group, shouldOpen) {
+            group.target.classList.toggle('show', shouldOpen);
+            group.toggle.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+            if (group.parentItem) {
+              group.parentItem.classList.toggle('open', shouldOpen);
+            }
+          }
+
+          groups.forEach(function (group) {
+            setGroupState(group, group.target.classList.contains('show'));
+
+            if (group.toggle.dataset.sidebarToggleBound === '1') {
               return;
             }
 
-            const targetSelector = toggle.getAttribute('data-sidebar-collapse-target');
-            const target = targetSelector ? document.querySelector(targetSelector) : null;
-            if (!target) {
-              return;
-            }
+            group.toggle.dataset.sidebarToggleBound = '1';
 
-            toggle.dataset.sidebarToggleBound = '1';
-
-            toggle.addEventListener('click', function (event) {
+            group.toggle.addEventListener('click', function (event) {
               event.preventDefault();
               event.stopPropagation();
 
-              const isOpen = target.classList.contains('show');
-              target.classList.toggle('show', !isOpen);
-              toggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+              const willOpen = !group.target.classList.contains('show');
 
-              const parentItem = toggle.closest('.menu-item');
-              if (parentItem && !parentItem.classList.contains('active')) {
-                parentItem.classList.toggle('open', !isOpen);
-              }
+              groups.forEach(function (entry) {
+                if (entry === group) {
+                  return;
+                }
+
+                setGroupState(entry, false);
+              });
+
+              setGroupState(group, willOpen);
             });
           });
         }
