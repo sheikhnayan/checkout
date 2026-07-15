@@ -229,6 +229,14 @@ class FrontendController extends Controller
 
                 return view($eventView, compact('data', 'event', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout', 'isSinglePackageCheckout'));
             }
+
+            if ($event) {
+                return view('event-expired', [
+                    'data' => $data,
+                    'event' => $event,
+                    'websiteTimezone' => $websiteTimezone,
+                ]);
+            }
         }
 
         $packageCategories = $this->buildPackageCategories($data, null, false);
