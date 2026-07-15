@@ -383,12 +383,12 @@ label{
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-12">
+                                                {{-- <div class="col-md-12">
                                                     <div class="mb-3">
                                                         <label for="password" class="form-label">Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Public description of the venue displayed on the checkout page."></i></label>
                                                         <textarea name="description" class="form-control" id="description" placeholder="Description" required></textarea>
                                                     </div>
-                                                </div>
+                                                </div> --}}
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
@@ -432,12 +432,12 @@ label{
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-12">
+                                                {{-- <div class="col-md-12">
                                                     <div class="mb-3">
                                                         <label for="secondary_description" class="form-label">Secondary Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional second content block displayed on the checkout page below the main description."></i></label>
                                                         <textarea name="secondary_description" class="form-control" id="secondary_description" rows="3" placeholder="Additional section text for the new layout"></textarea>
                                                     </div>
-                                                </div>
+                                                </div> --}}
 
                                                 <div class="col-md-12">
                                                     <div class="mb-3">

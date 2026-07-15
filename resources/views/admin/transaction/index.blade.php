@@ -343,6 +343,21 @@ body.modal-open .admin-mobile-menu-toggle {
     text-align: right;
 }
 
+#packageDetailsModal .txn-detail-card {
+    padding: 10px;
+    margin-bottom: 8px;
+}
+
+#packageDetailsModal .txn-detail-title {
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+}
+
+#packageDetailsModal .txn-detail-row {
+    padding: 3px 0;
+    font-size: 0.81rem;
+}
+
 #viewTransactionModal .txn-status-pill {
     padding: 4px 10px;
     border-radius: 999px;
@@ -3609,13 +3624,13 @@ body.modal-open .admin-mobile-menu-toggle {
                 var statusText = 'Unknown';
                 var statusClass = 'txn-status-unknown';
                 if (statusValue == 1 || statusValue === 'Completed' || statusValue === 'Approved') {
-                    statusText = 'Completed';
+                    statusText = 'Payment Completed';
                     statusClass = 'txn-status-completed';
                 } else if (statusValue == 0 || statusValue === 'Canceled' || statusValue === '0') {
-                    statusText = 'Canceled';
+                    statusText = 'Payment Canceled';
                     statusClass = 'txn-status-canceled';
                 } else if (statusValue == 2 || statusValue === 'Refunded') {
-                    statusText = 'Refunded';
+                    statusText = 'Payment Refunded';
                     statusClass = 'txn-status-refunded';
                 }
                 var row = window.txnDetailRow || function(label, value) {
@@ -3763,6 +3778,10 @@ body.modal-open .admin-mobile-menu-toggle {
                 var orderDateMain = String($(this).closest('tr').find('.txn-date-main').text() || '').trim();
                 var orderDateTime = String($(this).closest('tr').find('.txn-date-time').text() || '').trim();
                 var orderDate = [orderDateMain, orderDateTime].filter(Boolean).join(' ') || 'N/A';
+                var rowViewBtn = $(this).closest('tr').find('.view-btn').first();
+                var checkedInStatusRaw = String(rowViewBtn.data('checked_in_status') || '').toLowerCase();
+                var checkedInStatus = checkedInStatusRaw === '1' || checkedInStatusRaw === 'true' || checkedInStatusRaw === 'yes';
+                var checkedInAtDisplay = String(rowViewBtn.data('checked_in_at_pacific') || '').trim();
 
                 var guestFirstName = String($(this).data('package_first_name') || '').trim();
                 var guestLastName = String($(this).data('package_last_name') || '').trim();
@@ -3786,12 +3805,18 @@ body.modal-open .admin-mobile-menu-toggle {
                     ($(this).closest('tr').find('.view-btn').data('transportation_arrival_time') || '')
                 ).trim();
                 var transportationArrivalDisplay = formatPickupTime(transportationArrival);
+                if ((transportationArrivalDisplay === 'N/A' || transportationArrivalDisplay === '') && checkedInStatus && checkedInAtDisplay) {
+                    transportationArrivalDisplay = checkedInAtDisplay + ' (Check-In)';
+                }
                 var transportationAddress = String($(this).data('transportation_address') || '').trim();
                 var transportationPhone = String($(this).data('transportation_phone') || '').trim();
                 var transportationNote = String($(this).data('transportation_note') || '').trim();
                 var hasTransportation = [transportationPickup, transportationArrival, transportationAddress, transportationPhone, transportationNote].some(function(v) {
                     return v !== '';
                 });
+                if (transportationArrivalDisplay !== 'N/A') {
+                    hasTransportation = true;
+                }
                 var parseAddonLabel = function(label) {
                     var raw = String(label || '').trim();
                     if (!raw) {
@@ -3838,7 +3863,9 @@ body.modal-open .admin-mobile-menu-toggle {
                     ['Transaction Type', transactionType.charAt(0).toUpperCase() + transactionType.slice(1)],
                     ['Order Date', orderDate],
                     ['Website / Venue', $(this).data('website_id') || 'N/A'],
-                    ['Status', statusText]
+                    ['Payment Status', statusText],
+                    ['Package Redemption', checkedInStatus ? 'Redeemed' : 'Not Redeemed'],
+                    ['Redeemed At', checkedInStatus ? (checkedInAtDisplay || 'Yes') : 'N/A']
                 ]);
 
                 var guestRows = sectionRows([
@@ -3848,8 +3875,8 @@ body.modal-open .admin-mobile-menu-toggle {
                     ['Date Of Birth', guestDob],
                     ['Date Of Use', guestUseDate],
                     ['Guest Count', String(totalUnits)],
-                    ['Men', String(menCount)],
-                    ['Women', String(womenCount)],
+                    ['Male', String(menCount)],
+                    ['Female', String(womenCount)],
                     ['Host Name', hostName],
                     ['Guest Note', guestNote]
                 ]);
@@ -3943,7 +3970,7 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 var html = '<div>';
 
-                html += '<div class="row g-3" style="margin-bottom:8px;">';
+                html += '<div class="row g-2" style="margin-bottom:6px;">';
                 html += '<div class="col-md-6">';
                 html += '<div class="txn-detail-card" style="margin-bottom:0;">';
                 html += '<div class="txn-detail-title">Guest Details</div>';
@@ -3953,10 +3980,20 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row('Date Of Birth', guestDob);
                 html += row('Date Of Use', guestUseDate);
                 html += row('Guest Count', String(totalUnits));
-                html += row('Men', String(menCount));
-                html += row('Women', String(womenCount));
+                html += row('Male', String(menCount));
+                html += row('Female', String(womenCount));
                 html += row('Host Name', hostName);
                 html += row('Guest Note', guestNote);
+                html += '</div>';
+                html += '<div class="txn-detail-card" style="margin-top:8px;margin-bottom:0;">';
+                html += '<div class="txn-detail-title">Transportation Details</div>';
+                html += row('Transportation', hasTransportation ? 'Provided' : 'Self Drive Selected');
+                html += row('Transportation Date', transportationDate || 'N/A');
+                html += row('Pickup Time', transportationPickupDisplay);
+                html += row('Arrival Time', transportationArrivalDisplay);
+                html += row('Pickup Address', transportationAddress || 'N/A');
+                html += row('Transport Phone', transportationPhone || 'N/A');
+                html += row('Transport Note', transportationNote || 'N/A');
                 html += '</div>';
                 html += '</div>';
 
@@ -3969,51 +4006,36 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row('Package Count', String(packageCount));
                 html += row('Total Units', String(totalUnits));
                 html += row('Add-ons', addonDetails);
+                html += row('Transaction Type', transactionType.charAt(0).toUpperCase() + transactionType.slice(1));
+                html += row('Order Date', orderDate);
+                html += row('Website / Venue', $(this).data('website_id') || 'N/A');
+                html += row('Payment Status', statusText);
+                html += row('Package Redemption', checkedInStatus ? 'Redeemed' : 'Not Redeemed');
+                html += row('Redeemed At', checkedInStatus ? (checkedInAtDisplay || 'Yes') : 'N/A');
                 if (packageLineupItems.length) {
-                    html += '<div style="margin-top:10px;background:rgba(15,23,42,0.55);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px;">';
-                    html += '<div style="font-size:0.78rem;color:#cbd5e1;font-weight:700;margin-bottom:8px;letter-spacing:0.03em;">Package Lineup</div>';
+                    html += '<div style="margin-top:8px;background:rgba(15,23,42,0.55);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px;">';
+                    html += '<div style="font-size:0.76rem;color:#cbd5e1;font-weight:700;margin-bottom:6px;letter-spacing:0.03em;">Package Lineup</div>';
                     packageLineupItems.forEach(function(item) {
                         var qtyText = String(item.quantity) + ' ' + (item.packageType === 'ticket' ? 'tickets' : 'guests');
                         var descriptionText = String(item.description || '').trim();
                         var itemAddons = Array.isArray(item.addonLabels) ? item.addonLabels : [];
                         var addonEntries = itemAddons.map(parseAddonLabel).filter(Boolean);
                         var addonQtyTotal = addonEntries.reduce(function(sum, addon) { return sum + (addon.quantity || 0); }, 0);
-                        html += '<div style="padding:7px 8px;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);margin-bottom:6px;">';
+                        html += '<div style="padding:6px 7px;border-radius:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);margin-bottom:6px;">';
                         html += '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">';
                         html += '<span style="color:#e2e8f0;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(item.name) + '</span>';
                         html += '<span style="color:#fbbf24;font-weight:700;white-space:nowrap;">x ' + esc(qtyText) + '</span>';
                         html += '</div>';
                         if (descriptionText) {
-                            html += '<div style="margin-top:5px;font-size:0.76rem;color:#cbd5e1;line-height:1.35;">' + esc(descriptionText) + '</div>';
+                            html += '<div style="margin-top:4px;font-size:0.74rem;color:#cbd5e1;line-height:1.35;">' + esc(descriptionText) + '</div>';
                         }
                         if (addonEntries.length) {
-                            html += '<div style="margin-top:6px;font-size:0.78rem;color:#93c5fd;line-height:1.45;font-weight:700;">Add-ons: ' + esc(String(addonEntries.length)) + ' | Qty: ' + esc(String(addonQtyTotal)) + '</div>';
-                            addonEntries.forEach(function(addon) {
-                                var addonLine = addon.name + ' x' + addon.quantity;
-                                html += '<div style="margin-top:3px;font-size:0.76rem;color:#cbd5e1;line-height:1.35;">- ' + esc(addonLine) + '</div>';
-                            });
+                            html += '<div style="margin-top:5px;font-size:0.75rem;color:#93c5fd;line-height:1.35;font-weight:700;">Add-ons: ' + esc(String(addonEntries.length)) + ' | Qty: ' + esc(String(addonQtyTotal)) + '</div>';
                         }
                         html += '</div>';
                     });
                     html += '</div>';
                 }
-                html += row('Transaction Type', transactionType.charAt(0).toUpperCase() + transactionType.slice(1));
-                html += row('Order Date', orderDate);
-                html += row('Website / Venue', $(this).data('website_id') || 'N/A');
-                html += row('Status', statusText);
-                html += '</div>';
-                html += '</div>';
-
-                html += '<div class="col-md-6">';
-                html += '<div class="txn-detail-card" style="margin-bottom:0;">';
-                html += '<div class="txn-detail-title">Transportation Details</div>';
-                html += row('Transportation', hasTransportation ? 'Provided' : 'Self Drive Selected');
-                html += row('Transportation Date', transportationDate || 'N/A');
-                html += row('Pickup Time', transportationPickupDisplay);
-                html += row('Arrival Time', transportationArrivalDisplay);
-                html += row('Pickup Address', transportationAddress || 'N/A');
-                html += row('Transport Phone', transportationPhone || 'N/A');
-                html += row('Transport Note', transportationNote || 'N/A');
                 html += '</div>';
                 html += '</div>';
                 html += '</div>';

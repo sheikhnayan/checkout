@@ -469,13 +469,13 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-12">
+                                                {{-- <div class="col-md-12">
                                                     <div class="mb-3">
                                                         <label class="form-label">Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Public description of the venue displayed on the checkout page."></i></label>
                                                         <div id="website-description-editor"></div>
                                                         <textarea name="description" id="description" style="display:none" required>{{ $data->description }}</textarea>
                                                     </div>
-                                                </div>
+                                                </div> --}}
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
@@ -519,13 +519,13 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-12">
+                                                {{-- <div class="col-md-12">
                                                     <div class="mb-3">
                                                         <label class="form-label">Secondary Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional second content block displayed on the checkout page below the main description."></i></label>
                                                         <div id="website-secondary-editor"></div>
                                                         <textarea name="secondary_description" id="secondary_description" style="display:none">{{ $data->secondary_description }}</textarea>
                                                     </div>
-                                                </div>
+                                                </div> --}}
 
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
