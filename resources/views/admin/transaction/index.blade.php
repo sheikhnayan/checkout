@@ -986,7 +986,6 @@ body.modal-open .admin-mobile-menu-toggle {
                                 @endphp
                                 <div class="txn-date-main">{{ $purchaseAtLocal?->format('M d, Y') ?? '-' }}</div>
                                 <div class="txn-date-time">{{ $purchaseAtLocal?->format('h:i A T') ?? '-' }}</div>
-                                <div style="font-size:0.72rem;color:rgba(255,255,255,0.55);margin-top:2px;">{{ optional($transactionWebsite)->name ? optional($transactionWebsite)->name . ' timezone' : $purchaseTimezone }}</div>
                             </td>
                             <td class="txn-confirmation-num">{{ $item->transaction_id ?? 'N/A' }}</td>
                             <td class="txn-pkg-name">
