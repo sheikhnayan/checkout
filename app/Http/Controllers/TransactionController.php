@@ -1334,7 +1334,7 @@ class TransactionController extends Controller
         }
 
         $transactions = $query
-            ->with(['event', 'package', 'website', 'affiliate.user', 'entertainer.user'])
+            ->with(['event.website', 'package.website', 'website', 'affiliate.user', 'entertainer.user'])
             ->latest()
             ->get();
 

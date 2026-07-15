@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Support\WebsiteTimezone;
 
 class Website extends Model
 {
@@ -73,6 +74,7 @@ class Website extends Model
         'long',
         'phone',
         'email',
+        'timezone',
         'show_contact_info',
         'entertainer_submission_emails',
         'clublifter_enabled',
@@ -147,6 +149,16 @@ class Website extends Model
     public function feedPosts()
     {
         return $this->hasMany(FeedPost::class)->latest('posted_at');
+    }
+
+    public function getResolvedTimezoneAttribute(): string
+    {
+        return WebsiteTimezone::forWebsite($this);
+    }
+
+    public function getTimezoneLabelAttribute(): string
+    {
+        return WebsiteTimezone::label($this->resolved_timezone);
     }
 
     /**

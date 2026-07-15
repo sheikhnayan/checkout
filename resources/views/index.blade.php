@@ -5391,7 +5391,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                         }
 
                         // Default to the nearest valid event day: start day if upcoming, today if event is in progress.
-                        $today = \Carbon\Carbon::now('America/Los_Angeles')->startOfDay();
+                        $today = \Carbon\Carbon::now($data->resolved_timezone)->startOfDay();
                         if ($eventStart) {
                             $rangeStart = $eventStart->copy()->startOfDay();
                             $rangeEnd = ($eventEnd ?: $eventStart)->copy()->startOfDay();
@@ -6784,7 +6784,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                         </div>
                         <div class="row g-4" id="events-list">
                             @php
-                                $todayPacific = \Carbon\Carbon::now('America/Los_Angeles')->toDateString();
+                                $todayPacific = \Carbon\Carbon::now($data->resolved_timezone)->toDateString();
                             @endphp
                             @foreach ($data->events as $item)
                                 @php

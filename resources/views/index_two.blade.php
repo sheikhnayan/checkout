@@ -5754,7 +5754,7 @@
                                     <label>Choose Your Reservation Date</label>
                                     <div class="date-input-wrapper">
                                         <input id="package_use_date" type="text"
-                                            value="" placeholder="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('M d, Y') }}" style="width: 100%;" readonly aria-describedby="package_use_date_error">
+                                            value="" placeholder="{{ \Carbon\Carbon::now($data->resolved_timezone)->format('M d, Y') }}" style="width: 100%;" readonly aria-describedby="package_use_date_error">
                                         <span class="custom-calendar-icon"></span>
                                     </div>
                                     <small id="package_use_date_error" class="reservation-date-error">Please select a reservation date.</small>
@@ -5852,7 +5852,7 @@
                                 <label>Choose Your Reservation Date</label>
                                 <div class="date-input-wrapper">
                                     <input id="package_use_date" type="text"
-                                        value="" placeholder="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('M d, Y') }}" style="width: 100%;" readonly aria-describedby="package_use_date_error">
+                                        value="" placeholder="{{ \Carbon\Carbon::now($data->resolved_timezone)->format('M d, Y') }}" style="width: 100%;" readonly aria-describedby="package_use_date_error">
                                     <span class="custom-calendar-icon"></span>
                                 </div>
                                 <small id="package_use_date_error" class="reservation-date-error">Please select a reservation date.</small>
@@ -6219,7 +6219,7 @@
                                             <label>Choose Your Reservation Date</label>
                                             <div class="date-input-wrapper">
                                                 <input id="package_use_date_iframe" type="text"
-                                                    value="" placeholder="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('M d, Y') }}" style="width: 100%;" readonly aria-describedby="package_use_date_iframe_error">
+                                                    value="" placeholder="{{ \Carbon\Carbon::now($data->resolved_timezone)->format('M d, Y') }}" style="width: 100%;" readonly aria-describedby="package_use_date_iframe_error">
                                                 <span class="custom-calendar-icon custom-calendar-icon-iframe"></span>
                                             </div>
                                             <small id="package_use_date_iframe_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
@@ -7048,7 +7048,7 @@
 
                                                         <input type="hidden" class="package_use_date"
                                                             name="package_use_date"
-                                                            value="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('Y-m-d') }}">
+                                                            value="{{ \Carbon\Carbon::now($data->resolved_timezone)->format('Y-m-d') }}">
                                                         <input type="hidden" class="promo_code" name="promo_code">
                                                         <input type="hidden" class="discounted_amount"
                                                             name="discounted_amount">
@@ -7186,7 +7186,7 @@
                     </div>
                     <div class="row g-4" id="events-list">
                         @php
-                            $todayPacific = \Carbon\Carbon::now('America/Los_Angeles')->toDateString();
+                            $todayPacific = \Carbon\Carbon::now($data->resolved_timezone)->toDateString();
                         @endphp
                         @forelse ($data->events as $item)
                             @php
@@ -10813,7 +10813,7 @@
             function getPacificTodayDateString() {
                 try {
                     const formatter = new Intl.DateTimeFormat('en-CA', {
-                        timeZone: 'America/Los_Angeles',
+                        timeZone: @json($data->resolved_timezone),
                         year: 'numeric',
                         month: '2-digit',
                         day: '2-digit'

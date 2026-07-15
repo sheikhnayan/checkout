@@ -4,9 +4,11 @@ namespace App\Services;
 
 use App\Models\Website;
 use App\Models\WebsiteVisitorSession;
+use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class WebsiteSessionAnalyticsService
 {
@@ -33,7 +35,7 @@ class WebsiteSessionAnalyticsService
             return;
         }
 
-        $sessionId = trim((string) $request->session()->getId());
+        $sessionId = $this->resolveAnalyticsSessionId($request, $website->id);
         if ($sessionId === '') {
             return;
         }
@@ -105,6 +107,44 @@ class WebsiteSessionAnalyticsService
         }
 
         $session->save();
+    }
+
+    private function resolveAnalyticsSessionId(Request $request, int $websiteId): string
+    {
+        $session = $request->session();
+        $baseSessionId = trim((string) $session->getId());
+        if ($baseSessionId === '') {
+            return '';
+        }
+
+        $stateKey = 'analytics.website_session.' . $websiteId;
+        $state = $session->get($stateKey, []);
+        $state = is_array($state) ? $state : [];
+
+        $logicalId = trim((string) ($state['id'] ?? ''));
+        $lastSeenRaw = trim((string) ($state['last_seen_at'] ?? ''));
+        $now = now();
+
+        $lastSeenAt = null;
+        if ($lastSeenRaw !== '') {
+            try {
+                $lastSeenAt = Carbon::parse($lastSeenRaw);
+            } catch (\Throwable $exception) {
+                $lastSeenAt = null;
+            }
+        }
+
+        $shouldRotate = !$lastSeenAt || $lastSeenAt->lt($now->copy()->subMinutes(30));
+        if ($logicalId === '' || $shouldRotate) {
+            $logicalId = $baseSessionId . '-' . Str::uuid()->toString();
+        }
+
+        $session->put($stateKey, [
+            'id' => $logicalId,
+            'last_seen_at' => $now->toIso8601String(),
+        ]);
+
+        return $logicalId;
     }
 
     private function nullIfEmpty($value): ?string

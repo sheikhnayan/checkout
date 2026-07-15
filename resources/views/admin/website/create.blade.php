@@ -202,6 +202,20 @@ label{
                                                         <input type="text" name="domain" class="form-control" id="name" placeholder="Enter Domain" required>
                                                     </div>
                                                 </div>
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label for="timezone" class="form-label">Website Timezone <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Used for this club's local dates and times. Existing clubs will remain on Pacific time unless you change this setting."></i></label>
+                                                        <select name="timezone" id="timezone" class="form-select @error('timezone') is-invalid @enderror">
+                                                            @foreach($timezoneOptions as $timezoneValue => $timezoneLabel)
+                                                                <option value="{{ $timezoneValue }}" {{ old('timezone', $defaultTimezone) === $timezoneValue ? 'selected' : '' }}>{{ $timezoneLabel }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        <small class="form-text text-muted">Default is Pacific Time so live clubs keep current behavior until you explicitly switch them.</small>
+                                                        @error('timezone')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             <h4 class="mt-4 mb-3 website-section-title">SMTP Configuration</h4>

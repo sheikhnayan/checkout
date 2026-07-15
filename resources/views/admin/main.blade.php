@@ -354,6 +354,94 @@
         padding-left: 18px;
       }
 
+      .admin-toast-root {
+        position: fixed;
+        top: 18px;
+        right: 18px;
+        z-index: 1085;
+        display: grid;
+        gap: 10px;
+        width: min(420px, calc(100vw - 24px));
+        pointer-events: none;
+      }
+
+      .admin-toast {
+        pointer-events: auto;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        box-shadow: 0 14px 30px rgba(4, 9, 24, 0.45);
+        background: #131a2d;
+        color: #eef3ff;
+        overflow: hidden;
+        transform: translateY(-4px);
+        opacity: 0;
+        transition: opacity .2s ease, transform .2s ease;
+      }
+
+      .admin-toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .admin-toast__inner {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px 14px;
+      }
+
+      .admin-toast__title {
+        display: block;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 2px;
+      }
+
+      .admin-toast__message {
+        margin: 0;
+        white-space: pre-line;
+        line-height: 1.35;
+      }
+
+      .admin-toast__close {
+        margin-left: auto;
+        border: 0;
+        background: transparent;
+        color: rgba(238, 243, 255, 0.85);
+        font-size: 1.05rem;
+        line-height: 1;
+        padding: 0 0 0 8px;
+      }
+
+      .admin-toast--success {
+        border-left: 4px solid #37d67a;
+        background: linear-gradient(135deg, rgba(55, 214, 122, 0.18), rgba(19, 26, 45, 0.97));
+      }
+
+      .admin-toast--error {
+        border-left: 4px solid #ff6b6b;
+        background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(19, 26, 45, 0.97));
+      }
+
+      .admin-toast--warning {
+        border-left: 4px solid #ffcc00;
+        background: linear-gradient(135deg, rgba(255, 204, 0, 0.2), rgba(19, 26, 45, 0.97));
+      }
+
+      .admin-toast--info {
+        border-left: 4px solid #6fa8ff;
+        background: linear-gradient(135deg, rgba(111, 168, 255, 0.18), rgba(19, 26, 45, 0.97));
+      }
+
+      @media (max-width: 767.98px) {
+        .admin-toast-root {
+          top: 10px;
+          right: 10px;
+          left: 10px;
+          width: auto;
+        }
+      }
+
       .dataTables_wrapper .dataTables_filter input,
       .dataTables_wrapper .dataTables_length select {
         background: var(--admin-surface-2) !important;
@@ -1153,6 +1241,46 @@
           </div>
           @endif
 
+          @php
+            $adminToastNotifications = [];
+
+            $adminRawNotifications = session('notifications');
+            if (is_array($adminRawNotifications)) {
+              foreach ($adminRawNotifications as $notification) {
+                if (is_string($notification) && trim($notification) !== '') {
+                  $adminToastNotifications[] = [
+                    'type' => 'info',
+                    'title' => 'Info',
+                    'message' => trim($notification),
+                  ];
+                  continue;
+                }
+
+                if (!is_array($notification)) {
+                  continue;
+                }
+
+                $notificationType = strtolower((string) ($notification['type'] ?? 'info'));
+                if (!in_array($notificationType, ['success', 'error', 'warning', 'info'], true)) {
+                  $notificationType = 'info';
+                }
+
+                $notificationMessage = trim((string) ($notification['message'] ?? ''));
+                if ($notificationMessage === '') {
+                  continue;
+                }
+
+                $adminToastNotifications[] = [
+                  'type' => $notificationType,
+                  'title' => trim((string) ($notification['title'] ?? ucfirst($notificationType))),
+                  'message' => $notificationMessage,
+                ];
+              }
+            }
+          @endphp
+
+          <div id="admin-toast-root" class="admin-toast-root" aria-live="polite" aria-atomic="true"></div>
+
 
 
           @php
@@ -1460,6 +1588,169 @@
           // No-op: back button uses onclick="adminGoBack()" directly.
         }
 
+        function escapeHtml(value) {
+          return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+        }
+
+        function normalizeNotificationType(type) {
+          const value = String(type || '').toLowerCase();
+          if (value === 'danger' || value === 'fail' || value === 'failed') {
+            return 'error';
+          }
+          if (['success', 'error', 'warning', 'info'].includes(value)) {
+            return value;
+          }
+          return 'info';
+        }
+
+        function getToastRoot() {
+          return document.getElementById('admin-toast-root');
+        }
+
+        function createToastElement(payload) {
+          const type = normalizeNotificationType(payload.type);
+          const title = String(payload.title || (type.charAt(0).toUpperCase() + type.slice(1)));
+          const message = String(payload.message || '').trim();
+
+          if (!message) {
+            return null;
+          }
+
+          const toast = document.createElement('div');
+          toast.className = 'admin-toast admin-toast--' + type;
+          toast.setAttribute('role', 'status');
+
+          toast.innerHTML = '' +
+            '<div class="admin-toast__inner">' +
+              '<div>' +
+                '<strong class="admin-toast__title">' + escapeHtml(title) + '</strong>' +
+                '<p class="admin-toast__message">' + escapeHtml(message) + '</p>' +
+              '</div>' +
+              '<button type="button" class="admin-toast__close" aria-label="Dismiss notification">&times;</button>' +
+            '</div>';
+
+          const closeBtn = toast.querySelector('.admin-toast__close');
+          const removeToast = function () {
+            toast.classList.remove('show');
+            setTimeout(function () { toast.remove(); }, 200);
+          };
+
+          if (closeBtn) {
+            closeBtn.addEventListener('click', removeToast);
+          }
+
+          const ttl = type === 'success' || type === 'info' ? 5000 : 8000;
+          setTimeout(removeToast, ttl);
+
+          return toast;
+        }
+
+        window.adminNotify = function (arg1, arg2, arg3) {
+          const root = getToastRoot();
+          if (!root) {
+            return;
+          }
+
+          const payload = typeof arg1 === 'object' && arg1 !== null
+            ? arg1
+            : { type: arg1, message: arg2, title: arg3 };
+
+          const toast = createToastElement(payload);
+          if (!toast) {
+            return;
+          }
+
+          root.appendChild(toast);
+          requestAnimationFrame(function () {
+            toast.classList.add('show');
+          });
+        };
+
+        window.showSuccess = function (message, title) {
+          window.adminNotify({ type: 'success', title: title || 'Success', message: message });
+        };
+
+        window.showError = function (message, title) {
+          window.adminNotify({ type: 'error', title: title || 'Error', message: message });
+        };
+
+        function parseXhrJson(xhr) {
+          if (!xhr) {
+            return null;
+          }
+
+          if (xhr.responseJSON && typeof xhr.responseJSON === 'object') {
+            return xhr.responseJSON;
+          }
+
+          const contentType = String(xhr.getResponseHeader ? xhr.getResponseHeader('Content-Type') : '');
+          if (!/application\/json/i.test(contentType)) {
+            return null;
+          }
+
+          if (!xhr.responseText) {
+            return null;
+          }
+
+          try {
+            return JSON.parse(xhr.responseText);
+          } catch (e) {
+            return null;
+          }
+        }
+
+        function bindAjaxAutoNotifications() {
+          if (!window.jQuery || !jQuery(document).on) {
+            return;
+          }
+
+          jQuery(document).on('ajaxSuccess', function (_event, xhr) {
+            const data = parseXhrJson(xhr);
+            if (!data || typeof data !== 'object') {
+              return;
+            }
+
+            if (Array.isArray(data.notifications)) {
+              data.notifications.forEach(function (item) {
+                if (item && typeof item === 'object') {
+                  window.adminNotify(item);
+                }
+              });
+              return;
+            }
+
+            if (typeof data.message === 'string' && data.message.trim() !== '') {
+              const type = data.success === false ? 'error' : (data.success === true ? 'success' : 'info');
+              window.adminNotify({ type: type, message: data.message });
+            }
+          });
+
+          jQuery(document).on('ajaxError', function (_event, xhr) {
+            const data = parseXhrJson(xhr);
+            if (data && typeof data.message === 'string' && data.message.trim() !== '') {
+              window.adminNotify({ type: 'error', message: data.message, title: 'Error' });
+            }
+          });
+        }
+
+        function showServerToastNotifications() {
+          const notifications = @json($adminToastNotifications);
+          if (!Array.isArray(notifications) || !notifications.length) {
+            return;
+          }
+
+          notifications.forEach(function (item) {
+            if (item && typeof item === 'object') {
+              window.adminNotify(item);
+            }
+          });
+        }
+
         if (document.readyState === 'loading') {
           document.addEventListener('DOMContentLoaded', function () {
             wrapTablesForMobile();
@@ -1467,6 +1758,8 @@
             bindMobileMenuToggle();
             initFieldTooltips();
             bindAdminBackButton();
+            bindAjaxAutoNotifications();
+            showServerToastNotifications();
           });
         } else {
           wrapTablesForMobile();
@@ -1474,6 +1767,8 @@
           bindMobileMenuToggle();
           initFieldTooltips();
           bindAdminBackButton();
+          bindAjaxAutoNotifications();
+          showServerToastNotifications();
         }
       })();
 

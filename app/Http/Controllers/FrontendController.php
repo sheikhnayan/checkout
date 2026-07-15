@@ -14,6 +14,7 @@ use App\Models\Entertainer;
 use App\Models\CheckoutPopup;
 use App\Models\Transaction;
 use App\Services\WebsiteSessionAnalyticsService;
+use App\Support\WebsiteTimezone;
 use Illuminate\Support\Facades\Schema;
 
 class FrontendController extends Controller
@@ -590,6 +591,8 @@ class FrontendController extends Controller
 
     private function activeWebsiteEvents(int $websiteId)
     {
+        $websiteTimezone = WebsiteTimezone::forWebsite(Website::select('id', 'timezone')->find($websiteId));
+
         return Event::where('website_id', $websiteId)
             ->where('is_archieved', 0)
             ->when(Schema::hasColumn('events', 'status'), function ($query) {
@@ -597,8 +600,8 @@ class FrontendController extends Controller
             })
             ->orderByRaw('COALESCE(start_date, date) ASC')
             ->get()
-            ->filter(function (Event $event) {
-                return $this->isEventCurrentOrUpcoming($event);
+            ->filter(function (Event $event) use ($websiteTimezone) {
+                return $this->isEventCurrentOrUpcoming($event, $websiteTimezone);
             })
             ->values()
             ->map(function (Event $event) {
@@ -606,7 +609,7 @@ class FrontendController extends Controller
             });
     }
 
-    private function isEventCurrentOrUpcoming(Event $event): bool
+    private function isEventCurrentOrUpcoming(Event $event, string $timezone): bool
     {
         $end = $event->end_date ?: $event->start_date ?: $event->date;
         if (!$end) {
@@ -614,8 +617,9 @@ class FrontendController extends Controller
         }
 
         try {
-            $todayPacific = \Carbon\Carbon::now('America/Los_Angeles')->startOfDay();
-            return \Carbon\Carbon::parse($end, 'America/Los_Angeles')->startOfDay()->gte($todayPacific);
+            $todayLocal = \Carbon\Carbon::now($timezone)->startOfDay();
+
+            return \Carbon\Carbon::parse($end, $timezone)->startOfDay()->gte($todayLocal);
         } catch (\Throwable $e) {
             return false;
         }
@@ -660,6 +664,10 @@ class FrontendController extends Controller
             return response()->json(['available' => false, 'message' => 'Package not found']);
         }
 
+        $websiteTimezone = WebsiteTimezone::forWebsite(
+            $package->website ?? Website::select('id', 'timezone')->find($package->website_id)
+        );
+
         $targetDate = null;
         if ($request->filled('use_date')) {
             try {
@@ -670,7 +678,7 @@ class FrontendController extends Controller
         }
 
         if (!$targetDate) {
-            $targetDate = \Carbon\Carbon::today('America/Los_Angeles');
+            $targetDate = \Carbon\Carbon::today($websiteTimezone);
         }
 
         $capacity = \App\Helpers\PackageLimitHelper::getAvailableCapacity($package, $targetDate);

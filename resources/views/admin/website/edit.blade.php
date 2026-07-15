@@ -244,6 +244,21 @@
 
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
+                                                        <label for="timezone" class="form-label">Website Timezone <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Used for this club's local dates and times. Keeping Pacific preserves the current live setup."></i></label>
+                                                        <select name="timezone" id="timezone" class="form-select @error('timezone') is-invalid @enderror">
+                                                            @foreach($timezoneOptions as $timezoneValue => $timezoneLabel)
+                                                                <option value="{{ $timezoneValue }}" {{ old('timezone', $data->resolved_timezone) === $timezoneValue ? 'selected' : '' }}>{{ $timezoneLabel }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        <small class="form-text text-muted">Current clubs stay unchanged because Pacific remains the saved default unless you pick a different timezone.</small>
+                                                        @error('timezone')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
                                                         <label class="form-label">Payment Icons <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Select which payment method logos should appear on this website's checkout page."></i></label>
                                                         <div class="payment-method-grid">
                                                             @foreach($stockPaymentLogos as $paymentKey => $paymentMethod)

@@ -4790,7 +4790,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                             required
                                             aria-required="true"
                                             aria-describedby="package_use_date_error"
-                                            placeholder="{{ \Carbon\Carbon::now('America/Los_Angeles')->format('M d, Y') }}"
+                                            placeholder="{{ \Carbon\Carbon::now($data->resolved_timezone)->format('M d, Y') }}"
                                             autocomplete="off"
                                             readonly
                                         />
@@ -5891,7 +5891,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         </div>
                         <div class="row g-4" id="events-list">
                             @php
-                                $todayPacific = \Carbon\Carbon::now('America/Los_Angeles')->toDateString();
+                                $todayPacific = \Carbon\Carbon::now($data->resolved_timezone)->toDateString();
                             @endphp
                             @foreach ($data->events as $item)
                                 @php

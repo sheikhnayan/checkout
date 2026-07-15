@@ -13,6 +13,7 @@ use App\Models\PaymentLogo;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use App\Support\WebsiteTimezone;
 
 class WebsiteController extends Controller
 {
@@ -116,7 +117,10 @@ class WebsiteController extends Controller
             abort(403, 'Access denied. Only administrators can create new websites.');
         }
         
-        return view('admin.website.create');
+        return view('admin.website.create', [
+            'timezoneOptions' => WebsiteTimezone::options(),
+            'defaultTimezone' => WebsiteTimezone::DEFAULT,
+        ]);
     }
 
     /**
@@ -181,6 +185,11 @@ class WebsiteController extends Controller
             'pickup_start_time' => 'nullable|date_format:H:i',
             'pickup_end_time' => 'nullable|date_format:H:i',
             'entertainer_submission_emails' => 'nullable|string',
+            'timezone' => ['nullable', 'string', function ($attribute, $value, $fail) {
+                if ($value !== null && trim((string) $value) !== '' && !WebsiteTimezone::isValid($value)) {
+                    $fail('Please select a valid timezone.');
+                }
+            }],
             'show_contact_info' => 'nullable|boolean',
             'clublifter_enabled' => 'nullable|boolean',
         ]);
@@ -239,6 +248,7 @@ class WebsiteController extends Controller
         $add->phone = $request->phone;
         $add->reservation = $request->reservation;
         $add->email = $request->email;
+        $add->timezone = WebsiteTimezone::normalize($request->input('timezone'));
         $add->show_contact_info = $request->boolean('show_contact_info');
         $add->entertainer_submission_emails = $entertainerSubmissionEmails;
         $add->clublifter_enabled = $request->boolean('clublifter_enabled');
@@ -417,7 +427,14 @@ class WebsiteController extends Controller
         // Check authorization for website users
         $this->authorizeWebsiteAccess($data->id, 'Access denied. You can only edit your own website.');
         
-        return view('admin.website.edit', compact('data', 'websiteAdminUser', 'stockPaymentLogos', 'selectedPaymentMethodKeys'));
+        return view('admin.website.edit', [
+            'data' => $data,
+            'websiteAdminUser' => $websiteAdminUser,
+            'stockPaymentLogos' => $stockPaymentLogos,
+            'selectedPaymentMethodKeys' => $selectedPaymentMethodKeys,
+            'timezoneOptions' => WebsiteTimezone::options(),
+            'defaultTimezone' => WebsiteTimezone::DEFAULT,
+        ]);
     }
 
     /**
@@ -457,6 +474,11 @@ class WebsiteController extends Controller
             'pickup_start_time' => 'nullable|date_format:H:i',
             'pickup_end_time' => 'nullable|date_format:H:i',
             'entertainer_submission_emails' => 'nullable|string',
+            'timezone' => ['nullable', 'string', function ($attribute, $value, $fail) {
+                if ($value !== null && trim((string) $value) !== '' && !WebsiteTimezone::isValid($value)) {
+                    $fail('Please select a valid timezone.');
+                }
+            }],
             'show_contact_info' => 'nullable|boolean',
             'clublifter_enabled' => 'nullable|boolean',
         ]);
@@ -488,6 +510,7 @@ class WebsiteController extends Controller
         $add->location = $request->location;
         $add->phone = $request->phone;
         $add->email = $request->email;
+        $add->timezone = WebsiteTimezone::normalize($request->input('timezone'));
         $add->show_contact_info = $request->boolean('show_contact_info');
         $add->policy = $request->policy;
         $add->success_page = self::DEFAULT_SUCCESS_PAGE;

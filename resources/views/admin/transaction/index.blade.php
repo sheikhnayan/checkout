@@ -964,8 +964,14 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td><input type="checkbox" class="row-check" value="{{ $item->id }}"></td>
                             <td class="txn-order-id">#{{ str_pad($item->id, 3, '0', STR_PAD_LEFT) }}</td>
                             <td>
-                                <div class="txn-date-main">{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('M d, Y') }}</div>
-                                <div class="txn-date-time">{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('h:i A') }}</div>
+                                @php
+                                    $transactionWebsite = $item->website ?: optional($item->event)->website ?: optional($item->package)->website;
+                                    $purchaseTimezone = optional($transactionWebsite)->resolved_timezone ?? 'America/Los_Angeles';
+                                    $purchaseAtLocal = optional($item->created_at)->copy()?->timezone($purchaseTimezone);
+                                @endphp
+                                <div class="txn-date-main">{{ $purchaseAtLocal?->format('M d, Y') ?? '-' }}</div>
+                                <div class="txn-date-time">{{ $purchaseAtLocal?->format('h:i A T') ?? '-' }}</div>
+                                <div style="font-size:0.72rem;color:rgba(255,255,255,0.55);margin-top:2px;">{{ optional($transactionWebsite)->name ? optional($transactionWebsite)->name . ' timezone' : $purchaseTimezone }}</div>
                             </td>
                             <td class="txn-confirmation-num">{{ $item->transaction_id ?? 'N/A' }}</td>
                             <td class="txn-pkg-name">
@@ -1113,6 +1119,11 @@ body.modal-open .admin-mobile-menu-toggle {
                                     }
                                 @endphp
                                 <span class="{{ $reservationStatusClass }}">{{ $reservationStatusValue }}</span>
+                                @if($reservationStatusValue === 'Upcoming' && $reservationDatePacific)
+                                    <div style="margin-top:4px;font-size:0.74rem;color:rgba(255,255,255,0.62);">
+                                        {{ $reservationDatePacific->format('M d, Y') }}
+                                    </div>
+                                @endif
                             </td>
                             <td>{{-- RESERVATION DATE --}}
                                 @if($reservationDatePacific)
@@ -1246,7 +1257,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                         data-promo_code="{{ $promo_code_name }}"
                                         data-discounted_amount="{{ $item->discounted_amount }}"
                                         data-package_use_date="{{ $item->package_use_date }}"
-                                        data-date="{{ optional($item->created_at)->timezone('America/Los_Angeles')->format('Y-m-d h:i A \P\T') }}"
+                                        data-date="{{ $purchaseAtLocal?->format('Y-m-d h:i A T') ?? '' }}"
                                         data-men="{{ $item->men ?? '' }}"
                                         data-women="{{ $item->women ?? '' }}"
                                         data-requires_transportation="{{ $requiresTransportationForRow ? 1 : 0 }}"
