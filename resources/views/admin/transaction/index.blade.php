@@ -2699,13 +2699,13 @@ body.modal-open .admin-mobile-menu-toggle {
                 var statusText = 'Unknown';
                 var statusClass = 'txn-status-unknown';
                 if (status == 1 || status === 'Completed' || status === 'Approved') {
-                    statusText = 'Completed';
+                    statusText = 'Payment Completed';
                     statusClass = 'txn-status-completed';
                 } else if (status == 0 || status === 'Canceled' || status === '0') {
-                    statusText = 'Canceled';
+                    statusText = 'Payment Canceled';
                     statusClass = 'txn-status-canceled';
                 } else if (status == 2 || status === 'Refunded') {
-                    statusText = 'Refunded';
+                    statusText = 'Payment Refunded';
                     statusClass = 'txn-status-refunded';
                 }
 
@@ -2753,6 +2753,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 requiresTransportation = requiresTransportation === '1' || requiresTransportation === 'true' || requiresTransportation === 'yes';
                 var hasTransportationDetails = [
                     $(this).data('transportation_pickup_time'),
+                    $(this).data('transportation_arrival_time'),
                     $(this).data('transportation_address'),
                     $(this).data('transportation_phone'),
                     $(this).data('transportation_note')
@@ -2768,6 +2769,11 @@ body.modal-open .admin-mobile-menu-toggle {
                 var checkedInStatus = String($(this).data('checked_in_status') || '').toLowerCase();
                 checkedInStatus = checkedInStatus === '1' || checkedInStatus === 'true' || checkedInStatus === 'yes';
                 var checkedInAtPacific = String($(this).data('checked_in_at_pacific') || '').trim();
+                var transportationArrivalRaw = String($(this).data('transportation_arrival_time') || '').trim();
+                var transportationArrivalDisplay = formatPickupTime(transportationArrivalRaw);
+                if ((transportationArrivalDisplay === 'N/A' || transportationArrivalDisplay === '') && checkedInStatus && checkedInAtPacific) {
+                    transportationArrivalDisplay = checkedInAtPacific + ' (Check-In)';
+                }
 
                 var rawCartItems = $(this).data('cart-items') || [];
                 var parsedCartItems = Array.isArray(rawCartItems) ? rawCartItems : (window.parseJsonLike ? window.parseJsonLike(rawCartItems) : []);
@@ -2951,6 +2957,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += '</div>';
 
                 html += '<div class="row g-3">';
+
                 html += '<div class="col-md-6">';
                 html += '<div class="txn-detail-card">';
                 html += '<div class="txn-detail-title">Purchase Summary</div>';
@@ -3024,24 +3031,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     pushPdfRow('Package Details', 'No package or add-on details available');
                 }
                 html += '</div>';
-                html += '</div>';
 
-                html += '<div class="col-md-6">';
-                html += '<div class="txn-detail-card">';
-                html += '<div class="txn-detail-title">Guest & Reservation</div>';
-                beginPdfSection('Guest & Reservation');
-                html += row('Guest', ($(this).data('package_first_name') || '') + ' ' + ($(this).data('package_last_name') || ''));
-                html += row('Email', $(this).data('package_email') || '');
-                html += row('Phone', $(this).data('package_phone') || '');
-                html += row('DOB', formatDateUS($(this).data('package_dob')));
-                html += row('Date Of Use', formatDateUS($(this).data('package_use_date')));
-                html += row('Guests', guestsDisplay);
-                html += row('Host Name', $(this).data('host_name') || 'N/A');
-                html += row('Notes', $(this).data('package_note') || 'N/A');
-                html += '</div>';
-                html += '</div>';
-
-                html += '<div class="col-md-6">';
                 html += '<div class="txn-detail-card">';
                 html += '<div class="txn-detail-title">Payment & Charges</div>';
                 beginPdfSection('Payment & Charges');
@@ -3102,22 +3092,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row('Card Brand', $(this).data('payment_card_brand') || 'N/A');
                 html += row('Card Last 4', $(this).data('payment_card_last4') || 'N/A');
                 html += '</div>';
-                html += '</div>';
 
-                html += '<div class="col-md-6">';
-                html += '<div class="txn-detail-card">';
-                html += '<div class="txn-detail-title">Transportation</div>';
-                beginPdfSection('Transportation');
-                html += row('Transport Mode', transportMode);
-                html += row('Pickup Time', formatPickupTime($(this).data('transportation_pickup_time')));
-                html += row('Arrival Time', formatPickupTime($(this).data('transportation_arrival_time')));
-                html += row('Transport Phone', $(this).data('transportation_phone') || 'N/A');
-                html += row('Transport Address', $(this).data('transportation_address') || 'N/A');
-                html += row('Transport Note', $(this).data('transportation_note') || 'N/A');
-                html += '</div>';
-                html += '</div>';
-
-                html += '<div class="col-md-6">';
                 html += '<div class="txn-detail-card">';
                 html += '<div class="txn-detail-title">Payment Contact</div>';
                 beginPdfSection('Payment Contact');
@@ -3132,6 +3107,30 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 html += '<div class="col-md-6">';
                 html += '<div class="txn-detail-card">';
+                html += '<div class="txn-detail-title">Guest & Reservation</div>';
+                beginPdfSection('Guest & Reservation');
+                html += row('Guest', ($(this).data('package_first_name') || '') + ' ' + ($(this).data('package_last_name') || ''));
+                html += row('Email', $(this).data('package_email') || '');
+                html += row('Phone', $(this).data('package_phone') || '');
+                html += row('DOB', formatDateUS($(this).data('package_dob')));
+                html += row('Date Of Use', formatDateUS($(this).data('package_use_date')));
+                html += row('Guests', guestsDisplay);
+                html += row('Host Name', $(this).data('host_name') || 'N/A');
+                html += row('Notes', $(this).data('package_note') || 'N/A');
+                html += '</div>';
+
+                html += '<div class="txn-detail-card">';
+                html += '<div class="txn-detail-title">Transportation</div>';
+                beginPdfSection('Transportation');
+                html += row('Transport Mode', transportMode);
+                html += row('Pickup Time', formatPickupTime($(this).data('transportation_pickup_time')));
+                html += row('Arrival Time', transportationArrivalDisplay);
+                html += row('Transport Phone', $(this).data('transportation_phone') || 'N/A');
+                html += row('Transport Address', $(this).data('transportation_address') || 'N/A');
+                html += row('Transport Note', $(this).data('transportation_note') || 'N/A');
+                html += '</div>';
+
+                html += '<div class="txn-detail-card">';
                 html += '<div class="txn-detail-title">Source & Fees</div>';
                 beginPdfSection('Source & Fees');
                 html += row('Source', source);
@@ -3145,9 +3144,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     html += row('Entertainer Fee', (entertainerName || 'N/A') + ' | ' + entPct.toFixed(2) + '% | ' + money(entAmt) + (entStatus ? (' | ' + entStatus.toUpperCase()) : '') + (entHold ? (' | ' + entHold) : ''));
                 }
                 html += '</div>';
-                html += '</div>';
 
-                html += '<div class="col-md-6">';
                 html += '<div class="txn-detail-card">';
                 html += '<div class="txn-detail-title">Audit & Business</div>';
                 beginPdfSection('Audit & Business');
