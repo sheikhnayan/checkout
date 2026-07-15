@@ -222,6 +222,72 @@
         color: var(--admin-text-muted) !important;
       }
 
+      #layout-menu .menu-inner {
+        gap: 2px;
+      }
+
+      #layout-menu .menu-inner .menu-link {
+        min-height: 2.2rem;
+        padding-top: 0.48rem;
+        padding-bottom: 0.48rem;
+      }
+
+      #layout-menu .menu-header {
+        margin-top: 0.5rem;
+        margin-bottom: 0.15rem;
+      }
+
+      #layout-menu .menu-header.admin-menu-header-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        cursor: pointer;
+        user-select: none;
+        border-radius: 8px;
+        padding: 0.45rem 0.65rem;
+      }
+
+      #layout-menu .menu-header.admin-menu-header-toggle:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      #layout-menu .menu-header.admin-menu-header-toggle:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(255, 204, 0, 0.25);
+      }
+
+      #layout-menu .menu-header.admin-menu-header-toggle .menu-header-text {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      #layout-menu .admin-menu-header-caret {
+        color: rgba(255, 255, 255, 0.65);
+        font-size: 1rem;
+        line-height: 1;
+        transition: transform 0.18s ease;
+      }
+
+      #layout-menu .menu-header.admin-menu-header-toggle[aria-expanded='false'] .admin-menu-header-caret {
+        transform: rotate(-90deg);
+      }
+
+      #layout-menu .menu-inner > .admin-menu-section-collapsed {
+        max-height: 0 !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        border: 0 !important;
+        overflow: hidden !important;
+        transform: translateY(-4px);
+      }
+
       .content-footer {
         border-top: 1px solid var(--admin-border);
       }
@@ -1535,6 +1601,130 @@
           syncState();
         }
 
+        function initSidebarSectionCollapsing() {
+          const menuInner = document.querySelector('#layout-menu .menu-inner');
+          if (!menuInner) {
+            return;
+          }
+
+          const storageKey = 'adminSidebarSectionCollapseStateV1';
+          let savedState = {};
+
+          try {
+            const raw = window.localStorage.getItem(storageKey);
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (parsed && typeof parsed === 'object') {
+                savedState = parsed;
+              }
+            }
+          } catch (error) {
+            savedState = {};
+          }
+
+          function persistState() {
+            try {
+              window.localStorage.setItem(storageKey, JSON.stringify(savedState));
+            } catch (error) {
+              // Ignore storage write issues.
+            }
+          }
+
+          function slugify(value) {
+            return String(value || '')
+              .trim()
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/^-+|-+$/g, '');
+          }
+
+          const children = Array.from(menuInner.children);
+          const sections = [];
+          let currentHeader = null;
+          let currentItems = [];
+
+          children.forEach(function (child) {
+            if (child.classList.contains('menu-header')) {
+              if (currentHeader) {
+                sections.push({ header: currentHeader, items: currentItems });
+              }
+              currentHeader = child;
+              currentItems = [];
+              return;
+            }
+
+            if (currentHeader) {
+              currentItems.push(child);
+            }
+          });
+
+          if (currentHeader) {
+            sections.push({ header: currentHeader, items: currentItems });
+          }
+
+          sections.forEach(function (section, index) {
+            const header = section.header;
+            const items = section.items;
+
+            if (!header || !items.length) {
+              return;
+            }
+
+            const sectionText = (header.textContent || '').trim() || ('section-' + index);
+            const sectionKey = slugify(sectionText) + '-' + index;
+            const hasActiveItem = items.some(function (item) {
+              return item.classList.contains('active') || !!item.querySelector('.menu-item.active, .menu-link.active');
+            });
+
+            const savedCollapsed = savedState[sectionKey] === true;
+            const initialCollapsed = savedCollapsed && !hasActiveItem;
+
+            header.classList.add('admin-menu-header-toggle');
+            header.setAttribute('role', 'button');
+            header.setAttribute('tabindex', '0');
+            header.setAttribute('aria-expanded', initialCollapsed ? 'false' : 'true');
+            header.dataset.sectionKey = sectionKey;
+
+            if (!header.querySelector('.admin-menu-header-caret')) {
+              const caret = document.createElement('i');
+              caret.className = 'bx bx-chevron-down admin-menu-header-caret';
+              caret.setAttribute('aria-hidden', 'true');
+              header.appendChild(caret);
+            }
+
+            function applyCollapsedState(collapsed) {
+              header.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+              items.forEach(function (item) {
+                item.classList.toggle('admin-menu-section-collapsed', collapsed);
+              });
+            }
+
+            applyCollapsedState(initialCollapsed);
+
+            function toggleSection() {
+              const isCollapsed = header.getAttribute('aria-expanded') === 'false';
+              const nextCollapsed = !isCollapsed;
+              applyCollapsedState(nextCollapsed);
+              savedState[sectionKey] = nextCollapsed;
+              persistState();
+            }
+
+            if (header.dataset.collapseBound !== '1') {
+              header.dataset.collapseBound = '1';
+              header.addEventListener('click', function () {
+                toggleSection();
+              });
+
+              header.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  toggleSection();
+                }
+              });
+            }
+          });
+        }
+
         function initFieldTooltips() {
           if (typeof bootstrap === 'undefined' || !bootstrap.Tooltip) { return; }
           document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
@@ -1756,6 +1946,7 @@
             wrapTablesForMobile();
             initAdminDataTables();
             bindMobileMenuToggle();
+            initSidebarSectionCollapsing();
             initFieldTooltips();
             bindAdminBackButton();
             bindAjaxAutoNotifications();
@@ -1765,6 +1956,7 @@
           wrapTablesForMobile();
           initAdminDataTables();
           bindMobileMenuToggle();
+          initSidebarSectionCollapsing();
           initFieldTooltips();
           bindAdminBackButton();
           bindAjaxAutoNotifications();
