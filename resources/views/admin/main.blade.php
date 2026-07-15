@@ -863,7 +863,6 @@
       href="#website-access-group-menu"
       class="menu-link menu-group-toggle"
       data-sidebar-collapse-target="#website-access-group-menu"
-      data-bs-toggle="collapse"
       role="button"
       aria-expanded="{{ $isWebsiteAccessGroupActive ? 'true' : 'false' }}"
       aria-controls="website-access-group-menu">
@@ -918,7 +917,6 @@
       href="#packages-offers-group-menu"
       class="menu-link menu-group-toggle"
       data-sidebar-collapse-target="#packages-offers-group-menu"
-      data-bs-toggle="collapse"
       role="button"
       aria-expanded="{{ $isPackagesGroupActive ? 'true' : 'false' }}"
       aria-controls="packages-offers-group-menu">
@@ -991,7 +989,6 @@
       href="#manager-portal-menu"
       class="menu-link"
       data-sidebar-collapse-target="#manager-portal-menu"
-      data-bs-toggle="collapse"
       role="button"
       aria-expanded="{{ $isManagerPortalActive ? 'true' : 'false' }}"
       aria-controls="manager-portal-menu">
@@ -1028,7 +1025,6 @@
       href="#people-feed-group-menu"
       class="menu-link menu-group-toggle"
       data-sidebar-collapse-target="#people-feed-group-menu"
-      data-bs-toggle="collapse"
       role="button"
       aria-expanded="{{ $isPeopleFeedGroupActive ? 'true' : 'false' }}"
       aria-controls="people-feed-group-menu">
@@ -1096,7 +1092,6 @@
       href="#reports-group-menu"
       class="menu-link menu-group-toggle"
       data-sidebar-collapse-target="#reports-group-menu"
-      data-bs-toggle="collapse"
       role="button"
       aria-expanded="{{ $isReportsGroupActive ? 'true' : 'false' }}"
       aria-controls="reports-group-menu">
@@ -1182,7 +1177,6 @@
       href="#withdrawals-group-menu"
       class="menu-link menu-group-toggle"
       data-sidebar-collapse-target="#withdrawals-group-menu"
-      data-bs-toggle="collapse"
       role="button"
       aria-expanded="{{ $isWithdrawalGroupActive ? 'true' : 'false' }}"
       aria-controls="withdrawals-group-menu">
@@ -1686,6 +1680,8 @@
             .filter(Boolean);
 
           function setGroupState(group, shouldOpen) {
+            group.target.classList.remove('collapsing');
+            group.target.style.height = '';
             group.target.classList.toggle('show', shouldOpen);
             group.toggle.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
             if (group.parentItem) {
