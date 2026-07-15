@@ -239,7 +239,7 @@ class WebsiteController extends Controller
         $add->phone = $request->phone;
         $add->reservation = $request->reservation;
         $add->email = $request->email;
-        $add->show_contact_info = $request->boolean('show_contact_info', true);
+        $add->show_contact_info = $request->boolean('show_contact_info');
         $add->entertainer_submission_emails = $entertainerSubmissionEmails;
         $add->clublifter_enabled = $request->boolean('clublifter_enabled');
         $add->gratuity_fee = $request->gratuity_fee;
@@ -488,7 +488,7 @@ class WebsiteController extends Controller
         $add->location = $request->location;
         $add->phone = $request->phone;
         $add->email = $request->email;
-        $add->show_contact_info = $request->boolean('show_contact_info', true);
+        $add->show_contact_info = $request->boolean('show_contact_info');
         $add->policy = $request->policy;
         $add->success_page = self::DEFAULT_SUCCESS_PAGE;
         $add->terms = $request->terms;
