@@ -716,6 +716,83 @@
             box-shadow: 0 0 0 5px rgba(239,190,111,0.24);
         }
 
+        .roll-age-gate {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            background: rgba(3, 7, 14, 0.9);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .roll-age-gate-dialog {
+            width: min(560px, 100%);
+            border: 1px solid rgba(239, 190, 111, 0.35);
+            border-radius: 18px;
+            background: linear-gradient(160deg, rgba(20, 33, 55, 0.96), rgba(9, 15, 28, 0.98));
+            box-shadow: 0 26px 70px rgba(0, 0, 0, 0.48);
+            padding: 22px;
+        }
+
+        .roll-age-gate-title {
+            margin: 0 0 10px;
+            font-size: 1.36rem;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+            color: #f6ddb2;
+        }
+
+        .roll-age-gate-copy {
+            margin: 0;
+            color: #d7e5ff;
+            line-height: 1.75;
+            font-size: 0.95rem;
+        }
+
+        .roll-age-gate-actions {
+            margin-top: 16px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .roll-age-gate-btn {
+            appearance: none;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(255, 255, 255, 0.07);
+            color: #edf3ff;
+            padding: 10px 16px;
+            font-size: 0.82rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .roll-age-gate-btn:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
+        .roll-age-gate-btn.enter {
+            border-color: rgba(239, 190, 111, 0.45);
+            background: linear-gradient(145deg, rgba(239, 190, 111, 0.3), rgba(239, 190, 111, 0.14));
+            color: #fff5df;
+            box-shadow: 0 10px 24px rgba(239, 190, 111, 0.2);
+        }
+
+        .roll-age-gate-btn.exit {
+            border-color: rgba(248, 113, 113, 0.4);
+            background: linear-gradient(145deg, rgba(248, 113, 113, 0.24), rgba(248, 113, 113, 0.08));
+            color: #ffe1e1;
+        }
+
         @media (max-width: 991.98px) {
             .roll-grid {
                 grid-template-columns: 1fr;
@@ -952,6 +1029,17 @@
         </div>
     </footer>
 
+    <div class="roll-age-gate" id="roll-age-gate" role="dialog" aria-modal="true" aria-labelledby="roll-age-gate-title" data-exit-url="{{ route('club.feed.profile', $club->slug) }}">
+        <div class="roll-age-gate-dialog">
+            <h2 class="roll-age-gate-title" id="roll-age-gate-title">18+ Age Verification</h2>
+            <p class="roll-age-gate-copy">This website contains content and offers intended for adults only. By entering, you confirm that you are at least 18 years of age (or the legal age required in your jurisdiction) and wish to proceed.</p>
+            <div class="roll-age-gate-actions">
+                <button type="button" class="roll-age-gate-btn enter" id="roll-age-gate-enter">Enter Site</button>
+                <button type="button" class="roll-age-gate-btn exit" id="roll-age-gate-exit">Exit</button>
+            </div>
+        </div>
+    </div>
+
     <div class="roll-lightbox" id="roll-lightbox" aria-hidden="true">
         <div class="roll-lightbox-dialog" role="dialog" aria-modal="true" aria-label="Event media viewer">
             <div class="roll-lightbox-media">
@@ -997,9 +1085,48 @@
             const authorNode = document.getElementById('roll-lightbox-author');
             const commentsListNode = document.getElementById('roll-lightbox-comment-list');
             const eventCards = document.querySelectorAll('.roll-event-card');
+            const ageGate = document.getElementById('roll-age-gate');
+            const ageEnterButton = document.getElementById('roll-age-gate-enter');
+            const ageExitButton = document.getElementById('roll-age-gate-exit');
 
             let currentItems = [];
             let currentIndex = 0;
+
+            function lockPage() {
+                document.body.style.overflow = 'hidden';
+            }
+
+            function unlockPage() {
+                document.body.style.overflow = '';
+            }
+
+            function closeAgeGate() {
+                if (!ageGate) {
+                    return;
+                }
+
+                ageGate.style.display = 'none';
+                ageGate.setAttribute('aria-hidden', 'true');
+                unlockPage();
+            }
+
+            if (ageGate) {
+                lockPage();
+                ageGate.setAttribute('aria-hidden', 'false');
+
+                if (ageEnterButton) {
+                    ageEnterButton.addEventListener('click', function () {
+                        closeAgeGate();
+                    });
+                }
+
+                if (ageExitButton) {
+                    ageExitButton.addEventListener('click', function () {
+                        const exitUrl = ageGate.getAttribute('data-exit-url') || '/';
+                        window.location.href = exitUrl;
+                    });
+                }
+            }
 
             function renderMediaItem(item) {
                 if (!item) {
