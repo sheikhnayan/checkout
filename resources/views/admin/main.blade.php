@@ -222,70 +222,22 @@
         color: var(--admin-text-muted) !important;
       }
 
-      #layout-menu .menu-inner {
-        gap: 2px;
+      .menu-group-toggle .menu-group-caret {
+        transition: transform .2s ease;
       }
 
-      #layout-menu .menu-inner .menu-link {
-        min-height: 2.2rem;
-        padding-top: 0.48rem;
-        padding-bottom: 0.48rem;
+      .menu-group-toggle[aria-expanded='true'] .menu-group-caret {
+        transform: rotate(180deg);
       }
 
-      #layout-menu .menu-header {
-        margin-top: 0.5rem;
-        margin-bottom: 0.15rem;
+      .menu-sub.menu-group-sub {
+        list-style: none;
+        margin: 0;
+        padding: 0.25rem 0 0.25rem 2rem;
       }
 
-      #layout-menu .menu-header.admin-menu-header-toggle {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        cursor: pointer;
-        user-select: none;
-        border-radius: 8px;
-        padding: 0.45rem 0.65rem;
-      }
-
-      #layout-menu .menu-header.admin-menu-header-toggle:hover {
-        background: rgba(255, 255, 255, 0.05);
-      }
-
-      #layout-menu .menu-header.admin-menu-header-toggle:focus {
-        outline: none;
-        box-shadow: 0 0 0 2px rgba(255, 204, 0, 0.25);
-      }
-
-      #layout-menu .menu-header.admin-menu-header-toggle .menu-header-text {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      #layout-menu .admin-menu-header-caret {
-        color: rgba(255, 255, 255, 0.65);
-        font-size: 1rem;
-        line-height: 1;
-        transition: transform 0.18s ease;
-      }
-
-      #layout-menu .menu-header.admin-menu-header-toggle[aria-expanded='false'] .admin-menu-header-caret {
-        transform: rotate(-90deg);
-      }
-
-      #layout-menu .menu-inner > .admin-menu-section-collapsed {
-        max-height: 0 !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
-        pointer-events: none !important;
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-        border: 0 !important;
-        overflow: hidden !important;
-        transform: translateY(-4px);
+      .menu-sub.menu-group-sub .menu-link {
+        min-height: 2rem;
       }
 
       .content-footer {
@@ -867,6 +819,34 @@
             $canAccessIncidentPortal = $authUser && $canAccessRoute('admin.incident.index');
             $canAccessJobMarketplace = $authUser && $canAccessRoute('admin.jobs.index');
             $isManagerPortalActive = request()->is('admins/incident*') || request()->is('admins/jobs*');
+
+            $isWebsiteAccessGroupActive = request()->is('admins/website')
+              || request()->is('admins/website-users*')
+              || request()->is('admins/website-roles*')
+              || request()->is('admins/manager-users*');
+
+            $isPackagesGroupActive = request()->is('admins/event')
+              || request()->is('admins/package')
+              || request()->is('admins/addon')
+              || request()->is('admins/promo_code')
+              || request()->is('admins/popup*')
+              || request()->is('admins/setting/edit/1');
+
+            $isPeopleFeedGroupActive = request()->is('admins/feed-model*')
+              || request()->is('admins/feed-post*')
+              || request()->is('admins/affiliate*')
+              || request()->is('admins/entertainer*')
+              || request()->is('admins/staff*');
+
+            $isReportsGroupActive = request()->is('admins/reports*')
+              || request()->is('admins/transaction')
+              || request()->is('admins/transaction/scan*')
+              || request()->is('admins/transaction/affiliate')
+              || request()->is('admins/transaction/entertainer')
+              || request()->is('admins/custom-invoice');
+
+            $isWithdrawalGroupActive = request()->is('admins/withdraw/affiliates*')
+              || request()->is('admins/withdraw/entertainers*');
             @endphp
 
           <ul class="menu-inner py-1">
@@ -883,84 +863,129 @@
     </li>
   @endif
 
-  @if(auth()->check() && auth()->user()->isAdmin())
-  <li class="menu-item {{ request()->is('admins/website') ? 'active' : '' }}">
-    <a href="/admins/website" class="menu-link">
+  @if((auth()->check() && auth()->user()->isAdmin()) || ($authUser && $canAccessRoute('admin.website-users.index')) || ($authUser && $canAccessRoute('admin.website-roles.index')))
+  <li class="menu-item {{ $isWebsiteAccessGroupActive ? 'active' : '' }}">
+    <a
+      href="#website-access-group-menu"
+      class="menu-link menu-group-toggle"
+      data-bs-toggle="collapse"
+      role="button"
+      aria-expanded="{{ $isWebsiteAccessGroupActive ? 'true' : 'false' }}"
+      aria-controls="website-access-group-menu">
       <i class="menu-icon tf-icons bx bx-globe"></i>
-      <div class="text-truncate">Websites</div>
+      <div class="text-truncate">Website & Access</div>
+      <i class="bx bx-chevron-down ms-auto menu-group-caret"></i>
     </a>
+
+    <ul class="menu-sub menu-group-sub collapse {{ $isWebsiteAccessGroupActive ? 'show' : '' }}" id="website-access-group-menu">
+      @if(auth()->check() && auth()->user()->isAdmin())
+      <li class="menu-item {{ request()->is('admins/website') ? 'active' : '' }}">
+        <a href="/admins/website" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-globe"></i>
+          <div class="text-truncate">Websites</div>
+        </a>
+      </li>
+      @endif
+
+      @if($authUser && $canAccessRoute('admin.website-users.index'))
+      <li class="menu-item {{ request()->is('admins/website-users*') ? 'active' : '' }}">
+        <a href="{{ route('admin.website-users.index') }}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-user"></i>
+          <div class="text-truncate">Website Users</div>
+        </a>
+      </li>
+      @endif
+
+      @if($authUser && $canAccessRoute('admin.website-roles.index'))
+      <li class="menu-item {{ request()->is('admins/website-roles*') ? 'active' : '' }}">
+        <a href="{{ route('admin.website-roles.index') }}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-shield-quarter"></i>
+          <div class="text-truncate">Website Roles</div>
+        </a>
+      </li>
+      @endif
+
+      @if(auth()->check() && auth()->user()->isAdmin())
+      <li class="menu-item {{ request()->is('admins/manager-users*') ? 'active' : '' }}">
+        <a href="{{ route('admin.manager-users.index') }}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-user-check"></i>
+          <div class="text-truncate">Manager Users</div>
+        </a>
+      </li>
+      @endif
+    </ul>
   </li>
   @endif
 
-  @if($authUser && $canAccessRoute('admin.website-users.index'))
-  <li class="menu-item {{ request()->is('admins/website-users*') ? 'active' : '' }}">
-    <a href="{{ route('admin.website-users.index') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-user"></i>
-      <div class="text-truncate">Website Users</div>
-    </a>
-  </li>
-  @endif
-
-  @if($authUser && $canAccessRoute('admin.website-roles.index'))
-  <li class="menu-item {{ request()->is('admins/website-roles*') ? 'active' : '' }}">
-    <a href="{{ route('admin.website-roles.index') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-shield-quarter"></i>
-      <div class="text-truncate">Website Roles</div>
-    </a>
-  </li>
-  @endif
-
-  @if(auth()->check() && auth()->user()->isAdmin())
-  <li class="menu-item {{ request()->is('admins/manager-users*') ? 'active' : '' }}">
-    <a href="{{ route('admin.manager-users.index') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-user-check"></i>
-      <div class="text-truncate">Manager Users</div>
-    </a>
-  </li>
-  @endif
-
-  @if($authUser && $canAccessRoute('admin.event.index'))
-  <li class="menu-item {{ request()->is('admins/event') ? 'active' : '' }}">
-    <a href="/admins/event" class="menu-link">
+  @if(($authUser && $canAccessRoute('admin.event.index')) || ($authUser && $canAccessRoute('admin.package.index')) || ($authUser && $canAccessRoute('admin.addon.index')) || ($authUser && $canAccessRoute('admin.promo_code.index')) || ($authUser && $canAccessRoute('admin.popup.index')) || (auth()->check() && auth()->user()->isAdmin()))
+  <li class="menu-item {{ $isPackagesGroupActive ? 'active' : '' }}">
+    <a
+      href="#packages-offers-group-menu"
+      class="menu-link menu-group-toggle"
+      data-bs-toggle="collapse"
+      role="button"
+      aria-expanded="{{ $isPackagesGroupActive ? 'true' : 'false' }}"
+      aria-controls="packages-offers-group-menu">
       <i class="menu-icon tf-icons bx bx-package"></i>
-      <div class="text-truncate">Events</div>
+      <div class="text-truncate">Packages & Offers</div>
+      <i class="bx bx-chevron-down ms-auto menu-group-caret"></i>
     </a>
-  </li>
-  @endif
 
-  @if($authUser && $canAccessRoute('admin.package.index'))
-  <li class="menu-item {{ request()->is('admins/package') ? 'active' : '' }}">
-    <a href="/admins/package" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-package"></i>
-      <div class="text-truncate">Packages</div>
-    </a>
-  </li>
-  @endif
+    <ul class="menu-sub menu-group-sub collapse {{ $isPackagesGroupActive ? 'show' : '' }}" id="packages-offers-group-menu">
+      @if($authUser && $canAccessRoute('admin.event.index'))
+      <li class="menu-item {{ request()->is('admins/event') ? 'active' : '' }}">
+        <a href="/admins/event" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-calendar-event"></i>
+          <div class="text-truncate">Events</div>
+        </a>
+      </li>
+      @endif
 
-  @if($authUser && $canAccessRoute('admin.addon.index'))
-  <li class="menu-item {{ request()->is('admins/addon') ? 'active' : '' }}">
-    <a href="/admins/addon" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-package"></i>
-      <div class="text-truncate">Add-ons</div>
-    </a>
-  </li>
-  @endif
+      @if($authUser && $canAccessRoute('admin.package.index'))
+      <li class="menu-item {{ request()->is('admins/package') ? 'active' : '' }}">
+        <a href="/admins/package" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-package"></i>
+          <div class="text-truncate">Packages</div>
+        </a>
+      </li>
+      @endif
 
-  @if($authUser && $canAccessRoute('admin.promo_code.index'))
-  <li class="menu-item {{ request()->is('admins/promo_code') ? 'active' : '' }}">
-    <a href="/admins/promo_code" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-package"></i>
-      <div class="text-truncate">Promo Codes</div>
-    </a>
-  </li>
-  @endif
+      @if($authUser && $canAccessRoute('admin.addon.index'))
+      <li class="menu-item {{ request()->is('admins/addon') ? 'active' : '' }}">
+        <a href="/admins/addon" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-purchase-tag-alt"></i>
+          <div class="text-truncate">Add-ons</div>
+        </a>
+      </li>
+      @endif
 
-  @if($authUser && $canAccessRoute('admin.popup.index'))
-  <li class="menu-item {{ request()->is('admins/popup*') ? 'active' : '' }}">
-    <a href="{{ route('admin.popup.index') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-window-open"></i>
-      <div class="text-truncate">Checkout Popups</div>
-    </a>
+      @if($authUser && $canAccessRoute('admin.promo_code.index'))
+      <li class="menu-item {{ request()->is('admins/promo_code') ? 'active' : '' }}">
+        <a href="/admins/promo_code" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-purchase-tag"></i>
+          <div class="text-truncate">Promo Codes</div>
+        </a>
+      </li>
+      @endif
+
+      @if($authUser && $canAccessRoute('admin.popup.index'))
+      <li class="menu-item {{ request()->is('admins/popup*') ? 'active' : '' }}">
+        <a href="{{ route('admin.popup.index') }}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-window-open"></i>
+          <div class="text-truncate">Checkout Popups</div>
+        </a>
+      </li>
+      @endif
+
+      @if(auth()->check() && auth()->user()->isAdmin())
+      <li class="menu-item {{ request()->is('admins/setting/edit/1') ? 'active' : '' }}">
+        <a href="/admins/setting/edit/1" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-cog"></i>
+          <div class="text-truncate">Platform Settings</div>
+        </a>
+      </li>
+      @endif
+    </ul>
   </li>
   @endif
 
@@ -1000,101 +1025,151 @@
   </li>
   @endif
 
-  @if($authUser && $canAccessRoute('admin.feed-model.index'))
-  <li class="menu-item {{ request()->is('admins/feed-model*') ? 'active' : '' }}">
-    <a href="{{ route('admin.feed-model.index') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-user-circle"></i>
-      <div class="text-truncate">Feed Entertainers</div>
+  @if(($authUser && $canAccessRoute('admin.feed-model.index')) || ($authUser && $canAccessRoute('admin.feed-post.index')) || (auth()->check() && auth()->user()->isAdmin()) || ($authUser && $canAccessRoute('admin.entertainer.index')) || ($authUser && $canAccessRoute('admin.affiliate.index')))
+  <li class="menu-item {{ $isPeopleFeedGroupActive ? 'active' : '' }}">
+    <a
+      href="#people-feed-group-menu"
+      class="menu-link menu-group-toggle"
+      data-bs-toggle="collapse"
+      role="button"
+      aria-expanded="{{ $isPeopleFeedGroupActive ? 'true' : 'false' }}"
+      aria-controls="people-feed-group-menu">
+      <i class="menu-icon tf-icons bx bx-group"></i>
+      <div class="text-truncate">Promoters, Entertainers & Feed</div>
+      <i class="bx bx-chevron-down ms-auto menu-group-caret"></i>
     </a>
-  </li>
-  @endif
 
-  @if($authUser && $canAccessRoute('admin.feed-post.index'))
-  <li class="menu-item {{ request()->is('admins/feed-post*') ? 'active' : '' }}">
-    <a href="{{ route('admin.feed-post.index') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-images"></i>
-      <div class="text-truncate">Feed Posts @if($pendingFeedPostCount > 0)<span class="badge bg-warning text-dark ms-1">{{ $pendingFeedPostCount }}</span>@endif</div>
-    </a>
-  </li>
-  @endif
+    <ul class="menu-sub menu-group-sub collapse {{ $isPeopleFeedGroupActive ? 'show' : '' }}" id="people-feed-group-menu">
+      @if($authUser && $canAccessRoute('admin.feed-model.index'))
+      <li class="menu-item {{ request()->is('admins/feed-model*') ? 'active' : '' }}">
+        <a href="{{ route('admin.feed-model.index') }}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-user-circle"></i>
+          <div class="text-truncate">Feed Entertainers</div>
+        </a>
+      </li>
+      @endif
 
-  @if(auth()->check() && auth()->user()->isAdmin())
-  <li class="menu-item {{ request()->is('admins/setting/edit/1') ? 'active' : '' }}">
-    <a href="/admins/setting/edit/1" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-package"></i>
-      <div class="text-truncate">Platform Settings</div>
-    </a>
-  </li>
-  @endif
+      @if($authUser && $canAccessRoute('admin.feed-post.index'))
+      <li class="menu-item {{ request()->is('admins/feed-post*') ? 'active' : '' }}">
+        <a href="{{ route('admin.feed-post.index') }}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-images"></i>
+          <div class="text-truncate">Feed Posts @if($pendingFeedPostCount > 0)<span class="badge bg-warning text-dark ms-1">{{ $pendingFeedPostCount }}</span>@endif</div>
+        </a>
+      </li>
+      @endif
 
-  @if($authUser && $canAccessRoute('admin.transaction.index'))
-  @if($canAccessRoute('admin.transaction.scan'))
-  <li class="menu-item {{ request()->is('admins/transaction/scan*') ? 'active' : '' }}">
-    <a href="{{ route('admin.transaction.scan') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-qr-scan"></i>
-      <div class="text-truncate">Ticket Scanner</div>
-    </a>
-  </li>
-  @endif
-  @endif
+      @if(auth()->check() && auth()->user()->isAdmin())
+      <li class="menu-item {{ request()->is('admins/affiliate*') ? 'active' : '' }}">
+        <a href="{{ route('admin.affiliate.index') }}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-group"></i>
+          <div class="text-truncate">Promoters</div>
+        </a>
+      </li>
+      @endif
 
-  @if($authUser && $canAccessRoute('admin.custom-invoice.index'))
-  @if($canAccessRoute('admin.custom-invoice.index'))
-  <li class="menu-item {{ request()->is('admins/custom-invoice') ? 'active' : '' }}">
-    <a href="{{ route('admin.custom-invoice.index') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-file"></i>
-      <div class="text-truncate">Custom Invoices</div>
-    </a>
+      @if($authUser && $canAccessRoute('admin.entertainer.index'))
+      <li class="menu-item {{ request()->is('admins/entertainer*') ? 'active' : '' }}">
+        <a href="{{ route('admin.entertainer.index') }}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-user-voice"></i>
+          <div class="text-truncate">Entertainers</div>
+        </a>
+      </li>
+      @endif
+
+      @if($authUser && ($canAccessRoute('admin.entertainer.index') || $canAccessRoute('admin.affiliate.index')))
+      <li class="menu-item {{ request()->is('admins/staff*') ? 'active' : '' }}">
+        <a href="{{ route('admin.staff.index') }}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-id-card"></i>
+          <div class="text-truncate">Current Staff</div>
+        </a>
+      </li>
+      @endif
+    </ul>
   </li>
-  @endif
   @endif
 
   <li class="menu-header small text-uppercase">
     <span class="menu-header-text">Analytics</span>
   </li>
 
-  @if($authUser && ($canAccessRoute('admin.reports.index') || $authUser->isAdmin()))
-  <li class="menu-item {{ request()->is('admins/reports*') ? 'active' : '' }}">
-    <a href="{{ route('admin.reports.index') }}" class="menu-link">
-      <i class="menu-icon tf-icons fas fa-chart-line"></i>
-      <div class="text-truncate">Reports & Analytics</div>
+  @if(($authUser && ($canAccessRoute('admin.reports.index') || $authUser->isAdmin())) || ($authUser && ($canAccessRoute('admin.reports.automation.schedules') || $authUser->isAdmin())) || ($authUser && ($canAccessRoute('admin.transaction.index') || $authUser->isAdmin())) || ($authUser && $canAccessRoute('admin.transaction.affiliate')) || ($authUser && $canAccessRoute('admin.transaction.entertainer')) || ($authUser && $canAccessRoute('admin.transaction.scan')) || ($authUser && $canAccessRoute('admin.custom-invoice.index')))
+  <li class="menu-item {{ $isReportsGroupActive ? 'active' : '' }}">
+    <a
+      href="#reports-group-menu"
+      class="menu-link menu-group-toggle"
+      data-bs-toggle="collapse"
+      role="button"
+      aria-expanded="{{ $isReportsGroupActive ? 'true' : 'false' }}"
+      aria-controls="reports-group-menu">
+      <i class="menu-icon tf-icons bx bx-bar-chart-alt-2"></i>
+      <div class="text-truncate">Reports</div>
+      <i class="bx bx-chevron-down ms-auto menu-group-caret"></i>
     </a>
-  </li>
-  @endif
 
-  @if($authUser && ($canAccessRoute('admin.reports.automation.schedules') || $authUser->isAdmin()))
-  <li class="menu-item {{ request()->is('admins/reports/automation/schedules*') ? 'active' : '' }}">
-    <a href="{{ route('admin.reports.automation.schedules') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-time-five"></i>
-      <div class="text-truncate">Automation Reports</div>
-    </a>
-  </li>
-  @endif
+    <ul class="menu-sub menu-group-sub collapse {{ $isReportsGroupActive ? 'show' : '' }}" id="reports-group-menu">
+      @if($authUser && ($canAccessRoute('admin.reports.index') || $authUser->isAdmin()))
+      <li class="menu-item {{ request()->is('admins/reports*') ? 'active' : '' }}">
+        <a href="{{ route('admin.reports.index') }}" class="menu-link">
+          <i class="menu-icon tf-icons fas fa-chart-line"></i>
+          <div class="text-truncate">Reports & Analytics</div>
+        </a>
+      </li>
+      @endif
 
-  @if($authUser && ($canAccessRoute('admin.transaction.index') || $authUser->isAdmin()))
-  <li class="menu-item {{ request()->is('admins/transaction') ? 'active' : '' }}">
-    <a href="{{ route('admin.transaction.index') }}" class="menu-link">
-      <i class="menu-icon tf-icons fas fa-exchange-alt"></i>
-      <div class="text-truncate">Transactions</div>
-    </a>
-  </li>
-  @endif
+      @if($authUser && ($canAccessRoute('admin.reports.automation.schedules') || $authUser->isAdmin()))
+      <li class="menu-item {{ request()->is('admins/reports/automation/schedules*') ? 'active' : '' }}">
+        <a href="{{ route('admin.reports.automation.schedules') }}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-time-five"></i>
+          <div class="text-truncate">Automation Reports</div>
+        </a>
+      </li>
+      @endif
 
-  @if($authUser && $canAccessRoute('admin.transaction.affiliate'))
-  <li class="menu-item {{ request()->is('admins/transaction/affiliate') ? 'active' : '' }}">
-    <a href="{{ route('admin.transaction.affiliate') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-user-check"></i>
-      <div class="text-truncate">Promoter Transactions</div>
-    </a>
-  </li>
-  @endif
+      @if($authUser && ($canAccessRoute('admin.transaction.index') || $authUser->isAdmin()))
+      <li class="menu-item {{ request()->is('admins/transaction') ? 'active' : '' }}">
+        <a href="{{ route('admin.transaction.index') }}" class="menu-link">
+          <i class="menu-icon tf-icons fas fa-exchange-alt"></i>
+          <div class="text-truncate">Transactions</div>
+        </a>
+      </li>
+      @endif
 
-  @if($authUser && $canAccessRoute('admin.transaction.entertainer'))
-  <li class="menu-item {{ request()->is('admins/transaction/entertainer') ? 'active' : '' }}">
-    <a href="{{ route('admin.transaction.entertainer') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-microphone"></i>
-      <div class="text-truncate">Entertainer Transactions</div>
-    </a>
+      @if($authUser && $canAccessRoute('admin.transaction.affiliate'))
+      <li class="menu-item {{ request()->is('admins/transaction/affiliate') ? 'active' : '' }}">
+        <a href="{{ route('admin.transaction.affiliate') }}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-user-check"></i>
+          <div class="text-truncate">Promoter Transactions</div>
+        </a>
+      </li>
+      @endif
+
+      @if($authUser && $canAccessRoute('admin.transaction.entertainer'))
+      <li class="menu-item {{ request()->is('admins/transaction/entertainer') ? 'active' : '' }}">
+        <a href="{{ route('admin.transaction.entertainer') }}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-microphone"></i>
+          <div class="text-truncate">Entertainer Transactions</div>
+        </a>
+      </li>
+      @endif
+
+      @if($authUser && $canAccessRoute('admin.transaction.scan'))
+      <li class="menu-item {{ request()->is('admins/transaction/scan*') ? 'active' : '' }}">
+        <a href="{{ route('admin.transaction.scan') }}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-qr-scan"></i>
+          <div class="text-truncate">Ticket Scanner</div>
+        </a>
+      </li>
+      @endif
+
+      @if($authUser && $canAccessRoute('admin.custom-invoice.index'))
+      <li class="menu-item {{ request()->is('admins/custom-invoice') ? 'active' : '' }}">
+        <a href="{{ route('admin.custom-invoice.index') }}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-file"></i>
+          <div class="text-truncate">Custom Invoices</div>
+        </a>
+      </li>
+      @endif
+    </ul>
   </li>
   @endif
 
@@ -1102,48 +1177,39 @@
     <span class="menu-header-text">Users</span>
   </li>
 
-  @if(auth()->check() && auth()->user()->isAdmin())
-  <li class="menu-item {{ request()->is('admins/affiliate*') ? 'active' : '' }}">
-    <a href="{{ route('admin.affiliate.index') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-group"></i>
-      <div class="text-truncate">Promoters</div>
-    </a>
-  </li>
-  @endif
-
-  @if($authUser && $canAccessRoute('admin.entertainer.index'))
-  <li class="menu-item {{ request()->is('admins/entertainer*') ? 'active' : '' }}">
-    <a href="{{ route('admin.entertainer.index') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-user-voice"></i>
-      <div class="text-truncate">Entertainers</div>
-    </a>
-  </li>
-  @endif
-
-  @if($authUser && ($canAccessRoute('admin.entertainer.index') || $canAccessRoute('admin.affiliate.index')))
-  <li class="menu-item {{ request()->is('admins/staff*') ? 'active' : '' }}">
-    <a href="{{ route('admin.staff.index') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-id-card"></i>
-      <div class="text-truncate">Current Staff</div>
-    </a>
-  </li>
-  @endif
-
-  @if(auth()->check() && auth()->user()->isAdmin())
-  <li class="menu-item {{ request()->is('admins/withdraw/affiliates*') ? 'active' : '' }}">
-    <a href="{{ route('admin.withdraw.affiliates') }}" class="menu-link">
+  @if((auth()->check() && auth()->user()->isAdmin()) || ($authUser && $canAccessRoute('admin.withdraw.entertainers')))
+  <li class="menu-item {{ $isWithdrawalGroupActive ? 'active' : '' }}">
+    <a
+      href="#withdrawals-group-menu"
+      class="menu-link menu-group-toggle"
+      data-bs-toggle="collapse"
+      role="button"
+      aria-expanded="{{ $isWithdrawalGroupActive ? 'true' : 'false' }}"
+      aria-controls="withdrawals-group-menu">
       <i class="menu-icon tf-icons bx bx-money-withdraw"></i>
-      <div class="text-truncate">Promoter Withdrawals</div>
+      <div class="text-truncate">Withdrawals</div>
+      <i class="bx bx-chevron-down ms-auto menu-group-caret"></i>
     </a>
-  </li>
-  @endif
 
-  @if($authUser && $canAccessRoute('admin.withdraw.entertainers'))
-  <li class="menu-item {{ request()->is('admins/withdraw/entertainers*') ? 'active' : '' }}">
-    <a href="{{ route('admin.withdraw.entertainers') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-wallet-alt"></i>
-      <div class="text-truncate">Entertainer Withdrawals</div>
-    </a>
+    <ul class="menu-sub menu-group-sub collapse {{ $isWithdrawalGroupActive ? 'show' : '' }}" id="withdrawals-group-menu">
+      @if(auth()->check() && auth()->user()->isAdmin())
+      <li class="menu-item {{ request()->is('admins/withdraw/affiliates*') ? 'active' : '' }}">
+        <a href="{{ route('admin.withdraw.affiliates') }}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-money-withdraw"></i>
+          <div class="text-truncate">Promoter Withdrawals</div>
+        </a>
+      </li>
+      @endif
+
+      @if($authUser && $canAccessRoute('admin.withdraw.entertainers'))
+      <li class="menu-item {{ request()->is('admins/withdraw/entertainers*') ? 'active' : '' }}">
+        <a href="{{ route('admin.withdraw.entertainers') }}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-wallet-alt"></i>
+          <div class="text-truncate">Entertainer Withdrawals</div>
+        </a>
+      </li>
+      @endif
+    </ul>
   </li>
   @endif
 
@@ -1601,130 +1667,6 @@
           syncState();
         }
 
-        function initSidebarSectionCollapsing() {
-          const menuInner = document.querySelector('#layout-menu .menu-inner');
-          if (!menuInner) {
-            return;
-          }
-
-          const storageKey = 'adminSidebarSectionCollapseStateV1';
-          let savedState = {};
-
-          try {
-            const raw = window.localStorage.getItem(storageKey);
-            if (raw) {
-              const parsed = JSON.parse(raw);
-              if (parsed && typeof parsed === 'object') {
-                savedState = parsed;
-              }
-            }
-          } catch (error) {
-            savedState = {};
-          }
-
-          function persistState() {
-            try {
-              window.localStorage.setItem(storageKey, JSON.stringify(savedState));
-            } catch (error) {
-              // Ignore storage write issues.
-            }
-          }
-
-          function slugify(value) {
-            return String(value || '')
-              .trim()
-              .toLowerCase()
-              .replace(/[^a-z0-9]+/g, '-')
-              .replace(/^-+|-+$/g, '');
-          }
-
-          const children = Array.from(menuInner.children);
-          const sections = [];
-          let currentHeader = null;
-          let currentItems = [];
-
-          children.forEach(function (child) {
-            if (child.classList.contains('menu-header')) {
-              if (currentHeader) {
-                sections.push({ header: currentHeader, items: currentItems });
-              }
-              currentHeader = child;
-              currentItems = [];
-              return;
-            }
-
-            if (currentHeader) {
-              currentItems.push(child);
-            }
-          });
-
-          if (currentHeader) {
-            sections.push({ header: currentHeader, items: currentItems });
-          }
-
-          sections.forEach(function (section, index) {
-            const header = section.header;
-            const items = section.items;
-
-            if (!header || !items.length) {
-              return;
-            }
-
-            const sectionText = (header.textContent || '').trim() || ('section-' + index);
-            const sectionKey = slugify(sectionText) + '-' + index;
-            const hasActiveItem = items.some(function (item) {
-              return item.classList.contains('active') || !!item.querySelector('.menu-item.active, .menu-link.active');
-            });
-
-            const savedCollapsed = savedState[sectionKey] === true;
-            const initialCollapsed = savedCollapsed && !hasActiveItem;
-
-            header.classList.add('admin-menu-header-toggle');
-            header.setAttribute('role', 'button');
-            header.setAttribute('tabindex', '0');
-            header.setAttribute('aria-expanded', initialCollapsed ? 'false' : 'true');
-            header.dataset.sectionKey = sectionKey;
-
-            if (!header.querySelector('.admin-menu-header-caret')) {
-              const caret = document.createElement('i');
-              caret.className = 'bx bx-chevron-down admin-menu-header-caret';
-              caret.setAttribute('aria-hidden', 'true');
-              header.appendChild(caret);
-            }
-
-            function applyCollapsedState(collapsed) {
-              header.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
-              items.forEach(function (item) {
-                item.classList.toggle('admin-menu-section-collapsed', collapsed);
-              });
-            }
-
-            applyCollapsedState(initialCollapsed);
-
-            function toggleSection() {
-              const isCollapsed = header.getAttribute('aria-expanded') === 'false';
-              const nextCollapsed = !isCollapsed;
-              applyCollapsedState(nextCollapsed);
-              savedState[sectionKey] = nextCollapsed;
-              persistState();
-            }
-
-            if (header.dataset.collapseBound !== '1') {
-              header.dataset.collapseBound = '1';
-              header.addEventListener('click', function () {
-                toggleSection();
-              });
-
-              header.addEventListener('keydown', function (event) {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault();
-                  toggleSection();
-                }
-              });
-            }
-          });
-        }
-
         function initFieldTooltips() {
           if (typeof bootstrap === 'undefined' || !bootstrap.Tooltip) { return; }
           document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
@@ -1946,7 +1888,6 @@
             wrapTablesForMobile();
             initAdminDataTables();
             bindMobileMenuToggle();
-            initSidebarSectionCollapsing();
             initFieldTooltips();
             bindAdminBackButton();
             bindAjaxAutoNotifications();
@@ -1956,7 +1897,6 @@
           wrapTablesForMobile();
           initAdminDataTables();
           bindMobileMenuToggle();
-          initSidebarSectionCollapsing();
           initFieldTooltips();
           bindAdminBackButton();
           bindAjaxAutoNotifications();
