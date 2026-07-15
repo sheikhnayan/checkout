@@ -238,65 +238,6 @@
         padding-bottom: 0.75rem;
       }
 
-      #layout-menu .menu-header.admin-sidebar-header {
-        margin: 0.15rem 0.5rem 0.25rem;
-        padding: 0;
-      }
-
-      #layout-menu .admin-sidebar-header-toggle {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-        padding: 8px 10px;
-        background: rgba(255, 255, 255, 0.02);
-        color: var(--admin-section-label);
-        font-size: 0.72rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        text-align: left;
-        transition: border-color .15s ease, background-color .15s ease, color .15s ease;
-      }
-
-      #layout-menu .admin-sidebar-header-toggle:hover,
-      #layout-menu .admin-sidebar-header-toggle:focus {
-        border-color: rgba(255, 204, 0, 0.35);
-        background: rgba(255, 204, 0, 0.08);
-        color: #ffe89a;
-      }
-
-      #layout-menu .admin-sidebar-header-chevron {
-        font-size: 1rem;
-        transition: transform .2s ease;
-      }
-
-      #layout-menu .admin-sidebar-header.is-open .admin-sidebar-header-chevron {
-        transform: rotate(180deg);
-      }
-
-      #layout-menu .admin-sidebar-section {
-        margin: 0 0.35rem 0.4rem;
-        padding-left: 0;
-      }
-
-      #layout-menu .admin-sidebar-section > .menu-item > .menu-link {
-        min-height: 36px;
-        padding-top: 0.45rem;
-        padding-bottom: 0.45rem;
-        border-radius: 9px;
-      }
-
-      #layout-menu .menu-inner > .menu-item > .menu-link {
-        min-height: 36px;
-        padding-top: 0.45rem;
-        padding-bottom: 0.45rem;
-        border-radius: 9px;
-      }
-
       .admin-sidebar-logout {
         flex: 0 0 auto;
         padding: 0.6rem 0.75rem calc(0.7rem + env(safe-area-inset-bottom));
@@ -1536,122 +1477,6 @@
           });
         }
 
-        function initSidebarCompactSections() {
-          const menuInner = document.querySelector('#layout-menu .menu-inner');
-          if (!menuInner || menuInner.dataset.compactSectionsReady === '1') {
-            return;
-          }
-
-          menuInner.dataset.compactSectionsReady = '1';
-
-          let storage = null;
-          try {
-            storage = window.localStorage;
-          } catch (e) {
-            storage = null;
-          }
-
-          const children = Array.from(menuInner.children);
-          const headers = children.filter(function (node) {
-            return node.classList && node.classList.contains('menu-header');
-          });
-
-          headers.forEach(function (header, index) {
-            const labelNode = header.querySelector('.menu-header-text');
-            const label = ((labelNode ? labelNode.textContent : header.textContent) || '').trim() || ('Section ' + (index + 1));
-            const sectionId = 'admin-sidebar-section-' + index;
-            const storageKey = 'adminSidebarSection:' + label.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-
-            const section = document.createElement('ul');
-            section.className = 'admin-sidebar-section collapse list-unstyled';
-            section.id = sectionId;
-
-            let pointer = header.nextElementSibling;
-            while (pointer && !(pointer.classList && pointer.classList.contains('menu-header'))) {
-              const next = pointer.nextElementSibling;
-              section.appendChild(pointer);
-              pointer = next;
-            }
-
-            header.insertAdjacentElement('afterend', section);
-
-            const hasItems = !!section.querySelector('.menu-item');
-            if (!hasItems) {
-              header.style.display = 'none';
-              section.remove();
-              return;
-            }
-
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = 'admin-sidebar-header-toggle';
-            button.setAttribute('aria-controls', sectionId);
-            button.setAttribute('data-bs-toggle', 'collapse');
-            button.setAttribute('data-bs-target', '#' + sectionId);
-
-            const title = document.createElement('span');
-            title.className = 'menu-header-text';
-            title.textContent = label;
-
-            const chevron = document.createElement('i');
-            chevron.className = 'bx bx-chevron-down admin-sidebar-header-chevron';
-
-            button.appendChild(title);
-            button.appendChild(chevron);
-
-            header.innerHTML = '';
-            header.classList.add('admin-sidebar-header');
-            header.appendChild(button);
-
-            const hasActive = !!section.querySelector('.menu-item.active, .menu-item.open, .collapse.show');
-            let shouldOpen = hasActive;
-
-            if (storage) {
-              const savedState = storage.getItem(storageKey);
-              if (savedState === 'open' || savedState === 'closed') {
-                shouldOpen = savedState === 'open';
-              }
-            }
-
-            if (hasActive) {
-              shouldOpen = true;
-            }
-
-            const setOpenState = function (open) {
-              header.classList.toggle('is-open', open);
-              button.setAttribute('aria-expanded', open ? 'true' : 'false');
-              if (storage) {
-                storage.setItem(storageKey, open ? 'open' : 'closed');
-              }
-            };
-
-            if (shouldOpen) {
-              section.classList.add('show');
-              setOpenState(true);
-            } else {
-              setOpenState(false);
-            }
-
-            section.addEventListener('shown.bs.collapse', function () {
-              setOpenState(true);
-            });
-
-            section.addEventListener('hidden.bs.collapse', function () {
-              setOpenState(false);
-            });
-
-            if (typeof bootstrap === 'undefined' || !bootstrap.Collapse) {
-              button.removeAttribute('data-bs-toggle');
-              button.removeAttribute('data-bs-target');
-              button.addEventListener('click', function () {
-                const open = !section.classList.contains('show');
-                section.classList.toggle('show', open);
-                setOpenState(open);
-              });
-            }
-          });
-        }
-
         function bindMobileMenuToggle() {
           const wrapper = document.querySelector('.layout-wrapper');
           const overlay = document.querySelector('.layout-overlay');
@@ -1928,7 +1753,6 @@
 
         if (document.readyState === 'loading') {
           document.addEventListener('DOMContentLoaded', function () {
-            initSidebarCompactSections();
             wrapTablesForMobile();
             initAdminDataTables();
             bindMobileMenuToggle();
@@ -1938,7 +1762,6 @@
             showServerToastNotifications();
           });
         } else {
-          initSidebarCompactSections();
           wrapTablesForMobile();
           initAdminDataTables();
           bindMobileMenuToggle();
@@ -2051,25 +1874,12 @@
 
             // Check all following siblings until the next menu-header
             while (nextElement && !nextElement.classList.contains('menu-header')) {
-              if (nextElement.classList.contains('admin-sidebar-section')) {
-                const visibleItem = Array.from(nextElement.querySelectorAll('.menu-item')).some(function (item) {
-                  const computedStyle = window.getComputedStyle(item);
-                  return computedStyle.display !== 'none' && item.offsetParent !== null;
-                });
-
-                if (visibleItem) {
-                  hasVisibleItems = true;
-                  break;
-                }
-              } else {
-                const computedStyle = window.getComputedStyle(nextElement);
-                // Check if element is visible (not display:none and not hidden by permission condition)
-                if (computedStyle.display !== 'none' && nextElement.offsetParent !== null) {
-                  hasVisibleItems = true;
-                  break;
-                }
+              const computedStyle = window.getComputedStyle(nextElement);
+              // Check if element is visible (not display:none and not hidden by permission condition)
+              if (computedStyle.display !== 'none' && nextElement.offsetParent !== null) {
+                hasVisibleItems = true;
+                break;
               }
-
               nextElement = nextElement.nextElementSibling;
             }
 
