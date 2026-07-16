@@ -1220,14 +1220,25 @@ class TransactionController extends Controller
         }
 
         $bookingId = $transaction->id ?: ($transaction->transaction_id ?: 'N/A');
-        $venue = trim((string) ($website->name ?? 'Venue'));
+        $venue = trim((string) ($website->short_name ?: $website->name ?: 'Venue'));
         $pickupOrArrival = $this->formatDispatcherTime($pickupOrArrivalRaw, $timezone);
         if ($pickupOrArrival === '') {
             $pickupOrArrival = 'N/A';
         }
 
+        $location = trim((string) ($transaction->transportation_address ?? ''));
+        if ($location === '') {
+            $location = 'N/A';
+        }
+
+        $guestCount = (int) ($transaction->package_number_of_guest ?? 0);
+        if ($guestCount <= 0) {
+            $guestCount = max(0, (int) ($transaction->men ?? 0) + (int) ($transaction->women ?? 0));
+        }
+        $guestCountText = $guestCount > 0 ? (string) $guestCount : 'N/A';
+
         return sprintf(
-            'NEW BOOKING | %s | #%s | %s %s | %s | %s | %s | PU: %s',
+            'BOOKING | %s | #%s | %s %s | %s | %s | %s | PU: %s | Location: %s | # Guests: %s',
             $venue,
             $bookingId,
             $dateText,
@@ -1235,7 +1246,9 @@ class TransactionController extends Controller
             $name,
             $phone,
             $resolvedPackageName,
-            $pickupOrArrival
+            $pickupOrArrival,
+            $location,
+            $guestCountText
         );
     }
 

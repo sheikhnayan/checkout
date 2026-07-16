@@ -220,6 +220,16 @@
                                                         <input type="text" name="name" class="form-control" id="name" placeholder="Website Name" value="{{ $data->name }}" required>
                                                     </div>
                                                 </div>
+                                                <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <label for="short_name" class="form-label">Club Short Name (Optional)</label>
+                                                        <input type="text" name="short_name" class="form-control @error('short_name') is-invalid @enderror" id="short_name" value="{{ old('short_name', $data->short_name) }}" placeholder="Short name for dispatcher SMS">
+                                                        <small class="form-text text-muted">Used in booking dispatcher SMS instead of the full club name when provided.</small>
+                                                        @error('short_name')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             <h4 class="mt-4 mb-3 website-section-title">Website Content</h4>
