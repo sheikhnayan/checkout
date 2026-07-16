@@ -165,6 +165,7 @@ class WebsiteController extends Controller
             'name' => 'required|string|max:255',
             'domain' => 'required|string|max:255',
             'email' => 'required|email|max:255',
+            'dispatcher_phone' => ['nullable', 'string', 'max:40', 'regex:/^[0-9+\-\s().]{7,40}$/'],
             'hero_badge_1_label' => 'nullable|string|max:80',
             'hero_badge_1_sub' => 'nullable|string|max:120',
             'hero_badge_2_label' => 'nullable|string|max:80',
@@ -246,6 +247,7 @@ class WebsiteController extends Controller
         $add->package_section_title = $request->package_section_title;
         $add->package_section_subtext = $request->package_section_subtext;
         $add->phone = $request->phone;
+        $add->dispatcher_phone = $request->dispatcher_phone;
         $add->reservation = $request->reservation;
         $add->email = $request->email;
         $add->timezone = WebsiteTimezone::normalize($request->input('timezone'));
@@ -457,6 +459,7 @@ class WebsiteController extends Controller
             'website_admin_email' => 'required|email|max:255',
             'website_admin_password' => 'nullable|string|min:8|confirmed',
             'google_analytics_id' => 'nullable|string|max:64|regex:/^[A-Za-z0-9_-]+$/',
+            'dispatcher_phone' => ['nullable', 'string', 'max:40', 'regex:/^[0-9+\-\s().]{7,40}$/'],
             'hero_badge_1_label' => 'nullable|string|max:80',
             'hero_badge_1_sub' => 'nullable|string|max:120',
             'hero_badge_2_label' => 'nullable|string|max:80',
@@ -509,6 +512,7 @@ class WebsiteController extends Controller
         $add->reservation = $request->reservation;
         $add->location = $request->location;
         $add->phone = $request->phone;
+        $add->dispatcher_phone = $request->dispatcher_phone;
         $add->email = $request->email;
         $add->timezone = WebsiteTimezone::normalize($request->input('timezone'));
         $add->show_contact_info = $request->boolean('show_contact_info');

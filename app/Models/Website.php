@@ -73,6 +73,7 @@ class Website extends Model
         'lat',
         'long',
         'phone',
+        'dispatcher_phone',
         'email',
         'timezone',
         'show_contact_info',

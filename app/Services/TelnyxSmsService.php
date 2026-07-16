@@ -71,6 +71,48 @@ class TelnyxSmsService
     }
 
     /**
+     * Send a raw custom SMS message.
+     */
+    public function sendCustomMessage($phoneNumber, string $message): array
+    {
+        if (!$this->apiKey) {
+            Log::warning('Telnyx API key not configured');
+            return ['success' => false, 'message' => 'SMS service not configured'];
+        }
+
+        if (!$this->fromNumber) {
+            Log::warning('Telnyx "from" number (TELNYX_FROM_NUMBER) not configured');
+            return ['success' => false, 'message' => 'SMS service not properly configured - no sending number'];
+        }
+
+        try {
+            $phoneNumber = $this->formatPhoneNumber($phoneNumber);
+
+            if (!$this->isValidE164($phoneNumber)) {
+                Log::error('Invalid phone number format for SMS', [
+                    'phone' => $phoneNumber,
+                ]);
+
+                return [
+                    'success' => false,
+                    'message' => 'Invalid phone number format',
+                ];
+            }
+
+            return $this->sendSms($phoneNumber, substr(trim($message), 0, 1600));
+        } catch (\Exception $e) {
+            Log::error('Custom SMS notification error: ' . $e->getMessage(), [
+                'phone' => $phoneNumber,
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Failed to send SMS: ' . $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
      * Format transaction data into professional SMS message
      */
     private function formatTransactionMessage($data, $type)

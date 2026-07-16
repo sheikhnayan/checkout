@@ -348,6 +348,16 @@
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
+                                                        <label for="dispatcher_phone" class="form-label">Dispatcher Phone (SMS)</label>
+                                                        <input type="text" name="dispatcher_phone" class="form-control @error('dispatcher_phone') is-invalid @enderror" value="{{ old('dispatcher_phone', $data->dispatcher_phone) }}" id="dispatcher_phone" placeholder="+1 555 123 4567">
+                                                        <small class="form-text text-muted">Optional. Receives a New Booking SMS for this club.</small>
+                                                        @error('dispatcher_phone')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
                                                         <label for="password" class="form-label">Email <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The venue's main public contact email address."></i></label>
                                                         <input type="email" name="email" class="form-control" value="{{ $data->email }}" id="email" placeholder="Email" required>
                                                     </div>

@@ -592,6 +592,8 @@ class TransactionController extends Controller
                             // Log but don't crash if SMS fails
                             \Log::error('SMS failed: ' . $e->getMessage());
                         }
+
+                        $this->sendDispatcherBookingSms($website, $add, $cartSummary['package_name'] ?? null);
                     } catch (\Throwable $th) {
                         // The card is already charged and the order saved at this point —
                         // a confirmation-email failure must NOT bounce the customer back to
@@ -920,6 +922,8 @@ class TransactionController extends Controller
                         \Log::error('SMS failed: ' . $e->getMessage());
                     }
 
+                    $this->sendDispatcherBookingSms($website, $add, $cartSummary['package_name'] ?? null);
+
                     // Redirect to thank you page with transaction details
                     return redirect()->route('thank-you')
                         ->with('transaction', $add->fresh())
@@ -1127,6 +1131,8 @@ class TransactionController extends Controller
             \Log::error('SMS failed: ' . $exception->getMessage());
         }
 
+        $this->sendDispatcherBookingSms($website, $transaction, $cartSummary['package_name'] ?? null);
+
         return redirect()->route('thank-you')
             ->with('transaction', $transaction->fresh())
             ->with('website', $website)
@@ -1148,6 +1154,102 @@ class TransactionController extends Controller
             return response('Test mail sent to ' . $to);
         } catch (\Throwable $th) {
             return response('Exception: ' . $th->getMessage(), 500);
+        }
+    }
+
+    private function sendDispatcherBookingSms(?Website $website, Transaction $transaction, ?string $packageName = null): void
+    {
+        if (!$website) {
+            return;
+        }
+
+        $dispatcherPhone = trim((string) ($website->dispatcher_phone ?? ''));
+        if ($dispatcherPhone === '') {
+            return;
+        }
+
+        try {
+            $smsService = new \App\Services\TelnyxSmsService();
+            $message = $this->buildDispatcherBookingMessage($website, $transaction, $packageName);
+            $smsService->sendCustomMessage($dispatcherPhone, $message);
+        } catch (\Throwable $e) {
+            \Log::error('Dispatcher SMS failed: ' . $e->getMessage(), [
+                'website_id' => $website->id,
+                'transaction_id' => $transaction->id,
+            ]);
+        }
+    }
+
+    private function buildDispatcherBookingMessage(Website $website, Transaction $transaction, ?string $packageName = null): string
+    {
+        $timezone = $website->resolved_timezone ?? 'America/Los_Angeles';
+
+        $dateText = 'N/A';
+        if (!empty($transaction->package_use_date)) {
+            try {
+                $dateText = Carbon::parse((string) $transaction->package_use_date, $timezone)->format('M d, Y');
+            } catch (\Throwable $e) {
+                $dateText = (string) $transaction->package_use_date;
+            }
+        } elseif ($transaction->created_at) {
+            $dateText = $transaction->created_at->copy()->timezone($timezone)->format('M d, Y');
+        }
+
+        $pickupOrArrivalRaw = trim((string) ($transaction->transportation_pickup_time ?: $transaction->transportation_arrival_time ?: ''));
+        $timeText = $this->formatDispatcherTime($pickupOrArrivalRaw, $timezone);
+        if ($timeText === '' && $transaction->created_at) {
+            $timeText = $transaction->created_at->copy()->timezone($timezone)->format('h:i A');
+        }
+        if ($timeText === '') {
+            $timeText = 'N/A';
+        }
+
+        $name = trim((string) ($transaction->package_first_name ?? '') . ' ' . (string) ($transaction->package_last_name ?? ''));
+        if ($name === '') {
+            $name = 'N/A';
+        }
+
+        $phone = trim((string) ($transaction->package_phone ?? ''));
+        if ($phone === '') {
+            $phone = 'N/A';
+        }
+
+        $resolvedPackageName = trim((string) ($packageName ?? optional($transaction->package)->name ?? ''));
+        if ($resolvedPackageName === '') {
+            $resolvedPackageName = 'Package';
+        }
+
+        $bookingId = $transaction->id ?: ($transaction->transaction_id ?: 'N/A');
+        $venue = trim((string) ($website->name ?? 'Venue'));
+        $pickupOrArrival = $this->formatDispatcherTime($pickupOrArrivalRaw, $timezone);
+        if ($pickupOrArrival === '') {
+            $pickupOrArrival = 'N/A';
+        }
+
+        return sprintf(
+            'NEW BOOKING | %s | #%s | %s %s | %s | %s | %s | PU: %s',
+            $venue,
+            $bookingId,
+            $dateText,
+            $timeText,
+            $name,
+            $phone,
+            $resolvedPackageName,
+            $pickupOrArrival
+        );
+    }
+
+    private function formatDispatcherTime(string $rawTime, string $timezone): string
+    {
+        $rawTime = trim($rawTime);
+        if ($rawTime === '') {
+            return '';
+        }
+
+        try {
+            return Carbon::parse($rawTime, $timezone)->format('h:i A');
+        } catch (\Throwable $e) {
+            return $rawTime;
         }
     }
 
@@ -1515,6 +1617,8 @@ class TransactionController extends Controller
                         } else {
                             \Log::warning('No phone number provided for reservation SMS');
                         }
+
+                        $this->sendDispatcherBookingSms($website, $new, 'Reservation');
                     } catch (\Throwable $th) {
                         report($th);
                         throw ValidationException::withMessages([
