@@ -1226,30 +1226,28 @@ class TransactionController extends Controller
             $pickupOrArrival = 'N/A';
         }
 
-        $location = trim((string) ($transaction->transportation_address ?? ''));
-        if ($location === '') {
-            $location = 'N/A';
-        }
-
-        $guestCount = (int) ($transaction->package_number_of_guest ?? 0);
-        if ($guestCount <= 0) {
-            $guestCount = max(0, (int) ($transaction->men ?? 0) + (int) ($transaction->women ?? 0));
-        }
-        $guestCountText = $guestCount > 0 ? (string) $guestCount : 'N/A';
-
-        return sprintf(
-            'BOOKING | %s | #%s | %s %s | %s | %s | %s | PU: %s | Location: %s | # Guests: %s',
+        $messageParts = [
+            'BOOKING',
             $venue,
-            $bookingId,
-            $dateText,
-            $timeText,
+            '#' . $bookingId,
+            trim($dateText . ' ' . $timeText),
             $name,
             $phone,
             $resolvedPackageName,
-            $pickupOrArrival,
-            $location,
-            $guestCountText
-        );
+            'PU: ' . $pickupOrArrival,
+        ];
+
+        $location = trim((string) ($transaction->transportation_address ?? ''));
+        if ($location !== '') {
+            $messageParts[] = 'Location: ' . $location;
+        }
+
+        $transportationGuest = trim((string) ($transaction->transportation_guest ?? ''));
+        if ($transportationGuest !== '') {
+            $messageParts[] = '# Guests: ' . $transportationGuest;
+        }
+
+        return implode(' | ', $messageParts);
     }
 
     private function formatDispatcherTime(string $rawTime, string $timezone): string
