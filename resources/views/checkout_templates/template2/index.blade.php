@@ -5872,7 +5872,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                                         class="form-select package_number_of_guestss"
                                                                         required
                                                                     >
-                                                                        <option value=""># of Guests</option>
+                                                                        <option value="">Select Guests ▼</option>
                                                                         @for ($i = 1; $i <= $tableCap; $i++)
                                                                             <option value="{{ $i }}">{{ $i }} {{ $i === 1 ? 'guest' : 'guests' }}</option>
                                                                         @endfor
@@ -7925,7 +7925,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     return;
                 }
 
-                html += '<option value=""># of Guests</option>';
+                html += '<option value="">Select Guests ▼</option>';
                 for (var i = 1; i <= safeMax; i++) {
                     html += '<option value="' + i + '">' + i + ' ' + (i === 1 ? 'guest' : 'guests') + '</option>';
                 }

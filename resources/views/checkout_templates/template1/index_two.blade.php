@@ -6373,7 +6373,7 @@
                                                                             class="form-select package_number_of_guestss"
                                                                             required
                                                                         >
-                                                                            <option value=""># of Guests</option>
+                                                                            <option value="">Select Guests ▼</option>
                                                                             @for ($i = 1; $i <= $pkgTableCap; $i++)
                                                                                 <option value="{{ $i }}">{{ $i }} {{ $i === 1 ? 'guest' : 'guests' }}</option>
                                                                             @endfor
@@ -8353,7 +8353,7 @@
                     return;
                 }
 
-                html += '<option value=""># of Guests</option>';
+                html += '<option value="">Select Guests ▼</option>';
                 for (let i = 1; i <= safeMax; i++) {
                     html += '<option value="' + i + '">' + i + ' ' + (i === 1 ? 'guest' : 'guests') + '</option>';
                 }

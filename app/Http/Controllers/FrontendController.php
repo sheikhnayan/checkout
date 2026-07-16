@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Schema;
 
 class FrontendController extends Controller
 {
+    private const ENABLED_DEMO_CHECKOUT_TEMPLATES = ['template4'];
+
     private WebsiteSessionAnalyticsService $sessionAnalytics;
 
     public function __construct(WebsiteSessionAnalyticsService $sessionAnalytics)
@@ -88,6 +90,10 @@ class FrontendController extends Controller
         ];
 
         if (!isset($templateViewMap[$templateKey])) {
+            abort(404, 'Checkout template not found');
+        }
+
+        if (!in_array($templateKey, self::ENABLED_DEMO_CHECKOUT_TEMPLATES, true)) {
             abort(404, 'Checkout template not found');
         }
 
