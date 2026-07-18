@@ -1732,6 +1732,7 @@ body {
     border: 1px solid rgba(255,255,255,0.1);
     background: rgba(8,11,22,0.45);
     overflow: hidden;
+    margin-top: 24px;
 }
 
 .hero-gallery-carousel-track {
