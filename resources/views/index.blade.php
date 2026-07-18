@@ -6096,7 +6096,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                                     </select>
                                                                 @endif
                                                             </div>
-                                                            <button type="button" class="vip-btn btn-{{ $item->id }} mt-2" style="background-color: {{ $brandPrimary }} !important;"
+                                                            <button type="button" class="vip-btn btn-{{ $item->id }} mt-2"
                                                                 data-id="{{ $item->id }}" data-name="{{ $item->name }}" data-price="{{ $item->price }}"
                                                                 data-gratuity="{{ $data->gratuity_fee }}"
                                                                 data-refundable="{{ $data->refundable_fee }}"
