@@ -129,8 +129,10 @@ input[name="transportation_pickup_time"]::placeholder {
     .step-number { width: 32px; height: 32px; font-size: 13px; }
     .step::after { top: 16px; left: calc(50% + 18px); width: calc(100% - 36px); }
     .step-title { font-size: 0.72rem; }
+    #package_use_date{padding-left: 10px !important;}
 }
 @media (max-width: 420px) {
+    #package_use_date{padding-left: 10px !important;}
     .step-title { font-size: 0.65rem; }
     .step-number { width: 28px; height: 28px; font-size: 12px; }
     .step::after { top: 14px; left: calc(50% + 16px); width: calc(100% - 32px); }
