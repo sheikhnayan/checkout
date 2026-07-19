@@ -103,6 +103,7 @@ class EventController extends Controller
             'date' => 'nullable|date',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
+            'show_time_range' => 'nullable|boolean',
             'description' => 'nullable|string',
             'secondary_description' => 'nullable|string',
             'image' => 'required|image|max:4096',
@@ -153,6 +154,7 @@ class EventController extends Controller
         $add->name = $request->name;
         $add->hero_title = $request->hero_title;
         $add->hero_subtitle = $request->hero_subtitle;
+        $add->show_time_range = $request->boolean('show_time_range', true);
         $add->date = $startDate;
         $add->start_date = $startDate;
         $add->end_date = $endDate;
@@ -261,6 +263,7 @@ class EventController extends Controller
             'date' => 'nullable|date',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
+            'show_time_range' => 'nullable|boolean',
             'description' => 'nullable|string',
             'secondary_description' => 'nullable|string',
             'image' => 'nullable|image|max:4096',
@@ -311,6 +314,7 @@ class EventController extends Controller
         $add->name = $request->name;
         $add->hero_title = $request->hero_title;
         $add->hero_subtitle = $request->hero_subtitle;
+        $add->show_time_range = $request->boolean('show_time_range');
         $add->date = $startDate;
         $add->start_date = $startDate;
         $add->end_date = $endDate;

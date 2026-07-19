@@ -7210,7 +7210,7 @@
                                                     {{ \Carbon\Carbon::parse($eventStartDate)->format('M d') }} - {{ \Carbon\Carbon::parse($eventEndDate)->format('M d') }}
                                                 </div>
                                             @endif
-                                            @if(!empty($item->time))
+                                                @if(($item->show_time_range ?? true) && !empty($item->time))
                                                 <div class="event-location"><i class="fas fa-clock"></i>{{ $item->time }}</div>
                                             @endif
                                             <div class="event-location"><i class="fas fa-map-marker-alt"></i>{{ $data->location }}</div>

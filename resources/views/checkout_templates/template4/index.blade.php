@@ -5249,8 +5249,8 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                     }
                                 @endphp
                                 <h1 class="cv-hero-title">{{ $heroTitleLead }}@if($heroLastWord) <span class="cv-hero-title-accent">{{ $heroLastWord }}</span>@endif</h1>
-                                <p class="cv-hero-subtitle">{{ $event->hero_subtitle ?: ($eventDateShort . ($event->time ? ' - ' . $event->time : '')) }}</p>
-                                @if(!empty($event->time))
+                                <p class="cv-hero-subtitle">{{ $event->hero_subtitle ?: ($eventDateShort . ((($event->show_time_range ?? true) && !empty($event->time)) ? ' - ' . $event->time : '')) }}</p>
+                                @if(($event->show_time_range ?? true) && !empty($event->time))
                                     <div class="aff-display-copy" style="margin-bottom:10px;">
                                         <i class="fas fa-clock me-1"></i>{{ $event->time }}
                                     </div>
@@ -6593,7 +6593,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                         {{ \Carbon\Carbon::parse($eventStartDate)->format('M d') }} - {{ \Carbon\Carbon::parse($eventEndDate)->format('M d') }}
                                                     </div>
                                                 @endif
-                                                @if(!empty($item->time))
+                                                @if(($item->show_time_range ?? true) && !empty($item->time))
                                                     <div class="event-location"><i class="fas fa-clock"></i>{{ $item->time }}</div>
                                                 @endif
                                                 <div class="event-location"><i class="fas fa-map-marker-alt"></i>{{ $data->location }}</div>

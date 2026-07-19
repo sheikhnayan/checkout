@@ -214,6 +214,18 @@ label{
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
+                                                        <div class="toggle-field">
+                                                            <p class="toggle-text">Show Time Range <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="When enabled, the event time range is shown on the event page and checkout pages."></i></p>
+                                                            <label class="toggle-switch" for="show_time_range">
+                                                                <input id="show_time_range" type="checkbox" name="show_time_range" class="toggle-switch-input" @checked(old('show_time_range', $data->show_time_range ?? true))>
+                                                                <span class="toggle-switch-slider"></span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
                                                         <label for="time" class="form-label">Time Range ({{ $eventTimezoneShort }}) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The start and end time of the event displayed to customers. Leave both blank if no specific time is shown."></i></label>
                                                         <div style="display: flex; gap: 10px;">
                                                             <input type="text" name="time_start" class="form-control flatpickr-time" id="time_start"

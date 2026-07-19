@@ -14,6 +14,7 @@ class Event extends Model
         'start_date',
         'end_date',
         'event_dates',
+        'show_time_range',
         'address',
         'image',
         'gallery_images',
@@ -27,6 +28,7 @@ class Event extends Model
     protected $casts = [
         'gallery_images' => 'array',
         'event_dates' => 'array',
+        'show_time_range' => 'boolean',
         'start_date' => 'date',
         'end_date' => 'date',
     ];
