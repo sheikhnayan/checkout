@@ -239,6 +239,15 @@ main {
       gap: 0.3rem;
     }
 
+    /* Hide transportation pickup notes field globally on checkout pages. */
+    .form-group:has(> textarea[name="transportation_note"]) {
+      display: none !important;
+    }
+
+    textarea[name="transportation_note"] {
+      display: none !important;
+    }
+
     .form-row {
       display: flex;
       gap: 1rem;
