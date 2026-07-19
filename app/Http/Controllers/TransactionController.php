@@ -50,6 +50,81 @@ class TransactionController extends Controller
         return round((float) $clean, 2);
     }
 
+    private function isPhysicalProductEnabled(?Website $website): bool
+    {
+        return (bool) ($website?->physical_product_enabled ?? false);
+    }
+
+    private function assignShippingDetailsToTransaction(Request $request, Transaction $transaction, ?Website $website): void
+    {
+        if (!$this->isPhysicalProductEnabled($website)) {
+            $transaction->shipping_same_as_billing = false;
+            $transaction->shipping_first_name = null;
+            $transaction->shipping_last_name = null;
+            $transaction->shipping_phone = null;
+            $transaction->shipping_email = null;
+            $transaction->shipping_address = null;
+            $transaction->shipping_city = null;
+            $transaction->shipping_state = null;
+            $transaction->shipping_country = null;
+            $transaction->shipping_zip_code = null;
+            return;
+        }
+
+        $sameAsBilling = $request->boolean('shipping_same_as_billing');
+
+        $transaction->shipping_same_as_billing = $sameAsBilling;
+        $transaction->shipping_first_name = $sameAsBilling
+            ? $request->input('payment_first_name')
+            : $request->input('shipping_first_name');
+        $transaction->shipping_last_name = $sameAsBilling
+            ? $request->input('payment_last_name')
+            : $request->input('shipping_last_name');
+        $transaction->shipping_phone = $sameAsBilling
+            ? $request->input('payment_phone')
+            : $request->input('shipping_phone');
+        $transaction->shipping_email = $sameAsBilling
+            ? $request->input('payment_email')
+            : $request->input('shipping_email');
+        $transaction->shipping_address = $sameAsBilling
+            ? $request->input('payment_address')
+            : $request->input('shipping_address');
+        $transaction->shipping_city = $sameAsBilling
+            ? $request->input('payment_city')
+            : $request->input('shipping_city');
+        $transaction->shipping_state = $sameAsBilling
+            ? $request->input('payment_state')
+            : $request->input('shipping_state');
+        $transaction->shipping_country = $sameAsBilling
+            ? $request->input('payment_country')
+            : $request->input('shipping_country');
+        $transaction->shipping_zip_code = $sameAsBilling
+            ? $request->input('payment_zip_code')
+            : $request->input('shipping_zip_code');
+    }
+
+    private function buildShippingMailData(Request $request, ?Website $website): array
+    {
+        if (!$this->isPhysicalProductEnabled($website)) {
+            return [];
+        }
+
+        $sameAsBilling = $request->boolean('shipping_same_as_billing');
+
+        return [
+            'shipping_same_as_billing' => $sameAsBilling,
+            'shipping_first_name' => $sameAsBilling ? $request->input('payment_first_name') : $request->input('shipping_first_name'),
+            'shipping_last_name' => $sameAsBilling ? $request->input('payment_last_name') : $request->input('shipping_last_name'),
+            'shipping_phone' => $sameAsBilling ? $request->input('payment_phone') : $request->input('shipping_phone'),
+            'shipping_email' => $sameAsBilling ? $request->input('payment_email') : $request->input('shipping_email'),
+            'shipping_address' => $sameAsBilling ? $request->input('payment_address') : $request->input('shipping_address'),
+            'shipping_city' => $sameAsBilling ? $request->input('payment_city') : $request->input('shipping_city'),
+            'shipping_state' => $sameAsBilling ? $request->input('payment_state') : $request->input('shipping_state'),
+            'shipping_country' => $sameAsBilling ? $request->input('payment_country') : $request->input('shipping_country'),
+            'shipping_zip_code' => $sameAsBilling ? $request->input('payment_zip_code') : $request->input('shipping_zip_code'),
+        ];
+    }
+
     /**
      * Validate a PAN using the Luhn checksum algorithm.
      */
@@ -349,6 +424,23 @@ class TransactionController extends Controller
             );
         }
 
+        $checkoutWebsite = Website::find($request->website_id);
+        $isPhysicalProductCheckout = $this->isPhysicalProductEnabled($checkoutWebsite);
+        if ($isPhysicalProductCheckout) {
+            $request->validate([
+                'shipping_same_as_billing' => ['nullable', 'boolean'],
+                'shipping_first_name' => ['nullable', 'string', 'max:100'],
+                'shipping_last_name' => ['nullable', 'string', 'max:100'],
+                'shipping_phone' => ['nullable', 'string', 'max:50'],
+                'shipping_email' => ['nullable', 'email', 'max:255'],
+                'shipping_address' => ['nullable', 'string', 'max:255'],
+                'shipping_city' => ['nullable', 'string', 'max:120'],
+                'shipping_state' => ['nullable', 'string', 'max:120'],
+                'shipping_country' => ['nullable', 'string', 'max:120'],
+                'shipping_zip_code' => ['nullable', 'string', 'max:30'],
+            ]);
+        }
+
         $setting = Setting::find(1);
 
         $w = Website::find($request->website_id);
@@ -386,7 +478,7 @@ class TransactionController extends Controller
         if ($w->payment_method == 'stripe') {
             # code...
 
-            $w = Website::find($request->website_id);
+            $w = $checkoutWebsite ?: Website::find($request->website_id);
 
             if ($w->stripe_secret_key != null) {
                 # code...
@@ -476,6 +568,7 @@ class TransactionController extends Controller
                     $payment_year = $request->input('payment_year');
                     $add->payment_dob = ($payment_year && $payment_month && $payment_day) ? (sprintf('%04d-%02d-%02d', $payment_year, $payment_month, $payment_day)) : null;
                     $add->payment_zip_code = $request->input('payment_zip_code');
+                    $this->assignShippingDetailsToTransaction($request, $add, $w);
     
     
                     $event_id = $this->resolvePackageTransactionEventId($request, $selectedPackage);
@@ -543,9 +636,11 @@ class TransactionController extends Controller
                         ];
     
                         $website = Website::findOrFail($website_id);
+                        $isPhysicalProductWebsite = $this->isPhysicalProductEnabled($website);
                         $mailData['club_name'] = $website->name;
                         $mailData['website_name'] = $website->name;
                         $mailData['price_breakdown'] = $this->buildPackagePriceBreakdown($add->fresh(), $website);
+                        $mailData = array_merge($mailData, $this->buildShippingMailData($request, $website));
     
                         $this->applyWebsiteSmtpConfig($website);
     
@@ -553,8 +648,9 @@ class TransactionController extends Controller
                         $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
                         $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr, $add, $cartItems, $mailData['price_breakdown'], $website, false, 'manager');
 
-                        // Purchaser email — full mail with QR
-                        $send_mail_purchaser = new \App\Mail\TransactionMail($mailData, $add, $cartItems, $mailData['price_breakdown'], $website, true, 'guest');
+                        // Purchaser email — hide QR for physical product websites.
+                        $mailDataForPurchaser = $isPhysicalProductWebsite ? $mailDataNoQr : $mailData;
+                        $send_mail_purchaser = new \App\Mail\TransactionMail($mailDataForPurchaser, $add, $cartItems, $mailData['price_breakdown'], $website, !$isPhysicalProductWebsite, 'guest');
 
                         $clubEmails = collect($website->emails ?? [])
                             ->pluck('email')
@@ -614,7 +710,7 @@ class TransactionController extends Controller
 
         } else {
             # code...
-            $w = Website::find($request->website_id);
+            $w = $checkoutWebsite ?: Website::find($request->website_id);
 
             if ($w->authorize_app_key != null) {
                 // Club uses its own Authorize.Net account.
@@ -799,6 +895,7 @@ class TransactionController extends Controller
                     $payment_year = $request->input('payment_year');
                     $add->payment_dob = ($payment_year && $payment_month && $payment_day) ? (sprintf('%04d-%02d-%02d', $payment_year, $payment_month, $payment_day)) : null;
                     $add->payment_zip_code = $request->input('payment_zip_code');
+                    $this->assignShippingDetailsToTransaction($request, $add, $w);
     
     
                     $event_id = $this->resolvePackageTransactionEventId($request, $selectedPackage);
@@ -866,9 +963,11 @@ class TransactionController extends Controller
                         ];
     
                         $website = Website::findOrFail($website_id);
+                        $isPhysicalProductWebsite = $this->isPhysicalProductEnabled($website);
                         $mailData['club_name'] = $website->name;
                         $mailData['website_name'] = $website->name;
                         $mailData['price_breakdown'] = $this->buildPackagePriceBreakdown($add->fresh(), $website);
+                        $mailData = array_merge($mailData, $this->buildShippingMailData($request, $website));
     
                         $this->applyWebsiteSmtpConfig($website);
     
@@ -876,8 +975,9 @@ class TransactionController extends Controller
                         $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
                         $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr, $add, $cartItems, $mailData['price_breakdown'], $website, false, 'manager');
 
-                        // Purchaser email — full mail with QR
-                        $send_mail_purchaser = new \App\Mail\TransactionMail($mailData, $add, $cartItems, $mailData['price_breakdown'], $website, true, 'guest');
+                        // Purchaser email — hide QR for physical product websites.
+                        $mailDataForPurchaser = $isPhysicalProductWebsite ? $mailDataNoQr : $mailData;
+                        $send_mail_purchaser = new \App\Mail\TransactionMail($mailDataForPurchaser, $add, $cartItems, $mailData['price_breakdown'], $website, !$isPhysicalProductWebsite, 'guest');
 
                         $clubEmails = collect($website->emails ?? [])
                             ->pluck('email')
@@ -964,6 +1064,7 @@ class TransactionController extends Controller
         $ipAddress = $request->ip();
         $eventId = $this->resolvePackageTransactionEventId($request, $selectedPackage);
         $websiteId = (int) $request->website_id;
+        $website = Website::findOrFail($websiteId);
         $requiresTransportation = $this->cartRequiresTransportation($cartItems, $selectedPackage);
         $isSelfDriveTransportation = $requiresTransportation && $request->boolean('transportation_self_drive_ack');
         $requiresArrivalTime = !$requiresTransportation || $isSelfDriveTransportation;
@@ -1025,6 +1126,7 @@ class TransactionController extends Controller
             : null;
 
         $transaction->payment_zip_code = $request->input('payment_zip_code');
+        $this->assignShippingDetailsToTransaction($request, $transaction, $website);
         $transaction->event_id = $eventId;
         $transaction->website_id = $websiteId;
         $transaction->total = $request->input('total');
@@ -1036,8 +1138,6 @@ class TransactionController extends Controller
         if (!$isSelfDriveTransportation) {
             $this->sendClubLifterScheduleAfterResponse($transaction);
         }
-
-        $website = Website::findOrFail($websiteId);
 
         try {
             $mailData = [
@@ -1086,12 +1186,15 @@ class TransactionController extends Controller
             $mailData['club_name'] = $website->name;
             $mailData['website_name'] = $website->name;
             $mailData['price_breakdown'] = $this->buildPackagePriceBreakdown($transaction->fresh(), $website);
+            $mailData = array_merge($mailData, $this->buildShippingMailData($request, $website));
 
             $this->applyWebsiteSmtpConfig($website);
 
             $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
+            $isPhysicalProductWebsite = $this->isPhysicalProductEnabled($website);
             $sendMailClub = new TransactionMail($mailDataNoQr, $transaction, $cartItems, $mailData['price_breakdown'], $website, false, 'manager');
-            $sendMailPurchaser = new TransactionMail($mailData, $transaction, $cartItems, $mailData['price_breakdown'], $website, true, 'guest');
+            $mailDataForPurchaser = $isPhysicalProductWebsite ? $mailDataNoQr : $mailData;
+            $sendMailPurchaser = new TransactionMail($mailDataForPurchaser, $transaction, $cartItems, $mailData['price_breakdown'], $website, !$isPhysicalProductWebsite, 'guest');
 
             $clubEmails = collect($website->emails ?? [])
                 ->pluck('email')

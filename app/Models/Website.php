@@ -80,6 +80,7 @@ class Website extends Model
         'show_contact_info',
         'entertainer_submission_emails',
         'clublifter_enabled',
+        'physical_product_enabled',
         'emails',
         'reservation',
         'payment_method',
@@ -103,6 +104,7 @@ class Website extends Model
         'show_contact_info' => 'boolean',
         'entertainer_submission_emails' => 'array',
         'clublifter_enabled' => 'boolean',
+        'physical_product_enabled' => 'boolean',
     ];
    
     /**

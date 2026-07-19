@@ -6427,11 +6427,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 </div>
                                                             </div>
     
-                                                            <div class="form-group">
+                                                            {{-- <div class="form-group">
                                                                 <label for="note">Pickup Note</label>
                                                                 <textarea name="transportation_note" id="note"
                                                                     placeholder="If any"></textarea>
-                                                            </div>
+                                                            </div> --}}
                                                             </div>
 
                                                             <div class="form-row" id="transportation-arrival-time-field" style="display:none !important; margin-top: 14px;">

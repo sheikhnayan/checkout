@@ -389,6 +389,18 @@ label{
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12">
+                                                    <div class="mb-3">
+                                                        <div class="toggle-field">
+                                                            <p class="toggle-text">Enable Physical Product Mode</p>
+                                                            <label class="toggle-switch" for="physical_product_enabled">
+                                                                <input id="physical_product_enabled" type="checkbox" name="physical_product_enabled" value="1" class="toggle-switch-input" {{ old('physical_product_enabled') ? 'checked' : '' }}>
+                                                                <span class="toggle-switch-slider"></span>
+                                                            </label>
+                                                        </div>
+                                                        <small class="form-text text-muted">When enabled, checkout can capture shipping details and purchaser confirmations will not include QR codes.</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12">
                                                     <div class="alert alert-info">
                                                         Payment keys and fee rules are managed in <strong>Payment Settings</strong> after website creation.
                                                     </div>

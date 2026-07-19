@@ -503,12 +503,12 @@
             <span class="info-value">{{ $transaction->transportation_address }}</span>
         </div>
         @endif
-        @if($transaction->transportation_phone)
+        {{-- @if($transaction->transportation_phone)
         <div class="info-row">
             <span class="info-label">Contact Phone</span>
             <span class="info-value">{{ $transaction->transportation_phone }}</span>
         </div>
-        @endif
+        @endif --}}
         @if($transaction->transportation_guest)
         <div class="info-row">
             <span class="info-label">Transportation Guests</span>
