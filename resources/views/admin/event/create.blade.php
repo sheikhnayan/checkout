@@ -216,7 +216,7 @@ label{
                                                         <div class="toggle-field">
                                                             <p class="toggle-text">Show Time Range <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="When enabled, the event time range is shown on the event page and checkout pages."></i></p>
                                                             <label class="toggle-switch" for="show_time_range">
-                                                                <input id="show_time_range" type="checkbox" name="show_time_range" value="1" class="toggle-switch-input" {{ old('show_time_range', '1') ? 'checked' : '' }}>
+                                                                <input id="show_time_range" type="checkbox" name="show_time_range" class="toggle-switch-input" @checked(old('show_time_range', true))>
                                                                 <span class="toggle-switch-slider"></span>
                                                             </label>
                                                         </div>
