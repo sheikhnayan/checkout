@@ -5508,8 +5508,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 <div class="form-group" style="width: 100%;">
                                                                     <label for="phone">Contact Phone Number or WhatsApp</label>
                                                                     <input type="tel" name="transportation_phone" id="phone"
-                                                                        placeholder="For driver/dispatch to coordinate pickup" required />
                                                                     <div class="phone-note" style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 4px;">Phone formatting may vary by country. International SMS delivery is not guaranteed.</div>
+                                                                        placeholder="For driver/dispatch to coordinateï¿½pickup"   required />
                                                                 </div>
     
                                                             </div>
@@ -5527,7 +5527,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 </div>
                                                             </div>
     
-                                                            <div class="form-group" style="display:none;">
+                                                            <div class="form-group">
                                                                 <label for="note">Pickup Note</label>
                                                                 <textarea name="transportation_note" id="note"
                                                                     placeholder="If any"></textarea>
