@@ -223,7 +223,7 @@ label{
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-6">
+                                                <div class="col-md-6" id="event-time-range-wrap">
                                                     <div class="mb-3">
                                                         <label for="time" class="form-label">Time Range ({{ $eventTimezoneShort }}) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The start and end time of the event displayed to customers. Leave both blank if no specific time is shown."></i></label>
                                                         <div style="display: flex; gap: 10px;">
@@ -315,6 +315,22 @@ label{
         dateFormat: "H:i",
         time_24hr: false
     });
+
+    (function () {
+        const toggle = document.getElementById('show_time_range');
+        const wrap = document.getElementById('event-time-range-wrap');
+
+        if (!toggle || !wrap) {
+            return;
+        }
+
+        function syncVisibility() {
+            wrap.style.display = toggle.checked ? '' : 'none';
+        }
+
+        toggle.addEventListener('change', syncVisibility);
+        syncVisibility();
+    })();
 
     (function () {
         const rowsContainer = document.getElementById('package-rows');
