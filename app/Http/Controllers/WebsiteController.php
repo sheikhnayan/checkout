@@ -194,7 +194,6 @@ class WebsiteController extends Controller
             }],
             'show_contact_info' => 'nullable|boolean',
             'clublifter_enabled' => 'nullable|boolean',
-            'physical_product_enabled' => 'nullable|boolean',
         ]);
 
         // Website admins (user_type = website_user) may reuse an email across websites; block
@@ -257,7 +256,6 @@ class WebsiteController extends Controller
         $add->show_contact_info = $request->boolean('show_contact_info');
         $add->entertainer_submission_emails = $entertainerSubmissionEmails;
         $add->clublifter_enabled = $request->boolean('clublifter_enabled');
-        $add->physical_product_enabled = $request->boolean('physical_product_enabled');
         $add->gratuity_fee = $request->gratuity_fee;
         $add->gratuity_name = $request->gratuity_name;
         $add->refundable_fee = $request->refundable_fee;
@@ -489,7 +487,6 @@ class WebsiteController extends Controller
             }],
             'show_contact_info' => 'nullable|boolean',
             'clublifter_enabled' => 'nullable|boolean',
-            'physical_product_enabled' => 'nullable|boolean',
         ]);
         
         // Check authorization for website users
@@ -527,7 +524,6 @@ class WebsiteController extends Controller
         $add->success_page = self::DEFAULT_SUCCESS_PAGE;
         $add->terms = $request->terms;
         $add->clublifter_enabled = $request->boolean('clublifter_enabled');
-        $add->physical_product_enabled = $request->boolean('physical_product_enabled');
         if ($request->has('gratuity_fee')) {
             $add->gratuity_fee = $request->gratuity_fee;
         }

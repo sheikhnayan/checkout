@@ -9289,27 +9289,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             { name: 'Zimbabwe', code: '+263', flag: 'ðŸ‡¿ðŸ‡¼' }
         ];
 
-        function decodeMojibakeFlag(flagText) {
-            if (!flagText) {
-                return '';
-            }
-
-            let value = String(flagText).trim();
-            for (let i = 0; i < 3; i++) {
-                try {
-                    const decoded = decodeURIComponent(escape(value));
-                    if (!decoded || decoded === value) {
-                        break;
-                    }
-                    value = decoded;
-                } catch (e) {
-                    break;
-                }
-            }
-
-            return value;
-        }
-function initCountryCodePickersAffiliate() {
+        function initCountryCodePickersAffiliate() {
             const phoneFields = [
                 { name: 'package_phone' },
                 { name: 'reservation_phone' },
@@ -9342,7 +9322,7 @@ function initCountryCodePickersAffiliate() {
             const countryCodeInput = document.createElement('input');
             countryCodeInput.className = 'country-code-field';
             countryCodeInput.type = 'text';
-            countryCodeInput.placeholder = 'US +1';
+            countryCodeInput.placeholder = 'ðŸ‡ºðŸ‡¸ +1';
             countryCodeInput.name = `${fieldName}_country`;
             countryCodeInput.setAttribute('data-phone-field', fieldName);
             countryCodeInput.setAttribute('autocomplete', 'off');
@@ -9353,9 +9333,9 @@ function initCountryCodePickersAffiliate() {
             COUNTRIES_AFFILIATE.forEach(country => {
                 const option = document.createElement('div');
                 option.className = 'country-option';
-                option.innerHTML = `<span class="flag-icon">${decodeMojibakeFlag(country.flag)}</span>${country.code} ${country.name}`;
+                option.innerHTML = `<span class="flag-icon">${country.flag}</span>${country.code} ${country.name}`;
                 option.setAttribute('data-code', country.code);
-                option.setAttribute('data-flag', decodeMojibakeFlag(country.flag));
+                option.setAttribute('data-flag', country.flag);
                 option.addEventListener('click', () => selectCountryAffiliate(countryCodeInput, option, country, phoneInput));
                 dropdown.appendChild(option);
             });
@@ -9365,7 +9345,7 @@ function initCountryCodePickersAffiliate() {
 
             const usOption = COUNTRIES_AFFILIATE.find(c => c.code === '+1' && c.name === 'United States');
             if (usOption) {
-                countryCodeInput.value = `${decodeMojibakeFlag(usOption.flag)} ${usOption.code}`;
+                countryCodeInput.value = `${usOption.flag} ${usOption.code}`;
                 countryCodeInput.dataset.code = usOption.code;
             }
 
@@ -9403,7 +9383,7 @@ function initCountryCodePickersAffiliate() {
         }
 
         function selectCountryAffiliate(countryCodeInput, optionEl, country, phoneInput) {
-            countryCodeInput.value = `${decodeMojibakeFlag(country.flag)} ${country.code}`;
+            countryCodeInput.value = `${country.flag} ${country.code}`;
             countryCodeInput.dataset.code = country.code;
 
             const dropdown = countryCodeInput.nextElementSibling;
@@ -9592,7 +9572,6 @@ function initCountryCodePickersAffiliate() {
     </body>
 
     </html>
-
 
 
 

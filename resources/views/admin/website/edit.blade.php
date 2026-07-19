@@ -384,18 +384,6 @@
                                                         <small class="form-text text-muted">Turn off to hide the club phone and email in checkout page contact blocks.</small>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <div class="toggle-field">
-                                                            <p class="toggle-text">Enable Physical Product Mode</p>
-                                                            <label class="toggle-switch" for="physical_product_enabled">
-                                                                <input id="physical_product_enabled" type="checkbox" name="physical_product_enabled" value="1" class="toggle-switch-input" {{ old('physical_product_enabled', $data->physical_product_enabled ?? false) ? 'checked' : '' }}>
-                                                                <span class="toggle-switch-slider"></span>
-                                                            </label>
-                                                        </div>
-                                                        <small class="form-text text-muted">When enabled, checkout can capture shipping details and purchaser confirmations will not include QR codes.</small>
-                                                    </div>
-                                                </div>
                                                 <div class="col-md-12 mt-2">
                                                     <h5 class="website-section-title">Website Admin Access</h5>
                                                     <p class="text-muted">This user will have full access for this website (except super-admin-only platform features).</p>
