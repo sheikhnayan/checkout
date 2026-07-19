@@ -11847,13 +11847,25 @@
         ];
 
         function decodeMojibakeFlag(flagText) {
-    if (!flagText) return '';
-    try {
-        return decodeURIComponent(escape(flagText));
-    } catch (e) {
-        return flagText;
-    }
-}
+            if (!flagText) {
+                return '';
+            }
+
+            let value = String(flagText).trim();
+            for (let i = 0; i < 3; i++) {
+                try {
+                    const decoded = decodeURIComponent(escape(value));
+                    if (!decoded || decoded === value) {
+                        break;
+                    }
+                    value = decoded;
+                } catch (e) {
+                    break;
+                }
+            }
+
+            return value;
+        }
 function initCountryCodePickers() {
             const phoneFields = [
                 { name: 'package_phone', label: 'Package Phone' },

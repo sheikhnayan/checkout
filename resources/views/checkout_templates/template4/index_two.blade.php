@@ -11075,13 +11075,25 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         ];
 
         function decodeMojibakeFlag(flagText) {
-    if (!flagText) return '';
-    try {
-        return decodeURIComponent(escape(flagText));
-    } catch (e) {
-        return flagText;
-    }
-}
+            if (!flagText) {
+                return '';
+            }
+
+            let value = String(flagText).trim();
+            for (let i = 0; i < 3; i++) {
+                try {
+                    const decoded = decodeURIComponent(escape(value));
+                    if (!decoded || decoded === value) {
+                        break;
+                    }
+                    value = decoded;
+                } catch (e) {
+                    break;
+                }
+            }
+
+            return value;
+        }
 function initCountryCodePickersEntertainer() {
             const phoneFields = [
                 { name: 'package_phone' },
