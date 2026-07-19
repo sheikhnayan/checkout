@@ -7190,23 +7190,23 @@
                         @endphp
                         @forelse ($data->events as $item)
                             @php
-                                $eventStartDate = $item->start_date ?? $item->date;
-                                $eventEndDate = $item->end_date ?? $eventStartDate;
+                                $eventStartDate = $item->start_date_value ?? $item->date_value;
+                                $eventEndDate = $item->end_date_value ?? $eventStartDate;
                             @endphp
-                            @if (!$item->is_archieved && $eventEndDate && \Carbon\Carbon::parse($eventEndDate)->toDateString() >= $todayPacific)
+                            @if (!$item->is_archieved && $eventEndDate && $eventEndDate >= $todayPacific)
                                 <div class="col-md-4 event-card-item"
-                                    data-date="{{ \Carbon\Carbon::parse($eventStartDate)->format('Y-m-d') }}">
+                                    data-date="{{ $eventStartDate }}">
                                     <a href="/{{ $data->slug }}?event_name={{ $item->name }}" class="event-card">
                                         <div class="card">
                                             <img src="{{ asset('uploads/' . $item->image) }}" alt="{{ $item->name }}">
                                             <div class="d-flex">
-                                                <div class="event-day">{{ \Carbon\Carbon::parse($eventStartDate)->format('l') }}</div>
-                                                <div class="event-dates">{{ \Carbon\Carbon::parse($eventStartDate)->format('M') }}<span>{{ \Carbon\Carbon::parse($eventStartDate)->format('d') }}</span></div>
+                                                <div class="event-day">{{ \Carbon\Carbon::createFromFormat('Y-m-d', $eventStartDate)->format('l') }}</div>
+                                                <div class="event-dates">{{ \Carbon\Carbon::createFromFormat('Y-m-d', $eventStartDate)->format('M') }}<span>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $eventStartDate)->format('d') }}</span></div>
                                             </div>
                                             <div class="event-location">{{ $item->name }}</div>
                                             @if($eventEndDate && $eventStartDate !== $eventEndDate)
                                                 <div class="event-location">
-                                                    {{ \Carbon\Carbon::parse($eventStartDate)->format('M d') }} - {{ \Carbon\Carbon::parse($eventEndDate)->format('M d') }}
+                                                    {{ \Carbon\Carbon::createFromFormat('Y-m-d', $eventStartDate)->format('M d') }} - {{ \Carbon\Carbon::createFromFormat('Y-m-d', $eventEndDate)->format('M d') }}
                                                 </div>
                                             @endif
                                             @if(!empty($item->time))

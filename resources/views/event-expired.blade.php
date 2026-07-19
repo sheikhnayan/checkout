@@ -144,12 +144,12 @@
 </head>
 <body>
     @php
-        $eventEnd = $event->end_date ?: $event->start_date ?: $event->date;
+        $eventEnd = $event->end_date_value ?: $event->start_date_value ?: $event->date_value;
         $formattedEventDate = null;
 
         if ($eventEnd) {
             try {
-                $formattedEventDate = \Carbon\Carbon::parse($eventEnd, $websiteTimezone)->format('l, M d, Y');
+                $formattedEventDate = \Carbon\Carbon::createFromFormat('Y-m-d', $eventEnd, $websiteTimezone)->format('l, M d, Y');
             } catch (\Throwable $exception) {
                 $formattedEventDate = null;
             }

@@ -158,6 +158,7 @@
 <body>
 @php
     $club = $website ?? ($transaction->website ?? null);
+    $clubTimezone = optional($club)->resolved_timezone ?? 'America/Los_Angeles';
     $reservationDateRaw = $mailData['package_use_date']
         ?? $mailData['reservation_date']
         ?? ($transaction->getRawOriginal('package_use_date') ?? null)
@@ -170,14 +171,29 @@
             if ($reservationDateRaw instanceof \Carbon\CarbonInterface) {
                 $reservationDateFormatted = $reservationDateRaw->format('M d, Y');
             } elseif (preg_match('/^\d{4}-\d{2}-\d{2}$/', $reservationDateRawString) === 1) {
-                $reservationDateFormatted = \Carbon\Carbon::createFromFormat('Y-m-d', $reservationDateRawString, 'America/Los_Angeles')->format('M d, Y');
+                $reservationDateFormatted = \Carbon\Carbon::createFromFormat('Y-m-d', $reservationDateRawString, $clubTimezone)->format('M d, Y');
             } else {
-                $reservationDateFormatted = \Carbon\Carbon::parse($reservationDateRawString)->setTimezone('America/Los_Angeles')->format('M d, Y');
+                $reservationDateFormatted = \Carbon\Carbon::parse($reservationDateRawString, $clubTimezone)->setTimezone($clubTimezone)->format('M d, Y');
             }
         } catch (\Throwable $e) {
             $reservationDateFormatted = (string) $reservationDateRaw;
         }
     }
+    $saleDateFormatted = 'N/A';
+    if (!empty($transaction->created_at)) {
+        try {
+            $saleDateFormatted = $transaction->created_at->copy()->timezone($clubTimezone)->format('M d, Y h:i A T');
+        } catch (\Throwable $e) {
+            $saleDateFormatted = (string) $transaction->created_at;
+        }
+    }
+    $formatTimeForClubTimezone = static function ($rawTime) use ($clubTimezone) {
+        try {
+            return \Carbon\Carbon::parse((string) $rawTime, $clubTimezone)->setTimezone($clubTimezone)->format('h:i A T');
+        } catch (\Throwable $e) {
+            return $rawTime;
+        }
+    };
 @endphp
 <div class="invoice-container">
     <!-- Header -->
@@ -422,8 +438,8 @@
                 <span class="info-value">{{ $reservationDateFormatted }}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">Payment Date</span>
-                <span class="info-value">{{ $transaction->updated_at->setTimezone('America/Los_Angeles')->format('M d, Y h:i A') }}</span>
+                <span class="info-label">Sale Date</span>
+                <span class="info-value">{{ $saleDateFormatted }}</span>
             </div>
             @if($transaction->type === 'package' && $transaction->event)
             <div class="info-row">
@@ -472,13 +488,13 @@
         @if($transaction->transportation_pickup_time)
         <div class="info-row">
             <span class="info-label">Pickup Time</span>
-            <span class="info-value">{{ rescue(fn () => \Carbon\Carbon::parse($transaction->transportation_pickup_time)->format('h:i A'), $transaction->transportation_pickup_time) }}</span>
+            <span class="info-value">{{ $formatTimeForClubTimezone($transaction->transportation_pickup_time) }}</span>
         </div>
         @endif
         @if($transaction->transportation_arrival_time)
         <div class="info-row">
             <span class="info-label">Arrival Time</span>
-            <span class="info-value">{{ rescue(fn () => \Carbon\Carbon::parse($transaction->transportation_arrival_time)->format('h:i A'), $transaction->transportation_arrival_time) }}</span>
+            <span class="info-value">{{ $formatTimeForClubTimezone($transaction->transportation_arrival_time) }}</span>
         </div>
         @endif
         @if($transaction->transportation_address)

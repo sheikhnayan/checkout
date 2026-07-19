@@ -31,6 +31,46 @@ class Event extends Model
         'end_date' => 'date',
     ];
 
+    public function getDateValueAttribute(): ?string
+    {
+        return $this->normalizeDateValue('date');
+    }
+
+    public function getStartDateValueAttribute(): ?string
+    {
+        return $this->normalizeDateValue('start_date');
+    }
+
+    public function getEndDateValueAttribute(): ?string
+    {
+        return $this->normalizeDateValue('end_date');
+    }
+
+    private function normalizeDateValue(string $attribute): ?string
+    {
+        $value = $this->getRawOriginal($attribute);
+
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('Y-m-d');
+        }
+
+        $value = trim((string) $value);
+
+        if ($value === '') {
+            return null;
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
+            return $value;
+        }
+
+        try {
+            return \Carbon\Carbon::parse($value)->format('Y-m-d');
+        } catch (\Throwable $exception) {
+            return null;
+        }
+    }
+
     public function packages()
     {
         return $this->hasMany(Package::class, 'event_id', 'id');

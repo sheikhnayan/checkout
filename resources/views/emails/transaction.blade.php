@@ -26,6 +26,8 @@
 @php
     $confirmationNumber = $mailData['confirmation_id'] ?? ($transaction->transaction_id ?? 'Pending');
     $orderId = $mailData['order_id'] ?? ($transaction->id ?? 'N/A');
+    $club = $website ?? ($transaction->website ?? optional($transaction->package ?? null)->website ?? optional($transaction->event ?? null)->website ?? null);
+    $clubTimezone = optional($club)->resolved_timezone ?? 'America/Los_Angeles';
     $venueName = $clubName ?: ($mailData['website_name'] ?? 'Venue');
     $guestName = trim(($mailData['package_first_name'] ?? '') . ' ' . ($mailData['package_last_name'] ?? '')) ?: 'N/A';
     $reservationDateRaw = $mailData['package_use_date'] ?? $mailData['reservation_date'] ?? null;
@@ -34,14 +36,29 @@
         $reservationDateRawString = trim((string) $reservationDateRaw);
         try {
             if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $reservationDateRawString) === 1) {
-                $reservationDateFormatted = \Carbon\Carbon::createFromFormat('Y-m-d', $reservationDateRawString, 'America/Los_Angeles')->format('M d, Y');
+                $reservationDateFormatted = \Carbon\Carbon::createFromFormat('Y-m-d', $reservationDateRawString, $clubTimezone)->format('M d, Y');
             } else {
-                $reservationDateFormatted = \Carbon\Carbon::parse($reservationDateRawString)->setTimezone('America/Los_Angeles')->format('M d, Y');
+                $reservationDateFormatted = \Carbon\Carbon::parse($reservationDateRawString, $clubTimezone)->setTimezone($clubTimezone)->format('M d, Y');
             }
         } catch (\Throwable $e) {
             $reservationDateFormatted = (string) $reservationDateRaw;
         }
     }
+    $saleDateFormatted = 'N/A';
+    if (!empty($transaction?->created_at)) {
+        try {
+            $saleDateFormatted = $transaction->created_at->copy()->timezone($clubTimezone)->format('M d, Y h:i A T');
+        } catch (\Throwable $e) {
+            $saleDateFormatted = (string) $transaction->created_at;
+        }
+    }
+    $formatTimeForClubTimezone = static function ($rawTime) use ($clubTimezone) {
+        try {
+            return \Carbon\Carbon::parse((string) $rawTime, $clubTimezone)->setTimezone($clubTimezone)->format('h:i A T');
+        } catch (\Throwable $e) {
+            return $rawTime;
+        }
+    };
     $menCount = (int) ($mailData['men'] ?? 0);
     $womenCount = (int) ($mailData['women'] ?? 0);
     $guestCount = (int) ($mailData['guest_count'] ?? ($menCount + $womenCount));
@@ -73,6 +90,7 @@
             <tr><th>Order ID</th><td>{{ $orderId }}</td></tr>
             <tr><th>Venue</th><td>{{ $venueName }}</td></tr>
             <tr><th>Booking Type</th><td>{{ ucfirst(str_replace('_', ' ', $bookingType)) }}</td></tr>
+            <tr><th>Sale Date</th><td>{{ $saleDateFormatted }}</td></tr>
             <tr><th>Guest Name</th><td>{{ $guestName }}</td></tr>
             <tr><th>Email</th><td>{{ $mailData['package_email'] ?? 'N/A' }}</td></tr>
             <tr><th>Phone</th><td>{{ $mailData['package_phone'] ?? 'N/A' }}</td></tr>
@@ -96,10 +114,10 @@
             <tr><th>Transportation Mode</th><td>{{ $mailData['transportation_mode'] }}</td></tr>
             @endif
             @if(!empty($mailData['transportation_pickup_time']))
-            <tr><th>Pickup Time</th><td>{{ rescue(fn () => \Carbon\Carbon::parse($mailData['transportation_pickup_time'])->format('h:i A'), $mailData['transportation_pickup_time']) }}</td></tr>
+            <tr><th>Pickup Time</th><td>{{ $formatTimeForClubTimezone($mailData['transportation_pickup_time']) }}</td></tr>
             @endif
             @if(!empty($mailData['transportation_arrival_time']))
-            <tr><th>Arrival Time</th><td>{{ rescue(fn () => \Carbon\Carbon::parse($mailData['transportation_arrival_time'])->format('h:i A'), $mailData['transportation_arrival_time']) }}</td></tr>
+            <tr><th>Arrival Time</th><td>{{ $formatTimeForClubTimezone($mailData['transportation_arrival_time']) }}</td></tr>
             @endif
             @if(!empty($mailData['transportation_address']))
             <tr><th>Pickup Location</th><td>{{ $mailData['transportation_address'] }}</td></tr>
@@ -180,6 +198,7 @@
             <tr><th>Confirmation #</th><td>{{ $confirmationNumber }}</td></tr>
             <tr><th>Order ID</th><td>{{ $orderId }}</td></tr>
             <tr><th>Venue</th><td>{{ $venueName }}</td></tr>
+            <tr><th>Sale Date</th><td>{{ $saleDateFormatted }}</td></tr>
             <tr><th>Guest Name</th><td>{{ $guestName }}</td></tr>
             <tr><th>Reservation Date</th><td>{{ $reservationDateFormatted }}</td></tr>
             @if(!empty($eventName))
@@ -203,10 +222,10 @@
             <tr><th>Transportation Mode</th><td>{{ $mailData['transportation_mode'] }}</td></tr>
             @endif
             @if(!empty($mailData['transportation_pickup_time']))
-            <tr><th>Pickup Time</th><td>{{ rescue(fn () => \Carbon\Carbon::parse($mailData['transportation_pickup_time'])->format('h:i A'), $mailData['transportation_pickup_time']) }}</td></tr>
+            <tr><th>Pickup Time</th><td>{{ $formatTimeForClubTimezone($mailData['transportation_pickup_time']) }}</td></tr>
             @endif
             @if(!empty($mailData['transportation_arrival_time']))
-            <tr><th>Arrival Time</th><td>{{ rescue(fn () => \Carbon\Carbon::parse($mailData['transportation_arrival_time'])->format('h:i A'), $mailData['transportation_arrival_time']) }}</td></tr>
+            <tr><th>Arrival Time</th><td>{{ $formatTimeForClubTimezone($mailData['transportation_arrival_time']) }}</td></tr>
             @endif
             @if(!empty($mailData['transportation_address']))
             <tr><th>Pickup Location</th><td>{{ $mailData['transportation_address'] }}</td></tr>

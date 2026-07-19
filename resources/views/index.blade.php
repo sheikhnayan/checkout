@@ -5315,16 +5315,16 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
 
                     if (!isset($eventDateOptions) || !is_array($eventDateOptions)) {
                         $eventDateOptions = [];
-                        $eventStartRawFallback = $event->start_date ?? $event->date;
-                        $eventEndRawFallback = $event->end_date ?? $eventStartRawFallback;
-                        $eventStartFallback = $eventStartRawFallback ? \Carbon\Carbon::parse($eventStartRawFallback) : null;
-                        $eventEndFallback = $eventEndRawFallback ? \Carbon\Carbon::parse($eventEndRawFallback) : null;
+                        $eventStartRawFallback = $event->start_date_value ?? $event->date_value;
+                        $eventEndRawFallback = $event->end_date_value ?? $eventStartRawFallback;
+                        $eventStartFallback = $eventStartRawFallback ? \Carbon\Carbon::createFromFormat('Y-m-d', $eventStartRawFallback, $data->resolved_timezone)->startOfDay() : null;
+                        $eventEndFallback = $eventEndRawFallback ? \Carbon\Carbon::createFromFormat('Y-m-d', $eventEndRawFallback, $data->resolved_timezone)->startOfDay() : null;
                         $specificEventDatesFallback = is_array($event->event_dates ?? null) ? array_values(array_filter($event->event_dates)) : [];
 
                         if (!empty($specificEventDatesFallback)) {
                             foreach ($specificEventDatesFallback as $specificDate) {
                                 try {
-                                    $sd = \Carbon\Carbon::parse($specificDate)->startOfDay();
+                                    $sd = \Carbon\Carbon::createFromFormat('Y-m-d', (string) $specificDate, $data->resolved_timezone)->startOfDay();
                                 } catch (\Throwable $e) {
                                     continue;
                                 }
@@ -5351,10 +5351,10 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 @if (empty($isSinglePackageCheckout))
                 <section class="cv-hero-stage" style="background-image:url('{{ $eventHeroImage }}');">
                     @php
-                        $eventStartRaw = $event->start_date ?? $event->date;
-                        $eventEndRaw = $event->end_date ?? $eventStartRaw;
-                        $eventStart = $eventStartRaw ? \Carbon\Carbon::parse($eventStartRaw) : null;
-                        $eventEnd = $eventEndRaw ? \Carbon\Carbon::parse($eventEndRaw) : null;
+                        $eventStartRaw = $event->start_date_value ?? $event->date_value;
+                        $eventEndRaw = $event->end_date_value ?? $eventStartRaw;
+                        $eventStart = $eventStartRaw ? \Carbon\Carbon::createFromFormat('Y-m-d', $eventStartRaw, $data->resolved_timezone)->startOfDay() : null;
+                        $eventEnd = $eventEndRaw ? \Carbon\Carbon::createFromFormat('Y-m-d', $eventEndRaw, $data->resolved_timezone)->startOfDay() : null;
                         $eventDateShort = $eventStart
                             ? ($eventEnd && !$eventEnd->isSameDay($eventStart)
                                 ? $eventStart->format('l, F d') . ' - ' . $eventEnd->format('l, F d')
@@ -5371,7 +5371,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                             // Only the specific dates chosen on the event create/edit page (not the whole range)
                             foreach ($specificEventDates as $specificDate) {
                                 try {
-                                    $sd = \Carbon\Carbon::parse($specificDate)->startOfDay();
+                                    $sd = \Carbon\Carbon::createFromFormat('Y-m-d', (string) $specificDate, $data->resolved_timezone)->startOfDay();
                                 } catch (\Throwable $e) {
                                     continue;
                                 }
@@ -6791,23 +6791,23 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                             @endphp
                             @foreach ($data->events as $item)
                                 @php
-                                    $eventStartDate = $item->start_date ?? $item->date;
-                                    $eventEndDate = $item->end_date ?? $eventStartDate;
+                                    $eventStartDate = $item->start_date_value ?? $item->date_value;
+                                    $eventEndDate = $item->end_date_value ?? $eventStartDate;
                                 @endphp
-                                  @if (!$item->is_archieved && $eventEndDate && \Carbon\Carbon::parse($eventEndDate)->toDateString() >= $todayPacific)
+                                  @if (!$item->is_archieved && $eventEndDate && $eventEndDate >= $todayPacific)
                                     <div class="col-md-4 event-card-item"
-                                        data-date="{{ \Carbon\Carbon::parse($eventStartDate)->format('Y-m-d') }}">
+                                        data-date="{{ $eventStartDate }}">
                                         <a href="/{{ $data->slug }}?event_name={{ $item->name }}" class="event-card">
                                             <div class="card">
                                                 <img src="{{ asset('uploads/' . $item->image) }}" alt="{{ $item->name }}">
                                                 <div class="d-flex">
-                                                    <div class="event-day">{{ \Carbon\Carbon::parse($eventStartDate)->format('l') }}</div>
-                                                    <div class="event-dates">{{ \Carbon\Carbon::parse($eventStartDate)->format('M') }}<span>{{ \Carbon\Carbon::parse($eventStartDate)->format('d') }}</span></div>
+                                                    <div class="event-day">{{ \Carbon\Carbon::createFromFormat('Y-m-d', $eventStartDate)->format('l') }}</div>
+                                                    <div class="event-dates">{{ \Carbon\Carbon::createFromFormat('Y-m-d', $eventStartDate)->format('M') }}<span>{{ \Carbon\Carbon::createFromFormat('Y-m-d', $eventStartDate)->format('d') }}</span></div>
                                                 </div>
                                                 <div class="event-location">{{ $item->name }}</div>
                                                 @if($eventEndDate && $eventStartDate !== $eventEndDate)
                                                     <div class="event-location">
-                                                        {{ \Carbon\Carbon::parse($eventStartDate)->format('M d') }} - {{ \Carbon\Carbon::parse($eventEndDate)->format('M d') }}
+                                                        {{ \Carbon\Carbon::createFromFormat('Y-m-d', $eventStartDate)->format('M d') }} - {{ \Carbon\Carbon::createFromFormat('Y-m-d', $eventEndDate)->format('M d') }}
                                                     </div>
                                                 @endif
                                                 @if(!empty($item->time))

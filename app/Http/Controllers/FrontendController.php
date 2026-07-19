@@ -627,7 +627,7 @@ class FrontendController extends Controller
 
     private function isEventCurrentOrUpcoming(Event $event, string $timezone): bool
     {
-        $end = $event->end_date ?: $event->start_date ?: $event->date;
+        $end = $event->end_date_value ?: $event->start_date_value ?: $event->date_value;
         if (!$end) {
             return false;
         }
@@ -635,7 +635,7 @@ class FrontendController extends Controller
         try {
             $todayLocal = \Carbon\Carbon::now($timezone)->startOfDay();
 
-            return \Carbon\Carbon::parse($end, $timezone)->startOfDay()->gte($todayLocal);
+            return \Carbon\Carbon::createFromFormat('Y-m-d', $end, $timezone)->startOfDay()->gte($todayLocal);
         } catch (\Throwable $e) {
             return false;
         }
