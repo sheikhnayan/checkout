@@ -9289,7 +9289,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             { name: 'Zimbabwe', code: '+263', flag: 'ðŸ‡¿ðŸ‡¼' }
         ];
 
-        function initCountryCodePickersAffiliate() {
+        function decodeMojibakeFlag(flagText) {
+    if (!flagText) return '';
+    try {
+        return decodeURIComponent(escape(flagText));
+    } catch (e) {
+        return flagText;
+    }
+}
+function initCountryCodePickersAffiliate() {
             const phoneFields = [
                 { name: 'package_phone' },
                 { name: 'reservation_phone' },
@@ -9322,7 +9330,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             const countryCodeInput = document.createElement('input');
             countryCodeInput.className = 'country-code-field';
             countryCodeInput.type = 'text';
-            countryCodeInput.placeholder = 'ðŸ‡ºðŸ‡¸ +1';
+            countryCodeInput.placeholder = 'US +1';
             countryCodeInput.name = `${fieldName}_country`;
             countryCodeInput.setAttribute('data-phone-field', fieldName);
             countryCodeInput.setAttribute('autocomplete', 'off');
@@ -9333,9 +9341,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             COUNTRIES_AFFILIATE.forEach(country => {
                 const option = document.createElement('div');
                 option.className = 'country-option';
-                option.innerHTML = `<span class="flag-icon">${country.flag}</span>${country.code} ${country.name}`;
+                option.innerHTML = `<span class="flag-icon">${decodeMojibakeFlag(country.flag)}</span>${country.code} ${country.name}`;
                 option.setAttribute('data-code', country.code);
-                option.setAttribute('data-flag', country.flag);
+                option.setAttribute('data-flag', decodeMojibakeFlag(country.flag));
                 option.addEventListener('click', () => selectCountryAffiliate(countryCodeInput, option, country, phoneInput));
                 dropdown.appendChild(option);
             });
@@ -9345,7 +9353,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
             const usOption = COUNTRIES_AFFILIATE.find(c => c.code === '+1' && c.name === 'United States');
             if (usOption) {
-                countryCodeInput.value = `${usOption.flag} ${usOption.code}`;
+                countryCodeInput.value = `${decodeMojibakeFlag(usOption.flag)} ${usOption.code}`;
                 countryCodeInput.dataset.code = usOption.code;
             }
 
@@ -9383,7 +9391,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         }
 
         function selectCountryAffiliate(countryCodeInput, optionEl, country, phoneInput) {
-            countryCodeInput.value = `${country.flag} ${country.code}`;
+            countryCodeInput.value = `${decodeMojibakeFlag(country.flag)} ${country.code}`;
             countryCodeInput.dataset.code = country.code;
 
             const dropdown = countryCodeInput.nextElementSibling;
@@ -9572,6 +9580,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     </body>
 
     </html>
+
 
 
 
