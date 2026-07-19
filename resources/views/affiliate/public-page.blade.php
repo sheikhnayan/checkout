@@ -907,7 +907,7 @@ a {
 }
 .vip-card:hover { border-color: rgba(255,255,255,0.28) !important; }
 
-/* Form inputs � frosted glass background */
+/* Form inputs ï¿½ frosted glass background */
 input[type="text"], input[type="email"], input[type="tel"],
 input[type="number"], textarea {
     background: rgba(255,255,255,0.07) !important;
@@ -1187,7 +1187,7 @@ input::placeholder, textarea::placeholder {
     color: #74d49f;
 }
 
-/* Step navigation � centered flex row */
+/* Step navigation ï¿½ centered flex row */
 .step-navigation {
     display: flex !important;
     justify-content: center;
@@ -1283,7 +1283,7 @@ input::placeholder, textarea::placeholder {
     margin-bottom: 1.2rem;
 }
 
-/* Addon selection modal � dark theme */
+/* Addon selection modal ï¿½ dark theme */
 #addonSelectionModal .modal-content,
 #infoTooltipModal .modal-content {
     background: #1a1d2e;
@@ -3635,7 +3635,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     box-shadow: 0 0 0 3px rgba(167,116,255,0.16) !important;
 }
 
-/* Pick-up time — Flatpickr visual time picker (desktop) */
+/* Pick-up time â€” Flatpickr visual time picker (desktop) */
 .checkout-section[id^="section-"] .pickup-time-wrap {
     position: relative;
     width: 100%;
@@ -3680,7 +3680,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     background: rgba(255,255,255,0.05) !important;
     box-shadow: 0 0 0 3px rgba(167,116,255,0.16) !important;
 }
-/* Flatpickr time-only popup — desktop theme */
+/* Flatpickr time-only popup â€” desktop theme */
 .flatpickr-calendar.hasTime.noCalendar {
     background: #1a1d2e !important;
     border: 1px solid rgba(167,116,255,0.4) !important;
@@ -5865,7 +5865,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         </select>
                                     </div>
                                     <div id="package-no-location-message" style="display: block; text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.5); font-size: 14px;">
-                                        <p style="margin: 0;">👆 Select a location above to see available packages</p>
+                                        <p style="margin: 0;">ðŸ‘† Select a location above to see available packages</p>
                                     </div>
 
                                     <!-- Select Your Package Header - Show only when location selected -->
@@ -6026,7 +6026,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                         class="form-select package_number_of_guestss"
                                                                         required
                                                                     >
-                                                                        <option value="">Select Guests ▼</option>
+                                                                        <option value="">Select Guests â–¼</option>
                                                                         @for ($i = 1; $i <= $tableCap; $i++)
                                                                             <option value="{{ $i }}">{{ $i }} {{ $i === 1 ? 'guest' : 'guests' }}</option>
                                                                         @endfor
@@ -6115,7 +6115,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                             {{-- @if ($data->sales_tax_name == 0)
                                                 <div style="font-size: 10px; font-weight: 700; color: {{ $brandSecondary }} !important;"
                                                     class="vip-price">
-                                                    <span>*No sales tax applied. Services sold are not subject to sales tax under Nevada law. Please consult a tax advisor for your local region�if�applicable.</span>
+                                                    <span>*No sales tax applied. Services sold are not subject to sales tax under Nevada law. Please consult a tax advisor for your local regionï¿½ifï¿½applicable.</span>
                                                 </div>
                                             @endif --}}
                                         </div>
@@ -6297,7 +6297,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 <div class="form-group" style="width: 100%;">
                                                                     <label for="phone">Contact Phone Number or WhatsApp</label>
                                                                     <input type="tel" name="transportation_phone" id="phone"
-                                                                        placeholder="For driver/dispatch to coordinate pickup" required />
+                                                                        placeholder="For driver/dispatch to coordinateÂ pickup" required />
                                                                 </div>
     
                                                             </div>
@@ -6447,7 +6447,68 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                     <input type="text" name="payment_zip_code" id="zip"
                                                                         placeholder="" required />
                                                                 </div>
+                                                            </div>                                                            @if(($data->physical_product_enabled ?? false))
+                                                            <div class="shipping-fields-wrap" style="margin-top:14px; padding:12px; border:1px solid rgba(255,255,255,0.14); border-radius:10px;">
+                                                                <div class="form-row">
+                                                                    <div class="form-group" style="width: 100%; margin-bottom: 10px;">
+                                                                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0;">
+                                                                            <input type="checkbox" name="shipping_same_as_billing" value="1" class="shipping-same-as-billing" checked />
+                                                                            <span>Shipping same as billing</span>
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping First Name</label>
+                                                                        <input type="text" name="shipping_first_name" data-shipping-source="payment_first_name" />
+                                                                    </div>
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping Last Name</label>
+                                                                        <input type="text" name="shipping_last_name" data-shipping-source="payment_last_name" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping Phone</label>
+                                                                        <input type="text" name="shipping_phone" data-shipping-source="payment_phone" />
+                                                                    </div>
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping Email</label>
+                                                                        <input type="email" name="shipping_email" data-shipping-source="payment_email" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <div class="form-group shipping-required-field" style="width: 100%;">
+                                                                        <label>Shipping Address</label>
+                                                                        <input type="text" name="shipping_address" data-shipping-source="payment_address" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping Country</label>
+                                                                        <select name="shipping_country" class="form-select shipping-country-select" data-shipping-source="payment_country">
+                                                                            <option value="" selected disabled>Select Country</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping State/Province</label>
+                                                                        <select name="shipping_state" class="form-select shipping-state-select" data-shipping-source="payment_state">
+                                                                            <option value="" selected disabled>Select State/Province</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping City</label>
+                                                                        <input type="text" name="shipping_city" data-shipping-source="payment_city" />
+                                                                    </div>
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping Zip/Postal Code</label>
+                                                                        <input type="text" name="shipping_zip_code" data-shipping-source="payment_zip_code" />
+                                                                    </div>
+                                                                </div>
                                                             </div>
+                                                            @endif
     
                                                             
                                                                 @php
@@ -6678,7 +6739,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         <div class="cv-deposit-content">
                             <div class="cv-deposit-top">
                                 <div class="cv-deposit-label" data-tip="@if($refundablePct > 0){{ $refundablePct }}% of the total is collected today to secure your reservation. The balance is paid on arrival at the venue.@else You're paying the full amount today.@endif">@if($refundablePct > 0)Due Today ({{ $refundablePct }}% Deposit)@else{{ 'Due Today' }}@endif <span class="cv-info-icon">i</span></div>
-                                <div class="cv-deposit-shield" data-tip="Secure checkout — your payment is protected by bank-level SSL encryption and never stored on this site." data-tip-right><i class="fas fa-shield-alt"></i></div>
+                                <div class="cv-deposit-shield" data-tip="Secure checkout â€” your payment is protected by bank-level SSL encryption and never stored on this site." data-tip-right><i class="fas fa-shield-alt"></i></div>
                             </div>
                             <div class="cv-deposit-main" id="cv-deposit-display">$0.00</div>
                             <div class="cv-deposit-sub">Secure your reservation</div>
@@ -7029,7 +7090,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 window.showCartToast = function (packageName, guests) {
                     var qty = parseInt(guests, 10) || 1;
                     var label = qty + (qty === 1 ? ' guest' : ' guests');
-                    window.showToast('Added to cart!', packageName ? (packageName + ' · ' + label) : label, 'fas fa-check');
+                    window.showToast('Added to cart!', packageName ? (packageName + ' Â· ' + label) : label, 'fas fa-check');
                 };
                 window.hideCartToast = function () {
                     var toast = document.getElementById('cv-cart-toast');
@@ -7713,7 +7774,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     return;
                 }
 
-                html += '<option value="">Select Guests ▼</option>';
+                html += '<option value="">Select Guests â–¼</option>';
                 for (var i = 1; i <= safeMax; i++) {
                     html += '<option value="' + i + '">' + i + ' ' + (i === 1 ? 'guest' : 'guests') + '</option>';
                 }
@@ -9479,7 +9540,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 return { valid: true, field: null, message: '' };
             }
 
-            // Flatpickr time picker for pick-up time — visual picker on all devices including iOS.
+            // Flatpickr time picker for pick-up time â€” visual picker on all devices including iOS.
             // Pick-up time picker: desktop uses Flatpickr, mobile uses the native time control.
             (function () {
                 var el = document.querySelector('input[name="transportation_pickup_time"]');
@@ -10376,7 +10437,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     }
                 });
 
-                // Deposit display is updated directly in calculateCartTotal — no observer needed.
+                // Deposit display is updated directly in calculateCartTotal â€” no observer needed.
             }
 
             function initMobileToggle() {
@@ -10670,201 +10731,201 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         <script>
         // ===== COUNTRY CODE PICKER - COMPREHENSIVE SOLUTION =====
         const COUNTRIES_AFFILIATE = [
-            { name: 'Afghanistan', code: '+93', flag: '🇦🇫' },
-            { name: 'Albania', code: '+355', flag: '🇦🇱' },
-            { name: 'Algeria', code: '+213', flag: '🇩🇿' },
-            { name: 'Andorra', code: '+376', flag: '🇦🇩' },
-            { name: 'Angola', code: '+244', flag: '🇦🇴' },
-            { name: 'Argentina', code: '+54', flag: '🇦🇷' },
-            { name: 'Armenia', code: '+374', flag: '🇦🇲' },
-            { name: 'Australia', code: '+61', flag: '🇦🇺' },
-            { name: 'Austria', code: '+43', flag: '🇦🇹' },
-            { name: 'Azerbaijan', code: '+994', flag: '🇦🇿' },
-            { name: 'Bahamas', code: '+1-242', flag: '🇧🇸' },
-            { name: 'Bahrain', code: '+973', flag: '🇧🇭' },
-            { name: 'Bangladesh', code: '+880', flag: '🇧🇩' },
-            { name: 'Barbados', code: '+1-246', flag: '🇧🇧' },
-            { name: 'Belarus', code: '+375', flag: '🇧🇾' },
-            { name: 'Belgium', code: '+32', flag: '🇧🇪' },
-            { name: 'Belize', code: '+501', flag: '🇧🇿' },
-            { name: 'Benin', code: '+229', flag: '🇧🇯' },
-            { name: 'Bhutan', code: '+975', flag: '🇧🇹' },
-            { name: 'Bolivia', code: '+591', flag: '🇧🇴' },
-            { name: 'Bosnia & Herzegovina', code: '+387', flag: '🇧🇦' },
-            { name: 'Botswana', code: '+267', flag: '🇧🇼' },
-            { name: 'Brazil', code: '+55', flag: '🇧🇷' },
-            { name: 'Brunei', code: '+673', flag: '🇧🇳' },
-            { name: 'Bulgaria', code: '+359', flag: '🇧🇬' },
-            { name: 'Burkina Faso', code: '+226', flag: '🇧🇫' },
-            { name: 'Burundi', code: '+257', flag: '🇧🇮' },
-            { name: 'Cambodia', code: '+855', flag: '🇰🇭' },
-            { name: 'Cameroon', code: '+237', flag: '🇨🇲' },
-            { name: 'Canada', code: '+1', flag: '🇨🇦' },
-            { name: 'Cape Verde', code: '+238', flag: '🇨🇻' },
-            { name: 'Central African Republic', code: '+236', flag: '🇨🇫' },
-            { name: 'Chad', code: '+235', flag: '🇹🇩' },
-            { name: 'Chile', code: '+56', flag: '🇨🇱' },
-            { name: 'China', code: '+86', flag: '🇨🇳' },
-            { name: 'Colombia', code: '+57', flag: '🇨🇴' },
-            { name: 'Comoros', code: '+269', flag: '🇰🇲' },
-            { name: 'Congo', code: '+242', flag: '🇨🇬' },
-            { name: 'Costa Rica', code: '+506', flag: '🇨🇷' },
-            { name: 'Croatia', code: '+385', flag: '🇭🇷' },
-            { name: 'Cuba', code: '+53', flag: '🇨🇺' },
-            { name: 'Cyprus', code: '+357', flag: '🇨🇾' },
-            { name: 'Czech Republic', code: '+420', flag: '🇨🇿' },
-            { name: 'Denmark', code: '+45', flag: '🇩🇰' },
-            { name: 'Djibouti', code: '+253', flag: '🇩🇯' },
-            { name: 'Dominica', code: '+1-767', flag: '🇩🇲' },
-            { name: 'Dominican Republic', code: '+1-809', flag: '🇩🇴' },
-            { name: 'Ecuador', code: '+593', flag: '🇪🇨' },
-            { name: 'Egypt', code: '+20', flag: '🇪🇬' },
-            { name: 'El Salvador', code: '+503', flag: '🇸🇻' },
-            { name: 'Equatorial Guinea', code: '+240', flag: '🇬🇶' },
-            { name: 'Eritrea', code: '+291', flag: '🇪🇷' },
-            { name: 'Estonia', code: '+372', flag: '🇪🇪' },
-            { name: 'Ethiopia', code: '+251', flag: '🇪🇹' },
-            { name: 'Fiji', code: '+679', flag: '🇫🇯' },
-            { name: 'Finland', code: '+358', flag: '🇫🇮' },
-            { name: 'France', code: '+33', flag: '🇫🇷' },
-            { name: 'Gabon', code: '+241', flag: '🇬🇦' },
-            { name: 'Gambia', code: '+220', flag: '🇬🇲' },
-            { name: 'Georgia', code: '+995', flag: '🇬🇪' },
-            { name: 'Germany', code: '+49', flag: '🇩🇪' },
-            { name: 'Ghana', code: '+233', flag: '🇬🇭' },
-            { name: 'Greece', code: '+30', flag: '🇬🇷' },
-            { name: 'Grenada', code: '+1-473', flag: '🇬🇩' },
-            { name: 'Guatemala', code: '+502', flag: '🇬🇹' },
-            { name: 'Guinea', code: '+224', flag: '🇬🇳' },
-            { name: 'Guinea-Bissau', code: '+245', flag: '🇬🇼' },
-            { name: 'Guyana', code: '+592', flag: '🇬🇾' },
-            { name: 'Haiti', code: '+509', flag: '🇭🇹' },
-            { name: 'Honduras', code: '+504', flag: '🇭🇳' },
-            { name: 'Hong Kong', code: '+852', flag: '🇭🇰' },
-            { name: 'Hungary', code: '+36', flag: '🇭🇺' },
-            { name: 'Iceland', code: '+354', flag: '🇮🇸' },
-            { name: 'India', code: '+91', flag: '🇮🇳' },
-            { name: 'Indonesia', code: '+62', flag: '🇮🇩' },
-            { name: 'Iran', code: '+98', flag: '🇮🇷' },
-            { name: 'Iraq', code: '+964', flag: '🇮🇶' },
-            { name: 'Ireland', code: '+353', flag: '🇮🇪' },
-            { name: 'Israel', code: '+972', flag: '🇮🇱' },
-            { name: 'Italy', code: '+39', flag: '🇮🇹' },
-            { name: 'Jamaica', code: '+1-876', flag: '🇯🇲' },
-            { name: 'Japan', code: '+81', flag: '🇯🇵' },
-            { name: 'Jordan', code: '+962', flag: '🇯🇴' },
-            { name: 'Kazakhstan', code: '+7', flag: '🇰🇿' },
-            { name: 'Kenya', code: '+254', flag: '🇰🇪' },
-            { name: 'Kiribati', code: '+686', flag: '🇰🇮' },
-            { name: 'Kosovo', code: '+383', flag: '🇽🇰' },
-            { name: 'Kuwait', code: '+965', flag: '🇰🇼' },
-            { name: 'Kyrgyzstan', code: '+996', flag: '🇰🇬' },
-            { name: 'Laos', code: '+856', flag: '🇱🇦' },
-            { name: 'Latvia', code: '+371', flag: '🇱🇻' },
-            { name: 'Lebanon', code: '+961', flag: '🇱🇧' },
-            { name: 'Lesotho', code: '+266', flag: '🇱🇸' },
-            { name: 'Liberia', code: '+231', flag: '🇱🇷' },
-            { name: 'Libya', code: '+218', flag: '🇱🇾' },
-            { name: 'Liechtenstein', code: '+423', flag: '🇱🇮' },
-            { name: 'Lithuania', code: '+370', flag: '🇱🇹' },
-            { name: 'Luxembourg', code: '+352', flag: '🇱🇺' },
-            { name: 'Macau', code: '+853', flag: '🇲🇴' },
-            { name: 'Madagascar', code: '+261', flag: '🇲🇬' },
-            { name: 'Malawi', code: '+265', flag: '🇲🇼' },
-            { name: 'Malaysia', code: '+60', flag: '🇲🇾' },
-            { name: 'Maldives', code: '+960', flag: '🇲🇻' },
-            { name: 'Mali', code: '+223', flag: '🇲🇱' },
-            { name: 'Malta', code: '+356', flag: '🇲🇹' },
-            { name: 'Marshall Islands', code: '+692', flag: '🇲🇭' },
-            { name: 'Mauritania', code: '+222', flag: '🇲🇷' },
-            { name: 'Mauritius', code: '+230', flag: '🇲🇺' },
-            { name: 'Mexico', code: '+52', flag: '🇲🇽' },
-            { name: 'Micronesia', code: '+691', flag: '🇫🇲' },
-            { name: 'Moldova', code: '+373', flag: '🇲🇩' },
-            { name: 'Monaco', code: '+377', flag: '🇲🇨' },
-            { name: 'Mongolia', code: '+976', flag: '🇲🇳' },
-            { name: 'Montenegro', code: '+382', flag: '🇲🇪' },
-            { name: 'Morocco', code: '+212', flag: '🇲🇦' },
-            { name: 'Mozambique', code: '+258', flag: '🇲🇿' },
-            { name: 'Myanmar', code: '+95', flag: '🇲🇲' },
-            { name: 'Namibia', code: '+264', flag: '🇳🇦' },
-            { name: 'Nauru', code: '+674', flag: '🇳🇷' },
-            { name: 'Nepal', code: '+977', flag: '🇳🇵' },
-            { name: 'Netherlands', code: '+31', flag: '🇳🇱' },
-            { name: 'New Zealand', code: '+64', flag: '🇳🇿' },
-            { name: 'Nicaragua', code: '+505', flag: '🇳🇮' },
-            { name: 'Niger', code: '+227', flag: '🇳🇪' },
-            { name: 'Nigeria', code: '+234', flag: '🇳🇬' },
-            { name: 'North Korea', code: '+850', flag: '🇰🇵' },
-            { name: 'North Macedonia', code: '+389', flag: '🇲🇰' },
-            { name: 'Norway', code: '+47', flag: '🇳🇴' },
-            { name: 'Oman', code: '+968', flag: '🇴🇲' },
-            { name: 'Pakistan', code: '+92', flag: '🇵🇰' },
-            { name: 'Palau', code: '+680', flag: '🇵🇼' },
-            { name: 'Palestine', code: '+970', flag: '🇵🇸' },
-            { name: 'Panama', code: '+507', flag: '🇵🇦' },
-            { name: 'Papua New Guinea', code: '+675', flag: '🇵🇬' },
-            { name: 'Paraguay', code: '+595', flag: '🇵🇾' },
-            { name: 'Peru', code: '+51', flag: '🇵🇪' },
-            { name: 'Philippines', code: '+63', flag: '🇵🇭' },
-            { name: 'Poland', code: '+48', flag: '🇵🇱' },
-            { name: 'Portugal', code: '+351', flag: '🇵🇹' },
-            { name: 'Qatar', code: '+974', flag: '🇶🇦' },
-            { name: 'Romania', code: '+40', flag: '🇷🇴' },
-            { name: 'Russia', code: '+7', flag: '🇷🇺' },
-            { name: 'Rwanda', code: '+250', flag: '🇷🇼' },
-            { name: 'Saint Kitts & Nevis', code: '+1-869', flag: '🇰🇳' },
-            { name: 'Saint Lucia', code: '+1-758', flag: '🇱🇨' },
-            { name: 'Saint Vincent & Grenadines', code: '+1-784', flag: '🇻🇨' },
-            { name: 'Samoa', code: '+685', flag: '🇼🇸' },
-            { name: 'San Marino', code: '+378', flag: '🇸🇲' },
-            { name: 'Sao Tome & Principe', code: '+239', flag: '🇸🇹' },
-            { name: 'Saudi Arabia', code: '+966', flag: '🇸🇦' },
-            { name: 'Senegal', code: '+221', flag: '🇸🇳' },
-            { name: 'Serbia', code: '+381', flag: '🇷🇸' },
-            { name: 'Seychelles', code: '+248', flag: '🇸🇨' },
-            { name: 'Sierra Leone', code: '+232', flag: '🇸🇱' },
-            { name: 'Singapore', code: '+65', flag: '🇸🇬' },
-            { name: 'Slovakia', code: '+421', flag: '🇸🇰' },
-            { name: 'Slovenia', code: '+386', flag: '🇸🇮' },
-            { name: 'Solomon Islands', code: '+677', flag: '🇸🇧' },
-            { name: 'Somalia', code: '+252', flag: '🇸🇴' },
-            { name: 'South Africa', code: '+27', flag: '🇿🇦' },
-            { name: 'South Korea', code: '+82', flag: '🇰🇷' },
-            { name: 'South Sudan', code: '+211', flag: '🇸🇸' },
-            { name: 'Spain', code: '+34', flag: '🇪🇸' },
-            { name: 'Sri Lanka', code: '+94', flag: '🇱🇰' },
-            { name: 'Sudan', code: '+249', flag: '🇸🇩' },
-            { name: 'Suriname', code: '+597', flag: '🇸🇷' },
-            { name: 'Sweden', code: '+46', flag: '🇸🇪' },
-            { name: 'Switzerland', code: '+41', flag: '🇨🇭' },
-            { name: 'Syria', code: '+963', flag: '🇸🇾' },
-            { name: 'Taiwan', code: '+886', flag: '🇹🇼' },
-            { name: 'Tajikistan', code: '+992', flag: '🇹🇯' },
-            { name: 'Tanzania', code: '+255', flag: '🇹🇿' },
-            { name: 'Thailand', code: '+66', flag: '🇹🇭' },
-            { name: 'Timor-Leste', code: '+670', flag: '🇹🇱' },
-            { name: 'Togo', code: '+228', flag: '🇹🇬' },
-            { name: 'Tonga', code: '+676', flag: '🇹🇴' },
-            { name: 'Trinidad & Tobago', code: '+1-868', flag: '🇹🇹' },
-            { name: 'Tunisia', code: '+216', flag: '🇹🇳' },
-            { name: 'Turkey', code: '+90', flag: '🇹🇷' },
-            { name: 'Turkmenistan', code: '+993', flag: '🇹🇲' },
-            { name: 'Tuvalu', code: '+688', flag: '🇹🇻' },
-            { name: 'Uganda', code: '+256', flag: '🇺🇬' },
-            { name: 'Ukraine', code: '+380', flag: '🇺🇦' },
-            { name: 'United Arab Emirates', code: '+971', flag: '🇦🇪' },
-            { name: 'United Kingdom', code: '+44', flag: '🇬🇧' },
-            { name: 'United States', code: '+1', flag: '🇺🇸' },
-            { name: 'Uruguay', code: '+598', flag: '🇺🇾' },
-            { name: 'Uzbekistan', code: '+998', flag: '🇺🇿' },
-            { name: 'Vanuatu', code: '+678', flag: '🇻🇺' },
-            { name: 'Vatican City', code: '+379', flag: '🇻🇦' },
-            { name: 'Venezuela', code: '+58', flag: '🇻🇪' },
-            { name: 'Vietnam', code: '+84', flag: '🇻🇳' },
-            { name: 'Yemen', code: '+967', flag: '🇾🇪' },
-            { name: 'Zambia', code: '+260', flag: '🇿🇲' },
-            { name: 'Zimbabwe', code: '+263', flag: '🇿🇼' }
+            { name: 'Afghanistan', code: '+93', flag: 'ðŸ‡¦ðŸ‡«' },
+            { name: 'Albania', code: '+355', flag: 'ðŸ‡¦ðŸ‡±' },
+            { name: 'Algeria', code: '+213', flag: 'ðŸ‡©ðŸ‡¿' },
+            { name: 'Andorra', code: '+376', flag: 'ðŸ‡¦ðŸ‡©' },
+            { name: 'Angola', code: '+244', flag: 'ðŸ‡¦ðŸ‡´' },
+            { name: 'Argentina', code: '+54', flag: 'ðŸ‡¦ðŸ‡·' },
+            { name: 'Armenia', code: '+374', flag: 'ðŸ‡¦ðŸ‡²' },
+            { name: 'Australia', code: '+61', flag: 'ðŸ‡¦ðŸ‡º' },
+            { name: 'Austria', code: '+43', flag: 'ðŸ‡¦ðŸ‡¹' },
+            { name: 'Azerbaijan', code: '+994', flag: 'ðŸ‡¦ðŸ‡¿' },
+            { name: 'Bahamas', code: '+1-242', flag: 'ðŸ‡§ðŸ‡¸' },
+            { name: 'Bahrain', code: '+973', flag: 'ðŸ‡§ðŸ‡­' },
+            { name: 'Bangladesh', code: '+880', flag: 'ðŸ‡§ðŸ‡©' },
+            { name: 'Barbados', code: '+1-246', flag: 'ðŸ‡§ðŸ‡§' },
+            { name: 'Belarus', code: '+375', flag: 'ðŸ‡§ðŸ‡¾' },
+            { name: 'Belgium', code: '+32', flag: 'ðŸ‡§ðŸ‡ª' },
+            { name: 'Belize', code: '+501', flag: 'ðŸ‡§ðŸ‡¿' },
+            { name: 'Benin', code: '+229', flag: 'ðŸ‡§ðŸ‡¯' },
+            { name: 'Bhutan', code: '+975', flag: 'ðŸ‡§ðŸ‡¹' },
+            { name: 'Bolivia', code: '+591', flag: 'ðŸ‡§ðŸ‡´' },
+            { name: 'Bosnia & Herzegovina', code: '+387', flag: 'ðŸ‡§ðŸ‡¦' },
+            { name: 'Botswana', code: '+267', flag: 'ðŸ‡§ðŸ‡¼' },
+            { name: 'Brazil', code: '+55', flag: 'ðŸ‡§ðŸ‡·' },
+            { name: 'Brunei', code: '+673', flag: 'ðŸ‡§ðŸ‡³' },
+            { name: 'Bulgaria', code: '+359', flag: 'ðŸ‡§ðŸ‡¬' },
+            { name: 'Burkina Faso', code: '+226', flag: 'ðŸ‡§ðŸ‡«' },
+            { name: 'Burundi', code: '+257', flag: 'ðŸ‡§ðŸ‡®' },
+            { name: 'Cambodia', code: '+855', flag: 'ðŸ‡°ðŸ‡­' },
+            { name: 'Cameroon', code: '+237', flag: 'ðŸ‡¨ðŸ‡²' },
+            { name: 'Canada', code: '+1', flag: 'ðŸ‡¨ðŸ‡¦' },
+            { name: 'Cape Verde', code: '+238', flag: 'ðŸ‡¨ðŸ‡»' },
+            { name: 'Central African Republic', code: '+236', flag: 'ðŸ‡¨ðŸ‡«' },
+            { name: 'Chad', code: '+235', flag: 'ðŸ‡¹ðŸ‡©' },
+            { name: 'Chile', code: '+56', flag: 'ðŸ‡¨ðŸ‡±' },
+            { name: 'China', code: '+86', flag: 'ðŸ‡¨ðŸ‡³' },
+            { name: 'Colombia', code: '+57', flag: 'ðŸ‡¨ðŸ‡´' },
+            { name: 'Comoros', code: '+269', flag: 'ðŸ‡°ðŸ‡²' },
+            { name: 'Congo', code: '+242', flag: 'ðŸ‡¨ðŸ‡¬' },
+            { name: 'Costa Rica', code: '+506', flag: 'ðŸ‡¨ðŸ‡·' },
+            { name: 'Croatia', code: '+385', flag: 'ðŸ‡­ðŸ‡·' },
+            { name: 'Cuba', code: '+53', flag: 'ðŸ‡¨ðŸ‡º' },
+            { name: 'Cyprus', code: '+357', flag: 'ðŸ‡¨ðŸ‡¾' },
+            { name: 'Czech Republic', code: '+420', flag: 'ðŸ‡¨ðŸ‡¿' },
+            { name: 'Denmark', code: '+45', flag: 'ðŸ‡©ðŸ‡°' },
+            { name: 'Djibouti', code: '+253', flag: 'ðŸ‡©ðŸ‡¯' },
+            { name: 'Dominica', code: '+1-767', flag: 'ðŸ‡©ðŸ‡²' },
+            { name: 'Dominican Republic', code: '+1-809', flag: 'ðŸ‡©ðŸ‡´' },
+            { name: 'Ecuador', code: '+593', flag: 'ðŸ‡ªðŸ‡¨' },
+            { name: 'Egypt', code: '+20', flag: 'ðŸ‡ªðŸ‡¬' },
+            { name: 'El Salvador', code: '+503', flag: 'ðŸ‡¸ðŸ‡»' },
+            { name: 'Equatorial Guinea', code: '+240', flag: 'ðŸ‡¬ðŸ‡¶' },
+            { name: 'Eritrea', code: '+291', flag: 'ðŸ‡ªðŸ‡·' },
+            { name: 'Estonia', code: '+372', flag: 'ðŸ‡ªðŸ‡ª' },
+            { name: 'Ethiopia', code: '+251', flag: 'ðŸ‡ªðŸ‡¹' },
+            { name: 'Fiji', code: '+679', flag: 'ðŸ‡«ðŸ‡¯' },
+            { name: 'Finland', code: '+358', flag: 'ðŸ‡«ðŸ‡®' },
+            { name: 'France', code: '+33', flag: 'ðŸ‡«ðŸ‡·' },
+            { name: 'Gabon', code: '+241', flag: 'ðŸ‡¬ðŸ‡¦' },
+            { name: 'Gambia', code: '+220', flag: 'ðŸ‡¬ðŸ‡²' },
+            { name: 'Georgia', code: '+995', flag: 'ðŸ‡¬ðŸ‡ª' },
+            { name: 'Germany', code: '+49', flag: 'ðŸ‡©ðŸ‡ª' },
+            { name: 'Ghana', code: '+233', flag: 'ðŸ‡¬ðŸ‡­' },
+            { name: 'Greece', code: '+30', flag: 'ðŸ‡¬ðŸ‡·' },
+            { name: 'Grenada', code: '+1-473', flag: 'ðŸ‡¬ðŸ‡©' },
+            { name: 'Guatemala', code: '+502', flag: 'ðŸ‡¬ðŸ‡¹' },
+            { name: 'Guinea', code: '+224', flag: 'ðŸ‡¬ðŸ‡³' },
+            { name: 'Guinea-Bissau', code: '+245', flag: 'ðŸ‡¬ðŸ‡¼' },
+            { name: 'Guyana', code: '+592', flag: 'ðŸ‡¬ðŸ‡¾' },
+            { name: 'Haiti', code: '+509', flag: 'ðŸ‡­ðŸ‡¹' },
+            { name: 'Honduras', code: '+504', flag: 'ðŸ‡­ðŸ‡³' },
+            { name: 'Hong Kong', code: '+852', flag: 'ðŸ‡­ðŸ‡°' },
+            { name: 'Hungary', code: '+36', flag: 'ðŸ‡­ðŸ‡º' },
+            { name: 'Iceland', code: '+354', flag: 'ðŸ‡®ðŸ‡¸' },
+            { name: 'India', code: '+91', flag: 'ðŸ‡®ðŸ‡³' },
+            { name: 'Indonesia', code: '+62', flag: 'ðŸ‡®ðŸ‡©' },
+            { name: 'Iran', code: '+98', flag: 'ðŸ‡®ðŸ‡·' },
+            { name: 'Iraq', code: '+964', flag: 'ðŸ‡®ðŸ‡¶' },
+            { name: 'Ireland', code: '+353', flag: 'ðŸ‡®ðŸ‡ª' },
+            { name: 'Israel', code: '+972', flag: 'ðŸ‡®ðŸ‡±' },
+            { name: 'Italy', code: '+39', flag: 'ðŸ‡®ðŸ‡¹' },
+            { name: 'Jamaica', code: '+1-876', flag: 'ðŸ‡¯ðŸ‡²' },
+            { name: 'Japan', code: '+81', flag: 'ðŸ‡¯ðŸ‡µ' },
+            { name: 'Jordan', code: '+962', flag: 'ðŸ‡¯ðŸ‡´' },
+            { name: 'Kazakhstan', code: '+7', flag: 'ðŸ‡°ðŸ‡¿' },
+            { name: 'Kenya', code: '+254', flag: 'ðŸ‡°ðŸ‡ª' },
+            { name: 'Kiribati', code: '+686', flag: 'ðŸ‡°ðŸ‡®' },
+            { name: 'Kosovo', code: '+383', flag: 'ðŸ‡½ðŸ‡°' },
+            { name: 'Kuwait', code: '+965', flag: 'ðŸ‡°ðŸ‡¼' },
+            { name: 'Kyrgyzstan', code: '+996', flag: 'ðŸ‡°ðŸ‡¬' },
+            { name: 'Laos', code: '+856', flag: 'ðŸ‡±ðŸ‡¦' },
+            { name: 'Latvia', code: '+371', flag: 'ðŸ‡±ðŸ‡»' },
+            { name: 'Lebanon', code: '+961', flag: 'ðŸ‡±ðŸ‡§' },
+            { name: 'Lesotho', code: '+266', flag: 'ðŸ‡±ðŸ‡¸' },
+            { name: 'Liberia', code: '+231', flag: 'ðŸ‡±ðŸ‡·' },
+            { name: 'Libya', code: '+218', flag: 'ðŸ‡±ðŸ‡¾' },
+            { name: 'Liechtenstein', code: '+423', flag: 'ðŸ‡±ðŸ‡®' },
+            { name: 'Lithuania', code: '+370', flag: 'ðŸ‡±ðŸ‡¹' },
+            { name: 'Luxembourg', code: '+352', flag: 'ðŸ‡±ðŸ‡º' },
+            { name: 'Macau', code: '+853', flag: 'ðŸ‡²ðŸ‡´' },
+            { name: 'Madagascar', code: '+261', flag: 'ðŸ‡²ðŸ‡¬' },
+            { name: 'Malawi', code: '+265', flag: 'ðŸ‡²ðŸ‡¼' },
+            { name: 'Malaysia', code: '+60', flag: 'ðŸ‡²ðŸ‡¾' },
+            { name: 'Maldives', code: '+960', flag: 'ðŸ‡²ðŸ‡»' },
+            { name: 'Mali', code: '+223', flag: 'ðŸ‡²ðŸ‡±' },
+            { name: 'Malta', code: '+356', flag: 'ðŸ‡²ðŸ‡¹' },
+            { name: 'Marshall Islands', code: '+692', flag: 'ðŸ‡²ðŸ‡­' },
+            { name: 'Mauritania', code: '+222', flag: 'ðŸ‡²ðŸ‡·' },
+            { name: 'Mauritius', code: '+230', flag: 'ðŸ‡²ðŸ‡º' },
+            { name: 'Mexico', code: '+52', flag: 'ðŸ‡²ðŸ‡½' },
+            { name: 'Micronesia', code: '+691', flag: 'ðŸ‡«ðŸ‡²' },
+            { name: 'Moldova', code: '+373', flag: 'ðŸ‡²ðŸ‡©' },
+            { name: 'Monaco', code: '+377', flag: 'ðŸ‡²ðŸ‡¨' },
+            { name: 'Mongolia', code: '+976', flag: 'ðŸ‡²ðŸ‡³' },
+            { name: 'Montenegro', code: '+382', flag: 'ðŸ‡²ðŸ‡ª' },
+            { name: 'Morocco', code: '+212', flag: 'ðŸ‡²ðŸ‡¦' },
+            { name: 'Mozambique', code: '+258', flag: 'ðŸ‡²ðŸ‡¿' },
+            { name: 'Myanmar', code: '+95', flag: 'ðŸ‡²ðŸ‡²' },
+            { name: 'Namibia', code: '+264', flag: 'ðŸ‡³ðŸ‡¦' },
+            { name: 'Nauru', code: '+674', flag: 'ðŸ‡³ðŸ‡·' },
+            { name: 'Nepal', code: '+977', flag: 'ðŸ‡³ðŸ‡µ' },
+            { name: 'Netherlands', code: '+31', flag: 'ðŸ‡³ðŸ‡±' },
+            { name: 'New Zealand', code: '+64', flag: 'ðŸ‡³ðŸ‡¿' },
+            { name: 'Nicaragua', code: '+505', flag: 'ðŸ‡³ðŸ‡®' },
+            { name: 'Niger', code: '+227', flag: 'ðŸ‡³ðŸ‡ª' },
+            { name: 'Nigeria', code: '+234', flag: 'ðŸ‡³ðŸ‡¬' },
+            { name: 'North Korea', code: '+850', flag: 'ðŸ‡°ðŸ‡µ' },
+            { name: 'North Macedonia', code: '+389', flag: 'ðŸ‡²ðŸ‡°' },
+            { name: 'Norway', code: '+47', flag: 'ðŸ‡³ðŸ‡´' },
+            { name: 'Oman', code: '+968', flag: 'ðŸ‡´ðŸ‡²' },
+            { name: 'Pakistan', code: '+92', flag: 'ðŸ‡µðŸ‡°' },
+            { name: 'Palau', code: '+680', flag: 'ðŸ‡µðŸ‡¼' },
+            { name: 'Palestine', code: '+970', flag: 'ðŸ‡µðŸ‡¸' },
+            { name: 'Panama', code: '+507', flag: 'ðŸ‡µðŸ‡¦' },
+            { name: 'Papua New Guinea', code: '+675', flag: 'ðŸ‡µðŸ‡¬' },
+            { name: 'Paraguay', code: '+595', flag: 'ðŸ‡µðŸ‡¾' },
+            { name: 'Peru', code: '+51', flag: 'ðŸ‡µðŸ‡ª' },
+            { name: 'Philippines', code: '+63', flag: 'ðŸ‡µðŸ‡­' },
+            { name: 'Poland', code: '+48', flag: 'ðŸ‡µðŸ‡±' },
+            { name: 'Portugal', code: '+351', flag: 'ðŸ‡µðŸ‡¹' },
+            { name: 'Qatar', code: '+974', flag: 'ðŸ‡¶ðŸ‡¦' },
+            { name: 'Romania', code: '+40', flag: 'ðŸ‡·ðŸ‡´' },
+            { name: 'Russia', code: '+7', flag: 'ðŸ‡·ðŸ‡º' },
+            { name: 'Rwanda', code: '+250', flag: 'ðŸ‡·ðŸ‡¼' },
+            { name: 'Saint Kitts & Nevis', code: '+1-869', flag: 'ðŸ‡°ðŸ‡³' },
+            { name: 'Saint Lucia', code: '+1-758', flag: 'ðŸ‡±ðŸ‡¨' },
+            { name: 'Saint Vincent & Grenadines', code: '+1-784', flag: 'ðŸ‡»ðŸ‡¨' },
+            { name: 'Samoa', code: '+685', flag: 'ðŸ‡¼ðŸ‡¸' },
+            { name: 'San Marino', code: '+378', flag: 'ðŸ‡¸ðŸ‡²' },
+            { name: 'Sao Tome & Principe', code: '+239', flag: 'ðŸ‡¸ðŸ‡¹' },
+            { name: 'Saudi Arabia', code: '+966', flag: 'ðŸ‡¸ðŸ‡¦' },
+            { name: 'Senegal', code: '+221', flag: 'ðŸ‡¸ðŸ‡³' },
+            { name: 'Serbia', code: '+381', flag: 'ðŸ‡·ðŸ‡¸' },
+            { name: 'Seychelles', code: '+248', flag: 'ðŸ‡¸ðŸ‡¨' },
+            { name: 'Sierra Leone', code: '+232', flag: 'ðŸ‡¸ðŸ‡±' },
+            { name: 'Singapore', code: '+65', flag: 'ðŸ‡¸ðŸ‡¬' },
+            { name: 'Slovakia', code: '+421', flag: 'ðŸ‡¸ðŸ‡°' },
+            { name: 'Slovenia', code: '+386', flag: 'ðŸ‡¸ðŸ‡®' },
+            { name: 'Solomon Islands', code: '+677', flag: 'ðŸ‡¸ðŸ‡§' },
+            { name: 'Somalia', code: '+252', flag: 'ðŸ‡¸ðŸ‡´' },
+            { name: 'South Africa', code: '+27', flag: 'ðŸ‡¿ðŸ‡¦' },
+            { name: 'South Korea', code: '+82', flag: 'ðŸ‡°ðŸ‡·' },
+            { name: 'South Sudan', code: '+211', flag: 'ðŸ‡¸ðŸ‡¸' },
+            { name: 'Spain', code: '+34', flag: 'ðŸ‡ªðŸ‡¸' },
+            { name: 'Sri Lanka', code: '+94', flag: 'ðŸ‡±ðŸ‡°' },
+            { name: 'Sudan', code: '+249', flag: 'ðŸ‡¸ðŸ‡©' },
+            { name: 'Suriname', code: '+597', flag: 'ðŸ‡¸ðŸ‡·' },
+            { name: 'Sweden', code: '+46', flag: 'ðŸ‡¸ðŸ‡ª' },
+            { name: 'Switzerland', code: '+41', flag: 'ðŸ‡¨ðŸ‡­' },
+            { name: 'Syria', code: '+963', flag: 'ðŸ‡¸ðŸ‡¾' },
+            { name: 'Taiwan', code: '+886', flag: 'ðŸ‡¹ðŸ‡¼' },
+            { name: 'Tajikistan', code: '+992', flag: 'ðŸ‡¹ðŸ‡¯' },
+            { name: 'Tanzania', code: '+255', flag: 'ðŸ‡¹ðŸ‡¿' },
+            { name: 'Thailand', code: '+66', flag: 'ðŸ‡¹ðŸ‡­' },
+            { name: 'Timor-Leste', code: '+670', flag: 'ðŸ‡¹ðŸ‡±' },
+            { name: 'Togo', code: '+228', flag: 'ðŸ‡¹ðŸ‡¬' },
+            { name: 'Tonga', code: '+676', flag: 'ðŸ‡¹ðŸ‡´' },
+            { name: 'Trinidad & Tobago', code: '+1-868', flag: 'ðŸ‡¹ðŸ‡¹' },
+            { name: 'Tunisia', code: '+216', flag: 'ðŸ‡¹ðŸ‡³' },
+            { name: 'Turkey', code: '+90', flag: 'ðŸ‡¹ðŸ‡·' },
+            { name: 'Turkmenistan', code: '+993', flag: 'ðŸ‡¹ðŸ‡²' },
+            { name: 'Tuvalu', code: '+688', flag: 'ðŸ‡¹ðŸ‡»' },
+            { name: 'Uganda', code: '+256', flag: 'ðŸ‡ºðŸ‡¬' },
+            { name: 'Ukraine', code: '+380', flag: 'ðŸ‡ºðŸ‡¦' },
+            { name: 'United Arab Emirates', code: '+971', flag: 'ðŸ‡¦ðŸ‡ª' },
+            { name: 'United Kingdom', code: '+44', flag: 'ðŸ‡¬ðŸ‡§' },
+            { name: 'United States', code: '+1', flag: 'ðŸ‡ºðŸ‡¸' },
+            { name: 'Uruguay', code: '+598', flag: 'ðŸ‡ºðŸ‡¾' },
+            { name: 'Uzbekistan', code: '+998', flag: 'ðŸ‡ºðŸ‡¿' },
+            { name: 'Vanuatu', code: '+678', flag: 'ðŸ‡»ðŸ‡º' },
+            { name: 'Vatican City', code: '+379', flag: 'ðŸ‡»ðŸ‡¦' },
+            { name: 'Venezuela', code: '+58', flag: 'ðŸ‡»ðŸ‡ª' },
+            { name: 'Vietnam', code: '+84', flag: 'ðŸ‡»ðŸ‡³' },
+            { name: 'Yemen', code: '+967', flag: 'ðŸ‡¾ðŸ‡ª' },
+            { name: 'Zambia', code: '+260', flag: 'ðŸ‡¿ðŸ‡²' },
+            { name: 'Zimbabwe', code: '+263', flag: 'ðŸ‡¿ðŸ‡¼' }
         ];
 
         function initCountryCodePickersAffiliate() {
@@ -10897,7 +10958,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             const countryCodeInput = document.createElement('input');
             countryCodeInput.className = 'country-code-field';
             countryCodeInput.type = 'text';
-            countryCodeInput.placeholder = '🇺🇸 +1';
+            countryCodeInput.placeholder = 'ðŸ‡ºðŸ‡¸ +1';
             countryCodeInput.name = `${fieldName}_country`;
             countryCodeInput.setAttribute('data-phone-field', fieldName);
             countryCodeInput.setAttribute('autocomplete', 'off');
@@ -11084,7 +11145,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     phoneInput.value = nationalDigits;
                     phoneValue = nationalDigits;
                 } else {
-                    // Incomplete country code still being typed (e.g. "+3") — leave it so the
+                    // Incomplete country code still being typed (e.g. "+3") â€” leave it so the
                     // user can finish, and don't format/validate yet.
                     phoneInput.style.borderColor = '';
                     phoneInput.classList.remove('is-invalid', 'is-valid');
@@ -11319,6 +11380,187 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         });
     })();
     </script>
-    </body>
+    <script>
+(function() {
+    if (window.shippingBlockSyncScriptInitialized) {
+        return;
+    }
+    window.shippingBlockSyncScriptInitialized = true;
+
+    function findSourceField(form, fieldName) {
+        return form.querySelector('[name="' + fieldName + '"]');
+    }
+
+    function syncShippingCountryOptions(form) {
+        var paymentCountry = findSourceField(form, 'payment_country');
+        var shippingCountry = findSourceField(form, 'shipping_country');
+        if (!paymentCountry || !shippingCountry) {
+            return;
+        }
+
+        shippingCountry.innerHTML = paymentCountry.innerHTML;
+        if (!shippingCountry.querySelector('option[value=""]')) {
+            var placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = 'Select Country';
+            placeholder.disabled = true;
+            placeholder.selected = true;
+            shippingCountry.insertBefore(placeholder, shippingCountry.firstChild);
+        }
+    }
+
+    function copyPaymentStatesToShipping(form) {
+        var paymentState = findSourceField(form, 'payment_state');
+        var shippingState = findSourceField(form, 'shipping_state');
+        if (!paymentState || !shippingState) {
+            return;
+        }
+
+        shippingState.innerHTML = paymentState.innerHTML;
+    }
+
+    function fetchStatesForShipping(form, country, selectedValue) {
+        var shippingState = findSourceField(form, 'shipping_state');
+        if (!shippingState) {
+            return;
+        }
+
+        shippingState.innerHTML = '<option value="">Loading...</option>';
+
+        if (!country) {
+            shippingState.innerHTML = '<option value="" selected disabled>Select State/Province</option>';
+            return;
+        }
+
+        if (typeof window.jQuery === 'undefined') {
+            shippingState.innerHTML = '<option value="" selected disabled>Select State/Province</option>';
+            return;
+        }
+
+        window.jQuery.ajax({
+            url: 'https://countriesnow.space/api/v0.1/countries/states',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ country: country }),
+            success: function(res) {
+                if (res && res.data && res.data.states && res.data.states.length > 0) {
+                    var options = '<option value="" selected disabled>Select State/Province</option>';
+                    res.data.states.forEach(function(state) {
+                        options += '<option value="' + state.name + '">' + state.name + '</option>';
+                    });
+                    shippingState.innerHTML = options;
+                    if (selectedValue) {
+                        shippingState.value = selectedValue;
+                    }
+                } else {
+                    shippingState.innerHTML = '<option value="" selected disabled>No states found</option>';
+                }
+            },
+            error: function() {
+                shippingState.innerHTML = '<option value="" selected disabled>Error loading states</option>';
+            }
+        });
+    }
+
+    function copyShippingValues(form) {
+        var shippingInputs = form.querySelectorAll('[name^="shipping_"][data-shipping-source]');
+
+        syncShippingCountryOptions(form);
+        copyPaymentStatesToShipping(form);
+
+        shippingInputs.forEach(function(input) {
+            var sourceName = input.getAttribute('data-shipping-source');
+            if (!sourceName) {
+                return;
+            }
+            var source = findSourceField(form, sourceName);
+            if (!source) {
+                return;
+            }
+            input.value = source.value || '';
+        });
+
+        var paymentState = findSourceField(form, 'payment_state');
+        var shippingState = findSourceField(form, 'shipping_state');
+        if (paymentState && shippingState) {
+            shippingState.value = paymentState.value || '';
+        }
+    }
+
+    function setShippingState(form, checkbox) {
+        var sameAsBilling = !!checkbox.checked;
+        var shippingInputs = form.querySelectorAll('[name^="shipping_"][data-shipping-source]');
+
+        if (sameAsBilling) {
+            copyShippingValues(form);
+        }
+
+        shippingInputs.forEach(function(input) {
+            input.disabled = sameAsBilling;
+            input.required = !sameAsBilling;
+        });
+    }
+
+    function attachShippingBehavior(form) {
+        var checkbox = form.querySelector('input[name="shipping_same_as_billing"]');
+        if (!checkbox) {
+            return;
+        }
+
+        var sourceFields = [
+            'payment_first_name', 'payment_last_name', 'payment_phone', 'payment_email',
+            'payment_address', 'payment_country', 'payment_state', 'payment_city', 'payment_zip_code'
+        ];
+
+        sourceFields.forEach(function(name) {
+            var source = findSourceField(form, name);
+            if (!source) {
+                return;
+            }
+            source.addEventListener('input', function() {
+                if (checkbox.checked) {
+                    copyShippingValues(form);
+                }
+            });
+            source.addEventListener('change', function() {
+                if (checkbox.checked) {
+                    copyShippingValues(form);
+                }
+            });
+        });
+
+        var shippingCountry = findSourceField(form, 'shipping_country');
+        if (shippingCountry) {
+            shippingCountry.addEventListener('change', function() {
+                if (checkbox.checked) {
+                    return;
+                }
+                fetchStatesForShipping(form, shippingCountry.value, '');
+            });
+        }
+
+        checkbox.addEventListener('change', function() {
+            setShippingState(form, checkbox);
+        });
+
+        form.addEventListener('submit', function() {
+            if (checkbox.checked) {
+                copyShippingValues(form);
+            }
+        });
+
+        syncShippingCountryOptions(form);
+        setShippingState(form, checkbox);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('form').forEach(function(form) {
+            attachShippingBehavior(form);
+        });
+    });
+})();
+</script>
+</body>
 
     </html>
+
