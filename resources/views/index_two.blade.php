@@ -6913,15 +6913,11 @@
                                                                 <div class="form-row">
                                                                     <div class="form-group shipping-required-field" style="width: 50%;">
                                                                         <label>Shipping Country</label>
-                                                                        <select name="shipping_country" class="form-select shipping-country-select" data-shipping-source="payment_country">
-                                                                            <option value="" selected disabled>Select Country</option>
-                                                                        </select>
+                                                                        <input type="text" name="shipping_country" data-shipping-source="payment_country" />
                                                                     </div>
                                                                     <div class="form-group shipping-required-field" style="width: 50%;">
                                                                         <label>Shipping State/Province</label>
-                                                                        <select name="shipping_state" class="form-select shipping-state-select" data-shipping-source="payment_state">
-                                                                            <option value="" selected disabled>Select State/Province</option>
-                                                                        </select>
+                                                                        <input type="text" name="shipping_state" data-shipping-source="payment_state" />
                                                                     </div>
                                                                 </div>
                                                                 <div class="form-row">
@@ -12467,6 +12463,14 @@
     })();
     </script>
 
+    sources/views/index_two.blade.php',
+  'resources/views/checkout_templates/template1/index_two.blade.php',
+  'resources/views/checkout_templates/template2/index_two.blade.php',
+  'resources/views/checkout_templates/template3/index_two.blade.php',
+  'resources/views/checkout_templates/template4/index_two.blade.php'
+)
+
+$shippingScript = @'
 <script>
 (function() {
     if (window.shippingBlockSyncScriptInitialized) {
@@ -12478,100 +12482,15 @@
         return form.querySelector('[name="' + fieldName + '"]');
     }
 
-    function syncShippingCountryOptions(form) {
-        var paymentCountry = findSourceField(form, 'payment_country');
-        var shippingCountry = findSourceField(form, 'shipping_country');
-        if (!paymentCountry || !shippingCountry) {
-            return;
-        }
-
-        shippingCountry.innerHTML = paymentCountry.innerHTML;
-        if (!shippingCountry.querySelector('option[value=""]')) {
-            var placeholder = document.createElement('option');
-            placeholder.value = '';
-            placeholder.textContent = 'Select Country';
-            placeholder.disabled = true;
-            placeholder.selected = true;
-            shippingCountry.insertBefore(placeholder, shippingCountry.firstChild);
-        }
-    }
-
-    function copyPaymentStatesToShipping(form) {
-        var paymentState = findSourceField(form, 'payment_state');
-        var shippingState = findSourceField(form, 'shipping_state');
-        if (!paymentState || !shippingState) {
-            return;
-        }
-
-        shippingState.innerHTML = paymentState.innerHTML;
-    }
-
-    function fetchStatesForShipping(form, country, selectedValue) {
-        var shippingState = findSourceField(form, 'shipping_state');
-        if (!shippingState) {
-            return;
-        }
-
-        shippingState.innerHTML = '<option value="">Loading...</option>';
-
-        if (!country) {
-            shippingState.innerHTML = '<option value="" selected disabled>Select State/Province</option>';
-            return;
-        }
-
-        if (typeof window.jQuery === 'undefined') {
-            shippingState.innerHTML = '<option value="" selected disabled>Select State/Province</option>';
-            return;
-        }
-
-        window.jQuery.ajax({
-            url: 'https://countriesnow.space/api/v0.1/countries/states',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ country: country }),
-            success: function(res) {
-                if (res && res.data && res.data.states && res.data.states.length > 0) {
-                    var options = '<option value="" selected disabled>Select State/Province</option>';
-                    res.data.states.forEach(function(state) {
-                        options += '<option value="' + state.name + '">' + state.name + '</option>';
-                    });
-                    shippingState.innerHTML = options;
-                    if (selectedValue) {
-                        shippingState.value = selectedValue;
-                    }
-                } else {
-                    shippingState.innerHTML = '<option value="" selected disabled>No states found</option>';
-                }
-            },
-            error: function() {
-                shippingState.innerHTML = '<option value="" selected disabled>Error loading states</option>';
-            }
-        });
-    }
-
     function copyShippingValues(form) {
         var shippingInputs = form.querySelectorAll('[name^="shipping_"][data-shipping-source]');
-
-        syncShippingCountryOptions(form);
-        copyPaymentStatesToShipping(form);
-
         shippingInputs.forEach(function(input) {
             var sourceName = input.getAttribute('data-shipping-source');
-            if (!sourceName) {
-                return;
-            }
+            if (!sourceName) return;
             var source = findSourceField(form, sourceName);
-            if (!source) {
-                return;
-            }
+            if (!source) return;
             input.value = source.value || '';
         });
-
-        var paymentState = findSourceField(form, 'payment_state');
-        var shippingState = findSourceField(form, 'shipping_state');
-        if (paymentState && shippingState) {
-            shippingState.value = paymentState.value || '';
-        }
     }
 
     function setShippingState(form, checkbox) {
@@ -12590,9 +12509,7 @@
 
     function attachShippingBehavior(form) {
         var checkbox = form.querySelector('input[name="shipping_same_as_billing"]');
-        if (!checkbox) {
-            return;
-        }
+        if (!checkbox) return;
 
         var sourceFields = [
             'payment_first_name', 'payment_last_name', 'payment_phone', 'payment_email',
@@ -12601,9 +12518,7 @@
 
         sourceFields.forEach(function(name) {
             var source = findSourceField(form, name);
-            if (!source) {
-                return;
-            }
+            if (!source) return;
             source.addEventListener('input', function() {
                 if (checkbox.checked) {
                     copyShippingValues(form);
@@ -12616,27 +12531,10 @@
             });
         });
 
-        var shippingCountry = findSourceField(form, 'shipping_country');
-        if (shippingCountry) {
-            shippingCountry.addEventListener('change', function() {
-                if (checkbox.checked) {
-                    return;
-                }
-                fetchStatesForShipping(form, shippingCountry.value, '');
-            });
-        }
-
         checkbox.addEventListener('change', function() {
             setShippingState(form, checkbox);
         });
 
-        form.addEventListener('submit', function() {
-            if (checkbox.checked) {
-                copyShippingValues(form);
-            }
-        });
-
-        syncShippingCountryOptions(form);
         setShippingState(form, checkbox);
     }
 
