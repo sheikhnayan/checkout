@@ -277,7 +277,7 @@ label{
                                                 </div>
 
                                                 <div class="col-md-6">
-                                                    <div class="mb-3">
+                                                    <div class="mb-3 mt-3">
                                                         <div class="toggle-field">
                                                             <p class="toggle-text">Show Time Range <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="When enabled, the event time range is shown on the event page and checkout pages."></i></p>
                                                             <label class="toggle-switch" for="show_time_range">
