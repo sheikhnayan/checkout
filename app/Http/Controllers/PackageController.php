@@ -591,6 +591,7 @@ class PackageController extends Controller
             'addons' => 'nullable|string',
             'multiple' => 'nullable',
             'transportation' => 'nullable',
+            'physical_product_enabled' => 'nullable|boolean',
             'is_most_popular' => 'nullable',
             'only_for_events' => 'nullable|boolean',
             'event_id' => $isTargeted ? 'prohibited' : 'nullable|integer',
@@ -659,6 +660,7 @@ class PackageController extends Controller
         $package->status = $request->status;
         $package->multiple = $request->boolean('multiple') ? 1 : 0;
         $package->transportation = $request->boolean('transportation') ? 1 : 0;
+        $package->physical_product_enabled = $request->boolean('physical_product_enabled') ? 1 : 0;
         $package->is_most_popular = $request->boolean('is_most_popular') ? 1 : 0;
         $package->package_type = $request->input('package_type', 'ticket');
         $package->website_id = $websiteId;

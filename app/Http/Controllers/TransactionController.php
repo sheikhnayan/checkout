@@ -290,10 +290,12 @@ class TransactionController extends Controller
 
         $selectedPackage = Package::find($cartSummary['primary_package_id'] ?: $request->input('package_id'));
         $requiresTransportation = $this->cartRequiresTransportation($cartItems, $selectedPackage);
+        $requiresPhysicalProducts = $this->cartRequiresPhysicalProducts($cartItems, $selectedPackage);
         $isSelfDriveTransportation = $requiresTransportation && $request->boolean('transportation_self_drive_ack');
         $requiresArrivalTime = !$requiresTransportation || $isSelfDriveTransportation;
 
         $this->normalizeTransportationTimeInputs($request, !$isSelfDriveTransportation, $requiresArrivalTime);
+        $shippingSameAsBilling = $this->validateShippingDetails($request, $requiresPhysicalProducts);
 
         $this->ensureCartEventCapacitiesAvailable($cartItems, $requestedUseDate);
 
@@ -379,7 +381,9 @@ class TransactionController extends Controller
                 $cartSummary,
                 $selectedPackage,
                 $validatedPromoCodeId,
-                $validatedDiscountAmount
+                $validatedDiscountAmount,
+                $requiresPhysicalProducts,
+                $shippingSameAsBilling
             );
         }
 
@@ -470,6 +474,7 @@ class TransactionController extends Controller
                     $add->payment_city = $request->input('payment_city');
                     $add->payment_state = $request->input('payment_state');
                     $add->payment_country = $request->input('payment_country');
+                    $this->applyShippingFields($add, $request, $requiresPhysicalProducts, $shippingSameAsBilling);
                     // Merge payment DOB
                     $payment_month = $request->input('payment_month');
                     $payment_day = $request->input('payment_day');
@@ -532,6 +537,16 @@ class TransactionController extends Controller
                             'payment_city' => $request->input('payment_city'),
                             'payment_state' => $request->input('payment_state'),
                             'payment_country' => $request->input('payment_country'),
+                            'shipping_same_as_billing' => $add->shipping_same_as_billing,
+                            'shipping_first_name' => $add->shipping_first_name,
+                            'shipping_last_name' => $add->shipping_last_name,
+                            'shipping_phone' => $add->shipping_phone,
+                            'shipping_email' => $add->shipping_email,
+                            'shipping_address' => $add->shipping_address,
+                            'shipping_city' => $add->shipping_city,
+                            'shipping_state' => $add->shipping_state,
+                            'shipping_country' => $add->shipping_country,
+                            'shipping_zip_code' => $add->shipping_zip_code,
                             'payment_dob' => $add->payment_dob,
                             'payment_zip_code' => $request->input('payment_zip_code'),
                             'event_id' => $event_id,
@@ -793,6 +808,7 @@ class TransactionController extends Controller
                     $add->payment_city = $request->input('payment_city');
                     $add->payment_state = $request->input('payment_state');
                     $add->payment_country = $request->input('payment_country');
+                    $this->applyShippingFields($add, $request, $requiresPhysicalProducts, $shippingSameAsBilling);
                     // Merge payment DOB
                     $payment_month = $request->input('payment_month');
                     $payment_day = $request->input('payment_day');
@@ -855,6 +871,16 @@ class TransactionController extends Controller
                             'payment_city' => $request->input('payment_city'),
                             'payment_state' => $request->input('payment_state'),
                             'payment_country' => $request->input('payment_country'),
+                            'shipping_same_as_billing' => $add->shipping_same_as_billing,
+                            'shipping_first_name' => $add->shipping_first_name,
+                            'shipping_last_name' => $add->shipping_last_name,
+                            'shipping_phone' => $add->shipping_phone,
+                            'shipping_email' => $add->shipping_email,
+                            'shipping_address' => $add->shipping_address,
+                            'shipping_city' => $add->shipping_city,
+                            'shipping_state' => $add->shipping_state,
+                            'shipping_country' => $add->shipping_country,
+                            'shipping_zip_code' => $add->shipping_zip_code,
                             'payment_dob' => $add->payment_dob,
                             'payment_zip_code' => $request->input('payment_zip_code'),
                             'event_id' => $event_id,
@@ -958,7 +984,9 @@ class TransactionController extends Controller
         array $cartSummary,
         ?Package $selectedPackage,
         ?int $validatedPromoCodeId,
-        float $validatedDiscountAmount
+        float $validatedDiscountAmount,
+        bool $requiresPhysicalProducts,
+        bool $shippingSameAsBilling
     ) {
         $transactionId = 'FREE-' . strtoupper(Str::random(16));
         $ipAddress = $request->ip();
@@ -1016,6 +1044,7 @@ class TransactionController extends Controller
         $transaction->payment_city = $request->input('payment_city');
         $transaction->payment_state = $request->input('payment_state');
         $transaction->payment_country = $request->input('payment_country');
+        $this->applyShippingFields($transaction, $request, $requiresPhysicalProducts, $shippingSameAsBilling);
 
         $paymentMonth = $request->input('payment_month');
         $paymentDay = $request->input('payment_day');
@@ -2535,6 +2564,93 @@ class TransactionController extends Controller
 
         return $selectedPackage
             && ($selectedPackage->transportation == 1 || $selectedPackage->transportation === true || $selectedPackage->transportation === '1');
+    }
+
+    private function cartRequiresPhysicalProducts(array $cartItems, ?Package $selectedPackage): bool
+    {
+        if (!empty($cartItems)) {
+            foreach ($cartItems as $item) {
+                if (!is_array($item)) {
+                    continue;
+                }
+
+                if ($this->isTruthy($item['physical_product_enabled'] ?? $item['physicalProduct'] ?? $item['physical_product'] ?? false)) {
+                    return true;
+                }
+            }
+        }
+
+        return $selectedPackage
+            && $this->isTruthy($selectedPackage->physical_product_enabled ?? false);
+    }
+
+    private function validateShippingDetails(Request $request, bool $requiresPhysicalProducts): bool
+    {
+        $shippingSameAsBilling = $request->boolean('shipping_same_as_billing');
+
+        if (!$requiresPhysicalProducts) {
+            return $shippingSameAsBilling;
+        }
+
+        $rules = [
+            'shipping_same_as_billing' => ['nullable', 'boolean'],
+        ];
+
+        if (!$shippingSameAsBilling) {
+            $rules['shipping_first_name'] = ['required', 'string', 'max:255'];
+            $rules['shipping_last_name'] = ['required', 'string', 'max:255'];
+            $rules['shipping_phone'] = ['required', 'string', 'max:50'];
+            $rules['shipping_email'] = ['required', 'email', 'max:255'];
+            $rules['shipping_address'] = ['required', 'string', 'max:255'];
+            $rules['shipping_country'] = ['required', 'string', 'max:255'];
+            $rules['shipping_state'] = ['required', 'string', 'max:255'];
+            $rules['shipping_city'] = ['required', 'string', 'max:255'];
+            $rules['shipping_zip_code'] = ['required', 'string', 'max:50'];
+        }
+
+        $request->validate($rules, [
+            'shipping_first_name.required' => 'Shipping first name is required for physical products.',
+            'shipping_last_name.required' => 'Shipping last name is required for physical products.',
+            'shipping_phone.required' => 'Shipping phone is required for physical products.',
+            'shipping_email.required' => 'Shipping email is required for physical products.',
+            'shipping_address.required' => 'Shipping address is required for physical products.',
+            'shipping_country.required' => 'Shipping country is required for physical products.',
+            'shipping_state.required' => 'Shipping state/province is required for physical products.',
+            'shipping_city.required' => 'Shipping city is required for physical products.',
+            'shipping_zip_code.required' => 'Shipping zip/postal code is required for physical products.',
+        ]);
+
+        return $shippingSameAsBilling;
+    }
+
+    private function applyShippingFields(Transaction $transaction, Request $request, bool $requiresPhysicalProducts, bool $shippingSameAsBilling): void
+    {
+        if (!$requiresPhysicalProducts) {
+            $transaction->shipping_same_as_billing = false;
+            $transaction->shipping_first_name = null;
+            $transaction->shipping_last_name = null;
+            $transaction->shipping_phone = null;
+            $transaction->shipping_email = null;
+            $transaction->shipping_address = null;
+            $transaction->shipping_country = null;
+            $transaction->shipping_state = null;
+            $transaction->shipping_city = null;
+            $transaction->shipping_zip_code = null;
+            return;
+        }
+
+        $transaction->shipping_same_as_billing = $shippingSameAsBilling ? 1 : 0;
+
+        $shippingSourcePrefix = $shippingSameAsBilling ? 'payment' : 'shipping';
+        $transaction->shipping_first_name = $request->input($shippingSourcePrefix . '_first_name');
+        $transaction->shipping_last_name = $request->input($shippingSourcePrefix . '_last_name');
+        $transaction->shipping_phone = $request->input($shippingSourcePrefix . '_phone');
+        $transaction->shipping_email = $request->input($shippingSourcePrefix . '_email');
+        $transaction->shipping_address = $request->input($shippingSourcePrefix . '_address');
+        $transaction->shipping_country = $request->input($shippingSourcePrefix . '_country');
+        $transaction->shipping_state = $request->input($shippingSourcePrefix . '_state');
+        $transaction->shipping_city = $request->input($shippingSourcePrefix . '_city');
+        $transaction->shipping_zip_code = $request->input($shippingSourcePrefix . '_zip_code');
     }
 
     private function isTruthy($value): bool

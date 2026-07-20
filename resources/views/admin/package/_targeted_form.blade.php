@@ -362,6 +362,18 @@
                 </div>
             </div>
 
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <div class="toggle-field">
+                        <p class="toggle-text">Physical Product <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="When enabled, this package is treated as a physical item and checkout will capture shipping details when needed."></i></p>
+                        <label class="toggle-switch" for="physical_product_enabled">
+                            <input id="physical_product_enabled" type="checkbox" name="physical_product_enabled" class="toggle-switch-input" @checked(old('physical_product_enabled', optional($formData)->physical_product_enabled == 1))>
+                            <span class="toggle-switch-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
             <div class="col-md-12">
                 <div class="mb-3">
                     <label for="description" class="form-label">Description <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="A detailed description of what this package includes. Shown to customers on the checkout page."></i></label>
