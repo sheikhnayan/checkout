@@ -6389,6 +6389,7 @@
                                                                 data-refundable="{{ $data->refundable_fee }}"
                                                                 data-sales_tax="{{ $data->sales_tax_fee ?? 10 }}"
                                                                 data-transportation="{{ $item->transportation }}"
+                                                                data-physical-product="{{ $item->physical_product_enabled }}"
                                                                 data-service_charge="{{ $data->service_charge_fee ?? 10 }}"
                                                                 data-default-label="Add to Cart">Add to Cart</button>
 
@@ -6634,6 +6635,63 @@
                                                             <div class="form-group">
                                                                 <label for="host">Host Name</label>
                                                                 <input id="host" name="host_name"
+
+                                                            <div class="shipping-fields-wrap" id="shipping-fields-wrap" style="display:none;margin-top:14px;padding:12px;border:1px solid rgba(255,255,255,0.14);border-radius:10px;">
+                                                                <div class="form-row">
+                                                                    <div class="form-group" style="width: 100%; margin-bottom: 10px;">
+                                                                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0;">
+                                                                            <input type="checkbox" name="shipping_same_as_billing" value="1" id="shipping_same_as_billing" class="shipping-same-as-billing" checked />
+                                                                            <span>Shipping same as billing</span>
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping First Name</label>
+                                                                        <input type="text" name="shipping_first_name" autocomplete="shipping given-name" />
+                                                                    </div>
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping Last Name</label>
+                                                                        <input type="text" name="shipping_last_name" autocomplete="shipping family-name" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping Phone</label>
+                                                                        <input type="text" name="shipping_phone" autocomplete="shipping tel" />
+                                                                    </div>
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping Email</label>
+                                                                        <input type="email" name="shipping_email" autocomplete="shipping email" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <div class="form-group shipping-required-field" style="width: 100%;">
+                                                                        <label>Shipping Address</label>
+                                                                        <input type="text" name="shipping_address" autocomplete="shipping street-address" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping Country</label>
+                                                                        <input type="text" name="shipping_country" autocomplete="shipping country-name" />
+                                                                    </div>
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping State/Province</label>
+                                                                        <input type="text" name="shipping_state" autocomplete="shipping address-level1" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping City</label>
+                                                                        <input type="text" name="shipping_city" autocomplete="shipping address-level2" />
+                                                                    </div>
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping Zip/Postal Code</label>
+                                                                        <input type="text" name="shipping_zip_code" autocomplete="shipping postal-code" />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                                     placeholder="Enter host name (optional)">
                                                             </div>
                                                         </div>
@@ -8438,7 +8496,7 @@
             }
 
             // Define cart functions directly on window
-            window.addPackageToCart = function(packageId, packageName, packagePrice, guests, addons, transportation, isMultiple) {
+            window.addPackageToCart = function(packageId, packageName, packagePrice, guests, addons, transportation, isMultiple, physicalProduct) {
                 console.log('addPackageToCart called', packageId, packageName);
                 ensureCartArray();
                 let normalizedGuests = parseInt(guests, 10) || 1;
@@ -8476,7 +8534,7 @@
                         existing.isMultiple = parseMultipleFlag(isMultiple);
                         existing.packageType = packageType;
                     } else {
-                        window.cart.push({ packageId, packageName, packagePrice, guests: normalizedGuests, addons, transportation, isMultiple: parseMultipleFlag(isMultiple), packageType });
+                        window.cart.push({ packageId, packageName, packagePrice, guests: normalizedGuests, addons, transportation, isMultiple: parseMultipleFlag(isMultiple), packageType, physicalProduct: parseMultipleFlag(physicalProduct) });
                     }
                     window.renderCart();
                     syncCheckoutCartFields();
@@ -8602,6 +8660,9 @@
                 $('.payment_total').val(grandTotal.toFixed(2));
                 $('#subtotal').val(refundable_price > 0 ? refundable_price.toFixed(2) : grandTotal.toFixed(2));
                 $('#commission_base_amount').val(Math.max(subtotal - promoDiscount, 0).toFixed(2));
+                if (typeof window.updateCheckoutPhysicalRequirement === 'function') {
+                    window.updateCheckoutPhysicalRequirement();
+                }
                 if (typeof window.updateCheckoutPaymentRequirement === 'function') {
                     window.updateCheckoutPaymentRequirement();
                 }
@@ -9011,6 +9072,65 @@
                 $('#hidden_payment_year').val($('select[name="package_year"]').val());
             }
 
+            function isPhysicalProductCheckout() {
+                ensureCartArray();
+                return window.cart.some(function (pkg) {
+                    return pkg && (pkg.physicalProduct === true || pkg.physicalProduct === 1 || pkg.physicalProduct === '1');
+                });
+            }
+
+            function syncShippingFieldsFromBilling() {
+                var form = document.getElementById('payment-form');
+                var shippingWrap = document.getElementById('shipping-fields-wrap');
+                var sameAsBilling = document.getElementById('shipping_same_as_billing');
+
+                if (!form || !shippingWrap || !sameAsBilling) {
+                    return;
+                }
+
+                var shippingFields = form.querySelectorAll('.shipping-required-field input, .shipping-required-field select, .shipping-required-field textarea');
+                var fieldPairs = [
+                    ['payment_first_name', 'shipping_first_name'],
+                    ['payment_last_name', 'shipping_last_name'],
+                    ['payment_phone', 'shipping_phone'],
+                    ['payment_email', 'shipping_email'],
+                    ['payment_address', 'shipping_address'],
+                    ['payment_country', 'shipping_country'],
+                    ['payment_state', 'shipping_state'],
+                    ['payment_city', 'shipping_city'],
+                    ['payment_zip_code', 'shipping_zip_code']
+                ];
+
+                if (!isPhysicalProductCheckout()) {
+                    shippingWrap.style.display = 'none';
+                    sameAsBilling.checked = false;
+                    shippingFields.forEach(function (field) {
+                        field.required = false;
+                        field.value = '';
+                    });
+                    return;
+                }
+
+                shippingWrap.style.display = 'block';
+
+                if (sameAsBilling.checked) {
+                    fieldPairs.forEach(function (pair) {
+                        var billingField = form.querySelector('[name="' + pair[0] + '"]');
+                        var shippingField = form.querySelector('[name="' + pair[1] + '"]');
+                        if (!billingField || !shippingField) {
+                            return;
+                        }
+                        shippingField.value = billingField.value || '';
+                    });
+                }
+
+                shippingFields.forEach(function (field) {
+                    field.required = !sameAsBilling.checked;
+                });
+            }
+
+            window.updateCheckoutPhysicalRequirement = syncShippingFieldsFromBilling;
+
             // Copy package holder info to payment info (for visible fields only)
             $(document).on('click', '.same-as-info', function() {
                 // Text fields - only copy visible fields now
@@ -9018,6 +9138,16 @@
                 $("input[name='payment_last_name']").val($("input[name='package_last_name']").val());
                 // Hidden fields are auto-populated when moving to payment step
                 populatePaymentFields();
+            });
+
+            $(document).on('change input', '#payment-form input[name="payment_first_name"], #payment-form input[name="payment_last_name"], #payment-form input[name="payment_phone"], #payment-form input[name="payment_email"], #payment-form input[name="payment_address"], #payment-form input[name="payment_country"], #payment-form input[name="payment_state"], #payment-form input[name="payment_city"], #payment-form input[name="payment_zip_code"]', function() {
+                if ($('#shipping_same_as_billing').is(':checked')) {
+                    syncShippingFieldsFromBilling();
+                }
+            });
+
+            $(document).on('change', '#shipping_same_as_billing', function() {
+                syncShippingFieldsFromBilling();
             });
 
             // Copy package holder info to transportation info
