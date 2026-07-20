@@ -8532,6 +8532,7 @@
                         existing.transportation = transportation;
                         existing.isMultiple = parseMultipleFlag(isMultiple);
                         existing.packageType = packageType;
+                        existing.physicalProduct = parseMultipleFlag(physicalProduct);
                     } else {
                         window.cart.push({ packageId, packageName, packagePrice, guests: normalizedGuests, addons, transportation, isMultiple: parseMultipleFlag(isMultiple), packageType, physicalProduct: parseMultipleFlag(physicalProduct) });
                     }
@@ -9465,6 +9466,7 @@
                     let guestValue = $guestSelect.val();
                     let isMultiple = parseMultipleFlag($guestSelect.data('multiple'));
                     let transportation = $btn.data('transportation');
+                    let physicalProduct = $btn.data('physical-product');
 
                     if (!ensureReservationDateSelected()) {
                         return;
@@ -9493,6 +9495,7 @@
                                 guests: guests,
                                 isMultiple: isMultiple,
                                 transportation: transportation,
+                                physicalProduct: parseMultipleFlag(physicalProduct),
                                 addons: Array.isArray(res) ? res : []
                             };
 
