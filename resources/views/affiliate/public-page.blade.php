@@ -6315,7 +6315,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 </div>
                                                             </div>
     
-                                                            <div class="form-group">
+                                                            <div class="form-group" style="display:none !important;" aria-hidden="true">
                                                                 <label for="note">Pickup Note</label>
                                                                 <textarea name="transportation_note" id="note"
                                                                     placeholder="If any"></textarea>
