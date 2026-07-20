@@ -6615,6 +6615,27 @@
                                                                             name="package_month" class="form-select"
                                                                             style="width: 32%; display: inline-block; margin-right: 2%;"
 
+                                                                            required></select>
+                                                                        <select id="package-dob-day"
+                                                                            name="package_day" class="form-select"
+                                                                            style="width: 32%; display: inline-block; margin-right: 2%;"
+                                                                            required></select>
+                                                                        <select id="package-dob-year"
+                                                                            name="package_year" class="form-select"
+                                                                            style="width: 32%; display: inline-block;"
+                                                                            required></select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-group">
+                                                                <label for="note">Booking Note</label>
+                                                                <textarea id="note" name="package_note" placeholder="Your occasion or special request?"></textarea>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label for="host">Host Name</label>
+                                                                <input id="host" name="host_name"
+
                                                             <div class="shipping-fields-wrap" id="shipping-fields-wrap" style="display:none;margin-top:14px;padding:12px;border:1px solid rgba(255,255,255,0.14);border-radius:10px;">
                                                                 <div class="form-row">
                                                                     <div class="form-group" style="width: 100%; margin-bottom: 10px;">
@@ -6671,26 +6692,6 @@
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                                            required></select>
-                                                                        <select id="package-dob-day"
-                                                                            name="package_day" class="form-select"
-                                                                            style="width: 32%; display: inline-block; margin-right: 2%;"
-                                                                            required></select>
-                                                                        <select id="package-dob-year"
-                                                                            name="package_year" class="form-select"
-                                                                            style="width: 32%; display: inline-block;"
-                                                                            required></select>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="form-group">
-                                                                <label for="note">Booking Note</label>
-                                                                <textarea id="note" name="package_note" placeholder="Your occasion or special request?"></textarea>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                <label for="host">Host Name</label>
-                                                                <input id="host" name="host_name"
                                                                     placeholder="Enter host name (optional)">
                                                             </div>
                                                         </div>
