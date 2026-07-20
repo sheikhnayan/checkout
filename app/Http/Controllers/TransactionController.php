@@ -3638,6 +3638,7 @@ class TransactionController extends Controller
      */
     private function sendClubLifterScheduleAfterResponse(Transaction $add): void
     {
+        return;
         try {
             if (! $this->shouldSendClubLifterForTransaction($add)) {
                 return;
