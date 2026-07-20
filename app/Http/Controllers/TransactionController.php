@@ -1766,25 +1766,6 @@ class TransactionController extends Controller
             $transaction->business_address ?? null,
         ], static fn ($v) => trim((string) $v) !== '')));
 
-        $shippingName = trim((string) (($transaction->shipping_first_name ?? '') . ' ' . ($transaction->shipping_last_name ?? '')));
-        $shippingPhone = trim((string) ($transaction->shipping_phone ?? ''));
-        $shippingEmail = trim((string) ($transaction->shipping_email ?? ''));
-        $shippingAddress = implode(', ', array_values(array_filter([
-            $transaction->shipping_address ?? null,
-            $transaction->shipping_city ?? null,
-            $transaction->shipping_state ?? null,
-            $transaction->shipping_zip_code ?? null,
-        ], static fn ($v) => trim((string) $v) !== '')));
-        $shippingCountry = trim((string) ($transaction->shipping_country ?? ''));
-        $shippingSameAsBilling = (bool) ($transaction->shipping_same_as_billing ?? false);
-        $hasShippingData =
-            $shippingName !== '' ||
-            $shippingPhone !== '' ||
-            $shippingEmail !== '' ||
-            $shippingAddress !== '' ||
-            $shippingCountry !== '' ||
-            $shippingSameAsBilling;
-
         $row = static function (string $label, string $value): string {
             return '<div class="txn-detail-row"><span class="txn-detail-label">' . $label . '</span><span class="txn-detail-value">' . $value . '</span></div>';
         };
@@ -1924,26 +1905,6 @@ class TransactionController extends Controller
         $html .= $row('Transport Address', $esc($transaction->transportation_address ?: 'N/A'));
         $html .= $row('Transport Guest', $esc($transaction->transportation_guest ?: 'N/A'));
         $html .= $row('Transport Note', $esc($transaction->transportation_note ?: 'N/A'));
-
-        if ($hasShippingData) {
-            $html .= $row('Shipping Same As Billing', $esc($shippingSameAsBilling ? 'Yes' : 'No'));
-            if ($shippingName !== '') {
-                $html .= $row('Shipping Name', $esc($shippingName));
-            }
-            if ($shippingPhone !== '') {
-                $html .= $row('Shipping Phone', $esc($shippingPhone));
-            }
-            if ($shippingEmail !== '') {
-                $html .= $row('Shipping Email', $esc($shippingEmail));
-            }
-            if ($shippingAddress !== '') {
-                $html .= $row('Shipping Address', $esc($shippingAddress));
-            }
-            if ($shippingCountry !== '') {
-                $html .= $row('Shipping Country', $esc($shippingCountry));
-            }
-        }
-
         $html .= $row('Business Info', $esc($businessInfo !== '' ? $businessInfo : 'N/A'));
         $html .= $row('Business Purpose', $esc($transaction->business_purpose ?: 'N/A'));
         $html .= $row('Terms Accepted', 'Yes');

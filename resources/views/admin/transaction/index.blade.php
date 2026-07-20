@@ -1249,6 +1249,16 @@ body.modal-open .admin-mobile-menu-toggle {
                                         data-payment_country="{{ $item->payment_country }}"
                                         data-payment_dob="{{ $item->payment_dob }}"
                                         data-payment_zip_code="{{ $item->payment_zip_code }}"
+                                        data-shipping_same_as_billing="{{ $item->shipping_same_as_billing ? 1 : 0 }}"
+                                        data-shipping_first_name="{{ $item->shipping_first_name ?? '' }}"
+                                        data-shipping_last_name="{{ $item->shipping_last_name ?? '' }}"
+                                        data-shipping_phone="{{ $item->shipping_phone ?? '' }}"
+                                        data-shipping_email="{{ $item->shipping_email ?? '' }}"
+                                        data-shipping_address="{{ $item->shipping_address ?? '' }}"
+                                        data-shipping_city="{{ $item->shipping_city ?? '' }}"
+                                        data-shipping_state="{{ $item->shipping_state ?? '' }}"
+                                        data-shipping_zip_code="{{ $item->shipping_zip_code ?? '' }}"
+                                        data-shipping_country="{{ $item->shipping_country ?? '' }}"
                                         data-payment_card_last4="{{ $item->payment_card_last4 ?? '' }}"
                                         data-payment_card_brand="{{ $item->payment_card_brand ?? '' }}"
                                         data-type="{{ $item->type }}"
@@ -2752,6 +2762,24 @@ body.modal-open .admin-mobile-menu-toggle {
                     $(this).data('business_address')
                 ].filter(function(v){ return String(v || '').trim() !== ''; }).join(' | ');
 
+                var shippingSameAsBillingRaw = String($(this).data('shipping_same_as_billing') || '').toLowerCase();
+                var shippingSameAsBilling = shippingSameAsBillingRaw === '1' || shippingSameAsBillingRaw === 'true' || shippingSameAsBillingRaw === 'yes';
+                var shippingFirstName = String($(this).data('shipping_first_name') || '').trim();
+                var shippingLastName = String($(this).data('shipping_last_name') || '').trim();
+                var shippingName = [shippingFirstName, shippingLastName].filter(Boolean).join(' ');
+                var shippingPhone = String($(this).data('shipping_phone') || '').trim();
+                var shippingEmail = String($(this).data('shipping_email') || '').trim();
+                var shippingAddress = [
+                    $(this).data('shipping_address'),
+                    $(this).data('shipping_city'),
+                    $(this).data('shipping_state'),
+                    $(this).data('shipping_zip_code')
+                ].filter(function(v){ return String(v || '').trim() !== ''; }).join(', ');
+                var shippingCountry = String($(this).data('shipping_country') || '').trim();
+                var hasShippingData = shippingSameAsBilling || [shippingName, shippingPhone, shippingEmail, shippingAddress, shippingCountry].some(function(v) {
+                    return String(v || '').trim() !== '';
+                });
+
                 var requiresTransportation = String($(this).data('requires_transportation') || '').toLowerCase();
                 requiresTransportation = requiresTransportation === '1' || requiresTransportation === 'true' || requiresTransportation === 'yes';
                 var hasTransportationDetails = [
@@ -3106,6 +3134,30 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row('Payment Country', $(this).data('payment_country') || 'N/A');
                 html += row('Payment DOB', formatDateUS($(this).data('payment_dob')));
                 html += '</div>';
+
+                if (hasShippingData) {
+                    html += '<div class="txn-detail-card">';
+                    html += '<div class="txn-detail-title">Shipping</div>';
+                    beginPdfSection('Shipping');
+                    html += row('Shipping Same As Billing', shippingSameAsBilling ? 'Yes' : 'No');
+                    if (shippingName) {
+                        html += row('Shipping Name', shippingName);
+                    }
+                    if (shippingEmail) {
+                        html += row('Shipping Email', shippingEmail);
+                    }
+                    if (shippingPhone) {
+                        html += row('Shipping Phone', shippingPhone);
+                    }
+                    if (shippingAddress) {
+                        html += row('Shipping Address', shippingAddress);
+                    }
+                    if (shippingCountry) {
+                        html += row('Shipping Country', shippingCountry);
+                    }
+                    html += '</div>';
+                }
+
                 html += '</div>';
 
                 html += '<div class="col-md-6">';
