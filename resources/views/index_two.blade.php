@@ -6634,65 +6634,7 @@
                                                             </div>
                                                             <div class="form-group">
                                                                 <label for="host">Host Name</label>
-                                                                <input id="host" name="host_name"
-
-                                                            <div class="shipping-fields-wrap" id="shipping-fields-wrap" style="display:none;margin-top:14px;padding:12px;border:1px solid rgba(255,255,255,0.14);border-radius:10px;">
-                                                                <div class="form-row">
-                                                                    <div class="form-group" style="width: 100%; margin-bottom: 10px;">
-                                                                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0;">
-                                                                            <input type="checkbox" name="shipping_same_as_billing" value="1" id="shipping_same_as_billing" class="shipping-same-as-billing" checked />
-                                                                            <span>Shipping same as billing</span>
-                                                                        </label>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="form-row">
-                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
-                                                                        <label>Shipping First Name</label>
-                                                                        <input type="text" name="shipping_first_name" autocomplete="shipping given-name" />
-                                                                    </div>
-                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
-                                                                        <label>Shipping Last Name</label>
-                                                                        <input type="text" name="shipping_last_name" autocomplete="shipping family-name" />
-                                                                    </div>
-                                                                </div>
-                                                                <div class="form-row">
-                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
-                                                                        <label>Shipping Phone</label>
-                                                                        <input type="text" name="shipping_phone" autocomplete="shipping tel" />
-                                                                    </div>
-                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
-                                                                        <label>Shipping Email</label>
-                                                                        <input type="email" name="shipping_email" autocomplete="shipping email" />
-                                                                    </div>
-                                                                </div>
-                                                                <div class="form-row">
-                                                                    <div class="form-group shipping-required-field" style="width: 100%;">
-                                                                        <label>Shipping Address</label>
-                                                                        <input type="text" name="shipping_address" autocomplete="shipping street-address" />
-                                                                    </div>
-                                                                </div>
-                                                                <div class="form-row">
-                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
-                                                                        <label>Shipping Country</label>
-                                                                        <input type="text" name="shipping_country" autocomplete="shipping country-name" />
-                                                                    </div>
-                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
-                                                                        <label>Shipping State/Province</label>
-                                                                        <input type="text" name="shipping_state" autocomplete="shipping address-level1" />
-                                                                    </div>
-                                                                </div>
-                                                                <div class="form-row">
-                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
-                                                                        <label>Shipping City</label>
-                                                                        <input type="text" name="shipping_city" autocomplete="shipping address-level2" />
-                                                                    </div>
-                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
-                                                                        <label>Shipping Zip/Postal Code</label>
-                                                                        <input type="text" name="shipping_zip_code" autocomplete="shipping postal-code" />
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                                    placeholder="Enter host name (optional)">
+                                                                <input id="host" name="host_name" placeholder="Enter host name (optional)">
                                                             </div>
                                                         </div>
                                                     </div>
@@ -6932,6 +6874,63 @@
                                                                     <label for="zip">Zip/Postal Code</label>
                                                                     <input type="text" name="payment_zip_code"
                                                                         id="zip" placeholder="" required />
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="shipping-fields-wrap" id="shipping-fields-wrap" style="display:none;margin-top:14px;padding:12px;border:1px solid rgba(255,255,255,0.14);border-radius:10px;">
+                                                                <div class="form-row">
+                                                                    <div class="form-group" style="width: 100%; margin-bottom: 10px;">
+                                                                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0;">
+                                                                            <input type="checkbox" name="shipping_same_as_billing" value="1" id="shipping_same_as_billing" class="shipping-same-as-billing" checked />
+                                                                            <span>Shipping same as billing</span>
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping First Name</label>
+                                                                        <input type="text" name="shipping_first_name" autocomplete="shipping given-name" />
+                                                                    </div>
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping Last Name</label>
+                                                                        <input type="text" name="shipping_last_name" autocomplete="shipping family-name" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping Phone</label>
+                                                                        <input type="text" name="shipping_phone" autocomplete="shipping tel" />
+                                                                    </div>
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping Email</label>
+                                                                        <input type="email" name="shipping_email" autocomplete="shipping email" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <div class="form-group shipping-required-field" style="width: 100%;">
+                                                                        <label>Shipping Address</label>
+                                                                        <input type="text" name="shipping_address" autocomplete="shipping street-address" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping Country</label>
+                                                                        <input type="text" name="shipping_country" autocomplete="shipping country-name" />
+                                                                    </div>
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping State/Province</label>
+                                                                        <input type="text" name="shipping_state" autocomplete="shipping address-level1" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping City</label>
+                                                                        <input type="text" name="shipping_city" autocomplete="shipping address-level2" />
+                                                                    </div>
+                                                                    <div class="form-group shipping-required-field" style="width: 50%;">
+                                                                        <label>Shipping Zip/Postal Code</label>
+                                                                        <input type="text" name="shipping_zip_code" autocomplete="shipping postal-code" />
+                                                                    </div>
                                                                 </div>
                                                             </div>
 
