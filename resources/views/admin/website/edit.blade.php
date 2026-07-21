@@ -384,6 +384,18 @@
                                                         <small class="form-text text-muted">Turn off to hide the club phone and email in checkout page contact blocks.</small>
                                                     </div>
                                                 </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <div class="toggle-field">
+                                                            <p class="toggle-text">Physical Product Checkout Mode</p>
+                                                            <label class="toggle-switch" for="is_physical_product_checkout">
+                                                                <input id="is_physical_product_checkout" type="checkbox" name="is_physical_product_checkout" value="1" class="toggle-switch-input" {{ old('is_physical_product_checkout', $data->is_physical_product_checkout ?? false) ? 'checked' : '' }}>
+                                                                <span class="toggle-switch-slider"></span>
+                                                            </label>
+                                                        </div>
+                                                        <small class="form-text text-muted">Enable to use product checkout flow with shipping details and no transportation step.</small>
+                                                    </div>
+                                                </div>
                                                 <div class="col-md-12 mt-2">
                                                     <h5 class="website-section-title">Website Admin Access</h5>
                                                     <p class="text-muted">This user will have full access for this website (except super-admin-only platform features).</p>

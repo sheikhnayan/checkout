@@ -12,6 +12,7 @@ use App\Models\SMTP;
 use App\Models\PaymentLogo;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 use App\Support\WebsiteTimezone;
 
@@ -194,6 +195,7 @@ class WebsiteController extends Controller
             }],
             'show_contact_info' => 'nullable|boolean',
             'clublifter_enabled' => 'nullable|boolean',
+            'is_physical_product_checkout' => 'nullable|boolean',
         ]);
 
         // Website admins (user_type = website_user) may reuse an email across websites; block
@@ -256,6 +258,9 @@ class WebsiteController extends Controller
         $add->show_contact_info = $request->boolean('show_contact_info');
         $add->entertainer_submission_emails = $entertainerSubmissionEmails;
         $add->clublifter_enabled = $request->boolean('clublifter_enabled');
+        if (Schema::hasColumn('websites', 'is_physical_product_checkout')) {
+            $add->is_physical_product_checkout = $request->boolean('is_physical_product_checkout');
+        }
         $add->gratuity_fee = $request->gratuity_fee;
         $add->gratuity_name = $request->gratuity_name;
         $add->refundable_fee = $request->refundable_fee;
@@ -487,6 +492,7 @@ class WebsiteController extends Controller
             }],
             'show_contact_info' => 'nullable|boolean',
             'clublifter_enabled' => 'nullable|boolean',
+            'is_physical_product_checkout' => 'nullable|boolean',
         ]);
         
         // Check authorization for website users
@@ -524,6 +530,9 @@ class WebsiteController extends Controller
         $add->success_page = self::DEFAULT_SUCCESS_PAGE;
         $add->terms = $request->terms;
         $add->clublifter_enabled = $request->boolean('clublifter_enabled');
+        if (Schema::hasColumn('websites', 'is_physical_product_checkout')) {
+            $add->is_physical_product_checkout = $request->boolean('is_physical_product_checkout');
+        }
         if ($request->has('gratuity_fee')) {
             $add->gratuity_fee = $request->gratuity_fee;
         }
