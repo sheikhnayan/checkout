@@ -2762,22 +2762,31 @@ body.modal-open .admin-mobile-menu-toggle {
                     $(this).data('business_address')
                 ].filter(function(v){ return String(v || '').trim() !== ''; }).join(' | ');
 
-                var shippingSameAsBillingRaw = String($(this).data('shipping_same_as_billing') || '').toLowerCase();
+                var normalizeField = function(value) {
+                    var text = String(value == null ? '' : value).trim();
+                    var lower = text.toLowerCase();
+                    if (lower === 'null' || lower === 'undefined') {
+                        return '';
+                    }
+                    return text;
+                };
+
+                var shippingSameAsBillingRaw = normalizeField($(this).data('shipping_same_as_billing')).toLowerCase();
                 var shippingSameAsBilling = shippingSameAsBillingRaw === '1' || shippingSameAsBillingRaw === 'true' || shippingSameAsBillingRaw === 'yes';
-                var shippingFirstName = String($(this).data('shipping_first_name') || '').trim();
-                var shippingLastName = String($(this).data('shipping_last_name') || '').trim();
+                var shippingFirstName = normalizeField($(this).data('shipping_first_name'));
+                var shippingLastName = normalizeField($(this).data('shipping_last_name'));
                 var shippingName = [shippingFirstName, shippingLastName].filter(Boolean).join(' ');
-                var shippingPhone = String($(this).data('shipping_phone') || '').trim();
-                var shippingEmail = String($(this).data('shipping_email') || '').trim();
+                var shippingPhone = normalizeField($(this).data('shipping_phone'));
+                var shippingEmail = normalizeField($(this).data('shipping_email'));
                 var shippingAddress = [
-                    $(this).data('shipping_address'),
-                    $(this).data('shipping_city'),
-                    $(this).data('shipping_state'),
-                    $(this).data('shipping_zip_code')
-                ].filter(function(v){ return String(v || '').trim() !== ''; }).join(', ');
-                var shippingCountry = String($(this).data('shipping_country') || '').trim();
+                    normalizeField($(this).data('shipping_address')),
+                    normalizeField($(this).data('shipping_city')),
+                    normalizeField($(this).data('shipping_state')),
+                    normalizeField($(this).data('shipping_zip_code'))
+                ].filter(Boolean).join(', ');
+                var shippingCountry = normalizeField($(this).data('shipping_country'));
                 var hasShippingData = shippingSameAsBilling || [shippingName, shippingPhone, shippingEmail, shippingAddress, shippingCountry].some(function(v) {
-                    return String(v || '').trim() !== '';
+                    return normalizeField(v) !== '';
                 });
 
                 var requiresTransportation = String($(this).data('requires_transportation') || '').toLowerCase();

@@ -12540,7 +12540,9 @@
                 window.__physicalCheckoutStepPatched = true;
             }
 
-            $('#next-to-transport').text('Next: Payment Details').off('click').on('click', function () {
+            $('#next-to-transport').text('Next: Payment Details').off('click').on('click', function (e) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
                 if (typeof validateStep === 'function' && !validateStep(1)) {
                     return;
                 }
@@ -12552,7 +12554,9 @@
                 }
             });
 
-            $('#next-to-payment, #next-to-payment-from-confirm').off('click').on('click', function () {
+            $('#next-to-payment, #next-to-payment-from-confirm').off('click').on('click', function (e) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
                 if (typeof validateStep === 'function' && !validateStep(2)) {
                     return;
                 }
@@ -12564,9 +12568,11 @@
                 }
             });
 
-            $('#prev-to-transport').text('Previous: Package Details').off('click').on('click', function () {
-                if (typeof showStep === 'function') {
-                    showStep(1);
+            $('#prev-to-transport').text('Previous: Package Details').off('click').on('click', function (e) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                if (typeof window.showStep === 'function') {
+                    window.showStep(1);
                 }
             });
 
