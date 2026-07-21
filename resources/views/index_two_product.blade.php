@@ -14,7 +14,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <title>physical Checkout</title>
+        <title>Checkout</title>
         <link rel="icon" type="image/svg+xml" href="{{ asset('user/assets/img/favicon/favicon.svg') }}?v={{ time() }}" />
         <link rel="mask-icon" href="{{ asset('user/assets/img/favicon/safari-mask.svg') }}?v={{ time() }}" color="#ffcc00" />
         <link rel="shortcut icon" href="{{ asset('user/assets/img/favicon/favicon.ico') }}?v={{ time() }}" />
@@ -12496,10 +12496,28 @@
 
             var transportStep = document.getElementById('step-2');
             if (transportStep) {
+                transportStep.style.display = 'none';
                 var title = transportStep.querySelector('.step-title');
                 if (title) {
                     title.textContent = 'Payment';
                 }
+            }
+
+            var step3 = document.getElementById('step-3');
+            if (step3) {
+                var step3Num = step3.querySelector('.step-number');
+                if (step3Num) {
+                    step3Num.textContent = '2';
+                }
+            }
+
+            var nativeShowStep = (typeof window.showStep === 'function') ? window.showStep : null;
+            if (nativeShowStep && !window.__physicalCheckoutStepPatched) {
+                window.showStep = function (stepNumber) {
+                    var normalized = (stepNumber === 2) ? 3 : stepNumber;
+                    return nativeShowStep(normalized);
+                };
+                window.__physicalCheckoutStepPatched = true;
             }
 
             $('#next-to-transport').text('Next: Payment Details').off('click').on('click', function () {
@@ -12531,6 +12549,10 @@
                     showStep(1);
                 }
             });
+
+            if (typeof showStep === 'function') {
+                showStep(1);
+            }
         }
 
         document.addEventListener('DOMContentLoaded', bindProductCheckoutBehavior);
