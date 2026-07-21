@@ -12959,11 +12959,10 @@
         function buildShippingHtml() {
             return '' +
                 '<div id="shipping-fields-wrap" style="margin:16px 0 18px; padding:12px; border:1px solid rgba(255,255,255,0.14); border-radius:12px; background:rgba(255,255,255,0.03);">' +
-                '  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;">' +
-                '    <p style="margin:0;font-size:14px;font-weight:700;color:rgba(255,255,255,0.92);">Shipping same as billing</p>' +
-                '    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">' +
+                '  <div class="checkbox-container payment-consent-group" style="margin:0 0 12px 0;">' +
+                '    <label class="consent-label" style="margin:0;">' +
                 '      <input type="checkbox" name="shipping_same_as_billing" id="shipping_same_as_billing" value="1" />' +
-                '      <span style="font-size:12px;color:rgba(255,255,255,0.75);">Use billing details</span>' +
+                '      <span>Shipping same as billing details</span>' +
                 '    </label>' +
                 '  </div>' +
                 '  <div id="shipping-fields-panel">' +
@@ -12986,6 +12985,26 @@
             if (paymentConsent && !document.getElementById('shipping-fields-wrap')) {
                 paymentConsent.insertAdjacentHTML('beforebegin', buildShippingHtml());
             }
+
+            function applyProductStepLabels() {
+                $('#step-2 .step-title').text('Payment');
+                $('#next-to-transport').text('Next: Payment Details');
+                $('#prev-to-transport').text('Previous: Package Details');
+            }
+
+            if (typeof syncTransportationStateFromCart === 'function' && !window.__physicalCheckoutTransportationSyncPatched) {
+                var nativeSyncTransportationStateFromCart = syncTransportationStateFromCart;
+                syncTransportationStateFromCart = function () {
+                    var result = nativeSyncTransportationStateFromCart.apply(this, arguments);
+                    window.requiresTransportation = false;
+                    applyProductStepLabels();
+                    return result;
+                };
+                window.syncTransportationStateFromCart = syncTransportationStateFromCart;
+                window.__physicalCheckoutTransportationSyncPatched = true;
+            }
+
+            applyProductStepLabels();
 
             function syncShippingFields() {
                 var sameAsBilling = document.getElementById('shipping_same_as_billing');
