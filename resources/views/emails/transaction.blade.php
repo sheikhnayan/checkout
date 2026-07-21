@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>{{ $isManagerCopy ? (($clubName ?: 'Venue') . ' - BOOKING') : ('Booking Confirmed - ' . ($clubName ?: 'Venue')) }}</title>
+    <title>{{ $isManagerCopy ? (($clubName ?: 'Venue') . ' - ORDER') : ('Order Confirmed - ' . ($clubName ?: 'Venue')) }}</title>
     <style>
         body { font-family: 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif; background: #f5f7fb; color: #172033; margin: 0; padding: 24px 0; }
         .container { background: #ffffff; max-width: 680px; margin: 0 auto; border-radius: 14px; box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08); padding: 32px; }
@@ -78,8 +78,8 @@
 @endphp
 <div class="container">
     @if($isManagerCopy)
-        <div class="eyebrow">Manager Booking Notice</div>
-        <h2>{{ $venueName }} - BOOKING</h2>
+        <div class="eyebrow">Manager Order Notice</div>
+        <h2>{{ $venueName }} - ORDER</h2>
         <div class="hero">
             <p style="margin:0;"><strong>Confirmation #:</strong> {{ $confirmationNumber }}</p>
             <p style="margin:6px 0 0;"><strong>Order ID:</strong> {{ $orderId }}</p>
@@ -89,12 +89,12 @@
             <tr><th>Confirmation #</th><td>{{ $confirmationNumber }}</td></tr>
             <tr><th>Order ID</th><td>{{ $orderId }}</td></tr>
             <tr><th>Venue</th><td>{{ $venueName }}</td></tr>
-            <tr><th>Booking Type</th><td>{{ ucfirst(str_replace('_', ' ', $bookingType)) }}</td></tr>
+            <tr><th>Order Type</th><td>{{ ucfirst(str_replace('_', ' ', $bookingType)) }}</td></tr>
             <tr><th>Sale Date</th><td>{{ $saleDateFormatted }}</td></tr>
             <tr><th>Guest Name</th><td>{{ $guestName }}</td></tr>
             <tr><th>Email</th><td>{{ $mailData['package_email'] ?? 'N/A' }}</td></tr>
             <tr><th>Phone</th><td>{{ $mailData['package_phone'] ?? 'N/A' }}</td></tr>
-            <tr><th>Reservation Date</th><td>{{ $reservationDateFormatted }}</td></tr>
+            <tr><th>Order Date</th><td>{{ $reservationDateFormatted }}</td></tr>
             @if(!empty($eventName))
             <tr><th>Event</th><td>{{ $eventName }}</td></tr>
             @endif
@@ -106,7 +106,7 @@
             @endif
             @endif
             @if(!empty($mailData['package_note']))
-            <tr><th>Booking Note</th><td>{{ $mailData['package_note'] }}</td></tr>
+            <tr><th>Order Note</th><td>{{ $mailData['package_note'] }}</td></tr>
             @endif
             @if(!empty($mailData['transportation_mode']) || !empty($mailData['transportation_pickup_time']) || !empty($mailData['transportation_arrival_time']) || !empty($mailData['transportation_address']) || !empty($mailData['transportation_phone']) || !empty($mailData['transportation_guest']) || !empty($mailData['transportation_note']))
             <tr><th colspan="2" style="background: #dbeafe; padding: 14px; border-radius: 6px;"><strong>Transportation Details</strong></th></tr>
@@ -183,9 +183,9 @@
             </table>
         @endif
     @else
-        <div class="eyebrow">Booking Confirmed</div>
-        <h1>Your CartVIP Booking Confirmation</h1>
-        <p>Thank you for booking with CartVIP. Your reservation has been successfully secured and submitted to the venue.</p>
+        <div class="eyebrow">Order Confirmed</div>
+        <h1>Your CartVIP Order Confirmation</h1>
+        <p>Thank you for your purchase with CartVIP. Your order has been successfully secured and submitted to the venue.</p>
 
         <div class="hero">
             <p style="margin:0 0 8px;"><strong>Confirmation #:</strong> {{ $confirmationNumber }}</p>
@@ -193,14 +193,14 @@
             <p style="margin:0;"><strong>Venue:</strong> {{ $venueName }}</p>
         </div>
 
-        <div class="section-title">Booking Details</div>
+        <div class="section-title">Order Details</div>
         <table class="summary">
             <tr><th>Confirmation #</th><td>{{ $confirmationNumber }}</td></tr>
             <tr><th>Order ID</th><td>{{ $orderId }}</td></tr>
             <tr><th>Venue</th><td>{{ $venueName }}</td></tr>
             <tr><th>Sale Date</th><td>{{ $saleDateFormatted }}</td></tr>
             <tr><th>Guest Name</th><td>{{ $guestName }}</td></tr>
-            <tr><th>Reservation Date</th><td>{{ $reservationDateFormatted }}</td></tr>
+            <tr><th>Order Date</th><td>{{ $reservationDateFormatted }}</td></tr>
             @if(!empty($eventName))
             <tr><th>Event</th><td>{{ $eventName }}</td></tr>
             @endif
@@ -214,7 +214,7 @@
             <tr><th>Email</th><td>{{ $mailData['package_email'] ?? 'N/A' }}</td></tr>
             <tr><th>Phone</th><td>{{ $mailData['package_phone'] ?? 'N/A' }}</td></tr>
             @if(!empty($mailData['package_note']))
-            <tr><th>Booking Note</th><td>{{ $mailData['package_note'] }}</td></tr>
+            <tr><th>Order Note</th><td>{{ $mailData['package_note'] }}</td></tr>
             @endif
             @if(!empty($mailData['transportation_mode']) || !empty($mailData['transportation_pickup_time']) || !empty($mailData['transportation_arrival_time']) || !empty($mailData['transportation_address']) || !empty($mailData['transportation_phone']) || !empty($mailData['transportation_guest']) || !empty($mailData['transportation_note']))
             <tr><th colspan="2" style="background: #dbeafe; padding: 14px; border-radius: 6px;"><strong>Transportation Details</strong></th></tr>
@@ -264,7 +264,7 @@
             <ul>
                 <li>your QR code</li>
                 <li>a valid government-issued ID</li>
-                <li>your booking confirmation upon arrival</li>
+                <li>your order confirmation upon arrival</li>
             </ul>
             <p>Your QR code is valid for <strong>one-time use only</strong> and may only be scanned once at the venue. Please do not share, duplicate, alter, or tamper with your QR code in any way, as invalid or previously scanned codes may be denied entry.</p>
 
@@ -337,7 +337,7 @@
         @endif
 
         <p>For questions regarding check-in, arrival times, upgrades, or venue policies, please contact the venue directly.</p>
-        <p>Thank you for booking with CartVIP.</p>
+        <p>Thank you for your purchase with CartVIP.</p>
     @endif
 
     <p class="muted">This is an automated email. Please do not reply.</p>

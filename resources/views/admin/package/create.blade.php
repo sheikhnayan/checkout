@@ -341,18 +341,6 @@ label{
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <div class="toggle-field">
-                                                            <p class="toggle-text">Physical Product <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="When enabled, this package is treated as a physical item and checkout will capture shipping details when needed."></i></p>
-                                                            <label class="toggle-switch" for="physical_product_enabled">
-                                                                <input id="physical_product_enabled" type="checkbox" name="physical_product_enabled" value="1" class="toggle-switch-input" @checked(old('physical_product_enabled'))>
-                                                                <span class="toggle-switch-slider"></span>
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <div class="toggle-field">
                                                             <p class="toggle-text">Mark as Most Popular <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Only one package can be most popular per website. Selecting this will automatically unselect other packages."></i></p>
                                                             <label class="toggle-switch" for="is_most_popular">
                                                                 <input id="is_most_popular" type="checkbox" name="is_most_popular" class="toggle-switch-input" @checked(old('is_most_popular'))>

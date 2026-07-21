@@ -29,7 +29,6 @@ class Package extends Model
         'guests_per_table',
         'multiple',
         'transportation',
-        'physical_product_enabled',
         'package_category_id',
         'event_id',
         'only_for_events',
@@ -39,7 +38,6 @@ class Package extends Model
     protected $casts = [
         'package_features' => 'array',
         'only_for_events' => 'boolean',
-        'physical_product_enabled' => 'boolean',
     ];
     
     public const AUDIENCE_CLUB = 'club';

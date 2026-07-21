@@ -12954,4 +12954,135 @@
     })();
     </script>
 
+    <script>
+    (function () {
+        function buildShippingHtml() {
+            return '' +
+                '<div id="shipping-fields-wrap" style="margin:16px 0 18px; padding:12px; border:1px solid rgba(255,255,255,0.14); border-radius:12px; background:rgba(255,255,255,0.03);">' +
+                '  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;">' +
+                '    <p style="margin:0;font-size:14px;font-weight:700;color:rgba(255,255,255,0.92);">Shipping same as billing</p>' +
+                '    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">' +
+                '      <input type="checkbox" name="shipping_same_as_billing" id="shipping_same_as_billing" value="1" />' +
+                '      <span style="font-size:12px;color:rgba(255,255,255,0.75);">Use billing details</span>' +
+                '    </label>' +
+                '  </div>' +
+                '  <div id="shipping-fields-panel">' +
+                '    <div class="form-row"><div class="form-group" style="width:50%;"><label>Shipping First Name</label><input type="text" name="shipping_first_name" autocomplete="shipping given-name" /></div><div class="form-group" style="width:50%;"><label>Shipping Last Name</label><input type="text" name="shipping_last_name" autocomplete="shipping family-name" /></div></div>' +
+                '    <div class="form-row"><div class="form-group" style="width:50%;"><label>Shipping Phone</label><input type="text" name="shipping_phone" autocomplete="shipping tel" /></div><div class="form-group" style="width:50%;"><label>Shipping Email</label><input type="email" name="shipping_email" autocomplete="shipping email" /></div></div>' +
+                '    <div class="form-row"><div class="form-group" style="width:100%;"><label>Shipping Address</label><input type="text" name="shipping_address" autocomplete="shipping street-address" /></div></div>' +
+                '    <div class="form-row"><div class="form-group" style="width:50%;"><label>Shipping Country</label><input type="text" name="shipping_country" autocomplete="shipping country-name" /></div><div class="form-group" style="width:50%;"><label>Shipping State/Province</label><input type="text" name="shipping_state" autocomplete="shipping address-level1" /></div></div>' +
+                '    <div class="form-row"><div class="form-group" style="width:50%;"><label>Shipping City</label><input type="text" name="shipping_city" autocomplete="shipping address-level2" /></div><div class="form-group" style="width:50%;"><label>Shipping Zip/Postal Code</label><input type="text" name="shipping_zip_code" autocomplete="shipping postal-code" /></div></div>' +
+                '  </div>' +
+                '</div>';
+        }
+
+        function bindProductCheckoutBehavior() {
+            var form = document.getElementById('payment-form');
+            if (!form) {
+                return;
+            }
+
+            var paymentConsent = document.getElementById('payment-consent-group');
+            if (paymentConsent && !document.getElementById('shipping-fields-wrap')) {
+                paymentConsent.insertAdjacentHTML('beforebegin', buildShippingHtml());
+            }
+
+            function syncShippingFields() {
+                var sameAsBilling = document.getElementById('shipping_same_as_billing');
+                if (!sameAsBilling) {
+                    return;
+                }
+
+                var fieldPairs = [
+                    ['payment_first_name', 'shipping_first_name'],
+                    ['payment_last_name', 'shipping_last_name'],
+                    ['payment_phone', 'shipping_phone'],
+                    ['payment_email', 'shipping_email'],
+                    ['payment_address', 'shipping_address'],
+                    ['payment_country', 'shipping_country'],
+                    ['payment_state', 'shipping_state'],
+                    ['payment_city', 'shipping_city'],
+                    ['payment_zip_code', 'shipping_zip_code']
+                ];
+
+                fieldPairs.forEach(function (pair) {
+                    var shippingField = form.querySelector('[name="' + pair[1] + '"]');
+                    var billingField = form.querySelector('[name="' + pair[0] + '"]');
+                    if (!shippingField) {
+                        return;
+                    }
+
+                    if (sameAsBilling.checked && billingField) {
+                        shippingField.value = billingField.value || '';
+                        shippingField.setAttribute('readonly', 'readonly');
+                        shippingField.required = false;
+                    } else {
+                        shippingField.removeAttribute('readonly');
+                        shippingField.required = true;
+                    }
+                });
+            }
+
+            $(document).on('change', '#shipping_same_as_billing', syncShippingFields);
+            $(document).on('input change', '#payment-form input[name="payment_first_name"], #payment-form input[name="payment_last_name"], #payment-form input[name="payment_phone"], #payment-form input[name="payment_email"], #payment-form input[name="payment_address"], #payment-form input[name="payment_country"], #payment-form input[name="payment_state"], #payment-form input[name="payment_city"], #payment-form input[name="payment_zip_code"]', function () {
+                if ($('#shipping_same_as_billing').is(':checked')) {
+                    syncShippingFields();
+                }
+            });
+            syncShippingFields();
+
+            window.requiresTransportation = false;
+            if (typeof syncTransportationStateFromCart === 'function') {
+                syncTransportationStateFromCart();
+            }
+
+            var transportSection = document.getElementById('section-2');
+            if (transportSection) {
+                transportSection.style.display = 'none';
+                transportSection.classList.remove('active');
+            }
+
+            var transportStep = document.getElementById('step-2');
+            if (transportStep) {
+                var title = transportStep.querySelector('.step-title');
+                if (title) {
+                    title.textContent = 'Payment';
+                }
+            }
+
+            $('#next-to-transport').text('Next: Payment Details').off('click').on('click', function () {
+                if (typeof validateStep === 'function' && !validateStep(1)) {
+                    return;
+                }
+                if (typeof populatePaymentFields === 'function') {
+                    populatePaymentFields();
+                }
+                if (typeof showStep === 'function') {
+                    showStep(3);
+                }
+            });
+
+            $('#next-to-payment, #next-to-payment-from-confirm').off('click').on('click', function () {
+                if (typeof validateStep === 'function' && !validateStep(2)) {
+                    return;
+                }
+                if (typeof populatePaymentFields === 'function') {
+                    populatePaymentFields();
+                }
+                if (typeof showStep === 'function') {
+                    showStep(3);
+                }
+            });
+
+            $('#prev-to-transport').text('Previous: Package Details').off('click').on('click', function () {
+                if (typeof showStep === 'function') {
+                    showStep(1);
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', bindProductCheckoutBehavior);
+    })();
+    </script>
+
     </html>

@@ -54,8 +54,8 @@ class TransactionMail extends Mailable
             ?? 'Pending';
 
         $subject = $this->recipientType === 'manager'
-            ? $clubName . ' - BOOKING - Confirmation # ' . $confirmationNumber
-            : 'Booking Confirmed - ' . $clubName . ' - Confirmation # ' . $confirmationNumber;
+            ? $clubName . ' - ORDER - Confirmation # ' . $confirmationNumber
+            : 'Order Confirmed - ' . $clubName . ' - Confirmation # ' . $confirmationNumber;
 
         return new Envelope(
             subject: $subject,

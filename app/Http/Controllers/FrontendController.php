@@ -140,6 +140,20 @@ class FrontendController extends Controller
             abort(404, 'Website not found');
         }
 
+        $isPhysicalProductCheckoutMode = $this->isPhysicalProductCheckoutMode($data);
+        if ($isPhysicalProductCheckoutMode) {
+            $productEventView = $eventView . '_product';
+            $productDefaultView = $defaultView . '_product';
+
+            if (view()->exists($productEventView)) {
+                $eventView = $productEventView;
+            }
+
+            if (view()->exists($productDefaultView)) {
+                $defaultView = $productDefaultView;
+            }
+        }
+
         if ($request->filled('aff')) {
             $affiliate = Affiliate::where('slug', $request->input('aff'))
                 ->where('status', 'approved')
@@ -251,6 +265,15 @@ class FrontendController extends Controller
 
         return view($defaultView, compact('data', 'affiliateReferral', 'requestedPackageId', 'packageCategories', 'checkoutPopup', 'isIframeCheckout', 'isSinglePackageCheckout'));
 
+    }
+
+    private function isPhysicalProductCheckoutMode(Website $website): bool
+    {
+        if (!Schema::hasColumn('websites', 'is_physical_product_checkout')) {
+            return false;
+        }
+
+        return (bool) $website->is_physical_product_checkout;
     }
 
     private function filterPackageCategoriesByPackageId($packageCategories, int $packageId)

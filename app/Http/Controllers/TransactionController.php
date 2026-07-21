@@ -289,10 +289,12 @@ class TransactionController extends Controller
         }
 
         $selectedPackage = Package::find($cartSummary['primary_package_id'] ?: $request->input('package_id'));
-        $requiresTransportation = $this->cartRequiresTransportation($cartItems, $selectedPackage);
-        $requiresPhysicalProducts = $this->cartRequiresPhysicalProducts($cartItems, $selectedPackage);
+        $w = Website::find($request->website_id);
+        $isPhysicalProductCheckout = $this->isPhysicalProductCheckoutEnabled($w);
+        $requiresTransportation = !$isPhysicalProductCheckout && $this->cartRequiresTransportation($cartItems, $selectedPackage);
+        $requiresPhysicalProducts = $isPhysicalProductCheckout || $this->cartRequiresPhysicalProducts($cartItems, $selectedPackage);
         $isSelfDriveTransportation = $requiresTransportation && $request->boolean('transportation_self_drive_ack');
-        $requiresArrivalTime = !$requiresTransportation || $isSelfDriveTransportation;
+        $requiresArrivalTime = !$isPhysicalProductCheckout && (!$requiresTransportation || $isSelfDriveTransportation);
 
         $this->normalizeTransportationTimeInputs($request, !$isSelfDriveTransportation, $requiresArrivalTime);
         $shippingSameAsBilling = $this->validateShippingDetails($request, $requiresPhysicalProducts);
@@ -353,7 +355,6 @@ class TransactionController extends Controller
 
         $setting = Setting::find(1);
 
-        $w = Website::find($request->website_id);
         [$validatedPromoCodeId, $validatedDiscountAmount] = $this->resolveValidatedPromoForCheckout($request, $w);
         $amount = $this->sanitizeAmount($request->total);
 
@@ -389,8 +390,6 @@ class TransactionController extends Controller
 
         if ($w->payment_method == 'stripe') {
             # code...
-
-            $w = Website::find($request->website_id);
 
             if ($w->stripe_secret_key != null) {
                 # code...
@@ -629,8 +628,6 @@ class TransactionController extends Controller
 
         } else {
             # code...
-            $w = Website::find($request->website_id);
-
             if ($w->authorize_app_key != null) {
                 // Club uses its own Authorize.Net account.
                 $app = $w->authorize_app_key;
@@ -992,9 +989,11 @@ class TransactionController extends Controller
         $ipAddress = $request->ip();
         $eventId = $this->resolvePackageTransactionEventId($request, $selectedPackage);
         $websiteId = (int) $request->website_id;
-        $requiresTransportation = $this->cartRequiresTransportation($cartItems, $selectedPackage);
+        $website = Website::find($request->website_id);
+        $isPhysicalProductCheckout = $this->isPhysicalProductCheckoutEnabled($website);
+        $requiresTransportation = !$isPhysicalProductCheckout && $this->cartRequiresTransportation($cartItems, $selectedPackage);
         $isSelfDriveTransportation = $requiresTransportation && $request->boolean('transportation_self_drive_ack');
-        $requiresArrivalTime = !$requiresTransportation || $isSelfDriveTransportation;
+        $requiresArrivalTime = !$isPhysicalProductCheckout && (!$requiresTransportation || $isSelfDriveTransportation);
 
         $this->normalizeTransportationTimeInputs($request, !$isSelfDriveTransportation, $requiresArrivalTime);
 
@@ -2582,6 +2581,19 @@ class TransactionController extends Controller
 
         return $selectedPackage
             && $this->isTruthy($selectedPackage->physical_product_enabled ?? false);
+    }
+
+    private function isPhysicalProductCheckoutEnabled(?Website $website): bool
+    {
+        if (!$website) {
+            return false;
+        }
+
+        if (!Schema::hasColumn('websites', 'is_physical_product_checkout')) {
+            return false;
+        }
+
+        return $this->isTruthy($website->is_physical_product_checkout ?? false);
     }
 
     private function validateShippingDetails(Request $request, bool $requiresPhysicalProducts): bool

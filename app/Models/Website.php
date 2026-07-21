@@ -82,6 +82,7 @@ class Website extends Model
         'clublifter_enabled',
         'emails',
         'reservation',
+        'is_physical_product_checkout',
         'payment_method',
         'stripe_app_key',
         'stripe_secret_key',
@@ -103,6 +104,7 @@ class Website extends Model
         'show_contact_info' => 'boolean',
         'entertainer_submission_emails' => 'array',
         'clublifter_enabled' => 'boolean',
+        'is_physical_product_checkout' => 'boolean',
     ];
    
     /**

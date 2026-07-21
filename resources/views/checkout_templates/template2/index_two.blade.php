@@ -217,86 +217,6 @@
                 font-weight: 600;
             }
 
-            .shipping-fields-wrap {
-                margin-top: 14px;
-                padding: 0;
-            }
-
-            .shipping-fields-wrap .toggle-field {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 16px;
-                padding: 12px 14px;
-                border: 1px solid rgba(255,255,255,0.14);
-                border-radius: 12px;
-                background: rgba(255,255,255,0.04);
-                margin-bottom: 14px;
-            }
-
-            .shipping-fields-wrap .toggle-text {
-                margin: 0;
-                font-size: 14px;
-                font-weight: 600;
-                color: rgba(255,255,255,0.92);
-            }
-
-            .shipping-fields-wrap .toggle-switch {
-                position: relative;
-                display: inline-block;
-                width: 48px;
-                height: 28px;
-                flex-shrink: 0;
-            }
-
-            .shipping-fields-wrap .toggle-switch-input {
-                opacity: 0;
-                width: 0;
-                height: 0;
-                position: absolute;
-            }
-
-            .shipping-fields-wrap .toggle-switch-slider {
-                position: absolute;
-                inset: 0;
-                border-radius: 999px;
-                background: rgba(255,255,255,0.18);
-                transition: background .2s ease;
-                cursor: pointer;
-            }
-
-            .shipping-fields-wrap .toggle-switch-slider::before {
-                content: '';
-                position: absolute;
-                width: 20px;
-                height: 20px;
-                left: 4px;
-                top: 4px;
-                border-radius: 50%;
-                background: #ffffff;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.25);
-                transition: transform .2s ease;
-            }
-
-            .shipping-fields-wrap .toggle-switch-input:checked + .toggle-switch-slider {
-                background: #f4c542;
-            }
-
-            .shipping-fields-wrap .toggle-switch-input:checked + .toggle-switch-slider::before {
-                transform: translateX(20px);
-            }
-
-            .shipping-fields-wrap .shipping-fields-panel {
-                padding: 12px;
-                border: 1px solid rgba(255,255,255,0.14);
-                border-radius: 12px;
-                background: rgba(255,255,255,0.02);
-            }
-
-            .shipping-fields-wrap .shipping-fields-panel .form-row:last-child {
-                margin-bottom: 0;
-            }
-
             /* Consistent button styles */
             .same-as-info,
             .same-as-info-transport {
@@ -6469,7 +6389,6 @@
                                                                 data-refundable="{{ $data->refundable_fee }}"
                                                                 data-sales_tax="{{ $data->sales_tax_fee ?? 10 }}"
                                                                 data-transportation="{{ $item->transportation }}"
-                                                                data-physical-product="{{ $item->physical_product_enabled }}"
                                                                 data-service_charge="{{ $data->service_charge_fee ?? 10 }}"
                                                                 data-default-label="Add to Cart">Add to Cart</button>
 
@@ -6955,64 +6874,6 @@
                                                                     <label for="zip">Zip/Postal Code</label>
                                                                     <input type="text" name="payment_zip_code"
                                                                         id="zip" placeholder="" required />
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="shipping-fields-wrap" id="shipping-fields-wrap" style="display:none;">
-                                                                <div class="toggle-field">
-                                                                    <p class="toggle-text">Shipping same as billing</p>
-                                                                    <label class="toggle-switch" for="shipping_same_as_billing">
-                                                                        <input type="checkbox" name="shipping_same_as_billing" value="1" id="shipping_same_as_billing" class="toggle-switch-input shipping-same-as-billing" />
-                                                                        <span class="toggle-switch-slider"></span>
-                                                                    </label>
-                                                                </div>
-                                                                <div class="shipping-fields-panel">
-                                                                    <div class="form-row">
-                                                                        <div class="form-group shipping-required-field" style="width: 50%;">
-                                                                            <label>Shipping First Name</label>
-                                                                            <input type="text" name="shipping_first_name" autocomplete="shipping given-name" />
-                                                                        </div>
-                                                                        <div class="form-group shipping-required-field" style="width: 50%;">
-                                                                            <label>Shipping Last Name</label>
-                                                                            <input type="text" name="shipping_last_name" autocomplete="shipping family-name" />
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="form-row">
-                                                                        <div class="form-group shipping-required-field" style="width: 50%;">
-                                                                            <label>Shipping Phone</label>
-                                                                            <input type="text" name="shipping_phone" autocomplete="shipping tel" />
-                                                                        </div>
-                                                                        <div class="form-group shipping-required-field" style="width: 50%;">
-                                                                            <label>Shipping Email</label>
-                                                                            <input type="email" name="shipping_email" autocomplete="shipping email" />
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="form-row">
-                                                                        <div class="form-group shipping-required-field" style="width: 100%;">
-                                                                            <label>Shipping Address</label>
-                                                                            <input type="text" name="shipping_address" autocomplete="shipping street-address" />
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="form-row">
-                                                                        <div class="form-group shipping-required-field" style="width: 50%;">
-                                                                            <label>Shipping Country</label>
-                                                                            <input type="text" name="shipping_country" autocomplete="shipping country-name" />
-                                                                        </div>
-                                                                        <div class="form-group shipping-required-field" style="width: 50%;">
-                                                                            <label>Shipping State/Province</label>
-                                                                            <input type="text" name="shipping_state" autocomplete="shipping address-level1" />
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="form-row">
-                                                                        <div class="form-group shipping-required-field" style="width: 50%;">
-                                                                            <label>Shipping City</label>
-                                                                            <input type="text" name="shipping_city" autocomplete="shipping address-level2" />
-                                                                        </div>
-                                                                        <div class="form-group shipping-required-field" style="width: 50%;">
-                                                                            <label>Shipping Zip/Postal Code</label>
-                                                                            <input type="text" name="shipping_zip_code" autocomplete="shipping postal-code" />
-                                                                        </div>
-                                                                    </div>
                                                                 </div>
                                                             </div>
 
@@ -8577,7 +8438,7 @@
             }
 
             // Define cart functions directly on window
-            window.addPackageToCart = function(packageId, packageName, packagePrice, guests, addons, transportation, isMultiple, physicalProduct) {
+            window.addPackageToCart = function(packageId, packageName, packagePrice, guests, addons, transportation, isMultiple) {
                 console.log('addPackageToCart called', packageId, packageName);
                 ensureCartArray();
                 let normalizedGuests = parseInt(guests, 10) || 1;
@@ -8615,7 +8476,7 @@
                         existing.isMultiple = parseMultipleFlag(isMultiple);
                         existing.packageType = packageType;
                     } else {
-                        window.cart.push({ packageId, packageName, packagePrice, guests: normalizedGuests, addons, transportation, isMultiple: parseMultipleFlag(isMultiple), packageType, physicalProduct: parseMultipleFlag(physicalProduct) });
+                        window.cart.push({ packageId, packageName, packagePrice, guests: normalizedGuests, addons, transportation, isMultiple: parseMultipleFlag(isMultiple), packageType });
                     }
                     window.renderCart();
                     syncCheckoutCartFields();
@@ -8741,9 +8602,6 @@
                 $('.payment_total').val(grandTotal.toFixed(2));
                 $('#subtotal').val(refundable_price > 0 ? refundable_price.toFixed(2) : grandTotal.toFixed(2));
                 $('#commission_base_amount').val(Math.max(subtotal - promoDiscount, 0).toFixed(2));
-                if (typeof window.updateCheckoutPhysicalRequirement === 'function') {
-                    window.updateCheckoutPhysicalRequirement();
-                }
                 if (typeof window.updateCheckoutPaymentRequirement === 'function') {
                     window.updateCheckoutPaymentRequirement();
                 }
@@ -9153,65 +9011,6 @@
                 $('#hidden_payment_year').val($('select[name="package_year"]').val());
             }
 
-            function isPhysicalProductCheckout() {
-                ensureCartArray();
-                return window.cart.some(function (pkg) {
-                    return pkg && (pkg.physicalProduct === true || pkg.physicalProduct === 1 || pkg.physicalProduct === '1');
-                });
-            }
-
-            function syncShippingFieldsFromBilling() {
-                var form = document.getElementById('payment-form');
-                var shippingWrap = document.getElementById('shipping-fields-wrap');
-                var sameAsBilling = document.getElementById('shipping_same_as_billing');
-
-                if (!form || !shippingWrap || !sameAsBilling) {
-                    return;
-                }
-
-                var shippingFields = form.querySelectorAll('.shipping-required-field input, .shipping-required-field select, .shipping-required-field textarea');
-                var fieldPairs = [
-                    ['payment_first_name', 'shipping_first_name'],
-                    ['payment_last_name', 'shipping_last_name'],
-                    ['payment_phone', 'shipping_phone'],
-                    ['payment_email', 'shipping_email'],
-                    ['payment_address', 'shipping_address'],
-                    ['payment_country', 'shipping_country'],
-                    ['payment_state', 'shipping_state'],
-                    ['payment_city', 'shipping_city'],
-                    ['payment_zip_code', 'shipping_zip_code']
-                ];
-
-                if (!isPhysicalProductCheckout()) {
-                    shippingWrap.style.display = 'none';
-                    sameAsBilling.checked = false;
-                    shippingFields.forEach(function (field) {
-                        field.required = false;
-                        field.value = '';
-                    });
-                    return;
-                }
-
-                shippingWrap.style.display = 'block';
-
-                if (sameAsBilling.checked) {
-                    fieldPairs.forEach(function (pair) {
-                        var billingField = form.querySelector('[name="' + pair[0] + '"]');
-                        var shippingField = form.querySelector('[name="' + pair[1] + '"]');
-                        if (!billingField || !shippingField) {
-                            return;
-                        }
-                        shippingField.value = billingField.value || '';
-                    });
-                }
-
-                shippingFields.forEach(function (field) {
-                    field.required = !sameAsBilling.checked;
-                });
-            }
-
-            window.updateCheckoutPhysicalRequirement = syncShippingFieldsFromBilling;
-
             // Copy package holder info to payment info (for visible fields only)
             $(document).on('click', '.same-as-info', function() {
                 // Text fields - only copy visible fields now
@@ -9219,16 +9018,6 @@
                 $("input[name='payment_last_name']").val($("input[name='package_last_name']").val());
                 // Hidden fields are auto-populated when moving to payment step
                 populatePaymentFields();
-            });
-
-            $(document).on('change input', '#payment-form input[name="payment_first_name"], #payment-form input[name="payment_last_name"], #payment-form input[name="payment_phone"], #payment-form input[name="payment_email"], #payment-form input[name="payment_address"], #payment-form input[name="payment_country"], #payment-form input[name="payment_state"], #payment-form input[name="payment_city"], #payment-form input[name="payment_zip_code"]', function() {
-                if ($('#shipping_same_as_billing').is(':checked')) {
-                    syncShippingFieldsFromBilling();
-                }
-            });
-
-            $(document).on('change', '#shipping_same_as_billing', function() {
-                syncShippingFieldsFromBilling();
             });
 
             // Copy package holder info to transportation info

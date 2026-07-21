@@ -257,8 +257,8 @@
             <div class="success-icon">
                 <i class="fas fa-check"></i>
             </div>
-            <h1>{{ isset($transaction) && $transaction->type === 'reservation' ? 'Booking Confirmed!' : 'Thank You!' }}</h1>
-            <p>{{ isset($transaction) && $transaction->type === 'reservation' ? 'Your booking has been successfully secured.' : 'Your payment has been processed successfully' }}</p>
+            <h1>{{ isset($transaction) ? 'Order Confirmed!' : 'Thank You!' }}</h1>
+            <p>{{ isset($transaction) ? 'Your purchase has been successfully secured.' : 'Your payment has been processed successfully' }}</p>
         </div>
 
         <div class="content-section">
@@ -462,7 +462,7 @@
             <div class="info-box">
                 <p>
                     <i class="fas fa-envelope"></i>
-                    <strong>Confirmation Email:</strong> A confirmation email has been sent to your email address with your booking details.
+                    <strong>Confirmation Email:</strong> A confirmation email has been sent to your email address with your order details.
                 </p>
             </div>
 
