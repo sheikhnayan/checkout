@@ -6705,7 +6705,7 @@
 
                                                                 </div>
 
-                                                                <div class="form-row">
+                                                                <div class="form-row" style="display:none !important;" aria-hidden="true">
                                                                     <div class="form-group" style="width: 100%;">
                                                                         <label for="phone">Contact Phone Number or
                                                                             WhatsApp</label>
@@ -6716,7 +6716,7 @@
 
                                                                 </div>
 
-                                                                <div class="form-row">
+                                                                <div class="form-row" style="display:none !important;" aria-hidden="true">
                                                                     <div class="num-guest"
                                                                         style="width: 100%; display: flex;">
                                                                         <label for="">Number of
