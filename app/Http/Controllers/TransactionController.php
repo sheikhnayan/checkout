@@ -291,6 +291,14 @@ class TransactionController extends Controller
         $selectedPackage = Package::find($cartSummary['primary_package_id'] ?: $request->input('package_id'));
         $w = Website::find($request->website_id);
         $isPhysicalProductCheckout = $this->isPhysicalProductCheckoutEnabled($w);
+
+        if ($isPhysicalProductCheckout && !$request->filled('package_use_date')) {
+            $fallbackTimezone = $w?->resolved_timezone ?: config('app.timezone', 'America/Los_Angeles');
+            $request->merge([
+                'package_use_date' => Carbon::now($fallbackTimezone)->format('Y-m-d'),
+            ]);
+        }
+
         $requiresTransportation = !$isPhysicalProductCheckout && $this->cartRequiresTransportation($cartItems, $selectedPackage);
         $requiresPhysicalProducts = $isPhysicalProductCheckout || $this->cartRequiresPhysicalProducts($cartItems, $selectedPackage);
         $isSelfDriveTransportation = $requiresTransportation && $request->boolean('transportation_self_drive_ack');

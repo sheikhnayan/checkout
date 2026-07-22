@@ -6811,9 +6811,6 @@
                                                         <!-- Left: Form Fields -->
                                                         <div class="form-left">
 
-                                                            <button type="button" class="same-as-info">Same as package holder
-                                                                information</button>
-
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 50%;">
                                                                     <label for="firstName">First Name</label>
@@ -6827,17 +6824,25 @@
                                                                 </div>
                                                             </div>
 
-                                                            <!-- Hidden fields for phone, email, and DOB - will be auto-populated from package holder info -->
-                                                            <input type="hidden" name="payment_phone"
-                                                                id="hidden_payment_phone"  required />
-                                                            <input type="hidden" name="payment_email"
-                                                                id="hidden_payment_email"  required />
+                                                            <div class="form-row">
+                                                                <div class="form-group" style="width: 50%;">
+                                                                    <label for="hidden_payment_phone">Phone Number</label>
+                                                                    <input type="tel" name="payment_phone"
+                                                                        id="hidden_payment_phone" placeholder="(555) 123-4567" required />
+                                                                </div>
+                                                                <div class="form-group" style="width: 50%;">
+                                                                    <label for="hidden_payment_email">Email</label>
+                                                                    <input type="email" name="payment_email"
+                                                                        id="hidden_payment_email" placeholder="sample@sample.com" required />
+                                                                </div>
+                                                            </div>
+
                                                             <input type="hidden" name="payment_month"
-                                                                id="hidden_payment_month"  required />
+                                                                id="hidden_payment_month" />
                                                             <input type="hidden" name="payment_day"
-                                                                id="hidden_payment_day"  required />
+                                                                id="hidden_payment_day" />
                                                             <input type="hidden" name="payment_year"
-                                                                id="hidden_payment_year"  required />
+                                                                id="hidden_payment_year" />
 
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 100%;">
@@ -8999,15 +9004,21 @@
         </script>
 
         <script>
-            // Auto-populate hidden payment fields when moving to payment step
+            // Physical checkout keeps package identity fields in sync from payment fields for backend compatibility.
             function populatePaymentFields() {
-                // Use E.164 format from hidden field for SMS
-                const e164Phone = $('input[name="package_phone_e164"]').val() || $('input[name="package_phone"]').val();
-                $('#hidden_payment_phone').val(e164Phone);
-                $('#hidden_payment_email').val($('input[name="package_email"]').val());
-                $('#hidden_payment_month').val($('select[name="package_month"]').val());
-                $('#hidden_payment_day').val($('select[name="package_day"]').val());
-                $('#hidden_payment_year').val($('select[name="package_year"]').val());
+                const paymentFirstName = $('input[name="payment_first_name"]').val() || '';
+                const paymentLastName = $('input[name="payment_last_name"]').val() || '';
+                const paymentPhone = $('input[name="payment_phone"]').val() || '';
+                const paymentEmail = $('input[name="payment_email"]').val() || '';
+
+                $('input[name="package_first_name"]').val(paymentFirstName);
+                $('input[name="package_last_name"]').val(paymentLastName);
+                $('input[name="package_phone"]').val(paymentPhone);
+                $('input[name="package_email"]').val(paymentEmail);
+
+                // Mirror phone/email into hidden IDs that some legacy scripts still reference.
+                $('#hidden_payment_phone').val(paymentPhone);
+                $('#hidden_payment_email').val(paymentEmail);
             }
 
             // Copy package holder info to payment info (for visible fields only)
@@ -12433,6 +12444,41 @@
                 return;
             }
 
+            var hiddenUseDateField = form.querySelector('input[name="package_use_date"]');
+            var defaultUseDate = hiddenUseDateField && hiddenUseDateField.value
+                ? hiddenUseDateField.value
+                : new Date().toISOString().slice(0, 10);
+
+            if (hiddenUseDateField) {
+                hiddenUseDateField.value = defaultUseDate;
+            }
+
+            $('#package_use_date, #package_use_date_iframe, .package_use_date').val(defaultUseDate).trigger('change');
+            $('#package_use_date_error, #package_use_date_iframe_error').hide();
+            $('#package_use_date, #package_use_date_iframe').removeClass('required-field').removeAttr('aria-invalid');
+
+            // Physical checkout is payment-only; keep date in hidden field and remove date pickers from UI.
+            $('#package_use_date, #package_use_date_iframe').closest('.form-group').hide();
+            $('#cv-sidebar-date').closest('.cv-sidebar-venue-row').hide();
+
+            // Single-step physical checkout: hide step trackers and non-payment sections.
+            $('#checkout-steps, #cv-checkout-steps, #cv-checkout-steps-res').hide();
+            $('#section-1, #section-2').removeClass('active').hide();
+            $('#section-3').addClass('active').show();
+
+            // Package holder section is hidden; prevent browser required validation from blocking submit.
+            $('input[name="package_first_name"], input[name="package_last_name"], input[name="package_phone"], input[name="package_email"], select[name="package_month"], select[name="package_day"], select[name="package_year"]').prop('required', false);
+
+            $('.same-as-info').remove();
+            $('#prev-to-transport').hide();
+
+            // Keep legacy package fields synchronized from payment fields before submit.
+            $(document).on('input change', '#payment-form input[name="payment_first_name"], #payment-form input[name="payment_last_name"], #payment-form input[name="payment_phone"], #payment-form input[name="payment_email"]', populatePaymentFields);
+            $(form).on('submit', function () {
+                populatePaymentFields();
+            });
+            populatePaymentFields();
+
             var paymentConsent = document.getElementById('payment-consent-group');
             if (paymentConsent && !document.getElementById('shipping-fields-wrap')) {
                 paymentConsent.insertAdjacentHTML('beforebegin', buildShippingHtml());
@@ -12533,7 +12579,7 @@
             var nativeShowStep = (typeof window.showStep === 'function') ? window.showStep : null;
             if (nativeShowStep && !window.__physicalCheckoutStepPatched) {
                 window.showStep = function (stepNumber) {
-                    var normalized = (stepNumber === 2) ? 3 : stepNumber;
+                    var normalized = 3;
                     return nativeShowStep(normalized);
                 };
                 window.__physicalCheckoutStepPatched = true;
@@ -12575,9 +12621,8 @@
                 }
             });
 
-            if (typeof showStep === 'function') {
-                showStep(1);
-            }
+            $('#section-1, #section-2').removeClass('active').hide();
+            $('#section-3').addClass('active').show();
         }
 
         document.addEventListener('DOMContentLoaded', bindProductCheckoutBehavior);
