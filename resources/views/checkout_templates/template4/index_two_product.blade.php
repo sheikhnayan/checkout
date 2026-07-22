@@ -13063,6 +13063,73 @@
             $('.same-as-info').remove();
             $('#prev-to-transport').hide();
 
+            function enforcePhysicalStepsHidden() {
+                var stepSelectors = ['#checkout-steps', '#cv-checkout-steps', '#cv-checkout-steps-res'];
+                stepSelectors.forEach(function (selector) {
+                    var el = document.querySelector(selector);
+                    if (el) {
+                        el.style.setProperty('display', 'none', 'important');
+                    }
+                });
+            }
+
+            var hadCartItems = null;
+            function hasCartItems() {
+                return Array.isArray(window.cart) && window.cart.length > 0;
+            }
+
+            function updatePhysicalCheckoutVisibility() {
+                var hasItems = hasCartItems();
+                var paymentSection = document.getElementById('section-3');
+                var emptyHint = document.getElementById('physical-cart-required-note');
+
+                enforcePhysicalStepsHidden();
+
+                if (!emptyHint && paymentSection && paymentSection.parentNode) {
+                    emptyHint = document.createElement('div');
+                    emptyHint.id = 'physical-cart-required-note';
+                    emptyHint.className = 'checkbox-container';
+                    emptyHint.style.margin = '16px 0';
+                    emptyHint.style.borderColor = 'rgba(255,255,255,0.2)';
+                    emptyHint.style.background = 'rgba(255,255,255,0.04)';
+                    emptyHint.innerHTML = '<div style="font-size:14px;line-height:1.5;color:rgba(255,255,255,0.88);">Add a package to cart to continue to payment.</div>';
+                    paymentSection.parentNode.insertBefore(emptyHint, paymentSection);
+                }
+
+                if (hasItems) {
+                    $('#section-1, #section-2').removeClass('active').hide();
+                    $('#section-3').addClass('active').show();
+                    if (emptyHint) {
+                        emptyHint.style.display = 'none';
+                    }
+
+                    if (hadCartItems === false) {
+                        if (typeof triggerEmbedCheckoutScrollFallback === 'function') {
+                            triggerEmbedCheckoutScrollFallback(140);
+                        } else if (paymentSection && typeof paymentSection.scrollIntoView === 'function') {
+                            paymentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }
+                } else {
+                    $('#section-3').removeClass('active').hide();
+                    if (emptyHint) {
+                        emptyHint.style.display = 'block';
+                    }
+                }
+
+                hadCartItems = hasItems;
+            }
+
+            if (typeof window.renderCart === 'function' && !window.__physicalRenderCartVisibilityPatched) {
+                var nativeRenderCart = window.renderCart;
+                window.renderCart = function () {
+                    var result = nativeRenderCart.apply(this, arguments);
+                    updatePhysicalCheckoutVisibility();
+                    return result;
+                };
+                window.__physicalRenderCartVisibilityPatched = true;
+            }
+
             // Keep legacy package fields synchronized from payment fields before submit.
             $(document).on('input change', '#payment-form input[name="payment_first_name"], #payment-form input[name="payment_last_name"], #payment-form input[name="payment_phone"], #payment-form input[name="payment_email"]', populatePaymentFields);
             $(form).on('submit', function () {
@@ -13171,7 +13238,9 @@
             if (nativeShowStep && !window.__physicalCheckoutStepPatched) {
                 window.showStep = function (stepNumber) {
                     var normalized = 3;
-                    return nativeShowStep(normalized);
+                    var result = nativeShowStep(normalized);
+                    updatePhysicalCheckoutVisibility();
+                    return result;
                 };
                 window.__physicalCheckoutStepPatched = true;
             }
@@ -13212,8 +13281,7 @@
                 }
             });
 
-            $('#section-1, #section-2').removeClass('active').hide();
-            $('#section-3').addClass('active').show();
+            updatePhysicalCheckoutVisibility();
         }
 
         document.addEventListener('DOMContentLoaded', bindProductCheckoutBehavior);
