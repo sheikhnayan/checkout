@@ -593,7 +593,7 @@ class PackageController extends Controller
             'addons' => 'nullable|string',
             'multiple' => 'nullable',
             'transportation' => 'nullable',
-            'physical_product_enabled' => 'nullable|boolean',
+            'physical_product_enabled' => 'nullable',
             'is_most_popular' => 'nullable',
             'only_for_events' => 'nullable|boolean',
             'event_id' => $isTargeted ? 'prohibited' : 'nullable|integer',
