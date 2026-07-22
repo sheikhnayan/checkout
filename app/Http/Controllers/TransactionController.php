@@ -330,7 +330,6 @@ class TransactionController extends Controller
             if (!$isSelfDriveTransportation) {
                 $transportationValidationRules['transportation_pickup_time'] = ['required', 'string', 'max:100'];
                 $transportationValidationRules['transportation_address'] = ['required', 'string', 'max:255'];
-                $transportationValidationRules['transportation_phone'] = ['required', 'string', 'max:50'];
             }
 
             $request->validate(
@@ -340,7 +339,6 @@ class TransactionController extends Controller
                     'package_use_date.date' => 'Pickup date must be a valid date.',
                     'transportation_pickup_time.required' => 'Pickup time is required for transportation packages.',
                     'transportation_address.required' => 'Pickup location is required for transportation packages.',
-                    'transportation_phone.required' => 'Contact Phone Number or WhatsApp is required for transportation packages.',
                 ]
             );
 
@@ -360,6 +358,12 @@ class TransactionController extends Controller
                 ]
             );
         }
+
+        $derivedTransportationPhone = trim((string) $request->input('package_phone', ''));
+        if ($derivedTransportationPhone === '') {
+            $derivedTransportationPhone = trim((string) $request->input('payment_phone', ''));
+        }
+        $derivedTransportationGuest = max(1, (int) ($cartSummary['total_guests'] ?? 1));
 
         $setting = Setting::find(1);
 
@@ -467,8 +471,8 @@ class TransactionController extends Controller
                     $add->transportation_pickup_time = $isSelfDriveTransportation ? null : $request->input('transportation_pickup_time');
                     $add->transportation_arrival_time = $requiresArrivalTime ? $request->input('transportation_arrival_time') : null;
                     $add->transportation_address = $isSelfDriveTransportation ? null : $request->input('transportation_address');
-                    $add->transportation_phone = $isSelfDriveTransportation ? null : $request->input('transportation_phone');
-                    $add->transportation_guest = $isSelfDriveTransportation ? null : $request->input('transportation_guest');
+                    $add->transportation_phone = $isSelfDriveTransportation ? null : $derivedTransportationPhone;
+                    $add->transportation_guest = $isSelfDriveTransportation ? null : $derivedTransportationGuest;
                     $add->transportation_note = $isSelfDriveTransportation ? null : $request->input('transportation_note');
                     $add->addons = $cartSummary['addons_summary'];
                     $add->package_id = $cartSummary['primary_package_id'] ?: $request->input('package_id');
@@ -799,8 +803,8 @@ class TransactionController extends Controller
                     $add->transportation_pickup_time = $isSelfDriveTransportation ? null : $request->input('transportation_pickup_time');
                     $add->transportation_arrival_time = $requiresArrivalTime ? $request->input('transportation_arrival_time') : null;
                     $add->transportation_address = $isSelfDriveTransportation ? null : $request->input('transportation_address');
-                    $add->transportation_phone = $isSelfDriveTransportation ? null : $request->input('transportation_phone');
-                    $add->transportation_guest = $isSelfDriveTransportation ? null : $request->input('transportation_guest');
+                    $add->transportation_phone = $isSelfDriveTransportation ? null : $derivedTransportationPhone;
+                    $add->transportation_guest = $isSelfDriveTransportation ? null : $derivedTransportationGuest;
                     $add->transportation_note = $isSelfDriveTransportation ? null : $request->input('transportation_note');
                     $add->addons = $cartSummary['addons_summary'];
                     $add->package_id = $cartSummary['primary_package_id'] ?: $request->input('package_id');
@@ -1037,8 +1041,8 @@ class TransactionController extends Controller
         $transaction->transportation_pickup_time = $isSelfDriveTransportation ? null : $request->input('transportation_pickup_time');
         $transaction->transportation_arrival_time = $requiresArrivalTime ? $request->input('transportation_arrival_time') : null;
         $transaction->transportation_address = $isSelfDriveTransportation ? null : $request->input('transportation_address');
-        $transaction->transportation_phone = $isSelfDriveTransportation ? null : $request->input('transportation_phone');
-        $transaction->transportation_guest = $isSelfDriveTransportation ? null : $request->input('transportation_guest');
+        $transaction->transportation_phone = $isSelfDriveTransportation ? null : $derivedTransportationPhone;
+        $transaction->transportation_guest = $isSelfDriveTransportation ? null : $derivedTransportationGuest;
         $transaction->transportation_note = $isSelfDriveTransportation ? null : $request->input('transportation_note');
         $transaction->addons = $cartSummary['addons_summary'];
         $transaction->package_id = $cartSummary['primary_package_id'] ?: $request->input('package_id');

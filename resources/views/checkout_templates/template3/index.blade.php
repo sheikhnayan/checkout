@@ -7673,6 +7673,30 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 });
             }
 
+                        function syncDerivedTransportationFields() {
+                const transportationPhoneField = $('input[name="transportation_phone"]');
+                const transportationGuestField = $('input[name="transportation_guest"]');
+                const packagePhone = $('input[name="package_phone"]').first().val() || $('input[name="payment_phone"]').first().val() || '';
+                let totalGuests = 0;
+
+                ensureCartArray();
+                window.cart.forEach(function(pkg) {
+                    if (typeof getBillableGuests === 'function') {
+                        totalGuests += getBillableGuests(pkg);
+                    } else {
+                        const guests = parseInt(pkg && pkg.guests, 10);
+                        totalGuests += Number.isFinite(guests) && guests > 0 ? guests : 1;
+                    }
+                });
+
+                totalGuests = Math.max(1, totalGuests);
+
+                transportationPhoneField.val(packagePhone).prop('required', false).removeAttr('aria-required');
+                transportationGuestField.val(String(totalGuests)).prop('required', false).removeAttr('aria-required');
+
+                transportationPhoneField.closest('.form-row').hide();
+                transportationGuestField.closest('.form-row').hide();
+            }
             function syncTransportationStateFromCart() {
                 window.requiresTransportation = cartRequiresTransportation();
                 const transportationFields = $('#transport-form').find('input, select, textarea');
@@ -7721,6 +7745,8 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     driverNotificationConsentWrap.hide();
                     driverNotificationConsentInputs.prop('checked', false).prop('required', false).removeAttr('aria-required');
                 }
+
+                syncDerivedTransportationFields();
 
                 updateTransportationSelfDriveState();
             }
@@ -9321,7 +9347,9 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 });
 
                 $(document).on('change', '#transportation_self_drive_ack', function() {
-                    updateTransportationSelfDriveState();
+                    syncDerivedTransportationFields();
+
+                updateTransportationSelfDriveState();
                 });
                         if (typeof triggerEmbedCheckoutScrollFallback === 'function') {
                             triggerEmbedCheckoutScrollFallback(900);
@@ -10020,14 +10048,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     };
                 }
 
-                if (!contactPhone) {
-                    contactPhoneField.addClass('required-field');
-                    return {
-                        valid: false,
-                        field: contactPhoneField,
-                        message: 'Please enter your contact phone number.'
-                    };
-                }
+
 
                 return { valid: true, field: null, message: '' };
             }

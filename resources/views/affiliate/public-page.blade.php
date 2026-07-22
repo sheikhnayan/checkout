@@ -7471,6 +7471,30 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 });
             }
 
+                        function syncDerivedTransportationFields() {
+                const transportationPhoneField = $('input[name="transportation_phone"]');
+                const transportationGuestField = $('input[name="transportation_guest"]');
+                const packagePhone = $('input[name="package_phone"]').first().val() || $('input[name="payment_phone"]').first().val() || '';
+                let totalGuests = 0;
+
+                ensureCartArray();
+                window.cart.forEach(function(pkg) {
+                    if (typeof getBillableGuests === 'function') {
+                        totalGuests += getBillableGuests(pkg);
+                    } else {
+                        const guests = parseInt(pkg && pkg.guests, 10);
+                        totalGuests += Number.isFinite(guests) && guests > 0 ? guests : 1;
+                    }
+                });
+
+                totalGuests = Math.max(1, totalGuests);
+
+                transportationPhoneField.val(packagePhone).prop('required', false).removeAttr('aria-required');
+                transportationGuestField.val(String(totalGuests)).prop('required', false).removeAttr('aria-required');
+
+                transportationPhoneField.closest('.form-row').hide();
+                transportationGuestField.closest('.form-row').hide();
+            }
             function syncTransportationStateFromCart() {
                 window.requiresTransportation = cartRequiresTransportation();
                 const transportationFields = $('#transport-form').find('input, select, textarea');
@@ -7518,6 +7542,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     driverNotificationConsentWrap.hide();
                     driverNotificationConsentInputs.prop('checked', false).prop('required', false).removeAttr('aria-required');
                 }
+
+                syncDerivedTransportationFields();
 
                 updateTransportationSelfDriveState();
             }
@@ -8842,7 +8868,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 });
 
                 $(document).on('change', '#transportation_self_drive_ack', function() {
-                    updateTransportationSelfDriveState();
+                    syncDerivedTransportationFields();
+
+                updateTransportationSelfDriveState();
                 });
                 
                 // Previous to Package from Transportation confirmation

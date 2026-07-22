@@ -453,7 +453,7 @@
     <div class="section">
         <div class="section-title">Business Details</div>
         <div class="info-row">
-            <span class="info-label">Club</span>
+            <span class="info-label">Business</span>
             <span class="info-value">{{ $club->name ?? 'N/A' }}</span>
         </div>
         <div class="info-row">
