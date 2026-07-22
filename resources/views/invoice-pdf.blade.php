@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Invoice - {{ $transaction->transaction_id }}</title>
+    <title>Receipt - {{ $transaction->transaction_id }}</title>
     <style>
         body {
             font-family: 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif;
@@ -199,7 +199,7 @@
     <!-- Header -->
     <div class="header">
         <div class="header-content">
-            <h1 class="header-title">INVOICE</h1>
+            <h1 class="header-title">RECEIPT</h1>
             <p class="header-subtitle">Confirmation ID: {{ $transaction->transaction_id }}</p>
             <p class="header-subtitle">Order ID: {{ $transaction->id ?? 'N/A' }}</p>
         </div>
@@ -451,7 +451,7 @@
     </div>
 
     <div class="section">
-        <div class="section-title">Club Details</div>
+        <div class="section-title">Business Details</div>
         <div class="info-row">
             <span class="info-label">Club</span>
             <span class="info-value">{{ $club->name ?? 'N/A' }}</span>
@@ -556,7 +556,7 @@
 
     <!-- Footer -->
     <div class="footer">
-        <p>Thank you for your purchase! This is an automated invoice. Please do not reply to this email.</p>
+        <p>Thank you for your purchase! This is an automated receipt. Please do not reply to this email.</p>
         <p style="margin-top: 10px; font-size: 10px; color: #999;">cartvip.com</p>
     </div>
 </div>

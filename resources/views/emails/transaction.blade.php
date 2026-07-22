@@ -78,7 +78,7 @@
 @endphp
 <div class="container">
     @if($isManagerCopy)
-        <div class="eyebrow">Manager Order Notice</div>
+        <div class="eyebrow">New Order Notification</div>
         <h2>{{ $venueName }} - ORDER</h2>
         <div class="hero">
             <p style="margin:0;"><strong>Confirmation #:</strong> {{ $confirmationNumber }}</p>
