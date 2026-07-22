@@ -257,7 +257,7 @@
             @endif
         </table>
 
-        @if(!empty($mailData['ticket_qr_code']))
+        @if(($showQrInEmail ?? true) && !empty($mailData['ticket_qr_code']))
             <div class="section-title">Important Check-In Instructions</div>
             <p>Your confirmation includes a unique QR code for venue check-in.</p>
             <p>Please present:</p>
@@ -336,7 +336,11 @@
             </table>
         @endif
 
+        @if($showQrInEmail ?? true)
         <p>For questions regarding check-in, arrival times, upgrades, or venue policies, please contact the venue directly.</p>
+        @else
+        <p>For questions regarding your order, shipping, upgrades, or venue policies, please contact the venue directly.</p>
+        @endif
         <p>Thank you for your purchase with CartVIP.</p>
     @endif
 

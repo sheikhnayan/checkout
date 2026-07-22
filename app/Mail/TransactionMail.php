@@ -86,6 +86,8 @@ class TransactionMail extends Mailable
             $mailData['transaction_id'] = $this->transaction->transaction_id;
         }
 
+        $showQrInEmail = $this->shouldIncludeQrInEmail();
+
         return new Content(
             view: 'emails.transaction',
             with: [
@@ -94,6 +96,7 @@ class TransactionMail extends Mailable
                 'transaction' => $this->transaction,
                 'recipientType' => $this->recipientType,
                 'isManagerCopy' => $this->recipientType === 'manager',
+                'showQrInEmail' => $showQrInEmail,
             ],
         );
     }
@@ -112,7 +115,8 @@ class TransactionMail extends Mailable
         try {
             // Pre-fetch QR code as base64 so DomPDF can embed it without external HTTP
             $qrCodeBase64 = null;
-            if ($this->includeQrInPdf && !empty($this->transaction->ticket_qr_code)) {
+            $showQrInPdf = $this->shouldIncludeQrInPdf();
+            if ($showQrInPdf && !empty($this->transaction->ticket_qr_code)) {
                 try {
                     $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' . urlencode($this->transaction->ticket_qr_code);
                     $qrImageData = @file_get_contents($qrUrl);
@@ -131,7 +135,7 @@ class TransactionMail extends Mailable
                 'website' => $this->website,
                 'mailData' => $this->mailData,
                 'qrCodeBase64' => $qrCodeBase64,
-                'showQrInPdf' => $this->includeQrInPdf,
+                'showQrInPdf' => $showQrInPdf,
             ]);
 
             return [
@@ -148,5 +152,35 @@ class TransactionMail extends Mailable
             ]);
             return [];
         }
+    }
+
+    private function shouldIncludeQrInEmail(): bool
+    {
+        return $this->recipientType !== 'manager' && !$this->isPhysicalCheckoutWebsite();
+    }
+
+    private function shouldIncludeQrInPdf(): bool
+    {
+        return $this->includeQrInPdf && !$this->isPhysicalCheckoutWebsite();
+    }
+
+    private function isPhysicalCheckoutWebsite(): bool
+    {
+        $website = $this->website;
+
+        if (!$website && $this->transaction?->relationLoaded('website')) {
+            $website = $this->transaction->website;
+        }
+
+        if (!$website && $this->transaction?->website_id) {
+            $website = Website::find($this->transaction->website_id);
+        }
+
+        return $this->isTruthy(optional($website)->is_physical_product_checkout ?? false);
+    }
+
+    private function isTruthy($value): bool
+    {
+        return $value === true || $value === 1 || $value === '1' || $value === 'true';
     }
 }
