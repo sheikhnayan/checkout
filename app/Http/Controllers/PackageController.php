@@ -138,8 +138,9 @@ class PackageController extends Controller
         $this->authorizeWebsiteAccess($id, 'Access denied. You can only create packages for your own website.');
         
         [$events, $addons, $categories] = $this->packageFormDependencies((int) $id);
+        $isPhysicalWebsite = $this->websiteHasPhysicalCheckout((int) $id);
 
-        return view('admin.package.create', compact('id', 'events', 'addons', 'categories'));
+        return view('admin.package.create', compact('id', 'events', 'addons', 'categories', 'isPhysicalWebsite'));
     }
 
     public function createTargeted(Request $request, string $audience)
@@ -342,8 +343,9 @@ class PackageController extends Controller
         $this->authorizeWebsiteAccess($data->website_id, 'Access denied. You can only edit packages for your own website.');
 
         [$events, $addons, $categories] = $this->packageFormDependencies((int) $data->website_id);
+        $isPhysicalWebsite = $this->websiteHasPhysicalCheckout((int) $data->website_id);
 
-        return view('admin.package.edit', compact('data', 'id', 'events', 'addons', 'categories'));
+        return view('admin.package.edit', compact('data', 'id', 'events', 'addons', 'categories', 'isPhysicalWebsite'));
     }
 
     public function editTargeted(string $id)
@@ -591,6 +593,7 @@ class PackageController extends Controller
             'addons' => 'nullable|string',
             'multiple' => 'nullable',
             'transportation' => 'nullable',
+            'physical_product_enabled' => 'nullable|boolean',
             'is_most_popular' => 'nullable',
             'only_for_events' => 'nullable|boolean',
             'event_id' => $isTargeted ? 'prohibited' : 'nullable|integer',
@@ -659,6 +662,7 @@ class PackageController extends Controller
         $package->status = $request->status;
         $package->multiple = $request->boolean('multiple') ? 1 : 0;
         $package->transportation = $request->boolean('transportation') ? 1 : 0;
+        $package->physical_product_enabled = $this->websiteHasPhysicalCheckout($websiteId) && $request->boolean('physical_product_enabled') ? 1 : 0;
         $package->is_most_popular = $request->boolean('is_most_popular') ? 1 : 0;
         $package->package_type = $request->input('package_type', 'ticket');
         $package->website_id = $websiteId;
@@ -684,6 +688,15 @@ class PackageController extends Controller
         $package->only_for_events = $resolvedEventId
             ? ($request->boolean('only_for_events') ? 1 : 0)
             : 0;
+    }
+
+    private function websiteHasPhysicalCheckout(int $websiteId): bool
+    {
+        if ($websiteId <= 0) {
+            return false;
+        }
+
+        return (int) Website::where('id', $websiteId)->value('is_physical_product_checkout') === 1;
     }
 
     private function nextSortOrderForCategory(int $websiteId, ?int $categoryId, string $audience, ?int $ignorePackageId = null): int

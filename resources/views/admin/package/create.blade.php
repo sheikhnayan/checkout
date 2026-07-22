@@ -338,6 +338,20 @@ label{
                                                     </div>
                                                 </div>
 
+                                                @if(!empty($isPhysicalWebsite))
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <div class="toggle-field">
+                                                            <p class="toggle-text">Physical Product <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="When enabled, this package requires physical checkout shipping details once added to cart."></i></p>
+                                                            <label class="toggle-switch" for="physical_product_enabled">
+                                                                <input id="physical_product_enabled" type="checkbox" name="physical_product_enabled" class="toggle-switch-input" @checked(old('physical_product_enabled'))>
+                                                                <span class="toggle-switch-slider"></span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @endif
+
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <div class="toggle-field">

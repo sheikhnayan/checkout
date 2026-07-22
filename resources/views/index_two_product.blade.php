@@ -6388,6 +6388,7 @@
                                                                 data-refundable="{{ $data->refundable_fee }}"
                                                                 data-sales_tax="{{ $data->sales_tax_fee ?? 10 }}"
                                                                 data-transportation="{{ $item->transportation }}"
+                                                                data-physical-product-enabled="{{ (int) ($item->physical_product_enabled ?? 0) }}"
                                                                 data-service_charge="{{ $data->service_charge_fee ?? 10 }}"
                                                                 data-default-label="Add to Cart">Add to Cart</button>
 
@@ -8246,6 +8247,10 @@
                 return value === true || value === 1 || value === '1' || value === 'true';
             }
 
+            function parseTruthyFlag(value) {
+                return value === true || value === 1 || value === '1' || value === 'true';
+            }
+
             function getPackageMultipleFromDom(packageId) {
                 let multipleValue = $('.package_number_of_guestss[data-id="' + packageId + '"]').first().data('multiple');
                 return parseMultipleFlag(multipleValue);
@@ -8443,11 +8448,12 @@
             }
 
             // Define cart functions directly on window
-            window.addPackageToCart = function(packageId, packageName, packagePrice, guests, addons, transportation, isMultiple) {
+            window.addPackageToCart = function(packageId, packageName, packagePrice, guests, addons, transportation, isMultiple, physicalProductEnabled) {
                 console.log('addPackageToCart called', packageId, packageName);
                 ensureCartArray();
                 let normalizedGuests = parseInt(guests, 10) || 1;
                 let useDate = getSelectedUseDate();
+                const isPhysicalProduct = parseTruthyFlag(physicalProductEnabled) || parseTruthyFlag($('.vip-btn[data-id="' + packageId + '"]').first().data('physical-product-enabled'));
                 
                 // Check daily limits for this package
                 $.get('/{{ $data->slug }}/package/' + packageId + '/capacity', {
@@ -8480,8 +8486,9 @@
                         existing.transportation = transportation;
                         existing.isMultiple = parseMultipleFlag(isMultiple);
                         existing.packageType = packageType;
+                        existing.physical_product_enabled = isPhysicalProduct;
                     } else {
-                        window.cart.push({ packageId, packageName, packagePrice, guests: normalizedGuests, addons, transportation, isMultiple: parseMultipleFlag(isMultiple), packageType });
+                        window.cart.push({ packageId, packageName, packagePrice, guests: normalizedGuests, addons, transportation, isMultiple: parseMultipleFlag(isMultiple), packageType, physical_product_enabled: isPhysicalProduct });
                     }
                     window.renderCart();
                     syncCheckoutCartFields();
@@ -9348,6 +9355,7 @@
                     let guestValue = $guestSelect.val();
                     let isMultiple = parseMultipleFlag($guestSelect.data('multiple'));
                     let transportation = $btn.data('transportation');
+                    let physicalProductEnabled = parseTruthyFlag($btn.data('physical-product-enabled'));
 
                     if (!ensureReservationDateSelected()) {
                         return;
@@ -9376,6 +9384,7 @@
                                 guests: guests,
                                 isMultiple: isMultiple,
                                 transportation: transportation,
+                                physicalProductEnabled: physicalProductEnabled,
                                 addons: Array.isArray(res) ? res : []
                             };
 
@@ -9411,7 +9420,7 @@
                         }
                     });
 
-                    window.addPackageToCart(selection.packageId, selection.packageName, selection.packagePrice, selection.guests, selectedAddons, selection.transportation, selection.isMultiple);
+                    window.addPackageToCart(selection.packageId, selection.packageName, selection.packagePrice, selection.guests, selectedAddons, selection.transportation, selection.isMultiple, selection.physicalProductEnabled);
 
                     let addonModalEl = document.getElementById('addonSelectionModal');
                     if (document.body.classList.contains('embed-checkout-mode') && addonModalEl) {
@@ -9439,7 +9448,7 @@
                     let selection = window.pendingPackageSelection;
                     let selectedAddons = []; // Empty array - no add-ons selected
 
-                    window.addPackageToCart(selection.packageId, selection.packageName, selection.packagePrice, selection.guests, selectedAddons, selection.transportation, selection.isMultiple);
+                    window.addPackageToCart(selection.packageId, selection.packageName, selection.packagePrice, selection.guests, selectedAddons, selection.transportation, selection.isMultiple, selection.physicalProductEnabled);
 
                     let addonModalEl = document.getElementById('addonSelectionModal');
                     if (document.body.classList.contains('embed-checkout-mode') && addonModalEl) {
@@ -12555,6 +12564,8 @@
                         emptyHint.style.display = 'none';
                     }
 
+                    updateShippingFieldsVisibility();
+
                     if (hadCartItems === false) {
                         if (typeof triggerEmbedCheckoutScrollFallback === 'function') {
                             triggerEmbedCheckoutScrollFallback(140);
@@ -12567,6 +12578,8 @@
                     if (emptyHint) {
                         emptyHint.style.display = 'block';
                     }
+
+                    updateShippingFieldsVisibility();
                 }
 
                 hadCartItems = hasItems;
@@ -12594,6 +12607,57 @@
                 paymentConsent.insertAdjacentHTML('beforebegin', buildShippingHtml());
             }
 
+            function cartHasPhysicalProducts() {
+                if (!Array.isArray(window.cart) || !window.cart.length) {
+                    return false;
+                }
+
+                return window.cart.some(function (item) {
+                    if (!item || typeof item !== 'object') {
+                        return false;
+                    }
+
+                    var directFlag = item.physical_product_enabled;
+                    if (typeof directFlag !== 'undefined') {
+                        return parseTruthyFlag(directFlag);
+                    }
+
+                    var packageId = item.packageId || item.package_id;
+                    if (!packageId) {
+                        return false;
+                    }
+
+                    return parseTruthyFlag($('.vip-btn[data-id="' + packageId + '"]').first().data('physical-product-enabled'));
+                });
+            }
+
+            function updateShippingFieldsVisibility() {
+                var shippingWrap = document.getElementById('shipping-fields-wrap');
+                if (!shippingWrap) {
+                    return;
+                }
+
+                var requiresShipping = cartHasPhysicalProducts();
+                shippingWrap.style.display = requiresShipping ? 'block' : 'none';
+
+                var sameAsBilling = document.getElementById('shipping_same_as_billing');
+                var shippingFields = shippingWrap.querySelectorAll('input[name^="shipping_"]');
+
+                if (!requiresShipping) {
+                    if (sameAsBilling) {
+                        sameAsBilling.checked = false;
+                    }
+
+                    shippingFields.forEach(function (field) {
+                        field.required = false;
+                        field.removeAttribute('readonly');
+                    });
+                    return;
+                }
+
+                syncShippingFields();
+            }
+
             function applyProductStepLabels() {
                 $('#step-2 .step-title').text('Payment');
                 $('#next-to-transport').text('Next: Payment Details');
@@ -12617,6 +12681,15 @@
             function syncShippingFields() {
                 var sameAsBilling = document.getElementById('shipping_same_as_billing');
                 if (!sameAsBilling) {
+                    return;
+                }
+
+                if (!cartHasPhysicalProducts()) {
+                    var hiddenShippingFields = form.querySelectorAll('input[name^="shipping_"]');
+                    hiddenShippingFields.forEach(function (field) {
+                        field.required = false;
+                        field.removeAttribute('readonly');
+                    });
                     return;
                 }
 
@@ -12656,7 +12729,7 @@
                     syncShippingFields();
                 }
             });
-            syncShippingFields();
+            updateShippingFieldsVisibility();
 
             window.requiresTransportation = false;
             if (typeof syncTransportationStateFromCart === 'function') {
