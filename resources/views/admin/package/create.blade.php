@@ -524,7 +524,7 @@ label{
         const ticketInput = document.getElementById('daily_ticket_limit');
         const tableInput = document.getElementById('daily_table_limit');
         const guestTableInput = document.getElementById('guests_per_table');
-        
+
         if (packageType === 'ticket') {
             ticketField.style.display = 'block';
             tableField.style.display = 'none';

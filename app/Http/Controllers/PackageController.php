@@ -39,7 +39,7 @@ class PackageController extends Controller
     public function index()
     {
         $user = auth()->user();
-        
+
         if ($user->isAdmin()) {
             $data = Website::where('is_archieved',0)->get();
         } else {
@@ -55,26 +55,26 @@ class PackageController extends Controller
         $user = auth()->user();
         $data = Package::findOrFail($id);
         $this->authorizePackageManagement($data, $user);
-        
+
         $data->is_archieved = 1;
         $data->status = 0;
         $data->save();
 
         return back();
-    } 
+    }
 
     public function unarchive($id)
     {
         $user = auth()->user();
         $data = Package::findOrFail($id);
         $this->authorizePackageManagement($data, $user);
-        
+
         $data->is_archieved = 0;
         $data->status = 1;
         $data->save();
 
         return back();
-    } 
+    }
 
     public function toggleStatus($id)
     {
@@ -133,10 +133,10 @@ class PackageController extends Controller
     public function create($id)
     {
         $user = auth()->user();
-        
+
         // Check authorization for website users
         $this->authorizeWebsiteAccess($id, 'Access denied. You can only create packages for your own website.');
-        
+
         [$events, $addons, $categories] = $this->packageFormDependencies((int) $id);
         $isPhysicalWebsite = $this->websiteHasPhysicalCheckout((int) $id);
 
@@ -215,10 +215,10 @@ class PackageController extends Controller
     public function store(Request $request)
     {
         $user = auth()->user();
-        
+
         // Check authorization for website users
         $this->authorizeWebsiteAccess($request->website_id, 'Access denied. You can only create packages for your own website.');
-        
+
         $validated = $this->validatePackagePayload($request, true);
 
         $add = new Package;
@@ -262,10 +262,10 @@ class PackageController extends Controller
     public function show(Request $request, string $id)
     {
         $user = auth()->user();
-        
+
         // Check authorization for website users
         $this->authorizeWebsiteAccess($id, 'Access denied. You can only view packages for your own website.');
-        
+
         $data = Package::with('category')
             ->clubVisible()
             ->where('packages.website_id', $id)
@@ -338,7 +338,7 @@ class PackageController extends Controller
         if ($data->audience && $data->audience !== Package::AUDIENCE_CLUB) {
             abort(404);
         }
-        
+
         // Check authorization for website users
         $this->authorizeWebsiteAccess($data->website_id, 'Access denied. You can only edit packages for your own website.');
 
@@ -427,10 +427,10 @@ class PackageController extends Controller
         if ($data->audience && $data->audience !== Package::AUDIENCE_CLUB) {
             abort(404);
         }
-        
+
         // Check authorization for website users
         $this->authorizeWebsiteAccess($data->website_id, 'Access denied. You can only update packages for your own website.');
-        
+
         $this->validatePackagePayload($request);
         $this->fillPackageFromRequest($data, $request, (int) $data->website_id, Package::AUDIENCE_CLUB);
         $data->save();

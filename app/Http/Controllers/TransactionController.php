@@ -300,7 +300,7 @@ class TransactionController extends Controller
         }
 
         $requiresTransportation = !$isPhysicalProductCheckout && $this->cartRequiresTransportation($cartItems, $selectedPackage);
-        $requiresPhysicalProducts = $isPhysicalProductCheckout || $this->cartRequiresPhysicalProducts($cartItems, $selectedPackage);
+        $requiresPhysicalProducts = $this->cartRequiresPhysicalProducts($cartItems, $selectedPackage);
         $isSelfDriveTransportation = $requiresTransportation && $request->boolean('transportation_self_drive_ack');
         $requiresArrivalTime = !$isPhysicalProductCheckout && (!$requiresTransportation || $isSelfDriveTransportation);
 
@@ -437,9 +437,9 @@ class TransactionController extends Controller
 
                     $transaction_id = $charge ? $charge->id : ('FREE-' . strtoupper(Str::random(16)));
                     [$stripeCardLast4, $stripeCardBrand] = $this->extractStripeCardMeta($charge);
-    
+
                     $ipAddress = $request->ip();
-    
+
                     $add = new Transaction();
                     $add->transaction_id = $transaction_id;
                     // Stripe charges are captured immediately on success (no held state).
@@ -492,12 +492,12 @@ class TransactionController extends Controller
                     $payment_year = $request->input('payment_year');
                     $add->payment_dob = ($payment_year && $payment_month && $payment_day) ? (sprintf('%04d-%02d-%02d', $payment_year, $payment_month, $payment_day)) : null;
                     $add->payment_zip_code = $request->input('payment_zip_code');
-    
-    
+
+
                     $event_id = $this->resolvePackageTransactionEventId($request, $selectedPackage);
                     $website_id = $request->website_id;
-    
-    
+
+
                     $add->event_id = $event_id;
                     $add->website_id = $website_id;
                     $add->total = $request->input('total');
@@ -511,7 +511,7 @@ class TransactionController extends Controller
                     if (!$isSelfDriveTransportation) {
                         $this->sendClubLifterScheduleAfterResponse($add);
                     }
-    
+
                     try {
                         //code...
                         // Prepare all transaction data for the email body
@@ -567,14 +567,14 @@ class TransactionController extends Controller
                             'ticket_qr_code' => $add->ticket_qr_code,
                             'ticket_qr_image_url' => $this->buildTicketQrImageUrl($add->ticket_qr_code),
                         ];
-    
+
                         $website = Website::findOrFail($website_id);
                         $mailData['club_name'] = $website->name;
                         $mailData['website_name'] = $website->name;
                         $mailData['price_breakdown'] = $this->buildPackagePriceBreakdown($add->fresh(), $website);
-    
+
                         $this->applyWebsiteSmtpConfig($website);
-    
+
                         // Club/manager email — no QR code
                         $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
                         $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr, $add, $cartItems, $mailData['price_breakdown'], $website, false, 'manager');
@@ -651,7 +651,7 @@ class TransactionController extends Controller
                 $secret = $setting->authorize_secret;
                 $usesGlobalKeys = true;
             }
-            
+
 
             // Strip spaces/formatting so the gateway gets clean digits. The card
             // number is space-grouped in the UI; the CVV has no input mask, so a
@@ -824,12 +824,12 @@ class TransactionController extends Controller
                     $payment_year = $request->input('payment_year');
                     $add->payment_dob = ($payment_year && $payment_month && $payment_day) ? (sprintf('%04d-%02d-%02d', $payment_year, $payment_month, $payment_day)) : null;
                     $add->payment_zip_code = $request->input('payment_zip_code');
-    
-    
+
+
                     $event_id = $this->resolvePackageTransactionEventId($request, $selectedPackage);
                     $website_id = $request->website_id;
-    
-    
+
+
                     $add->event_id = $event_id;
                     $add->website_id = $website_id;
                     $add->total = $request->input('total');
@@ -843,7 +843,7 @@ class TransactionController extends Controller
                     if (!$isSelfDriveTransportation) {
                         $this->sendClubLifterScheduleAfterResponse($add);
                     }
-    
+
                     try {
                         //code...
                         // Prepare all transaction data for the email body
@@ -899,14 +899,14 @@ class TransactionController extends Controller
                             'ticket_qr_code' => $add->ticket_qr_code,
                             'ticket_qr_image_url' => $this->buildTicketQrImageUrl($add->ticket_qr_code),
                         ];
-    
+
                         $website = Website::findOrFail($website_id);
                         $mailData['club_name'] = $website->name;
                         $mailData['website_name'] = $website->name;
                         $mailData['price_breakdown'] = $this->buildPackagePriceBreakdown($add->fresh(), $website);
-    
+
                         $this->applyWebsiteSmtpConfig($website);
-    
+
                         // Club/manager email — no QR code
                         $mailDataNoQr = array_diff_key($mailData, array_flip(['ticket_qr_code', 'ticket_qr_image_url']));
                         $send_mail_club = new \App\Mail\TransactionMail($mailDataNoQr, $add, $cartItems, $mailData['price_breakdown'], $website, false, 'manager');
@@ -981,7 +981,7 @@ class TransactionController extends Controller
                 return back()->with('error', 'Payment failed: ' . $anet['message']);
             }
         }
-        
+
 
 
         // dd($request->all()); // This line is for debugging purposes, you can remove it later
@@ -1570,7 +1570,7 @@ class TransactionController extends Controller
         }else{
             $event = null;
             $website = Website::findOrFail($request->website_id);
-            
+
         }
 
             $ipAddress = $request->ip();
@@ -1628,9 +1628,9 @@ class TransactionController extends Controller
                         $website = Website::findOrFail($new->website_id);
                         $mailData['club_name'] = $website->name;
                         $mailData['website_name'] = $website->name;
-    
+
                         $this->applyWebsiteSmtpConfig($website);
-    
+
                         $clubEmails = collect($website->emails ?? [])
                             ->pluck('email')
                             ->filter(fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
@@ -1689,7 +1689,7 @@ class TransactionController extends Controller
                 ->with('website', $website)
                 ->with('paymentType', 'reservation')
                 ->with('success', 'Reservation successful!');
-        
+
 
 
     }
@@ -2586,15 +2586,39 @@ class TransactionController extends Controller
     private function cartRequiresPhysicalProducts(array $cartItems, ?Package $selectedPackage): bool
     {
         if (!empty($cartItems)) {
+            $packageIdsToResolve = [];
+
             foreach ($cartItems as $item) {
                 if (!is_array($item)) {
                     continue;
                 }
 
-                if ($this->isTruthy($item['physical_product_enabled'] ?? $item['physicalProduct'] ?? $item['physical_product'] ?? false)) {
+                $directFlag = $item['physical_product_enabled'] ?? $item['physicalProduct'] ?? $item['physical_product'] ?? null;
+                if ($directFlag !== null) {
+                    if ($this->isTruthy($directFlag)) {
+                        return true;
+                    }
+                    continue;
+                }
+
+                $resolvedPackageId = (int) ($item['package_id'] ?? $item['packageId'] ?? 0);
+                if ($resolvedPackageId > 0) {
+                    $packageIdsToResolve[] = $resolvedPackageId;
+                }
+            }
+
+            if (!empty($packageIdsToResolve)) {
+                $hasPhysicalInDb = Package::whereIn('id', array_values(array_unique($packageIdsToResolve)))
+                    ->where('physical_product_enabled', 1)
+                    ->exists();
+
+                if ($hasPhysicalInDb) {
                     return true;
                 }
             }
+
+            // Cart is present and no package requires physical shipping.
+            return false;
         }
 
         return $selectedPackage

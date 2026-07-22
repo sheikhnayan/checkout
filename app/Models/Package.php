@@ -41,11 +41,11 @@ class Package extends Model
         'only_for_events' => 'boolean',
         'physical_product_enabled' => 'boolean',
     ];
-    
+
     public const AUDIENCE_CLUB = 'club';
     public const AUDIENCE_AFFILIATE = 'affiliate';
     public const AUDIENCE_ENTERTAINER = 'entertainer';
-    
+
     public const ALLOWED_AUDIENCES = [
         self::AUDIENCE_CLUB,
         self::AUDIENCE_AFFILIATE,
@@ -64,12 +64,12 @@ class Package extends Model
     {
         return $this->belongsTo(Website::class);
     }
-    
+
     public function affiliate()
     {
         return $this->belongsTo(Affiliate::class);
     }
-    
+
     public function entertainer()
     {
         return $this->belongsTo(Entertainer::class);
@@ -84,7 +84,7 @@ class Package extends Model
     {
         return $this->belongsTo(Event::class);
     }
-    
+
     public function scopeClubVisible($query)
     {
         return $query->where(function ($builder) {
