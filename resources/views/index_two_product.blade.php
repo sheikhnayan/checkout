@@ -7767,7 +7767,8 @@
 
                     // Replace visible phone fields with E.164 values before submission
                     const phoneFieldsToSync = [
-                        { visible: 'reservation_phone', e164: 'reservation_phone_e164' }
+                        { visible: 'reservation_phone', e164: 'reservation_phone_e164' },
+                        { visible: 'payment_phone', e164: 'payment_phone_e164' }
                     ];
 
                     phoneFieldsToSync.forEach(pair => {
@@ -9009,11 +9010,13 @@
                 const paymentFirstName = $('input[name="payment_first_name"]').val() || '';
                 const paymentLastName = $('input[name="payment_last_name"]').val() || '';
                 const paymentPhone = $('input[name="payment_phone"]').val() || '';
+                const paymentPhoneE164 = $('input[name="payment_phone_e164"]').val() || '';
                 const paymentEmail = $('input[name="payment_email"]').val() || '';
 
                 $('input[name="package_first_name"]').val(paymentFirstName);
                 $('input[name="package_last_name"]').val(paymentLastName);
-                $('input[name="package_phone"]').val(paymentPhone);
+                $('input[name="package_phone"]').val(paymentPhoneE164 || paymentPhone);
+                $('input[name="package_phone_e164"]').val(paymentPhoneE164 || '');
                 $('input[name="package_email"]').val(paymentEmail);
 
                 // Mirror phone/email into hidden IDs that some legacy scripts still reference.
@@ -10368,6 +10371,43 @@
                         return;
                     }
 
+                    const paymentPhoneInput = form.querySelector('input[name="payment_phone"]');
+                    const paymentPhoneCountry = form.querySelector('input[name="payment_phone_country"]');
+                    if (paymentPhoneInput && paymentPhoneCountry) {
+                        validateAndFormatPhone(paymentPhoneInput, paymentPhoneCountry);
+
+                        const ccWrap = paymentPhoneCountry.closest('.country-code-input');
+                        const options = ccWrap ? ccWrap.querySelectorAll('.country-option') : [];
+                        let hasValidCountryCode = false;
+                        if (options.length) {
+                            for (let i = 0; i < options.length; i++) {
+                                const optionValue = (options[i].getAttribute('data-flag') + ' ' + options[i].getAttribute('data-code'));
+                                if (optionValue === (paymentPhoneCountry.value || '').trim()) {
+                                    hasValidCountryCode = true;
+                                    break;
+                                }
+                            }
+                        } else {
+                            hasValidCountryCode = !!(paymentPhoneCountry.dataset.code || '').trim();
+                        }
+
+                        const paymentE164 = form.querySelector('input[name="payment_phone_e164"]');
+                        if (!hasValidCountryCode || !paymentE164 || !paymentE164.value) {
+                            e.preventDefault();
+                            const errorMsg = document.getElementById('validation-error-msg-package') || document.createElement('div');
+                            if (!errorMsg.id) {
+                                errorMsg.id = 'validation-error-msg-package';
+                                errorMsg.style.cssText = 'color: #ff6b6b; padding: 12px; margin: 10px 0; font-weight: 600; text-align: center; background: rgba(255, 107, 107, 0.1); border-radius: 6px; border-left: 4px solid #ff6b6b;';
+                                form.parentElement.insertBefore(errorMsg, form);
+                            }
+                            errorMsg.textContent = 'Please enter a valid phone number and select a valid country code.';
+                            errorMsg.style.display = 'block';
+                            errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            paymentPhoneInput.focus();
+                            return;
+                        }
+                    }
+
                     // Validation passed - show processing overlay
                     showCheckoutProcessingOverlay();
 
@@ -10383,6 +10423,7 @@
                     const phoneFieldsToSync = [
                         { visible: 'package_phone', e164: 'package_phone_e164' },
                         { visible: 'reservation_phone', e164: 'reservation_phone_e164' },
+                        { visible: 'payment_phone', e164: 'payment_phone_e164' },
                         { visible: 'transportation_phone', e164: 'transportation_phone_e164' }
                     ];
 
@@ -11802,7 +11843,8 @@
         function initCountryCodePickers() {
             const phoneFields = [
                 { name: 'package_phone', label: 'Package Phone' },
-                { name: 'reservation_phone', label: 'Reservation Phone' }
+                { name: 'reservation_phone', label: 'Reservation Phone' },
+                { name: 'payment_phone', label: 'Payment Phone' }
                 // Note: transportation_phone is excluded intentionally - it's a simple phone field for driver contact only
             ];
 
@@ -12458,6 +12500,7 @@
             $('#package_use_date, #package_use_date_iframe').removeClass('required-field').removeAttr('aria-invalid');
 
             // Physical checkout is payment-only; keep date in hidden field and remove date pickers from UI.
+            $('.hero-date-card, .single-package-date-card, .iframe-date-card').hide();
             $('#package_use_date, #package_use_date_iframe').closest('.form-group').hide();
             $('#cv-sidebar-date').closest('.cv-sidebar-venue-row').hide();
 
