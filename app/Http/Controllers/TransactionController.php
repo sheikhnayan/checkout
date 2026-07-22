@@ -1009,6 +1009,12 @@ class TransactionController extends Controller
 
         $this->normalizeTransportationTimeInputs($request, !$isSelfDriveTransportation, $requiresArrivalTime);
 
+        $derivedTransportationPhone = trim((string) $request->input('package_phone', ''));
+        if ($derivedTransportationPhone === '') {
+            $derivedTransportationPhone = trim((string) $request->input('payment_phone', ''));
+        }
+        $derivedTransportationGuest = max(1, (int) ($cartSummary['total_guests'] ?? 1));
+
         $transaction = new Transaction();
         $transaction->transaction_id = $transactionId;
         $transaction->payment_status = 'approved';
