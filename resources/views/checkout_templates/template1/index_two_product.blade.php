@@ -6560,9 +6560,9 @@
                                     <form action="{{ route('checkout.store', ['slug' => $data->slug]) }}"
                                         id="payment-form" method="post">
                                         @csrf
-                                        
 
-                                        
+
+
                                         <!-- Step 1: Package Holder Info -->
                                         <section class="checkout-section holder-info dynamic-price mt-4"
                                             id="section-1" style="display: none; width: 100%;">
@@ -6978,7 +6978,7 @@
                                                                             id="card_number">
                                                                             <label for="card_number">Card
                                                                                 Number</label>
-                                                                            {{-- <input type="tel" name="card_number" 
+                                                                            {{-- <input type="tel" name="card_number"
                                                                             placeholder="" required /> --}}
                                                                         </div>
 
@@ -6993,7 +6993,7 @@
                                                                         <div class="form-group" style="width: 50%;"
                                                                             id="cvv">
                                                                             <label>CVV</label>
-                                                                            {{-- <input type="tel" name="card_cvv" 
+                                                                            {{-- <input type="tel" name="card_cvv"
                                                                             placeholder="CVV" required /> --}}
                                                                         </div>
                                                             @endif
@@ -8040,7 +8040,7 @@
             // Initialize cart variables
             window.cart = [];
             window.cartCoupon = window.cartCoupon || null;
-            
+
             // Ensure cart is always an array
             function ensureCartArray() {
                 if (!Array.isArray(window.cart)) {
@@ -8048,7 +8048,7 @@
                     window.cart = [];
                 }
             }
-            
+
             function formatCurrency(value) {
                 return '$' + new Intl.NumberFormat('en-US', {
                     minimumFractionDigits: 2,
@@ -8455,7 +8455,7 @@
                 let normalizedGuests = parseInt(guests, 10) || 1;
                 let useDate = getSelectedUseDate();
                 const isPhysicalProduct = parseTruthyFlag(physicalProductEnabled) || parseTruthyFlag($('.vip-btn[data-id="' + packageId + '"]').first().data('physical-product-enabled'));
-                
+
                 // Check daily limits for this package
                 $.get('/{{ $data->slug }}/package/' + packageId + '/capacity', {
                     use_date: useDate,
@@ -8542,19 +8542,19 @@
                 $('#cart-list').html(html);
                 syncCheckoutCartFields();
             };
-            
+
             window.calculateCartTotal = function() {
                 ensureCartArray();
                 let subtotal = 0;
                 window.cart.forEach(pkg => {
                     subtotal += (pkg.packagePrice * getBillableGuests(pkg)) + pkg.addons.reduce((sum, a) => sum + parseFloat(a.price), 0);
                 });
-                
+
                 let gratuity = parseFloat($('#gratuity').val()) || 0;
                 let refundable = parseFloat($('#refundable').val()) || 0;
                 let sales_tax = parseFloat($('#sales_tax').val()) || 0;
                 let service_charge = parseFloat($('#service_charge').val()) || 0;
-                
+
                 // Apply coupon discount
                 let promoDiscount = 0;
                 if (window.cartCoupon) {
@@ -8580,9 +8580,9 @@
                     ? processingFee
                     : (processingFeeBase / 100) * processingFee;
                 let grandTotal = amountAfterCoupon + processingFeeAmount;
-                
+
                 let refundable_price = (grandTotal / 100) * refundable;
-                
+
                 // Update displays
                 $('.default-package-price > span:last-child').text(formatCurrency(subtotal));
                 $('.default-service-charge > span:last-child').text(formatCurrency(service_charge_price));
@@ -8607,7 +8607,7 @@
                 } else {
                     $('.default-processing-fee').remove();
                 }
-                
+
                 $('.default-refundable .refundable-amount').text(formatCurrency(refundable_price));
                 $('.default-total > span:last-child').text(formatCurrency(grandTotal));
                 $('.default-deposit > span:last-child').text(formatCurrency(grandTotal));
@@ -8634,9 +8634,9 @@
                     $('#cv-deposit-display').text(formatCurrency(grandTotal));
                 }
             };
-            
+
             console.log('Cart functions initialized:', typeof window.addPackageToCart);
-            
+
             // Update addon checkboxes to refresh cart when changed
             $(document).on('change', '.termsConsent', function() {
                 ensureCartArray();
@@ -8646,10 +8646,10 @@
                     if (pkg) {
                         let addons = [];
                         $('.termsConsent:checked').each(function() {
-                            addons.push({ 
-                                id: $(this).attr('id'), 
-                                name: $(this).data('name'), 
-                                price: parseFloat($(this).data('price')) 
+                            addons.push({
+                                id: $(this).attr('id'),
+                                name: $(this).data('name'),
+                                price: parseFloat($(this).data('price'))
                             });
                         });
                         pkg.addons = addons;
@@ -8658,7 +8658,7 @@
                     }
                 }
             });
-            
+
             // --- Shareable Link Logic for Cart ---
             function openPackageTab() {
                 var packageTab = $("nav .tab[data-name='package']");
@@ -8669,7 +8669,7 @@
                     $('.package').show();
                 }
             }
-            
+
             function getCurrentSelections() {
                 return {
                     cart: JSON.stringify(window.cart),
@@ -8753,9 +8753,9 @@
                         alert('Please add at least one package to cart');
                         return;
                     }
-                    
+
                     var selections = getCurrentSelections();
-                    
+
                     $.ajax({
                         url: '/cart/share',
                         type: 'POST',
@@ -8855,7 +8855,7 @@
                         }
                     }, 1500);
                 }
-                
+
                 // Business expense checkbox handler
                 function setBusinessFieldsRequired(on) {
                     ['business_company', 'business_vat', 'business_address'].forEach(function (n) {
@@ -9869,7 +9869,7 @@
                     showStep(1);
                 });
 
-                // Previous to Package from Transportation form  
+                // Previous to Package from Transportation form
                 $('#prev-to-package-from-form').click(function() {
                     showStep(1);
                 });
@@ -11614,13 +11614,13 @@
                         var title = document.querySelector('#cv-cart-toast .cv-toast-title');
                         var sub = document.getElementById('cv-cart-toast-sub');
                         var icon = document.querySelector('#cv-cart-toast .cv-toast-icon i');
-                        
+
                         if (toast && title && sub && icon) {
                             title.textContent = 'Reservation date selected!';
                             sub.textContent = 'Choose your package';
                             icon.className = 'fas fa-calendar-check';
                             toast.classList.add('is-visible');
-                            
+
                             setTimeout(function() {
                                 toast.classList.remove('is-visible');
                             }, 3500);
@@ -12509,10 +12509,7 @@
             $('#package_use_date_error, #package_use_date_iframe_error').hide();
             $('#package_use_date, #package_use_date_iframe').removeClass('required-field').removeAttr('aria-invalid');
 
-            // Physical checkout is payment-only; keep date in hidden field and remove date pickers from UI.
-            $('.hero-date-card, .single-package-date-card, .iframe-date-card').hide();
-            $('#package_use_date, #package_use_date_iframe').closest('.form-group').hide();
-            $('#cv-sidebar-date').closest('.cv-sidebar-venue-row').hide();
+            // Date picker visibility is dynamic: shown for non-physical cart, hidden for physical cart.
 
             // Single-step physical checkout: hide step trackers and non-payment sections.
             $('#checkout-steps, #cv-checkout-steps, #cv-checkout-steps-res').hide();
@@ -12634,12 +12631,15 @@
 
             function updateShippingFieldsVisibility() {
                 var shippingWrap = document.getElementById('shipping-fields-wrap');
+                var requiresShipping = cartHasPhysicalProducts();
+
                 if (!shippingWrap) {
+                    updateUseDatePickerVisibility(requiresShipping);
                     return;
                 }
 
-                var requiresShipping = cartHasPhysicalProducts();
                 shippingWrap.style.display = requiresShipping ? 'block' : 'none';
+                updateUseDatePickerVisibility(requiresShipping);
 
                 var sameAsBilling = document.getElementById('shipping_same_as_billing');
                 var shippingFields = shippingWrap.querySelectorAll('input[name^="shipping_"]');
@@ -12657,6 +12657,50 @@
                 }
 
                 syncShippingFields();
+            }
+
+            function updateUseDatePickerVisibility(requiresShipping) {
+                var shouldShowDatePicker = !requiresShipping;
+                var dateCards = document.querySelectorAll('.hero-date-card, .single-package-date-card, .iframe-date-card');
+
+                dateCards.forEach(function (card) {
+                    if (shouldShowDatePicker) {
+                        card.style.removeProperty('display');
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                var dateFieldSelectors = ['#package_use_date', '#package_use_date_iframe'];
+                dateFieldSelectors.forEach(function (selector) {
+                    var dateInput = document.querySelector(selector);
+                    if (!dateInput) {
+                        return;
+                    }
+
+                    var wrap = dateInput.closest('.form-group');
+                    if (!wrap) {
+                        return;
+                    }
+
+                    if (shouldShowDatePicker) {
+                        wrap.style.removeProperty('display');
+                    } else {
+                        wrap.style.display = 'none';
+                    }
+                });
+
+                var sidebarDate = document.getElementById('cv-sidebar-date');
+                if (sidebarDate) {
+                    var sidebarRow = sidebarDate.closest('.cv-sidebar-venue-row');
+                    if (sidebarRow) {
+                        if (shouldShowDatePicker) {
+                            sidebarRow.style.removeProperty('display');
+                        } else {
+                            sidebarRow.style.display = 'none';
+                        }
+                    }
+                }
             }
 
             function applyProductStepLabels() {

@@ -12509,10 +12509,7 @@
             $('#package_use_date_error, #package_use_date_iframe_error').hide();
             $('#package_use_date, #package_use_date_iframe').removeClass('required-field').removeAttr('aria-invalid');
 
-            // Physical checkout is payment-only; keep date in hidden field and remove date pickers from UI.
-            $('.hero-date-card, .single-package-date-card, .iframe-date-card').hide();
-            $('#package_use_date, #package_use_date_iframe').closest('.form-group').hide();
-            $('#cv-sidebar-date').closest('.cv-sidebar-venue-row').hide();
+            // Date picker visibility is dynamic: shown for non-physical cart, hidden for physical cart.
 
             // Single-step physical checkout: hide step trackers and non-payment sections.
             $('#checkout-steps, #cv-checkout-steps, #cv-checkout-steps-res').hide();
@@ -12634,12 +12631,15 @@
 
             function updateShippingFieldsVisibility() {
                 var shippingWrap = document.getElementById('shipping-fields-wrap');
+                var requiresShipping = cartHasPhysicalProducts();
+
                 if (!shippingWrap) {
+                    updateUseDatePickerVisibility(requiresShipping);
                     return;
                 }
 
-                var requiresShipping = cartHasPhysicalProducts();
                 shippingWrap.style.display = requiresShipping ? 'block' : 'none';
+                updateUseDatePickerVisibility(requiresShipping);
 
                 var sameAsBilling = document.getElementById('shipping_same_as_billing');
                 var shippingFields = shippingWrap.querySelectorAll('input[name^="shipping_"]');
@@ -12657,6 +12657,50 @@
                 }
 
                 syncShippingFields();
+            }
+
+            function updateUseDatePickerVisibility(requiresShipping) {
+                var shouldShowDatePicker = !requiresShipping;
+                var dateCards = document.querySelectorAll('.hero-date-card, .single-package-date-card, .iframe-date-card');
+
+                dateCards.forEach(function (card) {
+                    if (shouldShowDatePicker) {
+                        card.style.removeProperty('display');
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                var dateFieldSelectors = ['#package_use_date', '#package_use_date_iframe'];
+                dateFieldSelectors.forEach(function (selector) {
+                    var dateInput = document.querySelector(selector);
+                    if (!dateInput) {
+                        return;
+                    }
+
+                    var wrap = dateInput.closest('.form-group');
+                    if (!wrap) {
+                        return;
+                    }
+
+                    if (shouldShowDatePicker) {
+                        wrap.style.removeProperty('display');
+                    } else {
+                        wrap.style.display = 'none';
+                    }
+                });
+
+                var sidebarDate = document.getElementById('cv-sidebar-date');
+                if (sidebarDate) {
+                    var sidebarRow = sidebarDate.closest('.cv-sidebar-venue-row');
+                    if (sidebarRow) {
+                        if (shouldShowDatePicker) {
+                            sidebarRow.style.removeProperty('display');
+                        } else {
+                            sidebarRow.style.display = 'none';
+                        }
+                    }
+                }
             }
 
             function applyProductStepLabels() {
