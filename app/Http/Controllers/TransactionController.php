@@ -1425,11 +1425,16 @@ class TransactionController extends Controller
      */
     public function getSearchFilterOptions(Request $request)
     {
-        if (!$request->ajax()) {
-            abort(403);
-        }
+        \Log::info('getSearchFilterOptions called', [
+            'isAjax' => $request->ajax(),
+            'user' => auth()->user() ? auth()->user()->id : 'none',
+        ]);
 
         $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'options' => [], 'message' => 'Not authenticated'], 401);
+        }
+
         $baseQuery = Transaction::query();
 
         // Apply access control
@@ -1449,11 +1454,12 @@ class TransactionController extends Controller
                     ->orWhereHas('package', fn($pq) => $pq->whereIn('website_id', $ids));
             });
         } else {
-            return response()->json(['success' => false, 'options' => []]);
+            return response()->json(['success' => false, 'options' => [], 'message' => 'Access denied'], 403);
         }
 
         try {
-            $transactions = $baseQuery->with(['website', 'affiliate.user', 'entertainer.user'])->get();
+            $transactions = $baseQuery->with(['website', 'event', 'package'])->get();
+            \Log::info('Retrieved transactions', ['count' => $transactions->count()]);
 
             $options = [
                 'status' => [
@@ -1466,7 +1472,7 @@ class TransactionController extends Controller
                     ['value' => 'reservation', 'label' => 'Reservation'],
                 ],
                 'customer_name' => $transactions
-                    ->map(fn($t) => trim($t->package_first_name . ' ' . $t->package_last_name))
+                    ->map(fn($t) => trim(($t->package_first_name ?? '') . ' ' . ($t->package_last_name ?? '')))
                     ->filter(fn($n) => strlen($n) > 1)
                     ->unique()
                     ->sort()
@@ -1505,8 +1511,12 @@ class TransactionController extends Controller
                     ->map(fn($c) => ['value' => $c, 'label' => $c])
                     ->toArray(),
                 'venue' => $transactions
-                    ->map(fn($t) => $t->website->name ?? $t->event->name ?? 'N/A')
-                    ->filter(fn($v) => $v !== 'N/A')
+                    ->map(function($t) {
+                        if ($t->website) return $t->website->name;
+                        if ($t->event) return $t->event->name;
+                        return null;
+                    })
+                    ->filter(fn($v) => !is_null($v))
                     ->unique()
                     ->sort()
                     ->values()
@@ -1514,16 +1524,18 @@ class TransactionController extends Controller
                     ->toArray(),
             ];
 
+            \Log::info('Search options generated successfully');
             return response()->json([
                 'success' => true,
                 'options' => $options,
             ]);
         } catch (\Exception $e) {
+            \Log::error('getSearchFilterOptions error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return response()->json([
                 'success' => false,
-                'message' => 'Error loading options',
+                'message' => 'Error loading options: ' . $e->getMessage(),
                 'options' => [],
-            ]);
+            ], 500);
         }
     }
 
@@ -1533,96 +1545,101 @@ class TransactionController extends Controller
      */
     public function searchTransactionsAjax(Request $request)
     {
-        if (!$request->ajax()) {
-            abort(403);
-        }
-
-        app(CommissionLifecycleRunner::class)->runSafely();
-
-        $filters = $request->input('filters', []);
-        if (!is_array($filters)) {
-            $filters = [];
-        }
-
-        // Start with base query using existing access control
-        $query = Transaction::query();
-        $user = auth()->user();
-
-        if ($user->isAdmin()) {
-            // Admins see all
-        } elseif ($user->isWebsiteUser() && $user->website_id) {
-            $query->where(function($q) use ($user) {
-                $q->where('website_id', $user->website_id)
-                    ->orWhereHas('event', fn($eq) => $eq->where('website_id', $user->website_id))
-                    ->orWhereHas('package', fn($pq) => $pq->where('website_id', $user->website_id));
-            });
-        } elseif ($user->isManager()) {
-            $ids = $user->accessibleWebsiteIds();
-            $query->where(function($q) use ($ids) {
-                $q->whereIn('website_id', $ids)
-                    ->orWhereHas('event', fn($eq) => $eq->whereIn('website_id', $ids))
-                    ->orWhereHas('package', fn($pq) => $pq->whereIn('website_id', $ids));
-            });
-        } else {
-            return response()->json(['success' => false, 'rowsHtml' => '']);
-        }
-
-        // Apply filters based on selected column and values
-        foreach ($filters as $filter) {
-            $column = trim((string) ($filter['column'] ?? ''));
-            $values = $filter['values'] ?? [];
-            if (!is_array($values)) {
-                $values = [];
-            }
-            $values = array_filter(array_map('trim', $values));
-
-            if (empty($column) || empty($values)) {
-                continue;
-            }
-
-            // Apply filter based on column type
-            if ($column === 'status') {
-                $statusMap = ['completed' => 1, 'canceled' => 0, 'refunded' => 2];
-                $statusIds = [];
-                foreach ($values as $val) {
-                    if (isset($statusMap[strtolower($val)])) {
-                        $statusIds[] = $statusMap[strtolower($val)];
-                    }
-                }
-                if (!empty($statusIds)) {
-                    $query->whereIn('status', $statusIds);
-                }
-            } elseif ($column === 'type') {
-                $typeVals = array_filter(array_map(function($v) {
-                    $lower = strtolower($v);
-                    return in_array($lower, ['package', 'reservation']) ? $lower : null;
-                }, $values));
-                if (!empty($typeVals)) {
-                    $query->whereIn('type', $typeVals);
-                }
-            } elseif ($column === 'customer_name') {
-                $query->where(function($q) use ($values) {
-                    foreach ($values as $val) {
-                        $q->orWhereRaw("CONCAT(package_first_name, ' ', package_last_name) LIKE ?", ['%' . $val . '%']);
-                    }
-                });
-            } elseif ($column === 'email') {
-                $query->whereIn('package_email', $values);
-            } elseif ($column === 'phone') {
-                $query->whereIn('package_phone', $values);
-            } elseif ($column === 'order_id') {
-                // Remove # from order IDs if present
-                $orderIds = array_map(fn($id) => (int) str_replace('#', '', $id), $values);
-                $query->whereIn('id', array_filter($orderIds));
-            } elseif ($column === 'confirmation') {
-                $query->whereIn('transaction_id', $values);
-            } elseif ($column === 'venue') {
-                $query->whereHas('website', fn($q) => $q->whereIn('name', $values))
-                    ->orWhereHas('event', fn($q) => $q->whereIn('name', $values));
-            }
-        }
+        \Log::info('searchTransactionsAjax called', [
+            'user' => auth()->user() ? auth()->user()->id : 'none',
+            'filterCount' => count($request->input('filters', [])),
+        ]);
 
         try {
+            app(CommissionLifecycleRunner::class)->runSafely();
+
+            $filters = $request->input('filters', []);
+            if (!is_array($filters)) {
+                $filters = [];
+            }
+
+            // Start with base query using existing access control
+            $query = Transaction::query();
+            $user = auth()->user();
+
+            if (!$user) {
+                return response()->json(['success' => false, 'rowsHtml' => '', 'message' => 'Not authenticated'], 401);
+            }
+
+            if ($user->isAdmin()) {
+                // Admins see all
+            } elseif ($user->isWebsiteUser() && $user->website_id) {
+                $query->where(function($q) use ($user) {
+                    $q->where('website_id', $user->website_id)
+                        ->orWhereHas('event', fn($eq) => $eq->where('website_id', $user->website_id))
+                        ->orWhereHas('package', fn($pq) => $pq->where('website_id', $user->website_id));
+                });
+            } elseif ($user->isManager()) {
+                $ids = $user->accessibleWebsiteIds();
+                $query->where(function($q) use ($ids) {
+                    $q->whereIn('website_id', $ids)
+                        ->orWhereHas('event', fn($eq) => $eq->whereIn('website_id', $ids))
+                        ->orWhereHas('package', fn($pq) => $pq->whereIn('website_id', $ids));
+                });
+            } else {
+                return response()->json(['success' => false, 'rowsHtml' => '', 'message' => 'Access denied'], 403);
+            }
+
+            // Apply filters based on selected column and values
+            foreach ($filters as $filter) {
+                $column = trim((string) ($filter['column'] ?? ''));
+                $values = $filter['values'] ?? [];
+                if (!is_array($values)) {
+                    $values = [];
+                }
+                $values = array_filter(array_map('trim', $values));
+
+                if (empty($column) || empty($values)) {
+                    continue;
+                }
+
+                // Apply filter based on column type
+                if ($column === 'status') {
+                    $statusMap = ['completed' => 1, 'canceled' => 0, 'refunded' => 2];
+                    $statusIds = [];
+                    foreach ($values as $val) {
+                        if (isset($statusMap[strtolower($val)])) {
+                            $statusIds[] = $statusMap[strtolower($val)];
+                        }
+                    }
+                    if (!empty($statusIds)) {
+                        $query->whereIn('status', $statusIds);
+                    }
+                } elseif ($column === 'type') {
+                    $typeVals = array_filter(array_map(function($v) {
+                        $lower = strtolower($v);
+                        return in_array($lower, ['package', 'reservation']) ? $lower : null;
+                    }, $values));
+                    if (!empty($typeVals)) {
+                        $query->whereIn('type', $typeVals);
+                    }
+                } elseif ($column === 'customer_name') {
+                    $query->where(function($q) use ($values) {
+                        foreach ($values as $val) {
+                            $q->orWhereRaw("CONCAT(package_first_name, ' ', package_last_name) LIKE ?", ['%' . $val . '%']);
+                        }
+                    });
+                } elseif ($column === 'email') {
+                    $query->whereIn('package_email', $values);
+                } elseif ($column === 'phone') {
+                    $query->whereIn('package_phone', $values);
+                } elseif ($column === 'order_id') {
+                    // Remove # from order IDs if present
+                    $orderIds = array_map(fn($id) => (int) str_replace('#', '', $id), $values);
+                    $query->whereIn('id', array_filter($orderIds));
+                } elseif ($column === 'confirmation') {
+                    $query->whereIn('transaction_id', $values);
+                } elseif ($column === 'venue') {
+                    $query->whereHas('website', fn($q) => $q->whereIn('name', $values))
+                        ->orWhereHas('event', fn($q) => $q->whereIn('name', $values));
+                }
+            }
+
             $transactions = $query
                 ->with(['event.website', 'package.website', 'website', 'affiliate.user', 'entertainer.user'])
                 ->latest()
@@ -1652,6 +1669,8 @@ class TransactionController extends Controller
                 return (float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0);
             });
 
+            \Log::info('Search results', ['count' => $transactions->count()]);
+
             return response()->json([
                 'success' => true,
                 'rowsHtml' => $rowsHtml,
@@ -1664,11 +1683,12 @@ class TransactionController extends Controller
                 'totalRows' => $transactions->count(),
             ]);
         } catch (\Exception $e) {
+            \Log::error('searchTransactionsAjax error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return response()->json([
                 'success' => false,
                 'message' => 'Error performing search: ' . $e->getMessage(),
                 'rowsHtml' => '',
-            ]);
+            ], 500);
         }
     }
 

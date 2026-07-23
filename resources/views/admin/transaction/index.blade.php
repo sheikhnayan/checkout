@@ -2665,12 +2665,19 @@ body.modal-open .admin-mobile-menu-toggle {
                         },
                         dataType: 'json',
                         success: function(response) {
+                            console.log('Search options loaded:', response);
                             if (response.success) {
                                 searchFilterOptions = response.options || {};
+                            } else {
+                                console.error('Search options response not successful:', response);
                             }
                         },
-                        error: function(err) {
-                            console.error('Error loading search options:', err);
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            console.error('Error loading search options:');
+                            console.error('Status:', jqXHR.status);
+                            console.error('Text Status:', textStatus);
+                            console.error('Error Thrown:', errorThrown);
+                            console.error('Response Text:', jqXHR.responseText);
                         }
                     });
                 }
