@@ -1419,6 +1419,259 @@ class TransactionController extends Controller
         ]);
     }
 
+    /**
+     * AJAX endpoint to get available search filter options.
+     * Returns all distinct values for each searchable column.
+     */
+    public function getSearchFilterOptions(Request $request)
+    {
+        if (!$request->ajax()) {
+            abort(403);
+        }
+
+        $user = auth()->user();
+        $baseQuery = Transaction::query();
+
+        // Apply access control
+        if ($user->isAdmin()) {
+            // Admins see all
+        } elseif ($user->isWebsiteUser() && $user->website_id) {
+            $baseQuery->where(function($q) use ($user) {
+                $q->where('website_id', $user->website_id)
+                    ->orWhereHas('event', fn($eq) => $eq->where('website_id', $user->website_id))
+                    ->orWhereHas('package', fn($pq) => $pq->where('website_id', $user->website_id));
+            });
+        } elseif ($user->isManager()) {
+            $ids = $user->accessibleWebsiteIds();
+            $baseQuery->where(function($q) use ($ids) {
+                $q->whereIn('website_id', $ids)
+                    ->orWhereHas('event', fn($eq) => $eq->whereIn('website_id', $ids))
+                    ->orWhereHas('package', fn($pq) => $pq->whereIn('website_id', $ids));
+            });
+        } else {
+            return response()->json(['success' => false, 'options' => []]);
+        }
+
+        try {
+            $transactions = $baseQuery->with(['website', 'affiliate.user', 'entertainer.user'])->get();
+
+            $options = [
+                'status' => [
+                    ['value' => 'completed', 'label' => 'Completed'],
+                    ['value' => 'canceled', 'label' => 'Canceled'],
+                    ['value' => 'refunded', 'label' => 'Refunded'],
+                ],
+                'type' => [
+                    ['value' => 'package', 'label' => 'Package'],
+                    ['value' => 'reservation', 'label' => 'Reservation'],
+                ],
+                'customer_name' => $transactions
+                    ->map(fn($t) => trim($t->package_first_name . ' ' . $t->package_last_name))
+                    ->filter(fn($n) => strlen($n) > 1)
+                    ->unique()
+                    ->sort()
+                    ->values()
+                    ->map(fn($n) => ['value' => $n, 'label' => $n])
+                    ->toArray(),
+                'email' => $transactions
+                    ->pluck('package_email')
+                    ->filter(fn($e) => !empty($e))
+                    ->unique()
+                    ->sort()
+                    ->values()
+                    ->map(fn($e) => ['value' => $e, 'label' => $e])
+                    ->toArray(),
+                'phone' => $transactions
+                    ->pluck('package_phone')
+                    ->filter(fn($p) => !empty($p))
+                    ->unique()
+                    ->sort()
+                    ->values()
+                    ->map(fn($p) => ['value' => $p, 'label' => $p])
+                    ->toArray(),
+                'order_id' => $transactions
+                    ->map(fn($t) => '#' . str_pad($t->id, 3, '0', STR_PAD_LEFT))
+                    ->unique()
+                    ->sort()
+                    ->values()
+                    ->map(fn($id) => ['value' => $id, 'label' => $id])
+                    ->toArray(),
+                'confirmation' => $transactions
+                    ->pluck('transaction_id')
+                    ->filter(fn($c) => !empty($c))
+                    ->unique()
+                    ->sort()
+                    ->values()
+                    ->map(fn($c) => ['value' => $c, 'label' => $c])
+                    ->toArray(),
+                'venue' => $transactions
+                    ->map(fn($t) => $t->website->name ?? $t->event->name ?? 'N/A')
+                    ->filter(fn($v) => $v !== 'N/A')
+                    ->unique()
+                    ->sort()
+                    ->values()
+                    ->map(fn($v) => ['value' => $v, 'label' => $v])
+                    ->toArray(),
+            ];
+
+            return response()->json([
+                'success' => true,
+                'options' => $options,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading options',
+                'options' => [],
+            ]);
+        }
+    }
+
+    /**
+     * AJAX endpoint for advanced search with multiple column filters.
+     * Filters based on selected columns and values.
+     */
+    public function searchTransactionsAjax(Request $request)
+    {
+        if (!$request->ajax()) {
+            abort(403);
+        }
+
+        app(CommissionLifecycleRunner::class)->runSafely();
+
+        $filters = $request->input('filters', []);
+        if (!is_array($filters)) {
+            $filters = [];
+        }
+
+        // Start with base query using existing access control
+        $query = Transaction::query();
+        $user = auth()->user();
+
+        if ($user->isAdmin()) {
+            // Admins see all
+        } elseif ($user->isWebsiteUser() && $user->website_id) {
+            $query->where(function($q) use ($user) {
+                $q->where('website_id', $user->website_id)
+                    ->orWhereHas('event', fn($eq) => $eq->where('website_id', $user->website_id))
+                    ->orWhereHas('package', fn($pq) => $pq->where('website_id', $user->website_id));
+            });
+        } elseif ($user->isManager()) {
+            $ids = $user->accessibleWebsiteIds();
+            $query->where(function($q) use ($ids) {
+                $q->whereIn('website_id', $ids)
+                    ->orWhereHas('event', fn($eq) => $eq->whereIn('website_id', $ids))
+                    ->orWhereHas('package', fn($pq) => $pq->whereIn('website_id', $ids));
+            });
+        } else {
+            return response()->json(['success' => false, 'rowsHtml' => '']);
+        }
+
+        // Apply filters based on selected column and values
+        foreach ($filters as $filter) {
+            $column = trim((string) ($filter['column'] ?? ''));
+            $values = $filter['values'] ?? [];
+            if (!is_array($values)) {
+                $values = [];
+            }
+            $values = array_filter(array_map('trim', $values));
+
+            if (empty($column) || empty($values)) {
+                continue;
+            }
+
+            // Apply filter based on column type
+            if ($column === 'status') {
+                $statusMap = ['completed' => 1, 'canceled' => 0, 'refunded' => 2];
+                $statusIds = [];
+                foreach ($values as $val) {
+                    if (isset($statusMap[strtolower($val)])) {
+                        $statusIds[] = $statusMap[strtolower($val)];
+                    }
+                }
+                if (!empty($statusIds)) {
+                    $query->whereIn('status', $statusIds);
+                }
+            } elseif ($column === 'type') {
+                $typeVals = array_filter(array_map(function($v) {
+                    $lower = strtolower($v);
+                    return in_array($lower, ['package', 'reservation']) ? $lower : null;
+                }, $values));
+                if (!empty($typeVals)) {
+                    $query->whereIn('type', $typeVals);
+                }
+            } elseif ($column === 'customer_name') {
+                $query->where(function($q) use ($values) {
+                    foreach ($values as $val) {
+                        $q->orWhereRaw("CONCAT(package_first_name, ' ', package_last_name) LIKE ?", ['%' . $val . '%']);
+                    }
+                });
+            } elseif ($column === 'email') {
+                $query->whereIn('package_email', $values);
+            } elseif ($column === 'phone') {
+                $query->whereIn('package_phone', $values);
+            } elseif ($column === 'order_id') {
+                // Remove # from order IDs if present
+                $orderIds = array_map(fn($id) => (int) str_replace('#', '', $id), $values);
+                $query->whereIn('id', array_filter($orderIds));
+            } elseif ($column === 'confirmation') {
+                $query->whereIn('transaction_id', $values);
+            } elseif ($column === 'venue') {
+                $query->whereHas('website', fn($q) => $q->whereIn('name', $values))
+                    ->orWhereHas('event', fn($q) => $q->whereIn('name', $values));
+            }
+        }
+
+        try {
+            $transactions = $query
+                ->with(['event.website', 'package.website', 'website', 'affiliate.user', 'entertainer.user'])
+                ->latest()
+                ->get();
+
+            // Render table rows
+            $rowsHtml = view('admin.transaction._ajax-rows', [
+                'data' => $transactions,
+                'isArchivedView' => false,
+            ])->render();
+
+            // Calculate stats
+            $pendingCommission = $transactions->sum(function($item) {
+                $comm = (float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0);
+                $status = $item->affiliate_commission_status ?? $item->entertainer_commission_status ?? null;
+                return $status === 'pending' ? $comm : 0;
+            });
+
+            $availableNow = $transactions->sum(function($item) {
+                $comm = (float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0);
+                $status = $item->affiliate_commission_status ?? $item->entertainer_commission_status ?? null;
+                $holdUntil = $item->affiliate_commission_hold_until ?? $item->entertainer_commission_hold_until ?? null;
+                return ($status === 'approved' || ($holdUntil && $holdUntil->lte(now()))) ? $comm : 0;
+            });
+
+            $lifetimeEarned = $transactions->sum(function($item) {
+                return (float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0);
+            });
+
+            return response()->json([
+                'success' => true,
+                'rowsHtml' => $rowsHtml,
+                'stats' => [
+                    'pendingCommission' => number_format($pendingCommission, 2),
+                    'availableNow' => number_format($availableNow, 2),
+                    'lifetimeEarned' => number_format($lifetimeEarned, 2),
+                    'totalTransactions' => $transactions->count(),
+                ],
+                'totalRows' => $transactions->count(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error performing search: ' . $e->getMessage(),
+                'rowsHtml' => '',
+            ]);
+        }
+    }
+
     public function affiliateIndex(Request $request)
     {
         app(CommissionLifecycleRunner::class)->runSafely();
