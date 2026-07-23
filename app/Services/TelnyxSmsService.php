@@ -164,7 +164,7 @@ class TelnyxSmsService
                 ],
                 'json' => $this->buildMessagePayload([
                     'from' => $this->fromNumber, // Telnyx phone number in E.164 format
-                    'to' => [$phoneNumber], // Recipient phone number in E.164 format
+                    'to' => $phoneNumber, // Recipient phone number in E.164 format
                     'text' => $message, // The SMS text (max 1,600 chars)
                 ]),
             ]);
@@ -282,7 +282,7 @@ class TelnyxSmsService
                 ],
                 'json' => $this->buildMessagePayload([
                     'from' => $this->fromNumber,
-                    'to' => [$phoneNumber],
+                    'to' => $phoneNumber,
                     'text' => $message,
                     'media_urls' => array_slice($mediaUrls, 0, 10),
                 ]),
@@ -436,9 +436,17 @@ class TelnyxSmsService
      */
     private function isValidE164($phoneNumber)
     {
-        // E.164 format: +[1-3 digits country code][7-14 digits number]
-        // Total: +[1-3][7-14] = 9-18 characters
-        return preg_match('/^\+\d{1,3}\d{7,14}$/', $phoneNumber) === 1;
+        // E.164 requires + followed by 10-15 digits total.
+        if (preg_match('/^\+[1-9]\d{9,14}$/', $phoneNumber) !== 1) {
+            return false;
+        }
+
+        // Enforce NANP length when using US/Canada country code.
+        if (str_starts_with($phoneNumber, '+1')) {
+            return strlen($phoneNumber) === 12; // +1 + 10-digit national number
+        }
+
+        return true;
     }
 
     /**
