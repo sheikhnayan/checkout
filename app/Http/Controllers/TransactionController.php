@@ -1365,6 +1365,7 @@ class TransactionController extends Controller
 
     /**
      * AJAX endpoint for dynamic filtering and search without page reload.
+     * Returns both updated table rows HTML and recalculated stats.
      */
     public function filterTransactionsAjax(Request $request)
     {
@@ -1375,6 +1376,7 @@ class TransactionController extends Controller
         app(CommissionLifecycleRunner::class)->runSafely();
 
         $transactions = $this->getAccessibleTransactionList($request);
+        $isArchivedView = $request->boolean('archived');
 
         // Calculate stats from filtered results
         $pendingCommission = $transactions->sum(function($item) {
@@ -1394,8 +1396,19 @@ class TransactionController extends Controller
             return (float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0);
         });
 
+        // Render table rows HTML fragment
+        try {
+            $rowsHtml = view('admin.transaction._ajax-rows', [
+                'data' => $transactions,
+                'isArchivedView' => $isArchivedView,
+            ])->render();
+        } catch (\Exception $e) {
+            $rowsHtml = '<tr><td colspan="20" style="text-align:center;padding:20px;color:rgba(255,255,255,0.3)">Error loading results. Please refresh the page.</td></tr>';
+        }
+
         return response()->json([
             'success' => true,
+            'rowsHtml' => $rowsHtml,
             'stats' => [
                 'pendingCommission' => number_format($pendingCommission, 2),
                 'availableNow' => number_format($availableNow, 2),

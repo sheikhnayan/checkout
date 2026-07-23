@@ -2548,77 +2548,134 @@ body.modal-open .admin-mobile-menu-toggle {
                     updateDashboardCardsFromFilteredRows();
                 }
 
-                // ── AJAX FILTER HANDLER ──────────────────────────────────────────────
-                // Update stats in real-time when filters or search changes
+                // ── AJAX DYNAMIC FILTERING ───────────────────────────────────────────
                 const filterSelectors = ['#websiteFilter', '#typeFilter', '#affiliateFilter', '#statusFilter', '#reservationFilter'];
-                const searchInput = 'input[type="text"]';
                 let filterDebounceTimer = null;
+                let isFilteringInProgress = false;
 
-                function collectFilterParams() {
+                function getFilterUrl() {
                     const params = new URLSearchParams();
+                    
                     if ($('#websiteFilter').length) params.append('website', $('#websiteFilter').val());
                     if ($('#typeFilter').length) params.append('type', $('#typeFilter').val());
                     if ($('#affiliateFilter').length) params.append('affiliate', $('#affiliateFilter').val());
                     if ($('#statusFilter').length) params.append('status', $('#statusFilter').val());
                     if ($('#reservationFilter').length) params.append('reservation', $('#reservationFilter').val());
-                    const dateFrom = $('#txnDateRange').data('start-date');
-                    const dateTo = $('#txnDateRange').data('end-date');
-                    if (dateFrom) params.append('date_from', dateFrom);
-                    if (dateTo) params.append('date_to', dateTo);
-                    if ($('input[name="archived"]').length) params.append('archived', $('input[name="archived"]').val());
-                    return params;
+                    
+                    // Get date range from date picker
+                    const dateRangeValue = $('#txnDateRange').val();
+                    if (dateRangeValue && dateRangeValue.includes(' - ')) {
+                        const [fromStr, toStr] = dateRangeValue.split(' - ');
+                        try {
+                            const from = new Date(fromStr).toISOString().split('T')[0];
+                            const to = new Date(toStr).toISOString().split('T')[0];
+                            if (from && to) {
+                                params.append('date_from', from);
+                                params.append('date_to', to);
+                            }
+                        } catch (e) {}
+                    }
+                    
+                    if ($('input[name="archived"]').length) {
+                        params.append('archived', $('input[name="archived"]').val());
+                    }
+                    
+                    return params.toString();
                 }
 
-                function updateStatsViaAjax() {
-                    const params = collectFilterParams();
+                function applyFilterAjax() {
+                    if (isFilteringInProgress) return;
+                    
+                    isFilteringInProgress = true;
+                    
+                    // Show loading state
+                    const tbody = $('#txnDataTable tbody');
+                    tbody.css('opacity', '0.6').css('pointer-events', 'none');
                     
                     $.ajax({
                         url: '{{ route("admin.transaction.filter-ajax") }}',
                         type: 'POST',
-                        data: params.toString(),
+                        data: getFilterUrl(),
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
                             'X-Requested-With': 'XMLHttpRequest'
                         },
                         dataType: 'json',
                         success: function(response) {
-                            if (response.success && response.stats) {
-                                // Update pending fee card
-                                const pendingFeeCard = $('.txn-stat-card:has(.txn-stat-label:contains("Pending Fee"))');
-                                if (pendingFeeCard.length) {
-                                    pendingFeeCard.find('.txn-stat-value').text('$' + response.stats.pendingCommission);
+                            if (response.success) {
+                                // Update table rows
+                                tbody.html(response.rowsHtml || '');
+                                
+                                // Update stats
+                                if (response.stats) {
+                                    // Update pending fee card
+                                    $('.txn-stat-card:has(.txn-stat-label:contains("Pending Fee")) .txn-stat-value')
+                                        .text('$' + response.stats.pendingCommission);
+                                    
+                                    // Update available now card
+                                    $('.txn-stat-card:has(.txn-stat-label:contains("Available Now")) .txn-stat-value')
+                                        .text('$' + response.stats.availableNow);
+                                    
+                                    // Update lifetime earned card
+                                    $('.txn-stat-card:has(.txn-stat-label:contains("Lifetime Earned")) .txn-stat-value')
+                                        .text('$' + response.stats.lifetimeEarned);
                                 }
-                                // Update available now card
-                                const availableCard = $('.txn-stat-card:has(.txn-stat-label:contains("Available Now"))');
-                                if (availableCard.length) {
-                                    availableCard.find('.txn-stat-value').text('$' + response.stats.availableNow);
+                                
+                                // Reinitialize DataTable
+                                if ($.fn.dataTable.isDataTable('#txnDataTable')) {
+                                    $('#txnDataTable').DataTable().destroy();
                                 }
-                                // Update lifetime earned card
-                                const lifetimeCard = $('.txn-stat-card:has(.txn-stat-label:contains("Lifetime Earned"))');
-                                if (lifetimeCard.length) {
-                                    lifetimeCard.find('.txn-stat-value').text('$' + response.stats.lifetimeEarned);
-                                }
+                                
+                                table = $('#txnDataTable').DataTable({
+                                    pageLength: 25,
+                                    searching: false,
+                                    ordering: true,
+                                    paging: false,
+                                    info: false,
+                                    lengthChange: false,
+                                    autoWidth: false,
+                                    columnDefs: [
+                                        { orderable: false, targets: 0 },
+                                        { orderable: false, targets: [0, 15] }
+                                    ]
+                                });
+                                
+                                applyCheckedStateToVisibleRows();
+                                updateSelectionUi();
                             }
                         },
                         error: function(err) {
-                            console.error('Filter AJAX error:', err);
+                            console.error('Filter error:', err);
+                            alert('Error updating filters. Please refresh the page.');
+                        },
+                        complete: function() {
+                            tbody.css('opacity', '1').css('pointer-events', 'auto');
+                            isFilteringInProgress = false;
                         }
                     });
                 }
 
-                // Bind filter change events
+                // Bind filter change events to trigger AJAX
                 filterSelectors.forEach(function(selector) {
                     if ($(selector).length) {
                         $(selector).on('change', function() {
                             clearTimeout(filterDebounceTimer);
-                            filterDebounceTimer = setTimeout(updateStatsViaAjax, 300);
+                            filterDebounceTimer = setTimeout(applyFilterAjax, 400);
                         });
                     }
                 });
 
-                // Bind date range change (update happens via flatpickr onClose)
-                const originalUpdateStats = updateStatsViaAjax;
-                window.ajaxUpdateStats = updateStatsViaAjax;
+                // Bind date range picker close event if it exists
+                if (window.fp && window.fp.config && typeof window.fp.config.onClose === 'function') {
+                    const originalOnClose = window.fp.config.onClose;
+                    window.fp.config.onClose = function(selectedDates, dateStr, instance) {
+                        if (typeof originalOnClose === 'function') {
+                            originalOnClose(selectedDates, dateStr, instance);
+                        }
+                        clearTimeout(filterDebounceTimer);
+                        filterDebounceTimer = setTimeout(applyFilterAjax, 400);
+                    };
+                }
 
             }); // end document.ready
             </script>
