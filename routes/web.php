@@ -298,6 +298,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
 
     Route::group(['prefix'=> 'transaction', 'as' => 'transaction.'], function () {
         Route::get('/', [TransactionController::class,'index'])->name('index');
+        Route::post('/filter-ajax', [TransactionController::class,'filterTransactionsAjax'])->name('filter-ajax');
         Route::get('/affiliate', [TransactionController::class,'affiliateIndex'])->name('affiliate');
         Route::get('/entertainer', [TransactionController::class,'entertainerIndex'])->name('entertainer');
         Route::post('/bulk-archive', [TransactionController::class, 'bulkArchive'])->name('bulk-archive');

@@ -2548,6 +2548,78 @@ body.modal-open .admin-mobile-menu-toggle {
                     updateDashboardCardsFromFilteredRows();
                 }
 
+                // ── AJAX FILTER HANDLER ──────────────────────────────────────────────
+                // Update stats in real-time when filters or search changes
+                const filterSelectors = ['#websiteFilter', '#typeFilter', '#affiliateFilter', '#statusFilter', '#reservationFilter'];
+                const searchInput = 'input[type="text"]';
+                let filterDebounceTimer = null;
+
+                function collectFilterParams() {
+                    const params = new URLSearchParams();
+                    if ($('#websiteFilter').length) params.append('website', $('#websiteFilter').val());
+                    if ($('#typeFilter').length) params.append('type', $('#typeFilter').val());
+                    if ($('#affiliateFilter').length) params.append('affiliate', $('#affiliateFilter').val());
+                    if ($('#statusFilter').length) params.append('status', $('#statusFilter').val());
+                    if ($('#reservationFilter').length) params.append('reservation', $('#reservationFilter').val());
+                    const dateFrom = $('#txnDateRange').data('start-date');
+                    const dateTo = $('#txnDateRange').data('end-date');
+                    if (dateFrom) params.append('date_from', dateFrom);
+                    if (dateTo) params.append('date_to', dateTo);
+                    if ($('input[name="archived"]').length) params.append('archived', $('input[name="archived"]').val());
+                    return params;
+                }
+
+                function updateStatsViaAjax() {
+                    const params = collectFilterParams();
+                    
+                    $.ajax({
+                        url: '{{ route("admin.transaction.filter-ajax") }}',
+                        type: 'POST',
+                        data: params.toString(),
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.success && response.stats) {
+                                // Update pending fee card
+                                const pendingFeeCard = $('.txn-stat-card:has(.txn-stat-label:contains("Pending Fee"))');
+                                if (pendingFeeCard.length) {
+                                    pendingFeeCard.find('.txn-stat-value').text('$' + response.stats.pendingCommission);
+                                }
+                                // Update available now card
+                                const availableCard = $('.txn-stat-card:has(.txn-stat-label:contains("Available Now"))');
+                                if (availableCard.length) {
+                                    availableCard.find('.txn-stat-value').text('$' + response.stats.availableNow);
+                                }
+                                // Update lifetime earned card
+                                const lifetimeCard = $('.txn-stat-card:has(.txn-stat-label:contains("Lifetime Earned"))');
+                                if (lifetimeCard.length) {
+                                    lifetimeCard.find('.txn-stat-value').text('$' + response.stats.lifetimeEarned);
+                                }
+                            }
+                        },
+                        error: function(err) {
+                            console.error('Filter AJAX error:', err);
+                        }
+                    });
+                }
+
+                // Bind filter change events
+                filterSelectors.forEach(function(selector) {
+                    if ($(selector).length) {
+                        $(selector).on('change', function() {
+                            clearTimeout(filterDebounceTimer);
+                            filterDebounceTimer = setTimeout(updateStatsViaAjax, 300);
+                        });
+                    }
+                });
+
+                // Bind date range change (update happens via flatpickr onClose)
+                const originalUpdateStats = updateStatsViaAjax;
+                window.ajaxUpdateStats = updateStatsViaAjax;
+
             }); // end document.ready
             </script>
 

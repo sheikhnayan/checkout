@@ -1363,6 +1363,49 @@ class TransactionController extends Controller
         ]);
     }
 
+    /**
+     * AJAX endpoint for dynamic filtering and search without page reload.
+     */
+    public function filterTransactionsAjax(Request $request)
+    {
+        if (!$request->ajax()) {
+            abort(403);
+        }
+
+        app(CommissionLifecycleRunner::class)->runSafely();
+
+        $transactions = $this->getAccessibleTransactionList($request);
+
+        // Calculate stats from filtered results
+        $pendingCommission = $transactions->sum(function($item) {
+            $comm = (float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0);
+            $status = $item->affiliate_commission_status ?? $item->entertainer_commission_status ?? null;
+            return $status === 'pending' ? $comm : 0;
+        });
+
+        $availableNow = $transactions->sum(function($item) {
+            $comm = (float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0);
+            $status = $item->affiliate_commission_status ?? $item->entertainer_commission_status ?? null;
+            $holdUntil = $item->affiliate_commission_hold_until ?? $item->entertainer_commission_hold_until ?? null;
+            return ($status === 'approved' || ($holdUntil && $holdUntil->lte(now()))) ? $comm : 0;
+        });
+
+        $lifetimeEarned = $transactions->sum(function($item) {
+            return (float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0);
+        });
+
+        return response()->json([
+            'success' => true,
+            'stats' => [
+                'pendingCommission' => number_format($pendingCommission, 2),
+                'availableNow' => number_format($availableNow, 2),
+                'lifetimeEarned' => number_format($lifetimeEarned, 2),
+                'totalTransactions' => $transactions->count(),
+            ],
+            'totalRows' => $transactions->count(),
+        ]);
+    }
+
     public function affiliateIndex(Request $request)
     {
         app(CommissionLifecycleRunner::class)->runSafely();

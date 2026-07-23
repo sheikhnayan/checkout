@@ -7,7 +7,7 @@ use GuzzleHttp\Client;
 
 class TelnyxSmsService
 {
-    private const CLIENT_CONFIRMATION_MESSAGE = 'Reservation confirmed! Keep this QR code ready—it will be required for transportation (if included) and venue check-in. Your complete reservation details have been emailed. Reply STOP to opt out.';
+    private const CLIENT_CONFIRMATION_MESSAGE = 'CartVIP reservation confirmed! Keep this QR code ready—it will be required for transportation (if included) and venue check-in. Your complete reservation details have been emailed. Reply STOP to opt out.';
 
     private $apiKey;
     private $apiUrl = 'https://api.telnyx.com/v2/messages';
