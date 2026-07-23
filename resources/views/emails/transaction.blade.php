@@ -201,7 +201,7 @@
             <tr><th>Venue</th><td>{{ $venueName }}</td></tr>
             <tr><th>Sale Date</th><td>{{ $saleDateFormatted }}</td></tr>
             <tr><th>Guest Name</th><td>{{ $guestName }}</td></tr>
-            <tr><th>Order Date</th><td>{{ $reservationDateFormatted }}</td></tr>
+            {{-- <tr><th>Date</th><td>{{ $reservationDateFormatted }}</td></tr> --}}
             @if(!empty($eventName))
             <tr><th>Event</th><td>{{ $eventName }}</td></tr>
             @endif
@@ -222,6 +222,7 @@
             @if(!empty($mailData['transportation_mode']))
             <tr><th>Transportation Mode</th><td>{{ $mailData['transportation_mode'] }}</td></tr>
             @endif
+            <tr><th>Date</th><td>{{ $reservationDateFormatted }}</td></tr>
             @if(!empty($mailData['transportation_pickup_time']))
             <tr><th>Pickup Time</th><td>{{ $formatTimeForClubTimezone($mailData['transportation_pickup_time']) }}</td></tr>
             @endif
@@ -231,9 +232,9 @@
             @if(!empty($mailData['transportation_address']))
             <tr><th>Pickup Location</th><td>{{ $mailData['transportation_address'] }}</td></tr>
             @endif
-            @if(!empty($mailData['transportation_phone']))
+            {{-- @if(!empty($mailData['transportation_phone']))
             <tr><th>Contact Phone</th><td>{{ $mailData['transportation_phone'] }}</td></tr>
-            @endif
+            @endif --}}
             @if(!empty($mailData['transportation_guest']))
             <tr><th>Transportation Guests</th><td>{{ $mailData['transportation_guest'] }}</td></tr>
             @endif
