@@ -12617,7 +12617,7 @@
                     var subtitle = document.createElement('p');
                     subtitle.id = 'payment-security-subtitle';
                     subtitle.textContent = 'All transactions are secure and encrypted.';
-                    subtitle.style.margin = '-18px 0 18px';
+                    subtitle.style.margin = '1rem 0 18px';
                     subtitle.style.color = 'rgba(255,255,255,0.72)';
                     subtitle.style.fontSize = '13px';
                     subtitle.style.lineHeight = '1.5';
@@ -12663,6 +12663,29 @@
                 var dateCard = dateInput ? dateInput.closest('.hero-date-card') : null;
                 if (!dateCard) {
                     return;
+                }
+
+                var dateLabel = dateCard.querySelector('label');
+                if (dateLabel) {
+                    dateLabel.textContent = 'Select Date';
+                    dateLabel.style.marginBottom = '8px';
+                    dateLabel.style.color = 'rgba(255,255,255,0.9)';
+                    dateLabel.style.fontWeight = '600';
+                }
+
+                dateCard.style.margin = '0';
+                dateCard.style.padding = '12px';
+                dateCard.style.border = '1px solid rgba(255,255,255,0.14)';
+                dateCard.style.borderRadius = '12px';
+                dateCard.style.background = 'rgba(255,255,255,0.03)';
+                dateCard.style.boxShadow = 'none';
+
+                if (dateInput) {
+                    dateInput.style.height = '44px';
+                    dateInput.style.borderRadius = '10px';
+                    dateInput.style.background = 'rgba(9,16,28,0.6)';
+                    dateInput.style.border = '1px solid rgba(255,255,255,0.18)';
+                    dateInput.style.color = 'rgba(255,255,255,0.95)';
                 }
 
                 if (dateCard.parentNode !== container) {
