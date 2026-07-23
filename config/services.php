@@ -65,6 +65,7 @@ return [
         'api_key' => env('TELNYX_API_KEY'),
         'api_url' => env('TELNYX_API_URL', 'https://api.telnyx.com/v2/messages'),
         'from_number' => env('TELNYX_FROM_NUMBER'), // Your Telnyx phone number in E.164 format (e.g., +15551234567)
+        'messaging_profile_id' => env('TELNYX_MESSAGING_PROFILE_ID'),
         'enabled' => env('TELNYX_ENABLED', true),
         'default_country_code' => env('TELNYX_DEFAULT_COUNTRY_CODE', '1'), // 1=US, 44=UK, 33=France, 52=Mexico, 61=Australia, 971=UAE, etc
     ],

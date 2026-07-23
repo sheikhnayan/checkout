@@ -7,6 +7,8 @@ use GuzzleHttp\Client;
 
 class TelnyxSmsService
 {
+    private const CLIENT_CONFIRMATION_MESSAGE = 'CartVIP: Reservation received. Present your QR code upon arrival. Your confirmation and details have been emailed. Reply STOP to opt out.';
+
     private $apiKey;
     private $apiUrl = 'https://api.telnyx.com/v2/messages';
     private $fromNumber; // Telnyx phone number to send from (E.164 format)
@@ -42,6 +44,7 @@ class TelnyxSmsService
         try {
             $message = $this->formatTransactionMessage($transactionData, $type);
             $phoneNumber = $this->formatPhoneNumber($phoneNumber);
+            $qrImageUrl = $this->resolveQrImageUrl($transactionData);
 
             // Validate phone number is in E.164 format
             if (!$this->isValidE164($phoneNumber)) {
@@ -53,6 +56,19 @@ class TelnyxSmsService
                     'success' => false,
                     'message' => 'Invalid phone number format'
                 ];
+            }
+
+            if ($qrImageUrl !== null) {
+                $mmsResult = $this->sendMms($phoneNumber, $message, [$qrImageUrl]);
+                if (($mmsResult['success'] ?? false) === true) {
+                    return $mmsResult;
+                }
+
+                Log::warning('Falling back to SMS after MMS attempt failed', [
+                    'phone' => $phoneNumber,
+                    'transaction_id' => $transactionData['transaction_id'] ?? 'unknown',
+                    'mms_error' => $mmsResult['message'] ?? 'unknown',
+                ]);
             }
 
             return $this->sendSms($phoneNumber, $message);
@@ -117,11 +133,8 @@ class TelnyxSmsService
      */
     private function formatTransactionMessage($data, $type)
     {
-        // Same message for both reservation and package types
-        $message = "CartVIP: Your reservation has been received. Check your email for details. Reply STOP to opt out.";
-
-        // Telnyx supports up to 1,600 characters (SMS will be concatenated if longer)
-        return substr($message, 0, 1600);
+        // Same client confirmation copy for both reservation and package types.
+        return substr(self::CLIENT_CONFIRMATION_MESSAGE, 0, 1600);
     }
 
     /**
@@ -149,11 +162,11 @@ class TelnyxSmsService
                     'Authorization' => 'Bearer ' . $this->apiKey,
                     'Content-Type' => 'application/json',
                 ],
-                'json' => [
+                'json' => $this->buildMessagePayload([
                     'from' => $this->fromNumber, // Telnyx phone number in E.164 format
                     'to' => $phoneNumber, // Recipient phone number in E.164 format
                     'text' => $message, // The SMS text (max 1,600 chars)
-                ]
+                ]),
             ]);
 
             $statusCode = $response->getStatusCode();
@@ -246,6 +259,149 @@ class TelnyxSmsService
                 'message' => 'Unexpected error: ' . $e->getMessage()
             ];
         }
+    }
+
+    /**
+     * Send MMS via Telnyx API.
+     */
+    private function sendMms(string $phoneNumber, string $message, array $mediaUrls): array
+    {
+        $mediaUrls = array_values(array_filter($mediaUrls, fn ($url) => is_string($url) && trim($url) !== ''));
+        if (empty($mediaUrls)) {
+            return [
+                'success' => false,
+                'message' => 'No media URLs provided for MMS',
+            ];
+        }
+
+        try {
+            $response = $this->client->post($this->apiUrl, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->apiKey,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => $this->buildMessagePayload([
+                    'from' => $this->fromNumber,
+                    'to' => $phoneNumber,
+                    'text' => $message,
+                    'media_urls' => array_slice($mediaUrls, 0, 10),
+                ]),
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            $body = json_decode($response->getBody(), true);
+
+            if ($statusCode === 201 || $statusCode === 200) {
+                Log::info('MMS sent successfully via Telnyx', [
+                    'phone' => $phoneNumber,
+                    'from' => $this->fromNumber,
+                    'message_id' => $body['data']['id'] ?? 'unknown',
+                    'status' => $body['data']['status'] ?? 'sent',
+                ]);
+
+                return [
+                    'success' => true,
+                    'message' => 'MMS sent successfully',
+                    'message_id' => $body['data']['id'] ?? null,
+                    'status' => $body['data']['status'] ?? 'sent',
+                ];
+            }
+
+            Log::warning('Telnyx MMS send failed', [
+                'phone' => $phoneNumber,
+                'status' => $statusCode,
+                'response' => $body,
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Failed to send MMS: ' . ($body['errors'][0]['detail'] ?? 'Unknown error'),
+                'status' => $statusCode,
+            ];
+        } catch (\GuzzleHttp\Exception\ConnectException $e) {
+            Log::error('Telnyx API connection failed during MMS send', [
+                'phone' => $phoneNumber,
+                'error' => $e->getMessage(),
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Network error: Cannot reach MMS service.',
+                'network_error' => true,
+            ];
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            $response = $e->getResponse();
+            $statusCode = $response->getStatusCode();
+            $body = json_decode($response->getBody(), true);
+
+            Log::error('Telnyx MMS client error', [
+                'phone' => $phoneNumber,
+                'status' => $statusCode,
+                'error_code' => $body['errors'][0]['code'] ?? 'unknown',
+                'error_detail' => $body['errors'][0]['detail'] ?? 'Unknown error',
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'API error: ' . ($body['errors'][0]['detail'] ?? 'Client error'),
+                'status' => $statusCode,
+                'error_code' => $body['errors'][0]['code'] ?? null,
+            ];
+        } catch (\GuzzleHttp\Exception\ServerException $e) {
+            $response = $e->getResponse();
+            $statusCode = $response->getStatusCode();
+
+            Log::error('Telnyx MMS server error', [
+                'phone' => $phoneNumber,
+                'status' => $statusCode,
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Telnyx MMS service temporarily unavailable. Please try again.',
+                'status' => $statusCode,
+                'retryable' => true,
+            ];
+        } catch (\Exception $e) {
+            Log::error('MMS sending exception: ' . $e->getMessage(), [
+                'exception_class' => get_class($e),
+                'phone' => $phoneNumber,
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Unexpected MMS error: ' . $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Optionally include messaging profile ID when configured.
+     */
+    private function buildMessagePayload(array $basePayload): array
+    {
+        $payload = $basePayload;
+        $messagingProfileId = (string) config('services.telnyx.messaging_profile_id', '');
+        if ($messagingProfileId !== '') {
+            $payload['messaging_profile_id'] = $messagingProfileId;
+        }
+
+        return $payload;
+    }
+
+    private function resolveQrImageUrl(array $transactionData): ?string
+    {
+        $providedUrl = trim((string) ($transactionData['ticket_qr_image_url'] ?? ''));
+        if ($providedUrl !== '') {
+            return $providedUrl;
+        }
+
+        $ticketCode = trim((string) ($transactionData['ticket_qr_code'] ?? ''));
+        if ($ticketCode === '') {
+            return null;
+        }
+
+        return 'https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=' . urlencode($ticketCode);
     }
 
     /**

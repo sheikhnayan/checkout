@@ -611,6 +611,8 @@ class TransactionController extends Controller
                                     'quantity' => $request->input('quantity', 1),
                                     'package_use_date' => $add->package_use_date,
                                     'total_amount' => $add->total,
+                                    'ticket_qr_code' => $add->ticket_qr_code,
+                                    'ticket_qr_image_url' => $this->buildTicketQrImageUrl($add->ticket_qr_code),
                                 ];
                                 $smsService->sendTransactionNotification($purchaserPhone, $smsData, 'package');
                             }
@@ -949,6 +951,8 @@ class TransactionController extends Controller
                                 'quantity' => $request->input('quantity', 1),
                                 'package_use_date' => $add->package_use_date,
                                 'total_amount' => $add->total,
+                                'ticket_qr_code' => $add->ticket_qr_code,
+                                'ticket_qr_image_url' => $this->buildTicketQrImageUrl($add->ticket_qr_code),
                             ];
                             $smsService->sendTransactionNotification($purchaserPhone, $smsData, 'package');
                         }
@@ -1170,6 +1174,8 @@ class TransactionController extends Controller
                     'quantity' => $request->input('quantity', 1),
                     'package_use_date' => $transaction->package_use_date,
                     'total_amount' => $transaction->total,
+                    'ticket_qr_code' => $transaction->ticket_qr_code,
+                    'ticket_qr_image_url' => $this->buildTicketQrImageUrl($transaction->ticket_qr_code),
                 ];
                 $smsService->sendTransactionNotification($purchaserPhone, $smsData, 'package');
             }
@@ -1664,6 +1670,8 @@ class TransactionController extends Controller
                                     'women_count' => $new->women ?? $new->package_women ?? 0,
                                     'total_amount' => 0,
                                     'notes' => $new->package_note ?? '',
+                                    'ticket_qr_code' => $new->ticket_qr_code,
+                                    'ticket_qr_image_url' => $this->buildTicketQrImageUrl($new->ticket_qr_code),
                                 ];
                                 $result = $smsService->sendTransactionNotification($guestPhone, $smsData, 'reservation');
                                 \Log::info('SMS result for reservation', ['result' => $result]);
