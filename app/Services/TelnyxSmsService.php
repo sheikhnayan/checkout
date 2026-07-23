@@ -164,7 +164,7 @@ class TelnyxSmsService
                 ],
                 'json' => $this->buildMessagePayload([
                     'from' => $this->fromNumber, // Telnyx phone number in E.164 format
-                    'to' => $phoneNumber, // Recipient phone number in E.164 format
+                    'to' => [$phoneNumber], // Recipient phone number in E.164 format
                     'text' => $message, // The SMS text (max 1,600 chars)
                 ]),
             ]);
@@ -282,7 +282,7 @@ class TelnyxSmsService
                 ],
                 'json' => $this->buildMessagePayload([
                     'from' => $this->fromNumber,
-                    'to' => $phoneNumber,
+                    'to' => [$phoneNumber],
                     'text' => $message,
                     'media_urls' => array_slice($mediaUrls, 0, 10),
                 ]),
