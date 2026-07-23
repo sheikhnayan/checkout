@@ -600,7 +600,7 @@ class TransactionController extends Controller
 
                         // ========== SEND SMS NOTIFICATION ==========
                         try {
-                            $purchaserPhone = $add->package_phone;
+                            $purchaserPhone = $this->resolveClientSmsPhone($request, $add, false);
                             if ($purchaserPhone) {
                                 $smsService = new \App\Services\TelnyxSmsService();
                                 $smsData = [
@@ -940,7 +940,7 @@ class TransactionController extends Controller
 
                     // ========== SEND SMS NOTIFICATION ==========
                     try {
-                        $purchaserPhone = $add->package_phone;
+                        $purchaserPhone = $this->resolveClientSmsPhone($request, $add, false);
                         if ($purchaserPhone) {
                             $smsService = new \App\Services\TelnyxSmsService();
                             $smsData = [
@@ -1163,7 +1163,7 @@ class TransactionController extends Controller
         }
 
         try {
-            $purchaserPhone = $transaction->package_phone;
+            $purchaserPhone = $this->resolveClientSmsPhone($request, $transaction, false);
             if ($purchaserPhone) {
                 $smsService = new \App\Services\TelnyxSmsService();
                 $smsData = [
@@ -1314,6 +1314,40 @@ class TransactionController extends Controller
         } catch (\Throwable $e) {
             return $rawTime;
         }
+    }
+
+    /**
+     * Resolve the best available phone number for client SMS notifications.
+     * Prefer hidden E.164 fields produced by checkout JS, then fall back to visible/stored values.
+     */
+    private function resolveClientSmsPhone(Request $request, ?Transaction $transaction = null, bool $isReservation = false): ?string
+    {
+        $candidates = $isReservation
+            ? [
+                $request->input('reservation_phone_e164'),
+                $request->input('reservation_phone'),
+            ]
+            : [
+                $request->input('package_phone_e164'),
+                $request->input('package_phone'),
+            ];
+
+        $candidates[] = $request->input('payment_phone_e164');
+        $candidates[] = $request->input('payment_phone');
+
+        if ($transaction) {
+            $candidates[] = $transaction->package_phone;
+            $candidates[] = $transaction->payment_phone;
+        }
+
+        foreach ($candidates as $candidate) {
+            $value = trim((string) $candidate);
+            if ($value !== '') {
+                return $value;
+            }
+        }
+
+        return null;
     }
 
     public function index(Request $request)
@@ -1655,7 +1689,7 @@ class TransactionController extends Controller
                         }
 
                         // ========== SEND SMS NOTIFICATION ==========
-                        $guestPhone = $new->package_phone;
+                        $guestPhone = $this->resolveClientSmsPhone($request, $new, true);
                         \Log::info('SMS CHECK - Phone value (reservation)', ['phone' => $guestPhone, 'phone_type' => gettype($guestPhone), 'phone_empty' => empty($guestPhone)]);
                         if ($guestPhone) {
                             try {
