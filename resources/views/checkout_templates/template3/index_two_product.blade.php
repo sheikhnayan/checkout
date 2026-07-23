@@ -12474,6 +12474,7 @@
         function buildShippingHtml() {
             return '' +
                 '<div id="shipping-fields-wrap" style="margin:16px 0 18px; padding:12px; border:1px solid rgba(255,255,255,0.14); border-radius:12px; background:rgba(255,255,255,0.03);">' +
+                '  <h4 id="shipping-address-title" style="margin:0 0 14px; font-size:18px; line-height:1.3; font-weight:700; color:rgba(255,255,255,0.96);">Shipping Address</h4>' +
                 '  <div class="checkbox-container payment-consent-group" style="margin:0 0 12px 0;">' +
                 '    <label class="consent-label" style="margin:0;">' +
                 '      <input type="checkbox" name="shipping_same_as_billing" id="shipping_same_as_billing" value="1" />' +
@@ -12600,6 +12601,78 @@
             });
             populatePaymentFields();
 
+            function ensurePaymentSectionHeadings() {
+                var paymentSection = document.getElementById('section-3');
+                if (!paymentSection) {
+                    return;
+                }
+
+                var paymentTitle = paymentSection.querySelector('h2');
+                var paymentFormLeft = paymentSection.querySelector('.form-left');
+                if (!paymentTitle || !paymentFormLeft) {
+                    return;
+                }
+
+                if (!paymentSection.querySelector('#payment-security-subtitle')) {
+                    var subtitle = document.createElement('p');
+                    subtitle.id = 'payment-security-subtitle';
+                    subtitle.textContent = 'All transactions are secure and encrypted.';
+                    subtitle.style.margin = '-18px 0 18px';
+                    subtitle.style.color = 'rgba(255,255,255,0.72)';
+                    subtitle.style.fontSize = '13px';
+                    subtitle.style.lineHeight = '1.5';
+                    paymentTitle.insertAdjacentElement('afterend', subtitle);
+                }
+
+                if (!paymentSection.querySelector('#billing-address-title')) {
+                    var firstRow = paymentFormLeft.querySelector('.form-row');
+                    if (firstRow) {
+                        var billingTitle = document.createElement('h4');
+                        billingTitle.id = 'billing-address-title';
+                        billingTitle.textContent = 'Billing Address';
+                        billingTitle.style.margin = '0 0 16px';
+                        billingTitle.style.fontSize = '18px';
+                        billingTitle.style.lineHeight = '1.3';
+                        billingTitle.style.fontWeight = '700';
+                        billingTitle.style.color = 'rgba(255,255,255,0.96)';
+                        paymentFormLeft.insertBefore(billingTitle, firstRow);
+                    }
+                }
+            }
+
+            function ensureUseDateInPaymentForm() {
+                var paymentSection = document.getElementById('section-3');
+                var paymentFormLeft = paymentSection ? paymentSection.querySelector('.form-left') : null;
+                var billingTitle = paymentSection ? paymentSection.querySelector('#billing-address-title') : null;
+                if (!paymentFormLeft || !billingTitle) {
+                    return;
+                }
+
+                var container = paymentSection.querySelector('#payment-use-date-container');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'payment-use-date-container';
+                    container.style.margin = '0 0 18px';
+                    billingTitle.insertAdjacentElement('beforebegin', container);
+                }
+
+                var dateInput = document.body.classList.contains('embed-checkout-mode') && document.getElementById('package_use_date_iframe')
+                    ? document.getElementById('package_use_date_iframe')
+                    : document.getElementById('package_use_date');
+
+                var dateCard = dateInput ? dateInput.closest('.hero-date-card') : null;
+                if (!dateCard) {
+                    return;
+                }
+
+                if (dateCard.parentNode !== container) {
+                    container.appendChild(dateCard);
+                }
+            }
+
+            ensurePaymentSectionHeadings();
+            ensureUseDateInPaymentForm();
+
             var paymentConsent = document.getElementById('payment-consent-group');
             if (paymentConsent && !document.getElementById('shipping-fields-wrap')) {
                 paymentConsent.insertAdjacentHTML('beforebegin', buildShippingHtml());
@@ -12661,15 +12734,12 @@
 
             function updateUseDatePickerVisibility(requiresShipping) {
                 var shouldShowDatePicker = !requiresShipping;
-                var dateCards = document.querySelectorAll('.hero-date-card, .single-package-date-card, .iframe-date-card');
+                ensureUseDateInPaymentForm();
 
-                dateCards.forEach(function (card) {
-                    if (shouldShowDatePicker) {
-                        card.style.removeProperty('display');
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
+                var paymentDateContainer = document.getElementById('payment-use-date-container');
+                if (paymentDateContainer) {
+                    paymentDateContainer.style.display = shouldShowDatePicker ? 'block' : 'none';
+                }
 
                 var dateFieldSelectors = ['#package_use_date', '#package_use_date_iframe'];
                 dateFieldSelectors.forEach(function (selector) {
@@ -12683,11 +12753,7 @@
                         return;
                     }
 
-                    if (shouldShowDatePicker) {
-                        wrap.style.removeProperty('display');
-                    } else {
-                        wrap.style.display = 'none';
-                    }
+                    wrap.style.display = shouldShowDatePicker ? '' : 'none';
                 });
 
                 var sidebarDate = document.getElementById('cv-sidebar-date');
