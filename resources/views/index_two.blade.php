@@ -6134,17 +6134,10 @@
                                         </div>
                                         <div class="col-md-12">
                                             <div class="checkbox-container">
-                                                @if (url()->current() !== 'https://app.cartvip.com/erotic-museum-vegas')
-                                                    <label class="consent-label">
-                                                        <input type="checkbox" id="smsConsent_two" required />
-                                                        <span>
-                                                            I agree to receive SMS communications regarding my reservation,
-                                                            transportation updates, VIP services, and related notifications.
-                                                            Message and data rates may apply. Messaging frequency may vary.
-                                                            Reply STOP to opt out at any time.
-                                                        </span>
-                                                    </label>
-                                                @endif
+                                                <label class="consent-label">
+                                                    <input type="checkbox" id="smsConsent_two" required />
+                                                    <span>I agree to receive SMS communications regarding my reservation, transportation updates, VIP services, and related notifications. Message and data rates may apply. Messaging frequency may vary. Reply STOP to opt out at any time.</span>
+                                                </label>
                                                 <label class="consent-label">
                                                     <input type="checkbox" id="termsConsent_two" required />
                                                     <span>I have read and agree to the <a
