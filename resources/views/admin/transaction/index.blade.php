@@ -667,12 +667,6 @@ body.modal-open .admin-mobile-menu-toggle {
                 <h4 class="mb-1 fw-bold text-white">{{ $dashboardTitle ?? 'Transactions Dashboard' }} 📊</h4>
                 <p class="mb-0 small" style="color:rgba(255,255,255,0.45)">{{ $dashboardSubtitle ?? "Here's what's happening with your transaction performance." }}</p>
             </div>
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-                <div class="txn-date-range-wrap" id="txnDateRangeWrap">
-                    <i class="fas fa-calendar-alt me-2" style="color:rgba(255,255,255,0.4);font-size:0.85rem"></i>
-                        <input type="text" id="txnDateRange" class="txn-date-input" readonly placeholder="All time" value="{{ $initialDateRange }}">
-                </div>
-            </div>
         </div>
 
         {{-- ── STAT CARDS ──────────────────────────────────────────── --}}
@@ -1012,6 +1006,38 @@ body.modal-open .admin-mobile-menu-toggle {
                                 <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="no_show" {{ $filterReservation === 'no_show' ? 'checked' : '' }}>
                                 <span>No Show</span>
                             </label>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Date Range Filter Pill (Sale Date / Reservation Date / Either) --}}
+                <div class="dropdown">
+                    <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillDateRangeBtn">
+                        <i class="fas fa-calendar-alt"></i> Date Range <span class="polaris-filter-pill-count d-none" id="countDateRange">0</span>
+                    </button>
+                    <div class="dropdown-menu polaris-popover-menu" style="min-width: 280px !important;">
+                        <div class="polaris-popover-header">
+                            <span class="polaris-popover-title">Filter by Date</span>
+                            <div>
+                                <a href="javascript:void(0)" class="polaris-popover-action" onclick="clearPolarisDateRange()">Clear</a>
+                            </div>
+                        </div>
+                        <div class="polaris-popover-body">
+                            <div class="mb-2">
+                                <label class="form-label text-white-50 small mb-1">Date Target:</label>
+                                <select id="dateTargetSelect" class="form-select form-select-sm" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:0.8rem;border-radius:6px;">
+                                    <option value="either" selected>Either (Sale or Reservation Date)</option>
+                                    <option value="sale">Sale Date (Transaction Date)</option>
+                                    <option value="reservation">Reservation Date (Usage Date)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label text-white-50 small mb-1">Date Range:</label>
+                                <div class="txn-date-range-wrap w-100" id="txnDateRangeWrap" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15);">
+                                    <i class="fas fa-calendar-alt me-2" style="color:rgba(255,255,255,0.4);font-size:0.85rem"></i>
+                                    <input type="text" id="txnDateRange" class="txn-date-input w-100" readonly placeholder="All time" value="{{ $initialDateRange }}">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1978,6 +2004,16 @@ body.modal-open .admin-mobile-menu-toggle {
                     updatePolarisUiAndFilterTable();
                 };
 
+                window.clearPolarisDateRange = function() {
+                    $('#txnDateRange').val('');
+                    const picker = $('#txnDateRange').data('daterangepicker');
+                    if (picker) {
+                        picker.setStartDate(moment());
+                        picker.setEndDate(moment());
+                    }
+                    updatePolarisUiAndFilterTable();
+                };
+
                 function updatePolarisUiAndFilterTable() {
                     if (!table) return;
 
@@ -2024,6 +2060,32 @@ body.modal-open .admin-mobile-menu-toggle {
                         }
                     });
 
+                    // Handle Date Range Chip
+                    const dateRangeVal = String($('#txnDateRange').val() || '').trim();
+                    if (dateRangeVal) {
+                        totalActiveFilters += 1;
+                        $('#pillDateRangeBtn').addClass('active');
+                        $('#countDateRange').text('1').removeClass('d-none');
+
+                        const targetLabelMap = {
+                            either: 'Sale/Usage',
+                            sale: 'Sale Date',
+                            reservation: 'Usage Date'
+                        };
+                        const currentTarget = String($('#dateTargetSelect').val() || 'either').toLowerCase();
+                        const targetLabel = targetLabelMap[currentTarget] || 'Sale/Usage';
+
+                        activeChipsContainer.append(`
+                            <div class="polaris-chip">
+                                <span>Date (${targetLabel}): ${dateRangeVal}</span>
+                                <i class="fas fa-times polaris-chip-remove" onclick="clearPolarisDateRange()"></i>
+                            </div>
+                        `);
+                    } else {
+                        $('#pillDateRangeBtn').removeClass('active');
+                        $('#countDateRange').text('0').addClass('d-none');
+                    }
+
                     if (totalActiveFilters > 0) {
                         activeChipsContainer.append(`
                             <button type="button" class="polaris-clear-all-btn" onclick="clearAllPolarisFilters()">Clear all filters</button>
@@ -2044,11 +2106,17 @@ body.modal-open .admin-mobile-menu-toggle {
                 window.clearAllPolarisFilters = function() {
                     $('.polaris-filter-cb').prop('checked', false);
                     $('#txnSearch').val('');
+                    $('#txnDateRange').val('');
+                    const picker = $('#txnDateRange').data('daterangepicker');
+                    if (picker) {
+                        picker.setStartDate(moment());
+                        picker.setEndDate(moment());
+                    }
                     table.search('').draw();
                     updatePolarisUiAndFilterTable();
                 };
 
-                $(document).on('change', '.polaris-filter-cb', function() {
+                $(document).on('change', '.polaris-filter-cb, #dateTargetSelect', function() {
                     updatePolarisUiAndFilterTable();
                 });
 
@@ -2127,6 +2195,42 @@ body.modal-open .admin-mobile-menu-toggle {
                         if (!matches) return false;
                     }
 
+                    // 6. Date Range & Target Filter (Sale Date vs Reservation Date vs Either)
+                    const dateRangeStr = String($('#txnDateRange').val() || '').trim();
+                    if (dateRangeStr && dateRangeStr.includes(' - ')) {
+                        const parts = dateRangeStr.split(' - ');
+                        const startMom = moment(parts[0], 'MM/DD/YYYY', true);
+                        const endMom = moment(parts[1], 'MM/DD/YYYY', true);
+
+                        if (startMom.isValid() && endMom.isValid()) {
+                            const startStr = startMom.format('YYYY-MM-DD');
+                            const endStr = endMom.format('YYYY-MM-DD');
+                            const dateTarget = String($('#dateTargetSelect').val() || 'either').toLowerCase();
+
+                            // Row sale date (created_at)
+                            const saleDateRaw = String($viewBtn.data('date') || '').trim();
+                            const saleMom = (typeof parseRowDateToMoment === 'function') ? parseRowDateToMoment(saleDateRaw) : null;
+                            const saleDateStr = saleMom && saleMom.isValid() ? saleMom.format('YYYY-MM-DD') : '';
+
+                            // Row reservation date (package_use_date)
+                            const resDateRaw = String($viewBtn.data('package_use_date') || '').trim();
+
+                            let matchesDate = false;
+
+                            if (dateTarget === 'sale') {
+                                matchesDate = saleDateStr !== '' && saleDateStr >= startStr && saleDateStr <= endStr;
+                            } else if (dateTarget === 'reservation') {
+                                matchesDate = resDateRaw !== '' && resDateRaw >= startStr && resDateRaw <= endStr;
+                            } else { // 'either'
+                                const saleMatch = saleDateStr !== '' && saleDateStr >= startStr && saleDateStr <= endStr;
+                                const resMatch = resDateRaw !== '' && resDateRaw >= startStr && resDateRaw <= endStr;
+                                matchesDate = saleMatch || resMatch;
+                            }
+
+                            if (!matchesDate) return false;
+                        }
+                    }
+
                     return true;
                 });
 
@@ -2135,10 +2239,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     table.search(this.value).draw();
                 });
 
-                updatePolarisUiAndFilterTable();
-
                 const $txnDateRange = $('#txnDateRange');
-                const $txnDateRangeWrap = $('#txnDateRangeWrap');
 
                 if ($txnDateRange.data('daterangepicker')) {
                     $txnDateRange.data('daterangepicker').remove();
@@ -2187,7 +2288,7 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 $txnDateRange.off('apply.daterangepicker.txnDateRange').on('apply.daterangepicker.txnDateRange', function(ev, picker) {
                     $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
-                    reloadWithServerFilters();
+                    updatePolarisUiAndFilterTable();
                 });
 
                 $txnDateRange.off('cancel.daterangepicker.txnDateRange').on('cancel.daterangepicker.txnDateRange', function() {

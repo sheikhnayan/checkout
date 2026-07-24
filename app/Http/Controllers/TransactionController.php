@@ -1518,11 +1518,21 @@ class TransactionController extends Controller
 
         $dateFrom = trim((string) $request->query('date_from', ''));
         $dateTo = trim((string) $request->query('date_to', ''));
+        $dateTarget = strtolower(trim((string) $request->query('date_target', 'either')));
         if ($dateFrom !== '' && $dateTo !== '') {
             try {
                 $startUtc = Carbon::parse($dateFrom, 'America/Los_Angeles')->startOfDay()->utc();
                 $endUtc = Carbon::parse($dateTo, 'America/Los_Angeles')->endOfDay()->utc();
-                $query->whereBetween('created_at', [$startUtc, $endUtc]);
+                $query->where(function ($dateQuery) use ($dateFrom, $dateTo, $dateTarget, $startUtc, $endUtc) {
+                    if ($dateTarget === 'sale') {
+                        $dateQuery->whereBetween('created_at', [$startUtc, $endUtc]);
+                    } elseif ($dateTarget === 'reservation') {
+                        $dateQuery->whereBetween('package_use_date', [$dateFrom, $dateTo]);
+                    } else {
+                        $dateQuery->whereBetween('created_at', [$startUtc, $endUtc])
+                            ->orWhereBetween('package_use_date', [$dateFrom, $dateTo]);
+                    }
+                });
             } catch (\Throwable $exception) {
                 // Ignore malformed date filter params.
             }
