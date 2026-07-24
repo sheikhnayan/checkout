@@ -1286,7 +1286,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td class="txn-confirmation-num">{{ $item->transaction_id ?? 'N/A' }}</td>
                             <td class="txn-pkg-name">
                                 <div style="font-size:0.85rem;font-weight:600;margin-bottom:8px;">{{ $venueName }}</div>
-                                <button type="button" class="btn btn-sm btn-link-package view-btn" data-date="{{ $purchaseAtLocal?->format('M d, Y') ?? '' }}" data-date-iso="{{ $purchaseAtLocal?->format('Y-m-d') ?? '' }}" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-confirmation-number="{{ $item->transaction_id ?? 'N/A' }}" data-cart-items='@json($cartItems)' data-package-descriptions-b64="{{ base64_encode(json_encode($packageDescriptionsPayload)) }}" data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" data-package_use_date="{{ $item->package_use_date ?? '' }}" data-package_number_of_guest="{{ $item->package_number_of_guest ?? 0 }}" data-package_first_name="{{ $item->package_first_name ?? '' }}" data-package_last_name="{{ $item->package_last_name ?? '' }}" data-package_phone="{{ $item->package_phone ?? '' }}" data-package_email="{{ $item->package_email ?? '' }}" data-package_dob="{{ $item->package_dob ?? '' }}" data-package_note="{{ $item->package_note ?? '' }}" data-host_name="{{ $item->host_name ?? '' }}" data-transportation_pickup_time="{{ $item->transportation_pickup_time ?? '' }}" data-transportation_address="{{ $item->transportation_address ?? '' }}" data-transportation_phone="{{ $item->transportation_phone ?? '' }}" data-transportation_note="{{ $item->transportation_note ?? '' }}" data-payment_first_name="{{ $item->payment_first_name ?? '' }}" data-payment_last_name="{{ $item->payment_last_name ?? '' }}" data-payment_phone="{{ $item->payment_phone ?? '' }}" data-payment_email="{{ $item->payment_email ?? '' }}" data-payment_address="{{ $item->payment_address ?? '' }}" data-payment_city="{{ $item->payment_city ?? '' }}" data-payment_state="{{ $item->payment_state ?? '' }}" data-payment_country="{{ $item->payment_country ?? '' }}" data-payment_dob="{{ $item->payment_dob ?? '' }}" data-payment_zip_code="{{ $item->payment_zip_code ?? '' }}" data-type="{{ $item->type }}" data-status="{{ $item->status }}" data-ip_address="{{ $item->ip_address ?? '' }}" data-website_id="{{ $item->website->name ?? '' }}" data-affiliate_name="{{ $item->affiliate ? ($item->affiliate->display_name ?: optional($item->affiliate->user)->name) : '' }}" data-entertainer_name="{{ $item->entertainer ? ($item->entertainer->display_name ?: optional($item->entertainer->user)->name) : '' }}" data-addons="{{ $addons }}" style="font-size:0.85rem;min-width:72px;">Quick View</button>
+                                <button type="button" class="btn btn-sm btn-link-package view-btn" data-date="{{ $purchaseAtLocal?->format('M d, Y') ?? '' }}" data-date-iso="{{ $purchaseAtLocal?->format('Y-m-d') ?? '' }}" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-confirmation-number="{{ $item->transaction_id ?? 'N/A' }}" data-cart-items='@json($cartItems)' data-package-descriptions-b64="{{ base64_encode(json_encode($packageDescriptionsPayload)) }}" data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" data-package_use_date="{{ $item->package_use_date ?? '' }}" data-checked_in_status="{{ $item->checked_in_status ?? $item->checked_in ?? 0 }}" data-package_number_of_guest="{{ $item->package_number_of_guest ?? 0 }}" data-package_first_name="{{ $item->package_first_name ?? '' }}" data-package_last_name="{{ $item->package_last_name ?? '' }}" data-package_phone="{{ $item->package_phone ?? '' }}" data-package_email="{{ $item->package_email ?? '' }}" data-package_dob="{{ $item->package_dob ?? '' }}" data-package_note="{{ $item->package_note ?? '' }}" data-host_name="{{ $item->host_name ?? '' }}" data-transportation_pickup_time="{{ $item->transportation_pickup_time ?? '' }}" data-transportation_address="{{ $item->transportation_address ?? '' }}" data-transportation_phone="{{ $item->transportation_phone ?? '' }}" data-transportation_note="{{ $item->transportation_note ?? '' }}" data-payment_first_name="{{ $item->payment_first_name ?? '' }}" data-payment_last_name="{{ $item->payment_last_name ?? '' }}" data-payment_phone="{{ $item->payment_phone ?? '' }}" data-payment_email="{{ $item->payment_email ?? '' }}" data-payment_address="{{ $item->payment_address ?? '' }}" data-payment_city="{{ $item->payment_city ?? '' }}" data-payment_state="{{ $item->payment_state ?? '' }}" data-payment_country="{{ $item->payment_country ?? '' }}" data-payment_dob="{{ $item->payment_dob ?? '' }}" data-payment_zip_code="{{ $item->payment_zip_code ?? '' }}" data-type="{{ $item->type }}" data-status="{{ $item->status }}" data-ip_address="{{ $item->ip_address ?? '' }}" data-website_id="{{ $item->website->name ?? '' }}" data-affiliate_name="{{ $item->affiliate ? ($item->affiliate->display_name ?: optional($item->affiliate->user)->name) : '' }}" data-entertainer_name="{{ $item->entertainer ? ($item->entertainer->display_name ?: optional($item->entertainer->user)->name) : '' }}" data-addons="{{ $addons }}" style="font-size:0.85rem;min-width:72px;">Quick View</button>
                             </td>
                             <td>
                                 @php
@@ -2381,17 +2381,40 @@ body.modal-open .admin-mobile-menu-toggle {
                     const activeReservations = $('.polaris-filter-cb[data-category="reservation"]:checked').map(function() { return $(this).val(); }).get();
                     if (activeReservations.length > 0) {
                         const useDateRaw = String($viewBtn.data('package_use_date') || '').trim();
-                        const checkedIn = String($viewBtn.data('checked_in_status') || '').toLowerCase() === '1' || String($viewBtn.data('checked_in_status') || '').toLowerCase() === 'true';
+                        const checkedInRaw = String($viewBtn.data('checked_in_status') || $viewBtn.data('checked_in') || '').toLowerCase();
+                        const checkedIn = checkedInRaw === '1' || checkedInRaw === 'true' || checkedInRaw === 'checked_in';
                         const rawStatus = String($viewBtn.data('status') || '').trim().toLowerCase();
 
-                        const todayStr = moment().format('YYYY-MM-DD');
+                        let useDateIso = '';
+                        if (useDateRaw) {
+                            if (useDateRaw.length >= 10 && useDateRaw.match(/^\d{4}-\d{2}-\d{2}/)) {
+                                useDateIso = useDateRaw.substring(0, 10);
+                            } else {
+                                const uMom = (typeof parseRowDateToMoment === 'function') ? parseRowDateToMoment(useDateRaw) : null;
+                                if (uMom && uMom.isValid()) {
+                                    useDateIso = uMom.format('YYYY-MM-DD');
+                                }
+                            }
+                        }
+
+                        const todayStr = (typeof getPstMoment === 'function') ? getPstMoment().format('YYYY-MM-DD') : moment().format('YYYY-MM-DD');
 
                         const matches = activeReservations.some(r => {
-                            if (r === 'upcoming') return useDateRaw > todayStr && rawStatus !== '0' && rawStatus !== '2';
-                            if (r === 'today') return useDateRaw === todayStr && rawStatus !== '0' && rawStatus !== '2';
-                            if (r === 'past') return useDateRaw < todayStr && useDateRaw !== '';
-                            if (r === 'checked_in') return checkedIn;
-                            if (r === 'no_show') return useDateRaw < todayStr && (rawStatus === '1' || rawStatus === 'completed') && !checkedIn;
+                            if (r === 'upcoming') {
+                                return useDateIso !== '' && useDateIso > todayStr && rawStatus !== '0' && rawStatus !== '2' && rawStatus !== 'canceled' && rawStatus !== 'cancelled' && rawStatus !== 'refunded';
+                            }
+                            if (r === 'today') {
+                                return useDateIso !== '' && useDateIso === todayStr && rawStatus !== '0' && rawStatus !== '2' && rawStatus !== 'canceled' && rawStatus !== 'cancelled' && rawStatus !== 'refunded';
+                            }
+                            if (r === 'past') {
+                                return useDateIso !== '' && useDateIso < todayStr;
+                            }
+                            if (r === 'checked_in') {
+                                return checkedIn;
+                            }
+                            if (r === 'no_show') {
+                                return useDateIso !== '' && useDateIso < todayStr && (rawStatus === '1' || rawStatus === 'completed' || rawStatus === 'approved') && !checkedIn;
+                            }
                             return true;
                         });
                         if (!matches) return false;
@@ -2422,16 +2445,27 @@ body.modal-open .admin-mobile-menu-toggle {
 
                             // Row reservation date (package_use_date)
                             const resDateRaw = String($viewBtn.data('package_use_date') || '').trim();
+                            let resDateIso = '';
+                            if (resDateRaw) {
+                                if (resDateRaw.length >= 10 && resDateRaw.match(/^\d{4}-\d{2}-\d{2}/)) {
+                                    resDateIso = resDateRaw.substring(0, 10);
+                                } else {
+                                    const rMom = (typeof parseRowDateToMoment === 'function') ? parseRowDateToMoment(resDateRaw) : null;
+                                    if (rMom && rMom.isValid()) {
+                                        resDateIso = rMom.format('YYYY-MM-DD');
+                                    }
+                                }
+                            }
 
                             let matchesDate = false;
 
                             if (dateTarget === 'sale') {
                                 matchesDate = saleDateStr !== '' && saleDateStr >= startStr && saleDateStr <= endStr;
                             } else if (dateTarget === 'reservation') {
-                                matchesDate = resDateRaw !== '' && resDateRaw >= startStr && resDateRaw <= endStr;
+                                matchesDate = resDateIso !== '' && resDateIso >= startStr && resDateIso <= endStr;
                             } else { // 'either'
                                 const saleMatch = saleDateStr !== '' && saleDateStr >= startStr && saleDateStr <= endStr;
-                                const resMatch = resDateRaw !== '' && resDateRaw >= startStr && resDateRaw <= endStr;
+                                const resMatch = resDateIso !== '' && resDateIso >= startStr && resDateIso <= endStr;
                                 matchesDate = saleMatch || resMatch;
                             }
 
