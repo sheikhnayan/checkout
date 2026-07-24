@@ -677,7 +677,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     <div>
                         <div class="txn-stat-label">Total Transactions</div>
                         <div class="txn-stat-value">{{ number_format($totalTxns) }}</div>
-                        <div class="txn-stat-trend {{ $txnTrend >= 0 ? 'trend-up' : 'trend-down' }}">
+                        <div class="txn-stat-trend {{ $txnTrend >= 0 ? 'trend-up' : 'trend-down' }}" style="display:none !important;">
                             <i class="fas fa-arrow-{{ $txnTrend >= 0 ? 'up' : 'down' }} me-1"></i>{{ abs($txnTrend) }}% <span>vs last week</span>
                         </div>
                     </div>
@@ -689,7 +689,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     <div>
                         <div class="txn-stat-label">Completed Transactions</div>
                         <div class="txn-stat-value">{{ number_format($completedTxns) }}</div>
-                        <div class="txn-stat-trend {{ $completedTrend >= 0 ? 'trend-up' : 'trend-down' }}">
+                        <div class="txn-stat-trend {{ $completedTrend >= 0 ? 'trend-up' : 'trend-down' }}" style="display:none !important;">
                             <i class="fas fa-arrow-{{ $completedTrend >= 0 ? 'up' : 'down' }} me-1"></i>{{ abs($completedTrend) }}% <span>vs last week</span>
                         </div>
                     </div>
@@ -701,13 +701,13 @@ body.modal-open .admin-mobile-menu-toggle {
                     <div>
                         <div class="txn-stat-label">Total Revenue</div>
                         <div class="txn-stat-value">${{ number_format($totalRevenue, 2) }}</div>
-                        <div class="txn-stat-trend {{ $revenueTrend >= 0 ? 'trend-up' : 'trend-down' }}">
+                        <div class="txn-stat-trend {{ $revenueTrend >= 0 ? 'trend-up' : 'trend-down' }}" style="display:none !important;">
                             <i class="fas fa-arrow-{{ $revenueTrend >= 0 ? 'up' : 'down' }} me-1"></i>{{ abs($revenueTrend) }}% <span>vs last week</span>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col">
+            <div class="col" style="display:none !important;">
                 <div class="txn-stat-card">
                     <div class="txn-stat-icon" style="background:rgba(249,115,22,0.15);color:#f97316"><i class="fas fa-clock"></i></div>
                     <div>
@@ -776,7 +776,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     </div>
                     <div class="d-flex flex-wrap gap-4 mb-3">
                         <div class="txn-chart-legend"><span style="background:#7c3aed"></span>Revenue</div>
-                        <div class="txn-chart-legend"><span style="background:#f59e0b"></span>Fee</div>
+                        <div class="txn-chart-legend" style="display:none !important;"><span style="background:#f59e0b"></span>Fee</div>
                     </div>
                     <canvas id="txnLineChart" style="max-height:220px"></canvas>
                 </div>
@@ -1074,7 +1074,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     return (float)($item->affiliate_commission_amount ?? 0) + (float)($item->entertainer_commission_amount ?? 0);
                 });
             @endphp
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:24px;">
+            <div style="display:none !important;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:24px;">
                 <div class="txn-stat-card">
                     <div class="txn-stat-icon" style="background:rgba(249,115,22,0.2);">⏳</div>
                     <div>
