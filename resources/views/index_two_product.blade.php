@@ -6134,7 +6134,6 @@
                                         </div>
                                         <div class="col-md-12">
                                             <div class="checkbox-container">
-                                                {{ url()->current() }}
                                                 @if (url()->current() !== 'https://app.cartvip.com/erotic-museum-vegas')
                                                     <label class="consent-label">
                                                         <input type="checkbox" id="smsConsent_two" required />
@@ -7044,10 +7043,17 @@
                                                         </div>
 
                                                         <div class="checkbox-container payment-consent-group" id="payment-consent-group">
-                                                            <label class="consent-label">
-                                                                <input type="checkbox" id="smsConsent" required />
-                                                                <span>I agree to receive SMS communications regarding my reservation, transportation updates, VIP services, and related notifications. Message and data rates may apply. Messaging frequency may vary. Reply STOP to opt out at any time.</span>
-                                                            </label>
+                                                            @if (url()->current() !== 'https://app.cartvip.com/erotic-museum-vegas')
+                                                    <label class="consent-label">
+                                                        <input type="checkbox" id="smsConsent_two" required />
+                                                        <span>
+                                                            I agree to receive SMS communications regarding my reservation,
+                                                            transportation updates, VIP services, and related notifications.
+                                                            Message and data rates may apply. Messaging frequency may vary.
+                                                            Reply STOP to opt out at any time.
+                                                        </span>
+                                                    </label>
+                                                @endif
 
                                                             <label class="consent-label" style="margin-top: 1.4rem;">
                                                                 <input type="checkbox" id="termsConsent" required />
