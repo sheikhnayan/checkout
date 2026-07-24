@@ -6134,6 +6134,7 @@
                                         </div>
                                         <div class="col-md-12">
                                             <div class="checkbox-container">
+                                                {{ url()->current() }}
                                                 @if (url()->current() !== 'https://app.cartvip.com/erotic-museum-vegas')
                                                     <label class="consent-label">
                                                         <input type="checkbox" id="smsConsent_two" required />
