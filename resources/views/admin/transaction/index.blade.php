@@ -1309,8 +1309,16 @@ body.modal-open .admin-mobile-menu-toggle {
                                 @endif
                             </td>
                             <td>
+                                @php
+                                    $customerPhone = trim((string) ($item->package_phone ?: $item->payment_phone ?: ''));
+                                @endphp
                                 <div class="txn-customer-name">{{ $item->package_first_name }} {{ $item->package_last_name }}</div>
                                 <div class="txn-customer-email">{{ $item->package_email }}</div>
+                                @if($customerPhone !== '')
+                                    <div class="txn-customer-phone" style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-top:2px;">
+                                        <i class="fas fa-phone me-1" style="font-size:0.65rem;color:rgba(255,255,255,0.4);"></i>{{ $customerPhone }}
+                                    </div>
+                                @endif
                             </td>
                             <td class="txn-amount">${{ number_format((float)$item->total, 2) }}</td>
                             <td>
