@@ -1286,7 +1286,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td class="txn-confirmation-num">{{ $item->transaction_id ?? 'N/A' }}</td>
                             <td class="txn-pkg-name">
                                 <div style="font-size:0.85rem;font-weight:600;margin-bottom:8px;">{{ $venueName }}</div>
-                                <button type="button" class="btn btn-sm btn-link-package" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-confirmation-number="{{ $item->transaction_id ?? 'N/A' }}" data-cart-items='@json($cartItems)' data-package-descriptions-b64="{{ base64_encode(json_encode($packageDescriptionsPayload)) }}" data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" data-package_use_date="{{ $item->package_use_date ?? '' }}" data-package_number_of_guest="{{ $item->package_number_of_guest ?? 0 }}" data-package_first_name="{{ $item->package_first_name ?? '' }}" data-package_last_name="{{ $item->package_last_name ?? '' }}" data-package_phone="{{ $item->package_phone ?? '' }}" data-package_email="{{ $item->package_email ?? '' }}" data-package_dob="{{ $item->package_dob ?? '' }}" data-package_note="{{ $item->package_note ?? '' }}" data-host_name="{{ $item->host_name ?? '' }}" data-transportation_pickup_time="{{ $item->transportation_pickup_time ?? '' }}" data-transportation_address="{{ $item->transportation_address ?? '' }}" data-transportation_phone="{{ $item->transportation_phone ?? '' }}" data-transportation_note="{{ $item->transportation_note ?? '' }}" data-payment_first_name="{{ $item->payment_first_name ?? '' }}" data-payment_last_name="{{ $item->payment_last_name ?? '' }}" data-payment_phone="{{ $item->payment_phone ?? '' }}" data-payment_email="{{ $item->payment_email ?? '' }}" data-payment_address="{{ $item->payment_address ?? '' }}" data-payment_city="{{ $item->payment_city ?? '' }}" data-payment_state="{{ $item->payment_state ?? '' }}" data-payment_country="{{ $item->payment_country ?? '' }}" data-payment_dob="{{ $item->payment_dob ?? '' }}" data-payment_zip_code="{{ $item->payment_zip_code ?? '' }}" data-type="{{ $item->type }}" data-status="{{ $item->status }}" data-ip_address="{{ $item->ip_address ?? '' }}" data-website_id="{{ $item->website->name ?? '' }}" data-addons="{{ $addons }}" style="font-size:0.85rem;min-width:72px;">View</button>
+                                <button type="button" class="btn btn-sm btn-link-package view-btn" data-date="{{ $purchaseAtLocal?->format('M d, Y') ?? '' }}" data-date-iso="{{ $purchaseAtLocal?->format('YYYY-MM-DD') ?? '' }}" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-confirmation-number="{{ $item->transaction_id ?? 'N/A' }}" data-cart-items='@json($cartItems)' data-package-descriptions-b64="{{ base64_encode(json_encode($packageDescriptionsPayload)) }}" data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" data-package_use_date="{{ $item->package_use_date ?? '' }}" data-package_number_of_guest="{{ $item->package_number_of_guest ?? 0 }}" data-package_first_name="{{ $item->package_first_name ?? '' }}" data-package_last_name="{{ $item->package_last_name ?? '' }}" data-package_phone="{{ $item->package_phone ?? '' }}" data-package_email="{{ $item->package_email ?? '' }}" data-package_dob="{{ $item->package_dob ?? '' }}" data-package_note="{{ $item->package_note ?? '' }}" data-host_name="{{ $item->host_name ?? '' }}" data-transportation_pickup_time="{{ $item->transportation_pickup_time ?? '' }}" data-transportation_address="{{ $item->transportation_address ?? '' }}" data-transportation_phone="{{ $item->transportation_phone ?? '' }}" data-transportation_note="{{ $item->transportation_note ?? '' }}" data-payment_first_name="{{ $item->payment_first_name ?? '' }}" data-payment_last_name="{{ $item->payment_last_name ?? '' }}" data-payment_phone="{{ $item->payment_phone ?? '' }}" data-payment_email="{{ $item->payment_email ?? '' }}" data-payment_address="{{ $item->payment_address ?? '' }}" data-payment_city="{{ $item->payment_city ?? '' }}" data-payment_state="{{ $item->payment_state ?? '' }}" data-payment_country="{{ $item->payment_country ?? '' }}" data-payment_dob="{{ $item->payment_dob ?? '' }}" data-payment_zip_code="{{ $item->payment_zip_code ?? '' }}" data-type="{{ $item->type }}" data-status="{{ $item->status }}" data-ip_address="{{ $item->ip_address ?? '' }}" data-website_id="{{ $item->website->name ?? '' }}" data-affiliate_name="{{ $item->affiliate ? ($item->affiliate->display_name ?: optional($item->affiliate->user)->name) : '' }}" data-entertainer_name="{{ $item->entertainer ? ($item->entertainer->display_name ?: optional($item->entertainer->user)->name) : '' }}" data-addons="{{ $addons }}" style="font-size:0.85rem;min-width:72px;">Quick View</button>
                             </td>
                             <td>
                                 @php
@@ -1950,10 +1950,21 @@ body.modal-open .admin-mobile-menu-toggle {
                         tooltip: {
                             backgroundColor: '#1e293b',
                             titleColor: '#fff',
-                            bodyColor: 'rgba(255,255,255,0.7)',
-                            borderColor: 'rgba(255,255,255,0.1)',
+                            bodyColor: 'rgba(255,255,255,0.85)',
+                            borderColor: 'rgba(255,255,255,0.15)',
                             borderWidth: 1,
-                            callbacks: { label: ctx => ' $' + Number(ctx.parsed).toLocaleString(undefined, {minimumFractionDigits: 2}) }
+                            padding: 12,
+                            displayColors: false,
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    if (!tooltipItems || !tooltipItems.length) return '';
+                                    return tooltipItems[0].label || '';
+                                },
+                                label: function(ctx) {
+                                    const val = Number(ctx.parsed || 0);
+                                    return 'Revenue: $' + val.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                }
+                            }
                         }
                     },
                     _centerTotal: donutTotal
@@ -1962,9 +1973,10 @@ body.modal-open .admin-mobile-menu-toggle {
 
             // ── Dynamic Chart Updater for Filtered Views ─────────────────────
             window.updateChartsFromFilteredRows = function() {
-                if (typeof table === 'undefined' || !table) return;
+                const activeTable = window.table || (typeof table !== 'undefined' ? table : null);
+                if (!activeTable) return;
 
-                const filteredRows = table.rows({ search: 'applied' }).nodes();
+                const filteredRows = activeTable.rows({ search: 'applied' }).nodes();
                 const pkgRevenueMap = {};
                 const dateRevenueMap = {};
 
@@ -1982,7 +1994,12 @@ body.modal-open .admin-mobile-menu-toggle {
 
                     // Date grouping (Sale Date)
                     const saleDateRaw = String($viewBtn.data('date') || $row.find('td:nth-child(3) .txn-date-main').text() || '').trim();
-                    const saleMom = (typeof parseRowDateToMoment === 'function') ? parseRowDateToMoment(saleDateRaw) : moment(saleDateRaw, 'MMM DD, YYYY');
+                    let saleMom = null;
+                    if (typeof parseRowDateToMoment === 'function') {
+                        saleMom = parseRowDateToMoment(saleDateRaw);
+                    } else if (typeof moment !== 'undefined') {
+                        saleMom = moment(saleDateRaw, ['MMM DD, YYYY', 'YYYY-MM-DD']);
+                    }
                     if (saleMom && saleMom.isValid()) {
                         const dayKey = saleMom.format('MMM DD');
                         dateRevenueMap[dayKey] = (dateRevenueMap[dayKey] || 0) + rowRevenue;
@@ -2124,6 +2141,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         { orderable: false, targets: nonOrderableTargets }
                     ]
                 });
+                window.table = table;
 
                 $('#txnDataTable thead').on('click mousedown', '#selectAll', function(e) {
                     e.stopPropagation();
