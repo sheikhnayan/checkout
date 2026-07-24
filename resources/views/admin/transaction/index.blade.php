@@ -622,10 +622,14 @@ body.modal-open .admin-mobile-menu-toggle {
             $chart14 = $chartDays->slice(16)->values();
             $chart7  = $chartDays->slice(23)->values();
 
-            // Top packages donut
+            // Top packages donut with Club Name
             $allPkgGroups = $reportableData->where('type', 'package')
-                ->groupBy('package_table_label')
-                ->map(fn($g) => ['name' => ($g->first()->package_table_label ?: 'Unknown'), 'revenue' => (float)$g->sum('total')])
+                ->groupBy(function($t) {
+                    $vName = optional($t->website)->name ?: optional(optional($t->event)->website)->name ?: optional(optional($t->package)->website)->name ?: '';
+                    $pName = $t->package_table_label ?: 'Package';
+                    return $vName !== '' ? ($vName . ' - ' . $pName) : $pName;
+                })
+                ->map(fn($g, $key) => ['name' => $key, 'revenue' => (float)$g->sum('total')])
                 ->sortByDesc('revenue')->values();
             $top4         = $allPkgGroups->take(4);
             $otherRevenue = (float) $allPkgGroups->slice(4)->sum('revenue');
@@ -864,6 +868,7 @@ body.modal-open .admin-mobile-menu-toggle {
             @endphp
             <div class="polaris-filter-bar mb-3" id="polarisFilterContainer">
                 @if($accessibleSitesList->count() > 1)
+                {{-- 1. Venue Filter --}}
                 <div class="dropdown">
                     <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillVenueBtn">
                         <i class="fas fa-store"></i> Venue <span class="polaris-filter-pill-count d-none" id="countVenue">0</span>
@@ -888,94 +893,42 @@ body.modal-open .admin-mobile-menu-toggle {
                 </div>
                 @endif
 
-                {{-- Status Filter --}}
+                {{-- 2. Date Filter --}}
                 <div class="dropdown">
-                    <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillStatusBtn">
-                        <i class="fas fa-check-circle"></i> Status <span class="polaris-filter-pill-count d-none" id="countStatus">0</span>
+                    <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillDateRangeBtn">
+                        <i class="fas fa-calendar-alt"></i> Date Filter <span class="polaris-filter-pill-count d-none" id="countDateRange">0</span>
                     </button>
-                    <div class="dropdown-menu polaris-popover-menu">
+                    <div class="dropdown-menu polaris-popover-menu" style="min-width: 280px !important;">
                         <div class="polaris-popover-header">
-                            <span class="polaris-popover-title">Payment Status</span>
+                            <span class="polaris-popover-title">Filter by Date</span>
                             <div>
-                                <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('status', true)">Select All</a>
-                                <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('status', false)">Clear</a>
+                                <a href="javascript:void(0)" class="polaris-popover-action" onclick="clearPolarisDateRange()">Clear</a>
                             </div>
                         </div>
                         <div class="polaris-popover-body">
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Completed" {{ $filterStatus === 'Completed' ? 'checked' : '' }}>
-                                <span><i class="fas fa-circle text-success me-1" style="font-size:0.6rem;"></i> Completed</span>
-                            </label>
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Canceled" {{ $filterStatus === 'Canceled' ? 'checked' : '' }}>
-                                <span><i class="fas fa-circle text-danger me-1" style="font-size:0.6rem;"></i> Canceled</span>
-                            </label>
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Refunded" {{ $filterStatus === 'Refunded' ? 'checked' : '' }}>
-                                <span><i class="fas fa-circle text-warning me-1" style="font-size:0.6rem;"></i> Refunded</span>
-                            </label>
+                            <div class="mb-2">
+                                <label class="form-label text-white-50 small mb-1">Date Target:</label>
+                                <select id="dateTargetSelect" class="form-select form-select-sm" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:0.8rem;border-radius:6px;">
+                                    <option value="either" selected>Either (Sale or Reservation Date)</option>
+                                    <option value="sale">Sale Date (Transaction Date)</option>
+                                    <option value="reservation">Reservation Date (Usage Date)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label text-white-50 small mb-1">Date Range:</label>
+                                <div class="txn-date-range-wrap w-100" id="txnDateRangeWrap" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15);">
+                                    <i class="fas fa-calendar-alt me-2" style="color:rgba(255,255,255,0.4);font-size:0.85rem"></i>
+                                    <input type="text" id="txnDateRange" class="txn-date-input w-100" readonly placeholder="All time" value="{{ $initialDateRange }}">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {{-- Transaction Type Filter --}}
-                <div class="dropdown">
-                    <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillTypeBtn">
-                        <i class="fas fa-tags"></i> Type <span class="polaris-filter-pill-count d-none" id="countType">0</span>
-                    </button>
-                    <div class="dropdown-menu polaris-popover-menu">
-                        <div class="polaris-popover-header">
-                            <span class="polaris-popover-title">Transaction Type</span>
-                            <div>
-                                <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('type', true)">Select All</a>
-                                <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('type', false)">Clear</a>
-                            </div>
-                        </div>
-                        <div class="polaris-popover-body">
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="type" value="Package" {{ $filterType === 'Package' ? 'checked' : '' }}>
-                                <span>Package Purchase</span>
-                            </label>
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="type" value="Reservation" {{ $filterType === 'Reservation' ? 'checked' : '' }}>
-                                <span>Table Reservation</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Referral / Promoter Filter --}}
-                <div class="dropdown">
-                    <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillAffiliateBtn">
-                        <i class="fas fa-user-tag"></i> Referral <span class="polaris-filter-pill-count d-none" id="countAffiliate">0</span>
-                    </button>
-                    <div class="dropdown-menu polaris-popover-menu">
-                        <div class="polaris-popover-header">
-                            <span class="polaris-popover-title">Referral / Source</span>
-                            <div>
-                                <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('affiliate', true)">Select All</a>
-                                <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('affiliate', false)">Clear</a>
-                            </div>
-                        </div>
-                        <div class="polaris-popover-body">
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="affiliate" value="Direct" {{ $filterAffiliate === 'Direct' ? 'checked' : '' }}>
-                                <span>Direct (No promoter)</span>
-                            </label>
-                            @foreach($referralRows as $rn)
-                            <label class="polaris-checkbox-label">
-                                <input type="checkbox" class="polaris-filter-cb" data-category="affiliate" value="{{ $rn }}" {{ $filterAffiliate === $rn ? 'checked' : '' }}>
-                                <span>{{ $rn }}</span>
-                            </label>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Reservation Status Filter --}}
+                {{-- 3. Reservation Status --}}
                 <div class="dropdown">
                     <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillReservationBtn">
-                        <i class="fas fa-calendar-check"></i> Reservation Filter <span class="polaris-filter-pill-count d-none" id="countReservation">0</span>
+                        <i class="fas fa-calendar-check"></i> Reservation Status <span class="polaris-filter-pill-count d-none" id="countReservation">0</span>
                     </button>
                     <div class="dropdown-menu polaris-popover-menu">
                         <div class="polaris-popover-header">
@@ -1010,34 +963,86 @@ body.modal-open .admin-mobile-menu-toggle {
                     </div>
                 </div>
 
-                {{-- Date Range Filter Pill (Sale Date / Reservation Date / Either) --}}
+                {{-- 4. Sales Channel --}}
                 <div class="dropdown">
-                    <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillDateRangeBtn">
-                        <i class="fas fa-calendar-alt"></i> Date Range <span class="polaris-filter-pill-count d-none" id="countDateRange">0</span>
+                    <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillAffiliateBtn">
+                        <i class="fas fa-user-tag"></i> Sales Channel <span class="polaris-filter-pill-count d-none" id="countAffiliate">0</span>
                     </button>
-                    <div class="dropdown-menu polaris-popover-menu" style="min-width: 280px !important;">
+                    <div class="dropdown-menu polaris-popover-menu">
                         <div class="polaris-popover-header">
-                            <span class="polaris-popover-title">Filter by Date</span>
+                            <span class="polaris-popover-title">Sales Channel / Source</span>
                             <div>
-                                <a href="javascript:void(0)" class="polaris-popover-action" onclick="clearPolarisDateRange()">Clear</a>
+                                <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('affiliate', true)">Select All</a>
+                                <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('affiliate', false)">Clear</a>
                             </div>
                         </div>
                         <div class="polaris-popover-body">
-                            <div class="mb-2">
-                                <label class="form-label text-white-50 small mb-1">Date Target:</label>
-                                <select id="dateTargetSelect" class="form-select form-select-sm" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:0.8rem;border-radius:6px;">
-                                    <option value="either" selected>Either (Sale or Reservation Date)</option>
-                                    <option value="sale">Sale Date (Transaction Date)</option>
-                                    <option value="reservation">Reservation Date (Usage Date)</option>
-                                </select>
-                            </div>
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="affiliate" value="Direct" {{ $filterAffiliate === 'Direct' ? 'checked' : '' }}>
+                                <span>Direct (No promoter)</span>
+                            </label>
+                            @foreach($referralRows as $rn)
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="affiliate" value="{{ $rn }}" {{ $filterAffiliate === $rn ? 'checked' : '' }}>
+                                <span>{{ $rn }}</span>
+                            </label>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+                {{-- 5. Transaction Type --}}
+                <div class="dropdown">
+                    <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillTypeBtn">
+                        <i class="fas fa-tags"></i> Transaction Type <span class="polaris-filter-pill-count d-none" id="countType">0</span>
+                    </button>
+                    <div class="dropdown-menu polaris-popover-menu">
+                        <div class="polaris-popover-header">
+                            <span class="polaris-popover-title">Transaction Type</span>
                             <div>
-                                <label class="form-label text-white-50 small mb-1">Date Range:</label>
-                                <div class="txn-date-range-wrap w-100" id="txnDateRangeWrap" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15);">
-                                    <i class="fas fa-calendar-alt me-2" style="color:rgba(255,255,255,0.4);font-size:0.85rem"></i>
-                                    <input type="text" id="txnDateRange" class="txn-date-input w-100" readonly placeholder="All time" value="{{ $initialDateRange }}">
-                                </div>
+                                <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('type', true)">Select All</a>
+                                <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('type', false)">Clear</a>
                             </div>
+                        </div>
+                        <div class="polaris-popover-body">
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="type" value="Package" {{ $filterType === 'Package' ? 'checked' : '' }}>
+                                <span>Package Purchase</span>
+                            </label>
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="type" value="Reservation" {{ $filterType === 'Reservation' ? 'checked' : '' }}>
+                                <span>Table Reservation</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- 6. Payment Status --}}
+                <div class="dropdown">
+                    <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillStatusBtn">
+                        <i class="fas fa-check-circle"></i> Payment Status <span class="polaris-filter-pill-count d-none" id="countStatus">0</span>
+                    </button>
+                    <div class="dropdown-menu polaris-popover-menu">
+                        <div class="polaris-popover-header">
+                            <span class="polaris-popover-title">Payment Status</span>
+                            <div>
+                                <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('status', true)">Select All</a>
+                                <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('status', false)">Clear</a>
+                            </div>
+                        </div>
+                        <div class="polaris-popover-body">
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Completed" {{ $filterStatus === 'Completed' ? 'checked' : '' }}>
+                                <span><i class="fas fa-circle text-success me-1" style="font-size:0.6rem;"></i> Completed</span>
+                            </label>
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Canceled" {{ $filterStatus === 'Canceled' ? 'checked' : '' }}>
+                                <span><i class="fas fa-circle text-danger me-1" style="font-size:0.6rem;"></i> Canceled</span>
+                            </label>
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Refunded" {{ $filterStatus === 'Refunded' ? 'checked' : '' }}>
+                                <span><i class="fas fa-circle text-warning me-1" style="font-size:0.6rem;"></i> Refunded</span>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -1909,19 +1914,25 @@ body.modal-open .admin-mobile-menu-toggle {
 
             const lineCtx = document.getElementById('txnLineChart').getContext('2d');
             let lineChart = new Chart(lineCtx, buildLineChart(allChartData));
+            window.lineChartInstance = lineChart;
 
             document.getElementById('chartPeriod').addEventListener('change', function() {
-                const period = this.value;
-                const data = period === '7' ? chart7Data : period === '14' ? chart14Data : allChartData;
-                lineChart.destroy();
-                lineChart = new Chart(lineCtx, buildLineChart(data));
-                setTimeout(syncChartHeights, 200);
+                if (typeof updateChartsFromFilteredRows === 'function') {
+                    updateChartsFromFilteredRows();
+                } else {
+                    const period = this.value;
+                    const data = period === '7' ? chart7Data : period === '14' ? chart14Data : allChartData;
+                    lineChart.destroy();
+                    lineChart = new Chart(lineCtx, buildLineChart(data));
+                    window.lineChartInstance = lineChart;
+                    setTimeout(syncChartHeights, 200);
+                }
             });
 
             // ── Donut chart ──────────────────────────────────────────────────
             const donutColors = ['#7c3aed','#f59e0b','#10b981','#ef4444','#6b7280'];
             const donutCtx = document.getElementById('txnDonutChart').getContext('2d');
-            new Chart(donutCtx, {
+            window.donutChartInstance = new Chart(donutCtx, {
                 type: 'doughnut',
                 data: {
                     labels: donutLabels,
@@ -1948,6 +1959,118 @@ body.modal-open .admin-mobile-menu-toggle {
                     _centerTotal: donutTotal
                 }
             });
+
+            // ── Dynamic Chart Updater for Filtered Views ─────────────────────
+            window.updateChartsFromFilteredRows = function() {
+                if (typeof table === 'undefined' || !table) return;
+
+                const filteredRows = table.rows({ search: 'applied' }).nodes();
+                const pkgRevenueMap = {};
+                const dateRevenueMap = {};
+
+                $(filteredRows).each(function() {
+                    const $row = $(this);
+                    const $viewBtn = $row.find('.btn-link-package').first();
+                    if (!$viewBtn.length) return;
+
+                    const rawStatus = String($viewBtn.data('status') || '').trim().toLowerCase();
+                    const statusMap = { '1': 'completed', 'completed': 'completed', 'approved': 'completed' };
+                    const isCompleted = statusMap[rawStatus] === 'completed';
+
+                    const amountText = String($row.find('td.txn-amount').first().text() || '');
+                    const rowRevenue = isCompleted ? (parseFloat(amountText.replace(/[^0-9.-]+/g, '')) || 0) : 0;
+
+                    // Date grouping (Sale Date)
+                    const saleDateRaw = String($viewBtn.data('date') || $row.find('td:nth-child(3) .txn-date-main').text() || '').trim();
+                    const saleMom = (typeof parseRowDateToMoment === 'function') ? parseRowDateToMoment(saleDateRaw) : moment(saleDateRaw, 'MMM DD, YYYY');
+                    if (saleMom && saleMom.isValid()) {
+                        const dayKey = saleMom.format('MMM DD');
+                        dateRevenueMap[dayKey] = (dateRevenueMap[dayKey] || 0) + rowRevenue;
+                    }
+
+                    // Package grouping with Club / Venue Name
+                    const venueName = String($viewBtn.data('website_id') || $row.find('td:nth-child(5) div').first().text() || '').trim();
+                    const rawPkgName = String($viewBtn.data('package-label') || 'Package').trim();
+
+                    let pkgLabel = rawPkgName;
+                    if (venueName && venueName !== 'N/A' && !rawPkgName.startsWith(venueName)) {
+                        pkgLabel = venueName + ' - ' + rawPkgName;
+                    }
+
+                    if (pkgLabel && pkgLabel !== 'N/A') {
+                        pkgRevenueMap[pkgLabel] = (pkgRevenueMap[pkgLabel] || 0) + rowRevenue;
+                    }
+                });
+
+                // 1. Update Line Chart (Performance Over Time)
+                if (window.lineChartInstance) {
+                    const period = $('#chartPeriod').val() || '30';
+                    const numDays = parseInt(period, 10) || 30;
+                    const labels = [];
+                    const revenues = [];
+                    const now = moment();
+
+                    for (let i = numDays - 1; i >= 0; i--) {
+                        const dayStr = now.clone().subtract(i, 'days').format('MMM DD');
+                        labels.push(dayStr);
+                        revenues.push(dateRevenueMap[dayStr] || 0);
+                    }
+
+                    window.lineChartInstance.data.labels = labels;
+                    window.lineChartInstance.data.datasets[0].data = revenues;
+                    window.lineChartInstance.update();
+                }
+
+                // 2. Update Donut Chart & Legend (Top Performing Packages)
+                if (window.donutChartInstance) {
+                    const sortedPkgs = Object.keys(pkgRevenueMap)
+                        .map(name => ({ name: name, revenue: pkgRevenueMap[name] }))
+                        .sort((a, b) => b.revenue - a.revenue);
+
+                    const top4 = sortedPkgs.slice(0, 4);
+                    const otherRev = sortedPkgs.slice(4).reduce((sum, p) => sum + p.revenue, 0);
+
+                    const finalLabels = top4.map(p => p.name);
+                    const finalData = top4.map(p => p.revenue);
+                    if (otherRev > 0) {
+                        finalLabels.push('Other');
+                        finalData.push(otherRev);
+                    }
+
+                    const grandTotal = finalData.reduce((sum, v) => sum + v, 0);
+                    const donutColors = ['#7c3aed','#f59e0b','#10b981','#ef4444','#6b7280'];
+
+                    window.donutChartInstance.data.labels = finalLabels.length ? finalLabels : ['No Data'];
+                    window.donutChartInstance.data.datasets[0].data = finalData.length ? finalData : [0];
+                    window.donutChartInstance.options._centerTotal = '$' + grandTotal.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                    window.donutChartInstance.update();
+
+                    // Legend List Update
+                    const legendContainer = $('#txnPkgLegend');
+                    legendContainer.empty();
+
+                    if (finalLabels.length && grandTotal > 0) {
+                        finalLabels.forEach((name, i) => {
+                            const pct = ((finalData[i] / grandTotal) * 100).toFixed(1);
+                            const amt = '$' + Number(finalData[i]).toLocaleString(undefined, { minimumFractionDigits: 2 });
+                            const itemHtml = `
+                                <div class="txn-pkg-legend-item">
+                                    <div class="d-flex align-items-center gap-2 flex-grow-1 overflow-hidden">
+                                        <span class="txn-pkg-dot" style="background:${donutColors[i % donutColors.length]}"></span>
+                                        <span class="txn-pkg-name text-truncate" title="${name}">${name}</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-3 ms-2 flex-shrink-0">
+                                        <span class="txn-pkg-pct">${pct}%</span>
+                                        <span class="txn-pkg-amt">${amt}</span>
+                                    </div>
+                                </div>`;
+                            legendContainer.append(itemHtml);
+                        });
+                    } else {
+                        legendContainer.append('<div class="text-white-50 small py-2 text-center">No package revenue for filtered view.</div>');
+                    }
+                }
+            };
 
             // ── Package legend ───────────────────────────────────────────────
             (function() {
@@ -3026,10 +3149,16 @@ body.modal-open .admin-mobile-menu-toggle {
                         updateSelectionUi();
                         updateTotal();
                         updateDashboardCardsFromFilteredRows();
+                        if (typeof updateChartsFromFilteredRows === 'function') {
+                            updateChartsFromFilteredRows();
+                        }
                     });
                     updateTotal();
                     updateSelectionUi();
                     updateDashboardCardsFromFilteredRows();
+                    if (typeof updateChartsFromFilteredRows === 'function') {
+                        updateChartsFromFilteredRows();
+                    }
                 }
 
             }); // end document.ready
