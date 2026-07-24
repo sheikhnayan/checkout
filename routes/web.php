@@ -245,7 +245,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::get('/edit/{id}', [EventController::class,'edit'])->name('edit');
         Route::post('/update/{id}', [EventController::class,'update'])->name('update');
     });
-    
+
     Route::group(['prefix'=> 'addon', 'as' => 'addon.'], function () {
         Route::get('/', [AddonController::class,'index'])->name('index');
         Route::get('/show/{id}', [AddonController::class,'show'])->name('show');
@@ -258,7 +258,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::post('/update/{id}', [AddonController::class,'update'])->name('update');
             Route::post('/destroy/{id}', [AddonController::class,'destroy'])->name('destroy');
     });
-    
+
     Route::group(['prefix'=> 'promo_code', 'as' => 'promo_code.'], function () {
         Route::get('/', [PromoCodeController::class,'index'])->name('index');
         Route::get('/show/{id}', [PromoCodeController::class,'show'])->name('show');

@@ -716,27 +716,54 @@ body.modal-open .admin-mobile-menu-toggle {
             </form>
             @endif
 
-            {{-- Advanced Search Component --}}
-            <div class="mb-4">
-                <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px;">
-                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-                        <i class="fas fa-search" style="color:rgba(255,255,255,0.4);font-size:1rem;"></i>
-                        <span style="font-weight:600;color:rgba(255,255,255,0.7);">Advanced Search</span>
-                    </div>
-                    
-                    <!-- Selected Filters Display -->
-                    <div id="txnSearchFilterTags" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;min-height:24px;"></div>
-                    
-                    <!-- Add Filter Button & Dropdown -->
-                    <div style="position:relative;">
-                        <button type="button" id="txnAddFilterBtn" class="txn-filter-select" style="width:auto;padding:8px 14px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.3);color:#a78bfa;font-weight:600;cursor:pointer;">
-                            <i class="fas fa-plus me-2"></i>Add Filter
-                        </button>
-                        
-                        <!-- Column Selection Dropdown -->
-                        <div id="txnColumnDropdown" style="display:none;position:absolute;top:100%;left:0;z-index:1000;background:#1e293b;border:1px solid rgba(255,255,255,0.1);border-radius:8px;min-width:220px;max-height:300px;overflow-y:auto;margin-top:4px;box-shadow:0 10px 40px rgba(0,0,0,0.5);">
-                        </div>
-                    </div>
+            {{-- Filters row (toggled) --}}
+            <div class="row g-3 mb-3" id="txnFiltersRow" style="display:flex">
+                @if(auth()->user()->isAdmin())
+                <div class="col-md-3 col-sm-6">
+                    <select id="websiteFilter" class="txn-filter-select">
+                        <option value="">All Websites</option>
+                        @foreach(\App\Models\Website::all() as $website)
+                            <option value="{{ $website->name }}" {{ $filterWebsite === $website->name ? 'selected' : '' }}>{{ $website->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
+                <div class="col-md-3 col-sm-6">
+                    <select id="typeFilter" class="txn-filter-select">
+                        <option value="">All Types</option>
+                        <option value="Package" {{ $filterType === 'Package' ? 'selected' : '' }}>Package</option>
+                        <option value="Reservation" {{ $filterType === 'Reservation' ? 'selected' : '' }}>Reservation</option>
+                    </select>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <select id="affiliateFilter" class="txn-filter-select">
+                        <option value="">All affiliates</option>
+                        @foreach($referralRows as $rn)
+                            <option value="{{ $rn }}" {{ $filterAffiliate === $rn ? 'selected' : '' }}>{{ $rn }}</option>
+                        @endforeach
+                        @if($filterAffiliate !== '' && $filterAffiliate !== 'Direct' && !$referralRows->contains($filterAffiliate))
+                            <option value="{{ $filterAffiliate }}" selected>{{ $filterAffiliate }}</option>
+                        @endif
+                        <option value="Direct" {{ $filterAffiliate === 'Direct' ? 'selected' : '' }}>Direct (No affiliate)</option>
+                    </select>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <select id="statusFilter" class="txn-filter-select">
+                        <option value="">All Statuses</option>
+                        <option value="Completed" {{ $filterStatus === 'Completed' ? 'selected' : '' }}>Completed</option>
+                        <option value="Canceled" {{ $filterStatus === 'Canceled' ? 'selected' : '' }}>Canceled</option>
+                        <option value="Refunded" {{ $filterStatus === 'Refunded' ? 'selected' : '' }}>Refunded</option>
+                    </select>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
+                    <select id="reservationFilter" class="form-control" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:8px 12px;border-radius:8px;font-size:0.9rem;">
+                        <option value="" {{ $filterReservation === '' ? 'selected' : '' }}>All Reservations</option>
+                        <option value="upcoming" {{ $filterReservation === 'upcoming' ? 'selected' : '' }}>Upcoming</option>
+                        <option value="today" {{ $filterReservation === 'today' ? 'selected' : '' }}>Today</option>
+                        <option value="past" {{ $filterReservation === 'past' ? 'selected' : '' }}>Past</option>
+                        <option value="checked_in" {{ $filterReservation === 'checked_in' ? 'selected' : '' }}>Checked In</option>
+                        <option value="no_show" {{ $filterReservation === 'no_show' ? 'selected' : '' }}>No Show</option>
+                    </select>
                 </div>
             </div>
 
@@ -2520,340 +2547,6 @@ body.modal-open .admin-mobile-menu-toggle {
                     updateSelectionUi();
                     updateDashboardCardsFromFilteredRows();
                 }
-
-                // ── AJAX DYNAMIC FILTERING ───────────────────────────────────────────
-                const filterSelectors = ['#websiteFilter', '#typeFilter', '#affiliateFilter', '#statusFilter', '#reservationFilter'];
-                let filterDebounceTimer = null;
-                let isFilteringInProgress = false;
-
-                function getFilterUrl() {
-                    const params = new URLSearchParams();
-                    
-                    if ($('#websiteFilter').length) params.append('website', $('#websiteFilter').val());
-                    if ($('#typeFilter').length) params.append('type', $('#typeFilter').val());
-                    if ($('#affiliateFilter').length) params.append('affiliate', $('#affiliateFilter').val());
-                    if ($('#statusFilter').length) params.append('status', $('#statusFilter').val());
-                    if ($('#reservationFilter').length) params.append('reservation', $('#reservationFilter').val());
-                    
-                    // Get date range from date picker
-                    const dateRangeValue = $('#txnDateRange').val();
-                    if (dateRangeValue && dateRangeValue.includes(' - ')) {
-                        const [fromStr, toStr] = dateRangeValue.split(' - ');
-                        try {
-                            const from = new Date(fromStr).toISOString().split('T')[0];
-                            const to = new Date(toStr).toISOString().split('T')[0];
-                            if (from && to) {
-                                params.append('date_from', from);
-                                params.append('date_to', to);
-                            }
-                        } catch (e) {}
-                    }
-                    
-                    if ($('input[name="archived"]').length) {
-                        params.append('archived', $('input[name="archived"]').val());
-                    }
-                    
-                    return params.toString();
-                }
-
-                function applyFilterAjax() {
-                    if (isFilteringInProgress) return;
-                    
-                    isFilteringInProgress = true;
-                    
-                    // Show loading state
-                    const tbody = $('#txnDataTable tbody');
-                    tbody.css('opacity', '0.6').css('pointer-events', 'none');
-                    
-                    $.ajax({
-                        url: '{{ route("admin.transaction.filter-ajax") }}',
-                        type: 'POST',
-                        data: getFilterUrl(),
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        dataType: 'json',
-                        success: function(response) {
-                            if (response.success) {
-                                // Update table rows
-                                tbody.html(response.rowsHtml || '');
-                                
-                                // Update stats
-                                if (response.stats) {
-                                    // Update pending fee card
-                                    $('.txn-stat-card:has(.txn-stat-label:contains("Pending Fee")) .txn-stat-value')
-                                        .text('$' + response.stats.pendingCommission);
-                                    
-                                    // Update available now card
-                                    $('.txn-stat-card:has(.txn-stat-label:contains("Available Now")) .txn-stat-value')
-                                        .text('$' + response.stats.availableNow);
-                                    
-                                    // Update lifetime earned card
-                                    $('.txn-stat-card:has(.txn-stat-label:contains("Lifetime Earned")) .txn-stat-value')
-                                        .text('$' + response.stats.lifetimeEarned);
-                                }
-                                
-                                // Reinitialize DataTable
-                                if ($.fn.dataTable.isDataTable('#txnDataTable')) {
-                                    $('#txnDataTable').DataTable().destroy();
-                                }
-                                
-                                table = $('#txnDataTable').DataTable({
-                                    pageLength: 25,
-                                    searching: false,
-                                    ordering: true,
-                                    paging: false,
-                                    info: false,
-                                    lengthChange: false,
-                                    autoWidth: false,
-                                    columnDefs: [
-                                        { orderable: false, targets: 0 },
-                                        { orderable: false, targets: [0, 15] }
-                                    ]
-                                });
-                                
-                                applyCheckedStateToVisibleRows();
-                                updateSelectionUi();
-                            }
-                        },
-                        error: function(err) {
-                            console.error('Filter error:', err);
-                            alert('Error updating filters. Please refresh the page.');
-                        },
-                        complete: function() {
-                            tbody.css('opacity', '1').css('pointer-events', 'auto');
-                            isFilteringInProgress = false;
-                        }
-                    });
-                }
-
-                // Bind filter change events to trigger AJAX
-                filterSelectors.forEach(function(selector) {
-                    if ($(selector).length) {
-                        $(selector).on('change', function() {
-                            clearTimeout(filterDebounceTimer);
-                            filterDebounceTimer = setTimeout(applyFilterAjax, 400);
-                        });
-                    }
-                });
-
-                // Bind date range picker close event if it exists
-                if (window.fp && window.fp.config && typeof window.fp.config.onClose === 'function') {
-                    const originalOnClose = window.fp.config.onClose;
-                    window.fp.config.onClose = function(selectedDates, dateStr, instance) {
-                        if (typeof originalOnClose === 'function') {
-                            originalOnClose(selectedDates, dateStr, instance);
-                        }
-                        clearTimeout(filterDebounceTimer);
-                        filterDebounceTimer = setTimeout(applyFilterAjax, 400);
-                    };
-                }
-
-                // ── ADVANCED SEARCH IMPLEMENTATION ──────────────────────────────────
-                let searchFilterOptions = {};
-                let currentFilters = [];
-
-                // Load search filter options on page load
-                function loadSearchFilterOptions() {
-                    $.ajax({
-                        url: '{{ route("admin.transaction.search-filter-options") }}',
-                        type: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        dataType: 'json',
-                        success: function(response) {
-                            console.log('Search options loaded:', response);
-                            if (response.success) {
-                                searchFilterOptions = response.options || {};
-                            } else {
-                                console.error('Search options response not successful:', response);
-                            }
-                        },
-                        error: function(jqXHR, textStatus, errorThrown) {
-                            console.error('Error loading search options:');
-                            console.error('Status:', jqXHR.status);
-                            console.error('Text Status:', textStatus);
-                            console.error('Error Thrown:', errorThrown);
-                            console.error('Response Text:', jqXHR.responseText);
-                        }
-                    });
-                }
-
-                // Show column selection dropdown
-                $('#txnAddFilterBtn').on('click', function(e) {
-                    e.stopPropagation();
-                    const dropdown = $('#txnColumnDropdown');
-                    if (dropdown.is(':visible')) {
-                        dropdown.hide();
-                    } else {
-                        dropdown.html('');
-                        const columns = [
-                            { id: 'status', label: 'Status', icon: '✓' },
-                            { id: 'type', label: 'Type', icon: '📦' },
-                            { id: 'customer_name', label: 'Customer Name', icon: '👤' },
-                            { id: 'email', label: 'Email', icon: '✉️' },
-                            { id: 'phone', label: 'Phone', icon: '☎️' },
-                            { id: 'order_id', label: 'Order ID', icon: '#' },
-                            { id: 'confirmation', label: 'Confirmation #', icon: '🎫' },
-                            { id: 'venue', label: 'Venue/Package', icon: '🏢' },
-                        ];
-                        
-                        columns.forEach(col => {
-                            const item = $('<div style="padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.05);color:rgba(255,255,255,0.8);font-size:0.9rem;transition:background 0.15s;"></div>')
-                                .text(col.icon + ' ' + col.label)
-                                .on('click', function() {
-                                    showColumnValueSelector(col.id, col.label);
-                                })
-                                .on('mouseenter', function() { $(this).css('background', 'rgba(124,58,237,0.2)'); })
-                                .on('mouseleave', function() { $(this).css('background', 'transparent'); });
-                            dropdown.append(item);
-                        });
-                        dropdown.show();
-                    }
-                });
-
-                // Show value selector for selected column
-                function showColumnValueSelector(columnId, columnLabel) {
-                    const options = searchFilterOptions[columnId] || [];
-                    const dropdown = $('#txnColumnDropdown');
-                    
-                    dropdown.html('');
-                    const backBtn = $('<div style="padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.1);cursor:pointer;color:#818cf8;font-weight:600;font-size:0.9rem;"></div>')
-                        .html('← Back')
-                        .on('click', function(e) {
-                            e.stopPropagation();
-                            $('#txnAddFilterBtn').click();
-                        });
-                    dropdown.append(backBtn);
-                    
-                    const title = $('<div style="padding:10px 14px;color:rgba(255,255,255,0.5);font-size:0.75rem;text-transform:uppercase;font-weight:700;letter-spacing:0.1em;"></div>')
-                        .text('Select ' + columnLabel);
-                    dropdown.append(title);
-                    
-                    if (options.length === 0) {
-                        const noOptions = $('<div style="padding:20px;text-align:center;color:rgba(255,255,255,0.3);font-size:0.9rem;">No options available</div>');
-                        dropdown.append(noOptions);
-                        return;
-                    }
-                    
-                    options.slice(0, 100).forEach(opt => {
-                        const item = $(`<label style="display:flex;align-items:center;padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.05);color:rgba(255,255,255,0.8);font-size:0.9rem;transition:background 0.15s;">
-                            <input type="checkbox" style="margin-right:10px;cursor:pointer;" data-column="${columnId}" data-value="${opt.value}">
-                            <span>${opt.label}</span>
-                        </label>`)
-                            .on('mouseenter', function() { $(this).css('background', 'rgba(124,58,237,0.2)'); })
-                            .on('mouseleave', function() { $(this).css('background', 'transparent'); });
-                        dropdown.append(item);
-                    });
-                    
-                    const applyBtn = $('<div style="padding:12px 14px;background:rgba(124,58,237,0.2);border-top:1px solid rgba(124,58,237,0.3);cursor:pointer;color:#a78bfa;font-weight:600;text-align:center;font-size:0.9rem;"></div>')
-                        .text('Add Selected')
-                        .on('click', function() {
-                            const selectedValues = dropdown.find('input[type="checkbox"]:checked').map(function() {
-                                return $(this).data('value');
-                            }).get();
-                            
-                            if (selectedValues.length > 0) {
-                                currentFilters.push({
-                                    column: columnId,
-                                    columnLabel: columnLabel,
-                                    values: selectedValues
-                                });
-                                dropdown.hide();
-                                renderFilterTags();
-                                applyAdvancedSearch();
-                            }
-                        });
-                    dropdown.append(applyBtn);
-                }
-
-                // Render selected filter tags
-                function renderFilterTags() {
-                    const container = $('#txnSearchFilterTags');
-                    container.html('');
-                    
-                    if (currentFilters.length === 0) {
-                        return;
-                    }
-                    
-                    currentFilters.forEach((filter, idx) => {
-                        const tag = $(`<div style="display:flex;align-items:center;gap:8px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.3);color:#a78bfa;padding:6px 12px;border-radius:20px;font-size:0.85rem;font-weight:600;">
-                            <span>${filter.columnLabel}: ${filter.values.slice(0, 2).join(', ')}${filter.values.length > 2 ? '...' : ''}</span>
-                            <button type="button" style="background:none;border:none;color:#a78bfa;cursor:pointer;padding:0;font-size:1rem;line-height:1;">✕</button>
-                        </div>`)
-                            .find('button').on('click', function() {
-                                currentFilters.splice(idx, 1);
-                                renderFilterTags();
-                                applyAdvancedSearch();
-                            }).end();
-                        container.append(tag);
-                    });
-                }
-
-                // Apply advanced search filters
-                function applyAdvancedSearch() {
-                    const tbody = $('#txnDataTable tbody');
-                    tbody.css('opacity', '0.6').css('pointer-events', 'none');
-                    
-                    $.ajax({
-                        url: '{{ route("admin.transaction.search-ajax") }}',
-                        type: 'POST',
-                        data: { filters: currentFilters },
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        dataType: 'json',
-                        success: function(response) {
-                            if (response.success) {
-                                tbody.html(response.rowsHtml || '');
-                                
-                                if (response.stats) {
-                                    $('.txn-stat-card:has(.txn-stat-label:contains("Pending Fee")) .txn-stat-value').text('$' + response.stats.pendingCommission);
-                                    $('.txn-stat-card:has(.txn-stat-label:contains("Available Now")) .txn-stat-value').text('$' + response.stats.availableNow);
-                                    $('.txn-stat-card:has(.txn-stat-label:contains("Lifetime Earned")) .txn-stat-value').text('$' + response.stats.lifetimeEarned);
-                                }
-                                
-                                if ($.fn.dataTable.isDataTable('#txnDataTable')) {
-                                    $('#txnDataTable').DataTable().destroy();
-                                }
-                                
-                                table = $('#txnDataTable').DataTable({
-                                    pageLength: 25,
-                                    searching: false,
-                                    ordering: true,
-                                    paging: false,
-                                    info: false,
-                                    lengthChange: false,
-                                    autoWidth: false,
-                                    columnDefs: [{ orderable: false, targets: 0 }]
-                                });
-                                
-                                applyCheckedStateToVisibleRows();
-                                updateSelectionUi();
-                            }
-                        },
-                        error: function(err) {
-                            console.error('Search error:', err);
-                        },
-                        complete: function() {
-                            tbody.css('opacity', '1').css('pointer-events', 'auto');
-                        }
-                    });
-                }
-
-                // Close dropdown when clicking outside
-                $(document).on('click', function(e) {
-                    if (!$(e.target).closest('#txnAddFilterBtn, #txnColumnDropdown').length) {
-                        $('#txnColumnDropdown').hide();
-                    }
-                });
-
-                // Load search options on page load
-                loadSearchFilterOptions();
 
             }); // end document.ready
             </script>
