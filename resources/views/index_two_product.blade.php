@@ -6809,7 +6809,7 @@
 
                                         <!-- Step 3: Payment Information -->
                                         <section class="checkout-section payment-info dynamic-price mt-4"
-                                            id="section-3" style="display: none;">
+                                            id="section-3" style="display: none; width: 100%;">
                                             <div class="">
                                                 <div class="row">
 
