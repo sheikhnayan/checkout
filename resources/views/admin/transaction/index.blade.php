@@ -1873,17 +1873,6 @@ body.modal-open .admin-mobile-menu-toggle {
                                 pointRadius: 3,
                                 pointHoverRadius: 5,
                                 yAxisID: 'yRevenue'
-                            },
-                            {
-                                label: 'Fee ($)',
-                                data: chartData.map(d => d.commission),
-                                borderColor: '#f59e0b',
-                                backgroundColor: 'rgba(245,158,11,0.08)',
-                                fill: false,
-                                tension: 0.4,
-                                pointRadius: 3,
-                                pointHoverRadius: 5,
-                                yAxisID: 'yRevenue'
                             }
                         ]
                     },
@@ -2035,16 +2024,41 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 // 1. Update Line Chart (Performance Over Time)
                 if (window.lineChartInstance) {
-                    const period = $('#chartPeriod').val() || '30';
-                    const numDays = parseInt(period, 10) || 30;
                     const labels = [];
                     const revenues = [];
-                    const now = moment();
 
-                    for (let i = numDays - 1; i >= 0; i--) {
-                        const dayStr = now.clone().subtract(i, 'days').format('MMM DD');
-                        labels.push(dayStr);
-                        revenues.push(dateRevenueMap[dayStr] || 0);
+                    const dateRangeStr = String($('#txnDateRange').val() || '').trim();
+                    let customStart = null;
+                    let customEnd = null;
+
+                    if (dateRangeStr && dateRangeStr.includes(' - ')) {
+                        const parts = dateRangeStr.split(' - ');
+                        const sMom = moment(parts[0], 'MM/DD/YYYY', true);
+                        const eMom = moment(parts[1], 'MM/DD/YYYY', true);
+                        if (sMom.isValid() && eMom.isValid() && eMom.isSameOrAfter(sMom)) {
+                            customStart = sMom;
+                            customEnd = eMom;
+                        }
+                    }
+
+                    if (customStart && customEnd) {
+                        const curr = customStart.clone();
+                        while (curr.isSameOrBefore(customEnd, 'day')) {
+                            const dayKey = curr.format('MMM DD');
+                            labels.push(dayKey);
+                            revenues.push(dateRevenueMap[dayKey] || 0);
+                            curr.add(1, 'day');
+                        }
+                    } else {
+                        const period = $('#chartPeriod').val() || '30';
+                        const numDays = parseInt(period, 10) || 30;
+                        const pstNow = (typeof getPstMoment === 'function') ? getPstMoment() : moment();
+
+                        for (let i = numDays - 1; i >= 0; i--) {
+                            const dayStr = pstNow.clone().subtract(i, 'days').format('MMM DD');
+                            labels.push(dayStr);
+                            revenues.push(dateRevenueMap[dayStr] || 0);
+                        }
                     }
 
                     window.lineChartInstance.data.labels = labels;
