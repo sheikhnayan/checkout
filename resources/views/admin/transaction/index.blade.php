@@ -1286,7 +1286,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td class="txn-confirmation-num">{{ $item->transaction_id ?? 'N/A' }}</td>
                             <td class="txn-pkg-name">
                                 <div style="font-size:0.85rem;font-weight:600;margin-bottom:8px;">{{ $venueName }}</div>
-                                <button type="button" class="btn btn-sm btn-link-package view-btn" data-date="{{ $purchaseAtLocal?->format('M d, Y') ?? '' }}" data-date-iso="{{ $purchaseAtLocal?->format('YYYY-MM-DD') ?? '' }}" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-confirmation-number="{{ $item->transaction_id ?? 'N/A' }}" data-cart-items='@json($cartItems)' data-package-descriptions-b64="{{ base64_encode(json_encode($packageDescriptionsPayload)) }}" data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" data-package_use_date="{{ $item->package_use_date ?? '' }}" data-package_number_of_guest="{{ $item->package_number_of_guest ?? 0 }}" data-package_first_name="{{ $item->package_first_name ?? '' }}" data-package_last_name="{{ $item->package_last_name ?? '' }}" data-package_phone="{{ $item->package_phone ?? '' }}" data-package_email="{{ $item->package_email ?? '' }}" data-package_dob="{{ $item->package_dob ?? '' }}" data-package_note="{{ $item->package_note ?? '' }}" data-host_name="{{ $item->host_name ?? '' }}" data-transportation_pickup_time="{{ $item->transportation_pickup_time ?? '' }}" data-transportation_address="{{ $item->transportation_address ?? '' }}" data-transportation_phone="{{ $item->transportation_phone ?? '' }}" data-transportation_note="{{ $item->transportation_note ?? '' }}" data-payment_first_name="{{ $item->payment_first_name ?? '' }}" data-payment_last_name="{{ $item->payment_last_name ?? '' }}" data-payment_phone="{{ $item->payment_phone ?? '' }}" data-payment_email="{{ $item->payment_email ?? '' }}" data-payment_address="{{ $item->payment_address ?? '' }}" data-payment_city="{{ $item->payment_city ?? '' }}" data-payment_state="{{ $item->payment_state ?? '' }}" data-payment_country="{{ $item->payment_country ?? '' }}" data-payment_dob="{{ $item->payment_dob ?? '' }}" data-payment_zip_code="{{ $item->payment_zip_code ?? '' }}" data-type="{{ $item->type }}" data-status="{{ $item->status }}" data-ip_address="{{ $item->ip_address ?? '' }}" data-website_id="{{ $item->website->name ?? '' }}" data-affiliate_name="{{ $item->affiliate ? ($item->affiliate->display_name ?: optional($item->affiliate->user)->name) : '' }}" data-entertainer_name="{{ $item->entertainer ? ($item->entertainer->display_name ?: optional($item->entertainer->user)->name) : '' }}" data-addons="{{ $addons }}" style="font-size:0.85rem;min-width:72px;">Quick View</button>
+                                <button type="button" class="btn btn-sm btn-link-package view-btn" data-date="{{ $purchaseAtLocal?->format('M d, Y') ?? '' }}" data-date-iso="{{ $purchaseAtLocal?->format('Y-m-d') ?? '' }}" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-confirmation-number="{{ $item->transaction_id ?? 'N/A' }}" data-cart-items='@json($cartItems)' data-package-descriptions-b64="{{ base64_encode(json_encode($packageDescriptionsPayload)) }}" data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" data-package_use_date="{{ $item->package_use_date ?? '' }}" data-package_number_of_guest="{{ $item->package_number_of_guest ?? 0 }}" data-package_first_name="{{ $item->package_first_name ?? '' }}" data-package_last_name="{{ $item->package_last_name ?? '' }}" data-package_phone="{{ $item->package_phone ?? '' }}" data-package_email="{{ $item->package_email ?? '' }}" data-package_dob="{{ $item->package_dob ?? '' }}" data-package_note="{{ $item->package_note ?? '' }}" data-host_name="{{ $item->host_name ?? '' }}" data-transportation_pickup_time="{{ $item->transportation_pickup_time ?? '' }}" data-transportation_address="{{ $item->transportation_address ?? '' }}" data-transportation_phone="{{ $item->transportation_phone ?? '' }}" data-transportation_note="{{ $item->transportation_note ?? '' }}" data-payment_first_name="{{ $item->payment_first_name ?? '' }}" data-payment_last_name="{{ $item->payment_last_name ?? '' }}" data-payment_phone="{{ $item->payment_phone ?? '' }}" data-payment_email="{{ $item->payment_email ?? '' }}" data-payment_address="{{ $item->payment_address ?? '' }}" data-payment_city="{{ $item->payment_city ?? '' }}" data-payment_state="{{ $item->payment_state ?? '' }}" data-payment_country="{{ $item->payment_country ?? '' }}" data-payment_dob="{{ $item->payment_dob ?? '' }}" data-payment_zip_code="{{ $item->payment_zip_code ?? '' }}" data-type="{{ $item->type }}" data-status="{{ $item->status }}" data-ip_address="{{ $item->ip_address ?? '' }}" data-website_id="{{ $item->website->name ?? '' }}" data-affiliate_name="{{ $item->affiliate ? ($item->affiliate->display_name ?: optional($item->affiliate->user)->name) : '' }}" data-entertainer_name="{{ $item->entertainer ? ($item->entertainer->display_name ?: optional($item->entertainer->user)->name) : '' }}" data-addons="{{ $addons }}" style="font-size:0.85rem;min-width:72px;">Quick View</button>
                             </td>
                             <td>
                                 @php
@@ -1992,13 +1992,18 @@ body.modal-open .admin-mobile-menu-toggle {
                     const amountText = String($row.find('td.txn-amount').first().text() || '');
                     const rowRevenue = isCompleted ? (parseFloat(amountText.replace(/[^0-9.-]+/g, '')) || 0) : 0;
 
-                    // Date grouping (Sale Date)
-                    const saleDateRaw = String($viewBtn.data('date') || $row.find('td:nth-child(3) .txn-date-main').text() || '').trim();
+                    // Date grouping (Sale Date in PST)
+                    const saleIso = String($viewBtn.data('date-iso') || '').trim();
                     let saleMom = null;
-                    if (typeof parseRowDateToMoment === 'function') {
-                        saleMom = parseRowDateToMoment(saleDateRaw);
-                    } else if (typeof moment !== 'undefined') {
-                        saleMom = moment(saleDateRaw, ['MMM DD, YYYY', 'YYYY-MM-DD']);
+                    if (saleIso && saleIso.length >= 10) {
+                        saleMom = moment(saleIso.substring(0, 10), 'YYYY-MM-DD');
+                    } else {
+                        const saleDateRaw = String($viewBtn.data('date') || '').trim();
+                        if (typeof parseRowDateToMoment === 'function') {
+                            saleMom = parseRowDateToMoment(saleDateRaw);
+                        } else if (typeof moment !== 'undefined') {
+                            saleMom = moment(saleDateRaw, ['MMM DD, YYYY', 'YYYY-MM-DD']);
+                        }
                     }
                     if (saleMom && saleMom.isValid()) {
                         const dayKey = saleMom.format('MMM DD');
@@ -2356,10 +2361,16 @@ body.modal-open .admin-mobile-menu-toggle {
                             const endStr = endMom.format('YYYY-MM-DD');
                             const dateTarget = String($('#dateTargetSelect').val() || 'either').toLowerCase();
 
-                            // Row sale date (created_at)
-                            const saleDateRaw = String($viewBtn.data('date') || '').trim();
-                            const saleMom = (typeof parseRowDateToMoment === 'function') ? parseRowDateToMoment(saleDateRaw) : null;
-                            const saleDateStr = saleMom && saleMom.isValid() ? saleMom.format('YYYY-MM-DD') : '';
+                            // Row sale date (created_at converted to PST)
+                            const saleIso = String($viewBtn.data('date-iso') || '').trim();
+                            let saleDateStr = '';
+                            if (saleIso && saleIso.length >= 10) {
+                                saleDateStr = saleIso.substring(0, 10);
+                            } else {
+                                const saleDateRaw = String($viewBtn.data('date') || '').trim();
+                                const saleMom = (typeof parseRowDateToMoment === 'function') ? parseRowDateToMoment(saleDateRaw) : null;
+                                saleDateStr = saleMom && saleMom.isValid() ? saleMom.format('YYYY-MM-DD') : '';
+                            }
 
                             // Row reservation date (package_use_date)
                             const resDateRaw = String($viewBtn.data('package_use_date') || '').trim();
@@ -2408,6 +2419,14 @@ body.modal-open .admin-mobile-menu-toggle {
                     }
                 }
 
+                function getPstMoment() {
+                    if (typeof moment.tz === 'function') {
+                        return moment.tz('America/Los_Angeles');
+                    }
+                    return moment().utcOffset('-07:00');
+                }
+
+                const pstNow = getPstMoment();
                 const dateRangeOptions = {
                     autoUpdateInput: false,
                     linkedCalendars: false,
@@ -2415,12 +2434,12 @@ body.modal-open .admin-mobile-menu-toggle {
                     showDropdowns: true,
                     locale: { cancelLabel: 'Clear', format: 'MM/DD/YYYY' },
                     ranges: {
-                        'Today': [moment(), moment()],
-                        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                        'This Month': [moment().startOf('month'), moment().endOf('month')],
-                        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                        'Today': [pstNow.clone(), pstNow.clone()],
+                        'Yesterday': [pstNow.clone().subtract(1, 'days'), pstNow.clone().subtract(1, 'days')],
+                        'Last 7 Days': [pstNow.clone().subtract(6, 'days'), pstNow.clone()],
+                        'Last 30 Days': [pstNow.clone().subtract(29, 'days'), pstNow.clone()],
+                        'This Month': [pstNow.clone().startOf('month'), pstNow.clone().endOf('month')],
+                        'Last Month': [pstNow.clone().subtract(1, 'month').startOf('month'), pstNow.clone().subtract(1, 'month').endOf('month')]
                     }
                 };
 
@@ -2985,18 +3004,28 @@ body.modal-open .admin-mobile-menu-toggle {
                         return null;
                     }
 
+                    const isoMatch = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+                    if (isoMatch) {
+                        const mIso = moment(dateStr.substring(0, 10), 'YYYY-MM-DD', true);
+                        if (mIso.isValid()) return mIso;
+                    }
+
                     const parsed = moment(dateStr, [
                         'MMM DD, YYYY hh:mm A z',
                         'MMM D, YYYY hh:mm A z',
                         'MMM DD, YYYY h:mm A z',
                         'MMM D, YYYY h:mm A z',
+                        'MMM DD, YYYY',
+                        'MMM D, YYYY',
                         'YYYY-MM-DD h:mm A z',
                         'YYYY-MM-DD hh:mm A z',
                         'YYYY-MM-DD h:mm A',
                         'YYYY-MM-DD hh:mm A',
                         'YYYY-MM-DD HH:mm:ss',
-                        'YYYY-MM-DD'
-                    ], true);
+                        'YYYY-MM-DD',
+                        'MM/DD/YYYY',
+                        'M/D/YYYY'
+                    ], false);
 
                     return parsed.isValid() ? parsed : null;
                 }
