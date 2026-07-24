@@ -1,4 +1,4 @@
-﻿@extends('admin.main')
+@extends('admin.main')
 
 @section('content')
 
@@ -129,6 +129,152 @@
 .table-responsive { padding-bottom: 20px; }
 .dataTables_wrapper .dataTables_paginate { padding-top: 14px; margin-bottom: 0; }
 .dt-buttons, .dataTables_filter { display: none !important; }
+
+/* ─── Shopify Polaris Style Multi-Select Filters ─── */
+.polaris-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+}
+.polaris-filter-pill-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #e2e8f0;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+.polaris-filter-pill-btn:hover, .polaris-filter-pill-btn.active {
+    background: rgba(124, 58, 237, 0.25);
+    border-color: rgba(124, 58, 237, 0.5);
+    color: #fff;
+}
+.polaris-filter-pill-count {
+    background: #7c3aed;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 999px;
+}
+.polaris-popover-menu {
+    background: #1e293b !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 12px !important;
+    padding: 12px !important;
+    min-width: 230px !important;
+    max-width: 320px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    z-index: 1050 !important;
+}
+.polaris-popover-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.polaris-popover-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+}
+.polaris-popover-action {
+    font-size: 0.72rem;
+    color: #818cf8;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 600;
+}
+.polaris-popover-action:hover {
+    color: #a5b4fc;
+    text-decoration: underline;
+}
+.polaris-popover-body {
+    max-height: 220px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.polaris-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: #e2e8f0;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 6px;
+    transition: background 0.15s;
+}
+.polaris-checkbox-label:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+.polaris-checkbox-label input[type="checkbox"] {
+    accent-color: #7c3aed;
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+}
+.polaris-chips-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    width: 100%;
+}
+.polaris-chip {
+    background: rgba(124, 58, 237, 0.18);
+    border: 1px solid rgba(124, 58, 237, 0.35);
+    color: #c4b5fd;
+    font-size: 0.76rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.polaris-chip-remove {
+    cursor: pointer;
+    color: #a78bfa;
+    font-size: 0.75rem;
+    transition: color 0.15s;
+}
+.polaris-chip-remove:hover {
+    color: #fff;
+}
+.polaris-clear-all-btn {
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    font-size: 0.76rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 3px 8px;
+    text-decoration: underline;
+}
+.polaris-clear-all-btn:hover {
+    color: #fca5a5;
+}
 #viewTransactionModal .modal-header { background: #0f172a; border-bottom: 1px solid #1e293b; }
 #viewTransactionModal .modal-content,
 #viewTransactionModal .modal-body { background: #0f172a; }
@@ -716,54 +862,172 @@ body.modal-open .admin-mobile-menu-toggle {
             </form>
             @endif
 
-            {{-- Filters row (toggled) --}}
-            <div class="row g-3 mb-3" id="txnFiltersRow" style="display:flex">
-                @if(auth()->user()->isAdmin())
-                <div class="col-md-3 col-sm-6">
-                    <select id="websiteFilter" class="txn-filter-select">
-                        <option value="">All Websites</option>
-                        @foreach(\App\Models\Website::all() as $website)
-                            <option value="{{ $website->name }}" {{ $filterWebsite === $website->name ? 'selected' : '' }}>{{ $website->name }}</option>
-                        @endforeach
-                    </select>
+            {{-- Shopify Polaris Style Multi-Select Filter Toolbar --}}
+            @php
+                $accessibleSitesList = isset($accessibleWebsites) && $accessibleWebsites->count() > 0 
+                    ? $accessibleWebsites 
+                    : (auth()->user()->isAdmin() ? \App\Models\Website::where('is_archieved', 0)->get() : collect());
+            @endphp
+            <div class="polaris-filter-bar mb-3" id="polarisFilterContainer">
+                @if($accessibleSitesList->count() > 1)
+                <div class="dropdown">
+                    <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillVenueBtn">
+                        <i class="fas fa-store"></i> Venue <span class="polaris-filter-pill-count d-none" id="countVenue">0</span>
+                    </button>
+                    <div class="dropdown-menu polaris-popover-menu">
+                        <div class="polaris-popover-header">
+                            <span class="polaris-popover-title">Filter by Venue</span>
+                            <div>
+                                <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('venue', true)">Select All</a>
+                                <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('venue', false)">Clear</a>
+                            </div>
+                        </div>
+                        <div class="polaris-popover-body">
+                            @foreach($accessibleSitesList as $site)
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="venue" value="{{ $site->name }}" {{ $filterWebsite === $site->name ? 'checked' : '' }}>
+                                <span>{{ $site->name }}</span>
+                            </label>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
                 @endif
-                <div class="col-md-3 col-sm-6">
-                    <select id="typeFilter" class="txn-filter-select">
-                        <option value="">All Types</option>
-                        <option value="Package" {{ $filterType === 'Package' ? 'selected' : '' }}>Package</option>
-                        <option value="Reservation" {{ $filterType === 'Reservation' ? 'selected' : '' }}>Reservation</option>
-                    </select>
+
+                {{-- Status Filter --}}
+                <div class="dropdown">
+                    <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillStatusBtn">
+                        <i class="fas fa-check-circle"></i> Status <span class="polaris-filter-pill-count d-none" id="countStatus">0</span>
+                    </button>
+                    <div class="dropdown-menu polaris-popover-menu">
+                        <div class="polaris-popover-header">
+                            <span class="polaris-popover-title">Payment Status</span>
+                            <div>
+                                <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('status', true)">Select All</a>
+                                <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('status', false)">Clear</a>
+                            </div>
+                        </div>
+                        <div class="polaris-popover-body">
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Completed" {{ $filterStatus === 'Completed' ? 'checked' : '' }}>
+                                <span><i class="fas fa-circle text-success me-1" style="font-size:0.6rem;"></i> Completed</span>
+                            </label>
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Canceled" {{ $filterStatus === 'Canceled' ? 'checked' : '' }}>
+                                <span><i class="fas fa-circle text-danger me-1" style="font-size:0.6rem;"></i> Canceled</span>
+                            </label>
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="status" value="Refunded" {{ $filterStatus === 'Refunded' ? 'checked' : '' }}>
+                                <span><i class="fas fa-circle text-warning me-1" style="font-size:0.6rem;"></i> Refunded</span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-3 col-sm-6">
-                    <select id="affiliateFilter" class="txn-filter-select">
-                        <option value="">All affiliates</option>
-                        @foreach($referralRows as $rn)
-                            <option value="{{ $rn }}" {{ $filterAffiliate === $rn ? 'selected' : '' }}>{{ $rn }}</option>
-                        @endforeach
-                        @if($filterAffiliate !== '' && $filterAffiliate !== 'Direct' && !$referralRows->contains($filterAffiliate))
-                            <option value="{{ $filterAffiliate }}" selected>{{ $filterAffiliate }}</option>
-                        @endif
-                        <option value="Direct" {{ $filterAffiliate === 'Direct' ? 'selected' : '' }}>Direct (No affiliate)</option>
-                    </select>
+
+                {{-- Transaction Type Filter --}}
+                <div class="dropdown">
+                    <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillTypeBtn">
+                        <i class="fas fa-tags"></i> Type <span class="polaris-filter-pill-count d-none" id="countType">0</span>
+                    </button>
+                    <div class="dropdown-menu polaris-popover-menu">
+                        <div class="polaris-popover-header">
+                            <span class="polaris-popover-title">Transaction Type</span>
+                            <div>
+                                <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('type', true)">Select All</a>
+                                <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('type', false)">Clear</a>
+                            </div>
+                        </div>
+                        <div class="polaris-popover-body">
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="type" value="Package" {{ $filterType === 'Package' ? 'checked' : '' }}>
+                                <span>Package Purchase</span>
+                            </label>
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="type" value="Reservation" {{ $filterType === 'Reservation' ? 'checked' : '' }}>
+                                <span>Table Reservation</span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-3 col-sm-6">
-                    <select id="statusFilter" class="txn-filter-select">
-                        <option value="">All Statuses</option>
-                        <option value="Completed" {{ $filterStatus === 'Completed' ? 'selected' : '' }}>Completed</option>
-                        <option value="Canceled" {{ $filterStatus === 'Canceled' ? 'selected' : '' }}>Canceled</option>
-                        <option value="Refunded" {{ $filterStatus === 'Refunded' ? 'selected' : '' }}>Refunded</option>
-                    </select>
+
+                {{-- Referral / Promoter Filter --}}
+                <div class="dropdown">
+                    <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillAffiliateBtn">
+                        <i class="fas fa-user-tag"></i> Referral <span class="polaris-filter-pill-count d-none" id="countAffiliate">0</span>
+                    </button>
+                    <div class="dropdown-menu polaris-popover-menu">
+                        <div class="polaris-popover-header">
+                            <span class="polaris-popover-title">Referral / Source</span>
+                            <div>
+                                <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('affiliate', true)">Select All</a>
+                                <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('affiliate', false)">Clear</a>
+                            </div>
+                        </div>
+                        <div class="polaris-popover-body">
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="affiliate" value="Direct" {{ $filterAffiliate === 'Direct' ? 'checked' : '' }}>
+                                <span>Direct (No promoter)</span>
+                            </label>
+                            @foreach($referralRows as $rn)
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="affiliate" value="{{ $rn }}" {{ $filterAffiliate === $rn ? 'checked' : '' }}>
+                                <span>{{ $rn }}</span>
+                            </label>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
-                    <select id="reservationFilter" class="form-control" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:8px 12px;border-radius:8px;font-size:0.9rem;">
-                        <option value="" {{ $filterReservation === '' ? 'selected' : '' }}>All Reservations</option>
-                        <option value="upcoming" {{ $filterReservation === 'upcoming' ? 'selected' : '' }}>Upcoming</option>
-                        <option value="today" {{ $filterReservation === 'today' ? 'selected' : '' }}>Today</option>
-                        <option value="past" {{ $filterReservation === 'past' ? 'selected' : '' }}>Past</option>
-                        <option value="checked_in" {{ $filterReservation === 'checked_in' ? 'selected' : '' }}>Checked In</option>
-                        <option value="no_show" {{ $filterReservation === 'no_show' ? 'selected' : '' }}>No Show</option>
-                    </select>
+
+                {{-- Reservation Status Filter --}}
+                <div class="dropdown">
+                    <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillReservationBtn">
+                        <i class="fas fa-calendar-check"></i> Reservation Filter <span class="polaris-filter-pill-count d-none" id="countReservation">0</span>
+                    </button>
+                    <div class="dropdown-menu polaris-popover-menu">
+                        <div class="polaris-popover-header">
+                            <span class="polaris-popover-title">Reservation State</span>
+                            <div>
+                                <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('reservation', true)">Select All</a>
+                                <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('reservation', false)">Clear</a>
+                            </div>
+                        </div>
+                        <div class="polaris-popover-body">
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="upcoming" {{ $filterReservation === 'upcoming' ? 'checked' : '' }}>
+                                <span>Upcoming</span>
+                            </label>
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="today" {{ $filterReservation === 'today' ? 'checked' : '' }}>
+                                <span>Today</span>
+                            </label>
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="past" {{ $filterReservation === 'past' ? 'checked' : '' }}>
+                                <span>Past</span>
+                            </label>
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="checked_in" {{ $filterReservation === 'checked_in' ? 'checked' : '' }}>
+                                <span>Checked In</span>
+                            </label>
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="no_show" {{ $filterReservation === 'no_show' ? 'checked' : '' }}>
+                                <span>No Show</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Active Filter Chips Container --}}
+                <div class="polaris-chips-bar d-none" id="activeFilterChips">
+                    <!-- Dynamically rendered active chips -->
+                </div>
+
+                {{-- Hidden legacy compatibility elements --}}
+                <div class="d-none" id="txnFiltersRow">
+                    <select id="websiteFilter"><option value="">All</option></select>
+                    <select id="typeFilter"><option value="">All</option></select>
+                    <select id="affiliateFilter"><option value="">All</option></select>
+                    <select id="statusFilter"><option value="">All</option></select>
+                    <select id="reservationFilter"><option value="">All</option></select>
                 </div>
             </div>
 
@@ -1708,59 +1972,170 @@ body.modal-open .admin-mobile-menu-toggle {
                     e.stopPropagation();
                 });
 
-                // ── Custom search ────────────────────────────────────────────
-                $('#txnSearch').on('keyup', function() {
+                // ── Custom search & Polaris Multi-Select Filter Controller ──
+                window.polarisToggleSelectAll = function(category, selectAll) {
+                    $('.polaris-filter-cb[data-category="' + category + '"]').prop('checked', selectAll);
+                    updatePolarisUiAndFilterTable();
+                };
+
+                function updatePolarisUiAndFilterTable() {
+                    if (!table) return;
+
+                    const categories = ['venue', 'status', 'type', 'affiliate', 'reservation'];
+                    const activeChipsContainer = $('#activeFilterChips');
+                    activeChipsContainer.empty();
+                    let totalActiveFilters = 0;
+
+                    categories.forEach(function(cat) {
+                        const checkedBoxes = $('.polaris-filter-cb[data-category="' + cat + '"]:checked');
+                        const count = checkedBoxes.length;
+
+                        const pillBtn = $('#pill' + cat.charAt(0).toUpperCase() + cat.slice(1) + 'Btn');
+                        const countBadge = $('#count' + cat.charAt(0).toUpperCase() + cat.slice(1));
+
+                        if (count > 0) {
+                            pillBtn.addClass('active');
+                            countBadge.text(count).removeClass('d-none');
+                            totalActiveFilters += count;
+
+                            const labels = [];
+                            checkedBoxes.each(function() {
+                                labels.push($(this).parent().text().trim());
+                            });
+
+                            const categoryNameMap = {
+                                venue: 'Venue',
+                                status: 'Status',
+                                type: 'Type',
+                                affiliate: 'Referral',
+                                reservation: 'Reservation'
+                            };
+
+                            const chipHtml = `
+                                <div class="polaris-chip">
+                                    <span>${categoryNameMap[cat]}: ${labels.join(', ')}</span>
+                                    <i class="fas fa-times polaris-chip-remove" onclick="clearPolarisCategory('${cat}')"></i>
+                                </div>
+                            `;
+                            activeChipsContainer.append(chipHtml);
+                        } else {
+                            pillBtn.removeClass('active');
+                            countBadge.text('0').addClass('d-none');
+                        }
+                    });
+
+                    if (totalActiveFilters > 0) {
+                        activeChipsContainer.append(`
+                            <button type="button" class="polaris-clear-all-btn" onclick="clearAllPolarisFilters()">Clear all filters</button>
+                        `);
+                        activeChipsContainer.removeClass('d-none');
+                    } else {
+                        activeChipsContainer.addClass('d-none');
+                    }
+
+                    table.draw();
+                }
+
+                window.clearPolarisCategory = function(cat) {
+                    $('.polaris-filter-cb[data-category="' + cat + '"]').prop('checked', false);
+                    updatePolarisUiAndFilterTable();
+                };
+
+                window.clearAllPolarisFilters = function() {
+                    $('.polaris-filter-cb').prop('checked', false);
+                    $('#txnSearch').val('');
+                    table.search('').draw();
+                    updatePolarisUiAndFilterTable();
+                };
+
+                $(document).on('change', '.polaris-filter-cb', function() {
+                    updatePolarisUiAndFilterTable();
+                });
+
+                $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                    if (settings.nTable.id !== 'txnDataTable') {
+                        return true;
+                    }
+
+                    const rowNode = settings.aoData[dataIndex].nTr;
+                    if (!rowNode) return true;
+
+                    const $row = $(rowNode);
+                    const $viewBtn = $row.find('.view-btn').first();
+
+                    // 1. Venue Filter
+                    const activeVenues = $('.polaris-filter-cb[data-category="venue"]:checked').map(function() { return $(this).val(); }).get();
+                    if (activeVenues.length > 0) {
+                        const rowVenue = String($viewBtn.data('website_id') || $row.find('td.txn-venue').text() || '').trim().toLowerCase();
+                        const matches = activeVenues.some(v => rowVenue === v.toLowerCase() || rowVenue.includes(v.toLowerCase()));
+                        if (!matches) return false;
+                    }
+
+                    // 2. Status Filter
+                    const activeStatuses = $('.polaris-filter-cb[data-category="status"]:checked').map(function() { return $(this).val(); }).get();
+                    if (activeStatuses.length > 0) {
+                        const rawStatus = String($viewBtn.data('status') || '').trim().toLowerCase();
+                        const statusMap = { '1': 'completed', 'completed': 'completed', 'approved': 'completed', '0': 'canceled', 'canceled': 'canceled', 'cancelled': 'canceled', '2': 'refunded', 'refunded': 'refunded' };
+                        const rowStatus = statusMap[rawStatus] || rawStatus;
+                        const matches = activeStatuses.some(s => s.toLowerCase() === rowStatus);
+                        if (!matches) return false;
+                    }
+
+                    // 3. Type Filter
+                    const activeTypes = $('.polaris-filter-cb[data-category="type"]:checked').map(function() { return $(this).val(); }).get();
+                    if (activeTypes.length > 0) {
+                        const rowType = String($viewBtn.data('type') || '').trim().toLowerCase();
+                        const matches = activeTypes.some(t => t.toLowerCase() === rowType);
+                        if (!matches) return false;
+                    }
+
+                    // 4. Referral / Source Filter
+                    const activeAffiliates = $('.polaris-filter-cb[data-category="affiliate"]:checked').map(function() { return $(this).val(); }).get();
+                    if (activeAffiliates.length > 0) {
+                        const affName = String($viewBtn.data('affiliate_name') || '').trim();
+                        const entName = String($viewBtn.data('entertainer_name') || '').trim();
+                        let rowSource = 'Direct';
+                        if (affName) rowSource = affName;
+                        else if (entName) rowSource = entName;
+
+                        const matches = activeAffiliates.some(a => {
+                            if (a.toLowerCase() === 'direct') {
+                                return !affName && !entName;
+                            }
+                            return a.toLowerCase() === rowSource.toLowerCase() || (affName && a.toLowerCase() === affName.toLowerCase()) || (entName && a.toLowerCase() === entName.toLowerCase());
+                        });
+                        if (!matches) return false;
+                    }
+
+                    // 5. Reservation Filter
+                    const activeReservations = $('.polaris-filter-cb[data-category="reservation"]:checked').map(function() { return $(this).val(); }).get();
+                    if (activeReservations.length > 0) {
+                        const useDateRaw = String($viewBtn.data('package_use_date') || '').trim();
+                        const checkedIn = String($viewBtn.data('checked_in_status') || '').toLowerCase() === '1' || String($viewBtn.data('checked_in_status') || '').toLowerCase() === 'true';
+                        const rawStatus = String($viewBtn.data('status') || '').trim().toLowerCase();
+
+                        const todayStr = moment().format('YYYY-MM-DD');
+
+                        const matches = activeReservations.some(r => {
+                            if (r === 'upcoming') return useDateRaw > todayStr && rawStatus !== '0' && rawStatus !== '2';
+                            if (r === 'today') return useDateRaw === todayStr && rawStatus !== '0' && rawStatus !== '2';
+                            if (r === 'past') return useDateRaw < todayStr && useDateRaw !== '';
+                            if (r === 'checked_in') return checkedIn;
+                            if (r === 'no_show') return useDateRaw < todayStr && (rawStatus === '1' || rawStatus === 'completed') && !checkedIn;
+                            return true;
+                        });
+                        if (!matches) return false;
+                    }
+
+                    return true;
+                });
+
+                $('#txnSearch').on('keyup input', function() {
                     if (!table) return;
                     table.search(this.value).draw();
                 });
 
-                // Filters always visible, remove toggle logic
-                function reloadWithServerFilters() {
-                    const params = new URLSearchParams(window.location.search);
-
-                    const setOrDelete = function(key, value) {
-                        const normalized = String(value || '').trim();
-                        if (normalized) params.set(key, normalized);
-                        else params.delete(key);
-                    };
-
-                    setOrDelete('website', $('#websiteFilter').val());
-                    setOrDelete('type', $('#typeFilter').val());
-                    setOrDelete('affiliate', $('#affiliateFilter').val());
-                    setOrDelete('status', $('#statusFilter').val());
-                    const reservationValue = String($('#reservationFilter').val() || '').trim();
-                    if (reservationValue) {
-                        setOrDelete('reservation', reservationValue);
-                    } else {
-                        params.delete('reservation');
-                    }
-
-                    const rangeStr = String($('#txnDateRange').val() || '').trim();
-                    if (rangeStr && rangeStr.includes(' - ')) {
-                        const parts = rangeStr.split(' - ');
-                        const start = moment(parts[0], 'MM/DD/YYYY', true);
-                        const end = moment(parts[1], 'MM/DD/YYYY', true);
-                        if (start.isValid() && end.isValid()) {
-                            params.set('date_from', start.format('YYYY-MM-DD'));
-                            params.set('date_to', end.format('YYYY-MM-DD'));
-                        } else {
-                            params.delete('date_from');
-                            params.delete('date_to');
-                        }
-                    } else {
-                        params.delete('date_from');
-                        params.delete('date_to');
-                    }
-
-                    const query = params.toString();
-                    window.location.href = query ? (window.location.pathname + '?' + query) : window.location.pathname;
-                }
-
-                // Filters always visible, no toggle needed
-
-                $('#websiteFilter, #typeFilter, #affiliateFilter, #statusFilter, #reservationFilter').on('change', function() {
-                    reloadWithServerFilters();
-                });
+                updatePolarisUiAndFilterTable();
 
                 const $txnDateRange = $('#txnDateRange');
                 const $txnDateRangeWrap = $('#txnDateRangeWrap');

@@ -1355,9 +1355,11 @@ class TransactionController extends Controller
         app(CommissionLifecycleRunner::class)->runSafely();
 
         $data = $this->getAccessibleTransactionList($request);
+        $accessibleWebsites = $this->getAccessibleWebsitesForUser(auth()->user());
 
         return view('admin.transaction.index', [
             'data' => $data,
+            'accessibleWebsites' => $accessibleWebsites,
             'dashboardTitle' => 'Transactions Dashboard',
             'dashboardSubtitle' => "Here's what's happening with your transaction performance.",
         ]);
@@ -1370,9 +1372,11 @@ class TransactionController extends Controller
         $data = $this->getAccessibleTransactionList($request, function ($query) {
             $query->whereNotNull('affiliate_id');
         });
+        $accessibleWebsites = $this->getAccessibleWebsitesForUser(auth()->user());
 
         return view('admin.transaction.index', [
             'data' => $data,
+            'accessibleWebsites' => $accessibleWebsites,
             'dashboardTitle' => 'affiliate Transactions',
             'dashboardSubtitle' => 'Only affiliate-referred transactions are listed here.',
             'isPayoutPage' => true,
@@ -1386,13 +1390,36 @@ class TransactionController extends Controller
         $data = $this->getAccessibleTransactionList($request, function ($query) {
             $query->whereNotNull('entertainer_id');
         });
+        $accessibleWebsites = $this->getAccessibleWebsitesForUser(auth()->user());
 
         return view('admin.transaction.index', [
             'data' => $data,
+            'accessibleWebsites' => $accessibleWebsites,
             'dashboardTitle' => 'Entertainer Transactions',
             'dashboardSubtitle' => 'Only entertainer-referred transactions are listed here.',
             'isPayoutPage' => true,
         ]);
+    }
+
+    private function getAccessibleWebsitesForUser($user)
+    {
+        if (!$user) {
+            return collect();
+        }
+
+        if ($user->isAdmin()) {
+            return Website::where('is_archieved', 0)->get();
+        }
+
+        if ($user->isManager()) {
+            return Website::whereIn('id', $user->accessibleWebsiteIds())->where('is_archieved', 0)->get();
+        }
+
+        if (($user->isWebsiteUser() || $user->isBouncer()) && $user->website_id) {
+            return Website::where('id', $user->website_id)->where('is_archieved', 0)->get();
+        }
+
+        return collect();
     }
 
     private function getAccessibleTransactionList(Request $request, ?callable $queryMutator = null)
