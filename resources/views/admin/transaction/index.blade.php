@@ -1950,7 +1950,9 @@ body.modal-open .admin-mobile-menu-toggle {
                         tooltip: {
                             backgroundColor: '#1e293b',
                             titleColor: '#fff',
+                            titleFont: { size: 13, weight: 'bold' },
                             bodyColor: 'rgba(255,255,255,0.85)',
+                            bodyFont: { size: 12 },
                             borderColor: 'rgba(255,255,255,0.15)',
                             borderWidth: 1,
                             padding: 12,
@@ -1958,7 +1960,14 @@ body.modal-open .admin-mobile-menu-toggle {
                             callbacks: {
                                 title: function(tooltipItems) {
                                     if (!tooltipItems || !tooltipItems.length) return '';
-                                    return tooltipItems[0].label || '';
+                                    const raw = tooltipItems[0].label || '';
+                                    if (raw.includes(' - ')) {
+                                        const parts = raw.split(' - ');
+                                        const venue = parts[0].trim();
+                                        const pkg = parts.slice(1).join(' - ').trim();
+                                        return pkg + '\n(' + venue + ')';
+                                    }
+                                    return raw;
                                 },
                                 label: function(ctx) {
                                     const val = Number(ctx.parsed || 0);
@@ -2075,15 +2084,27 @@ body.modal-open .admin-mobile-menu-toggle {
                         finalLabels.forEach((name, i) => {
                             const pct = ((finalData[i] / grandTotal) * 100).toFixed(1);
                             const amt = '$' + Number(finalData[i]).toLocaleString(undefined, { minimumFractionDigits: 2 });
+
+                            let venuePart = '';
+                            let pkgPart = name;
+                            if (name && name.includes(' - ')) {
+                                const parts = name.split(' - ');
+                                venuePart = parts[0].trim();
+                                pkgPart = parts.slice(1).join(' - ').trim();
+                            }
+
                             const itemHtml = `
-                                <div class="txn-pkg-legend-item">
-                                    <div class="d-flex align-items-center gap-2 flex-grow-1 overflow-hidden">
-                                        <span class="txn-pkg-dot" style="background:${donutColors[i % donutColors.length]}"></span>
-                                        <span class="txn-pkg-name text-truncate" title="${name}">${name}</span>
+                                <div class="txn-pkg-legend-item py-1">
+                                    <div class="d-flex align-items-center gap-2 flex-grow-1 overflow-hidden me-2">
+                                        <span class="txn-pkg-dot flex-shrink-0" style="background:${donutColors[i % donutColors.length]}"></span>
+                                        <div class="txn-pkg-text-wrap text-truncate" title="${name}">
+                                            ${venuePart ? `<div class="txn-pkg-venue-name text-truncate" style="font-size:0.65rem;color:rgba(255,255,255,0.45);text-transform:uppercase;font-weight:600;letter-spacing:0.04em;line-height:1.1;">${venuePart}</div>` : ''}
+                                            <div class="txn-pkg-title text-truncate" style="font-size:0.8rem;font-weight:600;color:#fff;line-height:1.2;">${pkgPart}</div>
+                                        </div>
                                     </div>
                                     <div class="d-flex align-items-center gap-3 ms-2 flex-shrink-0">
-                                        <span class="txn-pkg-pct">${pct}%</span>
-                                        <span class="txn-pkg-amt">${amt}</span>
+                                        <span class="txn-pkg-pct" style="font-size:0.75rem;color:rgba(255,255,255,0.5);">${pct}%</span>
+                                        <span class="txn-pkg-amt" style="font-size:0.8rem;font-weight:600;color:#fff;">${amt}</span>
                                     </div>
                                 </div>`;
                             legendContainer.append(itemHtml);
@@ -2094,25 +2115,38 @@ body.modal-open .admin-mobile-menu-toggle {
                 }
             };
 
-            // ── Package legend ───────────────────────────────────────────────
+            // ── Package legend initial render ─────────────────────────────────
             (function() {
                 const container = document.getElementById('txnPkgLegend');
                 const total = {{ $topPackagesTotal ?: 1 }};
                 const names = @json($topPackages->pluck('name'));
                 const revenues = @json($topPackages->pluck('revenue'));
+                container.innerHTML = '';
                 names.forEach((name, i) => {
                     const pct = total > 0 ? ((revenues[i] / total) * 100).toFixed(1) : '0.0';
                     const amt = '$' + Number(revenues[i]).toLocaleString(undefined, {minimumFractionDigits: 2});
+
+                    let venuePart = '';
+                    let pkgPart = name;
+                    if (name && name.includes(' - ')) {
+                        const parts = name.split(' - ');
+                        venuePart = parts[0].trim();
+                        pkgPart = parts.slice(1).join(' - ').trim();
+                    }
+
                     const div = document.createElement('div');
-                    div.className = 'txn-pkg-legend-item';
+                    div.className = 'txn-pkg-legend-item py-1';
                     div.innerHTML = `
-                        <div class="d-flex align-items-center gap-2 flex-grow-1 overflow-hidden">
-                            <span class="txn-pkg-dot" style="background:${donutColors[i % donutColors.length]}"></span>
-                            <span class="txn-pkg-name text-truncate">${name}</span>
+                        <div class="d-flex align-items-center gap-2 flex-grow-1 overflow-hidden me-2">
+                            <span class="txn-pkg-dot flex-shrink-0" style="background:${donutColors[i % donutColors.length]}"></span>
+                            <div class="txn-pkg-text-wrap text-truncate" title="${name}">
+                                ${venuePart ? `<div class="txn-pkg-venue-name text-truncate" style="font-size:0.65rem;color:rgba(255,255,255,0.45);text-transform:uppercase;font-weight:600;letter-spacing:0.04em;line-height:1.1;">${venuePart}</div>` : ''}
+                                <div class="txn-pkg-title text-truncate" style="font-size:0.8rem;font-weight:600;color:#fff;line-height:1.2;">${pkgPart}</div>
+                            </div>
                         </div>
                         <div class="d-flex align-items-center gap-3 ms-2 flex-shrink-0">
-                            <span class="txn-pkg-pct">${pct}%</span>
-                            <span class="txn-pkg-amt">${amt}</span>
+                            <span class="txn-pkg-pct" style="font-size:0.75rem;color:rgba(255,255,255,0.5);">${pct}%</span>
+                            <span class="txn-pkg-amt" style="font-size:0.8rem;font-weight:600;color:#fff;">${amt}</span>
                         </div>`;
                     container.appendChild(div);
                 });
