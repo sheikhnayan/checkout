@@ -101,10 +101,18 @@
                         <!-- QR Scanner & Manual Input Section (Hidden when transaction found) -->
                         <div class="row g-3" id="scannerSection">
                             <div class="col-12 col-lg-6">
-                                <div class="border rounded-3 p-2 bg-dark-subtle" style="min-height:280px;">
+                                <div class="border rounded-3 p-0 bg-dark-subtle overflow-hidden" style="min-height:280px;position:relative;" id="qrScannerContainer">
                                     <div id="reader" style="width:100%;"></div>
+                                    <div id="qrVisualGrid" style="position:absolute;inset:0;pointer-events:none;z-index:10;display:flex;align-items:center;justify-content:center;">
+                                        <div style="width:75%;max-width:260px;aspect-ratio:1;border:2px dashed rgba(34,197,94,0.85);border-radius:16px;box-shadow:0 0 0 9999px rgba(15,23,42,0.3);position:relative;">
+                                            <div style="position:absolute;top:-2px;left:-2px;width:22px;height:22px;border-top:4px solid #22c55e;border-left:4px solid #22c55e;border-top-left-radius:12px;"></div>
+                                            <div style="position:absolute;top:-2px;right:-2px;width:22px;height:22px;border-top:4px solid #22c55e;border-right:4px solid #22c55e;border-top-right-radius:12px;"></div>
+                                            <div style="position:absolute;bottom:-2px;left:-2px;width:22px;height:22px;border-bottom:4px solid #22c55e;border-left:4px solid #22c55e;border-bottom-left-radius:12px;"></div>
+                                            <div style="position:absolute;bottom:-2px;right:-2px;width:22px;height:22px;border-bottom:4px solid #22c55e;border-right:4px solid #22c55e;border-bottom-right-radius:12px;"></div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <small class="text-muted d-block mt-2">Tip: hold the QR in frame for 1-2 seconds.</small>
+                                <small class="text-muted d-block mt-2">Tip: Hold the QR ticket anywhere in front of the camera.</small>
                             </div>
 
                             <div class="col-12 col-lg-6">
