@@ -180,6 +180,13 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
     z-index: 99999 !important;
 }
+.polaris-popover-menu,
+.polaris-popover-menu label,
+.polaris-popover-menu span,
+.polaris-popover-menu p,
+.polaris-popover-menu div {
+    color: #ffffff !important;
+}
 .polaris-popover-header {
     display: flex;
     justify-content: space-between;
@@ -193,18 +200,27 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #94a3b8;
+    color: #cbd5e1 !important;
 }
 .polaris-popover-action {
     font-size: 0.72rem;
-    color: #818cf8;
+    color: #a78bfa !important;
     cursor: pointer;
     text-decoration: none;
     font-weight: 600;
 }
 .polaris-popover-action:hover {
-    color: #a5b4fc;
+    color: #c4b5fd !important;
     text-decoration: underline;
+}
+.polaris-popover-menu select,
+.polaris-popover-menu input {
+    color: #ffffff !important;
+    background: rgba(15, 23, 42, 0.9) !important;
+}
+.polaris-popover-menu select option {
+    background: #1e293b !important;
+    color: #ffffff !important;
 }
 .polaris-popover-body {
     max-height: 220px;
