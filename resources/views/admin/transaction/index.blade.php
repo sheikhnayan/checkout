@@ -881,7 +881,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     <div>
                         <div class="txn-stat-label">Total Guests</div>
                         <div class="txn-stat-value">{{ number_format($totalGuests) }}</div>
-                        <div class="txn-stat-note">Guests in filtered transactions</div>
+                        <!-- <div class="txn-stat-note">Guests in filtered transactions</div> -->
                     </div>
                 </div>
             </div>
