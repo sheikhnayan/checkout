@@ -36,6 +36,7 @@ class Transaction extends Model
         'entertainer_commission_approved_at' => 'datetime',
         'entertainer_commission_reversed_at' => 'datetime',
         'archived_at' => 'datetime',
+        'admin_notes_at' => 'datetime',
     ];
 
     protected static function booted(): void

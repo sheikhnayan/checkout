@@ -840,7 +840,7 @@ body.modal-open .admin-mobile-menu-toggle {
         </div>
 
         {{-- ── STAT CARDS ──────────────────────────────────────────── --}}
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-5 g-4 mb-4">
+        <div class="row row-cols-1 row-cols-md-3 g-3 mb-4">
             <div class="col">
                 <div class="txn-stat-card">
                     <div class="txn-stat-icon" style="background:rgba(124,58,237,0.15);color:#7c3aed"><i class="fas fa-receipt"></i></div>
@@ -850,16 +850,6 @@ body.modal-open .admin-mobile-menu-toggle {
                         <div class="txn-stat-trend {{ $txnTrend >= 0 ? 'trend-up' : 'trend-down' }}" style="display:none !important;">
                             <i class="fas fa-arrow-{{ $txnTrend >= 0 ? 'up' : 'down' }} me-1"></i>{{ abs($txnTrend) }}% <span>vs last week</span>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="txn-stat-card">
-                    <div class="txn-stat-icon" style="background:rgba(16,185,129,0.15);color:#10b981"><i class="fas fa-calendar-check"></i></div>
-                    <div>
-                        <div class="txn-stat-label">Redeemed Transactions</div>
-                        <div class="txn-stat-value">{{ number_format($redeemedTxns) }}</div>
-                        <div class="txn-stat-note">Checked in at venue</div>
                     </div>
                 </div>
             </div>
@@ -1443,7 +1433,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td class="txn-confirmation-num">{{ $item->transaction_id ?? 'N/A' }}</td>
                             <td class="txn-pkg-name">
                                 <div style="font-size:0.85rem;font-weight:600;margin-bottom:8px;">{{ $venueName }}</div>
-                                <button type="button" class="btn btn-sm btn-link-package view-btn" data-date="{{ $purchaseAtLocal?->format('M d, Y') ?? '' }}" data-date-iso="{{ $purchaseAtLocal?->format('Y-m-d') ?? '' }}" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-confirmation-number="{{ $item->transaction_id ?? 'N/A' }}" data-cart-items='@json($cartItems)' data-package-descriptions-b64="{{ base64_encode(json_encode($packageDescriptionsPayload)) }}" data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" data-package_use_date="{{ $item->package_use_date ?? '' }}" data-checked_in_status="{{ $item->checked_in_status ?? $item->checked_in ?? 0 }}" data-package_number_of_guest="{{ $item->package_number_of_guest ?? 0 }}" data-package_first_name="{{ $item->package_first_name ?? '' }}" data-package_last_name="{{ $item->package_last_name ?? '' }}" data-package_phone="{{ $item->package_phone ?? '' }}" data-package_email="{{ $item->package_email ?? '' }}" data-package_dob="{{ $item->package_dob ?? '' }}" data-package_note="{{ $item->package_note ?? '' }}" data-host_name="{{ $item->host_name ?? '' }}" data-transportation_pickup_time="{{ $item->transportation_pickup_time ?? '' }}" data-transportation_address="{{ $item->transportation_address ?? '' }}" data-transportation_phone="{{ $item->transportation_phone ?? '' }}" data-transportation_note="{{ $item->transportation_note ?? '' }}" data-payment_first_name="{{ $item->payment_first_name ?? '' }}" data-payment_last_name="{{ $item->payment_last_name ?? '' }}" data-payment_phone="{{ $item->payment_phone ?? '' }}" data-payment_email="{{ $item->payment_email ?? '' }}" data-payment_address="{{ $item->payment_address ?? '' }}" data-payment_city="{{ $item->payment_city ?? '' }}" data-payment_state="{{ $item->payment_state ?? '' }}" data-payment_country="{{ $item->payment_country ?? '' }}" data-payment_dob="{{ $item->payment_dob ?? '' }}" data-payment_zip_code="{{ $item->payment_zip_code ?? '' }}" data-type="{{ $item->type }}" data-status="{{ $item->status }}" data-ip_address="{{ $item->ip_address ?? '' }}" data-website_id="{{ $item->website->name ?? '' }}" data-affiliate_name="{{ $item->affiliate ? ($item->affiliate->display_name ?: optional($item->affiliate->user)->name) : '' }}" data-entertainer_name="{{ $item->entertainer ? ($item->entertainer->display_name ?: optional($item->entertainer->user)->name) : '' }}" data-addons="{{ $addons }}" style="font-size:0.85rem;min-width:72px;">Quick View</button>
+                                <button type="button" class="btn btn-sm btn-link-package view-btn" data-date="{{ $purchaseAtLocal?->format('M d, Y') ?? '' }}" data-date-iso="{{ $purchaseAtLocal?->format('Y-m-d') ?? '' }}" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-id="{{ $item->id }}" data-admin_notes="{{ $item->admin_notes ?? '' }}" data-admin_notes_by="{{ $item->admin_notes_by ?? '' }}" data-admin_notes_at="{{ $item->admin_notes_at ? optional($item->admin_notes_at)->timezone('America/Los_Angeles')->format('M d, Y h:i A \P\D\T') : '' }}" data-confirmation-number="{{ $item->transaction_id ?? 'N/A' }}" data-cart-items='@json($cartItems)' data-package-descriptions-b64="{{ base64_encode(json_encode($packageDescriptionsPayload)) }}" data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" data-package_use_date="{{ $item->package_use_date ?? '' }}" data-checked_in_status="{{ $item->checked_in_status ?? $item->checked_in ?? 0 }}" data-package_number_of_guest="{{ $item->package_number_of_guest ?? 0 }}" data-package_first_name="{{ $item->package_first_name ?? '' }}" data-package_last_name="{{ $item->package_last_name ?? '' }}" data-package_phone="{{ $item->package_phone ?? '' }}" data-package_email="{{ $item->package_email ?? '' }}" data-package_dob="{{ $item->package_dob ?? '' }}" data-package_note="{{ $item->package_note ?? '' }}" data-host_name="{{ $item->host_name ?? '' }}" data-transportation_pickup_time="{{ $item->transportation_pickup_time ?? '' }}" data-transportation_address="{{ $item->transportation_address ?? '' }}" data-transportation_phone="{{ $item->transportation_phone ?? '' }}" data-transportation_note="{{ $item->transportation_note ?? '' }}" data-payment_first_name="{{ $item->payment_first_name ?? '' }}" data-payment_last_name="{{ $item->payment_last_name ?? '' }}" data-payment_phone="{{ $item->payment_phone ?? '' }}" data-payment_email="{{ $item->payment_email ?? '' }}" data-payment_address="{{ $item->payment_address ?? '' }}" data-payment_city="{{ $item->payment_city ?? '' }}" data-payment_state="{{ $item->payment_state ?? '' }}" data-payment_country="{{ $item->payment_country ?? '' }}" data-payment_dob="{{ $item->payment_dob ?? '' }}" data-payment_zip_code="{{ $item->payment_zip_code ?? '' }}" data-type="{{ $item->type }}" data-status="{{ $item->status }}" data-ip_address="{{ $item->ip_address ?? '' }}" data-website_id="{{ $item->website->name ?? '' }}" data-affiliate_name="{{ $item->affiliate ? ($item->affiliate->display_name ?: optional($item->affiliate->user)->name) : '' }}" data-entertainer_name="{{ $item->entertainer ? ($item->entertainer->display_name ?: optional($item->entertainer->user)->name) : '' }}" data-addons="{{ $addons }}" style="font-size:0.85rem;min-width:72px;">Quick View</button>
                             </td>
                             <td>
                                 @php
@@ -1681,6 +1671,9 @@ body.modal-open .admin-mobile-menu-toggle {
                                     <button type="button" class="txn-action-eye view-btn"
                                         data-bs-toggle="modal" data-bs-target="#viewTransactionModal"
                                         data-id="{{ $item->id }}"
+                                        data-admin_notes="{{ $item->admin_notes ?? '' }}"
+                                        data-admin_notes_by="{{ $item->admin_notes_by ?? '' }}"
+                                        data-admin_notes_at="{{ $item->admin_notes_at ? optional($item->admin_notes_at)->timezone('America/Los_Angeles')->format('M d, Y h:i A \P\D\T') : '' }}"
                                         data-transaction_id="{{ $item->transaction_id ?? 'Free' }}"
                                         data-package_id="{{ $packageDetailsText }}"
                                         data-cart-items='@json($cartItems)'
@@ -3312,6 +3305,83 @@ body.modal-open .admin-mobile-menu-toggle {
                 }
             })();
 
+            window.buildAdminNotesCardHtml = function(txnId, noteText, noteBy, noteAt) {
+                var safeEsc = window.txnEsc || function(v) { return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); };
+                var authorInfo = '';
+                if (noteBy || noteAt) {
+                    authorInfo = 'Updated' + (noteBy ? ' by <strong style="color:#a78bfa;">' + safeEsc(noteBy) + '</strong>' : '') + (noteAt ? ' on ' + safeEsc(noteAt) : '');
+                }
+
+                var cardHtml = '';
+                cardHtml += '<div class="txn-detail-card admin-notes-card mb-3" style="background:rgba(30,41,59,0.7);border:1px solid rgba(124,58,237,0.35);border-radius:12px;padding:16px;">';
+                cardHtml += '<div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-1">';
+                cardHtml += '<div class="txn-detail-title mb-0" style="color:#a78bfa;font-size:0.9rem;font-weight:700;"><i class="fas fa-sticky-note me-2"></i>Admin Notes</div>';
+                cardHtml += '<div class="admin-note-author-info text-white-50" style="font-size:0.75rem;">' + (authorInfo ? authorInfo : 'No note saved yet') + '</div>';
+                cardHtml += '</div>';
+                cardHtml += '<form class="admin-note-form" data-txn-id="' + safeEsc(txnId) + '">';
+                cardHtml += '<div class="mb-2">';
+                cardHtml += '<textarea class="form-control admin-note-textarea" rows="3" placeholder="Enter administrative notes for this transaction…" style="background:rgba(15,23,42,0.9);border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:0.85rem;border-radius:8px;">' + safeEsc(noteText) + '</textarea>';
+                cardHtml += '</div>';
+                cardHtml += '<div class="d-flex align-items-center justify-content-between">';
+                cardHtml += '<span class="admin-note-msg text-success small fw-semibold" style="display:none;"><i class="fas fa-check-circle me-1"></i>Saved!</span>';
+                cardHtml += '<button type="submit" class="btn btn-sm btn-primary save-admin-note-btn ms-auto" style="background:#7c3aed;border-color:#7c3aed;font-weight:600;padding:6px 16px;border-radius:6px;">';
+                cardHtml += '<i class="fas fa-save me-1"></i>Save Note';
+                cardHtml += '</button>';
+                cardHtml += '</div>';
+                cardHtml += '</form>';
+                cardHtml += '</div>';
+                return cardHtml;
+            };
+
+            $(document).on('submit', '.admin-note-form', function(e) {
+                e.preventDefault();
+                var $form = $(this);
+                var txnId = $form.data('txn-id');
+                var noteText = $form.find('.admin-note-textarea').val();
+                var $btn = $form.find('.save-admin-note-btn');
+                var $msg = $form.find('.admin-note-msg');
+                var originalBtnText = $btn.html();
+
+                $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Saving…');
+
+                $.ajax({
+                    url: '{{ url("/admins/transaction") }}/' + txnId + '/update-admin-note',
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        admin_notes: noteText
+                    },
+                    success: function(res) {
+                        $btn.prop('disabled', false).html(originalBtnText);
+                        if (res.success) {
+                            $msg.fadeIn(150).delay(2000).fadeOut(200);
+
+                            var $targetBtns = $('.view-btn[data-id="' + txnId + '"], .view-btn[data-transaction-id="' + txnId + '"]');
+                            $targetBtns.data('admin_notes', res.admin_notes || '');
+                            $targetBtns.data('admin_notes_by', res.admin_notes_by || '');
+                            $targetBtns.data('admin_notes_at', res.admin_notes_at || '');
+
+                            var safeEsc = window.txnEsc || function(v) { return String(v || ''); };
+                            var authorHtml = '';
+                            if (res.admin_notes_by || res.admin_notes_at) {
+                                authorHtml = 'Updated' + (res.admin_notes_by ? ' by <strong style="color:#a78bfa;">' + safeEsc(res.admin_notes_by) + '</strong>' : '') + (res.admin_notes_at ? ' on ' + safeEsc(res.admin_notes_at) : '');
+                            } else {
+                                authorHtml = 'No note saved yet';
+                            }
+
+                            $('.admin-note-form[data-txn-id="' + txnId + '"]').each(function() {
+                                $(this).find('.admin-note-textarea').val(res.admin_notes || '');
+                                $(this).closest('.admin-notes-card').find('.admin-note-author-info').html(authorHtml);
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        $btn.prop('disabled', false).html(originalBtnText);
+                        alert('Failed to save admin note. Please try again.');
+                    }
+                });
+            });
+
             $(document).on('click', '.view-btn', function() {
                 const transactionId = $(this).data('id');
                 var esc = window.txnEsc || function(value) {
@@ -3977,6 +4047,14 @@ body.modal-open .admin-mobile-menu-toggle {
                     html += '</div>';
                     html += '</div>';
                 }
+
+                var adminNotesCard = window.buildAdminNotesCardHtml(
+                    transactionId,
+                    $(this).data('admin_notes'),
+                    $(this).data('admin_notes_by'),
+                    $(this).data('admin_notes_at')
+                );
+                html = adminNotesCard + html;
 
                 $('#transactionDetailsContent').html(html);
 
@@ -4958,6 +5036,16 @@ body.modal-open .admin-mobile-menu-toggle {
                 }
 
                 html += '</div>';
+
+                var rowViewBtn = $(this).closest('tr').find('.view-btn').first();
+                var realTxnId = $(this).data('transaction-id') || $(this).data('id') || rowViewBtn.data('id');
+                var adminNotesCard = window.buildAdminNotesCardHtml(
+                    realTxnId,
+                    $(this).data('admin_notes') || rowViewBtn.data('admin_notes'),
+                    $(this).data('admin_notes_by') || rowViewBtn.data('admin_notes_by'),
+                    $(this).data('admin_notes_at') || rowViewBtn.data('admin_notes_at')
+                );
+                html = adminNotesCard + html;
 
                 $('#packageDetailsContent').html(html);
                 $('#packageDetailsModal').data('pdfPayload', {

@@ -4297,4 +4297,33 @@ class TransactionController extends Controller
         abort(403);
     }
 
+    public function updateAdminNote(Request $request, $id)
+    {
+        $transaction = Transaction::findOrFail($id);
+        $this->ensureCanAccess($transaction);
+
+        $validated = $request->validate([
+            'admin_notes' => 'nullable|string|max:5000',
+        ]);
+
+        $user = auth()->user();
+        $authorName = $user ? ($user->name ?: $user->email) : 'Admin';
+
+        $transaction->admin_notes = $validated['admin_notes'] ?? null;
+        $transaction->admin_notes_by = $authorName;
+        $transaction->admin_notes_at = now();
+        $transaction->save();
+
+        $formattedDate = $transaction->admin_notes_at ? $transaction->admin_notes_at->timezone('America/Los_Angeles')->format('M d, Y h:i A') . ' PDT' : '';
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Admin note saved successfully.',
+            'admin_notes' => $transaction->admin_notes,
+            'admin_notes_by' => $transaction->admin_notes_by,
+            'admin_notes_at' => $formattedDate,
+        ]);
+    }
+
 }
+
