@@ -178,7 +178,7 @@
     min-width: 230px !important;
     max-width: 320px !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
-    z-index: 1050 !important;
+    z-index: 1060 !important;
 }
 .polaris-popover-header {
     display: flex;
@@ -636,7 +636,7 @@ body.modal-open .admin-mobile-menu-toggle {
         display: block !important;
     }
 
-    /* Polaris Filter Bar Mobile Touch Scroll */
+    /* Polaris Filter Bar Mobile Touch Scroll & Dropdown Z-Index Fix */
     .polaris-filter-bar {
         display: flex !important;
         flex-wrap: nowrap !important;
@@ -645,17 +645,35 @@ body.modal-open .admin-mobile-menu-toggle {
         padding-bottom: 8px !important;
         gap: 8px !important;
         scrollbar-width: none !important;
+        position: relative !important;
+        z-index: 100 !important;
+    }
+    .polaris-filter-bar:has(.show),
+    .polaris-filter-bar.has-open-dropdown {
+        overflow-x: visible !important;
+        overflow-y: visible !important;
+        z-index: 1050 !important;
     }
     .polaris-filter-bar::-webkit-scrollbar {
         display: none !important;
     }
     .polaris-filter-bar .dropdown {
         flex: 0 0 auto !important;
+        position: relative !important;
+    }
+    .polaris-filter-bar .dropdown-menu,
+    .polaris-popover-menu {
+        z-index: 1060 !important;
+        max-width: calc(100vw - 32px) !important;
     }
     .polaris-filter-pill-btn {
         white-space: nowrap !important;
         font-size: 0.8rem !important;
         padding: 7px 12px !important;
+    }
+    .txn-table-card {
+        position: relative !important;
+        z-index: 1 !important;
     }
 
     .daterangepicker {
@@ -2544,6 +2562,14 @@ body.modal-open .admin-mobile-menu-toggle {
                 // Prevent click / touch events inside DateRangePicker from prematurely closing parent Bootstrap dropdowns
                 $(document).on('click mousedown touchstart touchend', '.daterangepicker, .daterangepicker *', function(e) {
                     e.stopPropagation();
+                });
+
+                // Toggle has-open-dropdown on polarisFilterContainer to un-clip dropdown menus on mobile
+                $(document).on('show.bs.dropdown', '#polarisFilterContainer', function () {
+                    $(this).addClass('has-open-dropdown');
+                });
+                $(document).on('hidden.bs.dropdown', '#polarisFilterContainer', function () {
+                    $(this).removeClass('has-open-dropdown');
                 });
 
                 // ── Export button wiring (custom, reliable across pages) ─────
