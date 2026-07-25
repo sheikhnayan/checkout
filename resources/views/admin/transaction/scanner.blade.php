@@ -41,6 +41,17 @@
             font-size: 84px !important;
         }
     }
+
+    #reader {
+        border: none !important;
+    }
+    #reader video {
+        width: 100% !important;
+        height: auto !important;
+        max-height: 380px !important;
+        object-fit: cover !important;
+        border-radius: 12px !important;
+    }
 </style>
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
@@ -300,13 +311,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             var qrConfig = {
-                fps: 15,
-                aspectRatio: 1.0,
-                qrbox: function(viewfinderWidth, viewfinderHeight) {
-                    var minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-                    var boxSize = Math.floor(minEdge * 0.85);
-                    return { width: boxSize, height: boxSize };
-                },
+                fps: 20,
                 experimentalFeatures: {
                     useBarCodeDetectorIfSupported: true
                 }
