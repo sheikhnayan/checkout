@@ -636,7 +636,7 @@ body.modal-open .admin-mobile-menu-toggle {
         display: block !important;
     }
 
-    /* Polaris Filter Bar Mobile Touch Scroll & Dropdown Z-Index Fix */
+    /* Polaris Filter Bar Mobile Touch Scroll & Fixed Viewport Dropdowns */
     .polaris-filter-bar {
         display: flex !important;
         flex-wrap: nowrap !important;
@@ -645,31 +645,24 @@ body.modal-open .admin-mobile-menu-toggle {
         padding-bottom: 8px !important;
         gap: 8px !important;
         scrollbar-width: none !important;
-        position: relative !important;
-        z-index: 100 !important;
-    }
-    .polaris-filter-bar:has(.show),
-    .polaris-filter-bar.has-open-dropdown {
-        overflow-x: visible !important;
-        overflow-y: visible !important;
-        z-index: 1050 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
     }
     .polaris-filter-bar::-webkit-scrollbar {
         display: none !important;
     }
     .polaris-filter-bar .dropdown {
         flex: 0 0 auto !important;
-        position: relative !important;
-    }
-    .polaris-filter-bar .dropdown-menu,
-    .polaris-popover-menu {
-        z-index: 1060 !important;
-        max-width: calc(100vw - 32px) !important;
     }
     .polaris-filter-pill-btn {
         white-space: nowrap !important;
         font-size: 0.8rem !important;
         padding: 7px 12px !important;
+    }
+    .polaris-filter-bar .dropdown-menu.polaris-popover-menu {
+        z-index: 1080 !important;
+        max-width: calc(100vw - 32px) !important;
     }
     .txn-table-card {
         position: relative !important;
@@ -2564,12 +2557,26 @@ body.modal-open .admin-mobile-menu-toggle {
                     e.stopPropagation();
                 });
 
-                // Toggle has-open-dropdown on polarisFilterContainer to un-clip dropdown menus on mobile
-                $(document).on('show.bs.dropdown', '#polarisFilterContainer', function () {
-                    $(this).addClass('has-open-dropdown');
-                });
-                $(document).on('hidden.bs.dropdown', '#polarisFilterContainer', function () {
-                    $(this).removeClass('has-open-dropdown');
+                // Fixed viewport positioning for polaris filter dropdowns on mobile screens (< 768px)
+                $(document).on('show.bs.dropdown', '#polarisFilterContainer .dropdown', function () {
+                    var $btn = $(this).find('.dropdown-toggle');
+                    var $menu = $(this).find('.dropdown-menu');
+                    if (window.innerWidth < 768 && $btn.length && $menu.length) {
+                        setTimeout(function() {
+                            var rect = $btn[0].getBoundingClientRect();
+                            var menuWidth = Math.min(280, window.innerWidth - 32);
+                            var left = Math.max(16, Math.min(rect.left, window.innerWidth - menuWidth - 16));
+                            var top = rect.bottom + 6;
+
+                            $menu.css({
+                                'position': 'fixed',
+                                'top': top + 'px',
+                                'left': left + 'px',
+                                'transform': 'none',
+                                'z-index': '1080'
+                            });
+                        }, 10);
+                    }
                 });
 
                 // ── Export button wiring (custom, reliable across pages) ─────
