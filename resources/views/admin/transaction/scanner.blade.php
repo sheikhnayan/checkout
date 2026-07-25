@@ -243,7 +243,7 @@
     </div>
 </div>
 
-<script src="https://unpkg.com/html5-qrcode" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const startScannerBtn = document.getElementById('startScannerBtn');
@@ -259,6 +259,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let html5QrCode = null;
     let scannerStarted = false;
+    let isProcessingScan = false;
 
     function escapeHtml(value) {
         return String(value ?? '')
@@ -280,6 +281,8 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
+        isProcessingScan = false;
+
         if (typeof Html5Qrcode === 'undefined') {
             setStatus('Scanner library failed to load. Refresh and try again.', true);
             return;
@@ -296,9 +299,25 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (e) {}
 
         try {
+            var qrConfig = {
+                fps: 15,
+                aspectRatio: 1.0,
+                qrbox: function(viewfinderWidth, viewfinderHeight) {
+                    var minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+                    var boxSize = Math.floor(minEdge * 0.85);
+                    return { width: boxSize, height: boxSize };
+                },
+                experimentalFeatures: {
+                    useBarCodeDetectorIfSupported: true
+                }
+            };
+            if (typeof Html5QrcodeSupportedFormats !== 'undefined') {
+                qrConfig.formatsToSupport = [ Html5QrcodeSupportedFormats.QR_CODE ];
+            }
+
             await html5QrCode.start(
                 { facingMode: 'environment' },
-                { fps: 10, qrbox: { width: 250, height: 250 } },
+                qrConfig,
                 onScanSuccess,
                 function () {}
             );
@@ -425,6 +444,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function resetResult() {
+        isProcessingScan = false;
         // STOP camera FIRST before clearing anything
         stopPhotoCamera();
 
@@ -491,6 +511,7 @@ document.addEventListener('DOMContentLoaded', function () {
     async function verifyCode(rawCode) {
         const code = (rawCode || '').trim();
         if (!code) {
+            isProcessingScan = false;
             setStatus('Ticket code is required.', true);
             return;
         }
@@ -503,6 +524,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const data = await response.json();
 
             if (!response.ok || !data.success) {
+                isProcessingScan = false;
                 setStatus(data.message || 'Ticket validation failed.', true);
                 ticketResult.classList.add('d-none');
                 return;
@@ -512,17 +534,22 @@ document.addEventListener('DOMContentLoaded', function () {
             setStatus('Ticket verified. Confirm check-in or cancel.', false);
             await stopScanner();
         } catch (error) {
+            isProcessingScan = false;
             setStatus('Unable to verify ticket right now.', true);
             ticketResult.classList.add('d-none');
         }
     }
 
     function onScanSuccess(decodedText) {
+        if (isProcessingScan) {
+            return;
+        }
+        isProcessingScan = true;
         setStatus('✓ SUCCESS - QR code is scanned', false);
         setTimeout(function() {
             stopScanner();
             verifyCode(decodedText);
-        }, 1500);
+        }, 300);
     }
 
     startScannerBtn.addEventListener('click', startScanner);
