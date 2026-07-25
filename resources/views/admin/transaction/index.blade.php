@@ -516,6 +516,79 @@ body.modal-open .admin-mobile-menu-toggle {
 #viewTransactionModal .txn-status-canceled { background: rgba(239,68,68,0.2); color: #f87171; }
 #viewTransactionModal .txn-status-refunded { background: rgba(245,158,11,0.2); color: #fbbf24; }
 #viewTransactionModal .txn-status-unknown { background: rgba(107,114,128,0.2); color: #cbd5e1; }
+
+/* ─── Modern Mobile-Friendly DateRangePicker Styles ──────────────────── */
+.daterangepicker {
+    background: #1e293b !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5) !important;
+    color: #fff !important;
+    border-radius: 12px !important;
+    font-family: inherit !important;
+}
+.daterangepicker .calendar-table {
+    background: transparent !important;
+    border: none !important;
+}
+.daterangepicker .calendar-table th, 
+.daterangepicker .calendar-table td {
+    color: #e2e8f0 !important;
+    border-radius: 6px !important;
+}
+.daterangepicker td.off, .daterangepicker td.off.in-range, .daterangepicker td.off.start-date, .daterangepicker td.off.end-date {
+    background-color: transparent !important;
+    color: rgba(255,255,255,0.2) !important;
+}
+.daterangepicker td.active, .daterangepicker td.active:hover {
+    background-color: #7c3aed !important;
+    color: #fff !important;
+}
+.daterangepicker td.in-range {
+    background-color: rgba(124,58,237,0.2) !important;
+    color: #fff !important;
+}
+.daterangepicker .ranges li {
+    background: rgba(255,255,255,0.06) !important;
+    color: #e2e8f0 !important;
+    border-radius: 6px !important;
+    margin-bottom: 4px !important;
+    font-size: 0.8rem !important;
+}
+.daterangepicker .ranges li.active, .daterangepicker .ranges li:hover {
+    background: #7c3aed !important;
+    color: #fff !important;
+}
+.daterangepicker .drp-buttons {
+    border-top: 1px solid rgba(255,255,255,0.1) !important;
+}
+.daterangepicker .drp-buttons .btn {
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+}
+
+@media (max-width: 768px) {
+    .daterangepicker {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 92vw !important;
+        max-width: 350px !important;
+        z-index: 999999 !important;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.85), 0 0 0 100vw rgba(0,0,0,0.65) !important;
+        padding: 12px !important;
+    }
+    .daterangepicker .drp-calendar.left {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        float: none !important;
+    }
+    .daterangepicker .drp-calendar.right {
+        display: none !important;
+    }
+}
 </style>
     <!-- Content wrapper -->
     <div class="content-wrapper">
@@ -2512,9 +2585,10 @@ body.modal-open .admin-mobile-menu-toggle {
                 const dateRangeOptions = {
                     autoUpdateInput: false,
                     linkedCalendars: false,
+                    alwaysShowCalendars: true,
                     opens: 'left',
                     showDropdowns: true,
-                    locale: { cancelLabel: 'Clear', format: 'MM/DD/YYYY' },
+                    locale: { cancelLabel: 'Clear', applyLabel: 'Apply', format: 'MM/DD/YYYY' },
                     ranges: {
                         'Today': [pstNow.clone(), pstNow.clone()],
                         'Yesterday': [pstNow.clone().subtract(1, 'days'), pstNow.clone().subtract(1, 'days')],
@@ -2546,11 +2620,17 @@ body.modal-open .admin-mobile-menu-toggle {
                     reloadWithServerFilters();
                 });
 
-                $txnDateRange.off('click.txnDateRange').on('click.txnDateRange', function() {
+                $txnDateRange.off('click.txnDateRange').on('click.txnDateRange', function(e) {
+                    e.stopPropagation();
                     const picker = $(this).data('daterangepicker');
                     if (picker) {
                         picker.show();
                     }
+                });
+
+                // Prevent click / touch events inside DateRangePicker from prematurely closing parent Bootstrap dropdowns
+                $(document).on('click mousedown touchstart touchend', '.daterangepicker, .daterangepicker *', function(e) {
+                    e.stopPropagation();
                 });
 
                 // ── Export button wiring (custom, reliable across pages) ─────
