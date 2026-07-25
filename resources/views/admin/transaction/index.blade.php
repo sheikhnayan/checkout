@@ -568,6 +568,81 @@ body.modal-open .admin-mobile-menu-toggle {
 }
 
 @media (max-width: 768px) {
+    .txn-table-card .d-flex.justify-content-between {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .txn-table-actions-group {
+        width: 100% !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .txn-search-wrap {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .txn-search-input {
+        width: 100% !important;
+    }
+
+    .txn-action-buttons-wrap {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+
+    .txn-action-buttons-wrap .btn,
+    .txn-action-buttons-wrap .dropdown,
+    .txn-action-buttons-wrap .txn-export-btn {
+        width: 100% !important;
+        margin: 0 !important;
+        text-align: center !important;
+        justify-content: center !important;
+        display: flex !important;
+        align-items: center !important;
+        font-size: 0.78rem !important;
+        padding: 8px 10px !important;
+        white-space: nowrap !important;
+    }
+
+    .txn-action-buttons-wrap .dropdown-toggle::after {
+        margin-left: 4px !important;
+    }
+
+    #selectionCount {
+        grid-column: 1 / -1 !important;
+        text-align: center !important;
+        font-size: 0.78rem !important;
+        padding: 4px 0 !important;
+        display: block !important;
+    }
+
+    /* Polaris Filter Bar Mobile Touch Scroll */
+    .polaris-filter-bar {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding-bottom: 8px !important;
+        gap: 8px !important;
+        scrollbar-width: none !important;
+    }
+    .polaris-filter-bar::-webkit-scrollbar {
+        display: none !important;
+    }
+    .polaris-filter-bar .dropdown {
+        flex: 0 0 auto !important;
+    }
+    .polaris-filter-pill-btn {
+        white-space: nowrap !important;
+        font-size: 0.8rem !important;
+        padding: 7px 12px !important;
+    }
+
     .daterangepicker {
         position: fixed !important;
         top: 50% !important;
@@ -873,46 +948,48 @@ body.modal-open .admin-mobile-menu-toggle {
         <div class="txn-table-card mb-5">
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
                 <div class="fw-semibold text-white" style="font-size:0.85rem;letter-spacing:0.05em">RECENT TRANSACTIONS</div>
-                <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
+                <div class="txn-table-actions-group d-flex align-items-center gap-2 flex-wrap justify-content-end">
                     <div class="txn-search-wrap">
                         <i class="fas fa-search txn-search-icon"></i>
-                                <input type="text" id="txnSearch" class="txn-search-input" placeholder="Search by name, email, order ID…">
+                        <input type="text" id="txnSearch" class="txn-search-input" placeholder="Search by name, email, order ID…">
                     </div>
-                    <div class="dropdown">
-                        <button class="txn-export-btn btn dropdown-toggle" data-bs-toggle="dropdown" type="button">
-                            <i class="fas fa-download me-2"></i>Export Table
+                    <div class="txn-action-buttons-wrap d-flex align-items-center gap-2 flex-wrap">
+                        <div class="dropdown">
+                            <button class="txn-export-btn btn dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                <i class="fas fa-download me-2"></i>Export Table
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" style="background:#1e293b;border:1px solid rgba(255,255,255,0.1)">
+                                <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expCsv"   href="#"><i class="fas fa-file-csv me-2"></i>Export CSV</a></li>
+                                <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expExcel" href="#"><i class="fas fa-file-excel me-2"></i>Export Excel</a></li>
+                                <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expPdf"   href="#"><i class="fas fa-file-pdf me-2"></i>Export PDF</a></li>
+                                <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expPrint" href="#"><i class="fas fa-print me-2"></i>Print</a></li>
+                            </ul>
+                        </div>
+                        @if($canArchiveTransactions)
+                        <button type="button" id="selectAllPagesBtn" class="txn-export-btn btn">
+                            <i class="fas fa-check-square me-2"></i>Select All Pages
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end" style="background:#1e293b;border:1px solid rgba(255,255,255,0.1)">
-                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expCsv"   href="#"><i class="fas fa-file-csv me-2"></i>Export CSV</a></li>
-                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expExcel" href="#"><i class="fas fa-file-excel me-2"></i>Export Excel</a></li>
-                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expPdf"   href="#"><i class="fas fa-file-pdf me-2"></i>Export PDF</a></li>
-                            <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.85rem" id="expPrint" href="#"><i class="fas fa-print me-2"></i>Print</a></li>
-                        </ul>
+                        <button type="button" id="clearSelectionBtn" class="txn-export-btn btn">
+                            <i class="fas fa-square me-2"></i>Clear Selection
+                        </button>
+                        @if($isArchivedView)
+                        <button type="button" id="bulkUnarchiveBtn" class="txn-export-btn btn" style="border-color:rgba(16,185,129,0.35);color:#34d399;">
+                            <i class="fas fa-box-open me-2"></i>Unarchive Selected
+                        </button>
+                        <a href="{{ route('admin.transaction.index') }}" class="txn-export-btn btn" style="text-decoration:none;">
+                            <i class="fas fa-list me-2"></i>Back To Active
+                        </a>
+                        @else
+                        <button type="button" id="bulkArchiveBtn" class="txn-export-btn btn" style="border-color:rgba(245,158,11,0.35);color:#fbbf24;">
+                            <i class="fas fa-archive me-2"></i>Archive Selected
+                        </button>
+                        <a href="{{ route('admin.transaction.index', array_merge(request()->except('page'), ['archived' => 1])) }}" class="txn-export-btn btn" style="text-decoration:none;">
+                            <i class="fas fa-box-open me-2"></i>View Archived
+                        </a>
+                        @endif
+                        <span id="selectionCount" style="font-size:0.8rem;color:rgba(255,255,255,0.65);">0 selected</span>
+                        @endif
                     </div>
-                    @if($canArchiveTransactions)
-                    <button type="button" id="selectAllPagesBtn" class="txn-export-btn btn">
-                        <i class="fas fa-check-square me-2"></i>Select All Pages
-                    </button>
-                    <button type="button" id="clearSelectionBtn" class="txn-export-btn btn">
-                        <i class="fas fa-square me-2"></i>Clear Selection
-                    </button>
-                    @if($isArchivedView)
-                    <button type="button" id="bulkUnarchiveBtn" class="txn-export-btn btn" style="border-color:rgba(16,185,129,0.35);color:#34d399;">
-                        <i class="fas fa-box-open me-2"></i>Unarchive Selected
-                    </button>
-                    <a href="{{ route('admin.transaction.index') }}" class="txn-export-btn btn" style="text-decoration:none;">
-                        <i class="fas fa-list me-2"></i>Back To Active
-                    </a>
-                    @else
-                    <button type="button" id="bulkArchiveBtn" class="txn-export-btn btn" style="border-color:rgba(245,158,11,0.35);color:#fbbf24;">
-                        <i class="fas fa-archive me-2"></i>Archive Selected
-                    </button>
-                    <a href="{{ route('admin.transaction.index', array_merge(request()->except('page'), ['archived' => 1])) }}" class="txn-export-btn btn" style="text-decoration:none;">
-                        <i class="fas fa-box-open me-2"></i>View Archived
-                    </a>
-                    @endif
-                    <span id="selectionCount" style="font-size:0.8rem;color:rgba(255,255,255,0.65);">0 selected</span>
-                    @endif
                 </div>
             </div>
 
