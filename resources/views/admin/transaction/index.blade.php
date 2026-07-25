@@ -595,10 +595,19 @@ body.modal-open .admin-mobile-menu-toggle {
         width: 100% !important;
     }
 
-    .txn-action-buttons-wrap .btn,
-    .txn-action-buttons-wrap .dropdown,
-    .txn-action-buttons-wrap .txn-export-btn {
+    .txn-action-buttons-wrap .dropdown {
         width: 100% !important;
+        display: block !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .txn-action-buttons-wrap .btn,
+    .txn-action-buttons-wrap .txn-export-btn,
+    .txn-action-buttons-wrap .dropdown-toggle {
+        width: 100% !important;
+        height: 38px !important;
+        line-height: 20px !important;
         margin: 0 !important;
         text-align: center !important;
         justify-content: center !important;
@@ -607,9 +616,15 @@ body.modal-open .admin-mobile-menu-toggle {
         font-size: 0.78rem !important;
         padding: 8px 10px !important;
         white-space: nowrap !important;
+        box-sizing: border-box !important;
+        border-radius: 10px !important;
+        background: rgba(255,255,255,0.07) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        color: #fff !important;
     }
 
     .txn-action-buttons-wrap .dropdown-toggle::after {
+        display: inline-block !important;
         margin-left: 4px !important;
     }
 
@@ -702,7 +717,10 @@ body.modal-open .admin-mobile-menu-toggle {
             $prevWeekData = $reportableData->filter(fn($t) => $t->created_at->timezone($tz)->between($prevWeekStart, $prevWeekEnd));
 
             $totalTxns         = $reportableData->count();
-            $completedTxns     = $reportableData->count();
+            $redeemedTxns      = $reportableData->filter(function ($t) {
+                $status = (string) ($t->checked_in_status ?? $t->checked_in ?? '0');
+                return $status === '1' || strtolower($status) === 'true' || strtolower($status) === 'checked_in';
+            })->count();
             $totalRevenue      = (float) $reportableData->sum('total');
             $totalGuests       = (int) $reportableData->sum($guestCountForTransaction);
             $pendingCommission = $reportableData->filter(fn($t) =>
@@ -837,13 +855,11 @@ body.modal-open .admin-mobile-menu-toggle {
             </div>
             <div class="col">
                 <div class="txn-stat-card">
-                    <div class="txn-stat-icon" style="background:rgba(16,185,129,0.15);color:#10b981"><i class="fas fa-check-circle"></i></div>
+                    <div class="txn-stat-icon" style="background:rgba(16,185,129,0.15);color:#10b981"><i class="fas fa-calendar-check"></i></div>
                     <div>
-                        <div class="txn-stat-label">Completed Transactions</div>
-                        <div class="txn-stat-value">{{ number_format($completedTxns) }}</div>
-                        <div class="txn-stat-trend {{ $completedTrend >= 0 ? 'trend-up' : 'trend-down' }}" style="display:none !important;">
-                            <i class="fas fa-arrow-{{ $completedTrend >= 0 ? 'up' : 'down' }} me-1"></i>{{ abs($completedTrend) }}% <span>vs last week</span>
-                        </div>
+                        <div class="txn-stat-label">Redeemed Transactions</div>
+                        <div class="txn-stat-value">{{ number_format($redeemedTxns) }}</div>
+                        <div class="txn-stat-note">Checked in at venue</div>
                     </div>
                 </div>
             </div>
@@ -916,7 +932,7 @@ body.modal-open .admin-mobile-menu-toggle {
 
         {{-- ── CHARTS ───────────────────────────────────────────────── --}}
         <div class="row g-4 mb-4">
-            <div class="col-lg-8">
+            <div class="col-12">
                 <div class="txn-chart-card" id="performanceChartCard">
                     <div class="txn-chart-header">
                         <div class="fw-semibold text-white" style="font-size:0.85rem;letter-spacing:0.05em">PERFORMANCE OVER TIME</div>
@@ -931,15 +947,6 @@ body.modal-open .admin-mobile-menu-toggle {
                         <div class="txn-chart-legend" style="display:none !important;"><span style="background:#f59e0b"></span>Fee</div>
                     </div>
                     <canvas id="txnLineChart" style="max-height:220px"></canvas>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="txn-chart-card" id="topPackagesChartCard" style="height:100%">
-                    <div class="txn-chart-header">
-                        <div class="fw-semibold text-white" style="font-size:0.85rem;letter-spacing:0.05em">TOP PERFORMING PACKAGES</div>
-                    </div>
-                    <canvas id="txnDonutChart" style="max-height:170px" class="mx-auto d-block mb-3"></canvas>
-                    <div id="txnPkgLegend"></div>
                 </div>
             </div>
         </div>
@@ -2068,64 +2075,12 @@ body.modal-open .admin-mobile-menu-toggle {
                 }
             });
 
-            // ── Donut chart ──────────────────────────────────────────────────
-            const donutColors = ['#7c3aed','#f59e0b','#10b981','#ef4444','#6b7280'];
-            const donutCtx = document.getElementById('txnDonutChart').getContext('2d');
-            window.donutChartInstance = new Chart(donutCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: donutLabels,
-                    datasets: [{
-                        data: donutData,
-                        backgroundColor: donutColors,
-                        borderWidth: 0,
-                        hoverOffset: 4
-                    }]
-                },
-                options: {
-                    cutout: '68%',
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: '#1e293b',
-                            titleColor: '#fff',
-                            titleFont: { size: 13, weight: 'bold' },
-                            bodyColor: 'rgba(255,255,255,0.85)',
-                            bodyFont: { size: 12 },
-                            borderColor: 'rgba(255,255,255,0.15)',
-                            borderWidth: 1,
-                            padding: 12,
-                            displayColors: false,
-                            callbacks: {
-                                title: function(tooltipItems) {
-                                    if (!tooltipItems || !tooltipItems.length) return '';
-                                    const raw = tooltipItems[0].label || '';
-                                    if (raw.includes(' - ')) {
-                                        const parts = raw.split(' - ');
-                                        const venue = parts[0].trim();
-                                        const pkg = parts.slice(1).join(' - ').trim();
-                                        return pkg + '\n(' + venue + ')';
-                                    }
-                                    return raw;
-                                },
-                                label: function(ctx) {
-                                    const val = Number(ctx.parsed || 0);
-                                    return 'Revenue: $' + val.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-                                }
-                            }
-                        }
-                    },
-                    _centerTotal: donutTotal
-                }
-            });
-
             // ── Dynamic Chart Updater for Filtered Views ─────────────────────
             window.updateChartsFromFilteredRows = function() {
                 const activeTable = window.table || (typeof table !== 'undefined' ? table : null);
                 if (!activeTable) return;
 
                 const filteredRows = activeTable.rows({ search: 'applied' }).nodes();
-                const pkgRevenueMap = {};
                 const dateRevenueMap = {};
 
                 $(filteredRows).each(function() {
@@ -2156,19 +2111,6 @@ body.modal-open .admin-mobile-menu-toggle {
                     if (saleMom && saleMom.isValid()) {
                         const dayKey = saleMom.format('MMM DD');
                         dateRevenueMap[dayKey] = (dateRevenueMap[dayKey] || 0) + rowRevenue;
-                    }
-
-                    // Package grouping with Club / Venue Name
-                    const venueName = String($viewBtn.data('website_id') || $row.find('td:nth-child(5) div').first().text() || '').trim();
-                    const rawPkgName = String($viewBtn.data('package-label') || 'Package').trim();
-
-                    let pkgLabel = rawPkgName;
-                    if (venueName && venueName !== 'N/A' && !rawPkgName.startsWith(venueName)) {
-                        pkgLabel = venueName + ' - ' + rawPkgName;
-                    }
-
-                    if (pkgLabel && pkgLabel !== 'N/A') {
-                        pkgRevenueMap[pkgLabel] = (pkgRevenueMap[pkgLabel] || 0) + rowRevenue;
                     }
                 });
 
@@ -2215,106 +2157,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     window.lineChartInstance.data.datasets[0].data = revenues;
                     window.lineChartInstance.update();
                 }
-
-                // 2. Update Donut Chart & Legend (Top Performing Packages)
-                if (window.donutChartInstance) {
-                    const sortedPkgs = Object.keys(pkgRevenueMap)
-                        .map(name => ({ name: name, revenue: pkgRevenueMap[name] }))
-                        .sort((a, b) => b.revenue - a.revenue);
-
-                    const top4 = sortedPkgs.slice(0, 4);
-                    const otherRev = sortedPkgs.slice(4).reduce((sum, p) => sum + p.revenue, 0);
-
-                    const finalLabels = top4.map(p => p.name);
-                    const finalData = top4.map(p => p.revenue);
-                    if (otherRev > 0) {
-                        finalLabels.push('Other');
-                        finalData.push(otherRev);
-                    }
-
-                    const grandTotal = finalData.reduce((sum, v) => sum + v, 0);
-                    const donutColors = ['#7c3aed','#f59e0b','#10b981','#ef4444','#6b7280'];
-
-                    window.donutChartInstance.data.labels = finalLabels.length ? finalLabels : ['No Data'];
-                    window.donutChartInstance.data.datasets[0].data = finalData.length ? finalData : [0];
-                    window.donutChartInstance.options._centerTotal = '$' + grandTotal.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-                    window.donutChartInstance.update();
-
-                    // Legend List Update
-                    const legendContainer = $('#txnPkgLegend');
-                    legendContainer.empty();
-
-                    if (finalLabels.length && grandTotal > 0) {
-                        finalLabels.forEach((name, i) => {
-                            const pct = ((finalData[i] / grandTotal) * 100).toFixed(1);
-                            const amt = '$' + Number(finalData[i]).toLocaleString(undefined, { minimumFractionDigits: 2 });
-
-                            let venuePart = '';
-                            let pkgPart = name;
-                            if (name && name.includes(' - ')) {
-                                const parts = name.split(' - ');
-                                venuePart = parts[0].trim();
-                                pkgPart = parts.slice(1).join(' - ').trim();
-                            }
-
-                            const itemHtml = `
-                                <div class="txn-pkg-legend-item py-1">
-                                    <div class="d-flex align-items-center gap-2 flex-grow-1 overflow-hidden me-2">
-                                        <span class="txn-pkg-dot flex-shrink-0" style="background:${donutColors[i % donutColors.length]}"></span>
-                                        <div class="txn-pkg-text-wrap text-truncate" title="${name}">
-                                            ${venuePart ? `<div class="txn-pkg-venue-name text-truncate" style="font-size:0.65rem;color:rgba(255,255,255,0.45);text-transform:uppercase;font-weight:600;letter-spacing:0.04em;line-height:1.1;">${venuePart}</div>` : ''}
-                                            <div class="txn-pkg-title text-truncate" style="font-size:0.8rem;font-weight:600;color:#fff;line-height:1.2;">${pkgPart}</div>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center gap-3 ms-2 flex-shrink-0">
-                                        <span class="txn-pkg-pct" style="font-size:0.75rem;color:rgba(255,255,255,0.5);">${pct}%</span>
-                                        <span class="txn-pkg-amt" style="font-size:0.8rem;font-weight:600;color:#fff;">${amt}</span>
-                                    </div>
-                                </div>`;
-                            legendContainer.append(itemHtml);
-                        });
-                    } else {
-                        legendContainer.append('<div class="text-white-50 small py-2 text-center">No package revenue for filtered view.</div>');
-                    }
-                }
             };
-
-            // ── Package legend initial render ─────────────────────────────────
-            (function() {
-                const container = document.getElementById('txnPkgLegend');
-                const total = {{ $topPackagesTotal ?: 1 }};
-                const names = @json($topPackages->pluck('name'));
-                const revenues = @json($topPackages->pluck('revenue'));
-                container.innerHTML = '';
-                names.forEach((name, i) => {
-                    const pct = total > 0 ? ((revenues[i] / total) * 100).toFixed(1) : '0.0';
-                    const amt = '$' + Number(revenues[i]).toLocaleString(undefined, {minimumFractionDigits: 2});
-
-                    let venuePart = '';
-                    let pkgPart = name;
-                    if (name && name.includes(' - ')) {
-                        const parts = name.split(' - ');
-                        venuePart = parts[0].trim();
-                        pkgPart = parts.slice(1).join(' - ').trim();
-                    }
-
-                    const div = document.createElement('div');
-                    div.className = 'txn-pkg-legend-item py-1';
-                    div.innerHTML = `
-                        <div class="d-flex align-items-center gap-2 flex-grow-1 overflow-hidden me-2">
-                            <span class="txn-pkg-dot flex-shrink-0" style="background:${donutColors[i % donutColors.length]}"></span>
-                            <div class="txn-pkg-text-wrap text-truncate" title="${name}">
-                                ${venuePart ? `<div class="txn-pkg-venue-name text-truncate" style="font-size:0.65rem;color:rgba(255,255,255,0.45);text-transform:uppercase;font-weight:600;letter-spacing:0.04em;line-height:1.1;">${venuePart}</div>` : ''}
-                                <div class="txn-pkg-title text-truncate" style="font-size:0.8rem;font-weight:600;color:#fff;line-height:1.2;">${pkgPart}</div>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-center gap-3 ms-2 flex-shrink-0">
-                            <span class="txn-pkg-pct" style="font-size:0.75rem;color:rgba(255,255,255,0.5);">${pct}%</span>
-                            <span class="txn-pkg-amt" style="font-size:0.8rem;font-weight:600;color:#fff;">${amt}</span>
-                        </div>`;
-                    container.appendChild(div);
-                });
-            })();
             </script>
 
             <script>
