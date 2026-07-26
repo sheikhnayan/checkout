@@ -41,17 +41,6 @@
             font-size: 84px !important;
         }
     }
-
-    #reader {
-        border: none !important;
-    }
-    #reader video {
-        width: 100% !important;
-        height: auto !important;
-        max-height: 380px !important;
-        object-fit: cover !important;
-        border-radius: 12px !important;
-    }
 </style>
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
@@ -101,18 +90,10 @@
                         <!-- QR Scanner & Manual Input Section (Hidden when transaction found) -->
                         <div class="row g-3" id="scannerSection">
                             <div class="col-12 col-lg-6">
-                                <div class="border rounded-3 p-0 bg-dark-subtle overflow-hidden" style="min-height:280px;position:relative;" id="qrScannerContainer">
+                                <div class="border rounded-3 p-2 bg-dark-subtle" style="min-height:280px;">
                                     <div id="reader" style="width:100%;"></div>
-                                    <div id="qrVisualGrid" style="position:absolute;inset:0;pointer-events:none;z-index:10;display:flex;align-items:center;justify-content:center;">
-                                        <div style="width:75%;max-width:260px;aspect-ratio:1;border:2px dashed rgba(34,197,94,0.85);border-radius:16px;box-shadow:0 0 0 9999px rgba(15,23,42,0.3);position:relative;">
-                                            <div style="position:absolute;top:-2px;left:-2px;width:22px;height:22px;border-top:4px solid #22c55e;border-left:4px solid #22c55e;border-top-left-radius:12px;"></div>
-                                            <div style="position:absolute;top:-2px;right:-2px;width:22px;height:22px;border-top:4px solid #22c55e;border-right:4px solid #22c55e;border-top-right-radius:12px;"></div>
-                                            <div style="position:absolute;bottom:-2px;left:-2px;width:22px;height:22px;border-bottom:4px solid #22c55e;border-left:4px solid #22c55e;border-bottom-left-radius:12px;"></div>
-                                            <div style="position:absolute;bottom:-2px;right:-2px;width:22px;height:22px;border-bottom:4px solid #22c55e;border-right:4px solid #22c55e;border-bottom-right-radius:12px;"></div>
-                                        </div>
-                                    </div>
                                 </div>
-                                <small class="text-muted d-block mt-2">Tip: Hold the QR ticket anywhere in front of the camera.</small>
+                                <small class="text-muted d-block mt-2">Tip: hold the QR in frame for 1-2 seconds.</small>
                             </div>
 
                             <div class="col-12 col-lg-6">
@@ -262,7 +243,7 @@
     </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const startScannerBtn = document.getElementById('startScannerBtn');
@@ -278,7 +259,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let html5QrCode = null;
     let scannerStarted = false;
-    let isProcessingScan = false;
 
     function escapeHtml(value) {
         return String(value ?? '')
@@ -300,8 +280,6 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        isProcessingScan = false;
-
         if (typeof Html5Qrcode === 'undefined') {
             setStatus('Scanner library failed to load. Refresh and try again.', true);
             return;
@@ -318,19 +296,9 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (e) {}
 
         try {
-            var qrConfig = {
-                fps: 20,
-                experimentalFeatures: {
-                    useBarCodeDetectorIfSupported: true
-                }
-            };
-            if (typeof Html5QrcodeSupportedFormats !== 'undefined') {
-                qrConfig.formatsToSupport = [ Html5QrcodeSupportedFormats.QR_CODE ];
-            }
-
             await html5QrCode.start(
                 { facingMode: 'environment' },
-                qrConfig,
+                { fps: 10, qrbox: { width: 250, height: 250 } },
                 onScanSuccess,
                 function () {}
             );
@@ -457,7 +425,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function resetResult() {
-        isProcessingScan = false;
         // STOP camera FIRST before clearing anything
         stopPhotoCamera();
 
@@ -524,7 +491,6 @@ document.addEventListener('DOMContentLoaded', function () {
     async function verifyCode(rawCode) {
         const code = (rawCode || '').trim();
         if (!code) {
-            isProcessingScan = false;
             setStatus('Ticket code is required.', true);
             return;
         }
@@ -537,7 +503,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const data = await response.json();
 
             if (!response.ok || !data.success) {
-                isProcessingScan = false;
                 setStatus(data.message || 'Ticket validation failed.', true);
                 ticketResult.classList.add('d-none');
                 return;
@@ -547,22 +512,17 @@ document.addEventListener('DOMContentLoaded', function () {
             setStatus('Ticket verified. Confirm check-in or cancel.', false);
             await stopScanner();
         } catch (error) {
-            isProcessingScan = false;
             setStatus('Unable to verify ticket right now.', true);
             ticketResult.classList.add('d-none');
         }
     }
 
     function onScanSuccess(decodedText) {
-        if (isProcessingScan) {
-            return;
-        }
-        isProcessingScan = true;
         setStatus('✓ SUCCESS - QR code is scanned', false);
         setTimeout(function() {
             stopScanner();
             verifyCode(decodedText);
-        }, 300);
+        }, 1500);
     }
 
     startScannerBtn.addEventListener('click', startScanner);
