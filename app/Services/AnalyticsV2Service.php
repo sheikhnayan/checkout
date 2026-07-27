@@ -79,6 +79,8 @@ class AnalyticsV2Service
 
     public function getExecutivePulse(): array
     {
+        $guestExpr = Schema::hasColumn('transactions', 'package_number_of_guest') ? 'COALESCE(package_number_of_guest, 1)' : '1';
+
         $currTx = $this->applyScope(Transaction::query()->financiallyReportable()->whereBetween('created_at', [$this->startDate, $this->endDate]));
         $prevTx = $this->applyScope(Transaction::query()->financiallyReportable()->whereBetween('created_at', [$this->prevStartDate, $this->prevEndDate]));
 
@@ -91,8 +93,8 @@ class AnalyticsV2Service
         $currAov = $currOrders > 0 ? $currSales / $currOrders : 0;
         $prevAov = $prevOrders > 0 ? $prevSales / $prevOrders : 0;
 
-        $currGuests = (int) $currTx->sum(DB::raw('COALESCE(package_number_of_guest, 1)'));
-        $prevGuests = (int) $prevTx->sum(DB::raw('COALESCE(package_number_of_guest, 1)'));
+        $currGuests = (int) $currTx->sum(DB::raw($guestExpr));
+        $prevGuests = (int) $prevTx->sum(DB::raw($guestExpr));
 
         $currSessions = $this->getSessionsCount($this->startDate, $this->endDate);
         $prevSessions = $this->getSessionsCount($this->prevStartDate, $this->prevEndDate);
@@ -107,7 +109,7 @@ class AnalyticsV2Service
 
             $daySales = (float) $this->applyScope(Transaction::query()->financiallyReportable()->whereDate('created_at', $dateStr))->sum('total');
             $dayOrders = (int) $this->applyScope(Transaction::query()->financiallyReportable()->whereDate('created_at', $dateStr))->count();
-            $dayGuests = (int) $this->applyScope(Transaction::query()->financiallyReportable()->whereDate('created_at', $dateStr))->sum(DB::raw('COALESCE(package_number_of_guest, 1)'));
+            $dayGuests = (int) $this->applyScope(Transaction::query()->financiallyReportable()->whereDate('created_at', $dateStr))->sum(DB::raw($guestExpr));
 
             $timeline['labels'][] = $cursor->format('M j');
             $timeline['sales'][] = round($daySales, 2);
@@ -154,12 +156,15 @@ class AnalyticsV2Service
 
     public function getRevenueWaterfall(): array
     {
+        $affExpr = Schema::hasColumn('transactions', 'affiliate_commission_amount') ? 'COALESCE(affiliate_commission_amount, 0)' : '0';
+        $entExpr = Schema::hasColumn('transactions', 'entertainer_commission_amount') ? 'COALESCE(entertainer_commission_amount, 0)' : '0';
+
         $query = $this->applyScope(Transaction::query()->financiallyReportable()->whereBetween('created_at', [$this->startDate, $this->endDate]));
 
         $grossSales = (float) $query->sum('total');
         $refunds = 0.00;
-        $affiliateCommissions = (float) $query->sum(DB::raw('COALESCE(affiliate_commission_amount, 0)'));
-        $entertainerCommissions = (float) $query->sum(DB::raw('COALESCE(entertainer_commission_amount, 0)'));
+        $affiliateCommissions = (float) $query->sum(DB::raw($affExpr));
+        $entertainerCommissions = (float) $query->sum(DB::raw($entExpr));
         $netProfit = max(0, $grossSales - $refunds - $affiliateCommissions - $entertainerCommissions);
 
         $waterfallChart = [
@@ -197,13 +202,18 @@ class AnalyticsV2Service
 
     public function getGatewayMatrix(): array
     {
+        $hasGatewayCol = Schema::hasColumn('transactions', 'payment_gateway');
+        $gatewayExpr = $hasGatewayCol
+            ? "COALESCE(NULLIF(transactions.payment_gateway, ''), 'Stripe (Credit / Debit)')"
+            : "'Stripe (Credit / Debit)'";
+
         $txData = $this->applyScope(
             Transaction::query()
                 ->financiallyReportable()
                 ->whereBetween('transactions.created_at', [$this->startDate, $this->endDate])
                 ->leftJoin('websites', 'transactions.website_id', '=', 'websites.id')
                 ->select(
-                    DB::raw("COALESCE(NULLIF(transactions.payment_gateway, ''), 'Stripe (Credit / Debit)') as gateway"),
+                    DB::raw("{$gatewayExpr} as gateway"),
                     'websites.name as website_name',
                     DB::raw('COUNT(transactions.id) as orders'),
                     DB::raw('SUM(transactions.total) as revenue')
@@ -244,6 +254,8 @@ class AnalyticsV2Service
 
     public function getVenueHeatmap(): array
     {
+        $guestExpr = Schema::hasColumn('transactions', 'package_number_of_guest') ? 'COALESCE(package_number_of_guest, 1)' : '1';
+
         $venues = Website::query()
             ->where('is_archieved', 0)
             ->select('websites.id', 'websites.name')
@@ -262,7 +274,7 @@ class AnalyticsV2Service
 
             $sales = (float) $tx->sum('total');
             $orders = (int) $tx->count();
-            $guests = (int) $tx->sum(DB::raw('COALESCE(package_number_of_guest, 1)'));
+            $guests = (int) $tx->sum(DB::raw($guestExpr));
 
             $labels[] = $v->name;
             $salesData[] = round($sales, 2);
@@ -298,6 +310,8 @@ class AnalyticsV2Service
 
     public function getAffiliateAttribution(): array
     {
+        $affExpr = Schema::hasColumn('transactions', 'affiliate_commission_amount') ? 'COALESCE(affiliate_commission_amount, 0)' : '0';
+
         $data = $this->applyScope(
             Transaction::query()
                 ->financiallyReportable()
@@ -312,7 +326,7 @@ class AnalyticsV2Service
                     'websites.name as website_name',
                     DB::raw('COUNT(transactions.id) as orders'),
                     DB::raw('SUM(transactions.total) as revenue'),
-                    DB::raw('SUM(COALESCE(affiliate_commission_amount, 0)) as commission')
+                    DB::raw("SUM({$affExpr}) as commission")
                 )
                 ->groupBy('affiliates.id', 'affiliates.display_name', 'users.name', 'websites.name')
                 ->orderByDesc('revenue')
@@ -352,6 +366,8 @@ class AnalyticsV2Service
 
     public function getEntertainerPerformance(): array
     {
+        $entExpr = Schema::hasColumn('transactions', 'entertainer_commission_amount') ? 'COALESCE(entertainer_commission_amount, 0)' : '0';
+
         $data = $this->applyScope(
             Transaction::query()
                 ->financiallyReportable()
@@ -366,7 +382,7 @@ class AnalyticsV2Service
                     'websites.name as website_name',
                     DB::raw('COUNT(transactions.id) as orders'),
                     DB::raw('SUM(transactions.total) as revenue'),
-                    DB::raw('SUM(COALESCE(entertainer_commission_amount, 0)) as commission')
+                    DB::raw("SUM({$entExpr}) as commission")
                 )
                 ->groupBy('entertainers.id', 'entertainers.display_name', 'users.name', 'websites.name')
                 ->orderByDesc('commission')
@@ -402,13 +418,28 @@ class AnalyticsV2Service
 
     public function getGeospatialAnalytics(): array
     {
+        $parts = [];
+        if (Schema::hasColumn('transactions', 'billing_country')) {
+            $parts[] = "NULLIF(transactions.billing_country, '')";
+        }
+        if (Schema::hasColumn('transactions', 'billing_state')) {
+            $parts[] = "NULLIF(transactions.billing_state, '')";
+        }
+        if (Schema::hasColumn('transactions', 'ip_address')) {
+            $parts[] = "NULLIF(transactions.ip_address, '')";
+        }
+
+        $regionExpr = !empty($parts)
+            ? "COALESCE(" . implode(", ", $parts) . ", 'United States (IP / Billing)')"
+            : "'United States (IP / Billing)'";
+
         $data = $this->applyScope(
             Transaction::query()
                 ->financiallyReportable()
                 ->whereBetween('transactions.created_at', [$this->startDate, $this->endDate])
                 ->leftJoin('websites', 'transactions.website_id', '=', 'websites.id')
                 ->select(
-                    DB::raw("COALESCE(NULLIF(transactions.billing_country, ''), NULLIF(transactions.billing_state, ''), NULLIF(transactions.ip_address, ''), 'United States (IP / Billing)') as region"),
+                    DB::raw("{$regionExpr} as region"),
                     'websites.name as website_name',
                     DB::raw('COUNT(transactions.id) as orders'),
                     DB::raw('SUM(transactions.total) as revenue')
