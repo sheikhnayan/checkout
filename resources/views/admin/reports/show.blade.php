@@ -18,14 +18,14 @@
         </div>
     </div>
 
-    <!-- Executive Analytics KPI Cards & Comparison Graph (Shopify Analytics Style) -->
-    <div class="card shadow-sm mb-4 border-0" id="executiveAnalyticsCard" style="display: none; background: #0f172a; border-radius: 12px;">
+    <!-- Executive Analytics KPI Cards & Comparison Graph (Shopify Analytics Style aligned with Admin Theme) -->
+    <div class="card shadow-sm mb-4 border-0" id="executiveAnalyticsCard" style="display: none; background: var(--admin-surface, #121726) !important; border: 1px solid var(--admin-border, rgba(255,255,255,0.1)) !important; border-radius: 12px;">
         <div class="card-body p-4">
             <!-- Metric Tab Buttons -->
             <div class="row g-3 mb-4" id="kpiTabsRow">
                 <div class="col-md-3 col-6">
                     <div class="kpi-card p-3 rounded cursor-pointer active-kpi" id="tab-sessions" onclick="switchKpiMetric('sessions')">
-                        <div class="text-muted small mb-1">Sessions</div>
+                        <div class="small mb-1" style="color: var(--admin-text-muted, #d4d9e8);">Sessions</div>
                         <div class="d-flex align-items-center gap-2">
                             <h3 class="mb-0 text-white fw-bold" id="kpi-val-sessions">-</h3>
                             <span class="badge" id="kpi-badge-sessions"></span>
@@ -34,7 +34,7 @@
                 </div>
                 <div class="col-md-3 col-6">
                     <div class="kpi-card p-3 rounded cursor-pointer" id="tab-total_sales" onclick="switchKpiMetric('total_sales')">
-                        <div class="text-muted small mb-1">Total Sales</div>
+                        <div class="small mb-1" style="color: var(--admin-text-muted, #d4d9e8);">Total Sales</div>
                         <div class="d-flex align-items-center gap-2">
                             <h3 class="mb-0 text-white fw-bold" id="kpi-val-total_sales">-</h3>
                             <span class="badge" id="kpi-badge-total_sales"></span>
@@ -43,7 +43,7 @@
                 </div>
                 <div class="col-md-3 col-6">
                     <div class="kpi-card p-3 rounded cursor-pointer" id="tab-orders" onclick="switchKpiMetric('orders')">
-                        <div class="text-muted small mb-1">Orders</div>
+                        <div class="small mb-1" style="color: var(--admin-text-muted, #d4d9e8);">Orders</div>
                         <div class="d-flex align-items-center gap-2">
                             <h3 class="mb-0 text-white fw-bold" id="kpi-val-orders">-</h3>
                             <span class="badge" id="kpi-badge-orders"></span>
@@ -52,7 +52,7 @@
                 </div>
                 <div class="col-md-3 col-6">
                     <div class="kpi-card p-3 rounded cursor-pointer" id="tab-conversion_rate" onclick="switchKpiMetric('conversion_rate')">
-                        <div class="text-muted small mb-1">Conversion Rate</div>
+                        <div class="small mb-1" style="color: var(--admin-text-muted, #d4d9e8);">Conversion Rate</div>
                         <div class="d-flex align-items-center gap-2">
                             <h3 class="mb-0 text-white fw-bold" id="kpi-val-conversion_rate">-</h3>
                             <span class="badge" id="kpi-badge-conversion_rate"></span>
@@ -62,10 +62,10 @@
             </div>
 
             <!-- Main Comparison Chart -->
-            <div class="p-3 bg-dark-subtle rounded border border-secondary border-opacity-25">
+            <div class="p-3 rounded" style="background: var(--admin-surface-2, #171d2f) !important; border: 1px solid var(--admin-border, rgba(255,255,255,0.1)) !important;">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="text-white mb-0" id="executiveChartTitle">Metrics over time</h5>
-                    <div class="small text-muted" id="executiveChartPeriodLabel">Comparing to previous period</div>
+                    <h5 class="text-white mb-0 fw-bold" id="executiveChartTitle">Metrics over time</h5>
+                    <div class="small" style="color: var(--admin-text-muted, #d4d9e8);" id="executiveChartPeriodLabel">Comparing to previous period</div>
                 </div>
                 <div style="height: 280px; position: relative;">
                     <canvas id="executiveComparisonChart"></canvas>
@@ -432,16 +432,16 @@ function switchKpiMetric(key) {
                 {
                     label: executiveData.period_labels.current,
                     data: currentData,
-                    borderColor: '#0ea5e9',
-                    backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                    borderColor: '#41d1ff',
+                    backgroundColor: 'rgba(65, 209, 255, 0.12)',
                     borderWidth: 3,
                     tension: 0.35,
-                    fill: false
+                    fill: true
                 },
                 {
                     label: executiveData.period_labels.previous,
                     data: previousData,
-                    borderColor: 'rgba(148, 163, 184, 0.6)',
+                    borderColor: '#9fdcff',
                     borderDash: [5, 5],
                     borderWidth: 2,
                     tension: 0.35,
@@ -456,17 +456,17 @@ function switchKpiMetric(key) {
                 legend: {
                     display: true,
                     position: 'bottom',
-                    labels: { color: '#94a3b8' }
+                    labels: { color: '#d4d9e8', font: { size: 12, family: "'Public Sans', sans-serif" } }
                 }
             },
             scales: {
                 x: {
-                    ticks: { color: '#94a3b8' },
-                    grid: { color: 'rgba(255,255,255,0.05)' }
+                    ticks: { color: '#d4d9e8', font: { family: "'Public Sans', sans-serif" } },
+                    grid: { color: 'rgba(255,255,255,0.06)' }
                 },
                 y: {
-                    ticks: { color: '#94a3b8' },
-                    grid: { color: 'rgba(255,255,255,0.05)' }
+                    ticks: { color: '#d4d9e8', font: { family: "'Public Sans', sans-serif" } },
+                    grid: { color: 'rgba(255,255,255,0.06)' }
                 }
             }
         }
@@ -728,16 +728,18 @@ function previewReportPdf() {
 
 <style>
 .kpi-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--admin-surface-2, #171d2f) !important;
+    border: 1px solid var(--admin-border, rgba(255, 255, 255, 0.1)) !important;
     transition: all 0.2s ease-in-out;
 }
 .kpi-card:hover {
-    background: rgba(255, 255, 255, 0.07);
+    background: rgba(65, 209, 255, 0.08) !important;
+    border-color: rgba(65, 209, 255, 0.4) !important;
 }
 .active-kpi {
-    background: rgba(14, 165, 233, 0.15) !important;
-    border-color: #0ea5e9 !important;
+    background: rgba(65, 209, 255, 0.15) !important;
+    border-color: var(--admin-section-start, #41d1ff) !important;
+    box-shadow: 0 0 12px rgba(65, 209, 255, 0.25) !important;
 }
 .cursor-pointer {
     cursor: pointer;
