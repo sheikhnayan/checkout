@@ -510,7 +510,13 @@ function renderReport(data) {
     }
     
     if (data.type === 'line_chart' || data.type === 'bar_chart' || data.type === 'stacked_bar') {
-        renderChart(data);
+        if (data.raw_data && data.raw_data.length > 0) {
+            renderTable({ data: data.raw_data, summary: data.summary });
+        } else if (data.data && data.data.labels && data.data.labels.length > 0 && !data.executive_metrics) {
+            renderChart(data);
+        } else {
+            container.innerHTML = '<div class="alert alert-info border border-secondary text-white"><i class="fas fa-info-circle me-2 text-info"></i>Detailed session and sales breakdown graph rendered in the main executive panel above.</div>';
+        }
     } else if (data.type === 'pie_chart') {
         renderPieChart(data);
     } else if (data.type === 'table') {
