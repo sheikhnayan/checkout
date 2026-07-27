@@ -207,12 +207,12 @@ class Transaction extends Model
     public function scopeOnlyArchived(Builder $query): Builder
     {
         return $query->withoutGlobalScope(self::EXCLUDE_ARCHIVED_SCOPE)
-            ->whereNotNull('archived_at');
+            ->whereNotNull('transactions.archived_at');
     }
 
     public function scopeFinanciallyReportable(Builder $query): Builder
     {
-        return $query->where('status', self::STATUS_COMPLETED);
+        return $query->where('transactions.status', self::STATUS_COMPLETED);
     }
 
     private function normalizeMultiValuePackageField($value): array
