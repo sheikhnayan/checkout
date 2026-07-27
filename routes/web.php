@@ -39,6 +39,7 @@ use App\Http\Controllers\Admin\JobMarketplaceController as AdminJobMarketplaceCo
 use App\Http\Controllers\Admin\WebsiteRoleController;
 use App\Http\Controllers\WithdrawController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\AnalyticsV2Controller;
 
 
 // Authentication Routes
@@ -455,6 +456,13 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::get('/saved-reports', [ReportController::class, 'getSavedReports'])->name('saved');
         Route::delete('/preferences/{preference}', [ReportController::class, 'deletePreference'])->name('preferences.delete');
         Route::post('/{report}/export', [ReportController::class, 'export'])->name('export');
+    });
+
+    // Analytics V2 (Next-Gen Executive Intelligence Hub)
+    Route::group(['prefix' => 'analytics-v2', 'as' => 'analytics.v2.'], function () {
+        Route::get('/', [AnalyticsV2Controller::class, 'index'])->name('index');
+        Route::get('/data', [AnalyticsV2Controller::class, 'getData'])->name('data');
+        Route::get('/export', [AnalyticsV2Controller::class, 'export'])->name('export');
     });
 });
 

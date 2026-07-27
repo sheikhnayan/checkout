@@ -15,6 +15,22 @@
         </div>
     </div>
 
+    <!-- Switch to Analytics V2 Banner -->
+    <div class="alert border-0 shadow-sm mb-4 text-white d-flex flex-column flex-md-row align-items-md-center justify-content-between p-3" style="background: linear-gradient(135deg, #171d2f 0%, #0b0e1a 100%); border-left: 4px solid var(--admin-section-start, #41d1ff) !important; border-radius: 12px;">
+        <div class="d-flex align-items-center gap-3 mb-2 mb-md-0">
+            <div class="rounded-circle p-2 bg-primary bg-opacity-25 text-info">
+                <i class="fas fa-rocket fa-lg"></i>
+            </div>
+            <div>
+                <h6 class="fw-bold mb-0 text-white">Experience Next-Gen Analytics V2 — VIP Executive Intelligence Hub</h6>
+                <span class="text-muted small">Real-time revenue waterfall, club heatmaps, affiliate matrix, and geospatial IP conversion analytics.</span>
+            </div>
+        </div>
+        <a href="{{ route('admin.analytics.v2.index') }}" class="btn btn-primary btn-sm px-4 fw-bold text-nowrap" style="background: linear-gradient(135deg, #41d1ff 0%, #0094ff 100%); border: none; border-radius: 8px;">
+            <i class="fas fa-bolt me-1"></i> Switch to Analytics V2 (New)
+        </a>
+    </div>
+
     <!-- Search & Category Header (Shopify Style) -->
     <div class="card bg-dark border border-secondary border-opacity-25 shadow-sm mb-4">
         <div class="card-body p-3">
