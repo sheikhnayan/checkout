@@ -481,51 +481,69 @@ function renderReport(data) {
         return;
     }
 
-    // Top Horizontal Bar Chart Renderer
-    if (data.has_chart && data.chart_type === 'horizontal_bar' && data.chart_data) {
-        document.getElementById('topChartContainer').style.display = 'block';
-        document.getElementById('topChartTitle').innerText = data.title + ' (Top Distribution)';
-        
-        const topCtx = document.getElementById('topHorizontalChart').getContext('2d');
-        if (topChartInstance) topChartInstance.destroy();
-
-        topChartInstance = new Chart(topCtx, {
-            type: 'bar',
-            data: data.chart_data,
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    y: { ticks: { color: '#94a3b8' }, grid: { display: false } }
-                }
-            }
-        });
+    if (data.executive_metrics) {
+        renderExecutiveHeader(data.executive_metrics);
     } else {
-        document.getElementById('topChartContainer').style.display = 'none';
+        document.getElementById('executiveAnalyticsCard').style.display = 'none';
     }
-    
-    if (data.type === 'line_chart' || data.type === 'bar_chart' || data.type === 'stacked_bar') {
-        if (data.raw_data && data.raw_data.length > 0) {
-            renderTable({ data: data.raw_data, summary: data.summary });
-        } else if (data.data && data.data.labels && data.data.labels.length > 0 && !data.executive_metrics) {
-            renderChart(data);
-        } else {
-            container.innerHTML = '<div class="alert alert-info border border-secondary text-white"><i class="fas fa-info-circle me-2 text-info"></i>Detailed session and sales breakdown graph rendered in the main executive panel above.</div>';
-        }
-    } else if (data.type === 'pie_chart') {
-        renderPieChart(data);
-    } else if (data.type === 'table') {
-        renderTable(data);
+
+    const topChartContainer = document.getElementById('topChartContainer');
+    if (data.has_chart && data.chart_type === 'horizontal_bar' && data.chart_data) {
+        topChartContainer.style.display = 'block';
+        document.getElementById('topChartTitle').innerText = data.title + ' (Top Distribution)';
+        renderTopChart('bar', data.chart_data, { indexAxis: 'y' });
+    } else if ((data.type === 'line_chart' || data.type === 'bar_chart' || data.type === 'stacked_bar') && data.data && !data.executive_metrics) {
+        topChartContainer.style.display = 'block';
+        document.getElementById('topChartTitle').innerText = data.title;
+        const chartKind = data.type === 'stacked_bar' ? 'bar' : (data.type === 'bar_chart' ? 'bar' : 'line');
+        renderTopChart(chartKind, data.data, { stacked: data.type === 'stacked_bar' });
+    } else if (data.type === 'pie_chart' && data.data && !data.executive_metrics) {
+        topChartContainer.style.display = 'block';
+        document.getElementById('topChartTitle').innerText = data.title;
+        renderTopChart('doughnut', data.data);
+    } else {
+        topChartContainer.style.display = 'none';
+    }
+
+    if (data.raw_data && data.raw_data.length > 0) {
+        renderTable({ data: data.raw_data, summary: data.summary });
+    } else if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+        renderTable({ data: data.data, summary: data.summary });
     } else if (data.type === 'metric') {
         renderMetrics(data);
+    } else if (data.type === 'table' && (!data.data || data.data.length === 0)) {
+        container.innerHTML = '<div class="alert alert-info border border-secondary text-white"><i class="fas fa-info-circle me-2 text-info"></i>No data recorded for the selected date range.</div>';
     } else {
-        container.innerHTML = '<div class="alert alert-danger">Unsupported report type: ' + data.type + '</div>';
+        container.innerHTML = '<div class="alert alert-info border border-secondary text-white"><i class="fas fa-chart-line me-2 text-info"></i>Report breakdown displayed above.</div>';
     }
+}
+
+function renderTopChart(chartType, chartData, extraOptions = {}) {
+    const topCtx = document.getElementById('topHorizontalChart').getContext('2d');
+    if (topChartInstance) topChartInstance.destroy();
+
+    const isHorizontal = extraOptions.indexAxis === 'y';
+    const isStacked = !!extraOptions.stacked;
+
+    topChartInstance = new Chart(topCtx, {
+        type: chartType,
+        data: chartData,
+        options: {
+            indexAxis: isHorizontal ? 'y' : 'x',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: chartType === 'doughnut' || (chartData.datasets && chartData.datasets.length > 1),
+                    labels: { color: '#d4d9e8', font: { family: "'Public Sans', sans-serif" } }
+                }
+            },
+            scales: chartType === 'doughnut' ? {} : {
+                x: { stacked: isStacked, ticks: { color: '#d4d9e8' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+                y: { stacked: isStacked, ticks: { color: '#d4d9e8' }, grid: { color: 'rgba(255,255,255,0.06)' } }
+            }
+        }
+    });
 }
 
 function renderChart(data) {

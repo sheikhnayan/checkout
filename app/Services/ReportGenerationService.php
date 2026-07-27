@@ -83,7 +83,15 @@ class ReportGenerationService
             default => ['error' => 'Report not found'],
         };
 
-        if (is_array($result) && !isset($result['error'])) {
+        $overviewReportSlugs = [
+            'revenue-over-time',
+            'revenue-summary',
+            'net-revenue',
+            'sessions-over-time',
+            'visitors-over-time',
+        ];
+
+        if (is_array($result) && !isset($result['error']) && in_array($report->slug, $overviewReportSlugs, true)) {
             $result['executive_metrics'] = $this->getExecutiveMetrics();
         }
 
@@ -361,27 +369,50 @@ class ReportGenerationService
             ->whereBetween('transactions.created_at', [$startDate, $endDate])
             ->whereNotNull('transactions.affiliate_id')
             ->join('affiliates', 'transactions.affiliate_id', '=', 'affiliates.id')
+            ->leftJoin('users', 'affiliates.user_id', '=', 'users.id')
             ->select(
                 'affiliates.id',
                 DB::raw("COALESCE(affiliates.display_name, users.name, CONCAT('affiliate #', affiliates.id)) as affiliate_name"),
                 DB::raw('SUM(transactions.total) as revenue'),
                 DB::raw('COUNT(transactions.id) as orders')
             )
-            ->leftJoin('users', 'affiliates.user_id', '=', 'users.id')
-            ->groupBy('affiliates.id')
+            ->groupBy('affiliates.id', 'affiliates.display_name', 'users.name')
             ->orderByDesc('revenue')
             ->limit(20)
             ->get()
             ->map(fn ($row) => [
-                'affiliate' => $row->affiliate_name,
-                'revenue' => (float) $row->revenue,
-                'orders' => (int) $row->orders,
+                'Affiliate' => $row->affiliate_name,
+                'Orders' => (int) $row->orders,
+                'Revenue' => round((float) $row->revenue, 2),
             ]);
+
+        $top = $data->take(5);
+        $chartData = [
+            'labels' => $top->pluck('Affiliate')->toArray(),
+            'datasets' => [
+                [
+                    'label' => 'Total Revenue ($)',
+                    'data' => $top->pluck('Revenue')->toArray(),
+                    'backgroundColor' => 'rgba(65, 209, 255, 0.85)',
+                    'borderColor' => '#41d1ff',
+                    'borderWidth' => 1,
+                    'borderRadius' => 4,
+                ]
+            ]
+        ];
 
         return [
             'type' => 'table',
-            'title' => 'Revenue by affiliate',
+            'has_chart' => true,
+            'chart_type' => 'horizontal_bar',
+            'chart_data' => $chartData,
+            'title' => 'Revenue by Affiliate',
             'data' => $data->toArray(),
+            'summary' => [
+                'Affiliate' => 'Summary',
+                'Orders' => $data->sum('Orders'),
+                'Revenue' => round($data->sum('Revenue'), 2),
+            ],
         ];
     }
 
@@ -653,24 +684,49 @@ class ReportGenerationService
                 DB::raw('SUM(transactions.total) as revenue')
             )
             ->leftJoin('users', 'affiliates.user_id', '=', 'users.id')
-            ->leftJoin('transactions', 'affiliates.id', '=', 'transactions.affiliate_id')
-            ->whereBetween('transactions.created_at', [$startDate, $endDate])
-            ->whereNull('transactions.archived_at')
-            ->where('transactions.status', Transaction::STATUS_COMPLETED)
-            ->groupBy('affiliates.id')
+            ->leftJoin('transactions', function ($join) use ($startDate, $endDate) {
+                $join->on('affiliates.id', '=', 'transactions.affiliate_id')
+                    ->whereBetween('transactions.created_at', [$startDate, $endDate])
+                    ->whereNull('transactions.archived_at')
+                    ->where('transactions.status', Transaction::STATUS_COMPLETED);
+            })
+            ->groupBy('affiliates.id', 'affiliates.display_name', 'users.name')
             ->orderByDesc('revenue')
             ->limit(20)
             ->get()
             ->map(fn ($row) => [
-                'affiliate' => $row->name,
-                'orders' => (int) $row->orders,
-                'revenue' => (float) $row->revenue,
+                'Affiliate' => $row->name,
+                'Orders' => (int) $row->orders,
+                'Revenue' => round((float) $row->revenue, 2),
             ]);
+
+        $top = $data->take(5);
+        $chartData = [
+            'labels' => $top->pluck('Affiliate')->toArray(),
+            'datasets' => [
+                [
+                    'label' => 'Total Revenue ($)',
+                    'data' => $top->pluck('Revenue')->toArray(),
+                    'backgroundColor' => 'rgba(65, 209, 255, 0.85)',
+                    'borderColor' => '#41d1ff',
+                    'borderWidth' => 1,
+                    'borderRadius' => 4,
+                ]
+            ]
+        ];
 
         return [
             'type' => 'table',
-            'title' => 'affiliate Performance Ranking',
+            'has_chart' => true,
+            'chart_type' => 'horizontal_bar',
+            'chart_data' => $chartData,
+            'title' => 'Affiliate Performance Ranking',
             'data' => $data->toArray(),
+            'summary' => [
+                'Affiliate' => 'Summary',
+                'Orders' => $data->sum('Orders'),
+                'Revenue' => round($data->sum('Revenue'), 2),
+            ],
         ];
     }
 
@@ -690,20 +746,44 @@ class ReportGenerationService
             )
             ->join('affiliates', 'transactions.affiliate_id', '=', 'affiliates.id')
             ->leftJoin('users', 'affiliates.user_id', '=', 'users.id')
-            ->groupBy('transactions.affiliate_id')
+            ->groupBy('transactions.affiliate_id', 'affiliates.display_name', 'users.name')
             ->orderByDesc('total_commission')
             ->get()
             ->map(fn ($row) => [
-                'affiliate' => $row->affiliate_name,
-                'commission' => (float) $row->total_commission,
-                'revenue' => (float) $row->revenue,
-                'commission_rate' => $row->revenue > 0 ? round(($row->total_commission / $row->revenue) * 100, 2) : 0,
+                'Affiliate' => $row->affiliate_name,
+                'Commission' => round((float) $row->total_commission, 2),
+                'Revenue' => round((float) $row->revenue, 2),
+                'Commission Rate (%)' => $row->revenue > 0 ? round(($row->total_commission / $row->revenue) * 100, 2) : 0,
             ]);
+
+        $top = $data->take(5);
+        $chartData = [
+            'labels' => $top->pluck('Affiliate')->toArray(),
+            'datasets' => [
+                [
+                    'label' => 'Total Commission ($)',
+                    'data' => $top->pluck('Commission')->toArray(),
+                    'backgroundColor' => 'rgba(255, 204, 0, 0.85)',
+                    'borderColor' => '#ffcc00',
+                    'borderWidth' => 1,
+                    'borderRadius' => 4,
+                ]
+            ]
+        ];
 
         return [
             'type' => 'table',
-            'title' => 'affiliate Commission Tracking',
+            'has_chart' => true,
+            'chart_type' => 'horizontal_bar',
+            'chart_data' => $chartData,
+            'title' => 'Affiliate Commission Tracking',
             'data' => $data->toArray(),
+            'summary' => [
+                'Affiliate' => 'Summary',
+                'Commission' => round($data->sum('Commission'), 2),
+                'Revenue' => round($data->sum('Revenue'), 2),
+                'Commission Rate (%)' => '-',
+            ],
         ];
     }
 
@@ -724,19 +804,41 @@ class ReportGenerationService
             ->leftJoin('packages', 'entertainer_packages.package_id', '=', 'packages.id')
             ->leftJoin('events', 'packages.event_id', '=', 'events.id')
             ->whereBetween('events.created_at', [$startDate, $endDate])
-            ->groupBy('entertainers.id')
+            ->groupBy('entertainers.id', 'entertainers.display_name', 'users.name')
             ->orderByDesc('event_count')
             ->limit(15)
             ->get()
             ->map(fn ($row) => [
-                'entertainer' => $row->name,
-                'events' => (int) $row->event_count,
+                'Entertainer' => $row->name,
+                'Events' => (int) $row->event_count,
             ]);
+
+        $top = $data->take(5);
+        $chartData = [
+            'labels' => $top->pluck('Entertainer')->toArray(),
+            'datasets' => [
+                [
+                    'label' => 'Total Events',
+                    'data' => $top->pluck('Events')->toArray(),
+                    'backgroundColor' => 'rgba(65, 209, 255, 0.85)',
+                    'borderColor' => '#41d1ff',
+                    'borderWidth' => 1,
+                    'borderRadius' => 4,
+                ]
+            ]
+        ];
 
         return [
             'type' => 'table',
+            'has_chart' => true,
+            'chart_type' => 'horizontal_bar',
+            'chart_data' => $chartData,
             'title' => 'Events Per Entertainer',
             'data' => $data->toArray(),
+            'summary' => [
+                'Entertainer' => 'Summary',
+                'Events' => $data->sum('Events'),
+            ],
         ];
     }
 
