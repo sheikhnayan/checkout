@@ -11,20 +11,81 @@
             <h1 class="h2 mb-2" style="color: #fff !important">{{ $report->name }}</h1>
             <p class="text-muted mb-0">{{ $report->description }}</p>
         </div>
+        <div>
+            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#shopifyExportModal">
+                <i class="fas fa-file-export me-2"></i>Export Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Executive Analytics KPI Cards & Comparison Graph (Shopify Analytics Style) -->
+    <div class="card shadow-sm mb-4 border-0" id="executiveAnalyticsCard" style="display: none; background: #0f172a; border-radius: 12px;">
+        <div class="card-body p-4">
+            <!-- Metric Tab Buttons -->
+            <div class="row g-3 mb-4" id="kpiTabsRow">
+                <div class="col-md-3 col-6">
+                    <div class="kpi-card p-3 rounded cursor-pointer active-kpi" id="tab-sessions" onclick="switchKpiMetric('sessions')">
+                        <div class="text-muted small mb-1">Sessions</div>
+                        <div class="d-flex align-items-center gap-2">
+                            <h3 class="mb-0 text-white fw-bold" id="kpi-val-sessions">-</h3>
+                            <span class="badge" id="kpi-badge-sessions"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="kpi-card p-3 rounded cursor-pointer" id="tab-total_sales" onclick="switchKpiMetric('total_sales')">
+                        <div class="text-muted small mb-1">Total Sales</div>
+                        <div class="d-flex align-items-center gap-2">
+                            <h3 class="mb-0 text-white fw-bold" id="kpi-val-total_sales">-</h3>
+                            <span class="badge" id="kpi-badge-total_sales"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="kpi-card p-3 rounded cursor-pointer" id="tab-orders" onclick="switchKpiMetric('orders')">
+                        <div class="text-muted small mb-1">Orders</div>
+                        <div class="d-flex align-items-center gap-2">
+                            <h3 class="mb-0 text-white fw-bold" id="kpi-val-orders">-</h3>
+                            <span class="badge" id="kpi-badge-orders"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="kpi-card p-3 rounded cursor-pointer" id="tab-conversion_rate" onclick="switchKpiMetric('conversion_rate')">
+                        <div class="text-muted small mb-1">Conversion Rate</div>
+                        <div class="d-flex align-items-center gap-2">
+                            <h3 class="mb-0 text-white fw-bold" id="kpi-val-conversion_rate">-</h3>
+                            <span class="badge" id="kpi-badge-conversion_rate"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Comparison Chart -->
+            <div class="p-3 bg-dark-subtle rounded border border-secondary border-opacity-25">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="text-white mb-0" id="executiveChartTitle">Metrics over time</h5>
+                    <div class="small text-muted" id="executiveChartPeriodLabel">Comparing to previous period</div>
+                </div>
+                <div style="height: 280px; position: relative;">
+                    <canvas id="executiveComparisonChart"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="row">
         <!-- Filters Sidebar -->
         <div class="col-md-3 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0" style="color: #fff !important">Filters</h5>
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark border-bottom border-secondary border-opacity-25">
+                    <h5 class="mb-0 text-white">Filters</h5>
                 </div>
                 <div class="card-body">
                     <form id="filterForm" method="GET">
                         <!-- Date Range -->
                         <div class="mb-4">
-                            <label class="form-label fw-bold" style="color: #fff !important">Date Range</label>
+                            <label class="form-label fw-bold text-white">Date Range</label>
                             <select name="date_range" class="form-select form-select-sm" id="dateRange">
                                 <option value="today" {{ request('date_range') === 'today' ? 'selected' : '' }}>Today</option>
                                 <option value="yesterday" {{ request('date_range') === 'yesterday' ? 'selected' : '' }}>Yesterday</option>
@@ -41,12 +102,12 @@
                         <!-- Custom Date Range (if selected) -->
                         <div id="customDateRange" style="display: none;" class="mb-4">
                             <div class="mb-2">
-                                <label class="form-label small">From</label>
-                                <input type="date" name="custom_from" class="form-control form-control-sm" value="{{ request('custom_from') }}">
+                                <label class="form-label small text-muted">From</label>
+                                <input type="date" name="custom_from" class="form-control form-control-sm bg-dark text-white border-secondary" value="{{ request('custom_from') }}">
                             </div>
                             <div class="mb-2">
-                                <label class="form-label small">To</label>
-                                <input type="date" name="custom_to" class="form-control form-control-sm" value="{{ request('custom_to') }}">
+                                <label class="form-label small text-muted">To</label>
+                                <input type="date" name="custom_to" class="form-control form-control-sm bg-dark text-white border-secondary" value="{{ request('custom_to') }}">
                             </div>
                         </div>
 
@@ -60,29 +121,21 @@
                         </div>
                     </form>
 
-                    <hr class="my-4">
+                    <hr class="my-4 border-secondary border-opacity-25">
 
-                    <!-- Save/Export Options -->
+                    <!-- Actions -->
                     <div class="mb-3">
-                        <label class="form-label fw-bold small">Actions</label>
+                        <label class="form-label fw-bold small text-muted">Actions</label>
                         <div class="d-grid gap-2">
                             <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#saveReportModal">
-                                <i class="fas fa-save me-2"></i>Save Report
+                                <i class="fas fa-save me-2"></i>Save Report View
                             </button>
                             <button type="button" class="btn btn-primary btn-sm" id="previewPdfBtn">
                                 <i class="fas fa-eye me-2"></i>Preview PDF
                             </button>
-                            <div class="btn-group btn-group-sm" role="group">
-                                <button type="button" class="btn btn-outline-success" id="exportCsv" title="Export as CSV">
-                                    <i class="fas fa-file-csv"></i>
-                                </button>
-                                <button type="button" class="btn btn-outline-success" id="exportExcel" title="Export as Excel">
-                                    <i class="fas fa-file-excel"></i>
-                                </button>
-                                <button type="button" class="btn btn-outline-success" id="exportPdf" title="Export as PDF">
-                                    <i class="fas fa-file-pdf"></i>
-                                </button>
-                            </div>
+                            <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#shopifyExportModal">
+                                <i class="fas fa-download me-2"></i>Export Options
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -90,16 +143,16 @@
 
             <!-- Saved Reports -->
             @if($savedReports->count())
-                <div class="card shadow-sm mt-4">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">Saved Reports</h5>
+                <div class="card shadow-sm mt-4 border-0">
+                    <div class="card-header bg-dark border-bottom border-secondary border-opacity-25">
+                        <h5 class="mb-0 text-white">Saved Reports</h5>
                     </div>
-                    <div class="card-body">
-                        <div class="list-group list-group-flush">
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush bg-transparent">
                             @foreach($savedReports as $saved)
-                                <a href="{{ route('admin.reports.show', ['report' => $report, 'saved' => $saved->id]) }}" class="list-group-item list-group-item-action py-2">
+                                <a href="{{ route('admin.reports.show', ['report' => $report, 'saved' => $saved->id]) }}" class="list-group-item list-group-item-action bg-transparent text-white border-secondary border-opacity-25 py-2">
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <span class="small">{{ $saved->name }}</span>
+                                        <span class="small"><i class="fas fa-bookmark text-warning me-2"></i>{{ $saved->name }}</span>
                                         <form method="POST" action="{{ route('admin.reports.preferences.delete', $saved) }}" style="display: inline;" onsubmit="return confirm('Delete this saved report?')">
                                             @csrf
                                             @method('DELETE')
@@ -118,8 +171,17 @@
 
         <!-- Report Display -->
         <div class="col-md-9">
-            <div class="card shadow-sm">
+            <div class="card shadow-sm border-0">
                 <div class="card-body">
+                    <!-- Top Horizontal Bar Chart Container (if report supports it) -->
+                    <div id="topChartContainer" class="mb-4" style="display: none;">
+                        <h5 class="text-white mb-3" id="topChartTitle">Top Summary Distribution</h5>
+                        <div style="height: 250px; position: relative;">
+                            <canvas id="topHorizontalChart"></canvas>
+                        </div>
+                        <hr class="my-4 border-secondary border-opacity-25">
+                    </div>
+
                     <div id="reportContainer" class="position-relative" style="min-height: 400px;">
                         <div class="d-flex justify-content-center align-items-center" style="height: 400px;">
                             <div class="spinner-border text-primary" role="status">
@@ -131,19 +193,19 @@
             </div>
 
             <!-- Report Info -->
-            <div class="card shadow-sm mt-4">
-                <div class="card-header bg-light">
-                    <h6 class="mb-0" style="color: #fff !important">Report Details</h6>
+            <div class="card shadow-sm mt-4 border-0">
+                <div class="card-header bg-dark border-bottom border-secondary border-opacity-25">
+                    <h6 class="mb-0 text-white">Report Details</h6>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
                             <small class="text-muted">Category</small>
-                            <p class="mb-0">{{ $report->category }}</p>
+                            <p class="mb-0 text-white fw-bold">{{ $report->category }}</p>
                         </div>
                         <div class="col-md-6">
                             <small class="text-muted">Type</small>
-                            <p class="mb-0">{{ $report->type }}</p>
+                            <p class="mb-0 text-white fw-bold">{{ $report->type }}</p>
                         </div>
                     </div>
                 </div>
@@ -152,20 +214,80 @@
     </div>
 </div>
 
+<!-- Shopify-Style Export Modal -->
+<div class="modal fade" id="shopifyExportModal" tabindex="-1" aria-labelledby="shopifyExportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border border-secondary">
+            <div class="modal-header border-bottom border-secondary border-opacity-50">
+                <h5 class="modal-title" id="shopifyExportModalLabel"><i class="fas fa-file-export me-2 text-primary"></i>Export report</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-white mb-2">Select a format:</label>
+                    <div class="form-check mb-2 p-3 rounded border border-secondary border-opacity-25 bg-dark-subtle">
+                        <input class="form-check-input" type="radio" name="exportFormatChoice" id="fmtCsv" value="csv" checked>
+                        <label class="form-check-label w-100 cursor-pointer" for="fmtCsv">
+                            <strong class="text-white d-block">Comma Separated Values (CSV)</strong>
+                            <small class="text-muted">Best for importing into spreadsheets (Excel, Google Sheets)</small>
+                        </label>
+                    </div>
+                    <div class="form-check mb-2 p-3 rounded border border-secondary border-opacity-25 bg-dark-subtle">
+                        <input class="form-check-input" type="radio" name="exportFormatChoice" id="fmtExcel" value="excel">
+                        <label class="form-check-label w-100 cursor-pointer" for="fmtExcel">
+                            <strong class="text-white d-block">Microsoft Excel (.xlsx)</strong>
+                            <small class="text-muted">Structured spreadsheet format with formatting</small>
+                        </label>
+                    </div>
+                    <div class="form-check mb-2 p-3 rounded border border-secondary border-opacity-25 bg-dark-subtle">
+                        <input class="form-check-input" type="radio" name="exportFormatChoice" id="fmtPdf" value="pdf">
+                        <label class="form-check-label w-100 cursor-pointer" for="fmtPdf">
+                            <strong class="text-white d-block">PDF Document (.pdf)</strong>
+                            <small class="text-muted">Printable document format for executive summaries</small>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="form-label fw-bold text-white mb-2">Specify the results you want:</label>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="exportScopeChoice" id="scopeAll" value="all" checked>
+                        <label class="form-check-label text-white" for="scopeAll">
+                            All results from the data query
+                        </label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="exportScopeChoice" id="scopeDisplayed" value="displayed">
+                        <label class="form-check-label text-white" for="scopeDisplayed">
+                            Only results displayed in the report
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top border-secondary border-opacity-50">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary px-4" id="btnExecuteExport">
+                    <i class="fas fa-download me-2"></i>Export
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Save Report Modal -->
 <div class="modal fade" id="saveReportModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Save This Report</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-content bg-dark text-white border border-secondary">
+            <div class="modal-header border-secondary border-opacity-50">
+                <h5 class="modal-title">Save This Report View</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form method="POST" action="{{ route('admin.reports.preferences.save', $report) }}">
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Report Name</label>
-                        <input type="text" name="name" class="form-control" placeholder="e.g., Q4 Sales Report" required>
+                        <input type="text" name="name" class="form-control bg-dark text-white border-secondary" placeholder="e.g., Q4 Sales Report" required>
                     </div>
                     <div class="form-check">
                         <input type="checkbox" name="is_favorite" value="1" class="form-check-input" id="isFavorite">
@@ -174,7 +296,7 @@
                         </label>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer border-secondary border-opacity-50">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save Report</button>
                 </div>
@@ -185,6 +307,11 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 <script>
+let executiveData = null;
+let executiveChartInstance = null;
+let topChartInstance = null;
+let activeMetricKey = 'total_sales';
+
 document.addEventListener('DOMContentLoaded', function() {
     // Show/hide custom date range
     document.getElementById('dateRange').addEventListener('change', function() {
@@ -192,23 +319,18 @@ document.addEventListener('DOMContentLoaded', function() {
             this.value === 'custom' ? 'block' : 'none';
     });
 
-    // Trigger on page load if custom is selected
     if (document.getElementById('dateRange').value === 'custom') {
         document.getElementById('customDateRange').style.display = 'block';
     }
 
-    // Load and render report data
     loadReportData();
 
-    // Export handlers
-    document.getElementById('exportCsv').addEventListener('click', function() {
-        exportReport('csv');
-    });
-    document.getElementById('exportExcel').addEventListener('click', function() {
-        exportReport('excel');
-    });
-    document.getElementById('exportPdf').addEventListener('click', function() {
-        exportReport('pdf');
+    document.getElementById('btnExecuteExport').addEventListener('click', function() {
+        const fmt = document.querySelector('input[name="exportFormatChoice"]:checked').value;
+        exportReport(fmt);
+        const modalEl = document.getElementById('shopifyExportModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
     });
 
     var previewBtn = document.getElementById('previewPdfBtn');
@@ -224,9 +346,7 @@ function loadReportData() {
     const params = new URLSearchParams(url.search);
     
     fetch('{{ route("admin.reports.show", $report) }}?ajax=1&' + params.toString(), {
-        headers: {
-            'Accept': 'application/json'
-        }
+        headers: { 'Accept': 'application/json' }
     })
         .then(response => response.json())
         .then(data => {
@@ -237,6 +357,11 @@ function loadReportData() {
             }
 
             const payload = data.report ? { ...data.report, ...data.data } : data;
+            
+            if (payload.executive_metrics) {
+                renderExecutiveHeader(payload.executive_metrics);
+            }
+
             renderReport(payload);
         })
         .catch(error => {
@@ -245,12 +370,143 @@ function loadReportData() {
         });
 }
 
+function renderExecutiveHeader(metrics) {
+    executiveData = metrics;
+    document.getElementById('executiveAnalyticsCard').style.display = 'block';
+
+    const keys = ['sessions', 'total_sales', 'orders', 'conversion_rate'];
+    keys.forEach(key => {
+        const item = metrics[key];
+        if (!item) return;
+
+        document.getElementById(`kpi-val-${key}`).innerText = item.value;
+        const badge = document.getElementById(`kpi-badge-${key}`);
+        const pct = item.change_pct;
+
+        if (pct >= 0) {
+            badge.className = 'badge bg-success bg-opacity-25 text-success border border-success border-opacity-50';
+            badge.innerHTML = `<i class="fas fa-arrow-up me-1"></i>+${pct}%`;
+        } else {
+            badge.className = 'badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-50';
+            badge.innerHTML = `<i class="fas fa-arrow-down me-1"></i>${pct}%`;
+        }
+    });
+
+    document.getElementById('executiveChartPeriodLabel').innerText = 
+        `${metrics.period_labels.current} vs. ${metrics.period_labels.previous}`;
+
+    switchKpiMetric(activeMetricKey);
+}
+
+function switchKpiMetric(key) {
+    activeMetricKey = key;
+    document.querySelectorAll('.kpi-card').forEach(el => el.classList.remove('active-kpi'));
+    const activeTab = document.getElementById(`tab-${key}`);
+    if (activeTab) activeTab.classList.add('active-kpi');
+
+    if (!executiveData) return;
+
+    const titles = {
+        'sessions': 'Sessions over time',
+        'total_sales': 'Total sales over time',
+        'orders': 'Orders over time',
+        'conversion_rate': 'Conversion rate over time'
+    };
+    document.getElementById('executiveChartTitle').innerText = titles[key] || 'Metrics over time';
+
+    const item = executiveData[key];
+    const labels = executiveData.chart_labels || [];
+    const currentData = item ? item.chart_current : [];
+    const previousData = item ? item.chart_previous : [];
+
+    const ctx = document.getElementById('executiveComparisonChart').getContext('2d');
+    if (executiveChartInstance) {
+        executiveChartInstance.destroy();
+    }
+
+    executiveChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: executiveData.period_labels.current,
+                    data: currentData,
+                    borderColor: '#0ea5e9',
+                    backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.35,
+                    fill: false
+                },
+                {
+                    label: executiveData.period_labels.previous,
+                    data: previousData,
+                    borderColor: 'rgba(148, 163, 184, 0.6)',
+                    borderDash: [5, 5],
+                    borderWidth: 2,
+                    tension: 0.35,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: { color: '#94a3b8' }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#94a3b8' },
+                    grid: { color: 'rgba(255,255,255,0.05)' }
+                },
+                y: {
+                    ticks: { color: '#94a3b8' },
+                    grid: { color: 'rgba(255,255,255,0.05)' }
+                }
+            }
+        }
+    });
+}
+
 function renderReport(data) {
     const container = document.getElementById('reportContainer');
 
     if (!data || !data.type) {
         container.innerHTML = '<div class="alert alert-danger">Unable to load report data.</div>';
         return;
+    }
+
+    // Top Horizontal Bar Chart Renderer
+    if (data.has_chart && data.chart_type === 'horizontal_bar' && data.chart_data) {
+        document.getElementById('topChartContainer').style.display = 'block';
+        document.getElementById('topChartTitle').innerText = data.title + ' (Top Distribution)';
+        
+        const topCtx = document.getElementById('topHorizontalChart').getContext('2d');
+        if (topChartInstance) topChartInstance.destroy();
+
+        topChartInstance = new Chart(topCtx, {
+            type: 'bar',
+            data: data.chart_data,
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { ticks: { color: '#94a3b8' }, grid: { display: false } }
+                }
+            }
+        });
+    } else {
+        document.getElementById('topChartContainer').style.display = 'none';
     }
     
     if (data.type === 'line_chart' || data.type === 'bar_chart' || data.type === 'stacked_bar') {
@@ -268,7 +524,7 @@ function renderReport(data) {
 
 function renderChart(data) {
     const container = document.getElementById('reportContainer');
-    container.innerHTML = '<canvas id="reportChart"></canvas>';
+    container.innerHTML = '<div style="height: 380px;"><canvas id="reportChart"></canvas></div>';
     
     const ctx = document.getElementById('reportChart').getContext('2d');
     const chartType = data.type === 'stacked_bar' ? 'bar' : (data.type === 'bar_chart' ? 'bar' : 'line');
@@ -278,20 +534,14 @@ function renderChart(data) {
         data: data.data,
         options: {
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
             plugins: {
-                title: {
-                    display: true,
-                    text: data.title
-                }
+                title: { display: true, text: data.title, color: '#ffffff', font: { size: 16 } },
+                legend: { labels: { color: '#94a3b8' } }
             },
             scales: {
-                x: {
-                    stacked: data.type === 'stacked_bar'
-                },
-                y: {
-                    stacked: data.type === 'stacked_bar'
-                }
+                x: { stacked: data.type === 'stacked_bar', ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { stacked: data.type === 'stacked_bar', ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
             }
         }
     });
@@ -299,7 +549,7 @@ function renderChart(data) {
 
 function renderPieChart(data) {
     const container = document.getElementById('reportContainer');
-    container.innerHTML = '<canvas id="reportChart"></canvas>';
+    container.innerHTML = '<div style="height: 380px;"><canvas id="reportChart"></canvas></div>';
     
     const ctx = document.getElementById('reportChart').getContext('2d');
     new Chart(ctx, {
@@ -307,11 +557,10 @@ function renderPieChart(data) {
         data: data.data,
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
-                title: {
-                    display: true,
-                    text: data.title
-                }
+                title: { display: true, text: data.title, color: '#ffffff', font: { size: 16 } },
+                legend: { labels: { color: '#94a3b8' } }
             }
         }
     });
@@ -324,29 +573,42 @@ function renderTable(data) {
         return;
     }
 
-    let html = '<div class="table-responsive"><table class="table table-hover"><thead class="table-light"><tr>';
-    
     const headers = Object.keys(data.data[0]);
+
+    let html = '<div class="table-responsive"><table class="table table-dark table-hover align-middle mb-0"><thead class="table-dark text-white border-bottom border-secondary"><tr>';
+    
     headers.forEach(header => {
-        html += '<th>' + header + '</th>';
+        html += '<th class="fw-bold">' + header + '</th>';
     });
     html += '</tr></thead><tbody>';
     
     data.data.forEach(row => {
         html += '<tr>';
         headers.forEach(header => {
-            html += '<td>' + formatReportValue(row[header]) + '</td>';
+            html += '<td>' + formatReportValue(row[header], header) + '</td>';
         });
         html += '</tr>';
     });
     
-    html += '</tbody></table></div>';
+    html += '</tbody>';
+
+    // Summary footer row
+    if (data.summary) {
+        html += '<tfoot class="table-dark text-white fw-bold border-top border-2 border-primary"><tr>';
+        headers.forEach(header => {
+            const val = data.summary[header] !== undefined ? data.summary[header] : '-';
+            html += '<td class="text-primary fw-bold">' + formatReportValue(val, header) + '</td>';
+        });
+        html += '</tr></tfoot>';
+    }
+
+    html += '</table></div>';
     container.innerHTML = html;
 }
 
 function renderMetrics(data) {
     const container = document.getElementById('reportContainer');
-    let html = '<div class="row">';
+    let html = '<div class="row g-3">';
     let metrics = data.metrics;
 
     if (!metrics) {
@@ -368,11 +630,11 @@ function renderMetrics(data) {
 
     metrics.forEach(metric => {
         html += `
-            <div class="col-md-4 mb-4">
-                <div class="card border-0 bg-light">
+            <div class="col-md-4 mb-3">
+                <div class="card border-0 bg-dark text-white p-3 rounded border border-secondary border-opacity-25">
                     <div class="card-body text-center">
-                        <small class="text-muted">${metric.label}</small>
-                        <h3 class="mb-0 mt-2">${formatReportValue(metric.value)}</h3>
+                        <small class="text-muted text-uppercase fw-bold">${metric.label}</small>
+                        <h2 class="mb-0 mt-2 text-primary fw-bold">${formatReportValue(metric.value, metric.label)}</h2>
                     </div>
                 </div>
             </div>
@@ -389,20 +651,30 @@ function humanizeMetricLabel(key) {
         .replace(/\b\w/g, char => char.toUpperCase());
 }
 
-function formatReportValue(value) {
+function formatReportValue(value, header = '') {
     if (value === null || value === undefined || value === '') {
         return '-';
     }
 
+    const hLower = String(header).toLowerCase();
+    const isCurrencyField = ['revenue', 'sales', 'total', 'amount', 'price', 'discount', 'commission', 'net', 'gross', 'refund', 'tax'].some(k => hLower.includes(k));
+
     if (typeof value === 'number' && Number.isFinite(value)) {
+        if (isCurrencyField) {
+            return '$' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
         if (Number.isInteger(value)) {
             return value.toLocaleString('en-US');
         }
+        return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
 
-        return value.toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        });
+    // String number check
+    if (typeof value === 'string' && !isNaN(value) && value.trim() !== '') {
+        const num = parseFloat(value);
+        if (isCurrencyField) {
+            return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
     }
 
     return value;
@@ -417,13 +689,10 @@ function exportReport(format) {
     const exportInput = document.getElementById('exportFormat');
     exportInput.value = format;
 
-    // Remove existing dynamic inputs
     document.querySelectorAll('#exportReportForm input.dynamic-param').forEach(el => el.remove());
 
     params.forEach((value, key) => {
-        if (key === 'format') {
-            return;
-        }
+        if (key === 'format') return;
         const input = document.createElement('input');
         input.type = 'hidden';
         input.name = key;
@@ -452,14 +721,22 @@ function previewReportPdf() {
 </form>
 
 <style>
-.hover-lift {
-    transition: transform 0.2s;
+.kpi-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.2s ease-in-out;
 }
-.hover-lift:hover {
-    transform: translateY(-2px);
+.kpi-card:hover {
+    background: rgba(255, 255, 255, 0.07);
+}
+.active-kpi {
+    background: rgba(14, 165, 233, 0.15) !important;
+    border-color: #0ea5e9 !important;
+}
+.cursor-pointer {
+    cursor: pointer;
 }
 
-/* Fix select field appearance - override Bootstrap */
 #dateRange {
     appearance: none !important;
     -webkit-appearance: none !important;
@@ -487,11 +764,6 @@ function previewReportPdf() {
 #dateRange option {
     background-color: #1e293b;
     color: #fff;
-}
-
-/* Generic form-select fix */
-select.form-select {
-    padding-right: 40px !important;
 }
 </style>
 @endsection
