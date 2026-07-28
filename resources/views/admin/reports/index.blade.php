@@ -1,120 +1,152 @@
 @extends('admin.main')
 
 @section('content')
-<div class="container-fluid px-4 py-6">
-    <!-- Header -->
-    <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 gap-3">
+<div class="container-fluid px-4 py-4" style="background-color: var(--admin-bg, #0b0e1a); min-height: 100vh; color: var(--admin-text, #e8eaf6);">
+
+    <!-- HEADER & ACTION BAR -->
+    <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between pb-3 mb-4 border-bottom border-secondary border-opacity-25">
         <div>
-            <h1 class="h2 mb-1 text-white fw-bold"><i class="fas fa-chart-pie me-2 text-primary"></i>Reports & Analytics</h1>
-            <p class="text-muted mb-0">Shopify-powered insights, traffic analysis, and commercial performance reports</p>
+            <h1 class="h3 fw-bold text-white mb-1"><i class="fas fa-file-invoice text-primary me-2"></i>Reports</h1>
+            <p class="text-muted small mb-0">Overview of all analytics, sales performance, visitor sessions, and venue reports.</p>
         </div>
-        <div class="d-flex align-items-center gap-2">
-            <a href="{{ route('admin.reports.automation.schedules') }}" class="btn btn-outline-light btn-sm">
-                <i class="fas fa-clock me-2"></i>Automation Schedules
+        <div class="d-flex align-items-center gap-2 mt-3 mt-sm-0">
+            <a href="{{ route('admin.reports.automation.schedules') }}" class="btn btn-outline-secondary btn-sm text-white px-3" style="border-radius: 8px;">
+                <i class="fas fa-clock me-1 text-info"></i> Automation Schedules
+            </a>
+            <a href="{{ route('admin.analytics.v2.index') }}" class="btn btn-primary btn-sm px-3" style="background: linear-gradient(135deg, #41d1ff 0%, #0094ff 100%); border: none; border-radius: 8px; font-weight: 600;">
+                <i class="fas fa-bolt me-1"></i> Executive Hub (V2)
             </a>
         </div>
     </div>
 
-    <!-- Switch to Analytics V2 Banner -->
-    <div class="alert border-0 shadow-sm mb-4 text-white d-flex flex-column flex-md-row align-items-md-center justify-content-between p-3" style="background: linear-gradient(135deg, #171d2f 0%, #0b0e1a 100%); border-left: 4px solid var(--admin-section-start, #41d1ff) !important; border-radius: 12px;">
-        <div class="d-flex align-items-center gap-3 mb-2 mb-md-0">
-            <div class="rounded-circle p-2 bg-primary bg-opacity-25 text-info">
-                <i class="fas fa-rocket fa-lg"></i>
-            </div>
-            <div>
-                <h6 class="fw-bold mb-0 text-white">Experience Next-Gen Analytics V2 — VIP Executive Intelligence Hub</h6>
-                <span class="text-muted small">Real-time revenue waterfall, club heatmaps, affiliate matrix, and geospatial IP conversion analytics.</span>
-            </div>
-        </div>
-        <a href="{{ route('admin.analytics.v2.index') }}" class="btn btn-primary btn-sm px-4 fw-bold text-nowrap" style="background: linear-gradient(135deg, #41d1ff 0%, #0094ff 100%); border: none; border-radius: 8px;">
-            <i class="fas fa-bolt me-1"></i> Switch to Analytics V2 (New)
-        </a>
-    </div>
-
-    <!-- Search & Category Header (Shopify Style) -->
-    <div class="card bg-dark border border-secondary border-opacity-25 shadow-sm mb-4">
-        <div class="card-body p-3">
-            <div class="row align-items-center g-3">
-                <div class="col-md-4">
+    <!-- MAIN SHOPIFY-STYLE REPORTS LIST CONTAINER -->
+    <div class="card border-0 shadow-sm" style="background-color: var(--admin-surface, #121726); border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08) !important;">
+        
+        <!-- SEARCH & FILTER CONTROLS BAR -->
+        <div class="card-header bg-transparent p-3 border-bottom border-secondary border-opacity-25">
+            <div class="row align-items-center g-2">
+                
+                <!-- Search Input -->
+                <div class="col-12 col-md-5">
                     <div class="input-group input-group-sm">
-                        <span class="input-group-text bg-dark-subtle text-muted border-secondary"><i class="fas fa-search"></i></span>
-                        <input type="text" id="reportSearchInput" class="form-control bg-dark-subtle text-white border-secondary" placeholder="Search reports (e.g. Sales, Sessions, Packages)..." onkeyup="filterReportCards()">
+                        <span class="input-group-text border-secondary bg-dark text-muted"><i class="fas fa-search"></i></span>
+                        <input type="text" id="reportSearchInput" class="form-control border-secondary bg-dark text-white shadow-none" placeholder="Search reports (e.g., Total sales over time, Customers by location)..." onkeyup="filterReportsTable()">
                     </div>
                 </div>
-                <div class="col-md-8">
-                    <div class="d-flex flex-wrap gap-2 justify-content-md-end" id="categoryFilters">
-                        <a href="{{ route('admin.reports.index') }}" class="btn btn-sm {{ empty($selectedCategory) ? 'btn-primary' : 'btn-outline-secondary text-white' }}">
-                            All Reports
-                        </a>
-                        @foreach($categories as $cat)
-                            <a href="{{ route('admin.reports.category', $cat) }}" class="btn btn-sm {{ (isset($selectedCategory) ? $selectedCategory : request('category')) === $cat ? 'btn-primary' : 'btn-outline-secondary text-white' }}">
-                                {{ $cat }}
-                            </a>
-                        @endforeach
+
+                <!-- Filters: Created By & Category Dropdowns -->
+                <div class="col-12 col-md-7 d-flex flex-wrap align-items-center justify-content-md-end gap-2">
+                    
+                    <!-- Category Dropdown Filter -->
+                    <div class="dropdown">
+                        <button class="btn btn-dark btn-sm dropdown-toggle text-white border border-secondary border-opacity-25 px-3" type="button" id="categoryFilterBtn" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: var(--admin-surface-2, #171d2f); border-radius: 8px;">
+                            Category: <span id="selectedCategoryLabel" class="fw-bold text-info">{{ $selectedCategory ?? 'All' }}</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow" aria-labelledby="categoryFilterBtn">
+                            <li><a class="dropdown-item category-filter-item active" href="#" data-cat="">All Categories</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            @foreach($categories as $cat)
+                            <li><a class="dropdown-item category-filter-item" href="#" data-cat="{{ strtolower($cat) }}">{{ $cat }}</a></li>
+                            @endforeach
+                        </ul>
                     </div>
+
+                    <!-- Created By Filter -->
+                    <div class="dropdown">
+                        <button class="btn btn-dark btn-sm dropdown-toggle text-white border border-secondary border-opacity-25 px-3" type="button" id="createdByFilterBtn" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: var(--admin-surface-2, #171d2f); border-radius: 8px;">
+                            Created by: <span class="fw-bold text-info">System</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow">
+                            <li><a class="dropdown-item active" href="#">System Reports</a></li>
+                            <li><a class="dropdown-item" href="#">Custom Reports</a></li>
+                        </ul>
+                    </div>
+
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Reports Grid -->
-    <div class="row g-4" id="reportsGrid">
-        @forelse($reports as $report)
-            <div class="col-md-6 col-lg-4 report-card-item" data-name="{{ strtolower($report->name) }}" data-category="{{ strtolower($report->category) }}">
-                <div class="card h-100 bg-dark border border-secondary border-opacity-25 shadow-sm hover-lift rounded-3">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div>
-                                <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25 mb-2">{{ $report->category }}</span>
-                                <h5 class="card-title text-white fw-bold mb-1">{{ $report->name }}</h5>
-                            </div>
-                            <span class="badge bg-secondary bg-opacity-50 text-light">{{ strtoupper($report->type) }}</span>
-                        </div>
-                        <p class="card-text text-muted small mb-0">{{ $report->description }}</p>
-                    </div>
-                    <div class="card-footer bg-dark-subtle border-top border-secondary border-opacity-25 p-3">
-                        <a href="{{ route('admin.reports.show', $report) }}" class="btn btn-sm btn-outline-primary w-100 fw-bold">
-                            <i class="fas fa-chart-line me-2"></i>Open Report
-                        </a>
-                    </div>
-                </div>
-            </div>
-        @empty
-            <div class="col-12">
-                <div class="alert alert-dark border border-secondary text-white">
-                    <i class="fas fa-info-circle me-2 text-info"></i>
-                    No reports available for this category.
-                </div>
-            </div>
-        @endforelse
+        <!-- SHOPIFY REPORTS TABLE LIST -->
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle mb-0" id="shopifyReportsTable">
+                <thead>
+                    <tr style="border-bottom: 2px solid rgba(255,255,255,0.1); background-color: var(--admin-surface-2, #171d2f);">
+                        <th class="ps-4 py-3 text-uppercase text-muted small font-monospace fw-bold" style="letter-spacing: 0.5px;">Name</th>
+                        <th class="py-3 text-uppercase text-muted small font-monospace fw-bold" style="letter-spacing: 0.5px;">Category</th>
+                        <th class="py-3 text-uppercase text-muted small font-monospace fw-bold" style="letter-spacing: 0.5px;">Description</th>
+                        <th class="pe-4 py-3 text-end text-uppercase text-muted small font-monospace fw-bold" style="letter-spacing: 0.5px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($reports as $report)
+                    <tr class="report-row-item" data-name="{{ strtolower($report->name) }}" data-category="{{ strtolower($report->category) }}" style="cursor: pointer;" onclick="window.location='{{ route('admin.reports.show', $report) }}'">
+                        <td class="ps-4 py-3">
+                            <a href="{{ route('admin.reports.show', $report) }}" class="text-white text-decoration-none fw-bold text-hover-primary d-inline-flex align-items-center gap-2" onclick="event.stopPropagation();">
+                                <i class="fas fa-chart-line text-info opacity-75"></i>
+                                <span>{{ $report->name }}</span>
+                            </a>
+                        </td>
+                        <td class="py-3">
+                            <span class="badge bg-secondary bg-opacity-25 text-info px-2 py-1 border border-secondary border-opacity-25 rounded-pill small">
+                                {{ $report->category }}
+                            </span>
+                        </td>
+                        <td class="py-3 text-muted small">
+                            {{ $report->description }}
+                        </td>
+                        <td class="pe-4 py-3 text-end" onclick="event.stopPropagation();">
+                            <a href="{{ route('admin.reports.show', $report) }}" class="btn btn-sm btn-outline-info rounded-pill px-3" style="font-size: 0.78rem;">
+                                View report <i class="fas fa-chevron-right ms-1"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            <i class="fas fa-folder-open fa-2x mb-2 text-secondary"></i>
+                            <p class="mb-0">No reports found.</p>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <script>
-function filterReportCards() {
-    const query = document.getElementById('reportSearchInput').value.toLowerCase();
-    const items = document.querySelectorAll('.report-card-item');
+function filterReportsTable() {
+    const searchVal = document.getElementById('reportSearchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('.report-row-item');
+    
+    rows.forEach(row => {
+        const name = row.getAttribute('data-name');
+        const cat = row.getAttribute('data-category');
+        const activeCategory = document.getElementById('selectedCategoryLabel').innerText.trim().toLowerCase();
 
-    items.forEach(item => {
-        const name = item.getAttribute('data-name');
-        const cat = item.getAttribute('data-category');
-        if (name.includes(query) || cat.includes(query)) {
-            item.style.display = 'block';
+        const matchesSearch = name.includes(searchVal) || cat.includes(searchVal);
+        const matchesCategory = activeCategory === 'all' || cat === activeCategory;
+
+        if (matchesSearch && matchesCategory) {
+            row.style.display = '';
         } else {
-            item.style.display = 'none';
+            row.style.display = 'none';
         }
     });
 }
-</script>
 
-<style>
-.hover-lift {
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-}
-.hover-lift:hover {
-    transform: translateY(-4px);
-    border-color: #0ea5e9 !important;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.3) !important;
-}
-</style>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.category-filter-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('.category-filter-item').forEach(el => el.classList.remove('active'));
+            this.classList.add('active');
+
+            const catName = this.innerText;
+            document.getElementById('selectedCategoryLabel').innerText = catName;
+            filterReportsTable();
+        });
+    });
+});
+</script>
 @endsection
