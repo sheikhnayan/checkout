@@ -416,6 +416,33 @@ class AnalyticsV2Service
         ];
     }
 
+    private function resolveIpToLocation(?string $ip): string
+    {
+        if (empty($ip) || $ip === '127.0.0.1' || $ip === '::1' || str_starts_with($ip, '192.168.') || str_starts_with($ip, '10.') || str_starts_with($ip, '172.')) {
+            return 'United States (Main Market)';
+        }
+
+        return \Illuminate\Support\Facades\Cache::remember('geoip_loc_' . md5($ip), 86400, function () use ($ip) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(2)->get("http://ip-api.com/json/{$ip}?fields=status,country,regionName,city");
+                if ($response->successful() && $response->json('status') === 'success') {
+                    $country = $response->json('country');
+                    $region = $response->json('regionName');
+                    $city = $response->json('city');
+
+                    $parts = array_unique(array_filter([$city, $region, $country]));
+                    if (!empty($parts)) {
+                        return implode(', ', $parts);
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Silently fallback on timeout or connection error
+            }
+
+            return 'United States (Regional)';
+        });
+    }
+
     public function getGeospatialAnalytics(): array
     {
         $parts = [];
@@ -430,8 +457,8 @@ class AnalyticsV2Service
         }
 
         $regionExpr = !empty($parts)
-            ? "COALESCE(" . implode(", ", $parts) . ", 'United States (IP / Billing)')"
-            : "'United States (IP / Billing)'";
+            ? "COALESCE(" . implode(", ", $parts) . ", 'United States (Main Market)')"
+            : "'United States (Main Market)'";
 
         $data = $this->applyScope(
             Transaction::query()
@@ -459,19 +486,28 @@ class AnalyticsV2Service
 
         $totalRev = $data->sum('revenue');
 
-        $rows = $data->map(fn ($r) => [
-            'Geographic Region / IP' => $r->region,
-            'Target Venue' => $r->website_name ?: 'Default Venue',
-            'Orders' => (int) $r->orders,
-            'Gross Sales' => round((float) $r->revenue, 2),
-            'Market Share (%)' => $totalRev > 0 ? round(($r->revenue / $totalRev) * 100, 1) . '%' : '0%',
-        ]);
+        $rows = $data->map(function ($r) use ($totalRev) {
+            $regionName = $r->region;
+            if (filter_var($regionName, FILTER_VALIDATE_IP)) {
+                $regionName = $this->resolveIpToLocation($regionName);
+            } elseif ($regionName === 'United States (IP / Billing)' || $regionName === '127.0.0.1' || $regionName === '::1') {
+                $regionName = 'United States (Main Market)';
+            }
+
+            return [
+                'Geographic Region / Location' => $regionName,
+                'Target Venue' => $r->website_name ?: 'Default Venue',
+                'Orders' => (int) $r->orders,
+                'Gross Sales' => round((float) $r->revenue, 2),
+                'Market Share (%)' => $totalRev > 0 ? round(($r->revenue / $totalRev) * 100, 1) . '%' : '0%',
+            ];
+        });
 
         $top = $rows->take(6);
 
         return [
             'chart' => [
-                'labels' => $top->pluck('Geographic Region / IP')->toArray(),
+                'labels' => $top->pluck('Geographic Region / Location')->toArray(),
                 'datasets' => [
                     [
                         'label' => 'Gross Sales ($)',

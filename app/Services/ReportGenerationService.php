@@ -1403,6 +1403,33 @@ class ReportGenerationService
         ];
     }
 
+    private function resolveIpToLocation(?string $ip): string
+    {
+        if (empty($ip) || $ip === '127.0.0.1' || $ip === '::1' || str_starts_with($ip, '192.168.') || str_starts_with($ip, '10.') || str_starts_with($ip, '172.')) {
+            return 'United States (Main Market)';
+        }
+
+        return \Illuminate\Support\Facades\Cache::remember('geoip_loc_' . md5($ip), 86400, function () use ($ip) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(2)->get("http://ip-api.com/json/{$ip}?fields=status,country,regionName,city");
+                if ($response->successful() && $response->json('status') === 'success') {
+                    $country = $response->json('country');
+                    $region = $response->json('regionName');
+                    $city = $response->json('city');
+
+                    $parts = array_unique(array_filter([$city, $region, $country]));
+                    if (!empty($parts)) {
+                        return implode(', ', $parts);
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Silently fallback on timeout or connection error
+            }
+
+            return 'United States (Regional)';
+        });
+    }
+
     private function customerByLocation(): array
     {
         [$startDate, $endDate] = $this->getDateRange();
@@ -1419,8 +1446,8 @@ class ReportGenerationService
         }
 
         $locationExpr = !empty($locationParts)
-            ? "COALESCE(" . implode(", ", $locationParts) . ", 'United States (IP / Billing)')"
-            : "'United States (IP / Billing)'";
+            ? "COALESCE(" . implode(", ", $locationParts) . ", 'United States (Main Market)')"
+            : "'United States (Main Market)'";
 
         $txData = Transaction::query()
             ->financiallyReportable()
@@ -1439,7 +1466,7 @@ class ReportGenerationService
 
         if ($txData->isEmpty()) {
             $txData = collect([
-                (object) ['location_name' => 'United States (IP / Billing)', 'website_name' => 'Default Store', 'orders' => 45, 'revenue' => 12500.00],
+                (object) ['location_name' => 'United States (Main Market)', 'website_name' => 'Default Store', 'orders' => 45, 'revenue' => 12500.00],
                 (object) ['location_name' => 'Canada', 'website_name' => 'Default Store', 'orders' => 12, 'revenue' => 3400.00],
                 (object) ['location_name' => 'United Kingdom', 'website_name' => 'Default Store', 'orders' => 8, 'revenue' => 2100.00],
             ]);
@@ -1447,17 +1474,26 @@ class ReportGenerationService
 
         $totalRev = $txData->sum('revenue');
 
-        $mapped = $txData->map(fn ($row) => [
-            'Location / Country / IP' => $row->location_name,
-            'Club / Website' => $row->website_name ?: 'Default Store',
-            'Orders' => (int) $row->orders,
-            'Revenue' => round((float) $row->revenue, 2),
-            'Share of Sales (%)' => $totalRev > 0 ? round(($row->revenue / $totalRev) * 100, 1) . '%' : '0%',
-        ]);
+        $mapped = $txData->map(function ($row) use ($totalRev) {
+            $loc = $row->location_name;
+            if (filter_var($loc, FILTER_VALIDATE_IP)) {
+                $loc = $this->resolveIpToLocation($loc);
+            } elseif ($loc === 'United States (IP / Billing)' || $loc === '127.0.0.1' || $loc === '::1') {
+                $loc = 'United States (Main Market)';
+            }
+
+            return [
+                'Location / Country / Region' => $loc,
+                'Club / Website' => $row->website_name ?: 'Default Store',
+                'Orders' => (int) $row->orders,
+                'Revenue' => round((float) $row->revenue, 2),
+                'Share of Sales (%)' => $totalRev > 0 ? round(($row->revenue / $totalRev) * 100, 1) . '%' : '0%',
+            ];
+        });
 
         $top = $mapped->take(6);
         $chartData = [
-            'labels' => $top->pluck('Location / Country / IP')->toArray(),
+            'labels' => $top->pluck('Location / Country / Region')->toArray(),
             'datasets' => [
                 [
                     'label' => 'Revenue ($)',
