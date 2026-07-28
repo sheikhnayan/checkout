@@ -1407,12 +1407,27 @@ class ReportGenerationService
     {
         [$startDate, $endDate] = $this->getDateRange();
 
+        $locationParts = [];
+        if (Schema::hasColumn('transactions', 'billing_country')) {
+            $locationParts[] = "NULLIF(transactions.billing_country, '')";
+        }
+        if (Schema::hasColumn('transactions', 'billing_state')) {
+            $locationParts[] = "NULLIF(transactions.billing_state, '')";
+        }
+        if (Schema::hasColumn('transactions', 'ip_address')) {
+            $locationParts[] = "NULLIF(transactions.ip_address, '')";
+        }
+
+        $locationExpr = !empty($locationParts)
+            ? "COALESCE(" . implode(", ", $locationParts) . ", 'United States (IP / Billing)')"
+            : "'United States (IP / Billing)'";
+
         $txData = Transaction::query()
             ->financiallyReportable()
             ->whereBetween('transactions.created_at', [$startDate, $endDate])
             ->leftJoin('websites', 'transactions.website_id', '=', 'websites.id')
             ->select(
-                DB::raw("COALESCE(NULLIF(transactions.billing_country, ''), NULLIF(transactions.billing_state, ''), NULLIF(transactions.ip_address, ''), 'United States (IP / Billing)') as location_name"),
+                DB::raw("{$locationExpr} as location_name"),
                 'websites.name as website_name',
                 DB::raw('COUNT(transactions.id) as orders'),
                 DB::raw('SUM(transactions.total) as revenue')
