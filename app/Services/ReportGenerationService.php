@@ -1480,7 +1480,7 @@ class ReportGenerationService
                 'events.name',
                 'websites.name as website_name',
                 DB::raw('COUNT(transactions.id) as attendees'),
-                DB::raw('SUM(COALESCE(transactions.package_number_of_guest, 1)) as total_guests')
+                DB::raw('SUM(CASE WHEN transactions.id IS NOT NULL THEN COALESCE(transactions.package_number_of_guest, 1) ELSE 0 END) as total_guests')
             )
             ->leftJoin('websites', 'events.website_id', '=', 'websites.id')
             ->leftJoin('transactions', function ($join) {
@@ -1604,7 +1604,7 @@ class ReportGenerationService
                 'websites.name as website_name',
                 DB::raw('COALESCE(events.attendee_limit, 0) as capacity'),
                 DB::raw('COUNT(DISTINCT transactions.id) as total_orders'),
-                DB::raw('SUM(COALESCE(transactions.package_number_of_guest, 1)) as total_attendees')
+                DB::raw('SUM(CASE WHEN transactions.id IS NOT NULL THEN COALESCE(transactions.package_number_of_guest, 1) ELSE 0 END) as total_attendees')
             )
             ->leftJoin('websites', 'events.website_id', '=', 'websites.id')
             ->leftJoin('transactions', function ($join) {

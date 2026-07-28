@@ -681,7 +681,8 @@ function formatReportValue(value, header = '') {
     }
 
     const hLower = String(header).toLowerCase();
-    const isCurrencyField = ['revenue', 'sales', 'total', 'amount', 'price', 'discount', 'commission', 'net', 'gross', 'refund', 'tax'].some(k => hLower.includes(k));
+    const isCountField = ['count', 'guests', 'attendees', 'orders', 'items', 'qty', 'quantity', 'views', 'sessions', 'number', 'times', 'tickets'].some(k => hLower.includes(k));
+    const isCurrencyField = !isCountField && ['revenue', 'sales', 'total', 'amount', 'price', 'discount', 'commission', 'net', 'gross', 'refund', 'tax', 'earnings', 'payout', 'spend', 'value'].some(k => hLower.includes(k));
 
     if (typeof value === 'number' && Number.isFinite(value)) {
         if (isCurrencyField) {
@@ -698,6 +699,9 @@ function formatReportValue(value, header = '') {
         const num = parseFloat(value);
         if (isCurrencyField) {
             return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        if (Number.isInteger(num)) {
+            return num.toLocaleString('en-US');
         }
     }
 
