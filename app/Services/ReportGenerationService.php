@@ -357,7 +357,7 @@ class ReportGenerationService
             ->map(fn ($row) => [
                 'Package Title' => $row->name,
                 'Club / Website' => $row->website_name ?: 'Default Store',
-                'Package Type' => ucfirst($row->package_type ?: 'General'),
+                'Package Type' => str_contains(strtolower($row->package_type ?? ''), 'ticket') ? 'Ticket' : 'Package',
                 'Orders' => (int) $row->orders,
                 'Revenue' => round((float) $row->revenue, 2),
             ]);
@@ -741,12 +741,16 @@ class ReportGenerationService
             )
             ->groupBy('packages.package_type', 'websites.name')
             ->get()
-            ->map(fn ($row) => [
-                'Package Type' => ucfirst($row->package_type ?: 'General'),
-                'Club / Website' => $row->website_name ?: 'Default Store',
-                'Orders' => (int) $row->count,
-                'Revenue' => round((float) $row->revenue, 2),
-            ]);
+            ->map(function ($row) {
+                $typeStr = strtolower(trim($row->package_type ?? ''));
+                $displayType = str_contains($typeStr, 'ticket') ? 'Ticket' : 'Package';
+                return [
+                    'Package Type' => $displayType,
+                    'Club / Website' => $row->website_name ?: 'Default Store',
+                    'Orders' => (int) $row->count,
+                    'Revenue' => round((float) $row->revenue, 2),
+                ];
+            });
 
         $top = $data->take(6);
         $chartData = [
@@ -1198,7 +1202,7 @@ class ReportGenerationService
             ->map(fn ($row) => [
                 'Package Title' => $row->name,
                 'Club / Website' => $row->website_name ?: 'Default Store',
-                'Package Type' => ucfirst($row->package_type ?: 'General'),
+                'Package Type' => str_contains(strtolower($row->package_type ?? ''), 'ticket') ? 'Ticket' : 'Package',
                 'Orders' => (int) $row->orders,
                 'Revenue' => round((float) $row->revenue, 2),
             ]);
