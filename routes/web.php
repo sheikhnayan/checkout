@@ -455,7 +455,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::post('/{report}/preferences', [ReportController::class, 'savePreference'])->name('preferences.save');
         Route::get('/saved-reports', [ReportController::class, 'getSavedReports'])->name('saved');
         Route::delete('/preferences/{preference}', [ReportController::class, 'deletePreference'])->name('preferences.delete');
-        Route::post('/{report}/export', [ReportController::class, 'export'])->name('export');
+        Route::match(['get', 'post'], '/{report}/export', [ReportController::class, 'export'])->name('export');
     });
 
     // Analytics V2 (Next-Gen Executive Intelligence Hub)

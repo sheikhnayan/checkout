@@ -217,12 +217,23 @@ class ReportController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        $validated = $request->validate([
-            'format' => 'required|in:csv,excel,pdf',
-            'filters' => 'nullable|array',
-        ]);
+        $format = strtolower($request->input('format', 'csv'));
+        if (!in_array($format, ['csv', 'excel', 'pdf'], true)) {
+            $format = 'csv';
+        }
 
-        $filters = $validated['filters'] ?? [];
+        $filters = $request->input('filters', []);
+        if (empty($filters) || !is_array($filters)) {
+            $filters = $request->except(['_token', 'format']);
+        }
+
+        if ($request->get('date_range') === 'custom') {
+            $filters['date_range'] = 'custom';
+            $filters['start_date'] = $request->get('custom_from', $request->get('start_date'));
+            $filters['end_date'] = $request->get('custom_to', $request->get('end_date'));
+        } elseif ($request->has('date_range')) {
+            $filters['date_range'] = $request->get('date_range');
+        }
 
         // Generate report data
         $service = new ReportGenerationService($user, $filters);
@@ -232,13 +243,12 @@ class ReportController extends Controller
         $export = ReportExport::create([
             'user_id' => $user->id,
             'report_id' => $report->id,
-            'format' => $validated['format'],
+            'format' => $format,
             'filters' => $filters,
             'status' => 'pending',
         ]);
 
-        // For now, return data - in production would queue a job
-        return match ($validated['format']) {
+        return match ($format) {
             'csv' => $this->exportToCsv($report, $data, $export),
             'excel' => $this->exportToExcel($report, $data, $export),
             'pdf' => $this->exportToPdf($report, $data, $export),
@@ -293,14 +303,43 @@ class ReportController extends Controller
         $response = new StreamedResponse(function () use ($data) {
             $output = fopen('php://output', 'w');
 
-            // Write headers
+            // Find tabular rows if available
+            $rows = [];
             if (!empty($data['data']) && is_array($data['data'])) {
-                $firstRow = $data['data'][0];
+                $rows = $data['data'];
+            } elseif (!empty($data['rows']) && is_array($data['rows'])) {
+                $rows = $data['rows'];
+            } elseif (!empty($data['table']['rows']) && is_array($data['table']['rows'])) {
+                $rows = $data['table']['rows'];
+            } elseif (!empty($data['items']) && is_array($data['items'])) {
+                $rows = $data['items'];
+            }
+
+            if (!empty($rows)) {
+                $firstRow = reset($rows);
                 if (is_array($firstRow)) {
                     fputcsv($output, array_keys($firstRow));
-
-                    foreach ($data['data'] as $row) {
-                        fputcsv($output, $row);
+                    foreach ($rows as $row) {
+                        if (is_array($row)) {
+                            $rowFormatted = array_map(function ($val) {
+                                return (is_array($val) || is_object($val)) ? json_encode($val) : $val;
+                            }, $row);
+                            fputcsv($output, $rowFormatted);
+                        }
+                    }
+                }
+            } else {
+                // If structured key-metrics format
+                fputcsv($output, ['Metric Name', 'Current Period Value', 'Previous Period Value', 'Change %']);
+                foreach ($data as $key => $val) {
+                    if (is_array($val) && isset($val['value'])) {
+                        $metricLabel = ucwords(str_replace(['_', '-'], ' ', $key));
+                        $currVal = $val['value'] ?? 'N/A';
+                        $prevVal = $val['previous_value'] ?? 'N/A';
+                        $changePct = isset($val['change_pct']) ? ($val['change_pct'] . '%') : 'N/A';
+                        fputcsv($output, [$metricLabel, $currVal, $prevVal, $changePct]);
+                    } elseif (is_scalar($val)) {
+                        fputcsv($output, [ucwords(str_replace(['_', '-'], ' ', $key)), $val, '', '']);
                     }
                 }
             }
@@ -308,7 +347,7 @@ class ReportController extends Controller
             fclose($output);
         });
 
-        $response->headers->set('Content-Type', 'text/csv');
+        $response->headers->set('Content-Type', 'text/csv; charset=UTF-8');
         $response->headers->set('Content-Disposition', "attachment; filename=\"$filename\"");
 
         // Update export record
@@ -322,8 +361,9 @@ class ReportController extends Controller
      */
     private function exportToExcel(Report $report, array $data, ReportExport $export)
     {
-        // This would use a library like maatwebsite/excel
-        // For now, return CSV
+        $timestamp = now()->format('Y-m-d_H-i-s');
+        $filename = "{$report->slug}_{$timestamp}.csv";
+
         return $this->exportToCsv($report, $data, $export);
     }
 
