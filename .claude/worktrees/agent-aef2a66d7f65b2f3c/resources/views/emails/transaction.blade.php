@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ $isManagerCopy ? (($clubName ?: 'Venue') . ' - BOOKING') : ('Booking Confirmed - ' . ($clubName ?: 'Venue')) }}</title>
+    <style>
+        body { font-family: 'Segoe UI', Helvetica, Arial, 'DejaVu Sans', sans-serif; background: #f5f7fb; color: #172033; margin: 0; padding: 24px 0; }
+        .container { background: #ffffff; max-width: 680px; margin: 0 auto; border-radius: 14px; box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08); padding: 32px; }
+        h1, h2, h3 { margin-top: 0; color: #0f172a; }
+        p { line-height: 1.6; color: #334155; }
+        .eyebrow { font-size: 12px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #9a6700; margin-bottom: 10px; }
+        .hero { border: 1px solid #fde68a; background: linear-gradient(135deg, #fffaf0 0%, #fff7db 100%); border-radius: 14px; padding: 20px 22px; margin-bottom: 24px; }
+        .hero strong { color: #7c5400; }
+        .summary { width: 100%; border-collapse: collapse; margin-top: 18px; }
+        .summary th, .summary td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
+        .summary th { width: 180px; color: #475569; font-weight: 700; background: #f8fafc; }
+        .section-title { margin: 28px 0 12px; font-size: 16px; font-weight: 800; color: #0f172a; }
+        .ticket-box { margin-top: 22px; padding: 18px; border: 1px solid #cbd5e1; border-radius: 12px; background: #f8fbff; text-align: center; }
+        .ticket-code { display: inline-block; margin-top: 12px; padding: 9px 14px; border-radius: 999px; background: #0f172a; color: #fff; font-weight: 800; letter-spacing: 0.06em; }
+        ul { margin: 10px 0 0; padding-left: 20px; color: #334155; }
+        li { margin-bottom: 8px; }
+        .muted { margin-top: 26px; color: #64748b; font-size: 13px; }
+    </style>
+</head>
+<body>
+@php
+    $confirmationNumber = $mailData['transaction_id'] ?? ($transaction->transaction_id ?? 'Pending');
+    $venueName = $clubName ?: ($mailData['website_name'] ?? 'Venue');
+    $guestName = trim(($mailData['package_first_name'] ?? '') . ' ' . ($mailData['package_last_name'] ?? '')) ?: 'N/A';
+    $reservationDateRaw = $mailData['package_use_date'] ?? $mailData['reservation_date'] ?? null;
+    $reservationDateFormatted = 'N/A';
+    if (!empty($reservationDateRaw)) {
+        try {
+            $reservationDateFormatted = \Carbon\Carbon::parse($reservationDateRaw)->format('M d, Y');
+        } catch (\Throwable $e) {
+            $reservationDateFormatted = (string) $reservationDateRaw;
+        }
+    }
+    $guestCount = (int) ($mailData['guest_count'] ?? (max(0, (int) ($mailData['men'] ?? 0)) + max(0, (int) ($mailData['women'] ?? 0))));
+    $rawMailCartItems = $mailData['cart_items'] ?? [];
+    if (is_string($rawMailCartItems)) {
+        $decoded = json_decode($rawMailCartItems, true);
+        if (is_string($decoded)) {
+            $decoded = json_decode($decoded, true);
+        }
+        $rawMailCartItems = is_array($decoded) ? $decoded : [];
+    }
+    $mailCartItems = is_array($rawMailCartItems) ? $rawMailCartItems : [];
+    $mailPriceBreakdown = is_array($mailData['price_breakdown'] ?? null) ? $mailData['price_breakdown'] : null;
+    $eventName = $mailData['event_name'] ?? optional($transaction->event ?? null)->name;
+    $bookingType = (string) ($mailData['type'] ?? ($transaction->type ?? 'booking'));
+@endphp
+<div class="container">
+    @if($isManagerCopy)
+        <div class="eyebrow">Manager Booking Notice</div>
+        <h2>{{ $venueName }} - BOOKING</h2>
+        <div class="hero">
+            <p style="margin:0;"><strong>Confirmation #:</strong> {{ $confirmationNumber }}</p>
+        </div>
+
+        <table class="summary">
+            <tr><th>Confirmation #</th><td>{{ $confirmationNumber }}</td></tr>
+            <tr><th>Venue</th><td>{{ $venueName }}</td></tr>
+            <tr><th>Booking Type</th><td>{{ ucfirst(str_replace('_', ' ', $bookingType)) }}</td></tr>
+            <tr><th>Guest Name</th><td>{{ $guestName }}</td></tr>
+            <tr><th>Email</th><td>{{ $mailData['package_email'] ?? 'N/A' }}</td></tr>
+            <tr><th>Phone</th><td>{{ $mailData['package_phone'] ?? 'N/A' }}</td></tr>
+            <tr><th>Reservation Date</th><td>{{ $reservationDateFormatted }}</td></tr>
+            @if(!empty($eventName))
+            <tr><th>Event</th><td>{{ $eventName }}</td></tr>
+            @endif
+            @if($guestCount > 0)
+            <tr><th>Guest Count</th><td>{{ $guestCount }}</td></tr>
+            @endif
+            @if(!empty($mailData['package_note']))
+            <tr><th>Notes</th><td>{{ $mailData['package_note'] }}</td></tr>
+            @endif
+            <tr><th>Amount Paid</th><td>${{ number_format((float) ($mailPriceBreakdown['amount_paid_now'] ?? ($mailData['total'] ?? 0)), 2) }}</td></tr>
+        </table>
+
+        @if(!empty($mailCartItems))
+            <div class="section-title">Booked Items</div>
+            <table class="summary">
+                @foreach($mailCartItems as $item)
+                    <tr>
+                        <th>{{ html_entity_decode($item['package_name'] ?? ('Package #' . ($item['package_id'] ?? '')), ENT_QUOTES | ENT_HTML5, 'UTF-8') }}</th>
+                        <td>
+                            Guests: {{ max(1, (int) ($item['guests'] ?? 1)) }}<br>
+                            Unit Price: ${{ number_format((float) ($item['unit_price'] ?? 0), 2) }}<br>
+                            <strong>Total: ${{ number_format((float) ($item['line_total'] ?? ($item['unit_price'] ?? 0)), 2) }}</strong>
+                        </td>
+                    </tr>
+                    @if(!empty($item['addons']))
+                        @foreach($item['addons'] as $addon)
+                            @if(!empty($addon['name']))
+                            <tr style="background: #f8fbff;">
+                                <td style="padding-left: 24px;"><strong>+</strong> {{ $addon['name'] }} x{{ $addon['qty'] }}</td>
+                                <td>
+                                    @if((float) ($addon['price'] ?? 0) > 0)
+                                        ${{ number_format((float) ($addon['unit_price'] ?? 0), 2) }} each<br>
+                                        <strong>${{ number_format((float) ($addon['price'] ?? 0), 2) }}</strong>
+                                    @else
+                                        <em>Included</em>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endif
+                        @endforeach
+                    @endif
+                @endforeach
+            </table>
+        @endif
+    @else
+        <div class="eyebrow">Booking Confirmed</div>
+        <h1>Your CartVIP Booking Confirmation</h1>
+        <p>Thank you for booking with CartVIP. Your reservation has been successfully secured and submitted to the venue.</p>
+
+        <div class="hero">
+            <p style="margin:0 0 8px;"><strong>Confirmation #:</strong> {{ $confirmationNumber }}</p>
+            <p style="margin:0;"><strong>Venue:</strong> {{ $venueName }}</p>
+        </div>
+
+        <div class="section-title">Booking Details</div>
+        <table class="summary">
+            <tr><th>Confirmation #</th><td>{{ $confirmationNumber }}</td></tr>
+            <tr><th>Venue</th><td>{{ $venueName }}</td></tr>
+            <tr><th>Guest Name</th><td>{{ $guestName }}</td></tr>
+            <tr><th>Reservation Date</th><td>{{ $reservationDateFormatted }}</td></tr>
+            @if(!empty($eventName))
+            <tr><th>Event</th><td>{{ $eventName }}</td></tr>
+            @endif
+            @if($guestCount > 0)
+            <tr><th>Guest Count</th><td>{{ $guestCount }}</td></tr>
+            @endif
+            <tr><th>Email</th><td>{{ $mailData['package_email'] ?? 'N/A' }}</td></tr>
+            <tr><th>Phone</th><td>{{ $mailData['package_phone'] ?? 'N/A' }}</td></tr>
+        </table>
+
+        @if(!empty($mailData['ticket_qr_code']))
+            <div class="section-title">Important Check-In Instructions</div>
+            <p>Your confirmation includes a unique QR code for venue check-in.</p>
+            <p>Please present:</p>
+            <ul>
+                <li>your QR code</li>
+                <li>a valid government-issued ID</li>
+                <li>your booking confirmation upon arrival</li>
+            </ul>
+            <p>Your QR code is valid for <strong>one-time use only</strong> and may only be scanned once at the venue. Please do not share, duplicate, alter, or tamper with your QR code in any way, as invalid or previously scanned codes may be denied entry.</p>
+
+            <div class="ticket-box">
+                @if(!empty($mailData['ticket_qr_image_url']))
+                    <img src="{{ $mailData['ticket_qr_image_url'] }}" alt="Ticket QR Code" width="220" height="220" style="max-width:100%;height:auto;border-radius:10px;border:1px solid #cbd5e1;">
+                @endif
+                <div class="ticket-code">{{ $mailData['ticket_qr_code'] }}</div>
+            </div>
+        @endif
+
+        @if(!empty($mailCartItems))
+            <div class="section-title">Order Summary</div>
+            <table class="summary">
+                @foreach($mailCartItems as $item)
+                    <tr>
+                        <th>{{ html_entity_decode($item['package_name'] ?? ('Package #' . ($item['package_id'] ?? '')), ENT_QUOTES | ENT_HTML5, 'UTF-8') }}</th>
+                        <td>
+                            Guests: {{ max(1, (int) ($item['guests'] ?? 1)) }}<br>
+                            Unit Price: ${{ number_format((float) ($item['unit_price'] ?? 0), 2) }}<br>
+                            <strong>Total: ${{ number_format((float) ($item['line_total'] ?? ($item['unit_price'] ?? 0)), 2) }}</strong>
+                        </td>
+                    </tr>
+                    @if(!empty($item['addons']))
+                        @foreach($item['addons'] as $addon)
+                            @if(!empty($addon['name']))
+                            <tr style="background: #f8fbff;">
+                                <td style="padding-left: 24px;"><strong>+</strong> {{ $addon['name'] }} x{{ $addon['qty'] }}</td>
+                                <td>
+                                    @if((float) ($addon['price'] ?? 0) > 0)
+                                        ${{ number_format((float) ($addon['unit_price'] ?? 0), 2) }} each<br>
+                                        <strong>${{ number_format((float) ($addon['price'] ?? 0), 2) }}</strong>
+                                    @else
+                                        <em>Included</em>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endif
+                        @endforeach
+                    @endif
+                @endforeach
+                @if(!empty($mailPriceBreakdown))
+                    <tr><th>Amount Paid Now</th><td>${{ number_format((float) ($mailPriceBreakdown['amount_paid_now'] ?? ($mailData['total'] ?? 0)), 2) }}</td></tr>
+                    @if((float) ($mailPriceBreakdown['remaining_due'] ?? 0) > 0)
+                    <tr><th>Remaining Due</th><td>${{ number_format((float) ($mailPriceBreakdown['remaining_due'] ?? 0), 2) }}</td></tr>
+                    @endif
+                @endif
+            </table>
+        @endif
+
+        <p>For questions regarding check-in, arrival times, upgrades, or venue policies, please contact the venue directly.</p>
+        <p>Thank you for booking with CartVIP.</p>
+    @endif
+
+    <p class="muted">This is an automated email. Please do not reply.</p>
+</div>
+</body>
+</html>

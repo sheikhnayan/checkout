@@ -1,0 +1,692 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\CustomInvoice;
+use App\Models\CustomInvoiceItem;
+use App\Models\Website;
+use App\Models\Setting;
+use App\Models\SMTP;
+use App\Mail\CustomInvoiceMail;
+use App\Mail\CustomInvoicePaymentConfirmationMail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use Stripe;
+use net\authorize\api\contract\v1 as AnetAPI;
+use net\authorize\api\controller as AnetController;
+
+class CustomInvoiceController extends Controller
+{
+    /**
+     * Display a listing of custom invoices
+     */
+    public function index()
+    {
+        $user = auth()->user();
+        $includeArchived = request()->boolean('include_archived');
+        
+        if ($user->isAdmin()) {
+            $invoices = CustomInvoice::with(['website', 'items'])
+                                    ->when(!$includeArchived, function ($query) {
+                                        $query->whereNull('archived_at');
+                                    })
+                                    ->latest()
+                                    ->get();
+        } elseif ($user->isWebsiteUser() && $user->website_id) {
+            $invoices = CustomInvoice::where('website_id', $user->website_id)
+                                    ->when(!$includeArchived, function ($query) {
+                                        $query->whereNull('archived_at');
+                                    })
+                                    ->with(['items'])
+                                    ->latest()
+                                    ->get();
+        } else {
+            $invoices = collect();
+        }
+
+        return view('admin.custom-invoice.index', compact('invoices', 'includeArchived'));
+    }
+
+    /**
+     * Show the form for creating a new custom invoice
+     */
+    public function create()
+    {
+        $user = auth()->user();
+        
+        if ($user->isWebsiteUser()) {
+            $websites = Website::where('id', $user->website_id)->get();
+        } else {
+            $websites = Website::all();
+        }
+
+        return view('admin.custom-invoice.create', compact('websites'));
+    }
+
+    /**
+     * Store a newly created custom invoice
+     */
+    public function store(Request $request)
+    {
+        $user = auth()->user();
+        
+        $request->validate([
+            'website_id' => 'required|exists:websites,id',
+            'client_name' => 'required|string|max:255',
+            'client_email' => 'required|email|max:255',
+            'notes' => 'nullable|string',
+            'items' => 'required|array|min:1',
+            'items.*.name' => 'required|string|max:255',
+            'items.*.price' => 'required|numeric|min:0.01',
+            'items.*.quantity' => 'required|integer|min:1',
+        ]);
+
+        // Check authorization for website users
+        if ($user->isWebsiteUser() && $request->website_id != $user->website_id) {
+            abort(403, 'Unauthorized');
+        }
+
+        $invoice = new CustomInvoice();
+        $invoice->user_id = $user->id;
+        $invoice->website_id = $request->website_id;
+        $invoice->client_name = $request->client_name;
+        $invoice->client_email = $request->client_email;
+        $invoice->notes = $request->notes;
+        $invoice->payment_token = CustomInvoice::generatePaymentToken();
+        $invoice->save();
+
+        // Add items
+        foreach ($request->items as $itemData) {
+            CustomInvoiceItem::create([
+                'custom_invoice_id' => $invoice->id,
+                'name' => $itemData['name'],
+                'price' => $itemData['price'],
+                'quantity' => $itemData['quantity'] ?? 1,
+            ]);
+        }
+
+        // Calculate totals
+        $invoice->calculateTotals();
+        $invoice->save();
+
+        // Check if we should send immediately
+        if ($request->input('action') === 'send') {
+            try {
+                $this->applyInvoiceSmtpConfig($invoice, $user);
+
+                Mail::to($invoice->client_email)->send(
+                    new CustomInvoiceMail($invoice)
+                );
+
+                $invoice->update([
+                    'status' => 'sent',
+                    'sent_at' => now(),
+                ]);
+
+                return redirect()->route('admin.custom-invoice.show', $invoice->id)
+                               ->with('success', 'Custom invoice created and sent successfully!');
+            } catch (\Exception $e) {
+                return redirect()->route('admin.custom-invoice.show', $invoice->id)
+                               ->with('warning', 'Invoice created but failed to send: ' . $e->getMessage());
+            }
+        }
+
+        return redirect()->route('admin.custom-invoice.show', $invoice->id)
+                       ->with('success', 'Custom invoice created successfully!');
+    }
+
+    /**
+     * Display the specified custom invoice
+     */
+    public function show(CustomInvoice $customInvoice)
+    {
+        $user = auth()->user();
+        
+        if ($user->isWebsiteUser() && $customInvoice->website_id != $user->website_id) {
+            abort(403, 'Unauthorized');
+        }
+
+        return view('admin.custom-invoice.show', compact('customInvoice'));
+    }
+
+    /**
+     * Show the form for editing the specified custom invoice
+     */
+    public function edit(CustomInvoice $customInvoice)
+    {
+        $user = auth()->user();
+        
+        if ($user->isWebsiteUser() && $customInvoice->website_id != $user->website_id) {
+            abort(403, 'Unauthorized');
+        }
+
+        if ($customInvoice->archived_at) {
+            return redirect()->back()->with('error', 'Archived invoices cannot be edited. Please restore it first.');
+        }
+
+        if ($customInvoice->status !== 'draft') {
+            return redirect()->back()->with('error', 'Can only edit draft invoices!');
+        }
+
+        $websites = $user->isWebsiteUser() 
+                    ? Website::where('id', $user->website_id)->get() 
+                    : Website::all();
+
+        return view('admin.custom-invoice.edit', compact('customInvoice', 'websites'));
+    }
+
+    /**
+     * Update the specified custom invoice
+     */
+    public function update(Request $request, CustomInvoice $customInvoice)
+    {
+        $user = auth()->user();
+        
+        if ($user->isWebsiteUser() && $customInvoice->website_id != $user->website_id) {
+            abort(403, 'Unauthorized');
+        }
+
+        if ($customInvoice->archived_at) {
+            return redirect()->back()->with('error', 'Archived invoices cannot be updated. Please restore it first.');
+        }
+
+        if ($customInvoice->status !== 'draft') {
+            return redirect()->back()->with('error', 'Can only edit draft invoices!');
+        }
+
+        $request->validate([
+            'website_id' => 'required|exists:websites,id',
+            'client_name' => 'required|string|max:255',
+            'client_email' => 'required|email|max:255',
+            'notes' => 'nullable|string',
+            'items' => 'required|array|min:1',
+            'items.*.name' => 'required|string|max:255',
+            'items.*.price' => 'required|numeric|min:0.01',
+            'items.*.quantity' => 'required|integer|min:1',
+        ]);
+
+        $customInvoice->update([
+            'client_name' => $request->client_name,
+            'client_email' => $request->client_email,
+            'notes' => $request->notes,
+            'website_id' => $request->website_id,
+        ]);
+
+        // Delete old items and create new ones
+        $customInvoice->items()->delete();
+        foreach ($request->items as $itemData) {
+            CustomInvoiceItem::create([
+                'custom_invoice_id' => $customInvoice->id,
+                'name' => $itemData['name'],
+                'price' => $itemData['price'],
+                'quantity' => $itemData['quantity'] ?? 1,
+            ]);
+        }
+
+        // Recalculate totals
+        $customInvoice->calculateTotals();
+        $customInvoice->save();
+
+        return redirect()->route('admin.custom-invoice.show', $customInvoice->id)
+                       ->with('success', 'Custom invoice updated successfully!');
+    }
+
+    /**
+     * Send the custom invoice to client
+     */
+    public function send(CustomInvoice $customInvoice)
+    {
+        $user = auth()->user();
+        
+        if ($user->isWebsiteUser() && $customInvoice->website_id != $user->website_id) {
+            abort(403, 'Unauthorized');
+        }
+
+        if ($customInvoice->archived_at) {
+            return redirect()->back()->with('error', 'Archived invoices cannot be sent. Please restore it first.');
+        }
+
+        if ($customInvoice->status !== 'draft') {
+            return redirect()->back()->with('error', 'Can only send draft invoices!');
+        }
+
+        try {
+            $this->applyInvoiceSmtpConfig($customInvoice, $user);
+
+            Mail::to($customInvoice->client_email)->send(
+                new CustomInvoiceMail($customInvoice)
+            );
+
+            $customInvoice->update([
+                'status' => 'sent',
+                'sent_at' => now(),
+            ]);
+
+            return redirect()->back()->with('success', 'Invoice sent successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to send invoice: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete the specified custom invoice
+     */
+    public function destroy(CustomInvoice $customInvoice)
+    {
+        $user = auth()->user();
+        
+        if ($user->isWebsiteUser() && $customInvoice->website_id != $user->website_id) {
+            abort(403, 'Unauthorized');
+        }
+
+        if ($customInvoice->status === 'paid') {
+            return redirect()->back()->with('error', 'Cannot delete paid invoices!');
+        }
+
+        $customInvoice->delete();
+        return redirect()->route('admin.custom-invoice.index')->with('success', 'Invoice deleted successfully!');
+    }
+
+    /**
+     * Archive the specified custom invoice
+     */
+    public function archive(CustomInvoice $customInvoice)
+    {
+        $user = auth()->user();
+
+        if ($user->isWebsiteUser() && $customInvoice->website_id != $user->website_id) {
+            abort(403, 'Unauthorized');
+        }
+
+        if ($customInvoice->archived_at) {
+            return redirect()->back()->with('info', 'Invoice is already archived.');
+        }
+
+        $customInvoice->archived_at = now();
+        $customInvoice->save();
+
+        return redirect()->route('admin.custom-invoice.index')->with('success', 'Invoice archived successfully!');
+    }
+
+    /**
+     * Restore an archived custom invoice
+     */
+    public function unarchive(CustomInvoice $customInvoice)
+    {
+        $user = auth()->user();
+
+        if ($user->isWebsiteUser() && $customInvoice->website_id != $user->website_id) {
+            abort(403, 'Unauthorized');
+        }
+
+        if (!$customInvoice->archived_at) {
+            return redirect()->back()->with('info', 'Invoice is not archived.');
+        }
+
+        $customInvoice->archived_at = null;
+        $customInvoice->save();
+
+        return redirect()->route('admin.custom-invoice.index', ['include_archived' => 1])->with('success', 'Invoice restored successfully!');
+    }
+
+    /**
+     * Configure mail transport for invoice emails with fallback strategy.
+     */
+    private function applyInvoiceSmtpConfig(CustomInvoice $invoice, $user): void
+    {
+        $smtp = optional($invoice->website)->smtp;
+
+        if (!$this->hasUsableSmtp($smtp) && $user && $user->website_id) {
+            $userWebsite = Website::with('smtp')->find($user->website_id);
+            $smtp = optional($userWebsite)->smtp;
+        }
+
+        if (!$this->hasUsableSmtp($smtp)) {
+            $smtp = SMTP::latest()->first();
+        }
+
+        if ($this->hasUsableSmtp($smtp)) {
+            config([
+                'mail.default' => 'smtp',
+                'mail.mailers.smtp.host' => $smtp->host,
+                'mail.mailers.smtp.port' => $smtp->port,
+                'mail.mailers.smtp.username' => $smtp->username,
+                'mail.mailers.smtp.password' => $smtp->password,
+                'mail.mailers.smtp.encryption' => $this->normalizeSmtpEncryption($smtp->encryption),
+                'mail.from.address' => $smtp->from_email ?: config('mail.from.address'),
+                'mail.from.name' => $smtp->from_name ?: config('mail.from.name'),
+            ]);
+        }
+    }
+
+    /**
+     * Validate that the SMTP record has minimum required fields.
+     */
+    private function hasUsableSmtp($smtp): bool
+    {
+        return $smtp
+            && !empty($smtp->host)
+            && !empty($smtp->port)
+            && !empty($smtp->username)
+            && !empty($smtp->password);
+    }
+
+    /**
+     * Convert legacy SMTP encryption values into valid mailer options.
+     */
+    private function normalizeSmtpEncryption($value): ?string
+    {
+        if (in_array($value, ['tls', 'ssl'], true)) {
+            return $value;
+        }
+
+        if ((string) $value === '1' || $value === true) {
+            return 'tls';
+        }
+
+        return null;
+    }
+
+    /**
+     * Show payment page for client
+     */
+    public function showPayment($token)
+    {
+        $invoice = CustomInvoice::where('payment_token', $token)->firstOrFail();
+
+        if ($invoice->archived_at) {
+            return redirect('/')->with('error', 'This invoice is archived and no longer available for payment.');
+        }
+
+        if ($invoice->status === 'paid') {
+            return redirect('/')->with('error', 'This invoice has already been paid!');
+        }
+
+        if ($invoice->status === 'expired') {
+            return redirect('/')->with('error', 'This invoice has expired!');
+        }
+
+        $website = $invoice->website;
+
+        return view('custom-invoice.pay', compact('invoice', 'website'));
+    }
+
+    /**
+     * Process payment for custom invoice
+     */
+    public function processPayment($token, Request $request)
+    {
+        $invoice = CustomInvoice::where('payment_token', $token)->firstOrFail();
+
+        if ($invoice->status === 'paid') {
+            return redirect()->back()->with('error', 'This invoice has already been paid!');
+        }
+
+        $website = $invoice->website;
+        $setting = Setting::find(1);
+
+        // Determine payment amount
+        $paymentType = $request->input('payment_type', 'full');
+        $paymentAmount = $paymentType === 'deposit' && $invoice->refundable > 0 
+            ? $invoice->refundable 
+            : $invoice->total;
+
+        try {
+            if ($website->payment_method == 'stripe') {
+                return $this->processStripePayment($invoice, $website, $setting, $request, $paymentAmount, $paymentType);
+            } elseif ($website->payment_method == 'authorize') {
+                return $this->processAuthorizePayment($invoice, $website, $setting, $request, $paymentAmount, $paymentType);
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Process Stripe payment
+     */
+    private function processStripePayment($invoice, $website, $setting, $request, $amount, $paymentType)
+    {
+        $secret = $website->stripe_secret_key ?? $setting->stripe_secret;
+        Stripe\Stripe::setApiKey($secret);
+
+        try {
+            $charge = Stripe\Charge::create([
+                "amount" => (int) ($amount * 100),
+                "currency" => "usd",
+                "source" => $request->stripeToken,
+                "description" => "Custom Invoice #" . $invoice->id . " - " . ucfirst($paymentType) . " Payment",
+            ]);
+
+            // Update invoice status based on payment type
+            $status = $paymentType === 'full' ? 'paid' : 'sent'; // Partial payment keeps it as 'sent'
+            
+            $invoice->update([
+                'status' => $status,
+                'paid_at' => $paymentType === 'full' ? now() : $invoice->paid_at,
+                'payment_transaction_id' => $charge->id,
+            ]);
+
+            // Create Transaction record for tracking
+            $transaction = new \App\Models\Transaction();
+            $transaction->transaction_id = $charge->id;
+            $transaction->package_first_name = $invoice->client_name;
+            $transaction->package_email = $invoice->client_email;
+            $transaction->payment_first_name = $request->cardholder_name ?? $invoice->client_name;
+            $transaction->payment_email = $invoice->client_email;
+            $transaction->event_id = null;
+            $transaction->website_id = $invoice->website_id;
+            $transaction->total = $amount;
+            $transaction->actual_total = $amount;
+            $transaction->type = 'custom_invoice';
+            $transaction->custom_invoice_id = $invoice->id;
+            $transaction->ip_address = $request->ip();
+            $transaction->save();
+
+            $this->sendCustomInvoicePaymentConfirmation($invoice, $transaction, $website, $paymentType, $request);
+
+            $message = $paymentType === 'deposit' 
+                ? 'Deposit payment processed successfully! Remaining balance due on arrival.' 
+                : 'Payment processed successfully!';
+
+            // Redirect to thank you page with transaction details
+            return redirect()->route('thank-you')
+                ->with('transaction', $transaction)
+                ->with('invoice', $invoice)
+                ->with('website', $website)
+                ->with('paymentType', $paymentType)
+                ->with('success', $message);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Process Authorize.net payment
+     */
+    private function processAuthorizePayment($invoice, $website, $setting, $request, $amount, $paymentType)
+    {
+        $loginId = $website->authorize_login_id
+            ?: $website->authorize_app_key
+            ?: $setting->authorize_login
+            ?: $setting->authorize_key;
+
+        $transactionKey = $website->authorize_transaction_key
+            ?: $website->authorize_secret_key
+            ?: $setting->authorize_secret;
+
+        if (empty($loginId) || empty($transactionKey)) {
+            return redirect()->back()->with('error', 'Payment processing failed: Authorize.Net credentials are not configured.');
+        }
+
+        $merchantAuthentication = new AnetAPI\MerchantAuthenticationType();
+        $merchantAuthentication->setName($loginId);
+        $merchantAuthentication->setTransactionKey($transactionKey);
+
+        $charge = new AnetAPI\CreditCardType();
+        $charge->setCardNumber($request->cardNumber);
+        $charge->setExpirationDate($request->expirationDate);
+        $charge->setCardCode($request->cvv);
+
+        $paymentOne = new AnetAPI\PaymentType();
+        $paymentOne->setCreditCard($charge);
+
+        $billTo = new AnetAPI\CustomerAddressType();
+        $billTo->setFirstName($request->firstName ?? '');
+        $billTo->setLastName($request->lastName ?? '');
+
+        $transactionRequestType = new AnetAPI\TransactionRequestType();
+        $transactionRequestType->setTransactionType("authCaptureTransaction");
+        $transactionRequestType->setAmount($amount);
+        $transactionRequestType->setPayment($paymentOne);
+        $transactionRequestType->setBillTo($billTo);
+
+        $request_obj = new AnetAPI\CreateTransactionRequest();
+        $request_obj->setMerchantAuthentication($merchantAuthentication);
+        $request_obj->setRefId(uniqid());
+        $request_obj->setTransactionRequest($transactionRequestType);
+
+        $controller = new AnetController\CreateTransactionController($request_obj);
+        
+        $useSandbox = $website->sandbox_mode;
+        if ($useSandbox === null) {
+            $useSandbox = $setting->sandbox_mode;
+        }
+        if ($useSandbox === null) {
+            // Match current checkout behavior when no toggle is configured.
+            $useSandbox = true;
+        }
+
+        $apiUrl = $useSandbox
+            ? \net\authorize\api\constants\ANetEnvironment::SANDBOX 
+            : \net\authorize\api\constants\ANetEnvironment::PRODUCTION;
+            
+        $response = $controller->executeWithApiResponse($apiUrl);
+
+        if ($response != null) {
+            if ($response->getMessages()->getResultCode() == "Ok") {
+                $tresponse = $response->getTransactionResponse();
+                if ($tresponse != null && $tresponse->getMessages() != null) {
+                    // Update invoice status based on payment type
+                    $status = $paymentType === 'full' ? 'paid' : 'sent';
+                    
+                    $invoice->update([
+                        'status' => $status,
+                        'paid_at' => $paymentType === 'full' ? now() : $invoice->paid_at,
+                        'payment_transaction_id' => $tresponse->getTransId(),
+                    ]);
+
+                    // Create Transaction record for tracking
+                    $transaction = new \App\Models\Transaction();
+                    $transaction->transaction_id = $tresponse->getTransId();
+                    $transaction->package_first_name = $invoice->client_name;
+                    $transaction->package_email = $invoice->client_email;
+                    $transaction->payment_first_name = $request->firstName . ' ' . $request->lastName;
+                    $transaction->payment_email = $invoice->client_email;
+                    $transaction->event_id = null;
+                    $transaction->website_id = $invoice->website_id;
+                    $transaction->total = $amount;
+                    $transaction->actual_total = $amount;
+                    $transaction->type = 'custom_invoice';
+                    $transaction->custom_invoice_id = $invoice->id;
+                    $transaction->ip_address = $request->ip();
+                    $transaction->save();
+
+                    $this->sendCustomInvoicePaymentConfirmation($invoice, $transaction, $website, $paymentType, $request);
+
+                    $message = $paymentType === 'deposit' 
+                        ? 'Deposit payment processed successfully! Remaining balance due on arrival.' 
+                        : 'Payment processed successfully!';
+
+                    // Redirect to thank you page with transaction details
+                    return redirect()->route('thank-you')
+                        ->with('transaction', $transaction)
+                        ->with('invoice', $invoice)
+                        ->with('website', $website)
+                        ->with('paymentType', $paymentType)
+                        ->with('success', $message);
+                }
+
+                if ($tresponse != null && $tresponse->getErrors() != null) {
+                    $error = $tresponse->getErrors()[0] ?? null;
+                    $code = $error ? $error->getErrorCode() : null;
+                    $text = $error ? $error->getErrorText() : 'Unknown Authorize.Net error.';
+                    $errorMessage = 'Payment processing failed' . ($code ? ' (' . $code . ')' : '') . ': ' . $text;
+
+                    Log::error('Custom invoice Authorize.Net transaction error', [
+                        'invoice_id' => $invoice->id,
+                        'website_id' => $website->id,
+                        'sandbox_mode' => (bool) $useSandbox,
+                        'error_code' => $code,
+                        'error_text' => $text,
+                    ]);
+
+                    return redirect()->back()->with('error', $errorMessage);
+                }
+            }
+
+            $messages = $response->getMessages()->getMessage();
+            if (!empty($messages)) {
+                $first = $messages[0];
+                $gatewayMessage = trim(($first->getCode() ? $first->getCode() . ': ' : '') . $first->getText());
+
+                Log::error('Custom invoice Authorize.Net API message error', [
+                    'invoice_id' => $invoice->id,
+                    'website_id' => $website->id,
+                    'sandbox_mode' => (bool) $useSandbox,
+                    'message' => $gatewayMessage,
+                ]);
+
+                return redirect()->back()->with('error', 'Payment processing failed: ' . $gatewayMessage);
+            }
+        }
+
+        Log::error('Custom invoice Authorize.Net null/empty response', [
+            'invoice_id' => $invoice->id,
+            'website_id' => $website->id,
+            'sandbox_mode' => (bool) $useSandbox,
+        ]);
+
+        return redirect()->back()->with('error', 'Payment processing failed: empty response from Authorize.Net.');
+    }
+
+    private function sendCustomInvoicePaymentConfirmation($invoice, $transaction, $website, string $paymentType, Request $request): void
+    {
+        try {
+            $this->applyInvoiceSmtpConfig($invoice, auth()->user());
+
+            $clientMail = new CustomInvoicePaymentConfirmationMail(
+                $invoice,
+                $transaction,
+                $paymentType,
+                $website,
+                (string) ($request->cardholder_name ?? $request->firstName ?? ''),
+                (string) ($request->lastName ?? '')
+            );
+
+            $managerMail = (clone $clientMail)->subject(
+                'Custom Invoice Payment Confirmation - ' . $transaction->transaction_id . ' - ' . ($website->name ?? 'Club')
+            );
+
+            if ($invoice->client_email && filter_var($invoice->client_email, FILTER_VALIDATE_EMAIL)) {
+                Mail::to($invoice->client_email)->send(clone $clientMail);
+            }
+
+            $managerEmails = collect($website->emails ?? [])->pluck('email')
+                ->filter(fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
+                ->unique()
+                ->values();
+
+            foreach ($managerEmails as $managerEmail) {
+                Mail::to($managerEmail)->send(clone $managerMail);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Custom invoice payment confirmation email failed', [
+                'invoice_id' => $invoice->id,
+                'transaction_id' => $transaction->transaction_id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+}

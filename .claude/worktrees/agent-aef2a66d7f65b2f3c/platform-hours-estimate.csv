@@ -1,0 +1,35 @@
+Platform,Feature,Hours
+CartVIP,Responsive checkout page design (all templates),120
+CartVIP,Package selection and dynamic pricing UI,80
+CartVIP,Add-on selection modal with pricing,70
+CartVIP,Cart management (add/remove/update items),95
+CartVIP,Guest count and package quantity handling,55
+CartVIP,Fee calculation engine (service charge gratuity tax),90
+CartVIP,Payment integration (Stripe + Authorize.net),110
+CartVIP,Affiliate public page flow and affiliate checkout logic,35
+CartVIP,Feed module (content feed rendering and management),20
+CartVIP,Transaction storage and order lifecycle,85
+CartVIP,Thank-you page and receipt rendering,45
+CartVIP,Admin package management,60
+CartVIP,Admin add-on management and sync behavior,55
+CartVIP,Admin transaction reporting,65
+CartVIP,Email notifications (transaction and system mails),30
+CartVIP,Cross-page fixes regressions and production patches,45
+CartVIP,CartVIP Total,960
+Fundraiser,Responsive website and donation page design,130
+Fundraiser,User registration login and role permissions,95
+Fundraiser,Organization profile management,70
+Fundraiser,Campaign creation and campaign editing,130
+Fundraiser,Campaign media and content sections,75
+Fundraiser,Donation checkout (one-time and recurring),120
+Fundraiser,Payment processing and webhook handling,110
+Fundraiser,Donor receipts and confirmation emails,55
+Fundraiser,Public campaign listing and detail pages,80
+Fundraiser,Fundraising progress and goal tracking,60
+Fundraiser,Admin dashboard and transaction management,90
+Fundraiser,Reports and export features,55
+Fundraiser,Notifications and reminder workflows,40
+Fundraiser,Security hardening and access controls,45
+Fundraiser,Bug fixing QA cycles and launch support,65
+Fundraiser,Fundraiser Total,1120
+All Platforms,Total (1 year),2080

@@ -137,18 +137,25 @@ class ReportGenerationService
         [$prevStart, $prevEnd] = $this->getPreviousDateRange();
 
         $currTx = Transaction::query()->financiallyReportable()->whereBetween('created_at', [$currStart, $currEnd]);
+        $this->applyWebsiteScopeOnly($currTx, 'transactions.website_id');
         $currSales = (float) (clone $currTx)->sum('total');
         $currOrders = (int) (clone $currTx)->count();
 
         $prevTx = Transaction::query()->financiallyReportable()->whereBetween('created_at', [$prevStart, $prevEnd]);
+        $this->applyWebsiteScopeOnly($prevTx, 'transactions.website_id');
         $prevSales = (float) (clone $prevTx)->sum('total');
         $prevOrders = (int) (clone $prevTx)->count();
 
         $currSessions = 0;
         $prevSessions = 0;
         if (Schema::hasTable('website_visitor_sessions')) {
-            $currSessions = (int) WebsiteVisitorSession::query()->whereBetween('first_seen_at', [$currStart->copy()->utc(), $currEnd->copy()->utc()])->count();
-            $prevSessions = (int) WebsiteVisitorSession::query()->whereBetween('first_seen_at', [$prevStart->copy()->utc(), $prevEnd->copy()->utc()])->count();
+            $currSessQ = WebsiteVisitorSession::query()->whereBetween('first_seen_at', [$currStart->copy()->utc(), $currEnd->copy()->utc()]);
+            $this->applyWebsiteScopeOnly($currSessQ, 'website_visitor_sessions.website_id');
+            $currSessions = (int) $currSessQ->count();
+
+            $prevSessQ = WebsiteVisitorSession::query()->whereBetween('first_seen_at', [$prevStart->copy()->utc(), $prevEnd->copy()->utc()]);
+            $this->applyWebsiteScopeOnly($prevSessQ, 'website_visitor_sessions.website_id');
+            $prevSessions = (int) $prevSessQ->count();
         }
         if ($currSessions === 0) {
             $currSessions = max(120, $currOrders * 18);
@@ -183,13 +190,23 @@ class ReportGenerationService
             $pDate = $prevStart->copy()->addDays($i);
             $labels[] = $cDate->format('M j');
 
-            $cS = (float) Transaction::query()->financiallyReportable()->whereDate('created_at', $cDate->toDateString())->sum('total');
-            $pS = (float) Transaction::query()->financiallyReportable()->whereDate('created_at', $pDate->toDateString())->sum('total');
+            $cSQ = Transaction::query()->financiallyReportable()->whereDate('created_at', $cDate->toDateString());
+            $this->applyWebsiteScopeOnly($cSQ, 'transactions.website_id');
+            $cS = (float) $cSQ->sum('total');
+
+            $pSQ = Transaction::query()->financiallyReportable()->whereDate('created_at', $pDate->toDateString());
+            $this->applyWebsiteScopeOnly($pSQ, 'transactions.website_id');
+            $pS = (float) $pSQ->sum('total');
             $salesCurrent[] = round($cS, 2);
             $salesPrevious[] = round($pS, 2);
 
-            $cO = (int) Transaction::query()->financiallyReportable()->whereDate('created_at', $cDate->toDateString())->count();
-            $pO = (int) Transaction::query()->financiallyReportable()->whereDate('created_at', $pDate->toDateString())->count();
+            $cOQ = Transaction::query()->financiallyReportable()->whereDate('created_at', $cDate->toDateString());
+            $this->applyWebsiteScopeOnly($cOQ, 'transactions.website_id');
+            $cO = (int) $cOQ->count();
+
+            $pOQ = Transaction::query()->financiallyReportable()->whereDate('created_at', $pDate->toDateString());
+            $this->applyWebsiteScopeOnly($pOQ, 'transactions.website_id');
+            $pO = (int) $pOQ->count();
             $ordersCurrent[] = $cO;
             $ordersPrevious[] = $pO;
 
@@ -239,29 +256,21 @@ class ReportGenerationService
         ];
     }
 
-    private function applyUserScope($query)
+    private function applyWebsiteScopeOnly($query, string $column = 'website_id')
     {
-        if ($this->user->user_type === 'admin') {
-            return $query;
+        $selectedWebsite = $this->filters['website_id'] ?? 'all';
+
+        if ($selectedWebsite && $selectedWebsite !== 'all') {
+            $websiteId = (int) $selectedWebsite;
+            $allowedIds = $this->user->accessibleWebsiteIds();
+
+            if ($this->user->isAdmin() || in_array($websiteId, $allowedIds, true)) {
+                return $query->where($column, $websiteId);
+            }
+
+            return $query->whereRaw('1 = 0');
         }
 
-        if ($this->user->website_id) {
-            $query->where('website_id', $this->user->website_id);
-        }
-
-        if ($this->user->affiliate_id) {
-            $query->where('affiliate_id', $this->user->affiliate_id);
-        }
-
-        if ($this->user->entertainer_id) {
-            $query->where('entertainer_id', $this->user->entertainer_id);
-        }
-
-        return $query;
-    }
-
-    private function applyWebsiteScopeOnly($query)
-    {
         if ($this->user->isAdmin()) {
             return $query;
         }
@@ -269,18 +278,28 @@ class ReportGenerationService
         if ($this->user->isManager()) {
             $websiteIds = $this->user->accessibleWebsiteIds();
             if (!empty($websiteIds)) {
-                $query->whereIn('website_id', $websiteIds);
-            } else {
-                $query->whereRaw('1 = 0');
+                return $query->whereIn($column, $websiteIds);
             }
-
-            return $query;
+            return $query->whereRaw('1 = 0');
         }
 
         if ($this->user->website_id) {
-            $query->where('website_id', $this->user->website_id);
-        } else {
-            $query->whereRaw('1 = 0');
+            return $query->where($column, $this->user->website_id);
+        }
+
+        return $query->whereRaw('1 = 0');
+    }
+
+    private function applyUserScope($query, string $websiteColumn = 'website_id')
+    {
+        $this->applyWebsiteScopeOnly($query, $websiteColumn);
+
+        if ($this->user->affiliate_id) {
+            $query->where('affiliate_id', $this->user->affiliate_id);
+        }
+
+        if ($this->user->entertainer_id) {
+            $query->where('entertainer_id', $this->user->entertainer_id);
         }
 
         return $query;

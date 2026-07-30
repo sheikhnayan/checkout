@@ -73,8 +73,32 @@ class ReportController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
+        // Get accessible websites/clubs for club toggle
+        $accessibleWebsites = collect();
+        $canSwitchClubs = false;
+
+        if ($user->isAdmin()) {
+            $accessibleWebsites = Website::orderBy('name')->get(['id', 'name', 'short_name']);
+            $canSwitchClubs = true;
+        } elseif ($user->isManager()) {
+            $accessibleWebsites = $user->managedWebsites()->orderBy('name')->get(['id', 'name', 'short_name']);
+            $canSwitchClubs = $accessibleWebsites->count() > 0;
+        }
+
         // Get filters from request
         $filters = $request->only(array_keys($report->available_filters ?? []));
+
+        // Handle website/club filter
+        $selectedWebsiteId = $request->get('website_id');
+        if ($selectedWebsiteId && $selectedWebsiteId !== 'all') {
+            $allowedIds = $user->accessibleWebsiteIds();
+            if (!in_array((int)$selectedWebsiteId, $allowedIds, true)) {
+                return response()->json(['error' => 'Unauthorized access to the selected club.'], 403);
+            }
+            $filters['website_id'] = (int) $selectedWebsiteId;
+        } else {
+            $filters['website_id'] = 'all';
+        }
 
         // Handle custom date range
         if ($request->get('date_range') === 'custom') {
@@ -107,6 +131,9 @@ class ReportController extends Controller
                 'data' => $data,
                 'preference' => $preference,
                 'savedReports' => $savedReports,
+                'accessibleWebsites' => $accessibleWebsites,
+                'selectedWebsiteId' => $filters['website_id'],
+                'canSwitchClubs' => $canSwitchClubs,
             ]);
         }
 
@@ -115,6 +142,9 @@ class ReportController extends Controller
             'data' => $data,
             'preference' => $preference,
             'savedReports' => $savedReports,
+            'accessibleWebsites' => $accessibleWebsites,
+            'selectedWebsiteId' => $filters['website_id'],
+            'canSwitchClubs' => $canSwitchClubs,
         ]);
     }
 

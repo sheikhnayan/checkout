@@ -11,7 +11,22 @@
             <h1 class="h2 mb-2" style="color: #fff !important">{{ $report->name }}</h1>
             <p class="text-muted mb-0">{{ $report->description }}</p>
         </div>
-        <div>
+        <div class="d-flex align-items-center gap-3">
+            @if(isset($canSwitchClubs) && $canSwitchClubs && isset($accessibleWebsites) && $accessibleWebsites->count() > 0)
+                <div class="d-flex align-items-center bg-dark p-2 px-3 rounded border border-secondary border-opacity-25 shadow-sm" style="background: rgba(18, 23, 38, 0.95) !important;">
+                    <span class="text-white small fw-bold me-2 text-nowrap"><i class="fas fa-building text-primary me-1"></i>Club / Venue:</span>
+                    <select class="form-select form-select-sm border-0 bg-transparent text-white fw-bold py-1 pe-4 cursor-pointer" id="headerClubSwitchSelect" style="box-shadow: none; width: auto; font-size: 0.875rem;" onchange="const form = document.getElementById('filterForm'); if(form) { const inp = form.querySelector('[name=website_id]'); if(inp) inp.value = this.value; form.submit(); }">
+                        <option value="all" class="bg-dark text-white" {{ ($selectedWebsiteId ?? 'all') == 'all' ? 'selected' : '' }}>
+                            🏢 All Accessible Clubs ({{ $accessibleWebsites->count() }})
+                        </option>
+                        @foreach($accessibleWebsites as $web)
+                            <option value="{{ $web->id }}" class="bg-dark text-white" {{ ($selectedWebsiteId ?? 'all') == $web->id ? 'selected' : '' }}>
+                                📍 {{ $web->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
             <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#shopifyExportModal">
                 <i class="fas fa-file-export me-2"></i>Export Report
             </button>
@@ -83,6 +98,27 @@
                 </div>
                 <div class="card-body">
                     <form id="filterForm" method="GET">
+                        @if(isset($canSwitchClubs) && $canSwitchClubs && isset($accessibleWebsites) && $accessibleWebsites->count() > 0)
+                        <!-- Club Switcher -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-white d-flex align-items-center justify-content-between">
+                                <span><i class="fas fa-building text-primary me-1"></i> Club / Venue</span>
+                                <span class="badge bg-primary bg-opacity-25 text-primary small">Multi-Club</span>
+                            </label>
+                            <select name="website_id" class="form-select form-select-sm text-white custom-club-select" id="filterFormClubInput" onchange="this.form.submit();">
+                                <option value="all" {{ ($selectedWebsiteId ?? 'all') == 'all' ? 'selected' : '' }}>
+                                    🏢 All Accessible Clubs ({{ $accessibleWebsites->count() }})
+                                </option>
+                                @foreach($accessibleWebsites as $web)
+                                    <option value="{{ $web->id }}" {{ ($selectedWebsiteId ?? 'all') == $web->id ? 'selected' : '' }}>
+                                        📍 {{ $web->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @else
+                            <input type="hidden" name="website_id" value="{{ $selectedWebsiteId ?? 'all' }}">
+                        @endif
                         <!-- Date Range -->
                         <div class="mb-4">
                             <label class="form-label fw-bold text-white">Date Range</label>
@@ -767,7 +803,7 @@ function previewReportPdf() {
     cursor: pointer;
 }
 
-#dateRange {
+#dateRange, .custom-club-select {
     appearance: none !important;
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
@@ -781,17 +817,17 @@ function previewReportPdf() {
     border: 1px solid rgba(255,255,255,0.2) !important;
 }
 
-#dateRange:hover {
+#dateRange:hover, .custom-club-select:hover {
     background-color: rgba(255,255,255,0.15) !important;
 }
 
-#dateRange:focus {
+#dateRange:focus, .custom-club-select:focus {
     background-color: rgba(255,255,255,0.15) !important;
     border-color: rgba(124,58,237,0.5) !important;
     box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25) !important;
 }
 
-#dateRange option {
+#dateRange option, .custom-club-select option {
     background-color: #1e293b;
     color: #fff;
 }
