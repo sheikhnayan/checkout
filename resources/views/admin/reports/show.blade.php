@@ -250,57 +250,92 @@
     </div>
 </div>
 
-<!-- Shopify-Style Export Modal -->
+<!-- Export Modal -->
 <div class="modal fade" id="shopifyExportModal" tabindex="-1" aria-labelledby="shopifyExportModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-dark text-white border border-secondary">
-            <div class="modal-header border-bottom border-secondary border-opacity-50">
-                <h5 class="modal-title" id="shopifyExportModalLabel"><i class="fas fa-file-export me-2 text-primary"></i>Export report</h5>
+        <div class="modal-content text-white" style="background-color: #121726 !important; border: 1px solid rgba(255, 255, 255, 0.15) !important; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <style>
+                #shopifyExportModal .export-option-card {
+                    background: rgba(255, 255, 255, 0.03) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                    border-radius: 8px;
+                    padding: 1rem;
+                    transition: all 0.2s ease-in-out;
+                    cursor: pointer;
+                }
+                #shopifyExportModal .export-option-card:hover {
+                    background: rgba(255, 255, 255, 0.07) !important;
+                    border-color: rgba(65, 209, 255, 0.4) !important;
+                }
+                #shopifyExportModal .export-option-card:has(input[type="radio"]:checked) {
+                    background: rgba(65, 209, 255, 0.08) !important;
+                    border-color: #41d1ff !important;
+                }
+                #shopifyExportModal .export-option-card .form-check-input {
+                    cursor: pointer;
+                    margin-top: 0.25rem;
+                }
+            </style>
+            <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; padding: 1.25rem 1.5rem;">
+                <h5 class="modal-title fs-5 fw-bold text-white d-flex align-items-center mb-0" id="shopifyExportModalLabel" style="background: transparent !important; color: #ffffff !important;">
+                    <i class="fas fa-file-export me-2 text-primary"></i>Export report
+                </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="padding: 1.5rem;">
                 <div class="mb-4">
-                    <label class="form-label fw-bold text-white mb-2">Select a format:</label>
-                    <div class="form-check mb-2 p-3 rounded border border-secondary border-opacity-25 bg-dark-subtle">
-                        <input class="form-check-input" type="radio" name="exportFormatChoice" id="fmtCsv" value="csv" checked>
-                        <label class="form-check-label w-100 cursor-pointer" for="fmtCsv">
-                            <strong class="text-white d-block">Comma Separated Values (CSV)</strong>
-                            <small class="text-muted">Best for importing into spreadsheets (Excel, Google Sheets)</small>
-                        </label>
+                    <label class="form-label fw-bold text-white mb-3 fs-6">Select a format:</label>
+
+                    <div class="export-option-card mb-2" onclick="document.getElementById('fmtCsv').click();">
+                        <div class="d-flex align-items-start gap-3">
+                            <input class="form-check-input flex-shrink-0" type="radio" name="exportFormatChoice" id="fmtCsv" value="csv" checked onclick="event.stopPropagation();">
+                            <label class="w-100 cursor-pointer mb-0" for="fmtCsv" onclick="event.stopPropagation();">
+                                <strong class="text-white d-block mb-1 fs-6">Comma Separated Values (CSV)</strong>
+                                <small style="color: #a0aec0 !important;" class="d-block">Best for importing into spreadsheets (Excel, Google Sheets)</small>
+                            </label>
+                        </div>
                     </div>
-                    <div class="form-check mb-2 p-3 rounded border border-secondary border-opacity-25 bg-dark-subtle">
-                        <input class="form-check-input" type="radio" name="exportFormatChoice" id="fmtExcel" value="excel">
-                        <label class="form-check-label w-100 cursor-pointer" for="fmtExcel">
-                            <strong class="text-white d-block">Microsoft Excel (.xlsx)</strong>
-                            <small class="text-muted">Structured spreadsheet format with formatting</small>
-                        </label>
+
+                    <div class="export-option-card mb-2" onclick="document.getElementById('fmtExcel').click();">
+                        <div class="d-flex align-items-start gap-3">
+                            <input class="form-check-input flex-shrink-0" type="radio" name="exportFormatChoice" id="fmtExcel" value="excel" onclick="event.stopPropagation();">
+                            <label class="w-100 cursor-pointer mb-0" for="fmtExcel" onclick="event.stopPropagation();">
+                                <strong class="text-white d-block mb-1 fs-6">Microsoft Excel (.xlsx)</strong>
+                                <small style="color: #a0aec0 !important;" class="d-block">Structured spreadsheet format with formatting</small>
+                            </label>
+                        </div>
                     </div>
-                    <div class="form-check mb-2 p-3 rounded border border-secondary border-opacity-25 bg-dark-subtle">
-                        <input class="form-check-input" type="radio" name="exportFormatChoice" id="fmtPdf" value="pdf">
-                        <label class="form-check-label w-100 cursor-pointer" for="fmtPdf">
-                            <strong class="text-white d-block">PDF Document (.pdf)</strong>
-                            <small class="text-muted">Printable document format for executive summaries</small>
-                        </label>
+
+                    <div class="export-option-card mb-2" onclick="document.getElementById('fmtPdf').click();">
+                        <div class="d-flex align-items-start gap-3">
+                            <input class="form-check-input flex-shrink-0" type="radio" name="exportFormatChoice" id="fmtPdf" value="pdf" onclick="event.stopPropagation();">
+                            <label class="w-100 cursor-pointer mb-0" for="fmtPdf" onclick="event.stopPropagation();">
+                                <strong class="text-white d-block mb-1 fs-6">PDF Document (.pdf)</strong>
+                                <small style="color: #a0aec0 !important;" class="d-block">Printable document format for executive summaries</small>
+                            </label>
+                        </div>
                     </div>
                 </div>
 
-                <div>
-                    <label class="form-label fw-bold text-white mb-2">Specify the results you want:</label>
-                    <div class="form-check mb-2">
-                        <input class="form-check-input" type="radio" name="exportScopeChoice" id="scopeAll" value="all" checked>
-                        <label class="form-check-label text-white" for="scopeAll">
-                            All results from the data query
-                        </label>
-                    </div>
-                    <div class="form-check mb-2">
-                        <input class="form-check-input" type="radio" name="exportScopeChoice" id="scopeDisplayed" value="displayed">
-                        <label class="form-check-label text-white" for="scopeDisplayed">
-                            Only results displayed in the report
-                        </label>
+                <div class="mt-4">
+                    <label class="form-label fw-bold text-white mb-2 fs-6">Specify the results you want:</label>
+                    <div class="d-flex flex-column gap-2 ps-1">
+                        <div class="form-check cursor-pointer" onclick="document.getElementById('scopeAll').click();">
+                            <input class="form-check-input cursor-pointer" type="radio" name="exportScopeChoice" id="scopeAll" value="all" checked onclick="event.stopPropagation();">
+                            <label class="form-check-label text-white cursor-pointer" for="scopeAll" onclick="event.stopPropagation();">
+                                All results from the data query
+                            </label>
+                        </div>
+                        <div class="form-check cursor-pointer" onclick="document.getElementById('scopeDisplayed').click();">
+                            <input class="form-check-input cursor-pointer" type="radio" name="exportScopeChoice" id="scopeDisplayed" value="displayed" onclick="event.stopPropagation();">
+                            <label class="form-check-label text-white cursor-pointer" for="scopeDisplayed" onclick="event.stopPropagation();">
+                                Only results displayed in the report
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer border-top border-secondary border-opacity-50">
+            <div class="modal-footer" style="border-top: 1px solid rgba(255, 255, 255, 0.1) !important; padding: 1rem 1.5rem;">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-primary px-4" id="btnExecuteExport">
                     <i class="fas fa-download me-2"></i>Export
