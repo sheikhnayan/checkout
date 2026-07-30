@@ -303,9 +303,14 @@ class ReportController extends Controller
         $response = new StreamedResponse(function () use ($data) {
             $output = fopen('php://output', 'w');
 
-            // Find tabular rows if available
+            // Write UTF-8 Byte Order Mark (BOM) for Microsoft Excel compatibility
+            fputs($output, "\xEF\xBB\xBF");
+
+            // Find tabular rows matching web page table rendering
             $rows = [];
-            if (!empty($data['data']) && is_array($data['data'])) {
+            if (!empty($data['raw_data']) && is_array($data['raw_data'])) {
+                $rows = $data['raw_data'];
+            } elseif (!empty($data['data']) && is_array($data['data']) && isset($data['data'][0]) && is_array($data['data'][0])) {
                 $rows = $data['data'];
             } elseif (!empty($data['rows']) && is_array($data['rows'])) {
                 $rows = $data['rows'];
@@ -317,29 +322,60 @@ class ReportController extends Controller
 
             if (!empty($rows)) {
                 $firstRow = reset($rows);
-                if (is_array($firstRow)) {
-                    fputcsv($output, array_keys($firstRow));
+                if (is_array($firstRow) || is_object($firstRow)) {
+                    $firstRowArr = (array) $firstRow;
+
+                    // Write header row
+                    $headers = array_map(function ($col) {
+                        return ucwords(str_replace(['_', '-'], ' ', $col));
+                    }, array_keys($firstRowArr));
+                    fputcsv($output, $headers);
+
+                    // Write data rows
                     foreach ($rows as $row) {
-                        if (is_array($row)) {
-                            $rowFormatted = array_map(function ($val) {
+                        if (is_array($row) || is_object($row)) {
+                            $rowArr = (array) $row;
+                            $formattedRow = array_map(function ($val) {
                                 return (is_array($val) || is_object($val)) ? json_encode($val) : $val;
-                            }, $row);
-                            fputcsv($output, $rowFormatted);
+                            }, array_values($rowArr));
+                            fputcsv($output, $formattedRow);
                         }
+                    }
+
+                    // Append summary row if present
+                    if (!empty($data['summary']) && (is_array($data['summary']) || is_object($data['summary']))) {
+                        $summaryArr = (array) $data['summary'];
+                        $formattedSummary = array_map(function ($val) {
+                            return (is_array($val) || is_object($val)) ? json_encode($val) : $val;
+                        }, array_values($summaryArr));
+                        fputcsv($output, $formattedSummary);
                     }
                 }
             } else {
-                // If structured key-metrics format
+                // Structured key-metrics summary export
                 fputcsv($output, ['Metric Name', 'Current Period Value', 'Previous Period Value', 'Change %']);
-                foreach ($data as $key => $val) {
-                    if (is_array($val) && isset($val['value'])) {
-                        $metricLabel = ucwords(str_replace(['_', '-'], ' ', $key));
-                        $currVal = $val['value'] ?? 'N/A';
-                        $prevVal = $val['previous_value'] ?? 'N/A';
-                        $changePct = isset($val['change_pct']) ? ($val['change_pct'] . '%') : 'N/A';
-                        fputcsv($output, [$metricLabel, $currVal, $prevVal, $changePct]);
-                    } elseif (is_scalar($val)) {
-                        fputcsv($output, [ucwords(str_replace(['_', '-'], ' ', $key)), $val, '', '']);
+                if (!empty($data['executive_metrics']) && is_array($data['executive_metrics'])) {
+                    foreach ($data['executive_metrics'] as $key => $val) {
+                        if (is_array($val) && isset($val['value'])) {
+                            $metricLabel = ucwords(str_replace(['_', '-'], ' ', $key));
+                            $currVal = $val['value'] ?? 'N/A';
+                            $prevVal = $val['previous_value'] ?? 'N/A';
+                            $changePct = isset($val['change_pct']) ? ($val['change_pct'] . '%') : 'N/A';
+                            fputcsv($output, [$metricLabel, $currVal, $prevVal, $changePct]);
+                        }
+                    }
+                } else {
+                    foreach ($data as $key => $val) {
+                        if (in_array($key, ['type', 'title', 'data', 'chart_data', 'has_chart', 'chart_type'], true)) continue;
+                        if (is_array($val) && isset($val['value'])) {
+                            $metricLabel = ucwords(str_replace(['_', '-'], ' ', $key));
+                            $currVal = $val['value'] ?? 'N/A';
+                            $prevVal = $val['previous_value'] ?? 'N/A';
+                            $changePct = isset($val['change_pct']) ? ($val['change_pct'] . '%') : 'N/A';
+                            fputcsv($output, [$metricLabel, $currVal, $prevVal, $changePct]);
+                        } elseif (is_scalar($val)) {
+                            fputcsv($output, [ucwords(str_replace(['_', '-'], ' ', $key)), $val, '', '']);
+                        }
                     }
                 }
             }
@@ -357,14 +393,17 @@ class ReportController extends Controller
     }
 
     /**
-     * Export report as Excel
+     * Export report as Excel (.xlsx / .csv compatible)
      */
     private function exportToExcel(Report $report, array $data, ReportExport $export)
     {
         $timestamp = now()->format('Y-m-d_H-i-s');
         $filename = "{$report->slug}_{$timestamp}.csv";
 
-        return $this->exportToCsv($report, $data, $export);
+        $response = $this->exportToCsv($report, $data, $export);
+        $response->headers->set('Content-Disposition', "attachment; filename=\"$filename\"");
+
+        return $response;
     }
 
     /**
