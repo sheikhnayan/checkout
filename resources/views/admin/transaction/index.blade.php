@@ -290,6 +290,18 @@
     margin-top: 8px;
     width: 100%;
 }
+@media (max-width: 767.98px) {
+    .polaris-chips-bar {
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+    }
+    .polaris-chip, .polaris-clear-all-btn {
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+    }
+}
 .polaris-chip {
     background: rgba(124, 58, 237, 0.18);
     border: 1px solid rgba(124, 58, 237, 0.35);
@@ -1255,11 +1267,6 @@ body.modal-open .admin-mobile-menu-toggle {
                     </div>
                 </div>
 
-                {{-- Active Filter Chips Container --}}
-                <div class="polaris-chips-bar d-none" id="activeFilterChips">
-                    <!-- Dynamically rendered active chips -->
-                </div>
-
                 {{-- Hidden legacy compatibility elements --}}
                 <div class="d-none" id="txnFiltersRow">
                     <select id="websiteFilter"><option value="">All</option></select>
@@ -1271,6 +1278,11 @@ body.modal-open .admin-mobile-menu-toggle {
             </div>
                 <button type="button" id="polarisScrollLeftBtn" class="polaris-scroll-btn polaris-scroll-left d-md-none d-none" aria-label="Scroll left"><i class="fas fa-chevron-left"></i></button>
                 <button type="button" id="polarisScrollRightBtn" class="polaris-scroll-btn polaris-scroll-right d-md-none d-none" aria-label="Scroll right"><i class="fas fa-chevron-right"></i></button>
+            </div>
+
+            {{-- Active Filter Chips Container (rendered below the filter bar) --}}
+            <div class="polaris-chips-bar d-none mb-3" id="activeFilterChips">
+                <!-- Dynamically rendered active chips -->
             </div>
 
             <!-- Stat Cards -->
