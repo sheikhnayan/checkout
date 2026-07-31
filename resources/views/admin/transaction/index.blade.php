@@ -142,19 +142,6 @@
     padding: 10px 14px;
     margin-bottom: 14px;
 }
-@media (max-width: 767.98px) {
-    .polaris-filter-bar {
-        flex-wrap: nowrap !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch;
-        padding-right: 6px !important;
-    }
-    .polaris-filter-bar .dropdown,
-    .polaris-filter-pill-btn {
-        flex-shrink: 0 !important;
-        white-space: nowrap !important;
-    }
-}
 .polaris-filter-pill-btn {
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.12);
@@ -1235,11 +1222,6 @@ body.modal-open .admin-mobile-menu-toggle {
                             </label>
                         </div>
                     </div>
-                </div>
-
-                {{-- Subtle mobile scroll indicator arrow (Mobile view only) --}}
-                <div class="d-md-none flex-shrink-0 align-self-center ms-auto ps-2 pe-1 text-white-50 opacity-50" style="font-size: 0.7rem; pointer-events: none;" title="Scroll for more filters">
-                    <i class="fas fa-chevron-right"></i>
                 </div>
 
                 {{-- Active Filter Chips Container --}}
