@@ -1844,11 +1844,22 @@ body.modal-open .admin-mobile-menu-toggle {
                                         title="View Details">
                                         <i class="fas fa-eye"></i>
                                     </button>
+                                    <button type="button" class="btn btn-sm btn-outline-warning open-notes-btn px-2 py-1 ms-1"
+                                        data-bs-toggle="modal" data-bs-target="#txnNotesModal"
+                                        data-id="{{ $item->id }}"
+                                        data-transaction-id="{{ $item->transaction_id ?? 'Free' }}"
+                                        data-admin_notes="{{ $item->admin_notes ?? '' }}"
+                                        data-admin_notes_by="{{ $item->admin_notes_by ?? '' }}"
+                                        data-admin_notes_at="{{ $item->admin_notes_at ? optional($item->admin_notes_at)->timezone('America/Los_Angeles')->format('M d, Y h:i A \P\D\T') : '' }}"
+                                        title="Notes" style="font-size:0.75rem;border-radius:6px;font-weight:600;">
+                                        <i class="fas fa-sticky-note me-1"></i>Notes
+                                    </button>
                                     <div class="dropdown">
                                         <button class="txn-action-more btn p-0" data-bs-toggle="dropdown" type="button" style="border:none;background:none">
                                             <i class="fas fa-ellipsis-v"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end" style="background:#1e293b;border:1px solid rgba(255,255,255,0.1)">
+                                            <li><a class="dropdown-item open-notes-btn" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#txnNotesModal" data-id="{{ $item->id }}" data-transaction-id="{{ $item->transaction_id ?? 'Free' }}" data-admin_notes="{{ $item->admin_notes ?? '' }}" data-admin_notes_by="{{ $item->admin_notes_by ?? '' }}" data-admin_notes_at="{{ $item->admin_notes_at ? optional($item->admin_notes_at)->timezone('America/Los_Angeles')->format('M d, Y h:i A \P\D\T') : '' }}"><i class="fas fa-sticky-note me-2 text-warning"></i>Notes</a></li>
                                             @if(!$isArchivedView)
                                             <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="{{ route('admin.transaction.update', ['id' => $item->id, 'status' => 1]) }}"><i class="fas fa-check me-2 text-success"></i>Mark Completed</a></li>
                                             <li><a class="dropdown-item" style="color:rgba(255,255,255,0.7);font-size:0.82rem" href="{{ route('admin.transaction.update', ['id' => $item->id, 'status' => 0]) }}"><i class="fas fa-times me-2 text-danger"></i>Mark Canceled</a></li>
@@ -1944,6 +1955,23 @@ body.modal-open .admin-mobile-menu-toggle {
                             <button type="button" class="btn btn-primary" id="download-package-pdf">
                                 <i class="fas fa-file-pdf"></i> Download PDF
                             </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dedicated Transaction Notes Modal -->
+            <div class="modal fade" id="txnNotesModal" tabindex="-1" aria-labelledby="txnNotesModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content" style="background:#121726;border:1px solid rgba(255,255,255,0.15);border-radius:12px;">
+                        <div class="modal-header border-bottom border-secondary border-opacity-25">
+                            <h5 class="modal-title text-white" id="txnNotesModalLabel">
+                                <i class="fas fa-sticky-note text-warning me-2"></i>Notes (<span id="txnNotesModalOrderTitle"></span>)
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter:invert(1);"></button>
+                        </div>
+                        <div class="modal-body" id="txnNotesModalBody">
+                            <!-- Dynamically populated notes form -->
                         </div>
                     </div>
                 </div>
@@ -3471,25 +3499,46 @@ body.modal-open .admin-mobile-menu-toggle {
                 }
 
                 var cardHtml = '';
-                cardHtml += '<div class="txn-detail-card admin-notes-card mb-3" style="background:rgba(30,41,59,0.7);border:1px solid rgba(124,58,237,0.35);border-radius:12px;padding:16px;">';
+                cardHtml += '<div class="txn-detail-card admin-notes-card mb-0" style="background:rgba(30,41,59,0.7);border:1px solid rgba(124,58,237,0.35);border-radius:12px;padding:16px;">';
                 cardHtml += '<div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-1">';
-                cardHtml += '<div class="txn-detail-title mb-0" style="color:#a78bfa;font-size:0.9rem;font-weight:700;"><i class="fas fa-sticky-note me-2"></i>Admin Notes</div>';
+                cardHtml += '<div class="txn-detail-title mb-0" style="color:#a78bfa;font-size:0.9rem;font-weight:700;"><i class="fas fa-sticky-note me-2"></i>Notes</div>';
                 cardHtml += '<div class="admin-note-author-info text-white-50" style="font-size:0.75rem;">' + (authorInfo ? authorInfo : 'No note saved yet') + '</div>';
                 cardHtml += '</div>';
                 cardHtml += '<form class="admin-note-form" data-txn-id="' + safeEsc(txnId) + '">';
-                cardHtml += '<div class="mb-2">';
-                cardHtml += '<textarea class="form-control admin-note-textarea" rows="3" placeholder="Enter administrative notes for this transaction…" style="background:rgba(15,23,42,0.9);border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:0.85rem;border-radius:8px;">' + safeEsc(noteText) + '</textarea>';
+                cardHtml += '<div class="mb-3">';
+                cardHtml += '<textarea class="form-control admin-note-textarea" rows="4" placeholder="Enter notes for this transaction…" style="background:rgba(15,23,42,0.9);border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:0.85rem;border-radius:8px;">' + safeEsc(noteText) + '</textarea>';
                 cardHtml += '</div>';
-                cardHtml += '<div class="d-flex align-items-center justify-content-between">';
+                cardHtml += '<div class="d-flex align-items-center justify-content-between gap-2">';
                 cardHtml += '<span class="admin-note-msg text-success small fw-semibold" style="display:none;"><i class="fas fa-check-circle me-1"></i>Saved!</span>';
-                cardHtml += '<button type="submit" class="btn btn-sm btn-primary save-admin-note-btn ms-auto" style="background:#7c3aed;border-color:#7c3aed;font-weight:600;padding:6px 16px;border-radius:6px;">';
-                cardHtml += '<i class="fas fa-save me-1"></i>Save Note';
-                cardHtml += '</button>';
+                cardHtml += '<div class="d-flex align-items-center gap-2 ms-auto">';
+                cardHtml += '<button type="button" class="btn btn-sm btn-outline-danger clear-admin-note-btn" style="font-weight:600;padding:5px 14px;border-radius:6px;"><i class="fas fa-trash-alt me-1"></i>Clear Note</button>';
+                cardHtml += '<button type="submit" class="btn btn-sm btn-primary save-admin-note-btn" style="background:#7c3aed;border-color:#7c3aed;font-weight:600;padding:5px 16px;border-radius:6px;"><i class="fas fa-save me-1"></i>Save Note</button>';
+                cardHtml += '</div>';
                 cardHtml += '</div>';
                 cardHtml += '</form>';
                 cardHtml += '</div>';
                 return cardHtml;
             };
+
+            $(document).on('click', '.open-notes-btn', function(e) {
+                var $btn = $(this);
+                var txnId = $btn.data('id');
+                var orderNum = $btn.data('transaction-id') || ('#' + String(txnId));
+                var noteText = $btn.data('admin_notes') || '';
+                var noteBy = $btn.data('admin_notes_by') || '';
+                var noteAt = $btn.data('admin_notes_at') || '';
+
+                $('#txnNotesModalOrderTitle').text(orderNum);
+                var cardHtml = window.buildAdminNotesCardHtml(txnId, noteText, noteBy, noteAt);
+                $('#txnNotesModalBody').html(cardHtml);
+            });
+
+            $(document).on('click', '.clear-admin-note-btn', function(e) {
+                e.preventDefault();
+                var $form = $(this).closest('.admin-note-form');
+                $form.find('.admin-note-textarea').val('');
+                $form.submit();
+            });
 
             $(document).on('submit', '.admin-note-form', function(e) {
                 e.preventDefault();
@@ -3514,7 +3563,7 @@ body.modal-open .admin-mobile-menu-toggle {
                         if (res.success) {
                             $msg.fadeIn(150).delay(2000).fadeOut(200);
 
-                            var $targetBtns = $('.view-btn[data-id="' + txnId + '"], .view-btn[data-transaction-id="' + txnId + '"]');
+                            var $targetBtns = $('.view-btn[data-id="' + txnId + '"], .view-btn[data-transaction-id="' + txnId + '"], .open-notes-btn[data-id="' + txnId + '"], .open-notes-btn[data-transaction-id="' + txnId + '"]');
                             $targetBtns.data('admin_notes', res.admin_notes || '');
                             $targetBtns.data('admin_notes_by', res.admin_notes_by || '');
                             $targetBtns.data('admin_notes_at', res.admin_notes_at || '');
@@ -3535,7 +3584,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     },
                     error: function(xhr) {
                         $btn.prop('disabled', false).html(originalBtnText);
-                        alert('Failed to save admin note. Please try again.');
+                        alert('Failed to save note. Please try again.');
                     }
                 });
             });
@@ -4206,13 +4255,16 @@ body.modal-open .admin-mobile-menu-toggle {
                     html += '</div>';
                 }
 
-                var adminNotesCard = window.buildAdminNotesCardHtml(
-                    transactionId,
-                    $(this).data('admin_notes'),
-                    $(this).data('admin_notes_by'),
-                    $(this).data('admin_notes_at')
-                );
-                html = adminNotesCard + html;
+                var currentNoteText = String($(this).data('admin_notes') || '').trim();
+                if (currentNoteText !== '') {
+                    beginPdfSection('Notes');
+                    pushPdfRow('Note', currentNoteText);
+                    var currentNoteBy = String($(this).data('admin_notes_by') || '').trim();
+                    var currentNoteAt = String($(this).data('admin_notes_at') || '').trim();
+                    if (currentNoteBy || currentNoteAt) {
+                        pushPdfRow('Updated', (currentNoteBy ? currentNoteBy : '') + (currentNoteAt ? (' on ' + currentNoteAt) : ''));
+                    }
+                }
 
                 $('#transactionDetailsContent').html(html);
 
