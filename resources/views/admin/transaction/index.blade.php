@@ -596,23 +596,31 @@ body.modal-open .admin-mobile-menu-toggle {
     color: #e2e8f0 !important;
     border-radius: 6px !important;
 }
-.daterangepicker td.off, .daterangepicker td.off.in-range, .daterangepicker td.off.start-date, .daterangepicker td.off.end-date {
+.daterangepicker td.off,
+.daterangepicker td.off.available,
+.daterangepicker td.off.in-range,
+.daterangepicker td.off.start-date,
+.daterangepicker td.off.end-date,
+.daterangepicker td.off.active {
     background-color: transparent !important;
-    color: rgba(255,255,255,0.2) !important;
+    background: transparent !important;
+    color: rgba(255, 255, 255, 0.2) !important;
+    opacity: 0.3 !important;
+    box-shadow: none !important;
 }
-.daterangepicker td.start-date,
-.daterangepicker td.end-date,
-.daterangepicker td.active,
-.daterangepicker td.active:hover,
-.daterangepicker td.start-date.in-range,
-.daterangepicker td.end-date.in-range {
+.daterangepicker td:not(.off).start-date,
+.daterangepicker td:not(.off).end-date,
+.daterangepicker td:not(.off).active,
+.daterangepicker td:not(.off).active:hover,
+.daterangepicker td:not(.off).start-date.in-range,
+.daterangepicker td:not(.off).end-date.in-range {
     background-color: #7c3aed !important;
     color: #ffffff !important;
     font-weight: 700 !important;
     opacity: 1 !important;
     border-radius: 6px !important;
 }
-.daterangepicker td.in-range:not(.start-date):not(.end-date):not(.active) {
+.daterangepicker td:not(.off).in-range:not(.start-date):not(.end-date):not(.active) {
     background-color: rgba(124, 58, 237, 0.25) !important;
     color: #fff !important;
 }
@@ -2005,23 +2013,27 @@ body.modal-open .admin-mobile-menu-toggle {
             .daterangepicker td.off.available,
             .daterangepicker td.off.in-range,
             .daterangepicker td.off.start-date,
-            .daterangepicker td.off.end-date {
-                color: #94a3b8 !important;
-                background-color: rgba(255,255,255,0.03) !important;
+            .daterangepicker td.off.end-date,
+            .daterangepicker td.off.active {
+                color: rgba(255, 255, 255, 0.2) !important;
+                background-color: transparent !important;
+                background: transparent !important;
+                opacity: 0.3 !important;
+                box-shadow: none !important;
             }
-            .daterangepicker td.start-date,
-            .daterangepicker td.end-date,
-            .daterangepicker td.active,
-            .daterangepicker td.active:hover,
-            .daterangepicker td.start-date.in-range,
-            .daterangepicker td.end-date.in-range {
+            .daterangepicker td:not(.off).start-date,
+            .daterangepicker td:not(.off).end-date,
+            .daterangepicker td:not(.off).active,
+            .daterangepicker td:not(.off).active:hover,
+            .daterangepicker td:not(.off).start-date.in-range,
+            .daterangepicker td:not(.off).end-date.in-range {
                 background-color: #ffcc00 !important;
                 color: #1a1400 !important;
                 border-radius: 6px !important;
                 font-weight: 700 !important;
                 opacity: 1 !important;
             }
-            .daterangepicker td.in-range:not(.start-date):not(.end-date):not(.active) { background-color: rgba(255,204,0,0.15) !important; color: #fff !important; }
+            .daterangepicker td:not(.off).in-range:not(.start-date):not(.end-date):not(.active) { background-color: rgba(255,204,0,0.15) !important; color: #fff !important; }
             .daterangepicker .ranges li {
                 background-color: rgba(255,255,255,0.05) !important;
                 color: #e2e8f0 !important;
