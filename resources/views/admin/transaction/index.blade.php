@@ -170,6 +170,36 @@
     padding: 1px 6px;
     border-radius: 999px;
 }
+.polaris-scroll-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1050;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #ffffff !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+.polaris-scroll-btn:hover {
+    background: #7c3aed;
+    border-color: #a78bfa;
+    color: #ffffff !important;
+}
+.polaris-scroll-left {
+    left: 4px;
+}
+.polaris-scroll-right {
+    right: 4px;
+}
 .polaris-popover-menu {
     background: #1e293b !important;
     border: 1px solid rgba(255, 255, 255, 0.15) !important;
@@ -1043,7 +1073,8 @@ body.modal-open .admin-mobile-menu-toggle {
                     ? $accessibleWebsites 
                     : (auth()->user()->isAdmin() ? \App\Models\Website::where('is_archieved', 0)->get() : collect());
             @endphp
-            <div class="polaris-filter-bar mb-3" id="polarisFilterContainer">
+            <div class="position-relative mb-3">
+                <div class="polaris-filter-bar mb-0" id="polarisFilterContainer">
                 @if($accessibleSitesList->count() > 1)
                 {{-- 1. Venue Filter --}}
                 <div class="dropdown">
@@ -1224,11 +1255,6 @@ body.modal-open .admin-mobile-menu-toggle {
                     </div>
                 </div>
 
-                {{-- Mobile scroll indicator arrow --}}
-                <span class="d-md-none text-white-50 ms-auto align-self-center ps-1 pe-1" style="font-size: 0.75rem; opacity: 0.6; pointer-events: none;">
-                    <i class="fas fa-chevron-right"></i>
-                </span>
-
                 {{-- Active Filter Chips Container --}}
                 <div class="polaris-chips-bar d-none" id="activeFilterChips">
                     <!-- Dynamically rendered active chips -->
@@ -1242,6 +1268,9 @@ body.modal-open .admin-mobile-menu-toggle {
                     <select id="statusFilter"><option value="">All</option></select>
                     <select id="reservationFilter"><option value="">All</option></select>
                 </div>
+            </div>
+                <button type="button" id="polarisScrollLeftBtn" class="polaris-scroll-btn polaris-scroll-left d-md-none d-none" aria-label="Scroll left"><i class="fas fa-chevron-left"></i></button>
+                <button type="button" id="polarisScrollRightBtn" class="polaris-scroll-btn polaris-scroll-right d-md-none d-none" aria-label="Scroll right"><i class="fas fa-chevron-right"></i></button>
             </div>
 
             <!-- Stat Cards -->
@@ -5352,14 +5381,59 @@ body.modal-open .admin-mobile-menu-toggle {
                 $('body').removeAttr('style');
                 $('body').removeClass('modal-open');
 
-                // Remove all modal backdrops
-                $('.modal-backdrop').fadeOut(100, function() {
-                    $(this).remove();
-                });
-
                 // Double-check scroll is enabled
                 $('body').css('overflow-y', 'auto');
                 document.body.style.overflow = '';
             });
+
+            // Mobile floating scroll arrows handler for polarisFilterContainer
+            (function() {
+                var filterContainer = document.getElementById('polarisFilterContainer');
+                var scrollLeftBtn = document.getElementById('polarisScrollLeftBtn');
+                var scrollRightBtn = document.getElementById('polarisScrollRightBtn');
+
+                function updatePolarisScrollArrows() {
+                    if (!filterContainer) return;
+                    if (window.innerWidth >= 768) {
+                        if (scrollLeftBtn) scrollLeftBtn.classList.add('d-none');
+                        if (scrollRightBtn) scrollRightBtn.classList.add('d-none');
+                        return;
+                    }
+
+                    var scrollLeft = filterContainer.scrollLeft;
+                    var maxScrollLeft = filterContainer.scrollWidth - filterContainer.clientWidth;
+
+                    if (scrollLeft > 10) {
+                        if (scrollLeftBtn) scrollLeftBtn.classList.remove('d-none');
+                    } else {
+                        if (scrollLeftBtn) scrollLeftBtn.classList.add('d-none');
+                    }
+
+                    if (maxScrollLeft - scrollLeft > 10) {
+                        if (scrollRightBtn) scrollRightBtn.classList.remove('d-none');
+                    } else {
+                        if (scrollRightBtn) scrollRightBtn.classList.add('d-none');
+                    }
+                }
+
+                if (filterContainer && scrollLeftBtn && scrollRightBtn) {
+                    filterContainer.addEventListener('scroll', updatePolarisScrollArrows);
+                    window.addEventListener('resize', updatePolarisScrollArrows);
+
+                    scrollLeftBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        filterContainer.scrollBy({ left: -160, behavior: 'smooth' });
+                    });
+
+                    scrollRightBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        filterContainer.scrollBy({ left: 160, behavior: 'smooth' });
+                    });
+
+                    setTimeout(updatePolarisScrollArrows, 350);
+                }
+            })();
             </script>
 @endpush
