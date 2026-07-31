@@ -1224,6 +1224,11 @@ body.modal-open .admin-mobile-menu-toggle {
                     </div>
                 </div>
 
+                {{-- Mobile scroll indicator arrow --}}
+                <span class="d-md-none text-white-50 ms-auto align-self-center ps-1 pe-1" style="font-size: 0.75rem; opacity: 0.6; pointer-events: none;">
+                    <i class="fas fa-chevron-right"></i>
+                </span>
+
                 {{-- Active Filter Chips Container --}}
                 <div class="polaris-chips-bar d-none" id="activeFilterChips">
                     <!-- Dynamically rendered active chips -->
