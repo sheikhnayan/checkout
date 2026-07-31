@@ -600,12 +600,20 @@ body.modal-open .admin-mobile-menu-toggle {
     background-color: transparent !important;
     color: rgba(255,255,255,0.2) !important;
 }
-.daterangepicker td.active, .daterangepicker td.active:hover {
+.daterangepicker td.start-date,
+.daterangepicker td.end-date,
+.daterangepicker td.active,
+.daterangepicker td.active:hover,
+.daterangepicker td.start-date.in-range,
+.daterangepicker td.end-date.in-range {
     background-color: #7c3aed !important;
-    color: #fff !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    opacity: 1 !important;
+    border-radius: 6px !important;
 }
-.daterangepicker td.in-range {
-    background-color: rgba(124,58,237,0.2) !important;
+.daterangepicker td.in-range:not(.start-date):not(.end-date):not(.active) {
+    background-color: rgba(124, 58, 237, 0.25) !important;
     color: #fff !important;
 }
 .daterangepicker .ranges li {
@@ -1973,11 +1981,19 @@ body.modal-open .admin-mobile-menu-toggle {
                 color: #94a3b8 !important;
                 background-color: rgba(255,255,255,0.03) !important;
             }
-            .daterangepicker td.in-range { background-color: rgba(255,204,0,0.12) !important; color: #fff !important; }
             .daterangepicker td.start-date,
             .daterangepicker td.end-date,
             .daterangepicker td.active,
-            .daterangepicker td.active:hover { background-color: #ffcc00 !important; color: #1a1400 !important; border-radius: 6px !important; font-weight: 700 !important; }
+            .daterangepicker td.active:hover,
+            .daterangepicker td.start-date.in-range,
+            .daterangepicker td.end-date.in-range {
+                background-color: #ffcc00 !important;
+                color: #1a1400 !important;
+                border-radius: 6px !important;
+                font-weight: 700 !important;
+                opacity: 1 !important;
+            }
+            .daterangepicker td.in-range:not(.start-date):not(.end-date):not(.active) { background-color: rgba(255,204,0,0.15) !important; color: #fff !important; }
             .daterangepicker .ranges li {
                 background-color: rgba(255,255,255,0.05) !important;
                 color: #e2e8f0 !important;
@@ -2601,6 +2617,10 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 $txnDateRange.off('apply.daterangepicker.txnDateRange').on('apply.daterangepicker.txnDateRange', function(ev, picker) {
                     $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+                    if (picker.setStartDate && picker.setEndDate) {
+                        picker.setStartDate(picker.startDate);
+                        picker.setEndDate(picker.endDate);
+                    }
                     updatePolarisUiAndFilterTable();
                 });
 
