@@ -604,7 +604,7 @@ body.modal-open .admin-mobile-menu-toggle {
 .daterangepicker td.off.active {
     background-color: transparent !important;
     background: transparent !important;
-    color: rgba(255, 255, 255, 0.2) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
     opacity: 0.3 !important;
     box-shadow: none !important;
 }
