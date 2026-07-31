@@ -3,19 +3,19 @@
 @section('content')
 <div class="container-fluid px-4 py-6">
     <!-- Header -->
-    <div class="d-flex align-items-center justify-content-between mb-6">
+    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
         <div>
-            <a href="{{ route('admin.reports.index') }}" class="btn btn-sm btn-outline-secondary mb-3">
+            <a href="{{ route('admin.reports.index') }}" class="btn btn-sm btn-outline-secondary mb-2">
                 <i class="fas fa-arrow-left me-2"></i>Back to Reports
             </a>
-            <h1 class="h2 mb-2" style="color: #fff !important">{{ $report->name }}</h1>
+            <h1 class="h2 mb-1" style="color: #fff !important">{{ $report->name }}</h1>
             <p class="text-muted mb-0">{{ $report->description }}</p>
         </div>
-        <div class="d-flex align-items-center gap-3">
+        <div class="d-flex flex-wrap align-items-center gap-2 w-100 w-md-auto justify-content-start justify-content-md-end">
             @if(isset($canSwitchClubs) && $canSwitchClubs && isset($accessibleWebsites) && $accessibleWebsites->count() > 0)
-                <div class="d-flex align-items-center bg-dark p-2 px-3 rounded border border-secondary border-opacity-25 shadow-sm" style="background: rgba(18, 23, 38, 0.95) !important;">
-                    <span class="text-white small fw-bold me-2 text-nowrap"><i class="fas fa-building text-primary me-1"></i>Club / Venue:</span>
-                    <select class="form-select form-select-sm border-0 bg-transparent text-white fw-bold py-1 pe-4 cursor-pointer" id="headerClubSwitchSelect" style="box-shadow: none; width: auto; font-size: 0.875rem;" onchange="const form = document.getElementById('filterForm'); if(form) { const inp = form.querySelector('[name=website_id]'); if(inp) inp.value = this.value; form.submit(); }">
+                <div class="d-flex align-items-center bg-dark p-2 px-3 rounded border border-secondary border-opacity-25 shadow-sm flex-grow-1 flex-md-grow-0" style="background: rgba(18, 23, 38, 0.95) !important; max-width: 100%;">
+                    <span class="text-white small fw-bold me-2 text-nowrap"><i class="fas fa-building text-primary me-1"></i>Club:</span>
+                    <select class="form-select form-select-sm border-0 bg-transparent text-white fw-bold py-1 pe-4 cursor-pointer flex-grow-1" id="headerClubSwitchSelect" style="box-shadow: none; width: 100%; font-size: 0.875rem; min-width: 0;" onchange="const form = document.getElementById('filterForm'); if(form) { const inp = form.querySelector('[name=website_id]'); if(inp) inp.value = this.value; form.submit(); }">
                         <option value="all" class="bg-dark text-white" {{ ($selectedWebsiteId ?? 'all') == 'all' ? 'selected' : '' }}>
                             🏢 All Accessible Clubs ({{ $accessibleWebsites->count() }})
                         </option>
@@ -27,7 +27,7 @@
                     </select>
                 </div>
             @endif
-            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#shopifyExportModal">
+            <button type="button" class="btn btn-primary btn-sm text-nowrap flex-grow-1 flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#shopifyExportModal">
                 <i class="fas fa-file-export me-2"></i>Export Report
             </button>
         </div>
