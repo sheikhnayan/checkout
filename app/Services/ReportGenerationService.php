@@ -371,7 +371,6 @@ class ReportGenerationService
             )
             ->groupBy('packages.id', 'packages.name', 'websites.name', 'packages.package_type')
             ->orderByDesc('revenue')
-            ->limit(25)
             ->get()
             ->map(fn ($row) => [
                 'Package Title' => $row->name,
@@ -433,7 +432,6 @@ class ReportGenerationService
             )
             ->groupBy('affiliates.id', 'affiliates.display_name', 'users.name', 'websites.name')
             ->orderByDesc('revenue')
-            ->limit(20)
             ->get()
             ->map(fn ($row) => [
                 'Affiliate' => $row->affiliate_name,
@@ -978,7 +976,6 @@ class ReportGenerationService
             })
             ->groupBy('affiliates.id', 'affiliates.display_name', 'users.name')
             ->orderByDesc('revenue')
-            ->limit(20)
             ->get()
             ->map(fn ($row) => [
                 'Affiliate' => $row->name,
@@ -1092,7 +1089,6 @@ class ReportGenerationService
             ->whereBetween('events.created_at', [$startDate, $endDate])
             ->groupBy('entertainers.id', 'entertainers.display_name', 'users.name')
             ->orderByDesc('event_count')
-            ->limit(15)
             ->get()
             ->map(fn ($row) => [
                 'Entertainer' => $row->name,
@@ -1148,7 +1144,6 @@ class ReportGenerationService
             )
             ->groupBy('transactions.entertainer_id', 'entertainers.display_name', 'users.name', 'websites.name')
             ->orderByDesc('commission')
-            ->limit(20)
             ->get()
             ->map(fn ($row) => [
                 'Entertainer' => $row->name,
@@ -1216,7 +1211,6 @@ class ReportGenerationService
             )
             ->groupBy('packages.id', 'packages.name', 'websites.name', 'packages.package_type')
             ->orderByDesc('revenue')
-            ->limit(25)
             ->get()
             ->map(fn ($row) => [
                 'Package Title' => $row->name,
@@ -1283,7 +1277,6 @@ class ReportGenerationService
                     ->where('transactions.status', Transaction::STATUS_COMPLETED);
             })
             ->groupBy('packages.id', 'packages.name', 'websites.name', 'packages.daily_ticket_limit', 'packages.daily_table_limit')
-            ->limit(20)
             ->get()
             ->map(fn ($row) => [
                 'Package Title' => $row->name,
@@ -1480,7 +1473,6 @@ class ReportGenerationService
             )
             ->groupBy('location_name', 'websites.name')
             ->orderByDesc('revenue')
-            ->limit(25)
             ->get();
 
         if ($txData->isEmpty()) {
@@ -1565,7 +1557,6 @@ class ReportGenerationService
             ->whereBetween('events.date', [$startDate, $endDate])
             ->groupBy('events.id', 'events.name', 'websites.name')
             ->orderByDesc('attendees')
-            ->limit(20)
             ->get()
             ->map(fn ($row) => [
                 'Event Title' => $row->name,
@@ -1626,7 +1617,6 @@ class ReportGenerationService
             ->whereBetween('events.date', [$startDate, $endDate])
             ->groupBy('events.id', 'events.name', 'websites.name')
             ->orderByDesc('revenue')
-            ->limit(20)
             ->get()
             ->map(fn ($row) => [
                 'Event Title' => $row->name,
@@ -1688,7 +1678,6 @@ class ReportGenerationService
             })
             ->groupBy('events.id', 'events.name', 'websites.name', 'events.attendee_limit')
             ->orderByDesc('total_attendees')
-            ->limit(20)
             ->get()
             ->map(fn ($row) => [
                 'Event Title' => $row->name,
@@ -2025,7 +2014,6 @@ class ReportGenerationService
             ->select('referrer_host', 'websites.name as website_name', DB::raw('COUNT(*) as sessions'))
             ->groupBy('referrer_host', 'websites.name')
             ->orderByDesc('sessions')
-            ->limit(25)
             ->get()
             ->map(fn($row) => [
                 'Referrer Host' => $row->referrer_host,
@@ -2082,7 +2070,6 @@ class ReportGenerationService
             ->select('landing_path', 'websites.name as website_name', DB::raw('COUNT(*) as sessions'))
             ->groupBy('landing_path', 'websites.name')
             ->orderByDesc('sessions')
-            ->limit(25)
             ->get()
             ->map(fn($row) => [
                 'Landing Page Path' => $row->landing_path,

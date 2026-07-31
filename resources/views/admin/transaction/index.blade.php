@@ -191,6 +191,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
     padding-bottom: 8px;
     margin-bottom: 8px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -201,6 +202,8 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: #cbd5e1 !important;
+    margin-right: 12px;
+    white-space: nowrap;
 }
 .polaris-popover-action {
     font-size: 0.72rem;
@@ -1049,7 +1052,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     </button>
                     <div class="dropdown-menu polaris-popover-menu">
                         <div class="polaris-popover-header">
-                            <span class="polaris-popover-title">Filter by Venue</span>
+                            <span class="polaris-popover-title me-3">Filter by Venue</span>
                             <div>
                                 <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('venue', true)">Select All</a>
                                 <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('venue', false)">Clear</a>
@@ -1074,7 +1077,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     </button>
                     <div class="dropdown-menu polaris-popover-menu" style="min-width: 280px !important;">
                         <div class="polaris-popover-header">
-                            <span class="polaris-popover-title">Filter by Date</span>
+                            <span class="polaris-popover-title me-3">Filter by Date</span>
                             <div>
                                 <a href="javascript:void(0)" class="polaris-popover-action" onclick="clearPolarisDateRange()">Clear</a>
                             </div>
@@ -1106,7 +1109,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     </button>
                     <div class="dropdown-menu polaris-popover-menu">
                         <div class="polaris-popover-header">
-                            <span class="polaris-popover-title">Reservation State</span>
+                            <span class="polaris-popover-title me-3">Reservation State</span>
                             <div>
                                 <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('reservation', true)">Select All</a>
                                 <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('reservation', false)">Clear</a>
@@ -1144,7 +1147,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     </button>
                     <div class="dropdown-menu polaris-popover-menu">
                         <div class="polaris-popover-header">
-                            <span class="polaris-popover-title">Sales Channel / Source</span>
+                            <span class="polaris-popover-title me-3">Sales Channel / Source</span>
                             <div>
                                 <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('affiliate', true)">Select All</a>
                                 <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('affiliate', false)">Clear</a>
@@ -1172,7 +1175,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     </button>
                     <div class="dropdown-menu polaris-popover-menu">
                         <div class="polaris-popover-header">
-                            <span class="polaris-popover-title">Transaction Type</span>
+                            <span class="polaris-popover-title me-3">Transaction Type</span>
                             <div>
                                 <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('type', true)">Select All</a>
                                 <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('type', false)">Clear</a>
@@ -1198,7 +1201,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     </button>
                     <div class="dropdown-menu polaris-popover-menu">
                         <div class="polaris-popover-header">
-                            <span class="polaris-popover-title">Payment Status</span>
+                            <span class="polaris-popover-title me-3">Payment Status</span>
                             <div>
                                 <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('status', true)">Select All</a>
                                 <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('status', false)">Clear</a>
