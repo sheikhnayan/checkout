@@ -5472,14 +5472,18 @@ body.modal-open .admin-mobile-menu-toggle {
             $('#packageDetailsModal').on('hidden.bs.modal', function() {
                 $('#packageDetailsContent').empty();
                 $('#packageDetailsModal').removeData('pdfPayload');
+            });
 
-                // Ensure body is back to normal
-                $('body').removeAttr('style');
-                $('body').removeClass('modal-open');
-
-                // Double-check scroll is enabled
-                $('body').css('overflow-y', 'auto');
-                document.body.style.overflow = '';
+            // Universal modal backdrop & scroll cleanup handler for Quick View & all modals
+            $(document).on('hidden.bs.modal', '.modal', function() {
+                if ($('.modal.show').length === 0) {
+                    $('.modal-backdrop').remove();
+                    $('body').removeClass('modal-open').css({
+                        'overflow': '',
+                        'overflow-y': 'auto',
+                        'padding-right': ''
+                    });
+                }
             });
 
             // Mobile floating scroll arrows handler for polarisFilterContainer
