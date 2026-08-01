@@ -960,7 +960,7 @@
                 @forelse($websites as $website)
                     <a href="{{ route('club.feed', $website->slug) }}" class="club-card">
                         @if($website->logo)
-                            <img src="{{ asset('uploads/' . $website->logo) }}" alt="{{ $website->name }}" class="club-avatar">
+                            <img src="{{ asset('uploads/' . $website->logo) }}" alt="{{ $website->name }}" class="club-avatar" @if(!empty($website->logo_style)) style="{{ $website->logo_style }}" @endif>
                         @else
                             <div class="club-avatar-fallback">{{ strtoupper(substr($website->name, 0, 2)) }}</div>
                         @endif
@@ -977,7 +977,7 @@
             <section class="club-hero">
                 <div class="club-hero-head">
                     @if($club->logo)
-                        <img src="{{ asset('uploads/' . $club->logo) }}" alt="{{ $club->name }}" class="club-avatar">
+                        <img src="{{ asset('uploads/' . $club->logo) }}" alt="{{ $club->name }}" class="club-avatar" @if(!empty($club->logo_style)) style="{{ $club->logo_style }}" @endif>
                     @else
                         <div class="club-avatar-fallback">{{ strtoupper(substr($club->name, 0, 2)) }}</div>
                     @endif

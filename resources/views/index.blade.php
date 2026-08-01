@@ -5421,7 +5421,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                         <div class="cv-hero-head">
                             <div class="cv-hero-venue">
                                 @if ($data->logo)
-                                    <img src="{{ asset('uploads/' . $data->logo) }}" alt="{{ $data->name }}" class="cv-hero-venue-avatar">
+                                    <img src="{{ asset('uploads/' . $data->logo) }}" alt="{{ $data->name }}" class="cv-hero-venue-avatar" @if(!empty($data->logo_style)) style="{{ $data->logo_style }}" @endif>
                                 @else
                                     <span class="cv-hero-venue-initial">{{ strtoupper(substr($data->name, 0, 1)) }}</span>
                                 @endif
