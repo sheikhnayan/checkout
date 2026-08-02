@@ -2651,36 +2651,6 @@ body.modal-open .admin-mobile-menu-toggle {
 
                 $txnDateRange.daterangepicker(dateRangeOptions);
 
-                const pickerInstance = $txnDateRange.data('daterangepicker');
-                if (pickerInstance) {
-                    let isDateCellClicked = false;
-
-                    $(document).off('click.mobileCalendarFix', '.daterangepicker .drp-calendar td.available')
-                               .on('click.mobileCalendarFix', '.daterangepicker .drp-calendar td.available', function() {
-                        isDateCellClicked = true;
-                    });
-
-                    $(document).off('click.mobileCalendarNavFix', '.daterangepicker .prev, .daterangepicker .next, .daterangepicker .ranges li')
-                               .on('click.mobileCalendarNavFix', '.daterangepicker .prev, .daterangepicker .next, .daterangepicker .ranges li', function() {
-                        isDateCellClicked = false;
-                    });
-
-                    const origUpdateCalendars = pickerInstance.updateCalendars;
-                    pickerInstance.updateCalendars = function() {
-                        origUpdateCalendars.call(this);
-
-                        if ((window.innerWidth < 768 || $('.daterangepicker .drp-calendar.right').is(':hidden')) && this.endDate && this.startDate) {
-                            if (isDateCellClicked) {
-                                isDateCellClicked = false;
-                                if (!this.leftCalendar.month.isSame(this.endDate, 'month')) {
-                                    this.leftCalendar.month = this.endDate.clone().date(1);
-                                    this.renderCalendar('left');
-                                }
-                            }
-                        }
-                    };
-                }
-
                 if (initialStartDate && initialEndDate) {
                     $txnDateRange.val(initialStartDate.format('MM/DD/YYYY') + ' - ' + initialEndDate.format('MM/DD/YYYY'));
                 }
