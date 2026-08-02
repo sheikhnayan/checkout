@@ -57,8 +57,12 @@
             box-shadow: 0 18px 40px rgba(22, 64, 129, .16);
             display: grid;
             gap: 10px;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             align-items: center;
+        }
+        #searchQ {
+            grid-column: span 2;
+            min-width: 240px;
         }
         .search-bar input,
         .search-bar select {
@@ -168,6 +172,7 @@
         }
         @media (max-width: 900px) {
             .search-bar { grid-template-columns: 1fr; }
+            #searchQ { grid-column: span 1; min-width: 100%; }
         }
     </style>
 </head>
