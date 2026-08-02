@@ -16,6 +16,17 @@
             @if($job->compensation)
                 <span>{{ $job->compensation }}</span>
             @endif
+            @if($job->pay_frequency)
+                <span>
+                    @if($job->pay_frequency === 'per_hour')
+                        Per Hour
+                    @elseif($job->pay_frequency === 'per_year')
+                        Per Year
+                    @else
+                        {{ ucfirst($job->pay_frequency) }}
+                    @endif
+                </span>
+            @endif
             <span>Posted {{ optional($job->created_at)->diffForHumans() }}</span>
         </div>
         <div class="job-card-actions">

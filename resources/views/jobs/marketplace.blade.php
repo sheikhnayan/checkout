@@ -53,25 +53,27 @@
             background: #fff;
             border: 1px solid var(--indeed-border);
             border-radius: 14px;
-            padding: 10px;
+            padding: 12px;
             box-shadow: 0 18px 40px rgba(22, 64, 129, .16);
             display: grid;
             gap: 10px;
-            grid-template-columns: 1fr 1fr auto auto;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            align-items: center;
         }
         .search-bar input,
         .search-bar select {
             width: 100%;
             border: 1px solid var(--indeed-border);
             border-radius: 10px;
-            padding: 12px 14px;
-            font-size: 15px;
+            padding: 10px 12px;
+            font-size: 14px;
+            background: #fff;
         }
         .search-bar button,
         .ghost-btn {
             border: 0;
             border-radius: 10px;
-            padding: 12px 16px;
+            padding: 10px 14px;
             font-weight: 700;
             cursor: pointer;
         }
@@ -180,17 +182,42 @@
 <div class="shell">
     <form id="jobSearchForm" class="search-bar" method="GET" action="{{ route('jobs.marketplace') }}">
         <input type="text" name="q" id="searchQ" value="{{ $filters['q'] }}" placeholder="Job title, club, or keyword">
-        <input type="text" name="location" id="searchLocation" value="{{ $filters['location'] }}" placeholder="City or state" list="marketplaceLocations">
-        <datalist id="marketplaceLocations">
-            @foreach($locations as $location)
-                <option value="{{ $location }}"></option>
+        
+        <select name="state" id="searchState">
+            <option value="">All States</option>
+            @foreach($states as $st)
+                <option value="{{ $st }}" {{ $filters['state'] === $st ? 'selected' : '' }}>{{ $st }}</option>
             @endforeach
-        </datalist>
+        </select>
+
+        <select name="city" id="searchCity">
+            <option value="">All Cities</option>
+            @foreach($cities as $ct)
+                <option value="{{ $ct }}" {{ $filters['city'] === $ct ? 'selected' : '' }}>{{ $ct }}</option>
+            @endforeach
+        </select>
+
+        <select name="employment_type" id="searchEmploymentType">
+            <option value="">All Hours Types</option>
+            <option value="Full-time" {{ $filters['employment_type'] === 'Full-time' ? 'selected' : '' }}>Full-time</option>
+            <option value="Part-time" {{ $filters['employment_type'] === 'Part-time' ? 'selected' : '' }}>Part-time</option>
+            <option value="Freelance" {{ $filters['employment_type'] === 'Freelance' ? 'selected' : '' }}>Freelance</option>
+            <option value="Contract" {{ $filters['employment_type'] === 'Contract' ? 'selected' : '' }}>Contract</option>
+        </select>
+
+        <select name="pay_frequency" id="searchPayFrequency">
+            <option value="">All Pay Frequencies</option>
+            <option value="per_hour" {{ $filters['pay_frequency'] === 'per_hour' ? 'selected' : '' }}>Per Hour</option>
+            <option value="per_year" {{ $filters['pay_frequency'] === 'per_year' ? 'selected' : '' }}>Per Year</option>
+            <option value="other" {{ $filters['pay_frequency'] === 'other' ? 'selected' : '' }}>Other</option>
+        </select>
+
         <select name="job_type" id="searchType">
-            <option value="">All job types</option>
+            <option value="">All Categories</option>
             <option value="entertainer" {{ $filters['job_type'] === 'entertainer' ? 'selected' : '' }}>Entertainer</option>
             <option value="employee" {{ $filters['job_type'] === 'employee' ? 'selected' : '' }}>Employee</option>
         </select>
+
         <button type="submit" class="search-btn">Find jobs</button>
         <a href="{{ route('jobs.pre-apply') }}" class="ghost-btn">Preferred Club Form</a>
     </form>
@@ -212,16 +239,22 @@
         const list = document.getElementById('jobList');
         const resultCount = document.getElementById('resultCount');
         const q = document.getElementById('searchQ');
-        const location = document.getElementById('searchLocation');
+        const state = document.getElementById('searchState');
+        const city = document.getElementById('searchCity');
+        const empType = document.getElementById('searchEmploymentType');
+        const payFreq = document.getElementById('searchPayFrequency');
         const type = document.getElementById('searchType');
 
         let timer;
 
         async function fetchJobs() {
             const params = new URLSearchParams({
-                q: q.value || '',
-                location: location.value || '',
-                job_type: type.value || ''
+                q: q ? q.value || '' : '',
+                state: state ? state.value || '' : '',
+                city: city ? city.value || '' : '',
+                employment_type: empType ? empType.value || '' : '',
+                pay_frequency: payFreq ? payFreq.value || '' : '',
+                job_type: type ? type.value || '' : ''
             });
 
             list.classList.add('loading');
@@ -256,9 +289,12 @@
             fetchJobs();
         });
 
-        q.addEventListener('input', debouncedFetch);
-        location.addEventListener('input', debouncedFetch);
-        type.addEventListener('change', fetchJobs);
+        if (q) q.addEventListener('input', debouncedFetch);
+        if (state) state.addEventListener('change', fetchJobs);
+        if (city) city.addEventListener('change', fetchJobs);
+        if (empType) empType.addEventListener('change', fetchJobs);
+        if (payFreq) payFreq.addEventListener('change', fetchJobs);
+        if (type) type.addEventListener('change', fetchJobs);
     })();
 </script>
 </body>

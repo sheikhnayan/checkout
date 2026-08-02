@@ -16,20 +16,26 @@ class JobMarketplaceController extends Controller
     public function index(Request $request)
     {
         $jobs = $this->marketplaceQuery($request)->paginate(12);
-        $locations = JobPost::where('status', true)
-            ->where('is_archived', false)
-            ->whereNotNull('location')
-            ->distinct()
-            ->orderBy('location')
-            ->pluck('location');
+
+        $baseQuery = JobPost::where('status', true)->where('is_archived', false);
+
+        $locations = (clone $baseQuery)->whereNotNull('location')->where('location', '!=', '')->distinct()->orderBy('location')->pluck('location');
+        $states = (clone $baseQuery)->whereNotNull('state')->where('state', '!=', '')->distinct()->orderBy('state')->pluck('state');
+        $cities = (clone $baseQuery)->whereNotNull('city')->where('city', '!=', '')->distinct()->orderBy('city')->pluck('city');
 
         return view('jobs.marketplace', [
             'jobs' => $jobs,
             'locations' => $locations,
+            'states' => $states,
+            'cities' => $cities,
             'filters' => [
                 'q' => (string) $request->get('q', ''),
                 'location' => (string) $request->get('location', ''),
+                'state' => (string) $request->get('state', ''),
+                'city' => (string) $request->get('city', ''),
                 'job_type' => (string) $request->get('job_type', ''),
+                'employment_type' => (string) $request->get('employment_type', ''),
+                'pay_frequency' => (string) $request->get('pay_frequency', ''),
             ],
         ]);
     }
@@ -151,6 +157,18 @@ class JobMarketplaceController extends Controller
             ->where('is_archived', false)
             ->when($request->filled('job_type'), function ($query) use ($request) {
                 $query->where('job_type', $request->job_type);
+            })
+            ->when($request->filled('employment_type'), function ($query) use ($request) {
+                $query->where('employment_type', $request->employment_type);
+            })
+            ->when($request->filled('pay_frequency'), function ($query) use ($request) {
+                $query->where('pay_frequency', $request->pay_frequency);
+            })
+            ->when($request->filled('state'), function ($query) use ($request) {
+                $query->where('state', $request->state);
+            })
+            ->when($request->filled('city'), function ($query) use ($request) {
+                $query->where('city', $request->city);
             })
             ->when($request->filled('location'), function ($query) use ($request) {
                 $query->where('location', 'like', '%' . $request->location . '%');

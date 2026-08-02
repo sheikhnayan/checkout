@@ -45,19 +45,40 @@
                             <input type="text" name="title" class="form-control" value="{{ old('title') }}" required>
                         </div>
 
-                        <div class="col-md-6">
-                            <label class="form-label">Location <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Where this job is based."></i></label>
-                            <input type="text" name="location" class="form-control" value="{{ old('location') }}" placeholder="City, State" required>
+                        <div class="col-md-3">
+                            <label class="form-label">City <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="City where this job is based."></i></label>
+                            <input type="text" name="city" class="form-control" value="{{ old('city') }}" placeholder="Miami">
                         </div>
 
-                        <div class="col-md-6">
-                            <label class="form-label">Employment Type <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Full-time, part-time, freelance, or contract."></i></label>
-                            <input type="text" name="employment_type" class="form-control" value="{{ old('employment_type') }}" placeholder="Full-time, Part-time, Weekend">
+                        <div class="col-md-3">
+                            <label class="form-label">State <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="State where this job is based."></i></label>
+                            <input type="text" name="state" class="form-control" value="{{ old('state') }}" placeholder="FL">
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <label class="form-label">Employment Type <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Full-time, Part-time, Freelance, or Contract."></i></label>
+                            <select name="employment_type" class="form-select">
+                                <option value="">Select Employment Type</option>
+                                <option value="Full-time" {{ old('employment_type') === 'Full-time' ? 'selected' : '' }}>Full-time</option>
+                                <option value="Part-time" {{ old('employment_type') === 'Part-time' ? 'selected' : '' }}>Part-time</option>
+                                <option value="Freelance" {{ old('employment_type') === 'Freelance' ? 'selected' : '' }}>Freelance</option>
+                                <option value="Contract" {{ old('employment_type') === 'Contract' ? 'selected' : '' }}>Contract</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
                             <label class="form-label">Compensation <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Pay rate or compensation details for this role."></i></label>
-                            <input type="text" name="compensation" class="form-control" value="{{ old('compensation') }}" placeholder="$200/night + tips">
+                            <input type="text" name="compensation" class="form-control" value="{{ old('compensation') }}" placeholder="$25 / $200/night + tips">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Pay Frequency <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="How pay is calculated or paid."></i></label>
+                            <select name="pay_frequency" class="form-select">
+                                <option value="">Select Pay Frequency</option>
+                                <option value="per_hour" {{ old('pay_frequency') === 'per_hour' ? 'selected' : '' }}>Per Hour</option>
+                                <option value="per_year" {{ old('pay_frequency') === 'per_year' ? 'selected' : '' }}>Per Year</option>
+                                <option value="other" {{ old('pay_frequency') === 'other' ? 'selected' : '' }}>Other</option>
+                            </select>
                         </div>
 
                         <div class="col-12">

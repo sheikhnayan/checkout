@@ -35,9 +35,12 @@ class JobMarketplaceController extends Controller
             'website_id' => ['required', 'integer'],
             'job_type' => ['required', 'in:entertainer,employee'],
             'title' => ['required', 'string', 'max:255'],
-            'location' => ['required', 'string', 'max:255'],
-            'employment_type' => ['nullable', 'string', 'max:255'],
+            'city' => ['nullable', 'string', 'max:120'],
+            'state' => ['nullable', 'string', 'max:120'],
+            'location' => ['nullable', 'string', 'max:255'],
+            'employment_type' => ['nullable', 'string', 'in:Full-time,Part-time,Freelance,Contract'],
             'compensation' => ['nullable', 'string', 'max:255'],
+            'pay_frequency' => ['nullable', 'string', 'in:per_hour,per_year,other'],
             'short_description' => ['required', 'string', 'max:1000'],
             'description' => ['required', 'string'],
             'skills_text' => ['nullable', 'string', 'max:5000'],
@@ -47,14 +50,27 @@ class JobMarketplaceController extends Controller
 
         $this->ensureWebsiteAccess((int) $validated['website_id']);
 
+        $city = trim($validated['city'] ?? '');
+        $state = trim($validated['state'] ?? '');
+        $location = trim($validated['location'] ?? '');
+
+        if ($city !== '' && $state !== '') {
+            $location = $city . ', ' . $state;
+        } elseif ($location === '' && ($city !== '' || $state !== '')) {
+            $location = trim($city . ' ' . $state);
+        }
+
         JobPost::create([
             'website_id' => $validated['website_id'],
             'posted_by_user_id' => auth()->id(),
             'job_type' => $validated['job_type'],
             'title' => $validated['title'],
-            'location' => $validated['location'],
+            'city' => $city !== '' ? $city : null,
+            'state' => $state !== '' ? $state : null,
+            'location' => $location !== '' ? $location : null,
             'employment_type' => $validated['employment_type'] ?? null,
             'compensation' => $validated['compensation'] ?? null,
+            'pay_frequency' => $validated['pay_frequency'] ?? null,
             'short_description' => $validated['short_description'],
             'description' => $validated['description'],
             'skills' => $this->parseLines($validated['skills_text'] ?? null),
@@ -82,9 +98,12 @@ class JobMarketplaceController extends Controller
             'website_id' => ['required', 'integer'],
             'job_type' => ['required', 'in:entertainer,employee'],
             'title' => ['required', 'string', 'max:255'],
-            'location' => ['required', 'string', 'max:255'],
-            'employment_type' => ['nullable', 'string', 'max:255'],
+            'city' => ['nullable', 'string', 'max:120'],
+            'state' => ['nullable', 'string', 'max:120'],
+            'location' => ['nullable', 'string', 'max:255'],
+            'employment_type' => ['nullable', 'string', 'in:Full-time,Part-time,Freelance,Contract'],
             'compensation' => ['nullable', 'string', 'max:255'],
+            'pay_frequency' => ['nullable', 'string', 'in:per_hour,per_year,other'],
             'short_description' => ['required', 'string', 'max:1000'],
             'description' => ['required', 'string'],
             'skills_text' => ['nullable', 'string', 'max:5000'],
@@ -95,13 +114,26 @@ class JobMarketplaceController extends Controller
 
         $this->ensureWebsiteAccess((int) $validated['website_id']);
 
+        $city = trim($validated['city'] ?? '');
+        $state = trim($validated['state'] ?? '');
+        $location = trim($validated['location'] ?? '');
+
+        if ($city !== '' && $state !== '') {
+            $location = $city . ', ' . $state;
+        } elseif ($location === '' && ($city !== '' || $state !== '')) {
+            $location = trim($city . ' ' . $state);
+        }
+
         $job->update([
             'website_id' => $validated['website_id'],
             'job_type' => $validated['job_type'],
             'title' => $validated['title'],
-            'location' => $validated['location'],
+            'city' => $city !== '' ? $city : null,
+            'state' => $state !== '' ? $state : null,
+            'location' => $location !== '' ? $location : null,
             'employment_type' => $validated['employment_type'] ?? null,
             'compensation' => $validated['compensation'] ?? null,
+            'pay_frequency' => $validated['pay_frequency'] ?? null,
             'short_description' => $validated['short_description'],
             'description' => $validated['description'],
             'skills' => $this->parseLines($validated['skills_text'] ?? null),
