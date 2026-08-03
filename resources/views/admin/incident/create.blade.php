@@ -35,7 +35,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Date Submitted * <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The date this incident report is being filed."></i></label>
-                            <input type="date" name="date_submitted" class="form-control" value="{{ old('date_submitted', now('America/Los_Angeles')->format('Y-m-d')) }}" required>
+                            <input type="date" name="date_submitted" class="form-control" value="{{ old('date_submitted', now($website->resolved_timezone)->format('Y-m-d')) }}" required>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Time of incident * <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The time the incident occurred."></i></label>

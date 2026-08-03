@@ -77,4 +77,18 @@ class Incident extends Model
     {
         return $this->hasMany(IncidentAuditLog::class)->latest();
     }
+
+    public function getFormattedIncidentTimeAttribute(): ?string
+    {
+        if (empty($this->incident_time)) {
+            return null;
+        }
+
+        try {
+            return \Carbon\Carbon::parse($this->incident_time)->format('g:i A');
+        } catch (\Throwable $e) {
+            return $this->incident_time;
+        }
+    }
 }
+

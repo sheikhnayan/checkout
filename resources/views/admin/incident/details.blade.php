@@ -16,7 +16,7 @@
             </div>
 
             @php
-                $incidentTz = 'America/Los_Angeles';
+                $incidentTz = $incident->website?->resolved_timezone ?? 'America/Los_Angeles';
                 $statusClasses = [
                     'open' => 'bg-danger',
                     'under_review' => 'bg-warning text-dark',
@@ -32,7 +32,7 @@
                             <span class="badge {{ $statusClasses[$incident->status] ?? 'bg-secondary' }} fs-6">{{ ucwords(str_replace('_', ' ', $incident->status)) }}</span>
                         </div>
                         <small class="d-block mt-2 text-white-50">
-                            Last changed: {{ $incident->status_changed_at ? $incident->status_changed_at->timezone($incidentTz)->format('Y-m-d H:i') . ' PT' : 'N/A' }}
+                            Last changed: {{ $incident->status_changed_at ? $incident->status_changed_at->timezone($incidentTz)->format('Y-m-d g:i A') : 'N/A' }}
                             by {{ optional($incident->statusChangedBy)->name ?: 'System' }}
                         </small>
                     </div>
@@ -73,7 +73,7 @@
                     <div class="col-md-12"><strong>Address:</strong> {{ $incident->location_address }}</div>
                     <div class="col-md-4"><strong>Incident Date:</strong> {{ optional($incident->incident_calendar_date)->format('Y-m-d') }}</div>
                     <div class="col-md-4"><strong>Date Submitted:</strong> {{ optional($incident->date_submitted)->format('Y-m-d') }}</div>
-                    <div class="col-md-4"><strong>Incident Time:</strong> {{ $incident->incident_time }}</div>
+                    <div class="col-md-4"><strong>Incident Time:</strong> {{ $incident->formatted_incident_time ?? $incident->incident_time }}</div>
                     <div class="col-md-6"><strong>Reporter Name:</strong> {{ $incident->reporter_name }}</div>
                     <div class="col-md-6"><strong>Manager(s) on Duty:</strong> {{ $incident->managers_on_duty }}</div>
                     <div class="col-md-6"><strong>Manager Phone:</strong> {{ $incident->manager_phone ?: 'N/A' }}</div>
@@ -193,7 +193,7 @@
                                                 <div class="col-md-12"><strong>Location Address:</strong> {{ $witness->location_address }}</div>
                                                 <div class="col-md-4"><strong>Incident Date:</strong> {{ optional($witness->incident_calendar_date)->format('Y-m-d') }}</div>
                                                 <div class="col-md-4"><strong>Date Submitted:</strong> {{ optional($witness->date_submitted)->format('Y-m-d') }}</div>
-                                                <div class="col-md-4"><strong>Incident Time:</strong> {{ $witness->incident_time }}</div>
+                                                <div class="col-md-4"><strong>Incident Time:</strong> {{ $witness->formatted_incident_time ?? $witness->incident_time }}</div>
                                                 <div class="col-md-6"><strong>Type of Incident:</strong> {{ $witness->incident_type }}</div>
                                                 <div class="col-md-6"><strong>Submitted Via:</strong> {{ ucwords(str_replace('_', ' ', $witness->submitted_via)) }}</div>
                                                 <div class="col-md-6"><strong>E-sign Accepted:</strong> {{ $witness->accepted_esignature ? 'Yes' : 'No' }}</div>

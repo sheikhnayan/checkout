@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Preferred Club Work Form</title>
+    <title>General Employment Application</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -35,8 +35,8 @@
 <body>
 <div class="wrap">
     <div class="panel">
-        <h1>Preferred Club Work Form</h1>
-        <p>Didn't find the role you want? Send your profile to your preferred club and role.</p>
+        <h1>General Employment Application</h1>
+        <p>Apply for current or future opportunities at your preferred location(s).</p>
         <a href="{{ route('jobs.marketplace') }}">Back to Jobs Marketplace</a>
     </div>
 

@@ -18,13 +18,13 @@
 </head>
 <body>
     @php
-        $incidentTz = 'America/Los_Angeles';
+        $incidentTz = $incident->website?->resolved_timezone ?? 'America/Los_Angeles';
     @endphp
     <h1>Incident Report Packet</h1>
     <div class="meta small">
         Incident ID: {{ $incident->id }}<br>
         Club: {{ $incident->website->name }}<br>
-        Exported At: {{ now($incidentTz)->format('Y-m-d H:i:s') }} PT
+        Exported At: {{ now($incidentTz)->format('Y-m-d g:i A') }}
     </div>
 
     <div class="section">
@@ -35,7 +35,7 @@
             <div><span class="label">Address:</span> {{ $incident->location_address }}</div>
             <div><span class="label">Incident Date:</span> {{ optional($incident->incident_calendar_date)->format('Y-m-d') }}</div>
             <div><span class="label">Date Submitted:</span> {{ optional($incident->date_submitted)->format('Y-m-d') }}</div>
-            <div><span class="label">Incident Time:</span> {{ $incident->incident_time }}</div>
+            <div><span class="label">Incident Time:</span> {{ $incident->formatted_incident_time ?? $incident->incident_time }}</div>
             <div><span class="label">Reporter:</span> {{ $incident->reporter_name }}</div>
             <div><span class="label">Managers on Duty:</span> {{ $incident->managers_on_duty }}</div>
             <div><span class="label">Manager Phone:</span> {{ $incident->manager_phone ?: 'N/A' }}</div>

@@ -7,7 +7,7 @@
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="app-main__inner">
             @php
-                $incidentTz = 'America/Los_Angeles';
+                $incidentTz = $website->resolved_timezone;
             @endphp
             <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
                 <h4 class="mb-0">Incident Reports - {{ $website->name }}</h4>
@@ -33,7 +33,7 @@
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ optional($incident->incident_calendar_date)->format('Y-m-d') }}</td>
-                                <td>{{ $incident->incident_time }}</td>
+                                <td>{{ $incident->formatted_incident_time ?? $incident->incident_time }}</td>
                                 <td>
                                     @php
                                         $statusClasses = [
@@ -46,7 +46,7 @@
                                 </td>
                                 <td>{{ $incident->reporter_name }}</td>
                                 <td>{{ $incident->witnessReports->count() }}</td>
-                                <td>{{ $incident->created_at?->timezone($incidentTz)->format('Y-m-d H:i') }} PT</td>
+                                <td>{{ $incident->created_at?->timezone($incidentTz)->format('Y-m-d g:i A') }}</td>
                                 <td>
                                     <a href="{{ route('admin.incident.details', $incident->id) }}" class="btn btn-sm btn-secondary">Details</a>
                                     <a href="{{ route('admin.incident.export', $incident->id) }}" class="btn btn-sm btn-info">Export PDF</a>

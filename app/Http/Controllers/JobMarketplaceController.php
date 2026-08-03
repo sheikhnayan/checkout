@@ -113,6 +113,8 @@ class JobMarketplaceController extends Controller
             'message' => ['nullable', 'string', 'max:3000'],
             'terms' => ['accepted'],
             'age_confirm' => ['accepted'],
+            'consent_contact' => ['accepted'],
+            'consent_sms' => ['accepted'],
         ]);
 
         $attachments = [];
@@ -202,7 +204,7 @@ class JobMarketplaceController extends Controller
             'preferred_contact_method' => ['required', 'in:phone,text,email'],
             'previous_employment' => ['nullable', 'string', 'max:3000'],
             'entertainer_resume' => ['required', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:4096'],
-            'personality_video' => ['required', 'file', 'mimes:mp4,mov,webm,avi', 'max:4096'],
+            'personality_video' => ['nullable', 'file', 'mimes:mp4,mov,webm,avi', 'max:4096'],
             'portfolio_photos' => ['required', 'array', 'min:3', 'max:3'],
             'portfolio_photos.*' => ['required', 'file', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'traits' => ['required', 'array', 'min:1'],
@@ -215,6 +217,8 @@ class JobMarketplaceController extends Controller
             'x_handle' => ['nullable', 'string', 'max:255'],
             'age_confirm' => ['accepted'],
             'terms' => ['accepted'],
+            'consent_contact' => ['accepted'],
+            'consent_sms' => ['accepted'],
         ]);
     }
 
@@ -231,7 +235,7 @@ class JobMarketplaceController extends Controller
             'positions' => ['required', 'array', 'min:1'],
             'positions.*' => ['required', 'string', 'max:150'],
             'picture_upload' => ['required', 'file', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
-            'video_upload' => ['required', 'file', 'mimes:mp4,mov,webm,avi', 'max:4096'],
+            'video_upload' => ['nullable', 'file', 'mimes:mp4,mov,webm,avi', 'max:4096'],
             'instagram' => ['nullable', 'string', 'max:255'],
             'facebook' => ['nullable', 'string', 'max:255'],
             'tiktok' => ['nullable', 'string', 'max:255'],
@@ -254,6 +258,8 @@ class JobMarketplaceController extends Controller
             'extra_notes' => ['nullable', 'string', 'max:4000'],
             'terms' => ['accepted'],
             'age_confirm' => ['accepted'],
+            'consent_contact' => ['accepted'],
+            'consent_sms' => ['accepted'],
         ]);
     }
 
@@ -261,9 +267,12 @@ class JobMarketplaceController extends Controller
     {
         $attachments = [
             'resume' => $this->storeUploadedFile($request->file('entertainer_resume'), 'entertainer-resume'),
-            'personality_video' => $this->storeUploadedFile($request->file('personality_video'), 'entertainer-video'),
             'portfolio_photos' => [],
         ];
+
+        if ($request->hasFile('personality_video')) {
+            $attachments['personality_video'] = $this->storeUploadedFile($request->file('personality_video'), 'entertainer-video');
+        }
 
         foreach ((array) $request->file('portfolio_photos', []) as $photo) {
             $attachments['portfolio_photos'][] = $this->storeUploadedFile($photo, 'entertainer-photo');
@@ -301,8 +310,11 @@ class JobMarketplaceController extends Controller
     {
         $attachments = [
             'picture_upload' => $this->storeUploadedFile($request->file('picture_upload'), 'employee-picture'),
-            'video_upload' => $this->storeUploadedFile($request->file('video_upload'), 'employee-video'),
         ];
+
+        if ($request->hasFile('video_upload')) {
+            $attachments['video_upload'] = $this->storeUploadedFile($request->file('video_upload'), 'employee-video');
+        }
 
         if ($request->hasFile('resume')) {
             $attachments['resume'] = $this->storeUploadedFile($request->file('resume'), 'employee-resume');

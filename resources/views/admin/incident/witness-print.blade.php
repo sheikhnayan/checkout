@@ -67,7 +67,7 @@
                 </div>
                 <div class="field">
                     <div class="field-label">Time of Incident</div>
-                    <div class="field-value">{{ $witness->incident_time }}</div>
+                    <div class="field-value">{{ $witness->formatted_incident_time ?? $witness->incident_time }}</div>
                 </div>
                 <div class="field">
                     <div class="field-label">Type of Incident</div>
