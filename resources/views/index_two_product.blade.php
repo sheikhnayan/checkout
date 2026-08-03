@@ -10594,9 +10594,10 @@
                 const startMinutes = parseTimeToMinutes(activeSchedule ? activeSchedule.startTime : null);
                 const endMinutes = parseTimeToMinutes(activeSchedule ? activeSchedule.endTime : null);
                 const isOvernight = (startMinutes !== null && endMinutes !== null && endMinutes < startMinutes);
+                const isEarlyMorning = (timeMinutes < 360);
 
                 let targetDate = new Date(reqYear, reqMonth, reqDay, 0, 0, 0);
-                if (isOvernight && timeMinutes <= endMinutes) {
+                if ((isOvernight && timeMinutes <= endMinutes) || isEarlyMorning) {
                     targetDate.setDate(targetDate.getDate() + 1);
                 }
                 targetDate.setMinutes(timeMinutes);

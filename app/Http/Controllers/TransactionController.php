@@ -3003,8 +3003,9 @@ class TransactionController extends Controller
         $endMinutes = $this->convertTimeStringToMinutes($endTimeStr);
 
         $isOvernight = ($startMinutes !== null && $endMinutes !== null && $endMinutes < $startMinutes);
+        $isEarlyMorning = ($timeMinutes < 360);
 
-        if ($isOvernight && $timeMinutes <= $endMinutes) {
+        if (($isOvernight && $timeMinutes <= $endMinutes) || $isEarlyMorning) {
             $targetDateTime = $baseDate->copy()->addDay()->addMinutes($timeMinutes);
         } else {
             $targetDateTime = $baseDate->copy()->addMinutes($timeMinutes);
