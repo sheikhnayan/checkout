@@ -172,8 +172,8 @@
 <body>
 <section class="hero">
     <div class="hero-inner">
-        <h1>Find your next nightclub role</h1>
-        <p>Universal marketplace across all clubs. Search, filter by location, and apply in minutes.</p>
+        <h1>Join the Best in Nightlife</h1>
+        <p>From bartenders and entertainers to security, management, DJs, and hospitality professionals, discover opportunities at premier venues across the country.</p>
     </div>
 </section>
 

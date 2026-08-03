@@ -5701,25 +5701,25 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     <div class="aff-hero-feature-icon">
                                         <i class="fas fa-gem"></i>
                                     </div>
-                                    <div class="aff-hero-feature-label">Premium<br>Quality</div>
+                                    <div class="aff-hero-feature-label">EXCLUSIVE<br>OFFERS</div>
                                 </div>
                                 <div class="aff-hero-feature">
                                     <div class="aff-hero-feature-icon">
                                         <i class="fas fa-bolt"></i>
                                     </div>
-                                    <div class="aff-hero-feature-label">Fast<br>Delivery</div>
+                                    <div class="aff-hero-feature-label">INSTANT<br>BOOKING</div>
                                 </div>
                                 <div class="aff-hero-feature">
                                     <div class="aff-hero-feature-icon">
                                         <i class="fas fa-shield"></i>
                                     </div>
-                                    <div class="aff-hero-feature-label">Secure<br>Payments</div>
+                                    <div class="aff-hero-feature-label">SECURE<br>CHECKOUT</div>
                                 </div>
                                 <div class="aff-hero-feature">
                                     <div class="aff-hero-feature-icon">
                                         <i class="fas fa-headset"></i>
                                     </div>
-                                    <div class="aff-hero-feature-label">Dedicated<br>Support</div>
+                                    <div class="aff-hero-feature-label">VIP<br>EXPERIENCES</div>
                                 </div>
                             </div>
 

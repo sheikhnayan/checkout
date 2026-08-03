@@ -643,9 +643,9 @@
                 <span class="tag">Final Step</span>
             </div>
 
-            <div class="notice-box">
+            <!-- <div class="notice-box">
                 I confirm that I meet the minimum age requirement for the selected position and location, which may be 18 or 21 years of age.
-            </div>
+            </div> -->
 
             <label class="consent-card">
                 <input type="checkbox" name="age_confirm" value="1" required>
