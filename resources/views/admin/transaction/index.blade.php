@@ -1283,6 +1283,32 @@ body.modal-open .admin-mobile-menu-toggle {
                     </div>
                 </div>
 
+                {{-- 7. Host Name Filter --}}
+                <div class="dropdown">
+                    <button class="polaris-filter-pill-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" id="pillHostBtn">
+                        <i class="fas fa-user-tie"></i> Host Name <span class="polaris-filter-pill-count d-none" id="countHost">0</span>
+                    </button>
+                    <div class="dropdown-menu polaris-popover-menu">
+                        <div class="polaris-popover-header">
+                            <span class="polaris-popover-title me-3">Filter by Host Name</span>
+                            <div>
+                                <a href="javascript:void(0)" class="polaris-popover-action me-2" onclick="polarisToggleSelectAll('host', true)">Select All</a>
+                                <a href="javascript:void(0)" class="polaris-popover-action" onclick="polarisToggleSelectAll('host', false)">Clear</a>
+                            </div>
+                        </div>
+                        <div class="polaris-popover-body">
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="host" value="has_host">
+                                <span><i class="fas fa-check text-success me-1"></i> Has Host Name</span>
+                            </label>
+                            <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="host" value="no_host">
+                                <span><i class="fas fa-times text-muted me-1"></i> No Host Name</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
                 {{-- Hidden legacy compatibility elements --}}
                 <div class="d-none" id="txnFiltersRow">
                     <select id="websiteFilter"><option value="">All</option></select>
@@ -2345,7 +2371,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 function updatePolarisUiAndFilterTable() {
                     if (!table) return;
 
-                    const categories = ['venue', 'status', 'type', 'affiliate', 'reservation'];
+                    const categories = ['venue', 'status', 'type', 'affiliate', 'reservation', 'host'];
                     const activeChipsContainer = $('#activeFilterChips');
                     activeChipsContainer.empty();
                     let totalActiveFilters = 0;
@@ -2372,7 +2398,8 @@ body.modal-open .admin-mobile-menu-toggle {
                                 status: 'Status',
                                 type: 'Type',
                                 affiliate: 'Referral',
-                                reservation: 'Reservation'
+                                reservation: 'Reservation',
+                                host: 'Host Name'
                             };
 
                             const chipHtml = `
@@ -2597,6 +2624,19 @@ body.modal-open .admin-mobile-menu-toggle {
 
                             if (!matchesDate) return false;
                         }
+                    }
+
+                    // 7. Host Name Filter
+                    const activeHosts = $('.polaris-filter-cb[data-category="host"]:checked').map(function() { return $(this).val(); }).get();
+                    if (activeHosts.length > 0) {
+                        const rowHost = String($viewBtn.data('host_name') || $row.find('td.txn-host-name').text() || '').trim();
+                        const hasHost = rowHost !== '' && rowHost !== '-';
+                        const matches = activeHosts.some(h => {
+                            if (h === 'has_host') return hasHost;
+                            if (h === 'no_host') return !hasHost;
+                            return rowHost.toLowerCase().includes(h.toLowerCase());
+                        });
+                        if (!matches) return false;
                     }
 
                     return true;
