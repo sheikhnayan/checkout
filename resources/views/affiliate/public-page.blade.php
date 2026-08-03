@@ -8802,6 +8802,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         isValid = false;
                         firstInvalidField = firstInvalidField || transportationArrivalTimeField;
                         alertMessage = 'Please Enter Valid Arrival Time.';
+                    } else if (isTimeInPastForSelectedDate(transportationArrivalTimeValue, transportationSchedule, false)) {
+                        transportationArrivalTimeField.addClass('required-field');
+                        isValid = false;
+                        firstInvalidField = firstInvalidField || transportationArrivalTimeField;
+                        alertMessage = 'Arrival time cannot be in the past for today\'s reservation date.';
                     }
                 }
 
@@ -9482,6 +9487,64 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 return inputMinutes >= startMinutes && inputMinutes <= endMinutes;
             }
 
+            function isTimeInPastForSelectedDate(timeValue, schedule, isPickup) {
+                const timeMinutes = parseTimeToMinutes(timeValue);
+                if (timeMinutes === null) {
+                    return false;
+                }
+
+                const useDateStr = typeof getSelectedUseDate === 'function' ? getSelectedUseDate() : String($('#package_use_date').val() || '').trim();
+                if (!useDateStr) {
+                    return false;
+                }
+
+                const clubTz = @json($affiliate->website->resolved_timezone ?? $website->resolved_timezone ?? 'America/Los_Angeles');
+                let nowClub;
+                try {
+                    const nowClubStr = new Date().toLocaleString('en-US', { timeZone: clubTz });
+                    nowClub = new Date(nowClubStr);
+                } catch (e) {
+                    nowClub = new Date();
+                }
+
+                const nowYear = nowClub.getFullYear();
+                const nowMonth = String(nowClub.getMonth() + 1).padStart(2, '0');
+                const nowDate = String(nowClub.getDate()).padStart(2, '0');
+                const todayInClub = nowYear + '-' + nowMonth + '-' + nowDate;
+
+                const dateParts = useDateStr.split('-');
+                if (dateParts.length !== 3) {
+                    return false;
+                }
+                const reqYear = parseInt(dateParts[0], 10);
+                const reqMonth = parseInt(dateParts[1], 10) - 1;
+                const reqDay = parseInt(dateParts[2], 10);
+
+                const activeSchedule = schedule || transportationSchedule;
+                const startMinutes = parseTimeToMinutes(activeSchedule ? activeSchedule.startTime : null);
+                const endMinutes = parseTimeToMinutes(activeSchedule ? activeSchedule.endTime : null);
+                const isOvernight = (startMinutes !== null && endMinutes !== null && endMinutes < startMinutes);
+
+                let targetDate = new Date(reqYear, reqMonth, reqDay, 0, 0, 0);
+                if (isOvernight && timeMinutes <= endMinutes) {
+                    targetDate.setDate(targetDate.getDate() + 1);
+                }
+                targetDate.setMinutes(timeMinutes);
+
+                return targetDate.getTime() < nowClub.getTime();
+            }
+
+            $(document).on('change', '#package_use_date, #package_use_date_iframe, .package_use_date', function() {
+                var pickupEl = document.querySelector('input[name="transportation_pickup_time"]');
+                if (pickupEl && pickupEl.value && isTimeInPastForSelectedDate(pickupEl.value, transportationSchedule, true)) {
+                    pickupEl.value = '';
+                }
+                var arrivalEl = document.querySelector('input[name="transportation_arrival_time"]');
+                if (arrivalEl && arrivalEl.value && isTimeInPastForSelectedDate(arrivalEl.value, transportationSchedule, false)) {
+                    arrivalEl.value = '';
+                }
+            });
+
             function validateTransportationScheduleClient() {
                 const pickupTimeField = $('[name="transportation_pickup_time"]');
                 const pickupTime = pickupTimeField.val().trim();
@@ -9501,6 +9564,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         valid: false,
                         field: pickupTimeField,
                         message: 'Pickup time must be within the club operating hours.'
+                    };
+                }
+
+                if (isTimeInPastForSelectedDate(pickupTime, transportationSchedule, true)) {
+                    pickupTimeField.addClass('required-field');
+                    return {
+                        valid: false,
+                        field: pickupTimeField,
+                        message: 'Pickup time cannot be in the past for today\'s reservation date.'
                     };
                 }
 

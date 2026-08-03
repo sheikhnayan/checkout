@@ -343,13 +343,9 @@
                         <label class="form-label">Legal Last Name <span class="req">*</span></label>
                         <input type="text" name="legal_last_name" value="{{ old('legal_last_name') }}" required placeholder="Last name as shown on legal ID">
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Stage / Preferred First Name <span class="req">*</span></label>
-                        <input type="text" name="display_first_name" value="{{ old('display_first_name') }}" required placeholder="Preferred name">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Stage / Preferred Last Name <span class="opt">Optional</span></label>
-                        <input type="text" name="display_last_name" value="{{ old('display_last_name') }}">
+                    <div class="form-group full">
+                        <label class="form-label">Stage Name <span class="req">*</span></label>
+                        <input type="text" name="display_first_name" value="{{ old('display_first_name') }}" required placeholder="Stage name">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Email Address <span class="req">*</span></label>

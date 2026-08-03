@@ -357,6 +357,11 @@ class TransactionController extends Controller
                     'transportation_arrival_time.required' => 'Time of arrival is required for self-drive or non-transportation packages.',
                 ]
             );
+
+            $scheduleWebsite = $scheduleWebsite ?? Website::find($request->website_id);
+            if ($scheduleWebsite) {
+                $this->validateTransportationAvailability($scheduleWebsite, $request, $selectedPackage);
+            }
         }
 
         $derivedTransportationPhone = trim((string) $request->input('package_phone', ''));
@@ -2956,11 +2961,56 @@ class TransactionController extends Controller
             ]);
         }
 
+        if ($pickupTime !== '' && $this->isTimeInPastForDate($website, $pickupDate, $pickupTime, true)) {
+            throw ValidationException::withMessages([
+                'transportation_pickup_time' => 'Pickup time cannot be in the past for today\'s reservation date.',
+            ]);
+        }
+
         if ($arrivalTime !== '' && !$this->isWithinWebsiteArrivalHours($website, $arrivalTime)) {
             throw ValidationException::withMessages([
                 'transportation_arrival_time' => 'Please Enter Valid Arrival Time.',
             ]);
         }
+
+        if ($arrivalTime !== '' && $this->isTimeInPastForDate($website, $pickupDate, $arrivalTime, false)) {
+            throw ValidationException::withMessages([
+                'transportation_arrival_time' => 'Arrival time cannot be in the past for today\'s reservation date.',
+            ]);
+        }
+    }
+
+    private function isTimeInPastForDate(Website $website, string $dateStr, string $timeStr, bool $isPickup = true): bool
+    {
+        $timeMinutes = $this->convertTimeStringToMinutes($timeStr);
+        if ($timeMinutes === null || trim($dateStr) === '') {
+            return false;
+        }
+
+        $clubTz = $website->resolved_timezone;
+        $nowInClub = Carbon::now($clubTz);
+
+        try {
+            $baseDate = Carbon::parse($dateStr, $clubTz)->startOfDay();
+        } catch (\Throwable $e) {
+            return false;
+        }
+
+        $startTimeStr = $isPickup ? $website->pickup_start_time : $website->operating_start_time;
+        $endTimeStr = $isPickup ? $website->pickup_end_time : $website->operating_end_time;
+
+        $startMinutes = $this->convertTimeStringToMinutes($startTimeStr);
+        $endMinutes = $this->convertTimeStringToMinutes($endTimeStr);
+
+        $isOvernight = ($startMinutes !== null && $endMinutes !== null && $endMinutes < $startMinutes);
+
+        if ($isOvernight && $timeMinutes <= $endMinutes) {
+            $targetDateTime = $baseDate->copy()->addDay()->addMinutes($timeMinutes);
+        } else {
+            $targetDateTime = $baseDate->copy()->addMinutes($timeMinutes);
+        }
+
+        return $targetDateTime->lessThan($nowInClub);
     }
 
     private function isWebsiteOpenOnDate(Website $website, string $pickupDate): bool
