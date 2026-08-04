@@ -2803,6 +2803,8 @@ body.modal-open .admin-mobile-menu-toggle {
                         const headerText = $th.text().trim().toLowerCase();
                         if (idx === 0) return;
                         if (headerText === 'action') return;
+                        if (headerText === 'reservation status') return;
+                        if (headerText === 'entry status') return;
                         if (headerText.startsWith('_')) return;
 
                         // Keep any real data column, even if the responsive layout hides it.
