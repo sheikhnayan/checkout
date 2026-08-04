@@ -28,20 +28,32 @@
     margin-bottom: 12px;
     cursor: pointer;
     position: relative;
-    transition: border-color 0.2s ease;
+    transition: all 0.2s ease;
 }
 .field-card:hover, .field-card.selected {
     border-color: #696cff;
     box-shadow: 0 0 10px rgba(105, 108, 255, 0.3);
 }
+.field-drag-handle {
+    cursor: move;
+    color: #696cff;
+    font-size: 1.2rem;
+    margin-right: 6px;
+}
 .field-actions {
     position: absolute;
     top: 10px;
     right: 10px;
+    display: flex;
+    gap: 4px;
 }
-.field-ghost {
-    opacity: 0.4;
-    background: #32344d;
+.drop-indicator {
+    height: 4px;
+    background: #696cff;
+    border-radius: 2px;
+    margin: 4px 0;
+    display: none;
+    box-shadow: 0 0 8px #696cff;
 }
 .audit-timeline {
     border-left: 2px solid #444564;
@@ -82,11 +94,11 @@
                     <h4 class="mb-1 text-white">
                         <i class="bx bx-slider-alt me-2"></i>{{ isset($form) ? 'Edit Form: ' . $form->title : 'Create New Drag & Drop Form' }}
                     </h4>
-                    <p class="text-muted mb-0 small">Drag fields from the left panel onto the canvas. Reorder, set grid widths, and configure field properties.</p>
+                    <p class="text-muted mb-0 small">Drag components onto the canvas or drag existing fields up/down to relocate them anywhere.</p>
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#settingsModal">
-                        <i class="bx bx-cog me-1"></i> Form Settings & Clubs
+                        <i class="bx bx-cog me-1"></i> Settings & Clubs
                     </button>
                     @if(isset($form) && $form->activityLogs->count() > 0)
                         <button type="button" class="btn btn-outline-warning" data-bs-toggle="offcanvas" data-bs-target="#auditLogDrawer">
@@ -261,30 +273,30 @@
             <!-- Settings Modal -->
             <div class="modal fade" id="settingsModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
+                    <div class="modal-content bg-dark text-white">
+                        <div class="modal-header border-bottom border-secondary">
                             <h5 class="modal-title text-white"><i class="bx bx-cog me-2"></i>Form Settings & Club Access</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-content-body p-3">
+                        <div class="modal-body">
                             <div class="mb-3">
                                 <label class="form-label text-white">Target Clubs / Websites</label>
-                                <select name="website_ids[]" class="form-select" multiple style="height: 120px;">
+                                <select name="website_ids[]" class="form-select bg-dark text-white" multiple style="height: 120px;">
                                     @foreach($websites as $web)
                                         <option value="{{ $web->id }}" {{ isset($form) && is_array($form->website_ids) && in_array($web->id, $form->website_ids) ? 'selected' : '' }}>
                                             {{ $web->name }}
                                         </option>
                                     @endforeach
                                 </select>
-                                <span class="form-text small">Leave empty to make form accessible across all clubs. Hold Ctrl/Cmd to select multiple.</span>
+                                <span class="form-text text-muted small">Leave empty to make form accessible across all clubs. Hold Ctrl/Cmd to select multiple.</span>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label text-white">Success Message on Submission</label>
-                                <textarea id="successMessageInput" class="form-control" rows="3" placeholder="Thank you! Your form submission has been received."></textarea>
+                                <textarea id="successMessageInput" class="form-control bg-dark text-white" rows="3" placeholder="Thank you! Your form submission has been received."></textarea>
                             </div>
                         </div>
-                        <div class="modal-footer">
+                        <div class="modal-footer border-top border-secondary">
                             <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Done</button>
                         </div>
                     </div>
@@ -296,7 +308,7 @@
         <!-- Audit Log Drawer (Offcanvas) -->
         @if(isset($form) && $form->activityLogs->count() > 0)
             <div class="offcanvas offcanvas-end bg-dark text-white" tabindex="-1" id="auditLogDrawer" style="width: 400px;">
-                <div class="offcanvas-header border-bottom">
+                <div class="offcanvas-header border-bottom border-secondary">
                     <h5 class="offcanvas-title text-white"><i class="bx bx-history me-2"></i>Audit Activity Log</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
                 </div>
@@ -331,6 +343,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     let selectedFieldIndex = null;
+    let draggedCanvasIdx = null;
+
     const canvas = document.getElementById('canvasContainer');
     const emptyNotice = document.getElementById('emptyCanvasNotice');
     const inspectorForm = document.getElementById('inspectorForm');
@@ -340,6 +354,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Drag from palette
     document.querySelectorAll('.builder-palette-item').forEach(item => {
         item.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('source', 'palette');
             e.dataTransfer.setData('field-type', item.getAttribute('data-type'));
         });
     });
@@ -347,13 +362,26 @@ document.addEventListener('DOMContentLoaded', function() {
     canvas.addEventListener('dragover', (e) => e.preventDefault());
     canvas.addEventListener('drop', (e) => {
         e.preventDefault();
-        const type = e.dataTransfer.getData('field-type');
-        if (type) {
-            addField(type);
+        const source = e.dataTransfer.getData('source');
+        if (source === 'palette') {
+            const type = e.dataTransfer.getData('field-type');
+            if (type) addField(type);
+        } else if (source === 'canvas') {
+            const targetIdxStr = e.target.closest('.field-card-wrapper')?.getAttribute('data-idx');
+            if (targetIdxStr !== null && targetIdxStr !== undefined) {
+                const targetIdx = parseInt(targetIdxStr);
+                if (draggedCanvasIdx !== null && draggedCanvasIdx !== targetIdx) {
+                    const movedItem = fields.splice(draggedCanvasIdx, 1)[0];
+                    fields.splice(targetIdx, 0, movedItem);
+                    selectedFieldIndex = targetIdx;
+                    renderCanvas();
+                    updateInspector();
+                }
+            }
         }
     });
 
-    function addField(type) {
+    function addField(type, insertAtIdx = null) {
         const id = 'field_' + Math.random().toString(36).substr(2, 9);
         let defaultLabel = ucfirst(type) + ' Field';
         if (type === 'heading') defaultLabel = 'Section Heading';
@@ -370,13 +398,16 @@ document.addEventListener('DOMContentLoaded', function() {
             options: ['Option 1', 'Option 2', 'Option 3']
         };
 
-        fields.push(newField);
-        renderCanvas();
-        selectField(fields.length - 1);
+        if (insertAtIdx !== null) {
+            fields.splice(insertAtIdx, 0, newField);
+            selectField(insertAtIdx);
+        } else {
+            fields.push(newField);
+            selectField(fields.length - 1);
+        }
     }
 
     function renderCanvas() {
-        // Clear canvas
         canvas.innerHTML = '';
         if (fields.length === 0) {
             canvas.appendChild(emptyNotice);
@@ -391,9 +422,11 @@ document.addEventListener('DOMContentLoaded', function() {
         fields.forEach((f, idx) => {
             const wrapper = document.createElement('div');
             wrapper.className = (f.width_class || 'col-12') + ' field-card-wrapper';
+            wrapper.setAttribute('data-idx', idx);
 
             const card = document.createElement('div');
             card.className = 'field-card' + (selectedFieldIndex === idx ? ' selected' : '');
+            card.setAttribute('draggable', 'true');
 
             let inputPreview = '';
             if (f.type === 'textarea') {
@@ -408,15 +441,37 @@ document.addEventListener('DOMContentLoaded', function() {
 
             card.innerHTML = `
                 <div class="field-actions">
-                    <button type="button" class="btn btn-xs btn-outline-danger delete-field-btn" data-idx="${idx}"><i class="bx bx-trash"></i></button>
+                    <button type="button" class="btn btn-xs btn-outline-secondary move-up-btn" data-idx="${idx}" title="Move Up" ${idx === 0 ? 'disabled' : ''}>
+                        <i class="bx bx-chevron-up"></i>
+                    </button>
+                    <button type="button" class="btn btn-xs btn-outline-secondary move-down-btn" data-idx="${idx}" title="Move Down" ${idx === fields.length - 1 ? 'disabled' : ''}>
+                        <i class="bx bx-chevron-down"></i>
+                    </button>
+                    <button type="button" class="btn btn-xs btn-outline-danger delete-field-btn" data-idx="${idx}" title="Delete Field">
+                        <i class="bx bx-trash"></i>
+                    </button>
                 </div>
-                ${f.type !== 'heading' ? `<label class="form-label text-white mb-1 small">${f.label} ${f.required ? '<span class="text-danger">*</span>' : ''}</label>` : ''}
+                <div class="d-flex align-items-center mb-1">
+                    <i class="bx bx-move field-drag-handle" title="Drag to relocate field"></i>
+                    ${f.type !== 'heading' ? `<label class="form-label text-white mb-0 small me-2">${f.label} ${f.required ? '<span class="text-danger">*</span>' : ''}</label>` : ''}
+                </div>
                 ${inputPreview}
                 ${f.help_text ? `<div class="form-text small mt-1">${f.help_text}</div>` : ''}
             `;
 
+            // Field Card Drag & Drop Events for Relocating
+            card.addEventListener('dragstart', (e) => {
+                draggedCanvasIdx = idx;
+                e.dataTransfer.setData('source', 'canvas');
+                card.style.opacity = '0.5';
+            });
+            card.addEventListener('dragend', () => {
+                card.style.opacity = '1';
+                draggedCanvasIdx = null;
+            });
+
             card.addEventListener('click', (e) => {
-                if (e.target.closest('.delete-field-btn')) return;
+                if (e.target.closest('.field-actions')) return;
                 selectField(idx);
             });
 
@@ -424,7 +479,33 @@ document.addEventListener('DOMContentLoaded', function() {
             canvas.appendChild(wrapper);
         });
 
-        // Add delete event handlers
+        // Add Move Up / Move Down / Delete action handlers
+        document.querySelectorAll('.move-up-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                if (idx > 0) {
+                    const temp = fields[idx];
+                    fields[idx] = fields[idx - 1];
+                    fields[idx - 1] = temp;
+                    selectField(idx - 1);
+                }
+            });
+        });
+
+        document.querySelectorAll('.move-down-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                if (idx < fields.length - 1) {
+                    const temp = fields[idx];
+                    fields[idx] = fields[idx + 1];
+                    fields[idx + 1] = temp;
+                    selectField(idx + 1);
+                }
+            });
+        });
+
         document.querySelectorAll('.delete-field-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
