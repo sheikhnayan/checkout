@@ -1,6 +1,9 @@
 @extends('admin.main')
 
 @section('content')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+
 <style>
 .builder-palette-item {
     cursor: grab;
@@ -47,13 +50,47 @@
     display: flex;
     gap: 4px;
 }
-.drop-indicator {
-    height: 4px;
-    background: #696cff;
-    border-radius: 2px;
-    margin: 4px 0;
-    display: none;
-    box-shadow: 0 0 8px #696cff;
+
+/* Custom Website Toggle Switch */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 28px;
+    margin-bottom: 0;
+}
+.toggle-switch-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.toggle-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #3b4056;
+    transition: 0.25s ease;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.toggle-switch-slider::before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #ffffff;
+    transition: 0.25s ease;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+.toggle-switch-input:checked + .toggle-switch-slider {
+    background-color: #696cff;
+    border-color: #696cff;
+}
+.toggle-switch-input:checked + .toggle-switch-slider::before {
+    transform: translateX(24px);
 }
 .audit-timeline {
     border-left: 2px solid #444564;
@@ -155,7 +192,7 @@
                                 </div>
                                 <div class="col-6">
                                     <div class="builder-palette-item p-2 rounded text-center small text-white" draggable="true" data-type="checkbox">
-                                        <i class="bx bx-checkbox-checked fs-4 d-block mb-1 text-success"></i> Checkbox
+                                        <i class="bx bx-checkbox-checked fs-4 d-block mb-1 text-success"></i> Single Checkbox
                                     </div>
                                 </div>
                                 <div class="col-6">
@@ -238,13 +275,13 @@
                                     <label class="form-label text-white">Field ID / Key</label>
                                     <input type="text" id="propName" class="form-control" placeholder="e.g. full_name">
                                 </div>
-                                <div class="mb-3">
+                                <div class="mb-3" id="placeholderGroup">
                                     <label class="form-label text-white">Placeholder</label>
                                     <input type="text" id="propPlaceholder" class="form-control" placeholder="Enter placeholder...">
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label text-white">Help Tip / Subtitle</label>
-                                    <input type="text" id="propHelpText" class="form-control" placeholder="e.g. Provide primary contact phone">
+                                    <label class="form-label text-white">Subtitle / Help Tip</label>
+                                    <input type="text" id="propHelpText" class="form-control" placeholder="e.g. I agree to the terms and privacy policy">
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label text-white">Column Width</label>
@@ -259,9 +296,14 @@
                                     <label class="form-label text-white">Options (One per line)</label>
                                     <textarea id="propOptions" class="form-control" rows="4" placeholder="Option 1&#10;Option 2&#10;Option 3"></textarea>
                                 </div>
-                                <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" id="propRequired">
-                                    <label class="form-check-label text-white" for="propRequired">Required Field</label>
+                                
+                                <!-- Exact Website Toggle Switch for Required Field -->
+                                <div class="d-flex align-items-center justify-content-between mb-3 p-2 rounded" style="background: #252636; border: 1px solid #3b4056;">
+                                    <label class="form-label text-white mb-0 fw-medium">Required Field</label>
+                                    <label class="toggle-switch" for="propRequired">
+                                        <input type="checkbox" id="propRequired" class="toggle-switch-input">
+                                        <span class="toggle-switch-slider"></span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -333,6 +375,7 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     let fields = [];
@@ -381,10 +424,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    function addField(type, insertAtIdx = null) {
+    function addField(type) {
         const id = 'field_' + Math.random().toString(36).substr(2, 9);
         let defaultLabel = ucfirst(type) + ' Field';
         if (type === 'heading') defaultLabel = 'Section Heading';
+        if (type === 'checkbox') defaultLabel = 'I agree to the terms and conditions';
 
         const newField = {
             id: id,
@@ -398,13 +442,8 @@ document.addEventListener('DOMContentLoaded', function() {
             options: ['Option 1', 'Option 2', 'Option 3']
         };
 
-        if (insertAtIdx !== null) {
-            fields.splice(insertAtIdx, 0, newField);
-            selectField(insertAtIdx);
-        } else {
-            fields.push(newField);
-            selectField(fields.length - 1);
-        }
+        fields.push(newField);
+        selectField(fields.length - 1);
     }
 
     function renderCanvas() {
@@ -433,10 +472,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 inputPreview = `<textarea class="form-control form-control-sm" placeholder="${f.placeholder || ''}" disabled></textarea>`;
             } else if (f.type === 'select') {
                 inputPreview = `<select class="form-select form-select-sm" disabled><option>${f.options ? f.options[0] : 'Select...'}</option></select>`;
+            } else if (f.type === 'checkbox') {
+                inputPreview = `
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled>
+                        <label class="form-check-label text-white small">${f.label}</label>
+                    </div>`;
+            } else if (f.type === 'time') {
+                inputPreview = `<input type="text" class="form-control form-control-sm time-picker-preview" placeholder="Select Time (e.g. 10:30 PM)" disabled>`;
             } else if (f.type === 'heading') {
                 inputPreview = `<h5 class="text-white mb-0">${f.label}</h5>`;
             } else {
-                inputPreview = `<input type="${f.type === 'phone' ? 'tel' : (f.type === 'heading' ? 'text' : f.type)}" class="form-control form-control-sm" placeholder="${f.placeholder || ''}" disabled>`;
+                inputPreview = `<input type="${f.type === 'phone' ? 'tel' : f.type}" class="form-control form-control-sm" placeholder="${f.placeholder || ''}" disabled>`;
             }
 
             card.innerHTML = `
@@ -453,10 +500,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <div class="d-flex align-items-center mb-1">
                     <i class="bx bx-move field-drag-handle" title="Drag to relocate field"></i>
-                    ${f.type !== 'heading' ? `<label class="form-label text-white mb-0 small me-2">${f.label} ${f.required ? '<span class="text-danger">*</span>' : ''}</label>` : ''}
+                    ${f.type !== 'heading' && f.type !== 'checkbox' ? `<label class="form-label text-white mb-0 small me-2">${f.label} ${f.required ? '<span class="text-danger">*</span>' : ''}</label>` : ''}
                 </div>
                 ${inputPreview}
-                ${f.help_text ? `<div class="form-text small mt-1">${f.help_text}</div>` : ''}
+                ${f.help_text ? `<div class="text-info micro-text mt-1"><i class="bx bx-info-circle me-1"></i>${f.help_text}</div>` : ''}
             `;
 
             // Field Card Drag & Drop Events for Relocating
@@ -544,11 +591,19 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('propRequired').checked = !!f.required;
 
         const optionsGroup = document.getElementById('optionsGroup');
-        if (['select', 'radio', 'checkbox'].includes(f.type)) {
+        const placeholderGroup = document.getElementById('placeholderGroup');
+
+        if (['select', 'radio'].includes(f.type)) {
             optionsGroup.style.display = 'block';
             document.getElementById('propOptions').value = (f.options || []).join('\n');
         } else {
             optionsGroup.style.display = 'none';
+        }
+
+        if (['checkbox', 'heading'].includes(f.type)) {
+            placeholderGroup.style.display = 'none';
+        } else {
+            placeholderGroup.style.display = 'block';
         }
     }
 

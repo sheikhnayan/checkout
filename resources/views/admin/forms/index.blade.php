@@ -6,7 +6,7 @@
         
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
             <div>
-                <h4 class="mb-1 text-white"><i class="bx bx-form-builder me-2"></i>Custom Drag & Drop Form Builder</h4>
+                <h4 class="mb-1 text-white"><i class="bx bx-list-check me-2"></i>Custom Drag & Drop Form Builder</h4>
                 <p class="text-muted mb-0 small">Create, edit, and manage drag-and-drop web forms with public URLs and audit logs.</p>
             </div>
             <a href="{{ route('admin.forms.create') }}" class="btn btn-primary">
@@ -133,7 +133,7 @@
                         @empty
                             <tr>
                                 <td colspan="6" class="text-center py-5 text-muted">
-                                    <i class="bx bx-form-builder fs-1 d-block mb-2"></i>
+                                    <i class="bx bx-list-check fs-1 d-block mb-2"></i>
                                     No custom forms found. Click "Create New Form" above to launch the visual builder.
                                 </td>
                             </tr>

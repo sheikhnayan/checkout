@@ -959,7 +959,7 @@
   @endif
   <li class="menu-item {{ request()->is('admins/forms*') || request()->is('admin/forms*') ? 'active' : '' }}">
     <a href="{{ route('admin.forms.index') }}" class="menu-link">
-      <i class="menu-icon tf-icons bx bx-form-builder"></i>
+      <i class="menu-icon tf-icons bx bx-list-check"></i>
       <div class="text-truncate">Form Builder</div>
     </a>
   </li>
