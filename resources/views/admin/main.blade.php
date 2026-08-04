@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 
 <html
   lang="en"
@@ -957,6 +957,12 @@
     </a>
   </li>
   @endif
+  <li class="menu-item {{ request()->is('admins/forms*') || request()->is('admin/forms*') ? 'active' : '' }}">
+    <a href="{{ route('admin.forms.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-form-builder"></i>
+      <div class="text-truncate">Form Builder</div>
+    </a>
+  </li>
   @endif
 
   @if(($authUser && $canAccessRoute('admin.feed-model.index')) || ($authUser && $canAccessRoute('admin.feed-post.index')) || (auth()->check() && auth()->user()->isAdmin()) || ($authUser && $canAccessRoute('admin.entertainer.index')) || ($authUser && $canAccessRoute('admin.affiliate.index')))

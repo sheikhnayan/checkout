@@ -28,6 +28,7 @@ use App\Http\Controllers\EntertainerAdminController;
 use App\Http\Controllers\EntertainerPortalController;
 use App\Http\Controllers\SocialSignupController;
 use App\Http\Controllers\PackageCategoryController;
+use App\Http\Controllers\Admin\CustomFormController;
 use App\Http\Controllers\TelnyxWebhookController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\FeedModelController;
@@ -458,13 +459,23 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::match(['get', 'post'], '/{report}/export', [ReportController::class, 'export'])->name('export');
     });
 
-    // Analytics V2 (Next-Gen Executive Intelligence Hub)
-    Route::group(['prefix' => 'analytics-v2', 'as' => 'analytics.v2.'], function () {
-        Route::get('/', [AnalyticsV2Controller::class, 'index'])->name('index');
-        Route::get('/data', [AnalyticsV2Controller::class, 'getData'])->name('data');
-        Route::get('/export', [AnalyticsV2Controller::class, 'export'])->name('export');
+    // Custom Drag & Drop Form Builder
+    Route::group(['prefix' => 'forms', 'as' => 'forms.'], function () {
+        Route::get('/', [CustomFormController::class, 'index'])->name('index');
+        Route::get('/create', [CustomFormController::class, 'create'])->name('create');
+        Route::post('/', [CustomFormController::class, 'store'])->name('store');
+        Route::get('/{form}/edit', [CustomFormController::class, 'edit'])->name('edit');
+        Route::put('/{form}', [CustomFormController::class, 'update'])->name('update');
+        Route::post('/{form}/toggle', [CustomFormController::class, 'toggleStatus'])->name('toggle');
+        Route::delete('/{form}', [CustomFormController::class, 'destroy'])->name('destroy');
+        Route::get('/{form}/submissions', [CustomFormController::class, 'submissions'])->name('submissions');
+        Route::get('/{form}/submissions/export', [CustomFormController::class, 'exportSubmissions'])->name('submissions.export');
     });
 });
+
+// Public Shareable Custom Form URLs
+Route::get('/forms/{slug}', [CustomFormController::class, 'showPublic'])->name('forms.public.show');
+Route::post('/forms/{slug}', [CustomFormController::class, 'submitPublic'])->name('forms.public.submit');
 
 Route::group(['prefix'=> 'affiliate-portal', 'as' => 'affiliate.portal.', 'middleware' => ['auth', 'image.upload.guard']], function () {
     Route::get('/dashboard', [AffiliatePortalController::class, 'dashboard'])->name('dashboard');
