@@ -2913,6 +2913,36 @@ body.modal-open .admin-mobile-menu-toggle {
                     return Math.max(0, packageGuests);
                 }
 
+                function getCleanCellContent(rowNode, colIdx, rawVal) {
+                    if (rowNode) {
+                        const $td = $(rowNode).children('td').eq(colIdx);
+                        if ($td.length) {
+                            const $clone = $td.clone();
+                            $clone.find('button, .btn, .view-btn, .dropdown, script, style').remove();
+                            const text = $clone.text().replace(/\s+/g, ' ').trim();
+                            if (text !== '') {
+                                return text;
+                            }
+                        }
+                    }
+
+                    if (rawVal != null) {
+                        if (typeof rawVal === 'object') {
+                            const disp = rawVal.display || rawVal['@data-order'] || rawVal.text || '';
+                            const tmp = document.createElement('div');
+                            tmp.innerHTML = String(disp);
+                            $(tmp).find('button, .btn, .view-btn, .dropdown, script, style').remove();
+                            return (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim();
+                        }
+                        const tmp = document.createElement('div');
+                        tmp.innerHTML = String(rawVal);
+                        $(tmp).find('button, .btn, .view-btn, .dropdown, script, style').remove();
+                        return (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim();
+                    }
+
+                    return '';
+                }
+
                 function getExportDataset() {
                     const exportColumnIndexes = getExportColumnIndexes();
                     const selected = $('.row-check:checked');
@@ -3013,7 +3043,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                 }
 
                                 const row = exportColumnIndexes.map(function (colIdx) {
-                                    return stripHtml(rowData[colIdx] || '');
+                                    return getCleanCellContent(rowNode, colIdx, rowData ? rowData[colIdx] : null);
                                 });
                                 row.push(String(guestCount));
                                 row.push(getExportPackageDetails(rowNode));
@@ -3052,7 +3082,19 @@ body.modal-open .admin-mobile-menu-toggle {
                         return;
                     }
 
+                    const summary = dataset.summary || {};
+                    const money = function(val) {
+                        return '$' + Number(val || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    };
+
                     const lines = [];
+                    lines.push(csvEscape('Transactions Export Summary'));
+                    lines.push([csvEscape('Total Transactions'), csvEscape(String(summary.totalTransactions || 0)), csvEscape('Completed Transactions'), csvEscape(String(summary.completedTransactions || 0))].join(','));
+                    lines.push([csvEscape('Total Revenue'), csvEscape(money(summary.totalRevenue)), csvEscape('Pending Fee'), csvEscape(money(summary.pendingFee))].join(','));
+                    lines.push([csvEscape('Total Guests'), csvEscape(String(summary.totalGuests || 0)), csvEscape('Payout Amount'), csvEscape(money(summary.payoutAmount))].join(','));
+                    lines.push([csvEscape('Total Earning'), csvEscape(money(summary.totalEarning)), csvEscape(''), csvEscape('')].join(','));
+                    lines.push('');
+
                     lines.push(dataset.headers.map(csvEscape).join(','));
                     dataset.rows.forEach(function (row) {
                         lines.push(row.map(csvEscape).join(','));
@@ -3068,16 +3110,29 @@ body.modal-open .admin-mobile-menu-toggle {
                         return;
                     }
 
-                    let tableHtml = '<table><thead><tr>';
+                    const summary = dataset.summary || {};
+                    const money = function(val) {
+                        return '$' + Number(val || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    };
+
+                    let tableHtml = '<table border="1" style="border-collapse:collapse;margin-bottom:20px;font-family:Arial,sans-serif;font-size:12px;">';
+                    tableHtml += '<thead><tr><th colspan="4" style="background:#2980b9;color:#ffffff;font-size:14px;padding:8px;text-align:left;">Transactions Export Summary</th></tr></thead><tbody>';
+                    tableHtml += '<tr><td style="padding:6px;background:#f2f2f2;"><b>Total Transactions</b></td><td style="padding:6px;">' + (summary.totalTransactions || 0) + '</td><td style="padding:6px;background:#f2f2f2;"><b>Completed Transactions</b></td><td style="padding:6px;">' + (summary.completedTransactions || 0) + '</td></tr>';
+                    tableHtml += '<tr><td style="padding:6px;background:#f2f2f2;"><b>Total Revenue</b></td><td style="padding:6px;">' + money(summary.totalRevenue) + '</td><td style="padding:6px;background:#f2f2f2;"><b>Pending Fee</b></td><td style="padding:6px;">' + money(summary.pendingFee) + '</td></tr>';
+                    tableHtml += '<tr><td style="padding:6px;background:#f2f2f2;"><b>Total Guests</b></td><td style="padding:6px;">' + (summary.totalGuests || 0) + '</td><td style="padding:6px;background:#f2f2f2;"><b>Payout Amount</b></td><td style="padding:6px;">' + money(summary.payoutAmount) + '</td></tr>';
+                    tableHtml += '<tr><td style="padding:6px;background:#f2f2f2;"><b>Total Earning</b></td><td style="padding:6px;">' + money(summary.totalEarning) + '</td><td></td><td></td></tr>';
+                    tableHtml += '</tbody></table><br/>';
+
+                    tableHtml += '<table border="1" style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:11px;"><thead><tr>';
                     dataset.headers.forEach(function (h) {
-                        tableHtml += '<th>' + h + '</th>';
+                        tableHtml += '<th style="background:#34495e;color:#ffffff;padding:6px;">' + h + '</th>';
                     });
                     tableHtml += '</tr></thead><tbody>';
 
                     dataset.rows.forEach(function (row) {
                         tableHtml += '<tr>';
                         row.forEach(function (cell) {
-                            tableHtml += '<td>' + cell + '</td>';
+                            tableHtml += '<td style="padding:4px;">' + cell + '</td>';
                         });
                         tableHtml += '</tr>';
                     });
@@ -3099,7 +3154,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     }
 
                     const { jsPDF } = window.jspdf;
-                    const doc = new jsPDF({ orientation: 'landscape' });
+                    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
                     const summary = dataset.summary || {};
                     const money = function(value) {
                         const n = Number(value || 0);
@@ -3107,13 +3162,14 @@ body.modal-open .admin-mobile-menu-toggle {
                     };
 
                     doc.setFontSize(13);
-                    doc.text('Transactions Export', 14, 12);
-                    doc.setFontSize(9);
-                    doc.text('Scope: ' + (dataset.selectedOnly ? ('Selected Rows (' + (summary.totalTransactions || 0) + ')') : 'All Filtered Rows'), 14, 17);
-                    doc.text('Generated: ' + new Date().toLocaleString(), 14, 21);
+                    doc.text('Transactions Export', 10, 10);
+                    doc.setFontSize(8);
+                    doc.text('Scope: ' + (dataset.selectedOnly ? ('Selected Rows (' + (summary.totalTransactions || 0) + ')') : 'All Filtered Rows'), 10, 15);
+                    doc.text('Generated: ' + new Date().toLocaleString(), 10, 19);
 
                     doc.autoTable({
-                        startY: 24,
+                        startY: 22,
+                        margin: { left: 10, right: 10 },
                         head: [['Metric', 'Value', 'Metric', 'Value']],
                         body: [[
                             'Total Transactions', String(summary.totalTransactions || 0),
@@ -3128,17 +3184,21 @@ body.modal-open .admin-mobile-menu-toggle {
                             'Total Earning', money(summary.totalEarning || 0),
                             '', ''
                         ]],
-                        styles: { fontSize: 8, cellPadding: 2 },
+                        styles: { fontSize: 7, cellPadding: 1.5 },
                         headStyles: { fillColor: [41, 128, 185] },
                     });
 
                     doc.autoTable({
                         head: [dataset.headers],
                         body: dataset.rows,
-                        startY: (doc.lastAutoTable && doc.lastAutoTable.finalY ? doc.lastAutoTable.finalY + 4 : 42),
-                        styles: { fontSize: 6.5, cellPadding: 1.5, overflow: 'linebreak', valign: 'top' },
-                        headStyles: { fillColor: [41, 128, 185] },
+                        startY: (doc.lastAutoTable && doc.lastAutoTable.finalY ? doc.lastAutoTable.finalY + 4 : 40),
+                        margin: { left: 5, right: 5, top: 10, bottom: 10 },
+                        styles: { fontSize: 5, cellPadding: 1, overflow: 'linebreak', valign: 'middle' },
+                        headStyles: { fillColor: [41, 128, 185], fontSize: 5.5, fontStyle: 'bold' },
                         bodyStyles: { textColor: [25, 25, 25] },
+                        theme: 'grid',
+                        horizontalPageBreak: true,
+                        horizontalPageBreakRepeat: 0,
                     });
                     doc.save('transactions.pdf');
                 }
@@ -3150,8 +3210,23 @@ body.modal-open .admin-mobile-menu-toggle {
                         return;
                     }
 
-                    let html = '<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;width:100%;font-family:Arial,sans-serif;font-size:12px;">';
-                    html += '<thead><tr>';
+                    const summary = dataset.summary || {};
+                    const money = function(value) {
+                        const n = Number(value || 0);
+                        return '$' + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    };
+
+                    let html = '<h2>Transactions Export</h2>';
+                    html += '<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;width:100%;font-family:Arial,sans-serif;font-size:12px;margin-bottom:16px;">';
+                    html += '<thead><tr><th colspan="4" style="background:#2980b9;color:#fff;text-align:left;">Summary Report</th></tr></thead><tbody>';
+                    html += '<tr><td><b>Total Transactions</b></td><td>' + (summary.totalTransactions || 0) + '</td><td><b>Completed Transactions</b></td><td>' + (summary.completedTransactions || 0) + '</td></tr>';
+                    html += '<tr><td><b>Total Revenue</b></td><td>' + money(summary.totalRevenue) + '</td><td><b>Pending Fee</b></td><td>' + money(summary.pendingFee) + '</td></tr>';
+                    html += '<tr><td><b>Total Guests</b></td><td>' + (summary.totalGuests || 0) + '</td><td><b>Payout Amount</b></td><td>' + money(summary.payoutAmount) + '</td></tr>';
+                    html += '<tr><td><b>Total Earning</b></td><td>' + money(summary.totalEarning) + '</td><td></td><td></td></tr>';
+                    html += '</tbody></table>';
+
+                    html += '<table border="1" cellspacing="0" cellpadding="4" style="border-collapse:collapse;width:100%;font-family:Arial,sans-serif;font-size:10px;">';
+                    html += '<thead><tr style="background:#34495e;color:#fff;">';
                     dataset.headers.forEach(function (h) { html += '<th>' + h + '</th>'; });
                     html += '</tr></thead><tbody>';
                     dataset.rows.forEach(function (row) {
