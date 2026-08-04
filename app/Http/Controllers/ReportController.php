@@ -468,14 +468,17 @@ class ReportController extends Controller
      */
     public function automationPreview(Request $request)
     {
-        $timezone = $this->resolveAutomationTimezone($request);
+        $timezone = 'America/Los_Angeles';
         [$startAt, $endAt, $periodLabel] = $this->resolveAutomationDateRange($request, $timezone);
         $websiteIds = $this->resolveAutomationWebsiteIds($request);
+
+        $startAtUtc = $startAt->copy()->utc();
+        $endAtUtc = $endAt->copy()->utc();
 
         $txQuery = Transaction::query()
             ->with(['website', 'package'])
             ->financiallyReportable()
-            ->whereBetween('created_at', [$startAt, $endAt]);
+            ->whereBetween('created_at', [$startAtUtc, $endAtUtc]);
 
         if (!empty($websiteIds)) {
             $txQuery->whereIn('website_id', $websiteIds);
@@ -1200,17 +1203,7 @@ class ReportController extends Controller
 
     private function resolveAutomationTimezone(Request $request): string
     {
-        $tz = trim((string) $request->get('timezone', 'America/Los_Angeles'));
-        if ($tz === '') {
-            return 'America/Los_Angeles';
-        }
-
-        try {
-            new \DateTimeZone($tz);
-            return $tz;
-        } catch (\Throwable $e) {
-            return 'America/Los_Angeles';
-        }
+        return 'America/Los_Angeles';
     }
 
     private function resolveAutomationWebsiteIds(Request $request): array
@@ -1566,11 +1559,13 @@ class ReportController extends Controller
                 $params
             );
 
+            $tz = 'America/Los_Angeles';
+            $pstNow = now()->setTimezone($tz);
             $subject = 'Automation Report: ' . $schedule->name;
             $body = "Your automated report is ready.\n\n";
             $body .= "Schedule: {$schedule->name}\n";
             $body .= "Frequency: {$schedule->frequency}\n";
-            $body .= "Generated at: " . now()->format('Y-m-d H:i:s') . "\n\n";
+            $body .= "Generated at: " . $pstNow->format('Y-m-d h:i:s A T') . "\n\n";
             $body .= "Preview/Download link:\n{$signedUrl}\n\n";
             $body .= "This link will expire in 7 days.";
 
