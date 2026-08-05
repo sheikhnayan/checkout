@@ -7559,9 +7559,19 @@
                 transition: all .15s;
                 flex-shrink: 0;
             }
-            #cv-cart-toast .cv-toast-close:hover { background: rgba(255,255,255,0.15); color: #fff; }
-            @media (max-width: 600px) {
-                #cv-cart-toast { top: 14px; padding: 12px 16px 12px 14px; font-size: 13px; min-width: 0; width: calc(100vw - 28px); }
+            @media (max-width: 767px) {
+                #cv-cart-toast {
+                    top: auto !important;
+                    bottom: 20px !important;
+                    transform: translateX(-50%) translateY(140%);
+                    padding: 12px 16px 12px 14px;
+                    font-size: 13px;
+                    min-width: 0;
+                    width: calc(100vw - 28px);
+                }
+                #cv-cart-toast.is-visible {
+                    transform: translateX(-50%) translateY(0) !important;
+                }
                 #cv-cart-toast .cv-toast-icon { width: 32px; height: 32px; font-size: 13px; }
                 #cv-cart-toast .cv-toast-title { font-size: 13.5px; }
                 #cv-cart-toast .cv-toast-sub {
