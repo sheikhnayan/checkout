@@ -7569,14 +7569,18 @@
                 #cv-cart-toast {
                     top: auto !important;
                     bottom: 20px !important;
-                    transform: translateX(-50%) translateY(140%);
+                    left: 14px !important;
+                    right: 14px !important;
+                    width: auto !important;
+                    max-width: 500px !important;
+                    margin: 0 auto !important;
+                    transform: translateY(140%) !important;
                     padding: 12px 16px 12px 14px;
                     font-size: 13px;
                     min-width: 0;
-                    width: calc(100vw - 28px);
                 }
                 #cv-cart-toast.is-visible {
-                    transform: translateX(-50%) translateY(0) !important;
+                    transform: translateY(0) !important;
                 }
                 #cv-cart-toast .cv-toast-icon { width: 32px; height: 32px; font-size: 13px; }
                 #cv-cart-toast .cv-toast-title { font-size: 13.5px; }
