@@ -5492,7 +5492,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                             class="form-control"
                                                                             placeholder="Select pick-up time" />
                                                                     </div>
-                                                                    <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:#ffdc66;">Times are available in 5-minute intervals.</small>
+                                                                    <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:#ffdc66;">Reservations must be made at least 15 minutes in advance. Reservation times are available in 5-minute intervals.</small>
                                                                 </div>
                                                             </div>
                                                             <div class="form-row" style="margin-top: 14px;">

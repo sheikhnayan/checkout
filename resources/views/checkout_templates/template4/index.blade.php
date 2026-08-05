@@ -6142,7 +6142,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                                             class="form-control"
                                                                             placeholder="Select pick-up time" />
                                                                     </div>
-                                                                    <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:#ffdc66;">Times are available in 5-minute intervals.</small>
+                                                                    <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:#ffdc66;">Reservations must be made at least 15 minutes in advance. Reservation times are available in 5-minute intervals.</small>
                                                                 </div>
                                                             </div>
                                                             <div class="form-row" style="margin-top: 14px;">
@@ -6840,7 +6840,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 top: 24px;
                 left: 50%;
                 transform: translateX(-50%) translateY(-140%);
-                z-index: 10000;
+                z-index: 999999 !important;
                 background: linear-gradient(135deg, rgba(36,18,58,0.98) 0%, rgba(18,10,32,0.99) 100%);
                 color: #fff;
                 border: 1px solid rgba(167,116,255,0.55);
