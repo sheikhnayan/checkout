@@ -4622,8 +4622,8 @@ input[type="checkbox"],
 .cv-need-help-action i { color: var(--accent) !important; font-size: 15px; width: 28px; height: 28px; border-radius: 999px; background: rgba(255,204,0,0.1); display: inline-flex; align-items: center; justify-content: center;
             align-items: center; }
 .cv-need-help-action strong { display: block; font-size: 13px; color: #fff !important; font-weight: 600; line-height: 1.1; }
-.cv-need-help-action span { display: block; font-size: 11px; color: rgba(255,255,255,0.5) !important; margin-top: 1px; }
-
+                        margin: 0 auto !important;
+                        transform: translateX(-50%) translateY(-140%) !important;
 /* Order summary sidebar refinements */
 .cv-sidebar-venue-image {
     width: 100%;
@@ -6904,21 +6904,21 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     font-size: 16px !important;
                 }
                 #cv-cart-toast {
-                    top: auto !important;
-                    bottom: 20px !important;
-                    left: 14px !important;
-                    right: 14px !important;
+                    top: 24px !important;
+                    bottom: auto !important;
+                    left: 50% !important;
+                    right: auto !important;
                     width: auto !important;
                     max-width: 500px !important;
                     margin: 0 auto !important;
-                    transform: translateY(140%) !important;
+                    transform: translateX(-50%) translateY(-140%) !important;
                     padding: 12px 16px 12px 14px;
                     font-size: 13px;
                     min-width: 0;
                     visibility: hidden;
                 }
                 #cv-cart-toast.is-visible {
-                    transform: translateY(0) !important;
+                    transform: translateX(-50%) translateY(0) !important;
                     visibility: visible !important;
                 }
                 #cv-cart-toast .cv-toast-icon { width: 32px; height: 32px; font-size: 13px; }

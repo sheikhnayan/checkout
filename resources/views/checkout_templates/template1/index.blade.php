@@ -6904,21 +6904,21 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     font-size: 16px !important;
                 }
                 #cv-cart-toast {
-                    top: auto !important;
-                    bottom: 20px !important;
-                    left: 14px !important;
-                    right: 14px !important;
+                    top: 24px !important;
+                    bottom: auto !important;
+                    left: 50% !important;
+                    right: auto !important;
                     width: auto !important;
                     max-width: 500px !important;
                     margin: 0 auto !important;
-                    transform: translateY(140%) !important;
+                    transform: translateX(-50%) translateY(-140%) !important;
                     padding: 12px 16px 12px 14px;
                     font-size: 13px;
                     min-width: 0;
                     visibility: hidden;
                 }
                 #cv-cart-toast.is-visible {
-                    transform: translateY(0) !important;
+                    transform: translateX(-50%) translateY(0) !important;
                     visibility: visible !important;
                 }
                 #cv-cart-toast .cv-toast-icon { width: 32px; height: 32px; font-size: 13px; }
