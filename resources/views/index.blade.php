@@ -6352,6 +6352,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 100%;">
                                                                     <label for="Pick-up-time">Pick-up Time</label>
+                                                                    <small style="display:block;margin-top:4px;margin-bottom:8px;font-size:12px;line-height:1.4;color:#ffdc66;">Reservations must be made at least 15 minutes in advance. Reservation times are available in 5-minute intervals.</small>
                                                                     <div class="pickup-time-wrap">
                                                                         <i class="fas fa-clock pickup-time-icon"></i>
                                                                         <input name="transportation_pickup_time" type="text" readonly required
@@ -6359,7 +6360,6 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                                             class="form-control"
                                                                             placeholder="Select pick-up time" />
                                                                     </div>
-                                                                    <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:#ffdc66;">Reservations must be made at least 15 minutes in advance. Reservation times are available in 5-minute intervals.</small>
                                                                 </div>
                                                             </div>
                                                             <div class="form-row" style="margin-top: 14px;">
