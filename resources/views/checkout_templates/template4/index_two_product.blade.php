@@ -7510,7 +7510,7 @@
                 top: 24px;
                 left: 50%;
                 transform: translateX(-50%) translateY(-140%);
-                z-index: 999999 !important;
+                z-index: 999999999 !important;
                 background: linear-gradient(135deg, rgba(36,18,58,0.98) 0%, rgba(18,10,32,0.99) 100%);
                 color: #fff;
                 border: 1px solid rgba(167,116,255,0.55);
@@ -7568,6 +7568,9 @@
                 flex-shrink: 0;
             }
             @media (max-width: 767px) {
+                input, select, textarea, #Pick-up-time, input[name="transportation_pickup_time"] {
+                    font-size: 16px !important;
+                }
                 #cv-cart-toast {
                     top: auto !important;
                     bottom: 20px !important;
@@ -8378,6 +8381,14 @@
                 window.showToast = function (title, sub, iconClass) {
                     var toast = document.getElementById('cv-cart-toast');
                     if (!toast) return;
+                    try {
+                        document.querySelectorAll('.flatpickr-calendar.open').forEach(function(el) {
+                            el.classList.remove('open');
+                        });
+                        if (document.activeElement && typeof document.activeElement.blur === 'function') {
+                            document.activeElement.blur();
+                        }
+                    } catch(e){}
                     var titleEl = toast.querySelector('.cv-toast-title');
                     var subEl = document.getElementById('cv-cart-toast-sub');
                     var iconEl = toast.querySelector('.cv-toast-icon i');
@@ -10383,31 +10394,14 @@
                         alert(alertMessage);
                     }
                     if (firstInvalidField && firstInvalidField.length) {
-                        firstInvalidField.trigger('focus');
                         firstInvalidField[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
                         if (firstInvalidField.is('[name="transportation_pickup_time"]')) {
                             firstInvalidField.prop('disabled', false).prop('readonly', false)
                                 .removeAttr('disabled').removeAttr('readonly');
-                            setTimeout(function() {
-                                var timeInput = firstInvalidField[0];
-                                if (!timeInput) {
-                                    return;
-                                }
-                                var fp = timeInput._flatpickr;
-                                if (fp) {
-                                    try { fp.close(); } catch (e) {}
-                                    try { fp._input && fp._input.focus(); } catch (e) {}
-                                    try { fp.open(); } catch (e) {}
-                                    setTimeout(function() {
-                                        if (fp && !fp.isOpen) {
-                                            try { fp.open(); } catch (e) {}
-                                        }
-                                    }, 120);
-                                    return;
-                                }
-                                timeInput.focus();
-                                timeInput.click();
-                            }, 120);
+                            var timeInput = firstInvalidField[0];
+                            if (timeInput && timeInput._flatpickr) {
+                                try { timeInput._flatpickr.close(); } catch (e) {}
+                            }
                         }
                     }
                 }

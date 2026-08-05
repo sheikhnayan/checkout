@@ -7051,7 +7051,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 top: 24px;
                 left: 50%;
                 transform: translateX(-50%) translateY(-140%);
-                z-index: 999999 !important;
+                z-index: 999999999 !important;
                 background: linear-gradient(135deg, rgba(36,18,58,0.98) 0%, rgba(18,10,32,0.99) 100%);
                 color: #fff;
                 border: 1px solid rgba(167,116,255,0.55);
@@ -7111,6 +7111,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 flex-shrink: 0;
             }
             @media (max-width: 767px) {
+                input, select, textarea, #Pick-up-time, input[name="transportation_pickup_time"] {
+                    font-size: 16px !important;
+                }
                 #cv-cart-toast {
                     top: auto !important;
                     bottom: 20px !important;
@@ -7252,6 +7255,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 window.showToast = function (title, sub, iconClass) {
                     var toast = document.getElementById('cv-cart-toast');
                     if (!toast) return;
+                    try {
+                        document.querySelectorAll('.flatpickr-calendar.open').forEach(function(el) {
+                            el.classList.remove('open');
+                        });
+                        if (document.activeElement && typeof document.activeElement.blur === 'function') {
+                            document.activeElement.blur();
+                        }
+                    } catch(e){}
                     var titleEl = toast.querySelector('.cv-toast-title');
                     var subEl = document.getElementById('cv-cart-toast-sub');
                     var iconEl = toast.querySelector('.cv-toast-icon i');
