@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @php
+        $metaTitle = trim(($profileTitle ?? 'Profile'));
+        $metaDescription = trim(strip_tags((string) ($profileSubtitle ?? '')));
+        if ($metaDescription === '') {
+            $metaDescription = 'View updates and posts from ' . ($profileTitle ?? 'this profile') . '.';
+        }
+        $metaDescription = \Illuminate\Support\Str::limit($metaDescription, 160);
+
+        $rawMetaImage = $profileImage
+            ? asset('uploads/' . $profileImage)
+            : ($club->logo
+                ? asset('uploads/' . $club->logo)
+                : 'https://ui-avatars.com/api/?name=' . urlencode($profileTitle ?? 'Profile') . '&background=132645&color=ffffff&size=1200');
+        $metaImage = str_contains($rawMetaImage, '?')
+            ? $rawMetaImage . '&w=1200&h=630&fit=crop'
+            : $rawMetaImage . '?w=1200&h=630&fit=crop';
+        $metaUrl = request()->url();
+    @endphp
+    <meta name="description" content="{{ $metaDescription }}">
+    <link rel="canonical" href="{{ $metaUrl }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ $club->name ?? 'CartVIP' }}">
+    <meta property="og:title" content="{{ $metaTitle }}">
+    <meta property="og:description" content="{{ $metaDescription }}">
+    <meta property="og:url" content="{{ $metaUrl }}">
+    <meta property="og:image" content="{{ $metaImage }}">
+    <meta property="og:image:secure_url" content="{{ $metaImage }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="{{ $profileTitle }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $metaTitle }}">
+    <meta name="twitter:description" content="{{ $metaDescription }}">
+    <meta name="twitter:image" content="{{ $metaImage }}">
+    <title>{{ $profileTitle }} Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --profile-bg: #08101d;
+            --profile-bg-edge: #050914;
+            --profile-bg-center: #132645;
+            --profile-stage: rgba(8, 14, 29, 0.8);
+            --profile-stage-border: rgba(166, 202, 255, 0.18);
+            --profile-panel: rgba(11, 18, 32, 0.94);
+            --profile-border: rgba(255, 255, 255, 0.09);
+            --profile-text: #ecf3ff;
+            --profile-muted: #91a2c1;
+            --profile-accent: #d8b067;
+            --profile-shadow: 0 30px 80px rgba(0, 0, 0, 0.42);
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: "Poppins", "Segoe UI", sans-serif;
+            color: var(--profile-text);
+            background:
+                radial-gradient(circle at 16% -10%, rgba(216, 176, 103, 0.18), transparent 24%),
+                radial-gradient(circle at 82% 108%, rgba(130, 173, 255, 0.2), transparent 30%),
+                linear-gradient(90deg, #03070f 0%, #091122 18%, #173a66 50%, #091122 82%, #03070f 100%),
+                linear-gradient(180deg, #081221 0%, var(--profile-bg) 100%);
+            background-attachment: fixed;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background:
+                linear-gradient(90deg, rgba(3, 6, 14, 0.88) 0%, rgba(4, 10, 21, 0.58) 18%, rgba(18, 39, 72, 0.08) 34%, rgba(39, 83, 151, 0.12) 50%, rgba(18, 39, 72, 0.08) 66%, rgba(4, 10, 21, 0.58) 82%, rgba(3, 6, 14, 0.88) 100%);
+            z-index: 0;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(68% 50% at 50% 14%, rgba(126, 172, 255, 0.16), transparent 58%),
+                radial-gradient(62% 56% at 50% 62%, rgba(63, 121, 220, 0.14), transparent 66%);
+            z-index: 0;
+        }
+
+        button,
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .profile-shell {
+            width: min(1080px, calc(100% - 24px));
+            margin: 0 auto;
+            padding: 22px 20px 52px;
+            flex: 1 0 auto;
+            position: relative;
+            z-index: 1;
+            border: 1px solid var(--profile-stage-border);
+            border-radius: 28px;
+            background:
+                linear-gradient(180deg, rgba(16, 33, 59, 0.62) 0%, rgba(8, 14, 28, 0.72) 24%, rgba(7, 13, 26, 0.84) 100%),
+                var(--profile-stage);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.46);
+            overflow: hidden;
+        }
+
+        .profile-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            color: var(--profile-muted);
+            margin-bottom: 18px;
+        }
+
+        .profile-topbar-nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-topbar-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(216, 176, 103, 0.35);
+            background: linear-gradient(145deg, rgba(216, 176, 103, 0.2), rgba(216, 176, 103, 0.1));
+            color: #f8dfb5;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, color .2s ease;
+        }
+
+        .profile-topbar-link:hover {
+            color: #fff;
+            border-color: rgba(216, 176, 103, 0.7);
+            box-shadow: 0 10px 24px rgba(216, 176, 103, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .profile-share-menu {
+            position: fixed;
+            z-index: 1300;
+            min-width: 190px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            background: rgba(8, 14, 26, 0.98);
+            box-shadow: 0 22px 40px rgba(0,0,0,0.35);
+            padding: 8px;
+            display: none;
+            gap: 6px;
+        }
+
+        #profile-copy-toast {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%) translateY(12px);
+            background: #1e2330;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.13);
+            border-radius: 999px;
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: .01em;
+            box-shadow: 0 6px 28px rgba(0,0,0,0.38);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.18s ease, transform 0.18s ease;
+            z-index: 10000;
+            white-space: nowrap;
+        }
+        #profile-copy-toast.is-visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .profile-share-menu.is-open {
+            display: grid;
+        }
+
+        .profile-share-option {
+            appearance: none;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.04);
+            color: var(--profile-text);
+            border-radius: 9px;
+            padding: 9px 10px;
+            font-size: .84rem;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .profile-share-option:hover {
+            border-color: rgba(216,176,103,0.36);
+            background: rgba(216,176,103,0.14);
+        }
+
+        .profile-topbar-context {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(145, 162, 193, 0.28);
+            background: rgba(145, 162, 193, 0.08);
+            color: var(--profile-muted);
+            font-size: .75rem;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .profile-hero {
+            border: 1px solid var(--profile-border);
+            border-radius: 20px;
+            background: linear-gradient(145deg, rgba(15, 24, 42, 0.98), rgba(8, 14, 25, 0.9));
+            box-shadow: var(--profile-shadow);
+            padding: 28px;
+            margin-bottom: 18px;
+        }
+
+        .profile-hero-grid {
+            display: grid;
+            grid-template-columns: 146px minmax(0, 1fr);
+            gap: 22px;
+            align-items: center;
+        }
+
+        .profile-avatar,
+        .profile-avatar-fallback {
+            width: 146px;
+            height: 146px;
+            border-radius: 36px;
+            object-fit: cover;
+            background: rgba(255,255,255,0.06);
+        }
+
+        .profile-avatar-fallback {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .profile-kicker {
+            font-size: .76rem;
+            text-transform: uppercase;
+            letter-spacing: .16em;
+            color: var(--profile-accent);
+            margin-bottom: 10px;
+        }
+
+        .profile-title {
+            font-size: clamp(2rem, 4vw, 3.6rem);
+            line-height: .95;
+            margin: 0;
+            letter-spacing: -0.04em;
+            font-weight: 800;
+        }
+
+        .profile-copy {
+            margin: 10px 0 0;
+            max-width: 68ch;
+            line-height: 1.75;
+            color: var(--profile-muted);
+            white-space: pre-wrap;
+        }
+
+        .profile-packages-link {
+            margin-top: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .95rem;
+            font-weight: 700;
+            color: #f4cf86;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            text-decoration-color: rgba(244, 207, 134, 0.75);
+            text-shadow: 0 0 8px rgba(244, 207, 134, 0.5), 0 0 18px rgba(224, 180, 93, 0.3);
+            transition: color .16s ease, text-shadow .16s ease, transform .16s ease;
+        }
+
+        .profile-packages-link:hover {
+            color: #ffe2ac;
+            text-shadow: 0 0 10px rgba(255, 226, 172, 0.62), 0 0 22px rgba(224, 180, 93, 0.42);
+            transform: translateY(-1px);
+        }
+
+        .profile-appearances {
+            margin-top: 14px;
+            max-width: 720px;
+        }
+
+        .profile-appearances-title {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .74rem;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: rgba(216, 176, 103, 0.9);
+            margin-bottom: 8px;
+        }
+
+        .profile-appearances-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .profile-appearance-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border-radius: 999px;
+            border: 1px solid rgba(216, 176, 103, 0.26);
+            background: linear-gradient(135deg, rgba(216, 176, 103, 0.14), rgba(255, 255, 255, 0.05));
+            color: #eaf1ff;
+            padding: 7px 12px;
+            font-size: .78rem;
+            line-height: 1;
+        }
+
+        .profile-appearance-chip strong {
+            color: #fff;
+            font-size: .8rem;
+        }
+
+        .profile-appearance-chip span {
+            color: #cfdcf3;
+            max-width: 160px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .profile-sticky-bar {
+            position: sticky;
+            top: 12px;
+            z-index: 12;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+            padding: 10px 12px;
+            border: 1px solid var(--profile-border);
+            border-radius: 14px;
+            background: rgba(8, 13, 24, 0.78);
+            box-shadow: var(--profile-shadow);
+            backdrop-filter: blur(16px);
+        }
+
+        .profile-posts-stat {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 8px;
+            min-width: 0;
+            padding: 8px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--profile-border);
+            background: rgba(255,255,255,0.04);
+        }
+
+        .profile-posts-stat strong {
+            display: inline-block;
+            font-size: 1.08rem;
+            line-height: 1;
+            color: #fff;
+        }
+
+        .profile-posts-stat span {
+            color: var(--profile-muted);
+            font-size: .78rem;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            line-height: 1;
+        }
+
+        .rollcall-launch {
+            margin-bottom: 18px;
+            border: 1px solid rgba(242, 199, 113, 0.36);
+            border-radius: 18px;
+            padding: 18px;
+            background:
+                radial-gradient(circle at 8% 10%, rgba(242, 199, 113, 0.2), transparent 26%),
+                radial-gradient(circle at 90% 85%, rgba(108, 157, 255, 0.22), transparent 34%),
+                linear-gradient(135deg, rgba(24, 33, 55, 0.9), rgba(11, 18, 33, 0.96));
+            box-shadow: 0 22px 50px rgba(0, 0, 0, 0.33);
+        }
+
+        .rollcall-launch-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .rollcall-launch-kicker {
+            font-size: .72rem;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+            color: rgba(242, 199, 113, 0.95);
+            margin-bottom: 6px;
+        }
+
+        .rollcall-launch h3 {
+            margin: 0;
+            font-size: 1.35rem;
+            font-weight: 700;
+        }
+
+        .rollcall-launch p {
+            margin: 6px 0 0;
+            color: var(--profile-muted);
+            line-height: 1.6;
+        }
+
+        .rollcall-launch-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .rollcall-launch-date {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 999px;
+            background: rgba(255,255,255,0.07);
+            color: #fff;
+            padding: 11px 14px;
+            min-height: 46px;
+        }
+
+        .rollcall-launch-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 0;
+            border-radius: 999px;
+            padding: 11px 16px;
+            min-height: 46px;
+            background: linear-gradient(140deg, #f2d38e 0%, #e0b45d 72%, #bb8438 100%);
+            color: #211508;
+            font-weight: 700;
+        }
+
+        .rollcall-launch-btn:hover {
+            opacity: .94;
+            transform: translateY(-1px);
+        }
+
+        .profile-section {
+            scroll-margin-top: 100px;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .profile-tile-wrap {
+            position: relative;
+        }
+
+        .profile-tile {
+            position: relative;
+            display: block;
+            width: 100%;
+            padding: 0;
+            border: 1px solid var(--profile-border);
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--profile-panel);
+            box-shadow: var(--profile-shadow);
+            aspect-ratio: 1 / 1.12;
+            cursor: pointer;
+            transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease, filter .22s ease;
+            transform: translateY(0) scale(1);
+        }
+
+        .profile-tile:hover {
+            transform: translateY(-6px) scale(1.01);
+            border-color: rgba(216,176,103,0.28);
+            box-shadow: 0 36px 90px rgba(0, 0, 0, 0.5);
+            filter: saturate(1.04);
+        }
+
+        .profile-tile:active {
+            transform: translateY(-2px) scale(0.985);
+        }
+
+        .profile-tile img,
+        .profile-tile video,
+        .profile-tile-embed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            background: #000;
+            transition: transform .35s ease;
+        }
+
+        .profile-tile:hover img,
+        .profile-tile:hover video,
+        .profile-tile:hover .profile-tile-embed {
+            transform: scale(1.04);
+        }
+
+        .profile-tile::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.05), transparent 34%, rgba(0,0,0,0.08));
+            opacity: 0;
+            transition: opacity .22s ease;
+            pointer-events: none;
+        }
+
+        .profile-tile:hover::after {
+            opacity: 1;
+        }
+
+        .profile-tile-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.74));
+            opacity: 0;
+            transition: opacity .18s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 18px;
+            pointer-events: none;
+        }
+
+        .profile-tile:hover .profile-tile-overlay {
+            opacity: 1;
+        }
+
+        .profile-tile-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            font-size: .82rem;
+            color: #dce6f8;
+        }
+
+        .profile-tile-caption {
+            margin-top: 8px;
+            color: #fff;
+            font-weight: 600;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .profile-tile-badges {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            right: 14px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .profile-post-share-btn {
+            position: absolute;
+            right: 14px;
+            bottom: 14px;
+            border: 0;
+            border-radius: 999px;
+            padding: 8px 12px;
+            background: rgba(14, 22, 40, 0.84);
+            color: #fff;
+            font-size: 0.78rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 3;
+            opacity: 0;
+            transition: opacity .2s ease, transform .2s ease;
+            transform: translateY(4px);
+        }
+
+        .profile-tile-wrap:hover .profile-post-share-btn,
+        .profile-post-share-btn:focus-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (hover: none) {
+            .profile-post-share-btn {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .profile-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 999px;
+            background: rgba(9, 15, 28, 0.82);
+            color: #fff;
+            padding: 7px 11px;
+            font-size: .72rem;
+            font-weight: 700;
+        }
+
+        .profile-empty {
+            border: 1px solid var(--profile-border);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.03);
+            padding: 30px 24px;
+        }
+
+        .profile-empty {
+            text-align: center;
+            color: var(--profile-muted);
+        }
+
+        .profile-footer {
+            margin-top: auto;
+            border-top: 1px solid rgba(255,255,255,0.18);
+            background: rgba(7, 12, 24, 0.94);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 -16px 30px rgba(0,0,0,0.25);
+        }
+
+        .profile-footer-inner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 17px 0;
+            font-size: 12.5px;
+            color: rgba(240,244,255,0.95);
+            text-align: center;
+        }
+
+        .profile-footer-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #f6f8ff;
+            font-weight: 700;
+            letter-spacing: .02em;
+            text-decoration: none;
+        }
+
+        .profile-footer-brand .brand-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--profile-accent);
+            box-shadow: 0 0 0 5px rgba(216,176,103,0.24);
+        }
+
+        .profile-age-gate {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            background: rgba(3, 7, 14, 0.9);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .profile-age-gate-dialog {
+            width: min(560px, 100%);
+            border: 1px solid rgba(216, 176, 103, 0.4);
+            border-radius: 18px;
+            background: linear-gradient(160deg, rgba(20, 33, 55, 0.96), rgba(9, 15, 28, 0.98));
+            box-shadow: 0 26px 70px rgba(0, 0, 0, 0.48);
+            padding: 22px;
+        }
+
+        .profile-age-gate-title {
+            margin: 0 0 10px;
+            font-size: 1.36rem;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+            color: #f8dfb5;
+        }
+
+        .profile-age-gate-copy {
+            margin: 0;
+            color: #d7e5ff;
+            line-height: 1.75;
+            font-size: 0.95rem;
+        }
+
+        .profile-age-gate-actions {
+            margin-top: 16px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .profile-age-gate-btn {
+            appearance: none;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(255, 255, 255, 0.07);
+            color: #edf3ff;
+            padding: 10px 16px;
+            font-size: 0.82rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .profile-age-gate-btn:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+
+        .profile-age-gate-btn.enter {
+            border-color: rgba(216, 176, 103, 0.48);
+            background: linear-gradient(145deg, rgba(216, 176, 103, 0.32), rgba(216, 176, 103, 0.14));
+            color: #fff5df;
+            box-shadow: 0 10px 24px rgba(216, 176, 103, 0.2);
+        }
+
+        .profile-age-gate-btn.exit {
+            border-color: rgba(248, 113, 113, 0.4);
+            background: linear-gradient(145deg, rgba(248, 113, 113, 0.24), rgba(248, 113, 113, 0.08));
+            color: #ffe1e1;
+        }
+
+        .profile-lightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: none;
+            background: rgba(5, 8, 14, 0.88);
+            backdrop-filter: blur(16px);
+        }
+
+        .profile-lightbox.is-open {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .profile-lightbox-dialog {
+            width: min(1080px, 100%);
+            max-height: calc(100vh - 40px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            overflow: hidden;
+            background: rgba(9, 15, 28, 0.96);
+            box-shadow: var(--profile-shadow);
+            display: grid;
+            grid-template-columns: minmax(0, 1.25fr) 340px;
+        }
+
+        .profile-lightbox-media {
+            position: relative;
+            min-height: 420px;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-lightbox-media img,
+        .profile-lightbox-media video,
+        .profile-lightbox-media iframe {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+            border: 0;
+        }
+
+        .profile-lightbox-side {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            border-left: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .profile-lightbox-head,
+        .profile-lightbox-body,
+        .profile-lightbox-foot {
+            padding: 18px 20px;
+        }
+
+        .profile-lightbox-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: start;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .profile-lightbox-body {
+            overflow-y: auto;
+            color: var(--profile-muted);
+            line-height: 1.75;
+        }
+
+        .profile-lightbox-foot {
+            border-top: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            color: var(--profile-muted);
+        }
+
+        .profile-lightbox-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .profile-lightbox-share-btn {
+            padding: 8px 12px;
+            font-size: .8rem;
+            white-space: nowrap;
+        }
+
+        .profile-comment-list {
+            display: grid;
+            gap: 12px;
+            max-height: 260px;
+            overflow-y: auto;
+            padding-right: 6px;
+            margin-top: 14px;
+        }
+
+        .profile-comment-card {
+            border-radius: 12px;
+            padding: 12px 14px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .profile-close,
+        .profile-nav {
+            appearance: none;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(9, 15, 28, 0.78);
+            color: #fff;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .profile-close {
+            width: 42px;
+            height: 42px;
+            font-size: 1.2rem;
+        }
+
+        .profile-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 48px;
+            font-size: 1.35rem;
+            box-shadow: 0 12px 26px rgba(0,0,0,0.28);
+        }
+
+        .profile-nav.prev { left: 16px; }
+        .profile-nav.next { right: 16px; }
+
+        .profile-nav[hidden] { display: none; }
+
+        @media (max-width: 991.98px) {
+            .profile-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .profile-lightbox-dialog {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-lightbox-side {
+                border-left: 0;
+                border-top: 1px solid rgba(255,255,255,0.08);
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .profile-shell {
+                width: calc(100% - 12px);
+                padding: 12px 10px 28px;
+                border-radius: 18px;
+                border-color: rgba(160, 196, 248, 0.2);
+            }
+
+            .profile-hero {
+                border-radius: 14px;
+                padding: 18px;
+            }
+
+            .profile-hero-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-packages-link {
+                font-size: .9rem;
+            }
+
+            .profile-avatar,
+            .profile-avatar-fallback {
+                width: 108px;
+                height: 108px;
+                border-radius: 28px;
+            }
+
+            .profile-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 10px;
+            }
+
+            .profile-tile {
+                border-radius: 10px;
+            }
+
+            .profile-sticky-bar {
+                top: 8px;
+                border-radius: 12px;
+                padding: 10px;
+            }
+
+            .profile-appearances {
+                margin-top: 12px;
+            }
+
+            .profile-appearance-chip {
+                padding: 6px 10px;
+                font-size: .74rem;
+            }
+
+            .profile-appearance-chip span {
+                max-width: 120px;
+            }
+
+            .profile-posts-stat {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .rollcall-launch-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .rollcall-launch-actions {
+                justify-content: flex-start;
+            }
+
+            .profile-lightbox.is-open {
+                padding: 10px;
+            }
+
+            .profile-lightbox-dialog {
+                max-height: calc(100vh - 20px);
+                border-radius: 12px;
+            }
+
+            .profile-nav {
+                width: 42px;
+                height: 42px;
+            }
+
+            .profile-lightbox-share-btn {
+                margin-left: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    @php
+        $mediaUrl = function ($item) {
+            return ($item['source'] ?? 'upload') === 'upload' ? asset('uploads/' . $item['url']) : ($item['url'] ?? '');
+        };
+
+        $fromRollCall = request()->query('from') === 'roll-call' && $profileType === 'model';
+        $rollCallDate = trim((string) request()->query('date', ''));
+        $backLink = $fromRollCall
+            ? route('club.feed.roll-call', ['slug' => $club->slug, 'date' => $rollCallDate !== '' ? $rollCallDate : ($rollCallDefaultDate ?? now()->format('Y-m-d'))])
+            : route('club.feed', $club->slug);
+        $backLabel = $fromRollCall ? 'Back To Calendar' : 'Back To Feed';
+        $profileShareUrl = request()->url();
+
+        $embedUrl = function ($url) {
+            if (preg_match('~(?:youtube\.com/watch\?v=|youtu\.be/)([A-Za-z0-9_-]{6,})~', $url, $matches)) {
+                return 'https://www.youtube.com/embed/' . $matches[1];
+            }
+
+            if (preg_match('~vimeo\.com/(\d+)~', $url, $matches)) {
+                return 'https://player.vimeo.com/video/' . $matches[1];
+            }
+
+            return null;
+        };
+
+    @endphp
+
+    <div class="profile-shell">
+        <div class="profile-topbar">
+            <div class="profile-topbar-nav">
+                <a href="{{ $backLink }}" class="profile-topbar-link"><i class="fas fa-chevron-left"></i> {{ $backLabel }}</a>
+                <button
+                    type="button"
+                    class="profile-topbar-link"
+                    id="profile-share-page-btn"
+                    data-share-url="{{ $profileShareUrl }}"
+                    data-share-title="{{ $profileTitle }}"
+                    data-share-text="Check out this profile"
+                >
+                    <i class="fas fa-share-nodes"></i>
+                    Share Profile
+                </button>
+            </div>
+            <span class="profile-topbar-context">Posts</span>
+        </div>
+
+        <section class="profile-hero profile-section" id="top">
+            <div class="profile-hero-grid">
+                @if($profileImage)
+                    <img src="{{ asset('uploads/' . $profileImage) }}" alt="{{ $profileTitle }}" class="profile-avatar">
+                @else
+                    <div class="profile-avatar-fallback">{{ strtoupper(substr($profileTitle, 0, 2)) }}</div>
+                @endif
+
+                <div>
+                    <div class="profile-kicker">{{ $profileType === 'club' ? 'Club Profile' : 'Entertainer Profile' }}</div>
+                    <h1 class="profile-title">{{ $profileTitle }}</h1>
+                    @if($profileSubtitle)
+                        <div class="profile-copy">{!! $profileSubtitle !!}</div>
+                    @endif
+                    @if($profileType === 'model')
+                        <a href="{{ $packagesUrl }}" class="profile-packages-link" aria-label="View packages" target="_blank">
+                            <i class="fas fa-ticket-alt"></i>
+                            See my packages
+                        </a>
+                    @elseif($profileType === 'club')
+                        <a href="{{ route('index', $club->slug) }}" class="profile-packages-link" aria-label="View packages">
+                            <i class="fas fa-ticket-alt"></i>
+                            See our packages
+                        </a>
+                    @endif
+
+                    @if($profileType === 'model' && $performanceDates->isNotEmpty())
+                        <div class="profile-appearances" aria-label="Upcoming performance dates">
+                            <div class="profile-appearances-title">
+                                <i class="fas fa-calendar-days"></i>
+                                Catch me at the club
+                            </div>
+                            <div class="profile-appearances-list">
+                                @foreach($performanceDates as $date)
+                                    <span class="profile-appearance-chip" title="{{ $date['full'] }}">
+                                        <strong>{{ $date['short'] }}</strong>
+                                    </span>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </section>
+
+        @if($profileType === 'club')
+            <section class="rollcall-launch" aria-label="Open roll call">
+                <div class="rollcall-launch-grid">
+                    <div>
+                        <div class="rollcall-launch-kicker">Event Calendar</div>
+                        <h3>Roll Call</h3>
+                        <p>Pick a date to see who's working and what's happening at one of the best nights in the city.</p>
+                    </div>
+                    <form class="rollcall-launch-actions" method="GET" action="{{ route('club.feed.roll-call', $club->slug) }}" id="rollcall-launch-form">
+                        <input
+                            type="date"
+                            name="date"
+                            class="rollcall-launch-date"
+                            id="rollcall-launch-date"
+                            value="{{ $rollCallDefaultDate ?? now()->format('Y-m-d') }}"
+                            aria-label="Choose roll call date"
+                        >
+                        <button type="submit" class="rollcall-launch-btn">
+                            <i class="fas fa-calendar-check"></i>
+                            Open Roll Call
+                        </button>
+                    </form>
+                </div>
+            </section>
+        @endif
+
+        <div class="profile-sticky-bar">
+            <div class="profile-posts-stat">
+                <strong>{{ $posts->count() }}</strong>
+                <span>Posts</span>
+            </div>
+        </div>
+
+        @if($posts->count())
+            <section class="profile-grid profile-section" id="posts">
+                @foreach($posts as $post)
+                    @php
+                        $mediaItems = array_values(array_filter((array) $post->resolved_media_items));
+                        $tileItem = $mediaItems[0] ?? null;
+                        $tileUrl = $tileItem ? $mediaUrl($tileItem) : null;
+                        $tileEmbed = $tileItem && ($tileItem['type'] ?? 'image') === 'video' ? $embedUrl($tileUrl) : null;
+                        $hasVideoMedia = collect($mediaItems)->contains(function ($item) {
+                            return ($item['type'] ?? 'image') === 'video';
+                        });
+                        $showMediaBadge = count($mediaItems) > 1 || $hasVideoMedia;
+                        $lightboxItems = collect($mediaItems)->map(function ($item) use ($mediaUrl, $embedUrl) {
+                            $url = $mediaUrl($item);
+
+                            return [
+                                'type' => $item['type'] ?? 'image',
+                                'url' => $url,
+                                'embed' => ($item['type'] ?? 'image') === 'video' ? $embedUrl($url) : null,
+                            ];
+                        })->values();
+                        $lightboxComments = $post->visibleComments->map(function ($comment) {
+                            return [
+                                'name' => $comment->commenter_name,
+                                'body' => $comment->body,
+                                'time' => $comment->created_at ? $comment->created_at->diffForHumans() : '',
+                            ];
+                        })->values();
+                    @endphp
+                    <div class="profile-tile-wrap">
+                    <button
+                        type="button"
+                        class="profile-tile"
+                        id="profile-post-{{ $post->id }}"
+                        data-lightbox-items='@json($lightboxItems)'
+                        data-lightbox-caption="{{ $post->caption ?? '' }}"
+                        data-lightbox-date="{{ optional($post->posted_at)->format('M d, Y') }}"
+                        data-lightbox-comments="{{ $post->visible_comments_count }}"
+                        data-lightbox-comment-items='@json($lightboxComments)'
+                        data-lightbox-author="{{ $post->author_name }}"
+                        data-lightbox-share-url="{{ $profileShareUrl }}#profile-post-{{ $post->id }}"
+                    >
+                        @if($tileItem)
+                            @if(($tileItem['type'] ?? 'image') === 'video')
+                                @if($tileEmbed)
+                                    <div class="profile-tile-embed d-flex align-items-center justify-content-center" style="background:#000;color:#fff;">
+                                        <i class="fas fa-circle-play" style="font-size:2rem;opacity:.9;"></i>
+                                    </div>
+                                @else
+                                    <video src="{{ $tileUrl }}" muted autoplay loop playsinline webkit-playsinline preload="auto"></video>
+                                @endif
+                            @else
+                                <img src="{{ $tileUrl }}" alt="{{ $profileTitle }} post media">
+                            @endif
+                        @endif
+
+                        @if($showMediaBadge)
+                            <div class="profile-tile-badges">
+                                <span class="profile-badge">
+                                    @if(count($mediaItems) > 1)
+                                        <i class="fas fa-clone"></i>
+                                    @endif
+                                    @if($hasVideoMedia)
+                                        <i class="fas fa-circle-play"></i>
+                                    @endif
+                                </span>
+                            </div>
+                        @endif
+
+                        <div class="profile-tile-overlay">
+                            <div class="profile-tile-meta">
+                                <span>{{ optional($post->posted_at)->format('M d, Y') }}</span>
+                                <span>{{ $post->visible_comments_count }} comments</span>
+                            </div>
+                            @if($post->caption)
+                                <div class="profile-tile-caption">{{ \Illuminate\Support\Str::limit($post->caption, 110) }}</div>
+                            @endif
+                        </div>
+                    </button>
+                    <button
+                        type="button"
+                        class="profile-post-share-btn"
+                        data-share-url="{{ $profileShareUrl }}#profile-post-{{ $post->id }}"
+                        data-share-title="{{ $post->author_name }} post"
+                        data-share-text="{{ $post->caption ? \Illuminate\Support\Str::limit($post->caption, 110) : 'Check out this post' }}"
+                        onclick="window.__profileSharePostFallback && window.__profileSharePostFallback(this);"
+                    >
+                        <i class="fas fa-share-nodes"></i>
+                        Share
+                    </button>
+                    </div>
+                @endforeach
+            </section>
+        @else
+            <div class="profile-empty profile-section" id="posts">
+                <h3 class="mb-2">No profile posts yet</h3>
+                <p class="mb-0">This profile does not have any live feed posts right now.</p>
+            </div>
+        @endif
+
+    </div>
+
+    <footer class="profile-footer">
+        <div class="profile-footer-inner">
+            <a href="https://cartvip.com" target="_blank" rel="noopener" class="profile-footer-brand">
+                <span class="brand-dot"></span>
+                <span>Mr.RollCall.com powered by CartVIP</span>
+            </a>
+        </div>
+    </footer>
+
+    <div class="profile-age-gate" id="profile-age-gate" role="dialog" aria-modal="true" aria-labelledby="profile-age-gate-title" data-exit-url="{{ route('club.feed', $club->slug) }}">
+        <div class="profile-age-gate-dialog">
+            <h2 class="profile-age-gate-title" id="profile-age-gate-title">18+ Age Verification</h2>
+            <p class="profile-age-gate-copy">This website contains content and offers intended for adults only. By entering, you confirm that you are at least 18 years of age (or the legal age required in your jurisdiction) and wish to proceed.</p>
+            <div class="profile-age-gate-actions">
+                <button type="button" class="profile-age-gate-btn enter" id="profile-age-gate-enter">Enter Site</button>
+                <button type="button" class="profile-age-gate-btn exit" id="profile-age-gate-exit">Exit</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-lightbox" id="profile-lightbox" aria-hidden="true">
+        <div class="profile-lightbox-dialog" role="dialog" aria-modal="true" aria-label="Media viewer">
+            <div class="profile-lightbox-media">
+                <button type="button" class="profile-nav prev" id="profile-lightbox-prev" aria-label="Previous media">&#8249;</button>
+                <div id="profile-lightbox-stage" style="width:100%;height:100%;"></div>
+                <button type="button" class="profile-nav next" id="profile-lightbox-next" aria-label="Next media">&#8250;</button>
+            </div>
+            <div class="profile-lightbox-side">
+                <div class="profile-lightbox-head">
+                    <div>
+                        <div style="font-weight:700;">{{ $profileTitle }}</div>
+                        <div id="profile-lightbox-author" style="color:var(--profile-muted);font-size:.86rem;"></div>
+                    </div>
+                    <button type="button" class="profile-close" id="profile-lightbox-close" aria-label="Close viewer">&times;</button>
+                </div>
+                <div class="profile-lightbox-body">
+                    <div id="profile-lightbox-caption"></div>
+                    <div class="profile-comment-list" id="profile-lightbox-comment-list"></div>
+                </div>
+                <div class="profile-lightbox-foot">
+                    <div class="profile-lightbox-meta">
+                        <span id="profile-lightbox-date"></span>
+                        <span id="profile-lightbox-counter"></span>
+                        <span id="profile-lightbox-comments"></span>
+                    </div>
+                    <button type="button" class="profile-topbar-link profile-lightbox-share-btn" id="profile-lightbox-share-btn">
+                        <i class="fas fa-share-nodes me-1"></i>Share Post
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-share-menu" id="profile-share-menu" aria-hidden="true">
+        <button type="button" class="profile-share-option" data-share-option="whatsapp">WhatsApp</button>
+        <button type="button" class="profile-share-option" data-share-option="facebook">Facebook</button>
+        <button type="button" class="profile-share-option" data-share-option="instagram">Instagram</button>
+        <button type="button" class="profile-share-option" data-share-option="x">X</button>
+        <button type="button" class="profile-share-option" data-share-option="linkedin">LinkedIn</button>
+        <button type="button" class="profile-share-option" data-share-option="email">Email</button>
+        <button type="button" class="profile-share-option" data-share-option="copy">Copy Link</button>
+    </div>
+    <div id="profile-copy-toast" role="status" aria-live="polite"><i class="fas fa-check me-1"></i>Link copied!</div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const ageGate = document.getElementById('profile-age-gate');
+        const ageEnterButton = document.getElementById('profile-age-gate-enter');
+        const ageExitButton = document.getElementById('profile-age-gate-exit');
+
+        function lockPage() {
+            document.body.style.overflow = 'hidden';
+        }
+
+        function unlockPage() {
+            document.body.style.overflow = '';
+        }
+
+        function closeAgeGate() {
+            if (!ageGate) {
+                return;
+            }
+
+            ageGate.style.display = 'none';
+            ageGate.setAttribute('aria-hidden', 'true');
+            unlockPage();
+        }
+
+        if (ageGate) {
+            lockPage();
+            ageGate.setAttribute('aria-hidden', 'false');
+
+            if (ageEnterButton) {
+                ageEnterButton.addEventListener('click', function () {
+                    closeAgeGate();
+                });
+            }
+
+            if (ageExitButton) {
+                ageExitButton.addEventListener('click', function () {
+                    const exitUrl = ageGate.getAttribute('data-exit-url') || '/';
+                    window.location.href = exitUrl;
+                });
+            }
+        }
+
+        const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent)
+            || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+        window.__profileSharePostFallback = function (button) {
+            if (!button) {
+                return;
+            }
+
+            shareFromButton(button, button);
+        };
+
+        function restartLoopingVideos(scope, hardReset) {
+            if (!isIOSDevice) {
+                return;
+            }
+
+            const root = scope || document;
+            const videos = root.querySelectorAll('video');
+
+            videos.forEach(function (video) {
+                if (video.closest('.profile-lightbox')) {
+                    return;
+                }
+
+                video.muted = true;
+                video.defaultMuted = true;
+                video.autoplay = true;
+                video.loop = true;
+                video.playsInline = true;
+                video.preload = 'auto';
+                video.setAttribute('muted', 'muted');
+                video.setAttribute('autoplay', 'autoplay');
+                video.setAttribute('loop', 'loop');
+                video.setAttribute('playsinline', 'playsinline');
+                video.setAttribute('webkit-playsinline', 'webkit-playsinline');
+
+                if (hardReset) {
+                    // Breaking the frozen bfcache media session on iOS Safari requires
+                    // blanking then restoring the src — video.load() alone is not enough.
+                    var frozenSrc = video.currentSrc || video.getAttribute('src') || '';
+                    if (frozenSrc) {
+                        video.src = '';
+                        video.src = frozenSrc;
+                    }
+                }
+
+                try {
+                    video.load();
+                } catch (error) {
+                    // Ignore reload errors and attempt playback anyway.
+                }
+
+                const playPromise = video.play();
+                if (playPromise && typeof playPromise.catch === 'function') {
+                    playPromise.catch(function () {});
+                }
+            });
+        }
+
+        const lightbox = document.getElementById('profile-lightbox');
+        const stage = document.getElementById('profile-lightbox-stage');
+        const closeButton = document.getElementById('profile-lightbox-close');
+        const prevButton = document.getElementById('profile-lightbox-prev');
+        const nextButton = document.getElementById('profile-lightbox-next');
+        const captionNode = document.getElementById('profile-lightbox-caption');
+        const dateNode = document.getElementById('profile-lightbox-date');
+        const counterNode = document.getElementById('profile-lightbox-counter');
+        const commentsNode = document.getElementById('profile-lightbox-comments');
+        const authorNode = document.getElementById('profile-lightbox-author');
+        const commentsListNode = document.getElementById('profile-lightbox-comment-list');
+        const tileButtons = document.querySelectorAll('.profile-tile');
+        const rollCallLaunchDate = document.getElementById('rollcall-launch-date');
+        const rollCallLaunchForm = document.getElementById('rollcall-launch-form');
+        const pageShareButton = document.getElementById('profile-share-page-btn');
+        const lightboxShareButton = document.getElementById('profile-lightbox-share-btn');
+        const shareMenu = document.getElementById('profile-share-menu');
+        const copyToast = document.getElementById('profile-copy-toast');
+        const prefersDesktopShareMenu = window.matchMedia && window.matchMedia('(pointer: fine)').matches;
+
+        let copyToastTimer = null;
+        function showCopiedToast() {
+            if (!copyToast) return;
+            clearTimeout(copyToastTimer);
+            copyToast.classList.add('is-visible');
+            copyToastTimer = setTimeout(function () { copyToast.classList.remove('is-visible'); }, 2200);
+        }
+
+        if (rollCallLaunchDate && rollCallLaunchForm) {
+            rollCallLaunchDate.addEventListener('change', function () {
+                rollCallLaunchForm.requestSubmit();
+            });
+        }
+
+        let currentItems = [];
+        let currentIndex = 0;
+        let currentSharePayload = null;
+
+        function buildSharePayload(data) {
+            const payload = data || {};
+            return {
+                url: payload.url || window.location.href.split('#')[0],
+                title: payload.title || document.title,
+                text: payload.text || ''
+            };
+        }
+
+        function closeShareMenu() {
+            if (!shareMenu) {
+                return;
+            }
+
+            shareMenu.classList.remove('is-open');
+            shareMenu.setAttribute('aria-hidden', 'true');
+        }
+
+        function openShareMenu(triggerButton) {
+            if (!shareMenu || !triggerButton) {
+                return;
+            }
+
+            const rect = triggerButton.getBoundingClientRect();
+            const top = rect.bottom + 8;
+            const left = Math.max(12, Math.min(rect.left, window.innerWidth - 214));
+
+            shareMenu.style.top = top + 'px';
+            shareMenu.style.left = left + 'px';
+            shareMenu.classList.add('is-open');
+            shareMenu.setAttribute('aria-hidden', 'false');
+        }
+
+        function openFallbackShare(option, payload) {
+            const cleanPayload = buildSharePayload(payload);
+            const encodedUrl = encodeURIComponent(cleanPayload.url);
+            const shareLine = cleanPayload.text ? cleanPayload.text + ' ' + cleanPayload.url : cleanPayload.url;
+            const encodedLine = encodeURIComponent(shareLine);
+            const encodedTitle = encodeURIComponent(cleanPayload.title || 'Check this out');
+
+            if (option === 'whatsapp') {
+                window.open('https://wa.me/?text=' + encodeURIComponent(shareLine), '_blank', 'noopener');
+                return;
+            }
+
+            if (option === 'facebook') {
+                window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodedUrl, '_blank', 'noopener');
+                return;
+            }
+
+            if (option === 'x') {
+                window.open('https://twitter.com/intent/tweet?url=' + encodedUrl + '&text=' + encodeURIComponent(cleanPayload.text || cleanPayload.title || ''), '_blank', 'noopener');
+                return;
+            }
+
+            if (option === 'linkedin') {
+                window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + encodedUrl, '_blank', 'noopener');
+                return;
+            }
+
+            if (option === 'instagram') {
+                if (navigator.share) {
+                    navigator.share({
+                        title: cleanPayload.title,
+                        text: cleanPayload.text,
+                        url: cleanPayload.url
+                    }).catch(function () {});
+                    return;
+                }
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(shareLine).catch(function () {});
+                }
+
+                window.open('https://www.instagram.com/', '_blank', 'noopener');
+                return;
+            }
+
+            if (option === 'email') {
+                const subject = encodedTitle;
+                const body = encodeURIComponent((cleanPayload.text ? cleanPayload.text + '\n\n' : '') + cleanPayload.url);
+                window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+                return;
+            }
+
+            if (option === 'copy') {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(cleanPayload.url).then(function () {
+                        showCopiedToast();
+                    }).catch(function () {
+                        window.prompt('Copy this link', cleanPayload.url);
+                    });
+                } else {
+                    window.prompt('Copy this link', cleanPayload.url);
+                }
+                return;
+            }
+
+            window.prompt('Copy this link', cleanPayload.url);
+        }
+
+        async function shareFromButton(button, fallbackTrigger) {
+            const payload = buildSharePayload({
+                url: button.getAttribute('data-share-url') || window.location.href.split('#')[0],
+                title: button.getAttribute('data-share-title') || document.title,
+                text: button.getAttribute('data-share-text') || ''
+            });
+
+            currentSharePayload = payload;
+
+            if (navigator.share && !prefersDesktopShareMenu) {
+                try {
+                    await navigator.share(payload);
+                    return;
+                } catch (error) {
+                    if (error && error.name === 'AbortError') {
+                        return;
+                    }
+                }
+            }
+
+            openShareMenu(fallbackTrigger || button);
+
+            if (!shareMenu || !shareMenu.classList.contains('is-open')) {
+                openFallbackShare('copy', payload);
+            }
+        }
+
+        function renderMediaItem(item) {
+            if (!stage || !counterNode || !prevButton || !nextButton) {
+                return;
+            }
+
+            if (!item) {
+                stage.innerHTML = '';
+                return;
+            }
+
+            if (item.type === 'video') {
+                if (item.embed) {
+                    stage.innerHTML = '<iframe src="' + item.embed + '" allowfullscreen allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>';
+                } else {
+                    stage.innerHTML = '<video src="' + item.url + '" controls autoplay playsinline webkit-playsinline preload="metadata"></video>';
+                }
+            } else {
+                stage.innerHTML = '<img src="' + item.url + '" alt="Profile media">';
+            }
+
+            counterNode.textContent = currentItems.length ? (currentIndex + 1) + ' / ' + currentItems.length : '';
+            prevButton.hidden = currentItems.length <= 1;
+            nextButton.hidden = currentItems.length <= 1;
+        }
+
+        function openLightbox(button) {
+            if (!lightbox || !captionNode || !dateNode || !commentsNode || !authorNode || !commentsListNode) {
+                return;
+            }
+
+            currentItems = JSON.parse(button.getAttribute('data-lightbox-items') || '[]');
+            currentIndex = 0;
+            captionNode.textContent = button.getAttribute('data-lightbox-caption') || '';
+            dateNode.textContent = button.getAttribute('data-lightbox-date') || '';
+            commentsNode.textContent = (button.getAttribute('data-lightbox-comments') || '0') + ' comments';
+            authorNode.textContent = button.getAttribute('data-lightbox-author') || '';
+            if (lightboxShareButton) {
+                lightboxShareButton.setAttribute('data-share-url', button.getAttribute('data-lightbox-share-url') || window.location.href.split('#')[0]);
+                lightboxShareButton.setAttribute('data-share-title', (button.getAttribute('data-lightbox-author') || 'Profile post') + ' post');
+                lightboxShareButton.setAttribute('data-share-text', button.getAttribute('data-lightbox-caption') || 'Check out this post');
+            }
+            const commentItems = JSON.parse(button.getAttribute('data-lightbox-comment-items') || '[]');
+            if (commentItems.length) {
+                commentsListNode.innerHTML = commentItems.map(function (comment) {
+                    const name = (comment.name || '').replace(/[&<>"']/g, function (char) {
+                        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char];
+                    });
+                    const body = (comment.body || '').replace(/[&<>"']/g, function (char) {
+                        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char];
+                    });
+                    const time = (comment.time || '').replace(/[&<>"']/g, function (char) {
+                        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char];
+                    });
+                    return '<div class="profile-comment-card"><div class="d-flex justify-content-between gap-3 mb-2" style="color:var(--profile-muted);font-size:.84rem;"><strong style="color:var(--profile-text);">' + name + '</strong><span>' + time + '</span></div><div style="white-space:pre-wrap;line-height:1.6;">' + body + '</div></div>';
+                }).join('');
+            } else {
+                commentsListNode.innerHTML = '<div class="profile-empty py-3">No comments yet.</div>';
+            }
+            renderMediaItem(currentItems[currentIndex]);
+            lightbox.classList.add('is-open');
+            lightbox.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            if (!lightbox || !stage) {
+                closeShareMenu();
+                return;
+            }
+
+            lightbox.classList.remove('is-open');
+            lightbox.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+            stage.innerHTML = '';
+            currentItems = [];
+            currentIndex = 0;
+            closeShareMenu();
+        }
+
+        function moveLightbox(direction) {
+            if (currentItems.length <= 1) {
+                return;
+            }
+
+            currentIndex = (currentIndex + direction + currentItems.length) % currentItems.length;
+            renderMediaItem(currentItems[currentIndex]);
+        }
+
+        tileButtons.forEach(function (button) {
+            button.addEventListener('click', function () {
+                openLightbox(button);
+            });
+        });
+
+        document.addEventListener('click', function (event) {
+            if (shareMenu && shareMenu.classList.contains('is-open') && !event.target.closest('#profile-share-menu') && !event.target.closest('#profile-share-page-btn') && !event.target.closest('#profile-lightbox-share-btn') && !event.target.closest('.profile-post-share-btn')) {
+                closeShareMenu();
+            }
+
+            const postShareButton = event.target.closest('.profile-post-share-btn');
+            if (postShareButton) {
+                event.preventDefault();
+                event.stopPropagation();
+                shareFromButton(postShareButton, postShareButton);
+                return;
+            }
+
+            const shareOptionButton = event.target.closest('[data-share-option]');
+            if (!shareOptionButton) {
+                return;
+            }
+
+            event.preventDefault();
+            openFallbackShare(shareOptionButton.getAttribute('data-share-option'), currentSharePayload || {
+                url: window.location.href.split('#')[0],
+                title: document.title,
+                text: ''
+            });
+            closeShareMenu();
+        });
+
+        if (prevButton) {
+            prevButton.addEventListener('click', function () { moveLightbox(-1); });
+        }
+
+        if (nextButton) {
+            nextButton.addEventListener('click', function () { moveLightbox(1); });
+        }
+
+        if (closeButton) {
+            closeButton.addEventListener('click', closeLightbox);
+        }
+
+        if (pageShareButton) {
+            pageShareButton.addEventListener('click', function () {
+                shareFromButton(pageShareButton, pageShareButton);
+            });
+        }
+
+        if (lightboxShareButton) {
+            lightboxShareButton.addEventListener('click', function () {
+                shareFromButton(lightboxShareButton, lightboxShareButton);
+            });
+        }
+
+        document.querySelectorAll('.profile-post-share-btn').forEach(function (button) {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                shareFromButton(button, button);
+            });
+        });
+
+        if (lightbox) {
+            lightbox.addEventListener('click', function (event) {
+                if (event.target === lightbox) {
+                    closeLightbox();
+                }
+            });
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (!lightbox || !lightbox.classList.contains('is-open')) {
+                return;
+            }
+
+            if (event.key === 'Escape') {
+                closeLightbox();
+            }
+
+            if (event.key === 'ArrowLeft') {
+                moveLightbox(-1);
+            }
+
+            if (event.key === 'ArrowRight') {
+                moveLightbox(1);
+            }
+        });
+
+        restartLoopingVideos(document, false);
+
+        window.addEventListener('pageshow', function (event) {
+            // event.persisted === true means page was restored from iOS bfcache;
+            // pass true so the hard src-reset runs.
+            restartLoopingVideos(document, event.persisted);
+        });
+
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'visible') {
+                restartLoopingVideos(document, false);
+            }
+        });
+
+        // iOS-only: re-trigger play() for any video that enters the viewport after
+        // a bfcache restore where the video was off-screen at the moment of restore.
+        if (isIOSDevice && 'IntersectionObserver' in window) {
+            var iosVideoObserver = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (!entry.isIntersecting) { return; }
+                    var v = entry.target;
+                    if (v.closest('.profile-lightbox')) { return; }
+                    if (v.paused) {
+                        v.muted = true;
+                        v.defaultMuted = true;
+                        var p = v.play();
+                        if (p && typeof p.catch === 'function') { p.catch(function () {}); }
+                    }
+                });
+            }, { rootMargin: '0px 0px 300px 0px', threshold: 0.1 });
+
+            document.querySelectorAll('video').forEach(function (v) {
+                if (!v.closest('.profile-lightbox')) {
+                    iosVideoObserver.observe(v);
+                }
+            });
+        }
+
+    });
+    </script>
+</body>
+</html>
