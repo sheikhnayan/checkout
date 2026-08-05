@@ -2963,7 +2963,7 @@ class TransactionController extends Controller
 
         if ($pickupTime !== '' && $this->isTimeInPastForDate($website, $pickupDate, $pickupTime, true)) {
             throw ValidationException::withMessages([
-                'transportation_pickup_time' => 'Pickup time cannot be in the past for today\'s reservation date.',
+                'transportation_pickup_time' => 'Pickup time must be at least 15 minutes from the current time for today\'s reservation date.',
             ]);
         }
 
@@ -3010,6 +3010,10 @@ class TransactionController extends Controller
             $targetDateTime = $baseDate->copy()->addDay()->addMinutes($timeMinutes);
         } else {
             $targetDateTime = $baseDate->copy()->addMinutes($timeMinutes);
+        }
+
+        if ($isPickup) {
+            return $targetDateTime->lessThan($nowInClub->copy()->addMinutes(15));
         }
 
         return $targetDateTime->lessThan($nowInClub);

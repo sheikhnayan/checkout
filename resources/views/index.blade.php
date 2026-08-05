@@ -6359,7 +6359,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                                             class="form-control"
                                                                             placeholder="Select pick-up time" />
                                                                     </div>
-                                                                    <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:#ffdc66;">Times are available in 15-minute intervals.</small>
+                                                                    <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:#ffdc66;">Times are available in 5-minute intervals.</small>
                                                                 </div>
                                                             </div>
                                                             <div class="form-row" style="margin-top: 14px;">
@@ -10222,6 +10222,10 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 }
                 targetDate.setMinutes(timeMinutes);
 
+                if (isPickup) {
+                    return targetDate.getTime() < (nowClub.getTime() + 15 * 60 * 1000);
+                }
+
                 return targetDate.getTime() < nowClub.getTime();
             }
 
@@ -10252,13 +10256,13 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 return String(hours24).padStart(2, '0') + ':' + String(minutes).padStart(2, '0');
             }
 
-            function normalizeTimeToQuarterHour(timeValue, outputMode) {
+            function normalizeTimeToFiveMinutes(timeValue, outputMode) {
                 const parsedMinutes = parseTimeToMinutes(timeValue);
                 if (parsedMinutes === null) {
                     return null;
                 }
 
-                const roundedMinutes = Math.ceil(parsedMinutes / 15) * 15;
+                const roundedMinutes = Math.ceil(parsedMinutes / 5) * 5;
                 if (outputMode === '24h') {
                     return formatMinutesAsTwentyFourHour(roundedMinutes);
                 }
@@ -10294,12 +10298,32 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
             }
 
             function validateTransportationScheduleClient() {
+                const pickupDateField = $('#package_use_date');
                 const pickupTimeField = $('[name="transportation_pickup_time"]');
                 const pickupLocationField = $('[name="transportation_address"]');
                 const contactPhoneField = $('[name="transportation_phone"]');
+                const pickupDate = pickupDateField.val().trim();
                 const pickupTime = pickupTimeField.val().trim();
                 const pickupLocation = pickupLocationField.val().trim();
                 const contactPhone = contactPhoneField.val().trim();
+
+                if (!pickupDate) {
+                    pickupDateField.addClass('required-field');
+                    return {
+                        valid: false,
+                        field: pickupDateField,
+                        message: 'Please complete the required transportation details before proceeding.'
+                    };
+                }
+
+                if (!isDateAllowed(pickupDate)) {
+                    pickupDateField.addClass('required-field');
+                    return {
+                        valid: false,
+                        field: pickupDateField,
+                        message: 'Selected club is closed on that date.'
+                    };
+                }
 
                 if (!pickupTime) {
                     pickupTimeField.prop('disabled', false).prop('readonly', false);
@@ -10327,7 +10351,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     return {
                         valid: false,
                         field: pickupTimeField,
-                        message: 'Pickup time cannot be in the past for today\'s reservation date.'
+                        message: 'Pickup time must be at least 15 minutes from the current time for today\'s reservation date.'
                     };
                 }
 
@@ -10376,7 +10400,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 if (isMobileDevice) {
                     el.type = 'time';
                     el.removeAttribute('readonly');
-                    el.step = 900;
+                    el.step = 300;
                     if (minT && maxT && hasSameDayRange) {
                         el.min = minT;
                         el.max = maxT;
@@ -10388,7 +10412,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                         $(el).removeClass('required-field');
                     });
                     el.addEventListener('change', function () {
-                        const normalizedTime = normalizeTimeToQuarterHour(el.value, '24h');
+                        const normalizedTime = normalizeTimeToFiveMinutes(el.value, '24h');
                         if (normalizedTime) {
                             el.value = normalizedTime;
                         }
@@ -10407,7 +10431,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                         el.removeAttribute('min');
                         el.removeAttribute('max');
                     }
-                    el.step = 900;
+                    el.step = 300;
                     return;
                 }
 
@@ -10415,12 +10439,12 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     enableTime: true,
                     noCalendar: true,
                     time_24hr: false,
-                    minuteIncrement: 15,
+                    minuteIncrement: 5,
                     dateFormat: 'h:i K',
                     allowInput: true,
                     clickOpens: true,
                     onChange: function (selectedDates, dateStr, instance) {
-                        const normalizedTime = normalizeTimeToQuarterHour(instance.input.value, '12h');
+                        const normalizedTime = normalizeTimeToFiveMinutes(instance.input.value, '12h');
                         if (normalizedTime && normalizedTime !== instance.input.value) {
                             instance.setDate(normalizedTime, true, 'h:i K');
                         }
@@ -10478,7 +10502,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 if (isMobileDevice) {
                     el.type = 'time';
                     el.removeAttribute('readonly');
-                    el.step = 900;
+                    el.step = 300;
                     if (minT && maxT && hasSameDayRange) {
                         el.min = minT;
                         el.max = maxT;
@@ -10490,7 +10514,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                         $(el).removeClass('required-field');
                     });
                     el.addEventListener('change', function () {
-                        const normalizedTime = normalizeTimeToQuarterHour(el.value, '24h');
+                        const normalizedTime = normalizeTimeToFiveMinutes(el.value, '24h');
                         if (normalizedTime) {
                             el.value = normalizedTime;
                         }
@@ -10509,7 +10533,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                         el.removeAttribute('min');
                         el.removeAttribute('max');
                     }
-                    el.step = 900;
+                    el.step = 300;
                     return;
                 }
 
@@ -10517,12 +10541,12 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     enableTime: true,
                     noCalendar: true,
                     time_24hr: false,
-                    minuteIncrement: 15,
+                    minuteIncrement: 5,
                     dateFormat: 'h:i K',
                     allowInput: true,
                     clickOpens: true,
                     onChange: function (selectedDates, dateStr, instance) {
-                        const normalizedTime = normalizeTimeToQuarterHour(instance.input.value, '12h');
+                        const normalizedTime = normalizeTimeToFiveMinutes(instance.input.value, '12h');
                         if (normalizedTime && normalizedTime !== instance.input.value) {
                             instance.setDate(normalizedTime, true, 'h:i K');
                         }

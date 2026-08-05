@@ -6142,7 +6142,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                                             class="form-control"
                                                                             placeholder="Select pick-up time" />
                                                                     </div>
-                                                                    <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:#ffdc66;">Times are available in 15-minute intervals.</small>
+                                                                    <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:#ffdc66;">Times are available in 5-minute intervals.</small>
                                                                 </div>
                                                             </div>
                                                             <div class="form-row" style="margin-top: 14px;">
@@ -9970,13 +9970,13 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 return String(hours24).padStart(2, '0') + ':' + String(minutes).padStart(2, '0');
             }
 
-            function normalizeTimeToQuarterHour(timeValue, outputMode) {
+            function normalizeTimeToFiveMinutes(timeValue, outputMode) {
                 const parsedMinutes = parseTimeToMinutes(timeValue);
                 if (parsedMinutes === null) {
                     return null;
                 }
 
-                const roundedMinutes = Math.ceil(parsedMinutes / 15) * 15;
+                const roundedMinutes = Math.ceil(parsedMinutes / 5) * 5;
                 if (outputMode === '24h') {
                     return formatMinutesAsTwentyFourHour(roundedMinutes);
                 }
@@ -10084,7 +10084,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 if (isMobileDevice) {
                     el.type = 'time';
                     el.removeAttribute('readonly');
-                    el.step = 900;
+                    el.step = 300;
                     if (minT && maxT && hasSameDayRange) {
                         el.min = minT;
                         el.max = maxT;
@@ -10096,7 +10096,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                         $(el).removeClass('required-field');
                     });
                     el.addEventListener('change', function () {
-                        const normalizedTime = normalizeTimeToQuarterHour(el.value, '24h');
+                        const normalizedTime = normalizeTimeToFiveMinutes(el.value, '24h');
                         if (normalizedTime) {
                             el.value = normalizedTime;
                         }
@@ -10115,7 +10115,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                         el.removeAttribute('min');
                         el.removeAttribute('max');
                     }
-                    el.step = 900;
+                    el.step = 300;
                     return;
                 }
 
@@ -10123,12 +10123,12 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     enableTime: true,
                     noCalendar: true,
                     time_24hr: false,
-                    minuteIncrement: 15,
+                    minuteIncrement: 5,
                     dateFormat: 'h:i K',
                     allowInput: true,
                     clickOpens: true,
                     onChange: function (selectedDates, dateStr, instance) {
-                        const normalizedTime = normalizeTimeToQuarterHour(instance.input.value, '12h');
+                        const normalizedTime = normalizeTimeToFiveMinutes(instance.input.value, '12h');
                         if (normalizedTime && normalizedTime !== instance.input.value) {
                             instance.setDate(normalizedTime, true, 'h:i K');
                         }
@@ -10186,7 +10186,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 if (isMobileDevice) {
                     el.type = 'time';
                     el.removeAttribute('readonly');
-                    el.step = 900;
+                    el.step = 300;
                     if (minT && maxT && hasSameDayRange) {
                         el.min = minT;
                         el.max = maxT;
@@ -10198,7 +10198,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                         $(el).removeClass('required-field');
                     });
                     el.addEventListener('change', function () {
-                        const normalizedTime = normalizeTimeToQuarterHour(el.value, '24h');
+                        const normalizedTime = normalizeTimeToFiveMinutes(el.value, '24h');
                         if (normalizedTime) {
                             el.value = normalizedTime;
                         }
@@ -10217,7 +10217,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                         el.removeAttribute('min');
                         el.removeAttribute('max');
                     }
-                    el.step = 900;
+                    el.step = 300;
                     return;
                 }
 
@@ -10225,12 +10225,12 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     enableTime: true,
                     noCalendar: true,
                     time_24hr: false,
-                    minuteIncrement: 15,
+                    minuteIncrement: 5,
                     dateFormat: 'h:i K',
                     allowInput: true,
                     clickOpens: true,
                     onChange: function (selectedDates, dateStr, instance) {
-                        const normalizedTime = normalizeTimeToQuarterHour(instance.input.value, '12h');
+                        const normalizedTime = normalizeTimeToFiveMinutes(instance.input.value, '12h');
                         if (normalizedTime && normalizedTime !== instance.input.value) {
                             instance.setDate(normalizedTime, true, 'h:i K');
                         }

@@ -1,4 +1,4 @@
-﻿@php
+@php
     $brandPrimary = '#ffcc00';
     $brandSecondary = '#ddb774';
     $brandGradient = 'linear-gradient(135deg, #f7e2b4 0%, #ddb774 52%, #ffcc00 100%)';
@@ -5492,7 +5492,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                             class="form-control"
                                                                             placeholder="Select pick-up time" />
                                                                     </div>
-                                                                    <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:#ffdc66;">Times are available in 15-minute intervals.</small>
+                                                                    <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:#ffdc66;">Times are available in 5-minute intervals.</small>
                                                                 </div>
                                                             </div>
                                                             <div class="form-row" style="margin-top: 14px;">
@@ -8586,7 +8586,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     enableTime: true,
                     noCalendar: true,
                     time_24hr: false,
-                    minuteIncrement: 15,
+                    minuteIncrement: 5,
                     dateFormat: 'h:i K',
                     allowInput: false,
                     onChange: function () {
