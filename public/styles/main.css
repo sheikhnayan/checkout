@@ -261,6 +261,25 @@ main {
     color: #fff;
     }
 
+    input[type="time"],
+    input[name="transportation_pickup_time"],
+    input[name="transportation_arrival_time"],
+    #Pick-up-time,
+    #Arrival-time {
+      font-size: 16px !important;
+      line-height: 1.4 !important;
+    }
+
+    @media only screen and (max-width: 768px) {
+      input[type="time"],
+      input[name="transportation_pickup_time"],
+      input[name="transportation_arrival_time"],
+      #Pick-up-time,
+      #Arrival-time {
+        font-size: 16px !important;
+      }
+    }
+
     textarea {
       resize: none;
       height: 50px;

@@ -113,4 +113,79 @@ document.querySelectorAll('.vip-packages button').forEach(btn => {
     // document.getElementById('smsConsent').addEventListener('change', checkEligibility);
     // document.getElementById('termsConsent').addEventListener('change', checkEligibility);
     // document.getElementById('smsConsent_two').addEventListener('change', checkEligibility_two);
+
+    function isIosMobileDevice() {
+      return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    }
+
+    function openMobileTimePicker(field) {
+      if (!field) {
+        return;
+      }
+
+      try {
+        if (typeof field.showPicker === 'function') {
+          field.showPicker();
+          return;
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      if (field._flatpickr && typeof field._flatpickr.open === 'function') {
+        try {
+          field._flatpickr.open();
+          return;
+        } catch (e) {
+          // ignore
+        }
+      }
+
+      try {
+        field.focus();
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    function patchCheckoutValidateStep() {
+      if (typeof window.validateStep !== 'function') {
+        return;
+      }
+
+      var originalValidateStep = window.validateStep;
+      window.validateStep = function () {
+        var result = originalValidateStep.apply(this, arguments);
+
+        if (!result && arguments[0] === 2 && isIosMobileDevice()) {
+          setTimeout(function () {
+            var pickup = document.querySelector('input[name="transportation_pickup_time"]');
+            var arrival = document.querySelector('input[name="transportation_arrival_time"]');
+            var invalidField = document.querySelector('.required-field');
+            var timeField = null;
+
+            if (invalidField && (invalidField === pickup || invalidField === arrival || invalidField.matches('input[name="transportation_pickup_time"], input[name="transportation_arrival_time"], #Pick-up-time, #Arrival-time'))) {
+              timeField = invalidField;
+            } else if (pickup && pickup.classList.contains('required-field')) {
+              timeField = pickup;
+            } else if (arrival && arrival.classList.contains('required-field')) {
+              timeField = arrival;
+            }
+
+            if (timeField) {
+              openMobileTimePicker(timeField);
+            }
+          }, 120);
+        }
+
+        return result;
+      };
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', patchCheckoutValidateStep);
+    } else {
+      patchCheckoutValidateStep();
+    }
     // document.getElementById('termsConsent_two').addEventListener('change', checkEligibility_two);
