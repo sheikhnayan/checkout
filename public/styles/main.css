@@ -261,25 +261,6 @@ main {
     color: #fff;
     }
 
-    input[type="time"],
-    input[name="transportation_pickup_time"],
-    input[name="transportation_arrival_time"],
-    #Pick-up-time,
-    #Arrival-time {
-      font-size: 16px !important;
-      line-height: 1.4 !important;
-    }
-
-    @media only screen and (max-width: 768px) {
-      input[type="time"],
-      input[name="transportation_pickup_time"],
-      input[name="transportation_arrival_time"],
-      #Pick-up-time,
-      #Arrival-time {
-        font-size: 16px !important;
-      }
-    }
-
     textarea {
       resize: none;
       height: 50px;
@@ -349,6 +330,20 @@ main {
       border-radius: 10px;
     }
 
+    @media only screen and (max-width: 767px) {
+      #cv-cart-toast {
+        top: auto !important;
+        bottom: calc(env(safe-area-inset-bottom, 16px) + 60px) !important;
+        left: 50% !important;
+        right: auto !important;
+        width: auto !important;
+        max-width: calc(100vw - 28px) !important;
+        transform: translateX(-50%) !important;
+      }
+      #cv-cart-toast.is-visible {
+        transform: translateX(-50%) !important;
+      }
+    }
 
 
 /* .guest-from form label {
