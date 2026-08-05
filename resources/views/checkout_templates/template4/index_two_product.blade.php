@@ -7576,8 +7576,8 @@
                     bottom: auto !important;
                     left: 50% !important;
                     right: auto !important;
-                    width: auto !important;
-                    max-width: 500px !important;
+                    width: calc(100vw - 28px) !important;
+                    max-width: none !important;
                     margin: 0 auto !important;
                     transform: translateX(-50%) translateY(-140%) !important;
                     padding: 12px 16px 12px 14px;
