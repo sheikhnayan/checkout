@@ -746,8 +746,11 @@
                                                                     <tr>
                                                                         <td><strong>{{ $dayLabel }}</strong></td>
                                                                         <td class="text-center">
-                                                                            <div class="form-check form-switch d-inline-block mb-0">
-                                                                                <input class="form-check-input day-enabled-toggle" type="checkbox" name="daily_operating_hours[{{ $dayKey }}][enabled]" value="1" id="daily_enabled_{{ $dayKey }}" {{ $isDayEnabled ? 'checked' : '' }}>
+                                                                            <div class="d-inline-block mb-0">
+                                                                                <label class="toggle-switch" for="daily_enabled_{{ $dayKey }}">
+                                                                                    <input id="daily_enabled_{{ $dayKey }}" type="checkbox" name="daily_operating_hours[{{ $dayKey }}][enabled]" value="1" class="toggle-switch-input day-enabled-toggle" {{ $isDayEnabled ? 'checked' : '' }}>
+                                                                                    <span class="toggle-switch-slider"></span>
+                                                                                </label>
                                                                             </div>
                                                                         </td>
                                                                         <td>
@@ -893,6 +896,21 @@
             </div>
 
             <script>
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                function applyDayToggleToRow(checkbox) {
+                    var row = checkbox.closest('tr');
+                    if (!row) return;
+                    var inputs = row.querySelectorAll('.daily-op-start, .daily-op-end, .daily-pick-start, .daily-pick-end');
+                    inputs.forEach(function(inp) { inp.disabled = !checkbox.checked; });
+                }
+
+                document.querySelectorAll('.day-enabled-toggle').forEach(function(cb) {
+                    applyDayToggleToRow(cb);
+                    cb.addEventListener('change', function(){ applyDayToggleToRow(cb); });
+                });
+            });
+            </script>
             const input = document.getElementById("location-input");
             const suggestions = document.getElementById("suggestions");
 
