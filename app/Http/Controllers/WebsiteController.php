@@ -289,6 +289,7 @@ class WebsiteController extends Controller
         $add->package_tab_icon = $request->package_tab_icon ?: null;
         $add->package_tab_ribbon = $request->package_tab_ribbon ?: null;
         $add->transportation_confirmation_text = $request->transportation_confirmation_text;
+        $add->show_arrival_time_verbiage = $request->boolean('show_arrival_time_verbiage');
         $dailyHours = $this->normalizeDailyOperatingHours($request->input('daily_operating_hours'), $enabledDailyDays);
         if ($dailyHours !== null) {
             $add->daily_operating_hours = $dailyHours;
@@ -594,6 +595,7 @@ class WebsiteController extends Controller
         $add->package_tab_icon = $request->package_tab_icon ?: null;
         $add->package_tab_ribbon = $request->package_tab_ribbon ?: null;
         $add->transportation_confirmation_text = $request->transportation_confirmation_text;
+        $add->show_arrival_time_verbiage = $request->boolean('show_arrival_time_verbiage');
         $dailyHours = $this->normalizeDailyOperatingHours($request->input('daily_operating_hours'), $enabledDailyDays);
         if ($dailyHours !== null) {
             $add->daily_operating_hours = $dailyHours;

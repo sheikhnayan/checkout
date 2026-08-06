@@ -33,6 +33,7 @@ class Website extends Model
         'package_section_title',
         'package_section_subtext',
         'transportation_confirmation_text',
+        'show_arrival_time_verbiage',
         'operating_days',
         'operating_start_time',
         'operating_end_time',

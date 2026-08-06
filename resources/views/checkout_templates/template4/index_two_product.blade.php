@@ -6787,7 +6787,9 @@
                                                                                 class="form-control"
                                                                                 placeholder="Select time of arrival" />
                                                                         </div>
-                                                                        <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:rgba(255,255,255,0.6);">Required when self-driving or when package transportation is not included.</small>
+                                                                        @if(($data->show_arrival_time_verbiage ?? 1) == 1)
+                                                                            <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:rgba(255,255,255,0.6);">Required when self-driving or when package transportation is not included.</small>
+                                                                        @endif
                                                                         <div id="arrival-hours-badge" class="schedule-hours-badge" style="display: none; margin-top: 12px;"></div>
                                                                     </div>
                                                                 </div>

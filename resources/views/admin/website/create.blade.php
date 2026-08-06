@@ -515,6 +515,17 @@ label{
                                                     </div>
                                                 </div>
 
+                                                <div class="col-md-12 mb-3">
+                                                    <div class="toggle-field">
+                                                        <p class="toggle-text">Show Arrival Time Subtext / Verbiage <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Show or hide the 'Required when self-driving or when package transportation is not included.' note under the Arrival Time field at checkout."></i></p>
+                                                        <label class="toggle-switch" for="show_arrival_time_verbiage">
+                                                            <input id="show_arrival_time_verbiage" type="checkbox" name="show_arrival_time_verbiage" value="1" class="toggle-switch-input" {{ old('show_arrival_time_verbiage', '1') == '1' ? 'checked' : '' }}>
+                                                            <span class="toggle-switch-slider"></span>
+                                                        </label>
+                                                    </div>
+                                                    <small class="form-text text-muted">Enable to show the note below the Arrival Time picker at checkout. Disable to hide it.</small>
+                                                </div>
+
                                                 @php
                                                     $operatingDayLabels = [
                                                         'monday' => 'Monday',
