@@ -6686,7 +6686,6 @@
                                                                 <div class="form-row">
                                                                     <div class="form-group" style="width: 100%;">
                                                                         <label for="Pick-up-time">Pick-up Time</label>
-                                                                        <div id="pickup-hours-badge" class="schedule-hours-badge" style="display: none;"></div>
                                                                         <small style="display:block;margin-top:4px;margin-bottom:8px;font-size:12px;line-height:1.4;color:#ffdc66;">Reservations must be made at least 15 minutes in advance. Reservation times are available in 5-minute intervals.</small>
                                                                         <div class="pickup-time-wrap">
                                                                             <i class="fas fa-clock pickup-time-icon"></i>
@@ -6704,7 +6703,7 @@
                                                                             name="transportation_address"
                                                                             id="address" placeholder="Enter pick-up address" required />
                                                                     </div>
-
+                                                                    <div id="pickup-hours-badge" class="schedule-hours-badge" style="display: none; margin-top: 12px;"></div>
                                                                 </div>
 
                                                                 <div class="form-row" style="display:none !important;" aria-hidden="true">
@@ -6742,7 +6741,6 @@
                                                                 <div class="form-row" id="transportation-arrival-time-field" style="display:none !important; margin-top: 14px;">
                                                                     <div class="form-group" style="width: 100%;">
                                                                         <label for="Arrival-time">Time of Arrival</label>
-                                                                        <div id="arrival-hours-badge" class="schedule-hours-badge" style="display: none;"></div>
                                                                         <div class="pickup-time-wrap">
                                                                             <i class="fas fa-clock pickup-time-icon"></i>
                                                                             <input name="transportation_arrival_time" type="text" readonly
@@ -6751,6 +6749,7 @@
                                                                                 placeholder="Select time of arrival" />
                                                                         </div>
                                                                         <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:rgba(255,255,255,0.6);">Required when self-driving or when package transportation is not included.</small>
+                                                                        <div id="arrival-hours-badge" class="schedule-hours-badge" style="display: none; margin-top: 12px;"></div>
                                                                     </div>
                                                                 </div>
 
