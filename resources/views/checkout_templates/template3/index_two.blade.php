@@ -9810,6 +9810,11 @@
                             isValid = false;
                             firstInvalidField = firstInvalidField || transportationArrivalTimeField;
                             alertMessage = 'Please Enter Valid Arrival Time.';
+                        } else if (isTimeInPastForSelectedDate(transportationArrivalTimeValue, arrivalSchedule, false)) {
+                            transportationArrivalTimeField.addClass('required-field');
+                            isValid = false;
+                            firstInvalidField = firstInvalidField || transportationArrivalTimeField;
+                            alertMessage = 'Arrival time must be at least in the future for today\'s reservation date.';
                         }
                     }
                 }
@@ -10556,6 +10561,65 @@
                 return inputMinutes >= startMinutes && inputMinutes <= endMinutes;
             }
 
+            function isTimeInPastForSelectedDate(timeValue, schedule, isPickup) {
+                const timeMinutes = parseTimeToMinutes(timeValue);
+                if (timeMinutes === null) {
+                    return false;
+                }
+
+                const useDateStr = getSelectedUseDate();
+                if (!useDateStr) {
+                    return false;
+                }
+
+                const clubTz = @json($data->resolved_timezone ?? 'America/Los_Angeles');
+                let nowClub;
+                try {
+                    const nowClubStr = new Date().toLocaleString('en-US', { timeZone: clubTz });
+                    nowClub = new Date(nowClubStr);
+                } catch (e) {
+                    nowClub = new Date();
+                }
+
+                const nowYear = nowClub.getFullYear();
+                const nowMonth = String(nowClub.getMonth() + 1).padStart(2, '0');
+                const nowDate = String(nowClub.getDate()).padStart(2, '0');
+                const todayInClub = nowYear + '-' + nowMonth + '-' + nowDate;
+
+                const dateParts = useDateStr.split('-');
+                if (dateParts.length !== 3) {
+                    return false;
+                }
+                const reqYear = parseInt(dateParts[0], 10);
+                const reqMonth = parseInt(dateParts[1], 10) - 1;
+                const reqDay = parseInt(dateParts[2], 10);
+
+                const activeSchedule = schedule || (isPickup ? transportationSchedule : arrivalTransportationSchedule);
+                const startMinutes = parseTimeToMinutes(activeSchedule ? activeSchedule.startTime : null);
+                const endMinutes = parseTimeToMinutes(activeSchedule ? activeSchedule.endTime : null);
+                const isOvernight = (startMinutes !== null && endMinutes !== null && endMinutes < startMinutes);
+                const cutoffMinutes = (endMinutes !== null) ? endMinutes : 360;
+                const isEarlyMorning = (timeMinutes <= cutoffMinutes);
+
+                const nowClubMinutes = (nowClub.getHours() * 60) + nowClub.getMinutes();
+                const isNowEarlyMorning = (nowClubMinutes <= cutoffMinutes);
+                const isSelectedDateToday = (useDateStr === todayInClub);
+
+                let targetDate = new Date(reqYear, reqMonth, reqDay, 0, 0, 0);
+                if ((isOvernight && timeMinutes <= endMinutes) || isEarlyMorning) {
+                    if (!(isNowEarlyMorning && isSelectedDateToday)) {
+                        targetDate.setDate(targetDate.getDate() + 1);
+                    }
+                }
+                targetDate.setMinutes(timeMinutes);
+
+                if (isPickup) {
+                    return targetDate.getTime() < (nowClub.getTime() + 15 * 60 * 1000);
+                }
+
+                return targetDate.getTime() < nowClub.getTime();
+            }
+
             function formatMinutesAsTwelveHour(totalMinutes) {
                 const normalizedMinutes = ((totalMinutes % 1440) + 1440) % 1440;
                 const hours24 = Math.floor(normalizedMinutes / 60);
@@ -10725,13 +10789,13 @@
 
                 var pickupEl = document.querySelector('input[name="transportation_pickup_time"]');
                 if (pickupEl && pickupEl.value) {
-                    if (!isTimeWithinOperatingHours(pickupEl.value, transportationSchedule)) {
+                    if (isTimeInPastForSelectedDate(pickupEl.value, transportationSchedule, true) || !isTimeWithinOperatingHours(pickupEl.value, transportationSchedule)) {
                         pickupEl.value = '';
                     }
                 }
                 var arrivalEl = document.querySelector('input[name="transportation_arrival_time"]');
                 if (arrivalEl && arrivalEl.value) {
-                    if (!isTimeWithinOperatingHours(arrivalEl.value, arrivalTransportationSchedule)) {
+                    if (isTimeInPastForSelectedDate(arrivalEl.value, arrivalTransportationSchedule, false) || !isTimeWithinOperatingHours(arrivalEl.value, arrivalTransportationSchedule)) {
                         arrivalEl.value = '';
                     }
                 }
@@ -10784,6 +10848,16 @@
                         valid: false,
                         field: pickupTimeField,
                         message: 'Please Enter Valid Pickup Time.'
+                    };
+                }
+
+                if (isTimeInPastForSelectedDate(pickupTime, transportationSchedule, true)) {
+                    pickupTimeField.prop('disabled', false).prop('readonly', false);
+                    pickupTimeField.addClass('required-field');
+                    return {
+                        valid: false,
+                        field: pickupTimeField,
+                        message: 'Pickup time must be at least 15 minutes from the current time for today\'s reservation date.'
                     };
                 }
 

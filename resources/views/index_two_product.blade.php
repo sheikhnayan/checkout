@@ -10715,9 +10715,15 @@
                 const cutoffMinutes = (endMinutes !== null) ? endMinutes : 360;
                 const isEarlyMorning = (timeMinutes <= cutoffMinutes);
 
+                const nowClubMinutes = (nowClub.getHours() * 60) + nowClub.getMinutes();
+                const isNowEarlyMorning = (nowClubMinutes <= cutoffMinutes);
+                const isSelectedDateToday = (useDateStr === todayInClub);
+
                 let targetDate = new Date(reqYear, reqMonth, reqDay, 0, 0, 0);
                 if ((isOvernight && timeMinutes <= endMinutes) || isEarlyMorning) {
-                    targetDate.setDate(targetDate.getDate() + 1);
+                    if (!(isNowEarlyMorning && isSelectedDateToday)) {
+                        targetDate.setDate(targetDate.getDate() + 1);
+                    }
                 }
                 targetDate.setMinutes(timeMinutes);
 
