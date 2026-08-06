@@ -33,6 +33,60 @@ input[name="transportation_pickup_time"] {
     border-color: #d2d7e3 !important;
 }
 
+.schedule-hours-badge {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 204, 0, 0.3);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-top: 6px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    color: #ffffff;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+.schedule-hours-badge .hours-title {
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #ffcc00;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.schedule-hours-badge .hours-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.schedule-hours-badge .hours-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    line-height: 1.4;
+}
+.schedule-hours-badge .hours-days {
+    font-weight: 700;
+    color: #ffffff;
+}
+.schedule-hours-badge .hours-time {
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.88);
+}
+@media (max-width: 576px) {
+    .schedule-hours-badge {
+        padding: 8px 10px;
+        margin-top: 4px;
+        margin-bottom: 8px;
+    }
+    .schedule-hours-badge .hours-line {
+        font-size: 12px;
+    }
+}
+
 #Pick-up-time::placeholder,
 input[name="transportation_pickup_time"]::placeholder {
     color: #555555 !important;
@@ -6352,6 +6406,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 100%;">
                                                                     <label for="Pick-up-time">Pick-up Time</label>
+                                                                    <div id="pickup-hours-badge" class="schedule-hours-badge" style="display: none;"></div>
                                                                     <small style="display:block;margin-top:4px;margin-bottom:8px;font-size:12px;line-height:1.4;color:#ffdc66;">Reservations must be made at least 15 minutes in advance. Reservation times are available in 5-minute intervals.</small>
                                                                     <div class="pickup-time-wrap">
                                                                         <i class="fas fa-clock pickup-time-icon"></i>
@@ -6403,6 +6458,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                             <div class="form-row" id="transportation-arrival-time-field" style="display:none !important; margin-top: 14px;">
                                                                 <div class="form-group" style="width: 100%;">
                                                                     <label for="Arrival-time">Time of Arrival</label>
+                                                                    <div id="arrival-hours-badge" class="schedule-hours-badge" style="display: none;"></div>
                                                                     <div class="pickup-time-wrap">
                                                                         <i class="fas fa-clock pickup-time-icon"></i>
                                                                         <input name="transportation_arrival_time" type="text" readonly
@@ -10344,22 +10400,128 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 return formatMinutesAsTwelveHour(minutes);
             }
 
-            function updateTransportationHoursDisplay() {
-                const hoursRangeEl = document.getElementById('transportation-hours-range');
-                if (!hoursRangeEl) {
+            function formatGroupDayRanges(daysInGroup) {
+                if (!daysInGroup || daysInGroup.length === 0) return '';
+
+                const contiguousSubgroups = [];
+                let currentSub = [daysInGroup[0]];
+
+                for (let i = 1; i < daysInGroup.length; i++) {
+                    if (daysInGroup[i].index === daysInGroup[i - 1].index + 1) {
+                        currentSub.push(daysInGroup[i]);
+                    } else {
+                        contiguousSubgroups.push(currentSub);
+                        currentSub = [daysInGroup[i]];
+                    }
+                }
+                contiguousSubgroups.push(currentSub);
+
+                const formattedParts = contiguousSubgroups.map(sub => {
+                    if (sub.length === 1) {
+                        return sub[0].label;
+                    } else {
+                        return sub[0].label + '-' + sub[sub.length - 1].label;
+                    }
+                });
+
+                return formattedParts.join(', ');
+            }
+
+            function renderGroupedScheduleBadge(scheduleType, targetElementId) {
+                const targetEl = document.getElementById(targetElementId);
+                if (!targetEl) return;
+
+                if (!dailyOperatingHoursMap || Object.keys(dailyOperatingHoursMap).length === 0) {
+                    const sched = scheduleType === 'pickup' ? transportationSchedule : arrivalTransportationSchedule;
+                    const startLabel = formatOperatingTimeForDisplay(sched.startTime);
+                    const endLabel = formatOperatingTimeForDisplay(sched.endTime);
+                    if (startLabel && endLabel) {
+                        const title = scheduleType === 'pickup' ? 'Pickup Hours' : 'Operating Hours';
+                        targetEl.innerHTML = `
+                            <div class="hours-title"><i class="fas fa-clock"></i> ${title}</div>
+                            <div class="hours-list">
+                                <div class="hours-line">
+                                    <span class="hours-time">${startLabel} to ${endLabel}</span>
+                                </div>
+                            </div>
+                        `;
+                        targetEl.style.display = 'block';
+                    } else {
+                        targetEl.style.display = 'none';
+                    }
                     return;
                 }
 
-                const startLabel = formatOperatingTimeForDisplay(transportationSchedule.startTime);
-                const endLabel = formatOperatingTimeForDisplay(transportationSchedule.endTime);
+                const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-                if (startLabel && endLabel) {
-                    hoursRangeEl.textContent = 'Pickup Hours: ' + startLabel + ' - ' + endLabel;
-                    hoursRangeEl.style.display = 'inline-flex';
-                } else {
-                    hoursRangeEl.textContent = '';
-                    hoursRangeEl.style.display = 'none';
+                const daySchedules = [];
+                dayKeys.forEach((key, idx) => {
+                    const config = dailyOperatingHoursMap[key];
+                    if (!config || config.enabled === false) {
+                        return;
+                    }
+
+                    let startVal, endVal;
+                    if (scheduleType === 'pickup') {
+                        startVal = config.pickup_start_time || @json($data->pickup_start_time);
+                        endVal = config.pickup_end_time || @json($data->pickup_end_time);
+                    } else {
+                        startVal = config.operating_start_time || @json($data->operating_start_time);
+                        endVal = config.operating_end_time || @json($data->operating_end_time);
+                    }
+
+                    const startDisp = formatOperatingTimeForDisplay(startVal);
+                    const endDisp = formatOperatingTimeForDisplay(endVal);
+
+                    if (startDisp && endDisp) {
+                        daySchedules.push({
+                            index: idx,
+                            key: key,
+                            label: dayLabels[idx],
+                            timeStr: startDisp + ' to ' + endDisp
+                        });
+                    }
+                });
+
+                if (daySchedules.length === 0) {
+                    targetEl.style.display = 'none';
+                    return;
                 }
+
+                const groupsByTime = {};
+                const timeOrder = [];
+                daySchedules.forEach(item => {
+                    if (!groupsByTime[item.timeStr]) {
+                        groupsByTime[item.timeStr] = [];
+                        timeOrder.push(item.timeStr);
+                    }
+                    groupsByTime[item.timeStr].push(item);
+                });
+
+                let htmlLines = '';
+                timeOrder.forEach(timeStr => {
+                    const daysInGroup = groupsByTime[timeStr];
+                    const dayRangeStr = formatGroupDayRanges(daysInGroup);
+                    htmlLines += `
+                        <div class="hours-line">
+                            <span class="hours-days">${dayRangeStr}</span>
+                            <span class="hours-time">${timeStr}</span>
+                        </div>
+                    `;
+                });
+
+                const badgeTitle = scheduleType === 'pickup' ? 'Pickup Hours' : 'Operating Hours';
+                targetEl.innerHTML = `
+                    <div class="hours-title"><i class="fas fa-clock"></i> ${badgeTitle}</div>
+                    <div class="hours-list">${htmlLines}</div>
+                `;
+                targetEl.style.display = 'block';
+            }
+
+            function updateTransportationHoursDisplay() {
+                renderGroupedScheduleBadge('pickup', 'pickup-hours-badge');
+                renderGroupedScheduleBadge('operating', 'arrival-hours-badge');
             }
 
             function validateTransportationScheduleClient() {

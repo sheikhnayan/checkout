@@ -1070,3 +1070,60 @@ border: none;
         align-items: center;
     }
 }
+
+/* Schedule Hours Badge */
+.schedule-hours-badge {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 204, 0, 0.3) !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    margin-top: 6px !important;
+    margin-bottom: 10px !important;
+    font-size: 13px !important;
+    color: #ffffff !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+.schedule-hours-badge .hours-title {
+    font-weight: 700 !important;
+    font-size: 11px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    color: #ffcc00 !important;
+    margin-bottom: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+.schedule-hours-badge .hours-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+}
+.schedule-hours-badge .hours-line {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+}
+.schedule-hours-badge .hours-days {
+    font-weight: 700 !important;
+    color: #ffffff !important;
+}
+.schedule-hours-badge .hours-time {
+    font-weight: 500 !important;
+    color: rgba(255, 255, 255, 0.88) !important;
+}
+@media (max-width: 576px) {
+    .schedule-hours-badge {
+        padding: 8px 10px !important;
+        margin-top: 4px !important;
+        margin-bottom: 8px !important;
+    }
+    .schedule-hours-badge .hours-line {
+        font-size: 12px !important;
+    }
+}

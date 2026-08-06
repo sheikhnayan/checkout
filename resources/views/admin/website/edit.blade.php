@@ -130,24 +130,39 @@
 
 <style>
   #suggestions {
-    list-style: none;
-    padding: 0;
-    border: 1px solid #ccc;
-    max-width: 300px;
-    margin-top: 0;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: calc(100% + 6px);
+        background: #fff;
+        color: #000;
+        border: 1px solid #ccc;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+        z-index: 2000;
+        max-height: 240px;
+        overflow-y: auto;
+        border-radius: 6px;
   }
 
-  #suggestions li {
-    padding: 8px;
-    cursor: pointer;
-    background: #fff;
-    color: #000 !important;
-    border: 1px solid #000;
-  }
+    #suggestions li {
+        padding: 8px 10px;
+        cursor: pointer;
+        background: transparent;
+        color: #000 !important;
+        border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
 
-  #suggestions li:hover {
-    background: #eee;
-  }
+    #suggestions li:hover {
+        background: #f1f5f9;
+    }
+
+    /* Responsive: keep width within parent and readable on mobile */
+    @media (max-width: 576px) {
+        #suggestions { max-height: 200px; font-size: 0.95rem; }
+    }
 </style>
     <!-- Content wrapper -->
     <div class="content-wrapper">
@@ -342,7 +357,7 @@
 
                                             <div class="row">
                                                 <div class="col-md-6">
-                                                    <div class="mb-3">
+                                                    <div class="mb-3" style="position:relative;">
                                                         <label for="location" class="form-label">Location <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The physical address of the venue. Used for the map and location display on the checkout page."></i></label>
                                                         <input type="text" name="location" class="form-control" id="location-input" value="{{ $data->location }}" placeholder="Location" required autocomplete="off">
                                                         <ul id="suggestions"></ul>
