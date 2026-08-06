@@ -187,6 +187,7 @@ class WebsiteController extends Controller
             'operating_end_time' => 'nullable|date_format:H:i',
             'pickup_start_time' => 'nullable|date_format:H:i',
             'pickup_end_time' => 'nullable|date_format:H:i',
+            'daily_operating_hours' => 'nullable|array',
             'entertainer_submission_emails' => 'nullable|string',
             'timezone' => ['nullable', 'string', function ($attribute, $value, $fail) {
                 if ($value !== null && trim((string) $value) !== '' && !WebsiteTimezone::isValid($value)) {
@@ -288,7 +289,13 @@ class WebsiteController extends Controller
         $add->package_tab_icon = $request->package_tab_icon ?: null;
         $add->package_tab_ribbon = $request->package_tab_ribbon ?: null;
         $add->transportation_confirmation_text = $request->transportation_confirmation_text;
-        $add->operating_days = $this->normalizeOperatingDays($request->input('operating_days', []));
+        $dailyHours = $this->normalizeDailyOperatingHours($request->input('daily_operating_hours'), $enabledDailyDays);
+        if ($dailyHours !== null) {
+            $add->daily_operating_hours = $dailyHours;
+            $add->operating_days = $enabledDailyDays;
+        } else {
+            $add->operating_days = $this->normalizeOperatingDays($request->input('operating_days', []));
+        }
         $add->operating_start_time = $request->filled('operating_start_time') ? $request->operating_start_time : null;
         $add->operating_end_time = $request->filled('operating_end_time') ? $request->operating_end_time : null;
         $add->pickup_start_time = $request->filled('pickup_start_time') ? $request->pickup_start_time : null;
@@ -484,6 +491,7 @@ class WebsiteController extends Controller
             'operating_end_time' => 'nullable|date_format:H:i',
             'pickup_start_time' => 'nullable|date_format:H:i',
             'pickup_end_time' => 'nullable|date_format:H:i',
+            'daily_operating_hours' => 'nullable|array',
             'entertainer_submission_emails' => 'nullable|string',
             'timezone' => ['nullable', 'string', function ($attribute, $value, $fail) {
                 if ($value !== null && trim((string) $value) !== '' && !WebsiteTimezone::isValid($value)) {
@@ -586,7 +594,13 @@ class WebsiteController extends Controller
         $add->package_tab_icon = $request->package_tab_icon ?: null;
         $add->package_tab_ribbon = $request->package_tab_ribbon ?: null;
         $add->transportation_confirmation_text = $request->transportation_confirmation_text;
-        $add->operating_days = $this->normalizeOperatingDays($request->input('operating_days', []));
+        $dailyHours = $this->normalizeDailyOperatingHours($request->input('daily_operating_hours'), $enabledDailyDays);
+        if ($dailyHours !== null) {
+            $add->daily_operating_hours = $dailyHours;
+            $add->operating_days = $enabledDailyDays;
+        } else {
+            $add->operating_days = $this->normalizeOperatingDays($request->input('operating_days', []));
+        }
         $add->operating_start_time = $request->filled('operating_start_time') ? $request->operating_start_time : null;
         $add->operating_end_time = $request->filled('operating_end_time') ? $request->operating_end_time : null;
         $add->pickup_start_time = $request->filled('pickup_start_time') ? $request->pickup_start_time : null;
@@ -822,6 +836,39 @@ class WebsiteController extends Controller
             ->unique()
             ->values()
             ->all();
+    }
+
+    private function normalizeDailyOperatingHours($input, &$enabledDaysOut = null): ?array
+    {
+        if (!is_array($input)) {
+            $enabledDaysOut = [];
+            return null;
+        }
+
+        $validDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+        $result = [];
+        $enabledDays = [];
+
+        foreach ($validDays as $day) {
+            $dayData = isset($input[$day]) && is_array($input[$day]) ? $input[$day] : [];
+            $enabled = !empty($dayData['enabled']);
+
+            if ($enabled) {
+                $enabledDays[] = $day;
+            }
+
+            $result[$day] = [
+                'enabled' => $enabled,
+                'operating_start_time' => !empty($dayData['operating_start_time']) ? trim((string) $dayData['operating_start_time']) : null,
+                'operating_end_time' => !empty($dayData['operating_end_time']) ? trim((string) $dayData['operating_end_time']) : null,
+                'pickup_start_time' => !empty($dayData['pickup_start_time']) ? trim((string) $dayData['pickup_start_time']) : null,
+                'pickup_end_time' => !empty($dayData['pickup_end_time']) ? trim((string) $dayData['pickup_end_time']) : null,
+            ];
+        }
+
+        $enabledDaysOut = $enabledDays;
+
+        return $result;
     }
 
     private function normalizeNotificationEmails($value): array

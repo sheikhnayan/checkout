@@ -671,68 +671,109 @@
                                                     </div>
                                                 </div>
 
-                                                @php
-                                                    $operatingDayLabels = [
-                                                        'monday' => 'Monday',
-                                                        'tuesday' => 'Tuesday',
-                                                        'wednesday' => 'Wednesday',
-                                                        'thursday' => 'Thursday',
-                                                        'friday' => 'Friday',
-                                                        'saturday' => 'Saturday',
-                                                        'sunday' => 'Sunday',
-                                                    ];
-                                                    $selectedOperatingDays = old('operating_days', $data->operating_days ?? []);
-                                                @endphp
-
                                                 <div class="col-md-12">
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Operating Days <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Days of the week when this venue accepts bookings. Unlisted days will be unavailable to customers."></i></label>
-                                                        <div class="row g-2">
-                                                            @foreach($operatingDayLabels as $dayValue => $dayLabel)
-                                                                <div class="col-md-6">
-                                                                    <div class="toggle-field">
-                                                                        <p class="toggle-text">{{ $dayLabel }}</p>
-                                                                        <label class="toggle-switch" for="operating_day_{{ $dayValue }}">
-                                                                            <input id="operating_day_{{ $dayValue }}" type="checkbox" name="operating_days[]" value="{{ $dayValue }}" class="toggle-switch-input" {{ in_array($dayValue, $selectedOperatingDays, true) ? 'checked' : '' }}>
-                                                                            <span class="toggle-switch-slider"></span>
-                                                                        </label>
-                                                                    </div>
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
-                                                        <small class="form-text text-muted">Leave all days unchecked to allow bookings every day.</small>
-                                                    </div>
+                                                    <h3 class="website-section-title">Global Default Operating & Pickup Hours</h3>
                                                 </div>
 
-                                                <div class="col-md-6">
+                                                <div class="col-md-3">
                                                     <div class="mb-3">
-                                                        <label for="operating_start_time" class="form-label">Operating Start Time <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Club operating hours are set here."></i></label>
+                                                        <label for="operating_start_time" class="form-label">Global Operating Start <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Default operating start time when day specific hours are not set."></i></label>
                                                         <input type="time" name="operating_start_time" class="form-control" id="operating_start_time" value="{{ old('operating_start_time', $data->operating_start_time) }}">
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-6">
+                                                <div class="col-md-3">
                                                     <div class="mb-3">
-                                                        <label for="operating_end_time" class="form-label">Operating End Time <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Club operating hours are set here."></i></label>
+                                                        <label for="operating_end_time" class="form-label">Global Operating End <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Default operating end time when day specific hours are not set."></i></label>
                                                         <input type="time" name="operating_end_time" class="form-control" id="operating_end_time" value="{{ old('operating_end_time', $data->operating_end_time) }}">
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-6">
+                                                <div class="col-md-3">
                                                     <div class="mb-3">
-                                                        <label for="pickup_start_time" class="form-label">Pickup Start Time <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Earliest transportation pickup time shown and enforced during checkout."></i></label>
+                                                        <label for="pickup_start_time" class="form-label">Global Pickup Start <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Default pickup start time when day specific hours are not set."></i></label>
                                                         <input type="time" name="pickup_start_time" class="form-control" id="pickup_start_time" value="{{ old('pickup_start_time', $data->pickup_start_time) }}">
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-6">
+                                                <div class="col-md-3">
                                                     <div class="mb-3">
-                                                        <label for="pickup_end_time" class="form-label">Pickup End Time <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Latest transportation pickup time shown and enforced during checkout."></i></label>
+                                                        <label for="pickup_end_time" class="form-label">Global Pickup End <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Default pickup end time when day specific hours are not set."></i></label>
                                                         <input type="time" name="pickup_end_time" class="form-control" id="pickup_end_time" value="{{ old('pickup_end_time', $data->pickup_end_time) }}">
                                                     </div>
                                                 </div>
+
+                                                <div class="col-md-12 mt-3">
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <h3 class="website-section-title mb-0">Daily Operating & Pickup Hours Schedule</h3>
+                                                        <button type="button" class="btn btn-sm btn-outline-primary" id="btn-copy-global-hours">
+                                                            <i class="fas fa-copy me-1"></i> Apply Global Hours to All Days
+                                                        </button>
+                                                    </div>
+                                                    <p class="text-muted small">Select operating and pickup hours for each day of the week. Days marked closed will not allow reservations.</p>
+                                                    <div class="table-responsive">
+                                                        <table class="table table-bordered align-middle">
+                                                            <thead class="table-light">
+                                                                <tr>
+                                                                    <th style="width: 15%;">Day</th>
+                                                                    <th style="width: 10%; text-align: center;">Open</th>
+                                                                    <th style="width: 37.5%;">Club Operating Hours</th>
+                                                                    <th style="width: 37.5%;">Transportation Pickup Hours</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @php
+                                                                    $daysList = [
+                                                                        'monday' => 'Monday',
+                                                                        'tuesday' => 'Tuesday',
+                                                                        'wednesday' => 'Wednesday',
+                                                                        'thursday' => 'Thursday',
+                                                                        'friday' => 'Friday',
+                                                                        'saturday' => 'Saturday',
+                                                                        'sunday' => 'Sunday',
+                                                                    ];
+                                                                    $dailyScheduleMap = isset($data) ? $data->getDailyOperatingHoursMap() : [];
+                                                                @endphp
+                                                                @foreach($daysList as $dayKey => $dayLabel)
+                                                                    @php
+                                                                        $daySched = old('daily_operating_hours.'.$dayKey, $dailyScheduleMap[$dayKey] ?? []);
+                                                                        $isDayEnabled = old('daily_operating_hours.'.$dayKey.'.enabled', $daySched['enabled'] ?? true);
+                                                                        $opStart = old('daily_operating_hours.'.$dayKey.'.operating_start_time', $daySched['operating_start_time'] ?? '');
+                                                                        $opEnd = old('daily_operating_hours.'.$dayKey.'.operating_end_time', $daySched['operating_end_time'] ?? '');
+                                                                        $pickStart = old('daily_operating_hours.'.$dayKey.'.pickup_start_time', $daySched['pickup_start_time'] ?? '');
+                                                                        $pickEnd = old('daily_operating_hours.'.$dayKey.'.pickup_end_time', $daySched['pickup_end_time'] ?? '');
+                                                                    @endphp
+                                                                    <tr>
+                                                                        <td><strong>{{ $dayLabel }}</strong></td>
+                                                                        <td class="text-center">
+                                                                            <div class="form-check form-switch d-inline-block mb-0">
+                                                                                <input class="form-check-input day-enabled-toggle" type="checkbox" name="daily_operating_hours[{{ $dayKey }}][enabled]" value="1" id="daily_enabled_{{ $dayKey }}" {{ $isDayEnabled ? 'checked' : '' }}>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div class="input-group input-group-sm">
+                                                                                <span class="input-group-text">Start</span>
+                                                                                <input type="time" name="daily_operating_hours[{{ $dayKey }}][operating_start_time]" class="form-control daily-op-start" value="{{ $opStart }}">
+                                                                                <span class="input-group-text">End</span>
+                                                                                <input type="time" name="daily_operating_hours[{{ $dayKey }}][operating_end_time]" class="form-control daily-op-end" value="{{ $opEnd }}">
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div class="input-group input-group-sm">
+                                                                                <span class="input-group-text">Start</span>
+                                                                                <input type="time" name="daily_operating_hours[{{ $dayKey }}][pickup_start_time]" class="form-control daily-pick-start" value="{{ $pickStart }}">
+                                                                                <span class="input-group-text">End</span>
+                                                                                <input type="time" name="daily_operating_hours[{{ $dayKey }}][pickup_end_time]" class="form-control daily-pick-end" value="{{ $pickEnd }}">
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            
+
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <h3 class="website-section-title">SMTP Configuration</h3>
@@ -1154,6 +1195,18 @@ document.addEventListener('DOMContentLoaded', function() {
     if (websiteForm) websiteForm.addEventListener('submit', function() {
         wDescTA.value = quillWDesc.root.innerHTML === '<p><br></p>' ? '' : quillWDesc.root.innerHTML;
         wSecTA.value = quillWSec.root.innerHTML === '<p><br></p>' ? '' : quillWSec.root.innerHTML;
+    });
+
+    document.getElementById('btn-copy-global-hours')?.addEventListener('click', function() {
+        const opStart = document.getElementById('operating_start_time')?.value || '';
+        const opEnd = document.getElementById('operating_end_time')?.value || '';
+        const pickStart = document.getElementById('pickup_start_time')?.value || opStart;
+        const pickEnd = document.getElementById('pickup_end_time')?.value || opEnd;
+
+        document.querySelectorAll('.daily-op-start').forEach(el => el.value = opStart);
+        document.querySelectorAll('.daily-op-end').forEach(el => el.value = opEnd);
+        document.querySelectorAll('.daily-pick-start').forEach(el => el.value = pickStart);
+        document.querySelectorAll('.daily-pick-end').forEach(el => el.value = pickEnd);
     });
 });
 </script>

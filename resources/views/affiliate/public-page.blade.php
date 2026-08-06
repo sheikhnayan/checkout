@@ -9435,10 +9435,50 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 prepareCheckoutCartPayload(this);
             });
 
+            const dailyOperatingHoursMap = @json($data->getDailyOperatingHoursMap());
+
             const transportationSchedule = {
+                startTime: @json($data->pickup_start_time ?: $data->operating_start_time),
+                endTime: @json($data->pickup_end_time ?: $data->operating_end_time),
+            };
+
+            const arrivalTransportationSchedule = {
                 startTime: @json($data->operating_start_time),
                 endTime: @json($data->operating_end_time),
             };
+
+            function getDayOfWeekFromDateString(dateStr) {
+                if (!dateStr || typeof dateStr !== 'string') return null;
+                const parts = dateStr.trim().split('-');
+                if (parts.length !== 3) return null;
+                const year = parseInt(parts[0], 10);
+                const month = parseInt(parts[1], 10) - 1;
+                const day = parseInt(parts[2], 10);
+                const dateObj = new Date(year, month, day);
+                if (isNaN(dateObj.getTime())) return null;
+                const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+                return days[dateObj.getDay()];
+            }
+
+            function updateDynamicSchedulesForSelectedDate(dateStr) {
+                const selectedDate = dateStr || (typeof getSelectedUseDate === 'function' ? getSelectedUseDate() : String($('#package_use_date').val() || '').trim());
+                const dayName = getDayOfWeekFromDateString(selectedDate);
+                if (dayName && dailyOperatingHoursMap && dailyOperatingHoursMap[dayName]) {
+                    const dayConfig = dailyOperatingHoursMap[dayName];
+                    transportationSchedule.startTime = dayConfig.pickup_start_time || @json($data->pickup_start_time);
+                    transportationSchedule.endTime = dayConfig.pickup_end_time || @json($data->pickup_end_time);
+                    arrivalTransportationSchedule.startTime = dayConfig.operating_start_time || @json($data->operating_start_time);
+                    arrivalTransportationSchedule.endTime = dayConfig.operating_end_time || @json($data->operating_end_time);
+                } else {
+                    transportationSchedule.startTime = @json($data->pickup_start_time ?: $data->operating_start_time);
+                    transportationSchedule.endTime = @json($data->pickup_end_time ?: $data->operating_end_time);
+                    arrivalTransportationSchedule.startTime = @json($data->operating_start_time);
+                    arrivalTransportationSchedule.endTime = @json($data->operating_end_time);
+                }
+                if (typeof updateTransportationHoursDisplay === 'function') {
+                    updateTransportationHoursDisplay();
+                }
+            }
 
             function parseTimeToMinutes(timeValue) {
                 if (!timeValue) {
@@ -11456,4 +11496,59 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     </script>
     </body>
 
+    <script>
+    (function(){
+        if (!window.matchMedia('(max-width: 767px)').matches) return;
+        function ensureTimePickerBelow() {
+            var selectors = ['#Pick-up-time', 'input[name="transportation_pickup_time"]'];
+            selectors.forEach(function(sel){
+                var el = document.querySelector(sel);
+                if (!el) return;
+                var hasError = el.classList.contains('is-invalid') || el.getAttribute('aria-invalid') === 'true' || (el.nextElementSibling && el.nextElementSibling.classList && el.nextElementSibling.classList.contains('invalid-feedback')) || (el.closest && el.closest('.form-group') && el.closest('.form-group').querySelector('.invalid-feedback'));
+                if (hasError) {
+                    var rect = el.getBoundingClientRect();
+                    var desiredTop = 120;
+                    var scrollY = window.scrollY + rect.top - desiredTop;
+                    if (scrollY < 0) scrollY = 0;
+                    window.scrollTo({ top: scrollY, behavior: 'smooth' });
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function(){
+            setTimeout(ensureTimePickerBelow, 60);
+            setTimeout(ensureTimePickerBelow, 300);
+            setTimeout(ensureTimePickerBelow, 900);
+        });
+
+        document.addEventListener('invalid', function(e){
+            var t = e.target;
+            if (!t) return;
+            if (t.matches && (t.matches('#Pick-up-time') || t.matches('input[name="transportation_pickup_time"]'))) {
+                setTimeout(function(){
+                    var rect = t.getBoundingClientRect();
+                    var scrollY = window.scrollY + rect.top - 120;
+                    if (scrollY < 0) scrollY = 0;
+                    window.scrollTo({ top: scrollY, behavior: 'smooth' });
+                }, 10);
+            }
+        }, true);
+
+        var timeEls = document.querySelectorAll('#Pick-up-time, input[name="transportation_pickup_time"]');
+        Array.prototype.forEach.call(timeEls, function(el){
+            el.addEventListener('focus', function(){
+                setTimeout(function(){
+                    var rect = el.getBoundingClientRect();
+                    var spaceBelow = window.innerHeight - rect.bottom;
+                    var needed = 360;
+                    if (spaceBelow < needed) {
+                        var scrollY = window.scrollY + rect.top - 120;
+                        if (scrollY < 0) scrollY = 0;
+                        window.scrollTo({ top: scrollY, behavior: 'smooth' });
+                    }
+                }, 120);
+            });
+        });
+    })();
+    </script>
     </html>

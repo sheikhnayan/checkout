@@ -38,6 +38,7 @@ class Website extends Model
         'operating_end_time',
         'pickup_start_time',
         'pickup_end_time',
+        'daily_operating_hours',
         'visa_logo',
         'mastercard_logo',
         'amex_logo',
@@ -101,11 +102,64 @@ class Website extends Model
     protected $casts = [
         'gallery_images' => 'array',
         'operating_days' => 'array',
+        'daily_operating_hours' => 'array',
         'show_contact_info' => 'boolean',
         'entertainer_submission_emails' => 'array',
         'clublifter_enabled' => 'boolean',
         'is_physical_product_checkout' => 'boolean',
     ];
+
+    public function getScheduleForDay(?string $dayName): array
+    {
+        $dayKey = strtolower(trim((string) $dayName));
+        $validDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
+        $dailyData = is_array($this->daily_operating_hours) ? $this->daily_operating_hours : [];
+        $globalDays = collect((array) $this->operating_days)
+            ->map(fn ($d) => strtolower(trim((string) $d)))
+            ->filter(fn ($d) => in_array($d, $validDays, true))
+            ->values()
+            ->all();
+
+        if (in_array($dayKey, $validDays, true) && isset($dailyData[$dayKey]) && is_array($dailyData[$dayKey])) {
+            $dayConfig = $dailyData[$dayKey];
+            $enabled = isset($dayConfig['enabled']) ? (bool) $dayConfig['enabled'] : false;
+
+            $opStart = !empty($dayConfig['operating_start_time']) ? (string) $dayConfig['operating_start_time'] : $this->operating_start_time;
+            $opEnd = !empty($dayConfig['operating_end_time']) ? (string) $dayConfig['operating_end_time'] : $this->operating_end_time;
+            $pickStart = !empty($dayConfig['pickup_start_time']) ? (string) $dayConfig['pickup_start_time'] : ($opStart ?: $this->pickup_start_time);
+            $pickEnd = !empty($dayConfig['pickup_end_time']) ? (string) $dayConfig['pickup_end_time'] : ($opEnd ?: $this->pickup_end_time);
+
+            return [
+                'enabled' => $enabled,
+                'operating_start_time' => $opStart,
+                'operating_end_time' => $opEnd,
+                'pickup_start_time' => $pickStart ?: $this->pickup_start_time,
+                'pickup_end_time' => $pickEnd ?: $this->pickup_end_time,
+            ];
+        }
+
+        $enabled = empty($globalDays) || in_array($dayKey, $globalDays, true);
+
+        return [
+            'enabled' => $enabled,
+            'operating_start_time' => $this->operating_start_time,
+            'operating_end_time' => $this->operating_end_time,
+            'pickup_start_time' => $this->pickup_start_time ?: $this->operating_start_time,
+            'pickup_end_time' => $this->pickup_end_time ?: $this->operating_end_time,
+        ];
+    }
+
+    public function getDailyOperatingHoursMap(): array
+    {
+        $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+        $map = [];
+        foreach ($days as $day) {
+            $map[$day] = $this->getScheduleForDay($day);
+        }
+
+        return $map;
+    }
    
     /**
      * Get the packages for the website.

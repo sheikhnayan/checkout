@@ -2955,7 +2955,7 @@ class TransactionController extends Controller
             ]);
         }
 
-        if ($pickupTime !== '' && !$this->isWithinWebsiteOperatingHours($website, $pickupTime)) {
+        if ($pickupTime !== '' && !$this->isWithinWebsiteOperatingHours($website, $pickupTime, $pickupDate)) {
             throw ValidationException::withMessages([
                 'transportation_pickup_time' => 'Please Enter Valid Pickup Time.',
             ]);
@@ -2967,7 +2967,7 @@ class TransactionController extends Controller
             ]);
         }
 
-        if ($arrivalTime !== '' && !$this->isWithinWebsiteArrivalHours($website, $arrivalTime)) {
+        if ($arrivalTime !== '' && !$this->isWithinWebsiteArrivalHours($website, $arrivalTime, $pickupDate)) {
             throw ValidationException::withMessages([
                 'transportation_arrival_time' => 'Please Enter Valid Arrival Time.',
             ]);
@@ -2992,12 +2992,14 @@ class TransactionController extends Controller
 
         try {
             $baseDate = Carbon::parse($dateStr, $clubTz)->startOfDay();
+            $dayName = strtolower(Carbon::parse($dateStr)->format('l'));
         } catch (\Throwable $e) {
             return false;
         }
 
-        $startTimeStr = $isPickup ? $website->pickup_start_time : $website->operating_start_time;
-        $endTimeStr = $isPickup ? $website->pickup_end_time : $website->operating_end_time;
+        $sched = $website->getScheduleForDay($dayName);
+        $startTimeStr = $isPickup ? ($sched['pickup_start_time'] ?? $website->pickup_start_time) : ($sched['operating_start_time'] ?? $website->operating_start_time);
+        $endTimeStr = $isPickup ? ($sched['pickup_end_time'] ?? $website->pickup_end_time) : ($sched['operating_end_time'] ?? $website->operating_end_time);
 
         $startMinutes = $this->convertTimeStringToMinutes($startTimeStr);
         $endMinutes = $this->convertTimeStringToMinutes($endTimeStr);
@@ -3021,25 +3023,28 @@ class TransactionController extends Controller
 
     private function isWebsiteOpenOnDate(Website $website, string $pickupDate): bool
     {
-        $operatingDays = $this->normalizedOperatingDays($website);
-
-        if ($operatingDays === []) {
-            return true;
-        }
-
         try {
             $dayName = strtolower(Carbon::parse($pickupDate)->format('l'));
         } catch (\Throwable $exception) {
             return false;
         }
 
-        return in_array($dayName, $operatingDays, true);
+        $sched = $website->getScheduleForDay($dayName);
+        return !empty($sched['enabled']);
     }
 
-    private function isWithinWebsiteOperatingHours(Website $website, string $pickupTime): bool
+    private function isWithinWebsiteOperatingHours(Website $website, string $pickupTime, string $dateStr = ''): bool
     {
-        $startMinutes = $this->convertTimeStringToMinutes($website->pickup_start_time);
-        $endMinutes = $this->convertTimeStringToMinutes($website->pickup_end_time);
+        $dayName = '';
+        if (trim($dateStr) !== '') {
+            try {
+                $dayName = strtolower(Carbon::parse($dateStr)->format('l'));
+            } catch (\Throwable $e) {}
+        }
+
+        $sched = $website->getScheduleForDay($dayName);
+        $startMinutes = $this->convertTimeStringToMinutes($sched['pickup_start_time'] ?? $website->pickup_start_time);
+        $endMinutes = $this->convertTimeStringToMinutes($sched['pickup_end_time'] ?? $website->pickup_end_time);
         $pickupMinutes = $this->convertTimeStringToMinutes($pickupTime);
 
         if ($pickupMinutes === null) {
@@ -3057,10 +3062,18 @@ class TransactionController extends Controller
         return $pickupMinutes >= $startMinutes && $pickupMinutes <= $endMinutes;
     }
 
-    private function isWithinWebsiteArrivalHours(Website $website, string $arrivalTime): bool
+    private function isWithinWebsiteArrivalHours(Website $website, string $arrivalTime, string $dateStr = ''): bool
     {
-        $startMinutes = $this->convertTimeStringToMinutes($website->operating_start_time);
-        $endMinutes = $this->convertTimeStringToMinutes($website->operating_end_time);
+        $dayName = '';
+        if (trim($dateStr) !== '') {
+            try {
+                $dayName = strtolower(Carbon::parse($dateStr)->format('l'));
+            } catch (\Throwable $e) {}
+        }
+
+        $sched = $website->getScheduleForDay($dayName);
+        $startMinutes = $this->convertTimeStringToMinutes($sched['operating_start_time'] ?? $website->operating_start_time);
+        $endMinutes = $this->convertTimeStringToMinutes($sched['operating_end_time'] ?? $website->operating_end_time);
         $arrivalMinutes = $this->convertTimeStringToMinutes($arrivalTime);
 
         if ($arrivalMinutes === null) {
