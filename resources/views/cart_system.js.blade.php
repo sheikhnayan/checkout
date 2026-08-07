@@ -155,24 +155,36 @@ function getCapturedFormFields() {
     var destination = $('#destination').val() || $('input[name="transportation_destination"]').val() || '';
     if (destination) fields.transportation_destination = destination;
 
-    // 3. Customer Contact & Personal Information (including prefixed field names)
+    // 3. Host Name & Booking / Pickup Notes
+    var hostName = $('#host').val() || $('[name="host_name"]').val() || $('[name="package_host_name"]').val() || $('[name="reservation_host_name"]').val() || $('[name="host"]').val() || '';
+    if (hostName) fields.host_name = hostName;
+
+    var bookingNote = $('#note').val() || $('[name="reservation_description"]').val() || $('[name="package_note"]').val() || $('[name="transportation_note"]').val() || $('[name="notes"]').val() || $('[name="special_requests"]').val() || '';
+    if (bookingNote) fields.booking_note = bookingNote;
+
+    // 4. DOB Fields (Month, Day, Year)
+    var dobMonth = $('#dob-month').val() || $('#package-dob-month').val() || $('#payment-dob-month').val() || $('[name="dob_month"]').val() || $('[name="package_dob_month"]').val() || $('[name="reservation_dob_month"]').val() || $('[name="reservation_month"]').val() || '';
+    if (dobMonth) fields.dob_month = dobMonth;
+
+    var dobDay = $('#dob-day').val() || $('#package-dob-day').val() || $('#payment-dob-day').val() || $('[name="dob_day"]').val() || $('[name="package_dob_day"]').val() || $('[name="reservation_dob_day"]').val() || $('[name="reservation_day"]').val() || '';
+    if (dobDay) fields.dob_day = dobDay;
+
+    var dobYear = $('#dob-year').val() || $('#package-dob-year').val() || $('#payment-dob-year').val() || $('[name="dob_year"]').val() || $('[name="package_dob_year"]').val() || $('[name="reservation_dob_year"]').val() || $('[name="reservation_year"]').val() || '';
+    if (dobYear) fields.dob_year = dobYear;
+
+    // 5. Customer Contact & Personal Information (including prefixed field names)
     var fieldNames = [
         'first_name', 'package_first_name', 'reservation_first_name', 'payment_first_name',
         'last_name', 'package_last_name', 'reservation_last_name', 'payment_last_name',
         'name',
         'email', 'package_email', 'reservation_email', 'payment_email',
         'phone', 'package_phone', 'reservation_phone', 'payment_phone',
-        'dob_month', 'package_dob_month', 'reservation_dob_month', 'payment_dob_month',
-        'dob_day', 'package_dob_day', 'reservation_dob_day', 'payment_dob_day',
-        'dob_year', 'package_dob_year', 'reservation_dob_year', 'payment_dob_year',
-        'dob', 'package_dob', 'reservation_dob', 'payment_dob',
         'gender', 'package_gender', 'reservation_gender',
         'country', 'package_country', 'reservation_country',
         'state', 'package_state', 'reservation_state', 'st-pv', 'state_province',
         'city', 'package_city', 'reservation_city',
         'zip', 'package_zip', 'reservation_zip', 'postal_code',
         'hotel_staying', 'package_hotel_staying', 'reservation_hotel_staying', 'hotel',
-        'notes', 'package_notes', 'reservation_notes', 'special_requests',
         'business_company', 'business_vat', 'business_address'
     ];
 
@@ -226,6 +238,7 @@ function setSelectionsFromParams(params) {
         var cartStr = params.cart;
         if (typeof cartStr === 'string') {
             try {
+                cartStr = cartStr.replace(/\+/g, '%20');
                 cartStr = decodeURIComponent(cartStr);
             } catch(e) {}
         }
@@ -282,9 +295,16 @@ function setSelectionsFromParams(params) {
 
         // Restore Form Fields
         if (formFields && Object.keys(formFields).length > 0) {
+            if (typeof populateDobSelects === 'function') {
+                try { populateDobSelects(); } catch(e) {}
+            }
+
             setTimeout(function() {
                 Object.keys(formFields).forEach(function(key) {
                     var val = formFields[key];
+                    if (typeof val === 'string' && val.indexOf('+') > 0) {
+                        val = val.replace(/\+/g, ' ');
+                    }
                     var target = $('[name="' + key + '"], #' + key);
 
                     if (target.length) {
@@ -303,9 +323,10 @@ function setSelectionsFromParams(params) {
                     }
                 });
 
-                // Email Aliases Sync (email, package_email, reservation_email, payment_email, #email, #hidden_payment_email)
+                // Email Aliases Sync
                 var emailVal = formFields.email || formFields.package_email || formFields.reservation_email || formFields.payment_email || '';
                 if (emailVal) {
+                    if (emailVal.indexOf('+') > 0) emailVal = emailVal.replace(/\+/g, ' ');
                     $('[name="email"], [name="package_email"], [name="reservation_email"], [name="payment_email"], #email, #hidden_payment_email')
                         .val(emailVal).trigger('change').trigger('input');
                 }
@@ -313,6 +334,7 @@ function setSelectionsFromParams(params) {
                 // First Name Aliases Sync
                 var firstNameVal = formFields.first_name || formFields.package_first_name || formFields.reservation_first_name || formFields.payment_first_name || formFields.name || '';
                 if (firstNameVal) {
+                    if (firstNameVal.indexOf('+') > 0) firstNameVal = firstNameVal.replace(/\+/g, ' ');
                     $('[name="first_name"], [name="package_first_name"], [name="reservation_first_name"], [name="payment_first_name"], [name="name"], #first_name')
                         .val(firstNameVal).trigger('change').trigger('input');
                 }
@@ -320,6 +342,7 @@ function setSelectionsFromParams(params) {
                 // Last Name Aliases Sync
                 var lastNameVal = formFields.last_name || formFields.package_last_name || formFields.reservation_last_name || formFields.payment_last_name || '';
                 if (lastNameVal) {
+                    if (lastNameVal.indexOf('+') > 0) lastNameVal = lastNameVal.replace(/\+/g, ' ');
                     $('[name="last_name"], [name="package_last_name"], [name="reservation_last_name"], [name="payment_last_name"], #last_name')
                         .val(lastNameVal).trigger('change').trigger('input');
                 }
@@ -327,8 +350,49 @@ function setSelectionsFromParams(params) {
                 // Phone Aliases Sync
                 var phoneVal = formFields.phone || formFields.package_phone || formFields.reservation_phone || formFields.payment_phone || '';
                 if (phoneVal) {
+                    if (phoneVal.indexOf('+') > 0) phoneVal = phoneVal.replace(/\+/g, ' ');
                     $('[name="phone"], [name="package_phone"], [name="reservation_phone"], [name="payment_phone"], #phone, #hidden_payment_phone')
                         .val(phoneVal).trigger('change').trigger('input');
+                }
+
+                // Host Name Aliases Sync
+                var hostVal = formFields.host_name || formFields.package_host_name || formFields.reservation_host_name || formFields.host || '';
+                if (hostVal) {
+                    if (hostVal.indexOf('+') > 0) hostVal = hostVal.replace(/\+/g, ' ');
+                    $('#host, [name="host_name"], [name="package_host_name"], [name="reservation_host_name"], [name="host"]')
+                        .val(hostVal).trigger('change').trigger('input');
+                }
+
+                // Booking Note / Pickup Note Aliases Sync
+                var noteVal = formFields.booking_note || formFields.reservation_description || formFields.package_note || formFields.transportation_note || formFields.notes || formFields.special_requests || '';
+                if (noteVal) {
+                    if (noteVal.indexOf('+') > 0) noteVal = noteVal.replace(/\+/g, ' ');
+                    $('#note, [name="reservation_description"], [name="package_note"], [name="transportation_note"], [name="notes"], [name="special_requests"]')
+                        .val(noteVal).trigger('change').trigger('input');
+                }
+
+                // DOB Month Sync
+                var dobMonthVal = formFields.dob_month || formFields.package_dob_month || formFields.reservation_dob_month || formFields.reservation_month || formFields.payment_dob_month || '';
+                if (dobMonthVal) {
+                    var mStr = String(dobMonthVal).padStart(2, '0');
+                    $('#dob-month, #package-dob-month, #payment-dob-month, #payment-dob-month2, [name="dob_month"], [name="package_dob_month"], [name="reservation_dob_month"], [name="reservation_month"], [name="payment_dob_month"]')
+                        .val(mStr).trigger('change');
+                }
+
+                // DOB Day Sync
+                var dobDayVal = formFields.dob_day || formFields.package_dob_day || formFields.reservation_dob_day || formFields.reservation_day || formFields.payment_dob_day || '';
+                if (dobDayVal) {
+                    var dStr = String(dobDayVal).padStart(2, '0');
+                    $('#dob-day, #package-dob-day, #payment-dob-day, #payment-dob-day2, [name="dob_day"], [name="package_dob_day"], [name="reservation_dob_day"], [name="reservation_day"], [name="payment_dob_day"]')
+                        .val(dStr).trigger('change');
+                }
+
+                // DOB Year Sync
+                var dobYearVal = formFields.dob_year || formFields.package_dob_year || formFields.reservation_dob_year || formFields.reservation_year || formFields.payment_dob_year || '';
+                if (dobYearVal) {
+                    var yStr = String(dobYearVal);
+                    $('#dob-year, #package-dob-year, #payment-dob-year, #payment-dob-year2, [name="dob_year"], [name="package_dob_year"], [name="reservation_dob_year"], [name="reservation_year"], [name="payment_dob_year"]')
+                        .val(yStr).trigger('change');
                 }
 
                 // Special handling for package_use_date
