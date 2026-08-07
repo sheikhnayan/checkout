@@ -1127,3 +1127,32 @@ border: none;
         font-size: 12px !important;
     }
 }
+
+/* Mobile bottom sheet popup for clock / time picker fields */
+@media (max-width: 768px) {
+    .flatpickr-calendar.hasTime.noCalendar,
+    .flatpickr-calendar.hasTime {
+        position: fixed !important;
+        top: auto !important;
+        bottom: 0 !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
+        border-radius: 20px 20px 0 0 !important;
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8) !important;
+        z-index: 999999 !important;
+    }
+
+    .flatpickr-calendar.hasTime.noCalendar .flatpickr-time,
+    .flatpickr-calendar.hasTime .flatpickr-time {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+        justify-content: center !important;
+    }
+}
+
+
