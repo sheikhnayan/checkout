@@ -6597,7 +6597,7 @@
                                         </li>
                                         <li class="step" id="step-2">
                                             <div class="step-number">2</div>
-                                            <p class="step-title">Transportation</p>
+                                            <p class="step-title">Arrival</p>
                                         </li>
                                         <li class="step" id="step-3">
                                             <div class="step-number">3</div>
@@ -6729,7 +6729,7 @@
 
                                                         <div class="col-md-12">
 
-                                                            <h2 id="transport-section-title" style="margin-bottom: 8px;">Transportation</h2>
+                                                            <h2 id="transport-section-title" style="margin-bottom: 8px;">Arrival Time</h2>
                                                             <div id="transportation-hours-range" style="display: none; margin-bottom: 24px; font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.92);"></div>
 
                                                             <!-- Left: Form Fields -->
@@ -8272,7 +8272,7 @@
                     driverNotificationConsentWrap.css('display', 'flex');
                     driverNotificationConsentInputs.prop('required', true).attr('aria-required', 'true');
                 } else {
-                    $('#step-2 .step-title').text('Arrival Time');
+                    $('#step-2 .step-title').text('Arrival');
                     $('#next-to-transport').text('Next: Arrival Time Details');
                     $('#prev-to-transport').text('Previous: Arrival Time');
                     transportSectionTitle.text('Arrival Time');

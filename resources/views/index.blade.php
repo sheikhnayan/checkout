@@ -6274,7 +6274,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                         </li>
                                         <li class="step" id="step-2">
                                             <div class="step-number">2</div>
-                                            <p class="step-title">Transportation</p>
+                                            <p class="step-title">Arrival</p>
                                         </li>
                                         <li class="step" id="step-3">
                                             <div class="step-number">3</div>
@@ -6370,7 +6370,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                             
                                             <!-- Step Navigation -->
                                             <div class="step-navigation">
-                                                <button type="button" class="btn-next" id="next-to-transport">Next: Transportation Details</button>
+                                                <button type="button" class="btn-next" id="next-to-transport">Next: Arrival Time Details</button>
                                             </div>
                                         </section>
                                         
@@ -6396,7 +6396,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
     
                                                     <div class="col-md-12">
 
-                                                        <h2 id="transport-section-title" style="margin-bottom: 8px;">Transportation</h2>
+                                                        <h2 id="transport-section-title" style="margin-bottom: 8px;">Arrival Time</h2>
                                                         <div id="transportation-hours-range" style="display: none; margin-bottom: 24px; font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.92);"></div>
 
                                                         <!-- Left: Form Fields -->
@@ -6742,7 +6742,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                             
                                                             <!-- Step Navigation -->
                                                             <div class="step-navigation">
-                                                                <button type="button" class="btn-prev" id="prev-to-transport">Previous: Transportation</button>
+                                                                <button type="button" class="btn-prev" id="prev-to-transport">Previous: Arrival Time</button>
                                                                 <button class="submit-btn" style="margin-top: 0px !important;" id="submitBtn" type="submit">Complete Purchase</button>
                                                             </div>
     
@@ -8035,7 +8035,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                     driverNotificationConsentWrap.css('display', 'flex');
                     driverNotificationConsentInputs.prop('required', true).attr('aria-required', 'true');
                 } else {
-                    $('#step-2 .step-title').text('Arrival Time');
+                    $('#step-2 .step-title').text('Arrival');
                     $('#next-to-transport').text('Next: Arrival Time Details');
                     $('#prev-to-transport').text('Previous: Arrival Time');
                     transportSectionTitle.text('Arrival Time');

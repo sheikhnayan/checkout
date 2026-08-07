@@ -5359,7 +5359,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         </li>
                                         <li class="step" id="step-2">
                                             <div class="step-number">2</div>
-                                            <p class="step-title">Transportation</p>
+                                            <p class="step-title">Arrival</p>
                                         </li>
                                         <li class="step" id="step-3">
                                             <div class="step-number">3</div>
@@ -5451,7 +5451,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                             
                                             <!-- Step Navigation -->
                                             <div class="step-navigation">
-                                                <button type="button" class="btn-next" id="next-to-transport">Next: Transportation Details</button>
+                                                <button type="button" class="btn-next" id="next-to-transport">Next: Arrival Time Details</button>
                                             </div>
                                         </section>
                                         
@@ -5788,7 +5788,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                             
                                                             <!-- Step Navigation -->
                                                             <div class="step-navigation">
-                                                                <button type="button" class="btn-prev" id="prev-to-transport">Previous: Transportation</button>
+                                                                <button type="button" class="btn-prev" id="prev-to-transport">Previous: Arrival Time</button>
                                                                 <button class="submit-btn" id="submitBtn" type="submit">Complete Purchase</button>
                                                             </div>
     
