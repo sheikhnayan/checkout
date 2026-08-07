@@ -8211,358 +8211,38 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 if (!isValid) {
                     alert(alertMessage);
                     if (firstInvalidField && firstInvalidField.length) {
-                        firstInvalidField.trigger('focus');
-                        firstInvalidField[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                }
-                
-                return isValid;
-            }
-            
-            // Navigation Event Handlers
-            $(document).ready(function() {
-                
-                // Next to Transportation
-                $('#next-to-transport').click(function() {
-                    if (validateStep(1)) {
-                        showStep(2);
-                    }
-                });
-                
-                // Previous to Package from Transportation confirmation
-                $('#prev-to-package').click(function() {
-                    showStep(1);
-                });
-                
-                // Previous to Package from Transportation form  
-                $('#prev-to-package-from-form').click(function() {
-                    showStep(1);
-                });
-                
-                // Next to Payment from Transportation confirmation
-                $('#next-to-payment-from-confirm').click(function() {
-                    if (validateStep(2)) {
-                        populatePaymentFields();
-                        showStep(3);
-                    }
-                });
-                
-                // Next to Payment from Transportation form
-                $('#next-to-payment').click(function() {
-                    if (validateStep(2)) {
-                        populatePaymentFields();
-                        showStep(3);
-                    }
-                });
-                
-                // Previous to Transportation from Payment
-                $('#prev-to-transport').click(function() {
-                    showStep(2);
-                });
-                
-                // Remove required field styling on input
-                $(document).on('input change', 'input, select, textarea', function() {
-                    $(this).removeClass('required-field');
-                });
-            });
-            
-        </script>
+                        var isMobile = window.matchMedia('(max-width: 767px)').matches;
+                        var isTimeInput = firstInvalidField.is('[name="transportation_pickup_time"], [name="transportation_arrival_time"], #Pick-up-time, #Arrival-time');
 
-        <input type="hidden" id="gratuity" value="{{ $data->gratuity_fee }}">
-
-        <input type="hidden" id="refundable" value="{{ $data->refundable_fee }}">
-
-        <input type="hidden" id="sales_tax" value="{{ $data->sales_tax_fee ?? 10}}">
-
-        <input type="hidden" id="service_charge" value="{{ $data->service_charge_fee ?? 10}}">
-
-        <input type="hidden" id="processing_fee" value="{{ (float) ($data->processing_fee ?? 0) }}">
-
-        <input type="hidden" id="processing_fee_type" value="{{ $data->processing_fee_type ?? 'percentage' }}">
-
-        <script>
-            function openModal() {
-                // Get the description from the clicked addon
-                const description = event.target.closest('.addon-item').querySelector('label').getAttribute('data-description');
-                const title = event.target.closest('.addon-item').querySelector('label').getAttribute('data-title');
-
-                $('.modal-title').text(title);
-                $('.modal-body').html(`<p style="color: #000 !important;">${description}</p>`);
-                $('.modal').modal('show');
-
-            }
-
-            function openPackageModal() {
-
-                // Get the description from the clicked package
-                const description = event.target.closest('.vip-card').querySelector('.items').getAttribute('data-description');
-                const title = event.target.closest('.vip-card').querySelector('.items').getAttribute('data-title');
-
-                $('.modal-title').text(title);
-                $('.modal-body').html(`<p style="color: #000 !important;">${description}</p>`);
-                $('.modal').modal('show');
-
-            }
-
-            function addToTotal(price, name, id) {
-                // This function is now handled by cart system
-                // Keeping for backward compatibility
-            }
-
-            function transportation(){
-                console.log('sss');
-                if (event.target.checked) {
-                    $('.transport').show();
-                }else{
-                    $('.transport').hide();
-                }
-            }
-        </script>
-
-        <script>
-            $('.package_number_of_guestss').on('change', function() {
-                var $field = $(this);
-                var selectedValue = parseInt($field.val(), 10) || 1;
-                var packageId = $field.data('id');
-                var useDate = (typeof window.getSelectedUseDate === 'function')
-                    ? window.getSelectedUseDate()
-                    : String($('#package_use_date').val() || $('.package_use_date').val() || '').trim();
-
-                $.get('/{{ $data->slug }}/package/' + packageId + '/capacity', {
-                    use_date: useDate,
-                    requested_quantity: selectedValue
-                }).done(function(response) {
-                    var maxSelectable = parseInt(response.max_select, 10);
-                    if (!Number.isFinite(maxSelectable)) {
-                        maxSelectable = parseInt(response.capacity, 10) || 1;
-                    }
-
-                    if (selectedValue > maxSelectable) {
-                        if (typeof window.updateGuestSelectOptions === 'function') {
-                            window.updateGuestSelectOptions($field, maxSelectable, response.message || 'Sold Out!');
+                        if (firstInvalidField.is('[name="transportation_pickup_time"], #Pick-up-time')) {
+                            firstInvalidField.prop('disabled', false).prop('readonly', false)
+                                .removeAttr('disabled').removeAttr('readonly');
                         }
-                        if (typeof window.showGuestFieldError === 'function') {
-                            window.showGuestFieldError($field, response.message || 'The selected quantity is not available for this date.');
-                        }
-                        return;
-                    }
 
-                    if (typeof window.clearGuestFieldError === 'function') {
-                        window.clearGuestFieldError($field);
-                    }
-                    $('.package_number_of_guest').val(String(selectedValue));
+                        if (isMobile && isTimeInput) {
+                            var timeEl = firstInvalidField[0];
+                            var rect = timeEl.getBoundingClientRect();
+                            var desiredTop = 100;
+                            var targetScrollY = window.scrollY + rect.top - desiredTop;
+                            if (targetScrollY < 0) targetScrollY = 0;
 
-                    var pkg = window.cart.find(function(p) { return String(p.packageId) === String(packageId); });
-                    if (pkg) {
-                        pkg.guests = selectedValue;
-                        pkg.isMultiple = (typeof window.parseMultipleFlag === 'function')
-                            ? window.parseMultipleFlag($field.data('multiple'))
-                            : ($field.data('multiple') === true || $field.data('multiple') === 1 || $field.data('multiple') === '1' || $field.data('multiple') === 'true');
-                        window.renderCart();
-                        window.calculateCartTotal();
-                    }
+                            window.scrollTo({ top: targetScrollY, behavior: 'smooth' });
 
-                    syncEventCapacityUi();
-                }).fail(function() {
-                    if (typeof window.showGuestFieldError === 'function') {
-                        window.showGuestFieldError($field, 'Could not verify availability right now. Please try again.');
-                    }
-                });
-            });
-
-            $(document).on('input', '.package_number_of_guestss[type="number"]', function() {
-                var $field = $(this);
-                var entered = parseInt($field.val(), 10);
-                var maxAllowed = parseInt($field.attr('max'), 10);
-
-                if (!Number.isFinite(entered) || entered < 1) {
-                    $field.val('1');
-                    return;
-                }
-
-                if (Number.isFinite(maxAllowed) && maxAllowed > 0 && entered > maxAllowed) {
-                    $field.val(String(maxAllowed));
-                }
-            });
-        </script>
-
-
-
-        <script>
-            // Coupon logic for cart
-            $('#applyPromoBtn').on('click', function() {
-                let code = $('#promo_code').val().trim();
-                if (!code) return;
-
-                var promoSource = '{{ !empty($affiliateReferral) ? 'affiliate' : 'club' }}';
-                var ownerSlug = '{{ !empty($affiliateReferral) ? $affiliateReferral->slug : '' }}';
-                var cartItems = Array.isArray(window.cart) ? window.cart : [];
-                var packageIds = [];
-                var subtotal = 0;
-                var totalQty = 0;
-
-                cartItems.forEach(function(pkg) {
-                    var pkgId = parseInt(pkg.packageId, 10) || 0;
-                    if (pkgId > 0 && packageIds.indexOf(pkgId) === -1) {
-                        packageIds.push(pkgId);
-                    }
-
-                    var guests = parseInt(pkg.guests, 10) || 1;
-                    var billableGuests = (pkg.isMultiple === true || pkg.isMultiple === 1 || pkg.isMultiple === '1') ? guests : 1;
-                    subtotal += (parseFloat(pkg.packagePrice) || 0) * billableGuests;
-                    subtotal += (pkg.addons || []).reduce(function(sum, addon) { return sum + (parseFloat(addon.price) || 0); }, 0);
-                    totalQty += guests;
-                });
-
-                $.get('/{{ $data->slug }}/check/' + encodeURIComponent(code), {
-                    source: promoSource,
-                    owner_slug: ownerSlug,
-                    package_ids: packageIds.join(','),
-                    subtotal: subtotal.toFixed(2),
-                    total_qty: totalQty
-                }, function(res) {
-                    if (res.valid === false || res.valid === "false") {
-                        window.cartCoupon = null;
-                        alert(res.message || 'Invalid promo code');
-                        window.calculateCartTotal();
-                    } else {
-                        window.cartCoupon = {
-                            code: code,
-                            id: res.id,
-                            discount: parseFloat(res.discount),
-                            type: res.type || 'percentage'
-                        };
-                        $('#applyPromoBtn').prop('disabled', true);
-                        $('.promo_code').val(res.id);
-                        window.calculateCartTotal();
-                    }
-                });
-            });
-        </script>
-
-        <script>
-            // Replace this with your country select's ID
-            const countrySelectId = 'country';
-            const stateSelectId = 'st-pv';
-
-            // Listen for country change
-            $(document).on('change', `#${countrySelectId}`, function () {
-                const country = $(this).val();
-                const $state = $(`#${stateSelectId}`);
-                $state.html('<option value="">Loading...</option>');
-                if (!country) {
-                    $state.html('<option value="">Select State/Province</option>');
-                    return;
-                }
-                // Example API for US states: https://countriesnow.space/api/v0.1/countries/states
-                // You can use another API if you prefer
-                $.ajax({
-                    url: 'https://countriesnow.space/api/v0.1/countries/states',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({ country: country }),
-                    success: function (res) {
-                        if (res && res.data && res.data.states && res.data.states.length > 0) {
-                            let options = '<option value="null" selected disabled>Select State/Province</option>';
-                            res.data.states.forEach(function (state) {
-                                options += `<option value="${state.name}">${state.name}</option>`;
-                            });
-                            $state.html(options);
+                            setTimeout(function() {
+                                if (timeEl && timeEl._flatpickr && typeof timeEl._flatpickr.open === 'function') {
+                                    try { timeEl._flatpickr.open(); } catch(e) {}
+                                } else if (typeof timeEl.focus === 'function') {
+                                    try { timeEl.focus(); } catch(e) {}
+                                }
+                            }, 350);
                         } else {
-                            $state.html('<option value="null" selected disabled>No states found</option>');
-                        }
-                    },
-                    error: function () {
-                        $state.html('<option value="null" selected disabled>Error loading states</option>');
-                    }
-                });
-            });
-        </script>
-
-        <script>
-            // Auto-discount logic: wrap calculateCartTotal to fetch and apply automatic discounts
-            (function () {
-                var _origCalcCartTotal = window.calculateCartTotal;
-                var _autoDiscountTimer = null;
-
-                var promoSource = '{{ !empty($affiliateReferral) ? 'affiliate' : 'club' }}';
-                var ownerSlug = '{{ !empty($affiliateReferral) ? $affiliateReferral->slug : '' }}';
-                var siteSlug = '{{ $data->slug }}';
-
-                function fetchAutoDiscount() {
-                    var cartItems = Array.isArray(window.cart) ? window.cart : [];
-                    if (cartItems.length === 0) {
-                        if (window.cartCoupon && window.cartCoupon.isAutomatic) {
-                            window.cartCoupon = null;
-                            _origCalcCartTotal();
-                        }
-                        return;
-                    }
-                    var packageIds = [];
-                    var subtotal = 0;
-                    var totalQty = 0;
-                    cartItems.forEach(function (pkg) {
-                        var pkgId = parseInt(pkg.packageId, 10) || 0;
-                        if (pkgId > 0 && packageIds.indexOf(pkgId) === -1) packageIds.push(pkgId);
-                        var guests = parseInt(pkg.guests, 10) || 1;
-                        var billable = (pkg.isMultiple === true || pkg.isMultiple === 1 || pkg.isMultiple === '1') ? guests : 1;
-                        subtotal += (parseFloat(pkg.packagePrice) || 0) * billable;
-                        subtotal += (pkg.addons || []).reduce(function (s, a) { return s + (parseFloat(a.price) || 0); }, 0);
-                        totalQty += guests;
-                    });
-                    $.get('/' + siteSlug + '/auto-discounts', {
-                        source: promoSource,
-                        owner_slug: ownerSlug,
-                        package_ids: packageIds.join(','),
-                        subtotal: subtotal.toFixed(2),
-                        total_qty: totalQty
-                    }, function (res) {
-                        if (res.valid) {
-                            window.cartCoupon = {
-                                code: res.name,
-                                id: res.id,
-                                discount: parseFloat(res.discount),
-                                type: res.type || 'percentage',
-                                isAutomatic: true
-                            };
-                        } else if (window.cartCoupon && window.cartCoupon.isAutomatic) {
-                            window.cartCoupon = null;
-                        }
-                        _origCalcCartTotal();
-                    });
-                }
-
-                window.calculateCartTotal = function () {
-                    _origCalcCartTotal();
-                    // Only trigger auto-discount fetch when no manual coupon is active
-                    if (!window.cartCoupon || window.cartCoupon.isAutomatic) {
-                        clearTimeout(_autoDiscountTimer);
-                        _autoDiscountTimer = setTimeout(fetchAutoDiscount, 400);
-                    }
-                };
-            })();
-        </script>
-
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-        <script>
-            (function() {
-                var availableDates = @json(array_column($packageOptions, 'value'));
-                if (typeof flatpickr === 'undefined') return;
-                window.packageUseDatePicker = flatpickr("#package_use_date", {
-                    dateFormat: "Y-m-d",
-                    defaultDate: null,
-                    minDate: "today",
-                    allowInput: false,
-                    clickOpens: true,
-                    enable: availableDates,
-                    onChange: function(selectedDates, dateStr) {
-                        var input = document.getElementById('package_use_date');
-                        if (input) input.value = dateStr;
-                        if (typeof window.syncUseDateField === 'function') {
-                            window.syncUseDateField();
-                        } else {
-                            $('.package_use_date').val(String($('#package_use_date').val() || '').trim());
+                            firstInvalidField[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            if (firstInvalidField.is('[name="transportation_pickup_time"]')) {
+                                var timeInput = firstInvalidField[0];
+                                if (timeInput && timeInput._flatpickr) {
+                                    try { timeInput._flatpickr.close(); } catch (e) {}
+                                }
+                            }
                         }
                     }
                 });

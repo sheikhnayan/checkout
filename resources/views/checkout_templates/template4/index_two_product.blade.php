@@ -10664,15 +10664,41 @@
                         alert(alertMessage);
                     }
                     if (firstInvalidField && firstInvalidField.length) {
-                        firstInvalidField[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        if (firstInvalidField.is('[name="transportation_pickup_time"]')) {
+                        var isMobile = window.matchMedia('(max-width: 767px)').matches;
+                        var isTimeInput = firstInvalidField.is('[name="transportation_pickup_time"], [name="transportation_arrival_time"], #Pick-up-time, #Arrival-time');
+
+                        if (firstInvalidField.is('[name="transportation_pickup_time"], #Pick-up-time')) {
                             firstInvalidField.prop('disabled', false).prop('readonly', false)
                                 .removeAttr('disabled').removeAttr('readonly');
-                            var timeInput = firstInvalidField[0];
-                            if (timeInput && timeInput._flatpickr) {
-                                try { timeInput._flatpickr.close(); } catch (e) {}
+                        }
+
+                        if (isMobile && isTimeInput) {
+                            var timeEl = firstInvalidField[0];
+                            var rect = timeEl.getBoundingClientRect();
+                            var desiredTop = 100;
+                            var targetScrollY = window.scrollY + rect.top - desiredTop;
+                            if (targetScrollY < 0) targetScrollY = 0;
+
+                            window.scrollTo({ top: targetScrollY, behavior: 'smooth' });
+
+                            setTimeout(function() {
+                                if (timeEl && timeEl._flatpickr && typeof timeEl._flatpickr.open === 'function') {
+                                    try { timeEl._flatpickr.open(); } catch(e) {}
+                                } else if (typeof timeEl.focus === 'function') {
+                                    try { timeEl.focus(); } catch(e) {}
+                                }
+                            }, 350);
+                        } else {
+                            firstInvalidField[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            if (firstInvalidField.is('[name="transportation_pickup_time"]')) {
+                                var timeInput = firstInvalidField[0];
+                                if (timeInput && timeInput._flatpickr) {
+                                    try { timeInput._flatpickr.close(); } catch (e) {}
+                                }
                             }
                         }
+                    }
+                }
                     }
                 }
 
