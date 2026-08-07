@@ -10154,10 +10154,7 @@
                         }
                     }
                 }
-                    }
-                }
-
-                return isValid;
+                    return isValid;
             }
 
             // Navigation Event Handlers

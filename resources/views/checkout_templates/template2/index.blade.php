@@ -9618,10 +9618,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                         }
                     }
                 }
-                    }
-                }
-                
-                return isValid;
+                    return isValid;
             }
             
             // Navigation Event Handlers
