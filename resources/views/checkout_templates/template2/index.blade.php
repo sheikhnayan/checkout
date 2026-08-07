@@ -7455,63 +7455,198 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                 }
             }
             // --- Shareable Link Logic ---
+            function getCapturedFormFields() {
+                var fields = {};
+
+                // 1. Reservation Date
+                var useDate = $('#package_use_date').val() || $('input[name="package_use_date"]').val() || $('.package_use_date').val() || '';
+                if (useDate) fields.package_use_date = useDate;
+
+                // 2. Transportation & Arrival Details
+                var pickupTime = $('#Pick-up-time').val() || $('input[name="transportation_pickup_time"]').val() || '';
+                if (pickupTime) fields.transportation_pickup_time = pickupTime;
+
+                var pickupAddress = $('#address').val() || $('input[name="transportation_address"]').val() || '';
+                if (pickupAddress) fields.transportation_address = pickupAddress;
+
+                var arrivalTime = $('#Arrival-time').val() || $('input[name="transportation_arrival_time"]').val() || '';
+                if (arrivalTime) fields.transportation_arrival_time = arrivalTime;
+
+                var destination = $('#destination').val() || $('input[name="transportation_destination"]').val() || '';
+                if (destination) fields.transportation_destination = destination;
+
+                // 3. Customer Contact & Personal Information
+                var fieldNames = [
+                    'first_name', 'last_name', 'name', 'email', 'phone',
+                    'dob_month', 'dob_day', 'dob_year', 'dob', 'gender',
+                    'country', 'state', 'st-pv', 'state_province', 'city', 'zip', 'postal_code',
+                    'hotel_staying', 'hotel', 'notes', 'special_requests',
+                    'business_company', 'business_vat', 'business_address'
+                ];
+
+                fieldNames.forEach(function(n) {
+                    var el = $('[name="' + n + '"], #' + n);
+                    if (el.length && el.val()) {
+                        fields[n] = el.val();
+                    }
+                });
+
+                if ($('#businessExpenseCheckbox').length) {
+                    fields.businessExpenseCheckbox = $('#businessExpenseCheckbox').is(':checked');
+                }
+
+                // Custom Form Fields
+                $('[name^="custom_fields"]').each(function() {
+                    var name = $(this).attr('name');
+                    var val = $(this).val();
+                    if (name && val) {
+                        fields[name] = val;
+                    }
+                });
+
+                return fields;
+            }
+
             function getCurrentSelections() {
-                // Get selected package
-                var packageId = $('#package_id').val() || '';
-                // Get selected add-ons (comma separated)
-                var addons = $('#addons').val() || '';
-                // Get guest count
-                var guests = $('.package_number_of_guest').val() || '';
-                // Get use date
-                var useDate = $('.package_use_date').val() || '';
-                return { packageId, addons, guests, useDate };
+                var cartData = window.cart || (typeof cart !== 'undefined' ? cart : []);
+                var couponCode = window.cartCoupon ? window.cartCoupon.code : (typeof cartCoupon !== 'undefined' && cartCoupon ? cartCoupon.code : '');
+                var fields = getCapturedFormFields();
+
+                var payload = {
+                    cart: cartData,
+                    coupon: couponCode,
+                    fields: fields
+                };
+
+                return {
+                    cart: JSON.stringify(payload),
+                    coupon: couponCode,
+                    fields: fields
+                };
             }
 
             function setSelectionsFromParams(params) {
-                    // Always open package tab if package param exists
-                    if(params.package) {
-                        openPackageTab();
+                if (!params || !params.cart) return;
+
+                if (typeof openPackageTab === 'function') openPackageTab();
+
+                try {
+                    var cartStr = params.cart;
+                    if (typeof cartStr === 'string') {
+                        try {
+                            cartStr = decodeURIComponent(cartStr);
+                        } catch(e) {}
                     }
-                    // Open all packages (simulate click on all .vip-btn)
-                    setTimeout(function() {
-                        $('.vip-btn').each(function(){
-                            if(!$(this).text().toLowerCase().includes('added')) {
-                                $(this).trigger('click');
-                            }
+
+                    var parsed = (typeof cartStr === 'string') ? JSON.parse(cartStr) : cartStr;
+
+                    var cartItems = [];
+                    var couponCode = params.coupon || '';
+                    var formFields = {};
+
+                    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && parsed.cart) {
+                        cartItems = parsed.cart;
+                        if (parsed.coupon) couponCode = parsed.coupon;
+                        if (parsed.fields) formFields = parsed.fields;
+                    } else if (Array.isArray(parsed)) {
+                        cartItems = parsed;
+                    }
+
+                    window.cart = cartItems.map(function(pkg) {
+                        if (typeof pkg.isMultiple === 'undefined' && typeof getPackageMultipleFromDom === 'function') {
+                            pkg.isMultiple = getPackageMultipleFromDom(pkg.packageId);
+                        }
+                        return pkg;
+                    });
+
+                    if (typeof cart !== 'undefined') {
+                        cart = window.cart;
+                    }
+
+                    if (typeof window.renderCart === 'function') window.renderCart();
+                    if (typeof window.calculateCartTotal === 'function') window.calculateCartTotal();
+                    if (typeof syncTransportationStateFromCart === 'function') syncTransportationStateFromCart();
+
+                    if (window.cart.length > 0) {
+                        $('#package_id').val(window.cart[0].packageId);
+                        $('.package_number_of_guest').val(window.cart[0].guests);
+                        window.cart.forEach(function(pkg) {
+                            $('.package_number_of_guestss[data-id="' + pkg.packageId + '"]').val(pkg.guests || 1);
+                            $('#pkg-card-' + pkg.packageId).addClass('selected');
                         });
-                        // Set package selection and guest count
-                        if(params.package) {
-                            var sel = $('.package_number_of_guestss[data-id="'+params.package+'"]');
-                            if(params.guests && sel.length) {
-                                sel.val(params.guests).trigger('change');
-                            }
-                        }
-                        // Show all add-ons and check those in params
-                        if(params.addons) {
-                            var ids = params.addons.split(',');
-                            // Show add-ons section
-                            $('.addons').show();
-                            ids.forEach(function(id) {
-                                var cb = $('.addons-list input[type="checkbox"]#'+id);
-                                if(cb.length && !cb.prop('checked')) {
-                                    cb.prop('checked', true).trigger('click');
-                                }
-                            });
-                        }
-                        // Show cost breakdown
+                        $('#cart-section').show();
+                        $('#shareLinkContainer').show();
                         $('.dynamic-price').show();
                         $('.default-price').hide();
-                        $('.default-total').show();
-                    }, 700);
-                        // Keep selected date synced to hidden checkout field.
-                        var desiredDate = params.use_date || '';
-                        if ($('#package_use_date option[value="' + desiredDate + '"]').length) {
-                            $('#package_use_date').val(desiredDate);
-                        } else {
-                            $('#package_use_date').val('');
+                    }
+
+                    // Restore Promo Code
+                    if (couponCode) {
+                        $('#promo_code').val(couponCode);
+                        setTimeout(function() {
+                            $('#applyPromoBtn').trigger('click');
+                        }, 500);
+                    }
+
+                    // Restore Form Fields
+                    if (formFields && Object.keys(formFields).length > 0) {
+                        setTimeout(function() {
+                            Object.keys(formFields).forEach(function(key) {
+                                var val = formFields[key];
+                                var target = $('[name="' + key + '"], #' + key);
+
+                                if (target.length) {
+                                    if (target.is(':checkbox')) {
+                                        target.prop('checked', !!val).trigger('change');
+                                    } else if (target.is(':radio')) {
+                                        target.filter('[value="' + val + '"]').prop('checked', true).trigger('change');
+                                    } else {
+                                        target.val(val).trigger('change').trigger('input');
+                                        if (target[0] && target[0]._flatpickr) {
+                                            try {
+                                                target[0]._flatpickr.setDate(val, true);
+                                            } catch(err) {}
+                                        }
+                                    }
+                                }
+                            });
+
+                            // Special handling for package_use_date
+                            if (formFields.package_use_date) {
+                                var dateEl = $('#package_use_date, input[name="package_use_date"], .package_use_date');
+                                if (dateEl.length) {
+                                    dateEl.val(formFields.package_use_date).trigger('change');
+                                    if (dateEl[0] && dateEl[0]._flatpickr) {
+                                        try {
+                                            dateEl[0]._flatpickr.setDate(formFields.package_use_date, true);
+                                        } catch(e) {}
+                                    }
+                                }
+                            }
+
+                            // Special handling for businessExpenseCheckbox
+                            if (formFields.businessExpenseCheckbox) {
+                                $('#businessExpenseCheckbox').prop('checked', true).trigger('change');
+                                $('#businessFields').show();
+                                if (typeof setBusinessFieldsRequired === 'function') {
+                                    setBusinessFieldsRequired(true);
+                                }
+                            }
+                        }, 300);
+                    }
+
+                    if (window.cart.length > 0) {
+                        $('#checkout-steps').show();
+                        if (typeof showStep === 'function') {
+                            showStep(1);
                         }
-                        $('.package_use_date').val($('#package_use_date').val());
+                    }
+                } catch(e) {
+                    console.error('Error in setSelectionsFromParams:', e);
+                }
             }
+
+            
 
             function getUrlWithSelections() {
                 var sel = getCurrentSelections();
