@@ -459,6 +459,13 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::match(['get', 'post'], '/{report}/export', [ReportController::class, 'export'])->name('export');
     });
 
+    // Analytics V2 (Executive Hub)
+    Route::group(['prefix' => 'analytics/v2', 'as' => 'analytics.v2.'], function () {
+        Route::get('/', [AnalyticsV2Controller::class, 'index'])->name('index');
+        Route::get('/data', [AnalyticsV2Controller::class, 'getData'])->name('data');
+        Route::get('/export', [AnalyticsV2Controller::class, 'export'])->name('export');
+    });
+
     // Custom Drag & Drop Form Builder
     Route::group(['prefix' => 'forms', 'as' => 'forms.'], function () {
         Route::get('/', [CustomFormController::class, 'index'])->name('index');
