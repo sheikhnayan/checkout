@@ -20,8 +20,12 @@ class JobMarketplaceController extends Controller
         $baseQuery = JobPost::where('status', true)->where('is_archived', false);
 
         $locations = (clone $baseQuery)->whereNotNull('location')->where('location', '!=', '')->distinct()->orderBy('location')->pluck('location');
-        $states = (clone $baseQuery)->whereNotNull('state')->where('state', '!=', '')->distinct()->orderBy('state')->pluck('state');
-        $cities = (clone $baseQuery)->whereNotNull('city')->where('city', '!=', '')->distinct()->orderBy('city')->pluck('city');
+        $states = \Illuminate\Support\Facades\Schema::hasColumn('job_posts', 'state')
+            ? (clone $baseQuery)->whereNotNull('state')->where('state', '!=', '')->distinct()->orderBy('state')->pluck('state')
+            : collect();
+        $cities = \Illuminate\Support\Facades\Schema::hasColumn('job_posts', 'city')
+            ? (clone $baseQuery)->whereNotNull('city')->where('city', '!=', '')->distinct()->orderBy('city')->pluck('city')
+            : collect();
 
         return view('jobs.marketplace', [
             'jobs' => $jobs,
@@ -154,6 +158,10 @@ class JobMarketplaceController extends Controller
 
     private function marketplaceQuery(Request $request)
     {
+        $hasState = \Illuminate\Support\Facades\Schema::hasColumn('job_posts', 'state');
+        $hasCity = \Illuminate\Support\Facades\Schema::hasColumn('job_posts', 'city');
+        $hasPayFrequency = \Illuminate\Support\Facades\Schema::hasColumn('job_posts', 'pay_frequency');
+
         return JobPost::with('website')
             ->where('status', true)
             ->where('is_archived', false)
@@ -163,13 +171,13 @@ class JobMarketplaceController extends Controller
             ->when($request->filled('employment_type'), function ($query) use ($request) {
                 $query->where('employment_type', $request->employment_type);
             })
-            ->when($request->filled('pay_frequency'), function ($query) use ($request) {
+            ->when($request->filled('pay_frequency') && $hasPayFrequency, function ($query) use ($request) {
                 $query->where('pay_frequency', $request->pay_frequency);
             })
-            ->when($request->filled('state'), function ($query) use ($request) {
+            ->when($request->filled('state') && $hasState, function ($query) use ($request) {
                 $query->where('state', $request->state);
             })
-            ->when($request->filled('city'), function ($query) use ($request) {
+            ->when($request->filled('city') && $hasCity, function ($query) use ($request) {
                 $query->where('city', $request->city);
             })
             ->when($request->filled('location'), function ($query) use ($request) {
