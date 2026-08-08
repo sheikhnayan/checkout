@@ -1218,7 +1218,6 @@ class ReportController extends Controller
                 'Guests',
                 'Total Amount ($)',
                 'Payment Gateway',
-                'Status',
             ]);
 
             foreach ($transactions as $tx) {
@@ -1240,7 +1239,6 @@ class ReportController extends Controller
                     $tx->package_number_of_guest ?? 1,
                     number_format((float) ($tx->total ?? 0), 2, '.', ''),
                     $tx->payment_gateway ?: 'N/A',
-                    $tx->status ?: 'completed',
                 ]);
             }
 

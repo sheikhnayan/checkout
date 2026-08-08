@@ -47,7 +47,6 @@
                 <th>Package</th>
                 <th>Guests</th>
                 <th>Total</th>
-                <th>Status</th>
             </tr>
         </thead>
         <tbody>
@@ -68,11 +67,10 @@
                     <td>{{ $tx->package_table_label ?: (optional($tx->package)->name ?: 'N/A') }}</td>
                     <td>{{ $tx->package_number_of_guest ?? 1 }}</td>
                     <td>${{ number_format((float)($tx->total ?? 0), 2) }}</td>
-                    <td>{{ ucfirst($tx->status ?: 'completed') }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="10" style="text-align: center; padding: 20px;">No transactions found.</td>
+                    <td colspan="9" style="text-align: center; padding: 20px;">No transactions found.</td>
                 </tr>
             @endforelse
         </tbody>

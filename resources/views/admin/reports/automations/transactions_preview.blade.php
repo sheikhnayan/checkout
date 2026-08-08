@@ -180,7 +180,6 @@
                                 <th>Guests</th>
                                 <th>Total</th>
                                 <th>Gateway</th>
-                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -213,17 +212,10 @@
                                     <td class="text-center">{{ $tx->package_number_of_guest ?? 1 }}</td>
                                     <td class="fw-bold text-success">${{ number_format((float)($tx->total ?? 0), 2) }}</td>
                                     <td><span class="badge bg-dark border border-secondary text-uppercase">{{ $tx->payment_gateway ?: 'N/A' }}</span></td>
-                                    <td>
-                                        @if(($tx->status ?? 'completed') === 'completed')
-                                            <span class="badge bg-success">Completed</span>
-                                        @else
-                                            <span class="badge bg-warning text-dark">{{ ucfirst($tx->status) }}</span>
-                                        @endif
-                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="11" class="text-center py-5 text-muted">
+                                    <td colspan="10" class="text-center py-5 text-muted">
                                         <i class="fas fa-inbox fa-3x mb-3 d-block opacity-50"></i>
                                         No transactions found matching the selected criteria.
                                     </td>
