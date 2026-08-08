@@ -509,12 +509,12 @@
             <span class="info-value">{{ $transaction->transportation_phone }}</span>
         </div>
         @endif --}}
-        @if($transaction->transportation_guest)
+        <!-- @if($transaction->transportation_guest)
         <div class="info-row">
             <span class="info-label">Transportation Guests</span>
             <span class="info-value">{{ $transaction->transportation_guest }}</span>
         </div>
-        @endif
+        @endif -->
         @if($transaction->host_name)
         <div class="info-row">
             <span class="info-label">Host Name</span>
