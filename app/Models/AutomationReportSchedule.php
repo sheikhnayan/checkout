@@ -14,6 +14,8 @@ class AutomationReportSchedule extends Model
         'name',
         'frequency',
         'report_period_type',
+        'export_type',
+        'hostname_filter',
         'website_ids',
         'email_recipients',
         'timezone',

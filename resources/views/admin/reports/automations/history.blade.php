@@ -21,6 +21,7 @@
                         <tr>
                             <th>#</th>
                             <th>Schedule</th>
+                            <th>Report Mode</th>
                             <th>Status</th>
                             <th>Recipients</th>
                             <th>Sent At</th>
@@ -30,9 +31,29 @@
                         </thead>
                         <tbody>
                         @foreach($runs as $run)
+                            @php
+                                $exportType = $run->report_params['export_type'] ?? optional($run->schedule)->export_type ?: 'executive';
+                                $hostnameFilter = $run->report_params['hostname_filter'] ?? optional($run->schedule)->hostname_filter ?: 'all';
+                            @endphp
                             <tr>
                                 <td>{{ $run->id }}</td>
                                 <td>{{ optional($run->schedule)->name ?: 'N/A' }}</td>
+                                <td>
+                                    @if($exportType === 'transactions_only')
+                                        <span class="badge bg-info text-dark">Transactions Only</span>
+                                        <div class="small text-muted mt-1">
+                                            @if($hostnameFilter === 'with_hostname')
+                                                <span class="badge bg-primary" style="font-size: 0.7rem;">WITH Host Name Only</span>
+                                            @elseif($hostnameFilter === 'without_hostname')
+                                                <span class="badge bg-secondary" style="font-size: 0.7rem;">WITHOUT Host Name Only</span>
+                                            @else
+                                                <span class="badge bg-dark border border-secondary" style="font-size: 0.7rem;">All Host Names</span>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <span class="badge bg-primary">Executive Analytics</span>
+                                    @endif
+                                </td>
                                 <td>
                                     @if($run->status === 'sent')
                                         <span class="badge bg-success">Sent</span>

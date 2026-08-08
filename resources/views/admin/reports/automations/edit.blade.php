@@ -51,7 +51,32 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Report Type</label>
+                        <label class="form-label">Report Content / Mode</label>
+                        @php
+                            $exportTypeVal = old('export_type', $schedule->export_type ?: 'executive');
+                        @endphp
+                        <select name="export_type" class="form-select" id="exportType" required>
+                            <option value="executive" {{ $exportTypeVal === 'executive' ? 'selected' : '' }}>Executive Analytics Report (Full Dashboard)</option>
+                            <option value="transactions_only" {{ $exportTypeVal === 'transactions_only' ? 'selected' : '' }}>Transactions Only Export</option>
+                        </select>
+                        <small class="text-muted">Choose whether to send full executive analytics or a list of transactions.</small>
+                    </div>
+
+                    <div class="col-md-6" id="hostnameFilterGroup" style="{{ $exportTypeVal === 'transactions_only' ? '' : 'display: none;' }}">
+                        <label class="form-label">Host Name Filter</label>
+                        @php
+                            $hostFilterVal = old('hostname_filter', $schedule->hostname_filter ?: 'all');
+                        @endphp
+                        <select name="hostname_filter" class="form-select" id="hostnameFilter">
+                            <option value="all" {{ $hostFilterVal === 'all' ? 'selected' : '' }}>All Transactions (With & Without Host Name)</option>
+                            <option value="with_hostname" {{ $hostFilterVal === 'with_hostname' ? 'selected' : '' }}>Only Transactions WITH Host Name</option>
+                            <option value="without_hostname" {{ $hostFilterVal === 'without_hostname' ? 'selected' : '' }}>Only Transactions WITHOUT Host Name</option>
+                        </select>
+                        <small class="text-muted">Filter which transactions are included based on Host Name presence.</small>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Report Date Range</label>
                         @php
                             $reportType = old('report_period_type', $schedule->report_period_type ?: ($schedule->frequency === 'custom_month_range' ? 'custom_range' : $schedule->frequency));
                         @endphp
@@ -287,12 +312,22 @@
         customTo.classList.toggle('d-none', value !== 'custom_range');
     }
 
+    const exportType = document.getElementById('exportType');
+    const hostnameFilterGroup = document.getElementById('hostnameFilterGroup');
+
+    function updateExportTypeVisibility() {
+        if (!exportType || !hostnameFilterGroup) return;
+        hostnameFilterGroup.style.display = exportType.value === 'transactions_only' ? 'block' : 'none';
+    }
+
     renderClubs();
     renderRecipients();
     frequency.addEventListener('change', updateFrequencyVisibility);
     reportPeriodType.addEventListener('change', updateReportTypeVisibility);
+    if (exportType) exportType.addEventListener('change', updateExportTypeVisibility);
     updateFrequencyVisibility();
     updateReportTypeVisibility();
+    updateExportTypeVisibility();
 })();
 </script>
 

@@ -113,64 +113,61 @@ class AutomationReportSchedulerService
                 : $schedule->frequency;
         }
 
+        $payload = [
+            'date_range' => 'last_30_days',
+            'timezone' => $tz,
+        ];
+
         if ($periodType === 'daily') {
             $start = $runAt->copy()->startOfDay();
             $end = $runAt->copy()->endOfDay();
 
-            return [
+            $payload = [
                 'period' => 'daily',
                 'date_range' => 'custom',
                 'custom_from' => $start->toDateString(),
                 'custom_to' => $end->toDateString(),
                 'timezone' => $tz,
             ];
-        }
-
-        if ($periodType === 'weekly') {
+        } elseif ($periodType === 'weekly') {
             $start = $runAt->copy()->subDays(6)->startOfDay();
             $end = $runAt->copy()->endOfDay();
 
-            return [
+            $payload = [
                 'period' => 'weekly',
                 'date_range' => 'custom',
                 'custom_from' => $start->toDateString(),
                 'custom_to' => $end->toDateString(),
                 'timezone' => $tz,
             ];
-        }
-
-        if ($periodType === 'monthly') {
+        } elseif ($periodType === 'monthly') {
             $start = $runAt->copy()->subDays(29)->startOfDay();
             $end = $runAt->copy()->endOfDay();
 
-            return [
+            $payload = [
                 'period' => 'monthly',
                 'date_range' => 'custom',
                 'custom_from' => $start->toDateString(),
                 'custom_to' => $end->toDateString(),
                 'timezone' => $tz,
             ];
-        }
-
-        if ($periodType === 'yearly') {
+        } elseif ($periodType === 'yearly') {
             $start = $runAt->copy()->subDays(364)->startOfDay();
             $end = $runAt->copy()->endOfDay();
 
-            return [
+            $payload = [
                 'period' => 'yearly',
                 'date_range' => 'custom',
                 'custom_from' => $start->toDateString(),
                 'custom_to' => $end->toDateString(),
                 'timezone' => $tz,
             ];
-        }
-
-        if ($periodType === 'custom_range') {
+        } elseif ($periodType === 'custom_range') {
             $from = $schedule->custom_from_month;
             $to = $schedule->custom_to_month;
 
             if ($from && $to) {
-                return [
+                $payload = [
                     'period' => 'custom',
                     'date_range' => 'custom',
                     'custom_from' => $from->copy()->toDateString(),
@@ -180,9 +177,9 @@ class AutomationReportSchedulerService
             }
         }
 
-        return [
-            'date_range' => 'last_30_days',
-            'timezone' => $tz,
-        ];
+        $payload['export_type'] = $schedule->export_type ?: 'executive';
+        $payload['hostname_filter'] = $schedule->hostname_filter ?: 'all';
+
+        return $payload;
     }
 }

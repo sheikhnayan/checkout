@@ -53,7 +53,26 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Report Type</label>
+                            <label class="form-label">Report Content / Mode</label>
+                            <select name="export_type" class="form-select" id="exportType" required>
+                                <option value="executive" {{ old('export_type', 'executive') === 'executive' ? 'selected' : '' }}>Executive Analytics Report (Full Dashboard)</option>
+                                <option value="transactions_only" {{ old('export_type') === 'transactions_only' ? 'selected' : '' }}>Transactions Only Export</option>
+                            </select>
+                            <small class="text-muted">Choose whether to send full executive analytics or a list of transactions.</small>
+                        </div>
+
+                        <div class="mb-3" id="hostnameFilterGroup" style="{{ old('export_type') === 'transactions_only' ? '' : 'display: none;' }}">
+                            <label class="form-label">Host Name Filter</label>
+                            <select name="hostname_filter" class="form-select" id="hostnameFilter">
+                                <option value="all" {{ old('hostname_filter', 'all') === 'all' ? 'selected' : '' }}>All Transactions (With & Without Host Name)</option>
+                                <option value="with_hostname" {{ old('hostname_filter') === 'with_hostname' ? 'selected' : '' }}>Only Transactions WITH Host Name</option>
+                                <option value="without_hostname" {{ old('hostname_filter') === 'without_hostname' ? 'selected' : '' }}>Only Transactions WITHOUT Host Name</option>
+                            </select>
+                            <small class="text-muted">Filter which transactions are included based on Host Name presence.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Report Date Range</label>
                             <select name="report_period_type" class="form-select" id="reportPeriodType" required>
                                 <option value="daily" {{ old('report_period_type') === 'daily' ? 'selected' : '' }}>Daily Data</option>
                                 <option value="weekly" {{ old('report_period_type', 'weekly') === 'weekly' ? 'selected' : '' }}>Weekly Data</option>
@@ -172,8 +191,9 @@
                                 <thead>
                                 <tr>
                                     <th>Name</th>
+                                    <th>Report Mode</th>
                                     <th>Send Frequency</th>
-                                    <th>Report Type</th>
+                                    <th>Report Range</th>
                                     <th>Next Run</th>
                                     <th>Status</th>
                                     <th class="text-end">Actions</th>
@@ -185,6 +205,22 @@
                                         <td>
                                             <div class="fw-semibold">{{ $schedule->name }}</div>
                                             <div class="small text-muted">{{ count($schedule->email_recipients ?? []) }} recipients</div>
+                                        </td>
+                                        <td>
+                                            @if($schedule->export_type === 'transactions_only')
+                                                <span class="badge bg-info text-dark">Transactions Only</span>
+                                                <div class="small text-muted mt-1">
+                                                    @if($schedule->hostname_filter === 'with_hostname')
+                                                        <span class="badge bg-primary" style="font-size: 0.7rem;">WITH Host Name Only</span>
+                                                    @elseif($schedule->hostname_filter === 'without_hostname')
+                                                        <span class="badge bg-secondary" style="font-size: 0.7rem;">WITHOUT Host Name Only</span>
+                                                    @else
+                                                        <span class="badge bg-dark border border-secondary" style="font-size: 0.7rem;">All Host Names</span>
+                                                    @endif
+                                                </div>
+                                            @else
+                                                <span class="badge bg-primary">Executive Analytics</span>
+                                            @endif
                                         </td>
                                         <td>{{ ucfirst(str_replace('_', ' ', $schedule->frequency)) }}</td>
                                         <td>{{ ucfirst(str_replace('_', ' ', $schedule->report_period_type ?: ($schedule->frequency === 'custom_month_range' ? 'custom_range' : $schedule->frequency))) }}</td>
@@ -359,12 +395,22 @@
         customRange.classList.toggle('d-none', value !== 'custom_range');
     }
 
+    const exportType = document.getElementById('exportType');
+    const hostnameFilterGroup = document.getElementById('hostnameFilterGroup');
+
+    function updateExportTypeVisibility() {
+        if (!exportType || !hostnameFilterGroup) return;
+        hostnameFilterGroup.style.display = exportType.value === 'transactions_only' ? 'block' : 'none';
+    }
+
     renderClubs();
     renderRecipients();
     frequency.addEventListener('change', updateFrequencyVisibility);
     reportPeriodType.addEventListener('change', updateReportTypeVisibility);
+    if (exportType) exportType.addEventListener('change', updateExportTypeVisibility);
     updateFrequencyVisibility();
     updateReportTypeVisibility();
+    updateExportTypeVisibility();
 })();
 </script>
 

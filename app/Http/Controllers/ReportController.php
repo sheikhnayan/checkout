@@ -468,6 +468,9 @@ class ReportController extends Controller
      */
     public function automationPreview(Request $request)
     {
+        $exportType = (string) $request->get('export_type', 'executive');
+        $hostnameFilter = (string) $request->get('hostname_filter', 'all');
+
         $timezone = 'America/Los_Angeles';
         [$startAt, $endAt, $periodLabel] = $this->resolveAutomationDateRange($request, $timezone);
         $websiteIds = $this->resolveAutomationWebsiteIds($request);
@@ -482,6 +485,49 @@ class ReportController extends Controller
 
         if (!empty($websiteIds)) {
             $txQuery->whereIn('website_id', $websiteIds);
+        }
+
+        if ($exportType === 'transactions_only') {
+            if ($hostnameFilter === 'with_hostname') {
+                $txQuery->whereNotNull('host_name')->where('host_name', '!=', '');
+            } elseif ($hostnameFilter === 'without_hostname') {
+                $txQuery->where(function ($q) {
+                    $q->whereNull('host_name')->orWhere('host_name', '');
+                });
+            }
+
+            $transactions = $txQuery->latest('id')->get();
+
+            $selectedWebsites = Website::query()
+                ->when(!empty($websiteIds), fn ($q) => $q->whereIn('id', $websiteIds))
+                ->orderBy('name')
+                ->get(['id', 'name']);
+
+            if ($request->get('format') === 'csv' || $request->boolean('csv')) {
+                return $this->downloadTransactionsCsv($transactions, $periodLabel);
+            }
+
+            $payload = [
+                'transactions' => $transactions,
+                'selectedWebsites' => $selectedWebsites,
+                'periodLabel' => $periodLabel,
+                'startAt' => $startAt,
+                'endAt' => $endAt,
+                'timezone' => $timezone,
+                'exportType' => $exportType,
+                'hostnameFilter' => $hostnameFilter,
+                'generatedAt' => now(),
+            ];
+
+            if ($request->boolean('interactive')) {
+                return view('admin.reports.automations.transactions_preview', $payload);
+            }
+
+            $pdf = Pdf::loadView('admin.reports.automations.transactions_pdf', $payload)
+                ->setPaper('a4', 'landscape')
+                ->setOption(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true]);
+
+            return $pdf->stream('Transactions-Report.pdf');
         }
 
         $transactions = $txQuery->get();
@@ -1145,6 +1191,65 @@ class ReportController extends Controller
         return $pdf->stream($filename);
     }
 
+    private function downloadTransactionsCsv($transactions, string $periodLabel)
+    {
+        $filename = 'Transactions-Report-' . Str::slug($periodLabel) . '-' . now()->format('YmdHis') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        $callback = function () use ($transactions) {
+            $file = fopen('php://output', 'w');
+
+            fputcsv($file, [
+                'Transaction ID',
+                'Date & Time (PST)',
+                'Club Name',
+                'Host Name',
+                'Customer Name',
+                'Email',
+                'Phone',
+                'Package Name',
+                'Guests',
+                'Total Amount ($)',
+                'Payment Gateway',
+                'Status',
+            ]);
+
+            foreach ($transactions as $tx) {
+                $createdStr = $tx->created_at ? $tx->created_at->copy()->timezone('America/Los_Angeles')->format('Y-m-d H:i:s T') : '';
+                $custName = trim(($tx->package_first_name ?? '') . ' ' . ($tx->package_last_name ?? ''));
+                if (empty($custName)) {
+                    $custName = $tx->package_name ?? 'N/A';
+                }
+
+                fputcsv($file, [
+                    $tx->id,
+                    $createdStr,
+                    optional($tx->website)->name ?? ('Club #' . $tx->website_id),
+                    $tx->host_name ?: 'N/A',
+                    $custName,
+                    $tx->package_email ?: 'N/A',
+                    $tx->package_phone ?: 'N/A',
+                    $tx->package_table_label ?: (optional($tx->package)->name ?: 'N/A'),
+                    $tx->package_number_of_guest ?? 1,
+                    number_format((float) ($tx->total ?? 0), 2, '.', ''),
+                    $tx->payment_gateway ?: 'N/A',
+                    $tx->status ?: 'completed',
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
     private function resolveAutomationDateRange(Request $request, string $timezone): array
     {
         $period = strtolower((string) $request->get('period', 'weekly'));
@@ -1162,43 +1267,26 @@ class ReportController extends Controller
                 'daily' => 'Daily',
                 'monthly' => 'Monthly',
                 'yearly' => 'Yearly',
-                'weekly' => 'Weekly',
-                default => 'Custom',
+                'custom' => 'Custom Range',
+                default => 'Custom Window',
             };
 
             return [$startAt, $endAt, $label];
         }
 
         if ($period === 'daily') {
-            $startAt = $now->copy()->subDay()->startOfDay();
-            $endAt = $now->copy()->subDay()->endOfDay();
-            return [$startAt, $endAt, 'Daily'];
+            return [$now->copy()->startOfDay(), $now->copy()->endOfDay(), 'Daily'];
         }
 
         if ($period === 'monthly') {
-            $startAt = $now->copy()->subMonthNoOverflow()->startOfMonth();
-            $endAt = $startAt->copy()->endOfMonth();
-            return [$startAt, $endAt, 'Monthly'];
+            return [$now->copy()->subDays(29)->startOfDay(), $now->copy()->endOfDay(), 'Monthly (Last 30 Days)'];
         }
 
         if ($period === 'yearly') {
-            $startAt = $now->copy()->subYear()->startOfYear();
-            $endAt = $startAt->copy()->endOfYear();
-            return [$startAt, $endAt, 'Yearly'];
+            return [$now->copy()->subDays(364)->startOfDay(), $now->copy()->endOfDay(), 'Yearly (Last 365 Days)'];
         }
 
-        if ($period === 'custom') {
-            $from = $request->get('from', $customFrom);
-            $to = $request->get('to', $customTo);
-            $startAt = $from ? Carbon::parse($from, $timezone)->startOfDay() : $now->copy()->subDays(6)->startOfDay();
-            $endAt = $to ? Carbon::parse($to, $timezone)->endOfDay() : $now->copy()->endOfDay();
-            return [$startAt, $endAt, 'Custom'];
-        }
-
-        // Weekly default
-        $startAt = $now->copy()->subDays(6)->startOfDay();
-        $endAt = $now->copy()->endOfDay();
-        return [$startAt, $endAt, 'Weekly'];
+        return [$now->copy()->subDays(6)->startOfDay(), $now->copy()->endOfDay(), 'Weekly (Last 7 Days)'];
     }
 
     private function resolveAutomationTimezone(Request $request): string
@@ -1208,25 +1296,16 @@ class ReportController extends Controller
 
     private function resolveAutomationWebsiteIds(Request $request): array
     {
-        $raw = $request->get('website_ids', []);
-
-        if (is_string($raw)) {
-            $parts = array_filter(array_map('trim', explode(',', $raw)));
-            $ids = array_map('intval', $parts);
-        } elseif (is_array($raw)) {
-            $ids = array_map('intval', $raw);
-        } else {
-            $ids = [];
+        $raw = $request->input('website_ids');
+        if (is_array($raw)) {
+            return collect($raw)->map(fn ($id) => (int) $id)->filter(fn ($id) => $id > 0)->values()->all();
         }
 
-        $ids = array_values(array_unique(array_filter($ids, fn ($v) => $v > 0)));
-
-        $user = auth()->user();
-        if (!empty($user?->website_id)) {
-            return [(int) $user->website_id];
+        if (is_string($raw) && trim($raw) !== '') {
+            return collect(explode(',', $raw))->map(fn ($id) => (int) trim($id))->filter(fn ($id) => $id > 0)->values()->all();
         }
 
-        return $ids;
+        return [];
     }
 
     public function automationSchedules(Request $request)
@@ -1391,6 +1470,8 @@ class ReportController extends Controller
             'name' => 'required|string|max:255',
             'frequency' => 'required|in:daily,weekly,monthly,yearly',
             'report_period_type' => 'required|in:daily,weekly,monthly,yearly,custom_range',
+            'export_type' => 'nullable|in:executive,transactions_only',
+            'hostname_filter' => 'nullable|in:all,with_hostname,without_hostname',
             'website_ids' => 'required|array|min:1',
             'website_ids.*' => 'integer|exists:websites,id',
             'email_recipients' => 'required',
@@ -1469,6 +1550,8 @@ class ReportController extends Controller
             'name' => $validated['name'],
             'frequency' => $validated['frequency'],
             'report_period_type' => $validated['report_period_type'],
+            'export_type' => $validated['export_type'] ?? 'executive',
+            'hostname_filter' => $validated['hostname_filter'] ?? 'all',
             'website_ids' => $requestedWebsiteIds,
             'email_recipients' => $emails->all(),
             'timezone' => 'America/Los_Angeles',
@@ -1541,6 +1624,8 @@ class ReportController extends Controller
         $params = array_merge($rangePayload, [
             'website_ids' => $schedule->website_ids ?? [],
             'timezone' => $schedule->timezone ?: 'America/Los_Angeles',
+            'export_type' => $schedule->export_type ?: 'executive',
+            'hostname_filter' => $schedule->hostname_filter ?: 'all',
         ]);
 
         $run = AutomationReportRun::create([
@@ -1561,9 +1646,20 @@ class ReportController extends Controller
 
             $tz = 'America/Los_Angeles';
             $pstNow = now()->setTimezone($tz);
+            $modeLabel = ($schedule->export_type === 'transactions_only') ? 'Transactions Only' : 'Executive Analytics';
+            $hostnameText = match ($schedule->hostname_filter) {
+                'with_hostname' => 'WITH Host Name Only',
+                'without_hostname' => 'WITHOUT Host Name Only',
+                default => 'All Transactions',
+            };
+
             $subject = 'Automation Report: ' . $schedule->name;
             $body = "Your automated report is ready.\n\n";
             $body .= "Schedule: {$schedule->name}\n";
+            $body .= "Report Mode: {$modeLabel}\n";
+            if ($schedule->export_type === 'transactions_only') {
+                $body .= "Host Name Filter: {$hostnameText}\n";
+            }
             $body .= "Frequency: {$schedule->frequency}\n";
             $body .= "Generated at: " . $pstNow->format('Y-m-d h:i:s A T') . "\n\n";
             $body .= "Preview/Download link:\n{$signedUrl}\n\n";
