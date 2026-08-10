@@ -160,7 +160,51 @@
                                 @if($required)<span class="text-danger">*</span>@endif
                             </label>
 
-                            @if($type === 'textarea')
+                            @if($type === 'name')
+                                @php $format = $field['format'] ?? 'first_last'; @endphp
+                                @if($format === 'first_middle_last')
+                                    <div class="row g-2">
+                                        <div class="col-4">
+                                            <input type="text" name="{{ $key }}[first]" class="form-control" placeholder="First Name" {{ $required ? 'required' : '' }}>
+                                            <div class="form-text text-muted micro-text mt-1">First</div>
+                                        </div>
+                                        <div class="col-4">
+                                            <input type="text" name="{{ $key }}[middle]" class="form-control" placeholder="Middle Name">
+                                            <div class="form-text text-muted micro-text mt-1">Middle</div>
+                                        </div>
+                                        <div class="col-4">
+                                            <input type="text" name="{{ $key }}[last]" class="form-control" placeholder="Last Name" {{ $required ? 'required' : '' }}>
+                                            <div class="form-text text-muted micro-text mt-1">Last</div>
+                                        </div>
+                                    </div>
+                                @elseif($format === 'simple')
+                                    <input type="text" name="{{ $key }}" class="form-control" placeholder="{{ $placeholder ?: 'Full Name' }}" {{ $required ? 'required' : '' }}>
+                                @else
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <input type="text" name="{{ $key }}[first]" class="form-control" placeholder="" {{ $required ? 'required' : '' }}>
+                                            <div class="form-text text-muted micro-text mt-1">First</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="text" name="{{ $key }}[last]" class="form-control" placeholder="" {{ $required ? 'required' : '' }}>
+                                            <div class="form-text text-muted micro-text mt-1">Last</div>
+                                        </div>
+                                    </div>
+                                @endif
+
+                            @elseif($type === 'phone')
+                                <div class="input-group">
+                                    <button class="btn btn-outline-secondary dropdown-toggle text-white border-secondary bg-dark" type="button">🇺🇸 ▾</button>
+                                    <input type="tel" name="{{ $key }}" class="form-control" placeholder="{{ $placeholder ?: 'Phone Number' }}" {{ $required ? 'required' : '' }}>
+                                </div>
+
+                            @elseif($type === 'captcha')
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fw-bold text-white fs-5 font-monospace" style="letter-spacing:2px;">14 + 14 =</span>
+                                    <input type="text" name="{{ $key }}" class="form-control" style="width: 120px;" placeholder="" required>
+                                </div>
+
+                            @elseif($type === 'textarea')
                                 <textarea name="{{ $key }}" class="form-control" rows="4" placeholder="{{ $placeholder }}" {{ $required ? 'required' : '' }}>{{ old($key) }}</textarea>
                             
                             @elseif($type === 'select')
