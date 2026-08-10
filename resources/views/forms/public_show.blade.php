@@ -189,7 +189,17 @@
                                 </div>
 
                             @elseif($type === 'file')
-                                <input type="file" name="{{ $key }}" class="form-control" {{ $required ? 'required' : '' }}>
+                                @php
+                                    $exts = !empty($field['allowed_extensions']) ? implode(', ', array_filter(array_map('trim', explode(',', $field['allowed_extensions'])))) : 'pdf, doc, docx, png, jpg';
+                                    $maxMb = !empty($field['max_file_size']) ? $field['max_file_size'] : 5;
+                                    $maxCount = !empty($field['max_file_uploads']) ? $field['max_file_uploads'] : 1;
+                                    $acceptArr = !empty($field['allowed_extensions']) ? array_filter(array_map('trim', explode(',', $field['allowed_extensions']))) : ['pdf', 'doc', 'docx', 'png', 'jpg'];
+                                    $acceptAttr = '.' . implode(',.', $acceptArr);
+                                @endphp
+                                <input type="file" name="{{ $key }}{{ $maxCount > 1 ? '[]' : '' }}" class="form-control" accept="{{ $acceptAttr }}" {{ $maxCount > 1 ? 'multiple' : '' }} {{ $required ? 'required' : '' }}>
+                                <div class="form-text text-muted small mt-1">
+                                    <i class="bx bx-info-circle me-1"></i>Supported formats: <strong>{{ $exts }}</strong> | Max size: <strong>{{ $maxMb }}MB</strong> @if($maxCount > 1)| Max files: <strong>{{ $maxCount }}</strong>@endif
+                                </div>
 
                             @else
                                 <input type="{{ $type === 'phone' ? 'tel' : $type }}" name="{{ $key }}" class="form-control" placeholder="{{ $placeholder }}" value="{{ old($key) }}" {{ $required ? 'required' : '' }}>

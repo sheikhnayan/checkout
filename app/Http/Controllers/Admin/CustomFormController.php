@@ -405,7 +405,16 @@ class CustomFormController extends Controller
             } elseif ($type === 'number') {
                 $fieldRules[] = 'numeric';
             } elseif ($type === 'file') {
-                $fieldRules[] = 'file|max:10240';
+                $allowedExt = !empty($f['allowed_extensions']) ? array_filter(array_map('trim', explode(',', $f['allowed_extensions']))) : ['pdf', 'doc', 'docx', 'png', 'jpg'];
+                $allowedExtStr = implode(',', $allowedExt);
+                $maxMb = !empty($f['max_file_size']) ? (int) $f['max_file_size'] : 5;
+                $maxKb = $maxMb * 1024;
+                
+                $fieldRules[] = 'file';
+                if (!empty($allowedExtStr)) {
+                    $fieldRules[] = 'mimes:' . $allowedExtStr;
+                }
+                $fieldRules[] = 'max:' . $maxKb;
             }
 
             if (!empty($fieldRules)) {
@@ -413,9 +422,18 @@ class CustomFormController extends Controller
             }
 
             if ($request->hasFile($key)) {
-                $file = $request->file($key);
-                $path = $file->store('form_uploads', 'public');
-                $submissionData[$key] = Storage::url($path);
+                $files = $request->file($key);
+                if (is_array($files)) {
+                    $urls = [];
+                    foreach ($files as $file) {
+                        $path = $file->store('form_uploads', 'public');
+                        $urls[] = Storage::url($path);
+                    }
+                    $submissionData[$key] = implode(', ', $urls);
+                } else {
+                    $path = $files->store('form_uploads', 'public');
+                    $submissionData[$key] = Storage::url($path);
+                }
             } else {
                 $submissionData[$key] = $request->input($key);
             }
