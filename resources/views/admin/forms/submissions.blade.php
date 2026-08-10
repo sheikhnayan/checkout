@@ -4,9 +4,19 @@
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
         
-        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        @php
+            $fieldMap = [];
+            foreach (($form->fields_schema ?: []) as $f) {
+                $key = $f['name'] ?? $f['id'] ?? null;
+                if ($key) {
+                    $fieldMap[$key] = $f['label'] ?? $key;
+                }
+            }
+        @endphp
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
             <div>
-                <h4 class="mb-1 text-white"><i class="bx bx-receipt me-2"></i>Submissions for: {{ $form->title }}</h4>
+                <h4 class="mb-1 text-white fw-bold"><i class="bx bx-receipt me-2 text-primary"></i>Submissions for: {{ $form->title }}</h4>
                 <p class="text-muted mb-0 small">Viewing all submitted data records collected through this form.</p>
             </div>
             <div class="d-flex gap-2">
@@ -20,9 +30,9 @@
         </div>
 
         <!-- Submissions Table Card -->
-        <div class="card">
+        <div class="card bg-dark text-white border-secondary">
             <div class="table-responsive text-nowrap">
-                <table class="table table-hover">
+                <table class="table table-hover align-middle">
                     <thead>
                         <tr class="table-dark">
                             <th># ID</th>
@@ -49,11 +59,14 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <div class="small text-truncate" style="max-width: 320px;">
+                                    <div class="d-flex flex-wrap gap-1.5" style="max-width: 450px;">
                                         @foreach(($sub->submission_data ?: []) as $k => $v)
-                                            <span class="badge bg-label-info me-1">
-                                                <strong>{{ ucfirst(str_replace('_', ' ', $k)) }}:</strong> 
-                                                {{ is_array($v) ? implode(', ', $v) : Str::limit((string)$v, 20) }}
+                                            @php
+                                                $fieldLabel = $fieldMap[$k] ?? ucfirst(str_replace(['field_', '_'], ['', ' '], $k));
+                                            @endphp
+                                            <span class="badge bg-dark border border-secondary text-white py-1 px-2.5 font-sans me-1 mb-1 d-inline-flex align-items-center gap-1" style="font-size:0.78rem;">
+                                                <strong class="text-primary">{{ $fieldLabel }}:</strong> 
+                                                <span class="text-light">{{ is_array($v) ? implode(', ', $v) : Str::limit((string)$v, 25) }}</span>
                                             </span>
                                         @endforeach
                                     </div>
@@ -65,7 +78,8 @@
                                             data-date="{{ $sub->created_at ? $sub->created_at->format('M d, Y h:i A') : '' }}"
                                             data-ip="{{ $sub->submitter_ip }}"
                                             data-club="{{ $sub->website ? $sub->website->name : 'General' }}"
-                                            data-payload="{{ json_encode($sub->submission_data) }}">
+                                            data-payload="{{ json_encode($sub->submission_data) }}"
+                                            data-fieldmap="{{ json_encode($fieldMap) }}">
                                         <i class="bx bx-show me-1"></i> Inspect Data
                                     </button>
                                 </td>
@@ -83,7 +97,7 @@
             </div>
 
             @if($submissions->hasPages())
-                <div class="card-footer">
+                <div class="card-footer border-top border-secondary">
                     {{ $submissions->withQueryString()->links() }}
                 </div>
             @endif
@@ -95,24 +109,24 @@
 <!-- Modal Inspection Payload -->
 <div class="modal fade" id="payloadModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content bg-dark text-white">
+        <div class="modal-content bg-dark text-white border-secondary">
             <div class="modal-header border-bottom border-secondary">
-                <h5 class="modal-title text-white"><i class="bx bx-receipt me-2"></i>Submission Details <span id="modalSubId"></span></h5>
+                <h5 class="modal-title text-white"><i class="bx bx-receipt me-2 text-primary"></i>Submission Details <span id="modalSubId" class="text-primary fw-bold"></span></h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="d-flex justify-content-between mb-3 p-2 rounded bg-secondary bg-opacity-25 small">
-                    <div><strong>Submitted At:</strong> <span id="modalDate"></span></div>
-                    <div><strong>Club / Venue:</strong> <span id="modalClub"></span></div>
-                    <div><strong>IP Address:</strong> <span id="modalIp"></span></div>
+                <div class="d-flex flex-wrap justify-content-between mb-3 p-3 rounded bg-secondary bg-opacity-25 small">
+                    <div><strong class="text-muted">Submitted At:</strong> <span id="modalDate" class="text-white"></span></div>
+                    <div><strong class="text-muted">Club / Venue:</strong> <span id="modalClub" class="text-white"></span></div>
+                    <div><strong class="text-muted">IP Address:</strong> <span id="modalIp" class="font-monospace text-white"></span></div>
                 </div>
 
-                <h6 class="text-white mb-2"><i class="bx bx-list-ul me-1"></i>Form Answers</h6>
+                <h6 class="text-white mb-3 fw-bold"><i class="bx bx-list-ul me-1 text-primary"></i>Submitted Field Answers</h6>
                 <div class="table-responsive">
-                    <table class="table table-bordered table-sm text-white">
+                    <table class="table table-bordered table-dark table-sm text-white">
                         <thead>
-                            <tr class="table-dark">
-                                <th style="width: 35%;">Field Name</th>
+                            <tr class="table-secondary text-dark">
+                                <th style="width: 40%;">Field Label</th>
                                 <th>Submitted Value</th>
                             </tr>
                         </thead>
@@ -138,6 +152,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const ip = this.getAttribute('data-ip');
             const club = this.getAttribute('data-club');
             const payload = JSON.parse(this.getAttribute('data-payload') || '{}');
+            const fieldMap = JSON.parse(this.getAttribute('data-fieldmap') || '{}');
 
             document.getElementById('modalSubId').innerText = '#' + id;
             document.getElementById('modalDate').innerText = date;
@@ -148,6 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
             tbody.innerHTML = '';
 
             for (const [key, val] of Object.entries(payload)) {
+                const label = fieldMap[key] || key.replace(/field_/g, '').replace(/_/g, ' ');
                 const tr = document.createElement('tr');
                 let displayVal = val;
                 if (Array.isArray(val)) {
@@ -157,8 +173,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 tr.innerHTML = `
-                    <td class="fw-bold text-info">${key.replace(/_/g, ' ').toUpperCase()}</td>
-                    <td>${displayVal}</td>
+                    <td class="fw-bold text-info">${label}</td>
+                    <td class="text-white">${displayVal}</td>
                 `;
                 tbody.appendChild(tr);
             }
