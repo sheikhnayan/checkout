@@ -510,7 +510,14 @@ class CustomFormController extends Controller
         ]);
 
         $settings = $form->settings ?: [];
-        $successMessage = $settings['success_message'] ?? 'Thank you! Your form submission has been received.';
+        $confirmationSettings = $settings['confirmation'] ?? [];
+        $confType = $confirmationSettings['type'] ?? 'message';
+        $redirectUrl = $confirmationSettings['redirect_url'] ?? null;
+        $successMessage = !empty($confirmationSettings['message']) ? $confirmationSettings['message'] : ($settings['success_message'] ?? 'Thanks for contacting us! We will be in touch with you shortly.');
+
+        if ($confType === 'redirect' && !empty($redirectUrl)) {
+            return redirect()->away($redirectUrl);
+        }
 
         if ($request->wantsJson()) {
             return response()->json([

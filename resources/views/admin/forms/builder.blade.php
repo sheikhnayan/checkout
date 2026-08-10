@@ -13,6 +13,39 @@
     padding: 22px;
 }
 
+/* Primary Top Mode Switcher (Fields vs Settings) */
+.builder-mode-switcher {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 4px;
+    display: inline-flex;
+    gap: 4px;
+}
+.builder-mode-btn {
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.88rem;
+    font-weight: 700;
+    padding: 8px 20px;
+    border-radius: 9px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.builder-mode-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.06);
+}
+.builder-mode-btn.active {
+    background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
+}
+
 /* Header Action Buttons */
 .btn-create-form {
     background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
@@ -89,6 +122,37 @@
     border: 1px solid rgba(124, 58, 237, 0.5);
     color: #ffffff;
     box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
+}
+
+/* Settings Secondary Menu List */
+.settings-menu-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.settings-menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 16px;
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    text-decoration: none;
+}
+.settings-menu-item:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.05);
+}
+.settings-menu-item.active {
+    background: #0284c7;
+    color: #ffffff;
+    border-color: #0369a1;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
 }
 
 /* Sub-tabs under Field Options (General / Advanced / Smart Logic) */
@@ -286,8 +350,8 @@
 .toggle-switch {
     position: relative;
     display: inline-block;
-    width: 48px;
-    height: 26px;
+    width: 46px;
+    height: 24px;
     margin-bottom: 0;
 }
 .toggle-switch-input {
@@ -299,16 +363,16 @@
     position: absolute;
     cursor: pointer;
     top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(255, 255, 255, 0.12);
+    background-color: rgba(255, 255, 255, 0.15);
     transition: 0.25s ease;
     border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.18);
 }
 .toggle-switch-slider::before {
     position: absolute;
     content: "";
-    height: 18px;
-    width: 18px;
+    height: 16px;
+    width: 16px;
     left: 3px;
     bottom: 3px;
     background-color: #ffffff;
@@ -317,8 +381,8 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 .toggle-switch-input:checked + .toggle-switch-slider {
-    background-color: #7c3aed;
-    border-color: #7c3aed;
+    background-color: #0284c7;
+    border-color: #0284c7;
 }
 .toggle-switch-input:checked + .toggle-switch-slider::before {
     transform: translateX(22px);
@@ -332,8 +396,8 @@
     margin-bottom: 8px;
 }
 .btn-choice-icon {
-    width: 20px;
-    height: 18px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     display: inline-flex;
     align-items: center;
@@ -344,6 +408,15 @@
 }
 .btn-choice-add { background: #3b82f6; color: #fff; }
 .btn-choice-remove { background: #ef4444; color: #fff; }
+
+/* Settings Inner Container */
+.settings-section-card {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 20px;
+}
 
 .audit-timeline {
     border-left: 2px solid rgba(255,255,255,0.1);
@@ -375,21 +448,32 @@
                 @method('PUT')
             @endif
 
-            <input type="hidden" name="fields_schema" id="fieldsSchemaInput" value="{{ isset($form) ? json_encode($form->fields_schema) : '[]' }}">
-            <input type="hidden" name="settings" id="settingsInput" value="{{ isset($form) ? json_encode($form->settings) : '{}' }}">
+            @php
+                $initialSettings = isset($form) && is_array($form->settings) ? $form->settings : [];
+            @endphp
 
-            <!-- Header Toolbar -->
+            <input type="hidden" name="fields_schema" id="fieldsSchemaInput" value="{{ isset($form) ? json_encode($form->fields_schema) : '[]' }}">
+            <input type="hidden" name="settings" id="settingsInput" value="{{ json_encode($initialSettings) }}">
+
+            <!-- Header Toolbar & Mode Switcher -->
             <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
-                <div>
-                    <h4 class="mb-1 text-white fw-bold">
-                        <i class="bx bx-slider-alt me-2 text-primary"></i>{{ isset($form) ? 'Edit Form: ' . $form->title : 'Create New Drag & Drop Form' }}
+                <div class="d-flex align-items-center gap-3">
+                    <h4 class="mb-0 text-white fw-bold me-2">
+                        <i class="bx bx-slider-alt me-2 text-primary"></i>{{ isset($form) ? $form->title : 'Create New Form' }}
                     </h4>
-                    <p class="text-muted mb-0 small">Drag components onto the wide layout canvas or reorder fields directly.</p>
+
+                    <!-- Primary Mode Switcher: Fields vs Settings (Matching Reference Images) -->
+                    <div class="builder-mode-switcher">
+                        <button type="button" class="builder-mode-btn active" id="modeFieldsBtn">
+                            <i class="bx bx-list-ul"></i> Fields
+                        </button>
+                        <button type="button" class="builder-mode-btn" id="modeSettingsBtn">
+                            <i class="bx bx-cog"></i> Settings
+                        </button>
+                    </div>
                 </div>
+
                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <button type="button" class="txn-header-btn" data-bs-toggle="modal" data-bs-target="#settingsModal">
-                        <i class="bx bx-cog"></i> Settings & Clubs
-                    </button>
                     @if(isset($form) && $form->activityLogs->count() > 0)
                         <button type="button" class="txn-header-btn" data-bs-toggle="offcanvas" data-bs-target="#auditLogDrawer">
                             <i class="bx bx-history"></i> Audit Logs ({{ $form->activityLogs->count() }})
@@ -402,8 +486,8 @@
                 </div>
             </div>
 
-            <!-- Main Builder Grid (2 Columns: Left Sidebar with Tabs + Wide Right Canvas) -->
-            <div class="row g-4">
+            <!-- MODE 1: FIELDS VIEW (Canvas & Components Inspector) -->
+            <div id="builderModeFieldsView" class="row g-4">
                 
                 <!-- Left Sidebar Column: Tabbed Inspector & Categorized Palette (4 Cols) -->
                 <div class="col-lg-4 col-xl-3.5">
@@ -509,7 +593,7 @@
 
                             <!-- Form Meta Info Section -->
                             <div class="border-top border-secondary border-opacity-10 pt-3 mt-4">
-                                <div class="fw-semibold text-muted micro-text text-uppercase mb-3" style="letter-spacing:0.07em">Form Information</div>
+                                <div class="fw-semibold text-muted micro-text text-uppercase mb-3" style="letter-spacing:0.07em">Form Quick Info</div>
                                 
                                 <div class="mb-3">
                                     <label class="form-label text-white small fw-semibold">Form Title <span class="text-danger">*</span></label>
@@ -523,7 +607,7 @@
                             </div>
                         </div>
 
-                        <!-- TAB 2: Field Options Inspector Content (With General / Advanced Sub-Tabs) -->
+                        <!-- TAB 2: Field Options Inspector Content -->
                         <div id="tabContentFieldOptions" style="display: none;">
                             <div class="text-center text-muted py-5" id="noSelectionNotice">
                                 <i class="bx bx-pointer fs-1 d-block mb-2 text-primary"></i>
@@ -531,7 +615,6 @@
                             </div>
 
                             <div id="inspectorForm" style="display: none;">
-                                <!-- Field Header Title -->
                                 <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom border-secondary border-opacity-10">
                                     <h6 class="mb-0 text-white fw-bold d-flex align-items-center gap-2">
                                         <span id="inspectorFieldTypeTitle">Field Options</span>
@@ -539,22 +622,18 @@
                                     </h6>
                                 </div>
 
-                                <!-- Inspector Sub-Tabs: General / Advanced / Smart Logic -->
                                 <div class="inspector-sub-tabs">
                                     <button type="button" class="inspector-sub-tab active" id="subTabGeneral">General</button>
                                     <button type="button" class="inspector-sub-tab" id="subTabAdvanced">Advanced</button>
                                     <button type="button" class="inspector-sub-tab" id="subTabLogic">Smart Logic</button>
                                 </div>
 
-                                <!-- SUB-TAB 1: GENERAL OPTIONS -->
                                 <div id="subTabContentGeneral">
-                                    <!-- Label -->
                                     <div class="mb-3">
                                         <label class="form-label text-white small fw-semibold">Label <span class="text-danger">*</span></label>
                                         <input type="text" id="propLabel" class="txn-search-input" placeholder="e.g. Full Name">
                                     </div>
 
-                                    <!-- Name Format Selector (For Name Field) -->
                                     <div class="mb-3" id="nameFormatGroup" style="display: none;">
                                         <label class="form-label text-white small fw-semibold">Format</label>
                                         <select id="propNameFormat" class="txn-filter-select w-100">
@@ -564,7 +643,6 @@
                                         </select>
                                     </div>
 
-                                    <!-- Phone Format Selector (For Phone Field) -->
                                     <div class="mb-3" id="phoneFormatGroup" style="display: none;">
                                         <label class="form-label text-white small fw-semibold">Format</label>
                                         <select id="propPhoneFormat" class="txn-filter-select w-100">
@@ -574,23 +652,19 @@
                                         </select>
                                     </div>
 
-                                    <!-- Choices Manager (Interactive choices for Dropdown / Radio) -->
                                     <div class="mb-3" id="choicesManagerGroup" style="display: none;">
                                         <label class="form-label text-white small fw-semibold d-flex justify-content-between">
                                             <span>Choices</span>
                                             <span class="text-primary micro-text cursor-pointer" id="btnToggleBulkChoices"><i class="bx bx-edit me-1"></i>Bulk Edit</span>
                                         </label>
                                         
-                                        <div id="choicesListContainer">
-                                            <!-- Dynamic choice rows inserted by JS -->
-                                        </div>
+                                        <div id="choicesListContainer"></div>
 
                                         <div id="bulkChoicesContainer" style="display: none;">
                                             <textarea id="propOptionsBulk" class="txn-search-input" rows="5" placeholder="Choice 1&#10;Choice 2&#10;Choice 3"></textarea>
                                         </div>
                                     </div>
 
-                                    <!-- Detailed File Upload Options (Matching Client Reference Image) -->
                                     <div id="fileUploadPropertiesGroup" style="display: none;" class="p-3 mb-3 rounded-3" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(124,58,237,0.25);">
                                         <div class="fw-semibold text-primary micro-text text-uppercase mb-3" style="letter-spacing:0.05em">
                                             <i class="bx bx-upload me-1"></i> File Upload Rules
@@ -621,13 +695,11 @@
                                         </div>
                                     </div>
 
-                                    <!-- Description / Help Text -->
                                     <div class="mb-3">
                                         <label class="form-label text-white small fw-semibold">Description</label>
                                         <textarea id="propHelpText" class="txn-search-input" rows="3" placeholder="Field help text or instructions..."></textarea>
                                     </div>
 
-                                    <!-- Required Toggle Switch -->
                                     <div class="d-flex align-items-center justify-content-between p-3 rounded-3 mt-3" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
                                         <label class="form-label text-white mb-0 fw-semibold small">Required Field</label>
                                         <label class="toggle-switch" for="propRequired">
@@ -637,7 +709,6 @@
                                     </div>
                                 </div>
 
-                                <!-- SUB-TAB 2: ADVANCED OPTIONS -->
                                 <div id="subTabContentAdvanced" style="display: none;">
                                     <div class="mb-3" id="placeholderGroup">
                                         <label class="form-label text-white small fw-semibold">Placeholder</label>
@@ -660,7 +731,6 @@
                                     </div>
                                 </div>
 
-                                <!-- SUB-TAB 3: SMART LOGIC -->
                                 <div id="subTabContentLogic" style="display: none;">
                                     <div class="p-3 rounded-3 text-muted micro-text" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.08);">
                                         <i class="bx bx-bulb text-warning fs-5 d-block mb-1"></i>
@@ -693,7 +763,6 @@
                             </div>
                         </div>
 
-                        <!-- Live Form Submit Button Preview -->
                         <div class="mt-4 pt-3 border-top border-secondary border-opacity-10 text-start" id="canvasSubmitPreviewRow" style="display: none;">
                             <button type="button" class="btn btn-secondary px-4 py-2" disabled style="border-radius: 8px;">
                                 Submit Form
@@ -704,36 +773,248 @@
 
             </div>
 
-            <!-- Settings Modal -->
-            <div class="modal fade" id="settingsModal" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content bg-dark text-white border-secondary">
-                        <div class="modal-header border-bottom border-secondary">
-                            <h5 class="modal-title text-white"><i class="bx bx-cog me-2 text-primary"></i>Form Settings & Club Access</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <!-- MODE 2: SETTINGS VIEW (Matching Reference Images 1, 2 & 3) -->
+            <div id="builderModeSettingsView" class="row g-4" style="display: none;">
+                
+                <!-- Left Secondary Settings Navigation Menu (3.5 Cols) -->
+                <div class="col-lg-3.5 col-xl-3">
+                    <div class="forms-card">
+                        <div class="fw-bold text-white small text-uppercase mb-3" style="letter-spacing:0.06em;">Form Settings</div>
+                        <div class="settings-menu-list">
+                            <a class="settings-menu-item active" id="setMenuGeneral" data-target="setSecGeneral">
+                                <span><i class="bx bx-cog me-2"></i> General</span>
+                                <i class="bx bx-chevron-right micro-text"></i>
+                            </a>
+                            <a class="settings-menu-item" id="setMenuSpam" data-target="setSecSpam">
+                                <span><i class="bx bx-shield-quarter me-2"></i> Spam Protection & Security</span>
+                                <i class="bx bx-chevron-right micro-text"></i>
+                            </a>
+                            <a class="settings-menu-item" id="setMenuConfirmations" data-target="setSecConfirmations">
+                                <span><i class="bx bx-check-circle me-2"></i> Confirmations</span>
+                                <i class="bx bx-chevron-right micro-text"></i>
+                            </a>
+                            <a class="settings-menu-item" id="setMenuNotifications" data-target="setSecNotifications">
+                                <span><i class="bx bx-bell me-2"></i> Notifications</span>
+                                <i class="bx bx-chevron-right micro-text"></i>
+                            </a>
                         </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label class="form-label text-white small fw-semibold">Target Clubs / Websites</label>
-                                <select name="website_ids[]" class="txn-filter-select w-100" multiple style="height: 120px;">
-                                    @foreach($websites as $web)
-                                        <option value="{{ $web->id }}" {{ isset($form) && is_array($form->website_ids) && in_array($web->id, $form->website_ids) ? 'selected' : '' }}>
-                                            {{ $web->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <span class="form-text text-muted small">Leave empty to make form accessible across all clubs. Hold Ctrl/Cmd to select multiple.</span>
+                    </div>
+                </div>
+
+                <!-- Right Workspace Area for Settings (8.5 Cols) -->
+                <div class="col-lg-8.5 col-xl-9">
+                    
+                    <!-- SECTION 1: GENERAL SETTINGS -->
+                    <div class="settings-section-card" id="setSecGeneral">
+                        <h5 class="text-white fw-bold mb-4 pb-2 border-bottom border-secondary border-opacity-25">
+                            <i class="bx bx-slider me-2 text-primary"></i>General Form Settings
+                        </h5>
+                        
+                        <div class="mb-4">
+                            <label class="form-label text-white fw-semibold small">Target Clubs / Website Access</label>
+                            <select name="website_ids[]" id="settingWebsiteIds" class="txn-filter-select w-100" multiple style="height: 140px;">
+                                @foreach($websites as $web)
+                                    <option value="{{ $web->id }}" {{ isset($form) && is_array($form->website_ids) && in_array($web->id, $form->website_ids) ? 'selected' : '' }}>
+                                        {{ $web->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <span class="form-text text-muted micro-text mt-1.5 d-block">Hold Ctrl/Cmd to select target venues. Leave empty to allow access across all clubs.</span>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 2: SPAM PROTECTION AND SECURITY (Matching Image 2) -->
+                    <div class="settings-section-card" id="setSecSpam" style="display: none;">
+                        <h5 class="text-white fw-bold mb-2">Spam Protection and Security</h5>
+                        <p class="text-muted small mb-4">Behind-the-scenes spam filtering that's invisible to your visitors.</p>
+
+                        <!-- Protection Section -->
+                        <div class="mb-4 pb-3 border-bottom border-secondary border-opacity-10">
+                            <div class="fw-semibold text-white small mb-3 text-uppercase" style="letter-spacing:0.05em">Protection</div>
+
+                            <div class="d-flex align-items-center justify-content-between mb-3 p-3 rounded-3" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);">
+                                <div>
+                                    <div class="text-white fw-semibold small">Enable modern anti-spam protection</div>
+                                    <div class="text-muted micro-text">Automated invisible bot detection.</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="settingEnableModernSpam" class="toggle-switch-input" {{ isset($initialSettings['spam']['enable_modern_spam']) && $initialSettings['spam']['enable_modern_spam'] ? 'checked' : '' }}>
+                                    <span class="toggle-switch-slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="d-flex align-items-center justify-content-between mb-3 p-3 rounded-3" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);">
+                                <div>
+                                    <div class="text-white fw-semibold small">Enable anti-spam protection</div>
+                                    <div class="text-muted micro-text">Honeypot form validation for automated bots.</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="settingEnableAntispam" class="toggle-switch-input" {{ !isset($initialSettings['spam']['enable_antispam']) || $initialSettings['spam']['enable_antispam'] ? 'checked' : '' }}>
+                                    <span class="toggle-switch-slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="d-flex align-items-center justify-content-between mb-3 p-3 rounded-3" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);">
+                                <div>
+                                    <div class="text-white fw-semibold small">Store spam entries in the database</div>
+                                    <div class="text-muted micro-text">Keep flag history for audit logs.</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="settingStoreSpam" class="toggle-switch-input" {{ isset($initialSettings['spam']['store_spam']) && $initialSettings['spam']['store_spam'] ? 'checked' : '' }}>
+                                    <span class="toggle-switch-slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);">
+                                <div>
+                                    <div class="text-white fw-semibold small">Enable minimum time to submit</div>
+                                    <div class="text-muted micro-text">Reject rapid automated form submissions.</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="settingMinTime" class="toggle-switch-input" {{ isset($initialSettings['spam']['min_time']) && $initialSettings['spam']['min_time'] ? 'checked' : '' }}>
+                                    <span class="toggle-switch-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Filtering Section -->
+                        <div>
+                            <div class="fw-semibold text-white small mb-3 text-uppercase" style="letter-spacing:0.05em">Filtering</div>
+
+                            <div class="d-flex align-items-center justify-content-between mb-3 p-3 rounded-3" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);">
+                                <div>
+                                    <div class="text-white fw-semibold small">Enable country filter</div>
+                                    <div class="text-muted micro-text">Restrict entries based on visitor country.</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="settingCountryFilter" class="toggle-switch-input" {{ isset($initialSettings['spam']['country_filter']) && $initialSettings['spam']['country_filter'] ? 'checked' : '' }}>
+                                    <span class="toggle-switch-slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);">
+                                <div>
+                                    <div class="text-white fw-semibold small">Enable keyword filter</div>
+                                    <div class="text-muted micro-text">Block blacklisted words and links.</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="settingKeywordFilter" class="toggle-switch-input" {{ isset($initialSettings['spam']['keyword_filter']) && $initialSettings['spam']['keyword_filter'] ? 'checked' : '' }}>
+                                    <span class="toggle-switch-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 3: CONFIRMATIONS (Matching Image 1) -->
+                    <div class="settings-section-card" id="setSecConfirmations" style="display: none;">
+                        <h5 class="text-white fw-bold mb-4 pb-2 border-bottom border-secondary border-opacity-25">Confirmations</h5>
+                        
+                        <div class="p-4 rounded-3 mb-4" style="background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1);">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="fw-bold text-white fs-6">Default Confirmation</span>
+                                <i class="bx bx-pencil text-muted cursor-pointer"></i>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label text-white small fw-semibold">Success Message on Submission</label>
-                                <textarea id="successMessageInput" class="txn-search-input" rows="3" placeholder="Thank you! Your form submission has been received."></textarea>
+                                <label class="form-label text-white small fw-semibold">Confirmation Type</label>
+                                <select id="settingConfirmationType" class="txn-filter-select w-100">
+                                    <option value="message" {{ !isset($initialSettings['confirmation']['type']) || $initialSettings['confirmation']['type'] === 'message' ? 'selected' : '' }}>Message</option>
+                                    <option value="redirect" {{ isset($initialSettings['confirmation']['type']) && $initialSettings['confirmation']['type'] === 'redirect' ? 'selected' : '' }}>Redirect to URL</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4" id="confirmationMessageGroup">
+                                <label class="form-label text-white small fw-semibold">Confirmation Message</label>
+                                <textarea id="settingConfirmationMessage" class="txn-search-input" rows="4" placeholder="Thanks for contacting us! We will be in touch with you shortly.">{{ $initialSettings['confirmation']['message'] ?? 'Thanks for contacting us! We will be in touch with you shortly.' }}</textarea>
+                            </div>
+
+                            <div class="mb-4" id="confirmationRedirectGroup" style="display: none;">
+                                <label class="form-label text-white small fw-semibold">Redirect URL</label>
+                                <input type="url" id="settingConfirmationRedirectUrl" class="txn-search-input" placeholder="https://example.com/thank-you" value="{{ $initialSettings['confirmation']['redirect_url'] ?? '' }}">
+                            </div>
+
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <span class="text-white small fw-medium">Automatically scroll to the confirmation message</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="settingConfirmationAutoScroll" class="toggle-switch-input" {{ !isset($initialSettings['confirmation']['auto_scroll']) || $initialSettings['confirmation']['auto_scroll'] ? 'checked' : '' }}>
+                                    <span class="toggle-switch-slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span class="text-white small fw-medium">Show entry preview after confirmation message</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="settingConfirmationShowPreview" class="toggle-switch-input" {{ isset($initialSettings['confirmation']['show_preview']) && $initialSettings['confirmation']['show_preview'] ? 'checked' : '' }}>
+                                    <span class="toggle-switch-slider"></span>
+                                </label>
                             </div>
                         </div>
-                        <div class="modal-footer border-top border-secondary">
-                            <button type="button" class="btn-create-form border-0" data-bs-dismiss="modal">Done</button>
+                    </div>
+
+                    <!-- SECTION 4: NOTIFICATIONS (Matching Image 3) -->
+                    <div class="settings-section-card" id="setSecNotifications" style="display: none;">
+                        <h5 class="text-white fw-bold mb-2">Notifications</h5>
+                        <p class="text-muted small mb-4">Notifications are emails sent when a form is submitted. By default, these emails include entry details.</p>
+
+                        <div class="d-flex align-items-center justify-content-between mb-4 p-3 rounded-3" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);">
+                            <span class="text-white fw-semibold small">Enable Notifications</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="settingNotifyEnabled" class="toggle-switch-input" {{ !isset($initialSettings['notifications']['enabled']) || $initialSettings['notifications']['enabled'] ? 'checked' : '' }}>
+                                <span class="toggle-switch-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="p-4 rounded-3" style="background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1);">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="fw-bold text-white fs-6">Default Notification</span>
+                                <i class="bx bx-pencil text-muted cursor-pointer"></i>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-white small fw-semibold">Send To Email Address</label>
+                                <input type="text" id="settingNotifySendTo" class="txn-search-input" placeholder="admin@cartvip.com" value="{{ $initialSettings['notifications']['send_to'] ?? 'admin@cartvip.com' }}">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-white small fw-semibold">Email Subject Line</label>
+                                <input type="text" id="settingNotifySubject" class="txn-search-input" placeholder="New Submission: {form_title}" value="{{ $initialSettings['notifications']['subject'] ?? 'New Form Submission' }}">
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label text-white small fw-semibold">From Name</label>
+                                    <input type="text" id="settingNotifyFromName" class="txn-search-input" placeholder="CartVIP Forms" value="{{ $initialSettings['notifications']['from_name'] ?? 'CartVIP Forms' }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-white small fw-semibold">From Email</label>
+                                    <input type="email" id="settingNotifyFromEmail" class="txn-search-input" placeholder="no-reply@cartvip.com" value="{{ $initialSettings['notifications']['from_email'] ?? 'no-reply@cartvip.com' }}">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-white small fw-semibold">Reply-To Email</label>
+                                <input type="text" id="settingNotifyReplyTo" class="txn-search-input" placeholder="{field_email}" value="{{ $initialSettings['notifications']['reply_to'] ?? '' }}">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-white small fw-semibold">Email Message</label>
+                                <div class="mb-2">
+                                    <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25 px-2.5 py-1 font-monospace">{all_fields}</span>
+                                </div>
+                                <textarea id="settingNotifyMessage" class="txn-search-input" rows="4" placeholder="{all_fields}">{{ $initialSettings['notifications']['message'] ?? '{all_fields}' }}</textarea>
+                                <span class="form-text text-muted micro-text mt-1 d-block">To display all form fields, use the <code>{all_fields}</code> Smart Tag.</span>
+                            </div>
+
+                            <div class="d-flex align-items-center justify-content-between pt-3 border-top border-secondary border-opacity-10">
+                                <span class="text-white small fw-medium">Enable Conditional Logic</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="settingNotifyConditional" class="toggle-switch-input" {{ isset($initialSettings['notifications']['conditional']) && $initialSettings['notifications']['conditional'] ? 'checked' : '' }}>
+                                    <span class="toggle-switch-slider"></span>
+                                </label>
+                            </div>
                         </div>
                     </div>
+
                 </div>
             </div>
 
@@ -787,7 +1068,60 @@ document.addEventListener('DOMContentLoaded', function() {
     const fieldCountBadge = document.getElementById('fieldCountBadge');
     const canvasSubmitPreviewRow = document.getElementById('canvasSubmitPreviewRow');
 
-    // Left Panel Tabs (Add Fields vs Field Options)
+    // Primary Builder Mode Switcher (Fields vs Settings View)
+    const modeFieldsBtn = document.getElementById('modeFieldsBtn');
+    const modeSettingsBtn = document.getElementById('modeSettingsBtn');
+    const builderModeFieldsView = document.getElementById('builderModeFieldsView');
+    const builderModeSettingsView = document.getElementById('builderModeSettingsView');
+
+    modeFieldsBtn.addEventListener('click', () => {
+        modeFieldsBtn.classList.add('active');
+        modeSettingsBtn.classList.remove('active');
+        builderModeFieldsView.style.display = 'flex';
+        builderModeSettingsView.style.display = 'none';
+    });
+
+    modeSettingsBtn.addEventListener('click', () => {
+        modeSettingsBtn.classList.add('active');
+        modeFieldsBtn.classList.remove('active');
+        builderModeFieldsView.style.display = 'none';
+        builderModeSettingsView.style.display = 'flex';
+    });
+
+    // Settings Secondary Sub-Menu Switching (General, Spam, Confirmations, Notifications)
+    const settingsMenuItems = document.querySelectorAll('.settings-menu-item');
+    settingsMenuItems.forEach(item => {
+        item.addEventListener('click', () => {
+            settingsMenuItems.forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+
+            const targetId = item.getAttribute('data-target');
+            document.querySelectorAll('.settings-section-card').forEach(card => {
+                card.style.display = 'none';
+            });
+            const activeCard = document.getElementById(targetId);
+            if (activeCard) activeCard.style.display = 'block';
+        });
+    });
+
+    // Confirmation Type Toggle (Message vs Redirect URL)
+    const settingConfirmationType = document.getElementById('settingConfirmationType');
+    const confirmationMessageGroup = document.getElementById('confirmationMessageGroup');
+    const confirmationRedirectGroup = document.getElementById('confirmationRedirectGroup');
+
+    if (settingConfirmationType) {
+        settingConfirmationType.addEventListener('change', (e) => {
+            if (e.target.value === 'redirect') {
+                confirmationMessageGroup.style.display = 'none';
+                confirmationRedirectGroup.style.display = 'block';
+            } else {
+                confirmationMessageGroup.style.display = 'block';
+                confirmationRedirectGroup.style.display = 'none';
+            }
+        });
+    }
+
+    // Left Panel Tabs inside Fields view (Add Fields vs Field Options)
     const tabAddFieldsBtn = document.getElementById('tabAddFieldsBtn');
     const tabFieldOptionsBtn = document.getElementById('tabFieldOptionsBtn');
     const tabContentAddFields = document.getElementById('tabContentAddFields');
@@ -948,7 +1282,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else if (format === 'simple') {
                     inputPreview = `<input type="text" class="txn-search-input" placeholder="Full Name" disabled>`;
                 } else {
-                    // Default Dual Input: First & Last Name (Matching Reference Image)
                     inputPreview = `
                         <div class="row g-2">
                             <div class="col-6">
@@ -1045,7 +1378,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 ${f.help_text ? `<div class="text-muted micro-text mt-1.5"><i class="bx bx-info-circle me-1 text-primary"></i>${f.help_text}</div>` : ''}
             `;
 
-            // Field Card Drag & Drop Events for Relocating
             card.addEventListener('dragstart', (e) => {
                 draggedCanvasIdx = idx;
                 e.dataTransfer.setData('source', 'canvas');
@@ -1065,7 +1397,6 @@ document.addEventListener('DOMContentLoaded', function() {
             canvas.appendChild(wrapper);
         });
 
-        // Add Move Up / Move Down / Duplicate / Delete action handlers
         document.querySelectorAll('.move-up-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1148,7 +1479,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('propWidth').value = f.width_class || 'col-12';
         document.getElementById('propRequired').checked = !!f.required;
 
-        // Toggle Name Format
         const nameFormatGroup = document.getElementById('nameFormatGroup');
         if (f.type === 'name') {
             nameFormatGroup.style.display = 'block';
@@ -1157,7 +1487,6 @@ document.addEventListener('DOMContentLoaded', function() {
             nameFormatGroup.style.display = 'none';
         }
 
-        // Toggle Phone Format
         const phoneFormatGroup = document.getElementById('phoneFormatGroup');
         if (f.type === 'phone') {
             phoneFormatGroup.style.display = 'block';
@@ -1166,7 +1495,6 @@ document.addEventListener('DOMContentLoaded', function() {
             phoneFormatGroup.style.display = 'none';
         }
 
-        // Choices Manager (Interactive Choices for Dropdown / Radio / Checkbox)
         const choicesManagerGroup = document.getElementById('choicesManagerGroup');
         if (['select', 'radio'].includes(f.type)) {
             choicesManagerGroup.style.display = 'block';
@@ -1175,7 +1503,6 @@ document.addEventListener('DOMContentLoaded', function() {
             choicesManagerGroup.style.display = 'none';
         }
 
-        // Toggle File Upload specific properties
         const fileUploadPropertiesGroup = document.getElementById('fileUploadPropertiesGroup');
         if (f.type === 'file') {
             fileUploadPropertiesGroup.style.display = 'block';
@@ -1194,7 +1521,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Render Choice Rows in Inspector
     function renderChoicesManager(optionsArr) {
         const container = document.getElementById('choicesListContainer');
         container.innerHTML = '';
@@ -1211,7 +1537,6 @@ document.addEventListener('DOMContentLoaded', function() {
             container.appendChild(row);
         });
 
-        // Choice input event listener
         container.querySelectorAll('.choice-text-input').forEach(inp => {
             inp.addEventListener('input', (e) => {
                 const oidx = parseInt(inp.getAttribute('data-oidx'));
@@ -1222,7 +1547,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        // Add choice
         container.querySelectorAll('.add-choice-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const oidx = parseInt(btn.getAttribute('data-oidx'));
@@ -1234,7 +1558,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        // Remove choice
         container.querySelectorAll('.remove-choice-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const oidx = parseInt(btn.getAttribute('data-oidx'));
@@ -1247,25 +1570,26 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Toggle Bulk Choice Edit
     const btnToggleBulkChoices = document.getElementById('btnToggleBulkChoices');
     const choicesListContainer = document.getElementById('choicesListContainer');
     const bulkChoicesContainer = document.getElementById('bulkChoicesContainer');
     let isBulkChoicesMode = false;
 
-    btnToggleBulkChoices.addEventListener('click', () => {
-        isBulkChoicesMode = !isBulkChoicesMode;
-        if (isBulkChoicesMode) {
-            choicesListContainer.style.display = 'none';
-            bulkChoicesContainer.style.display = 'block';
-            document.getElementById('propOptionsBulk').value = (fields[selectedFieldIndex]?.options || []).join('\n');
-            btnToggleBulkChoices.innerText = 'Row View';
-        } else {
-            bulkChoicesContainer.style.display = 'none';
-            choicesListContainer.style.display = 'block';
-            btnToggleBulkChoices.innerText = 'Bulk Edit';
-        }
-    });
+    if (btnToggleBulkChoices) {
+        btnToggleBulkChoices.addEventListener('click', () => {
+            isBulkChoicesMode = !isBulkChoicesMode;
+            if (isBulkChoicesMode) {
+                choicesListContainer.style.display = 'none';
+                bulkChoicesContainer.style.display = 'block';
+                document.getElementById('propOptionsBulk').value = (fields[selectedFieldIndex]?.options || []).join('\n');
+                btnToggleBulkChoices.innerText = 'Row View';
+            } else {
+                bulkChoicesContainer.style.display = 'none';
+                choicesListContainer.style.display = 'block';
+                btnToggleBulkChoices.innerText = 'Bulk Edit';
+            }
+        });
+    }
 
     document.getElementById('propOptionsBulk')?.addEventListener('input', (e) => {
         if (selectedFieldIndex !== null && fields[selectedFieldIndex]) {
@@ -1274,7 +1598,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Bind inspector inputs
+    // Inspector Events
     document.getElementById('propLabel').addEventListener('input', (e) => {
         if (selectedFieldIndex !== null) {
             fields[selectedFieldIndex].label = e.target.value;
@@ -1341,14 +1665,44 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Save form submit handler
+    // Serialize Form & Full Settings Object on Save
     document.getElementById('builderForm').addEventListener('submit', function(e) {
         document.getElementById('fieldsSchemaInput').value = JSON.stringify(fields);
 
-        const settings = {
-            success_message: document.getElementById('successMessageInput').value || 'Thank you! Your form submission has been received.'
+        const settingsPayload = {
+            general: {
+                title: document.getElementById('formTitleInput')?.value || '',
+                description: document.getElementById('formDescInput')?.value || '',
+                website_ids: Array.from(document.querySelectorAll('#settingWebsiteIds option:checked')).map(o => o.value)
+            },
+            spam: {
+                enable_modern_spam: document.getElementById('settingEnableModernSpam')?.checked ?? false,
+                enable_antispam: document.getElementById('settingEnableAntispam')?.checked ?? true,
+                store_spam: document.getElementById('settingStoreSpam')?.checked ?? false,
+                min_time: document.getElementById('settingMinTime')?.checked ?? false,
+                country_filter: document.getElementById('settingCountryFilter')?.checked ?? false,
+                keyword_filter: document.getElementById('settingKeywordFilter')?.checked ?? false
+            },
+            confirmation: {
+                type: document.getElementById('settingConfirmationType')?.value || 'message',
+                message: document.getElementById('settingConfirmationMessage')?.value || 'Thanks for contacting us! We will be in touch with you shortly.',
+                redirect_url: document.getElementById('settingConfirmationRedirectUrl')?.value || '',
+                auto_scroll: document.getElementById('settingConfirmationAutoScroll')?.checked ?? true,
+                show_preview: document.getElementById('settingConfirmationShowPreview')?.checked ?? false
+            },
+            notifications: {
+                enabled: document.getElementById('settingNotifyEnabled')?.checked ?? true,
+                send_to: document.getElementById('settingNotifySendTo')?.value || 'admin@cartvip.com',
+                subject: document.getElementById('settingNotifySubject')?.value || 'New Form Submission',
+                from_name: document.getElementById('settingNotifyFromName')?.value || 'CartVIP Forms',
+                from_email: document.getElementById('settingNotifyFromEmail')?.value || 'no-reply@cartvip.com',
+                reply_to: document.getElementById('settingNotifyReplyTo')?.value || '',
+                message: document.getElementById('settingNotifyMessage')?.value || '{all_fields}',
+                conditional: document.getElementById('settingNotifyConditional')?.checked ?? false
+            }
         };
-        document.getElementById('settingsInput').value = JSON.stringify(settings);
+
+        document.getElementById('settingsInput').value = JSON.stringify(settingsPayload);
     });
 
     function ucfirst(str) {
