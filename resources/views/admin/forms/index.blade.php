@@ -351,19 +351,7 @@
                     </select>
                 </div>
 
-                <div class="d-flex align-items-center gap-2 flex-wrap ms-auto">
-                    <!-- Search Input inside Table Header -->
-                    <div class="txn-search-wrap">
-                        <i class="bx bx-search txn-search-icon"></i>
-                        <input type="text" name="search" class="txn-search-input" placeholder="Search title or slug..." value="{{ request('search') }}">
-                    </div>
 
-                    @if(request('search') || request('website'))
-                        <a href="{{ route('admin.forms.index') }}" class="btn txn-reset-btn" title="Clear Filters">
-                            <i class="bx bx-x fs-5"></i>
-                        </a>
-                    @endif
-                </div>
             </form>
 
             <!-- Table Container with Internal Padding & Border Radius -->
