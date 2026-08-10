@@ -7,7 +7,7 @@
     background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 16px;
-    padding: 22px;
+    padding: 24px;
 }
 
 /* Header & Create Button */
@@ -36,8 +36,7 @@
 /* Search & Filter Controls */
 .txn-search-wrap {
     position: relative;
-    flex: 1;
-    min-width: 240px;
+    width: 280px;
 }
 .txn-search-icon {
     position: absolute;
@@ -54,7 +53,7 @@
     border-radius: 10px;
     color: #fff;
     font-size: 0.85rem;
-    padding: 9px 14px 9px 38px;
+    padding: 8px 14px 8px 38px;
     outline: none;
     width: 100%;
     transition: all 0.2s ease;
@@ -74,10 +73,10 @@
     border-radius: 10px;
     color: #fff;
     font-size: 0.85rem;
-    padding: 9px 14px;
+    padding: 8px 14px;
     outline: none;
     transition: all 0.2s ease;
-    min-width: 220px;
+    min-width: 200px;
 }
 .txn-filter-select:focus {
     border-color: rgba(124, 58, 237, 0.6);
@@ -88,22 +87,6 @@
     color: #ffffff;
 }
 
-.txn-filters-btn {
-    background: linear-gradient(135deg, rgba(124, 58, 237, 0.8) 0%, rgba(99, 102, 241, 0.8) 100%);
-    border: 1px solid rgba(124, 58, 237, 0.4);
-    color: #ffffff !important;
-    border-radius: 10px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    padding: 9px 20px;
-    transition: all 0.2s ease;
-}
-.txn-filters-btn:hover {
-    background: linear-gradient(135deg, rgba(124, 58, 237, 1) 0%, rgba(99, 102, 241, 1) 100%);
-    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
-    transform: translateY(-1px);
-}
-
 .txn-reset-btn {
     background: rgba(255, 255, 255, 0.07);
     border: 1px solid rgba(255, 255, 255, 0.12);
@@ -111,8 +94,13 @@
     border-radius: 10px;
     font-size: 0.85rem;
     font-weight: 600;
-    padding: 9px 16px;
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.2s ease;
+    text-decoration: none;
 }
 .txn-reset-btn:hover {
     background: rgba(255, 255, 255, 0.14);
@@ -168,7 +156,13 @@
     transform: translateY(-1px);
 }
 
-/* Table Styling */
+/* Table Styling & Padding */
+.forms-table-wrapper {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.12);
+}
 .forms-table {
     border-collapse: separate;
     border-spacing: 0;
@@ -178,22 +172,25 @@
     font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 0.07em;
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.45);
     text-transform: uppercase;
-    padding: 12px 14px;
+    padding: 14px 18px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(0, 0, 0, 0.15);
+    background: rgba(0, 0, 0, 0.25);
     white-space: nowrap;
 }
 .forms-table tbody tr {
     border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     transition: background 0.15s ease;
 }
+.forms-table tbody tr:last-child {
+    border-bottom: none;
+}
 .forms-table tbody tr:hover {
     background: rgba(255, 255, 255, 0.04) !important;
 }
 .forms-table tbody td {
-    padding: 14px 14px;
+    padding: 16px 18px;
     vertical-align: middle;
 }
 
@@ -338,41 +335,39 @@
             </div>
         @endif
 
-        <!-- Filter Card (Matching Transaction Search Aesthetics) -->
-        <div class="forms-card mb-4">
-            <form method="GET" action="{{ route('admin.forms.index') }}" class="row g-3 align-items-center">
-                <div class="col-md-5">
-                    <label class="form-label text-muted small fw-semibold mb-1">Search Form Title or Slug</label>
-                    <div class="txn-search-wrap">
-                        <i class="bx bx-search txn-search-icon"></i>
-                        <input type="text" name="search" class="txn-search-input" placeholder="Search forms by title, slug..." value="{{ request('search') }}">
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label text-muted small fw-semibold mb-1">Filter by Club / Website</label>
-                    <select name="website" class="txn-filter-select w-100">
+        <!-- Main Forms Table Card -->
+        <div class="forms-card">
+            <!-- Integrated Search & Filter Controls inside Table Card Header -->
+            <form method="GET" action="{{ route('admin.forms.index') }}" class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+                <div class="d-flex align-items-center gap-3 flex-wrap">
+                    <h5 class="mb-0 text-white fw-bold fs-6"><i class="bx bx-table me-2 text-primary"></i>All Custom Forms</h5>
+                    
+                    <!-- Club / Website Filter Select -->
+                    <select name="website" class="txn-filter-select" onchange="this.form.submit()">
                         <option value="">All Clubs / Websites</option>
                         @foreach($websites as $web)
                             <option value="{{ $web->id }}" {{ (string)request('website') === (string)$web->id ? 'selected' : '' }}>{{ $web->name }}</option>
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-3 d-flex align-items-end gap-2 pt-md-4">
-                    <button type="submit" class="btn txn-filters-btn flex-grow-1 d-inline-flex align-items-center justify-content-center gap-1">
-                        <i class="bx bx-filter-alt"></i> Filter
-                    </button>
+
+                <div class="d-flex align-items-center gap-2 flex-wrap ms-auto">
+                    <!-- Search Input inside Table Header -->
+                    <div class="txn-search-wrap">
+                        <i class="bx bx-search txn-search-icon"></i>
+                        <input type="text" name="search" class="txn-search-input" placeholder="Search title or slug..." value="{{ request('search') }}">
+                    </div>
+
                     @if(request('search') || request('website'))
-                        <a href="{{ route('admin.forms.index') }}" class="btn txn-reset-btn d-inline-flex align-items-center justify-content-center gap-1" title="Clear Filters">
+                        <a href="{{ route('admin.forms.index') }}" class="btn txn-reset-btn" title="Clear Filters">
                             <i class="bx bx-x fs-5"></i>
                         </a>
                     @endif
                 </div>
             </form>
-        </div>
 
-        <!-- Forms Table Card -->
-        <div class="forms-card p-0">
-            <div class="table-responsive text-nowrap">
+            <!-- Table Container with Internal Padding & Border Radius -->
+            <div class="table-responsive forms-table-wrapper text-nowrap">
                 <table class="forms-table">
                     <thead>
                         <tr>
@@ -473,7 +468,7 @@
             </div>
 
             @if($forms->hasPages())
-                <div class="p-3 border-top border-secondary border-opacity-10">
+                <div class="pt-3">
                     {{ $forms->withQueryString()->links() }}
                 </div>
             @endif
@@ -534,4 +529,5 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endsection
+
 
