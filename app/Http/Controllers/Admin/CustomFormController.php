@@ -408,6 +408,7 @@ class CustomFormController extends Controller
         }
 
         $rules = [];
+        $customAttributes = [];
         $submissionData = [];
 
         foreach ($fieldsSchema as $f) {
@@ -421,6 +422,9 @@ class CustomFormController extends Controller
                 continue;
             }
 
+            $label = $f['label'] ?? $key;
+            $customAttributes[$key] = $label;
+
             $fieldRules = [];
             if (!empty($f['required'])) {
                 $fieldRules[] = 'required';
@@ -433,20 +437,42 @@ class CustomFormController extends Controller
             } elseif ($type === 'number') {
                 $fieldRules[] = 'numeric';
             } elseif ($type === 'file') {
-                $allowedExt = !empty($f['allowed_extensions']) ? array_filter(array_map('trim', explode(',', $f['allowed_extensions']))) : ['pdf', 'doc', 'docx', 'png', 'jpg'];
+                $allowedExt = !empty($f['allowed_extensions']) ? array_filter(array_map('trim', explode(',', strtolower($f['allowed_extensions'])))) : ['pdf', 'doc', 'docx', 'png', 'jpg'];
                 $allowedExtStr = implode(',', $allowedExt);
                 $maxMb = !empty($f['max_file_size']) ? (int) $f['max_file_size'] : 5;
                 $maxKb = $maxMb * 1024;
-                
-                $fieldRules[] = 'file';
-                if (!empty($allowedExtStr)) {
-                    $fieldRules[] = 'mimes:' . $allowedExtStr;
-                }
-                $fieldRules[] = 'max:' . $maxKb;
-            }
+                $maxCount = !empty($f['max_file_uploads']) ? (int) $f['max_file_uploads'] : 1;
 
-            if (!empty($fieldRules)) {
-                $rules[$key] = implode('|', $fieldRules);
+                if ($maxCount > 1 || ($request->hasFile($key) && is_array($request->file($key)))) {
+                    if (!empty($f['required'])) {
+                        $rules[$key] = 'required';
+                    } else {
+                        $rules[$key] = 'nullable';
+                    }
+                    $itemRules = ['file', 'max:' . $maxKb];
+                    if (!empty($allowedExtStr)) {
+                        $itemRules[] = 'mimes:' . $allowedExtStr;
+                    }
+                    $rules["{$key}.*"] = implode('|', $itemRules);
+                    $customAttributes["{$key}.*"] = $label;
+                } else {
+                    $fileRules = [];
+                    if (!empty($f['required'])) {
+                        $fileRules[] = 'required';
+                    } else {
+                        $fileRules[] = 'nullable';
+                    }
+                    $fileRules[] = 'file';
+                    if (!empty($allowedExtStr)) {
+                        $fileRules[] = 'mimes:' . $allowedExtStr;
+                    }
+                    $fileRules[] = 'max:' . $maxKb;
+                    $rules[$key] = implode('|', $fileRules);
+                }
+            } else {
+                if (!empty($fieldRules)) {
+                    $rules[$key] = implode('|', $fieldRules);
+                }
             }
 
             if ($request->hasFile($key)) {
@@ -454,13 +480,17 @@ class CustomFormController extends Controller
                 if (is_array($files)) {
                     $urls = [];
                     foreach ($files as $file) {
-                        $path = $file->store('form_uploads', 'public');
-                        $urls[] = Storage::url($path);
+                        if ($file && $file->isValid()) {
+                            $path = $file->store('form_uploads', 'public');
+                            $urls[] = Storage::url($path);
+                        }
                     }
                     $submissionData[$key] = implode(', ', $urls);
                 } else {
-                    $path = $files->store('form_uploads', 'public');
-                    $submissionData[$key] = Storage::url($path);
+                    if ($files && $files->isValid()) {
+                        $path = $files->store('form_uploads', 'public');
+                        $submissionData[$key] = Storage::url($path);
+                    }
                 }
             } else {
                 $submissionData[$key] = $request->input($key);
@@ -468,7 +498,7 @@ class CustomFormController extends Controller
         }
 
         if (!empty($rules)) {
-            $request->validate($rules);
+            $request->validate($rules, [], $customAttributes);
         }
 
         $submission = CustomFormSubmission::create([
