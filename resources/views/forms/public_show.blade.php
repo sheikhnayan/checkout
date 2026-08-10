@@ -181,6 +181,32 @@
             margin-bottom: 6px;
             display: block;
         }
+        /* Input Group Fixing for Inline Time & Phone Icons */
+        .input-group {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            align-items: stretch !important;
+            width: 100% !important;
+        }
+        .input-group > .input-group-text {
+            border-top-right-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+            border-right: none !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 0 14px !important;
+            background-color: #f8fafc !important;
+            border: 1px solid var(--doc-border-strong);
+            color: #475569;
+        }
+        .input-group > .form-control-doc {
+            border-top-left-radius: 0 !important;
+            border-bottom-left-radius: 0 !important;
+            flex: 1 1 auto !important;
+            width: 1% !important;
+        }
+
         .form-control-doc, .form-select-doc {
             background-color: #ffffff;
             border: 1px solid var(--doc-border-strong);

@@ -1010,7 +1010,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `;
             } else if (f.type === 'time') {
-                inputPreview = `<input type="text" class="txn-search-input" placeholder="Select Time (e.g. 10:30 PM)" disabled>`;
+                inputPreview = `
+                    <div class="input-group d-flex align-items-center">
+                        <span class="input-group-text bg-dark text-secondary border-secondary border-end-0"><i class="bx bx-time text-primary fs-5"></i></span>
+                        <input type="text" class="txn-search-input" style="border-top-left-radius:0; border-bottom-left-radius:0;" placeholder="Select Time (e.g. 10:30 PM)" disabled>
+                    </div>
+                `;
             } else if (f.type === 'heading') {
                 inputPreview = `<h5 class="text-white fw-bold mb-0 border-bottom border-secondary border-opacity-25 pb-2">${f.label}</h5>`;
             } else {
