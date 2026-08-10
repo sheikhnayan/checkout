@@ -912,7 +912,7 @@
                                         <input type="text" id="countrySearchInput" class="txn-search-input py-1.5 px-3 micro-text" placeholder="Search country name or ISO code...">
                                     </div>
 
-                                    <div class="country-checkbox-grid rounded-3" style="padding: 8rem !important; max-height: 240px; overflow-y: auto; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1);">
+                                    <div class="country-checkbox-grid rounded-3" style="padding: 2rem !important; max-height: 240px; overflow-y: auto; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1);">
                                         <div class="row g-2" id="countryCheckboxContainer">
                                             <!-- Dynamically rendered country checkboxes with flags -->
                                         </div>
