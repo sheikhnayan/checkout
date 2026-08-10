@@ -8,7 +8,8 @@
             $fieldMap = [];
             foreach (($form->fields_schema ?: []) as $f) {
                 $key = $f['name'] ?? $f['id'] ?? null;
-                if ($key) {
+                $type = $f['type'] ?? '';
+                if ($key && $type !== 'captcha' && $type !== 'heading' && $type !== 'paragraph') {
                     $fieldMap[$key] = $f['label'] ?? $key;
                 }
             }
@@ -38,7 +39,6 @@
                             <th># ID</th>
                             <th>Submitted Date</th>
                             <th>Club / Venue</th>
-                            <th>Submission Payload Preview</th>
                             <th>Submitter IP</th>
                             <th class="text-end">Actions</th>
                         </tr>
@@ -58,19 +58,6 @@
                                         <span class="badge bg-label-secondary">General</span>
                                     @endif
                                 </td>
-                                <td>
-                                    <div class="d-flex flex-wrap gap-1.5" style="max-width: 450px;">
-                                        @foreach(($sub->submission_data ?: []) as $k => $v)
-                                            @php
-                                                $fieldLabel = $fieldMap[$k] ?? ucfirst(str_replace(['field_', '_'], ['', ' '], $k));
-                                            @endphp
-                                            <span class="badge bg-dark border border-secondary text-white py-1 px-2.5 font-sans me-1 mb-1 d-inline-flex align-items-center gap-1" style="font-size:0.78rem;">
-                                                <strong class="text-primary">{{ $fieldLabel }}:</strong> 
-                                                <span class="text-light">{{ is_array($v) ? implode(', ', $v) : Str::limit((string)$v, 25) }}</span>
-                                            </span>
-                                        @endforeach
-                                    </div>
-                                </td>
                                 <td><span class="font-monospace small text-muted">{{ $sub->submitter_ip ?: '127.0.0.1' }}</span></td>
                                 <td class="text-end">
                                     <button type="button" class="btn btn-sm btn-outline-info view-sub-btn" 
@@ -86,7 +73,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center py-5 text-muted">
+                                <td colspan="5" class="text-center py-5 text-muted">
                                     <i class="bx bx-inbox fs-1 d-block mb-2"></i>
                                     No submissions received for this form yet.
                                 </td>
@@ -123,10 +110,10 @@
 
                 <h6 class="text-white mb-3 fw-bold"><i class="bx bx-list-ul me-1 text-primary"></i>Submitted Field Answers</h6>
                 <div class="table-responsive">
-                    <table class="table table-bordered table-dark table-sm text-white">
+                    <table class="table table-bordered table-dark table-sm text-white align-middle">
                         <thead>
                             <tr class="table-secondary text-dark">
-                                <th style="width: 40%;">Field Label</th>
+                                <th style="width: 38%;">Field Label</th>
                                 <th>Submitted Value</th>
                             </tr>
                         </thead>
@@ -162,19 +149,45 @@ document.addEventListener('DOMContentLoaded', function() {
             const tbody = document.getElementById('modalPayloadTable');
             tbody.innerHTML = '';
 
-            for (const [key, val] of Object.entries(payload)) {
+            for (const [key, rawVal] of Object.entries(payload)) {
+                // Skip captcha fields
+                if (key.toLowerCase().includes('captcha') || key === '_hp_security_check' || key === '_form_render_timestamp') {
+                    continue;
+                }
+
                 const label = fieldMap[key] || key.replace(/field_/g, '').replace(/_/g, ' ');
                 const tr = document.createElement('tr');
-                let displayVal = val;
-                if (Array.isArray(val)) {
-                    displayVal = val.join(', ');
-                } else if (typeof val === 'string' && (val.startsWith('http://') || val.startsWith('https://'))) {
-                    displayVal = `<a href="${val}" target="_blank" class="btn btn-xs btn-outline-info"><i class="bx bx-download me-1"></i> View Attachment</a>`;
+
+                // Format values properly (never display [object Object])
+                let displayHtml = '';
+                if (rawVal === null || rawVal === undefined || rawVal === '') {
+                    displayHtml = '<span class="text-muted italic">- Empty -</span>';
+                } else if (typeof rawVal === 'object') {
+                    if (Array.isArray(rawVal)) {
+                        displayHtml = rawVal.map(v => typeof v === 'object' ? Object.values(v).filter(Boolean).join(' ') : v).filter(Boolean).join(', ');
+                    } else {
+                        displayHtml = Object.values(rawVal).filter(Boolean).join(' ');
+                    }
+                } else {
+                    displayHtml = String(rawVal);
+                }
+
+                // Check if value contains File Upload URL(s)
+                if (typeof displayHtml === 'string' && (displayHtml.includes('/storage/') || displayHtml.startsWith('http://') || displayHtml.startsWith('https://') || /\.(pdf|png|jpg|jpeg|doc|docx)$/i.test(displayHtml))) {
+                    const urls = displayHtml.split(',').map(u => u.trim()).filter(Boolean);
+                    if (urls.length > 0 && (urls[0].includes('/') || urls[0].startsWith('http'))) {
+                        displayHtml = urls.map(url => {
+                            const fileName = url.split('/').pop() || 'Attachment File';
+                            return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary me-2 mb-1">
+                                <i class="bx bx-file me-1"></i> ${fileName} <i class="bx bx-export ms-1 micro-text"></i>
+                            </a>`;
+                        }).join('');
+                    }
                 }
 
                 tr.innerHTML = `
                     <td class="fw-bold text-info">${label}</td>
-                    <td class="text-white">${displayVal}</td>
+                    <td class="text-white">${displayHtml}</td>
                 `;
                 tbody.appendChild(tr);
             }

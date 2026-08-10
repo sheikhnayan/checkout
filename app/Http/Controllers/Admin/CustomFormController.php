@@ -318,7 +318,7 @@ class CustomFormController extends Controller
         $fieldKeys = [];
 
         foreach ($fieldsSchema as $f) {
-            if (($f['type'] ?? '') === 'heading' || ($f['type'] ?? '') === 'paragraph') {
+            if (($f['type'] ?? '') === 'heading' || ($f['type'] ?? '') === 'paragraph' || ($f['type'] ?? '') === 'captcha') {
                 continue;
             }
             $key = $f['name'] ?? $f['id'] ?? null;
@@ -450,7 +450,7 @@ class CustomFormController extends Controller
 
         foreach ($fieldsSchema as $f) {
             $type = $f['type'] ?? 'text';
-            if ($type === 'heading' || $type === 'paragraph') {
+            if ($type === 'heading' || $type === 'paragraph' || $type === 'captcha') {
                 continue;
             }
 
@@ -530,7 +530,12 @@ class CustomFormController extends Controller
                     }
                 }
             } else {
-                $submissionData[$key] = $request->input($key);
+                $inputVal = $request->input($key);
+                if (is_array($inputVal)) {
+                    $submissionData[$key] = implode(' ', array_filter(array_map('trim', $inputVal)));
+                } else {
+                    $submissionData[$key] = $inputVal;
+                }
             }
         }
 
