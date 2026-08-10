@@ -598,7 +598,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 2. Intl Tel Input with Dynamic Country Auto-Formatter
+    // 2. Intl Tel Input with Strict Country Digit Limits & Auto-Formatter
     const itiMap = new Map();
     document.querySelectorAll('.phone-intl-input').forEach(function(input) {
         if (window.intlTelInput) {
@@ -609,12 +609,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 autoPlaceholder: "aggressive",
                 formatOnDisplay: true,
                 nationalMode: true,
+                strictMode: true,
                 utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js"
             });
             itiMap.set(input, iti);
 
-            // Auto-format placeholder & current value on country change
-            input.addEventListener('countrychange', function() {
+            function enforceCountryLengthLimit() {
                 const countryData = iti.getSelectedCountryData();
                 if (window.intlTelInputUtils && countryData && countryData.iso2) {
                     const example = window.intlTelInputUtils.getExampleNumber(
@@ -622,35 +622,55 @@ document.addEventListener('DOMContentLoaded', function() {
                         true,
                         window.intlTelInputUtils.numberType.MOBILE
                     );
-                    if (example) input.placeholder = example;
+                    if (example) {
+                        input.placeholder = example;
+                        input.setAttribute('maxlength', example.length);
+                    }
+                }
+            }
 
-                    if (input.value.trim().length > 0) {
-                        const formatted = window.intlTelInputUtils.formatNumber(
-                            input.value,
-                            countryData.iso2,
-                            window.intlTelInputUtils.numberFormat.NATIONAL
-                        );
-                        if (formatted) input.value = formatted;
+            // Set initial limit
+            setTimeout(enforceCountryLengthLimit, 300);
+
+            // Update limit dynamically on country change
+            input.addEventListener('countrychange', function() {
+                enforceCountryLengthLimit();
+                const countryData = iti.getSelectedCountryData();
+                if (input.value.trim().length > 0 && window.intlTelInputUtils && countryData) {
+                    const formatted = window.intlTelInputUtils.formatNumber(
+                        input.value,
+                        countryData.iso2,
+                        window.intlTelInputUtils.numberFormat.NATIONAL
+                    );
+                    if (formatted) {
+                        const example = window.intlTelInputUtils.getExampleNumber(countryData.iso2, true, window.intlTelInputUtils.numberType.MOBILE);
+                        input.value = example ? formatted.slice(0, example.length) : formatted;
                     }
                 }
             });
 
-            // Live auto-format on input typing without blocking extra digits
+            // Live auto-format & strict length capping on input typing
             input.addEventListener('input', function() {
-                if (window.intlTelInputUtils && input.value.trim().length > 0) {
-                    const countryData = iti.getSelectedCountryData();
-                    if (countryData && countryData.iso2) {
-                        const rawDigits = input.value.replace(/\D/g, '');
-                        if (rawDigits.length >= 3) {
-                            const formatted = window.intlTelInputUtils.formatNumber(
-                                input.value,
-                                countryData.iso2,
-                                window.intlTelInputUtils.numberFormat.NATIONAL
-                            );
-                            if (formatted && formatted !== input.value && !input.value.endsWith(' ')) {
-                                input.value = formatted;
-                            }
+                const countryData = iti.getSelectedCountryData();
+                if (window.intlTelInputUtils && countryData && countryData.iso2 && input.value.trim().length > 0) {
+                    const example = window.intlTelInputUtils.getExampleNumber(
+                        countryData.iso2,
+                        true,
+                        window.intlTelInputUtils.numberType.MOBILE
+                    );
+                    
+                    const formatted = window.intlTelInputUtils.formatNumber(
+                        input.value,
+                        countryData.iso2,
+                        window.intlTelInputUtils.numberFormat.NATIONAL
+                    );
+
+                    if (formatted) {
+                        let finalVal = formatted;
+                        if (example && finalVal.length > example.length) {
+                            finalVal = finalVal.slice(0, example.length);
                         }
+                        input.value = finalVal;
                     }
                 }
             });
