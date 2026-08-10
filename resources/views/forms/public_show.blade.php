@@ -10,12 +10,31 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 
-    <!-- Bootstrap 5 & Boxicons -->
+    <!-- Bootstrap 5, Boxicons & Intl Tel Input -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
 
     <style>
+        .iti {
+            width: 100%;
+            display: block;
+        }
+        .iti__country-list {
+            z-index: 1050;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border: 1px solid #cbd5e1;
+            color: #0f172a;
+        }
+        .iti__selected-flag {
+            border-radius: 10px 0 0 10px;
+            padding: 0 12px;
+            background-color: #f8fafc;
+            border-right: 1px solid #cbd5e1;
+        }
+
         :root {
             --doc-bg: #f8fafc;
             --doc-surface: #ffffff;
@@ -441,9 +460,8 @@
                                     @endif
 
                                 @elseif($type === 'phone')
-                                    <div class="input-group">
-                                        <button class="btn btn-outline-secondary dropdown-toggle text-dark border-secondary-subtle bg-light fw-semibold" type="button">🇺🇸 ▾</button>
-                                        <input type="tel" name="{{ $key }}" class="form-control-doc" placeholder="{{ $placeholder ?: 'Phone Number' }}" {{ $required ? 'required' : '' }}>
+                                    <div class="phone-input-container">
+                                        <input type="tel" id="{{ $key }}" name="{{ $key }}" class="form-control-doc phone-intl-input" placeholder="{{ $placeholder ?: 'Phone Number' }}" {{ $required ? 'required' : '' }}>
                                     </div>
 
                                 @elseif($type === 'captcha')
@@ -528,6 +546,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     flatpickr('.flatpickr-time-input', {
@@ -536,6 +555,17 @@ document.addEventListener('DOMContentLoaded', function() {
         dateFormat: "h:i K",
         time_24hr: false,
         minuteIncrement: 5
+    });
+
+    document.querySelectorAll('.phone-intl-input').forEach(function(input) {
+        if (window.intlTelInput) {
+            window.intlTelInput(input, {
+                initialCountry: "us",
+                preferredCountries: ["us", "ca", "gb", "au", "de", "fr", "in"],
+                separateDialCode: true,
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js"
+            });
+        }
     });
 });
 </script>
