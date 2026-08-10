@@ -3,267 +3,527 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $form->title }} | Online Form</title>
+    <title>{{ $form->title }} | CartVIP Official Document</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 & Boxicons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
 
     <style>
+        :root {
+            --doc-bg: #f8fafc;
+            --doc-surface: #ffffff;
+            --doc-border: #e2e8f0;
+            --doc-border-strong: #cbd5e1;
+            --doc-primary: #4f46e5;
+            --doc-primary-hover: #4338ca;
+            --doc-text-main: #0f172a;
+            --doc-text-muted: #475569;
+            --doc-text-subtle: #64748b;
+        }
+
         body {
-            background-color: #12131c;
-            color: #e0e2ec;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--doc-bg);
+            color: var(--doc-text-main);
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             min-height: 100vh;
+            padding: 40px 15px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Wider Standard Form Container */
+        .document-wrapper {
+            max-width: 1040px;
+            margin: 0 auto;
+        }
+
+        /* Top CartVIP Branding Bar */
+        .branding-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 16px 24px;
+            background: #ffffff;
+            border: 1px solid var(--doc-border);
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+        }
+        .brand-logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .brand-logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 30px 15px;
+            color: #ffffff;
+            font-size: 1.4rem;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
         }
-        .form-card {
-            background: #1e1f2e;
-            border: 1px solid rgba(255, 255, 255, 0.12);
+        .brand-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+        .brand-subtitle {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--doc-text-subtle);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        /* Document Paper Card */
+        .document-card {
+            background: var(--doc-surface);
+            border: 1px solid var(--doc-border);
+            border-radius: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            padding: 44px 48px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            .document-card {
+                padding: 24px 20px;
+            }
+        }
+
+        /* Top Accent Bar */
+        .document-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #7c3aed 0%, #4f46e5 50%, #06b6d4 100%);
+        }
+
+        /* Club Header Banner */
+        .club-banner {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
             border-radius: 12px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
-            max-width: 780px;
+            padding: 16px 20px;
+            margin-bottom: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .club-info-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Form Titles & Headers */
+        .doc-form-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.03em;
+            margin-bottom: 8px;
+        }
+        .doc-form-desc {
+            font-size: 0.95rem;
+            color: var(--doc-text-muted);
+            line-height: 1.6;
+            margin-bottom: 0;
+        }
+
+        /* Form Inputs & Labels */
+        .form-label-doc {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .form-control-doc, .form-select-doc {
+            background-color: #ffffff;
+            border: 1px solid var(--doc-border-strong);
+            color: #0f172a !important;
+            padding: 11px 16px;
+            border-radius: 10px;
+            font-size: 0.92rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
             width: 100%;
-            padding: 36px;
         }
-        .form-control, .form-select {
-            background-color: #28293d;
-            border: 1px solid #3f425e;
-            color: #ffffff !important;
-            padding: 11px 15px;
-            border-radius: 6px;
+        .form-control-doc::placeholder {
+            color: #94a3b8;
+            font-weight: 400;
         }
-        .form-control::placeholder {
-            color: #8c90ad;
+        .form-control-doc:focus, .form-select-doc:focus {
+            background-color: #ffffff;
+            border-color: var(--doc-primary);
+            color: #0f172a !important;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+            outline: none;
         }
-        .form-control:focus, .form-select:focus {
-            background-color: #28293d;
-            border-color: #696cff;
-            color: #ffffff !important;
-            box-shadow: 0 0 10px rgba(105, 108, 255, 0.4);
+
+        /* Sub-labels for Name & Phone */
+        .sub-label-text {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--doc-text-subtle);
+            margin-top: 4px;
         }
-        .form-check-input {
-            background-color: #28293d;
-            border-color: #3f425e;
+
+        /* File Upload Box (Bright Legal Drop Zone) */
+        .file-dropzone-doc {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 14px;
+            padding: 32px 20px;
+            text-align: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        .file-dropzone-doc:hover {
+            border-color: var(--doc-primary);
+            background: #f1f5f9;
+        }
+        .file-dropzone-icon {
+            font-size: 2.8rem;
+            color: var(--doc-primary);
+            margin-bottom: 10px;
+        }
+        .file-dropzone-text {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        /* Section Headings inside Document */
+        .doc-section-heading {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #0f172a;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+            margin-top: 24px;
+            margin-bottom: 16px;
+            letter-spacing: -0.01em;
+        }
+
+        /* Checkbox & Radio Styling */
+        .form-check-input-doc {
             width: 1.25em;
             height: 1.25em;
+            border: 1.5px solid #94a3b8;
+            border-radius: 4px;
+            cursor: pointer;
         }
-        .form-check-input:checked {
-            background-color: #696cff;
-            border-color: #696cff;
+        .form-check-input-doc:checked {
+            background-color: var(--doc-primary);
+            border-color: var(--doc-primary);
         }
-        .btn-submit {
-            background: linear-gradient(135deg, #696cff 0%, #393bbf 100%);
+
+        /* Submit Button & Security Footer */
+        .btn-submit-doc {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             border: none;
-            color: #ffffff;
-            padding: 12px 32px;
-            font-size: 1rem;
-            font-weight: 600;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-        }
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(105, 108, 255, 0.5);
-        }
-        .flatpickr-calendar {
-            background: #1e1f2e !important;
-            border: 1px solid #3f425e !important;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
-        }
-        .thank-you-card {
-            background: #1e1f2e;
-            border: 1px solid #696cff;
+            color: #ffffff !important;
+            padding: 14px 40px;
+            font-size: 1.02rem;
+            font-weight: 700;
             border-radius: 12px;
-            padding: 40px 24px;
+            box-shadow: 0 4px 16px rgba(79, 70, 229, 0.35);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-submit-doc:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(79, 70, 229, 0.45);
+            background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
+        }
+
+        .security-footer-note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--doc-text-subtle);
+            margin-top: 24px;
+            font-weight: 500;
+        }
+
+        .thank-you-card {
+            background: #ffffff;
+            border: 2px solid #22c55e;
+            border-radius: 20px;
+            padding: 60px 30px;
             text-align: center;
         }
     </style>
 </head>
 <body>
 
-<div class="form-card">
+<div class="document-wrapper">
     
-    @if(session('form_success'))
-        <!-- High-Contrast Accessible Thank You Screen -->
-        <div class="thank-you-card">
-            <div class="mb-3">
-                <i class="bx bx-check-circle text-success" style="font-size: 5rem;"></i>
+    <!-- Top CartVIP Branding Bar -->
+    <div class="branding-header">
+        <div class="brand-logo-wrap">
+            <div class="brand-logo-icon">
+                <i class="bx bx-check-shield"></i>
             </div>
-            <h2 class="text-white fw-bold mb-3">Submission Received!</h2>
-            <p class="fs-5 text-light mb-4" style="max-width: 600px; margin: 0 auto; color: #d0d2e0 !important;">
-                {{ session('form_success') }}
-            </p>
-            <a href="{{ url()->current() }}" class="btn btn-outline-light mt-2">
-                <i class="bx bx-refresh me-1"></i> Submit Another Response
-            </a>
+            <div>
+                <div class="brand-title">CARTVIP</div>
+                <div class="brand-subtitle">Secure Document Portal</div>
+            </div>
         </div>
-    @else
 
-        <div class="border-bottom border-secondary pb-3 mb-4">
-            <h2 class="text-white fw-bold mb-1">{{ $form->title }}</h2>
-            @if($form->description)
-                <p class="text-muted mb-0 fs-6">{{ $form->description }}</p>
-            @endif
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-1.5 rounded-pill font-monospace small">
+                <i class="bx bx-lock-alt me-1"></i>DOCUMENT ID: #CV-{{ strtoupper(substr($form->slug, 0, 12)) }}
+            </span>
         </div>
+    </div>
+
+    <!-- Main Document Card (Wider Canvas & Light Legal Theme) -->
+    <div class="document-card">
         
-        @if($errors->any())
-            <div class="alert alert-danger mb-4">
-                <ul class="mb-0">
-                    @foreach($errors->all() as $err)
-                        <li>{{ $err }}</li>
-                    @endforeach
-                </ul>
+        @if(session('form_success'))
+            <!-- Thank You Screen -->
+            <div class="thank-you-card">
+                <div class="mb-3">
+                    <i class="bx bx-check-circle text-success" style="font-size: 5.5rem;"></i>
+                </div>
+                <h2 class="text-dark fw-bold mb-3">Submission Confirmed!</h2>
+                <p class="fs-5 text-secondary mb-4" style="max-width: 620px; margin: 0 auto;">
+                    {{ session('form_success') }}
+                </p>
+                <a href="{{ url()->current() }}" class="btn btn-outline-dark px-4 py-2 rounded-pill fw-semibold">
+                    <i class="bx bx-refresh me-1"></i> Submit Another Response
+                </a>
             </div>
-        @endif
+        @else
 
-        <form method="POST" action="{{ route('forms.public.submit', $form->slug) }}" enctype="multipart/form-data">
-            @csrf
-            
-            <div class="row g-3">
-                @foreach(($form->fields_schema ?: []) as $field)
-                    @php
-                        $type = $field['type'] ?? 'text';
-                        $key = $field['name'] ?? $field['id'] ?? 'field_' . $loop->index;
-                        $label = $field['label'] ?? ucfirst($type);
-                        $placeholder = $field['placeholder'] ?? '';
-                        $helpText = $field['help_text'] ?? '';
-                        $widthClass = $field['width_class'] ?? 'col-12';
-                        $required = !empty($field['required']);
-                        $options = $field['options'] ?? [];
-                    @endphp
+            <!-- Club Details Header (If Form Belongs to Clubs) -->
+            @if(!empty($targetWebsites) && count($targetWebsites) > 0)
+                <div class="club-banner">
+                    <div class="club-info-title">
+                        <i class="bx bx-building-house text-primary fs-5"></i>
+                        <span>Associated Venue / Club: 
+                            <strong class="text-dark">{{ $targetWebsites->pluck('name')->implode(', ') }}</strong>
+                        </span>
+                    </div>
+                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-1.5 rounded-pill">
+                        <i class="bx bx-badge-check me-1"></i>Verified Official Club Document
+                    </span>
+                </div>
+            @endif
 
-                    <div class="{{ $widthClass }}">
-                        @if($type === 'heading')
-                            <h4 class="text-white mt-3 mb-1 border-bottom border-secondary pb-2">{{ $label }}</h4>
-                            @if($helpText)
-                                <div class="text-muted small mb-2">{{ $helpText }}</div>
-                            @endif
-                        @elseif($type === 'checkbox')
-                            <!-- Standalone Single Agreement Checkbox -->
-                            <div class="form-check mt-2">
-                                <input class="form-check-input" type="checkbox" name="{{ $key }}" id="{{ $key }}" value="1" {{ old($key) ? 'checked' : '' }} {{ $required ? 'required' : '' }}>
-                                <label class="form-check-label text-white fw-medium ms-1" for="{{ $key }}">
+            <!-- Form Header Title & Description -->
+            <div class="border-bottom pb-4 mb-4">
+                <h1 class="doc-form-title">{{ $form->title }}</h1>
+                @if($form->description)
+                    <p class="doc-form-desc">{{ $form->description }}</p>
+                @endif
+            </div>
+
+            @if($errors->any())
+                <div class="alert alert-danger border-0 bg-danger bg-opacity-10 text-danger mb-4 rounded-3">
+                    <div class="fw-bold mb-1"><i class="bx bx-error-circle me-1"></i> Please correct the following errors:</div>
+                    <ul class="mb-0 ps-3 small">
+                        @foreach($errors->all() as $err)
+                            <li>{{ $err }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <!-- Form Fields Render Grid -->
+            <form method="POST" action="{{ route('forms.public.submit', $form->slug) }}" enctype="multipart/form-data">
+                @csrf
+                
+                <div class="row g-4">
+                    @foreach(($form->fields_schema ?: []) as $field)
+                        @php
+                            $type = $field['type'] ?? 'text';
+                            $key = $field['name'] ?? $field['id'] ?? 'field_' . $loop->index;
+                            $label = $field['label'] ?? ucfirst($type);
+                            $placeholder = $field['placeholder'] ?? '';
+                            $helpText = $field['help_text'] ?? '';
+                            $widthClass = $field['width_class'] ?? 'col-12';
+                            $required = !empty($field['required']);
+                            $options = $field['options'] ?? [];
+                        @endphp
+
+                        <div class="{{ $widthClass }}">
+                            @if($type === 'heading')
+                                <h4 class="doc-section-heading">{{ $label }}</h4>
+                                @if($helpText)
+                                    <div class="text-muted small mb-2">{{ $helpText }}</div>
+                                @endif
+
+                            @elseif($type === 'checkbox')
+                                <!-- Single Agreement Checkbox -->
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input form-check-input-doc me-2" type="checkbox" name="{{ $key }}" id="{{ $key }}" value="1" {{ old($key) ? 'checked' : '' }} {{ $required ? 'required' : '' }}>
+                                    <label class="form-check-label fw-semibold text-dark" for="{{ $key }}">
+                                        {{ $label }}
+                                        @if($required)<span class="text-danger">*</span>@endif
+                                    </label>
+                                </div>
+                                @if($helpText)
+                                    <div class="form-text text-muted small mt-1 ms-4">{{ $helpText }}</div>
+                                @endif
+
+                            @else
+                                <label class="form-label-doc">
                                     {{ $label }}
                                     @if($required)<span class="text-danger">*</span>@endif
                                 </label>
-                            </div>
-                            @if($helpText)
-                                <div class="form-text text-muted small mt-1 ms-4">{{ $helpText }}</div>
-                            @endif
-                        @else
-                            <label class="form-label text-white fw-medium">
-                                {{ $label }}
-                                @if($required)<span class="text-danger">*</span>@endif
-                            </label>
 
-                            @if($type === 'name')
-                                @php $format = $field['format'] ?? 'first_last'; @endphp
-                                @if($format === 'first_middle_last')
-                                    <div class="row g-2">
-                                        <div class="col-4">
-                                            <input type="text" name="{{ $key }}[first]" class="form-control" placeholder="First Name" {{ $required ? 'required' : '' }}>
-                                            <div class="form-text text-muted micro-text mt-1">First</div>
+                                @if($type === 'name')
+                                    @php $format = $field['format'] ?? 'first_last'; @endphp
+                                    @if($format === 'first_middle_last')
+                                        <div class="row g-2">
+                                            <div class="col-4">
+                                                <input type="text" name="{{ $key }}[first]" class="form-control-doc" placeholder="First Name" {{ $required ? 'required' : '' }}>
+                                                <div class="sub-label-text">First</div>
+                                            </div>
+                                            <div class="col-4">
+                                                <input type="text" name="{{ $key }}[middle]" class="form-control-doc" placeholder="Middle Name">
+                                                <div class="sub-label-text">Middle</div>
+                                            </div>
+                                            <div class="col-4">
+                                                <input type="text" name="{{ $key }}[last]" class="form-control-doc" placeholder="Last Name" {{ $required ? 'required' : '' }}>
+                                                <div class="sub-label-text">Last</div>
+                                            </div>
                                         </div>
-                                        <div class="col-4">
-                                            <input type="text" name="{{ $key }}[middle]" class="form-control" placeholder="Middle Name">
-                                            <div class="form-text text-muted micro-text mt-1">Middle</div>
+                                    @elseif($format === 'simple')
+                                        <input type="text" name="{{ $key }}" class="form-control-doc" placeholder="{{ $placeholder ?: 'Full Name' }}" {{ $required ? 'required' : '' }}>
+                                    @else
+                                        <!-- Dual Input: First & Last Name (Matching Reference Images) -->
+                                        <div class="row g-3">
+                                            <div class="col-6">
+                                                <input type="text" name="{{ $key }}[first]" class="form-control-doc" placeholder="" {{ $required ? 'required' : '' }}>
+                                                <div class="sub-label-text">First</div>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="text" name="{{ $key }}[last]" class="form-control-doc" placeholder="" {{ $required ? 'required' : '' }}>
+                                                <div class="sub-label-text">Last</div>
+                                            </div>
                                         </div>
-                                        <div class="col-4">
-                                            <input type="text" name="{{ $key }}[last]" class="form-control" placeholder="Last Name" {{ $required ? 'required' : '' }}>
-                                            <div class="form-text text-muted micro-text mt-1">Last</div>
-                                        </div>
+                                    @endif
+
+                                @elseif($type === 'phone')
+                                    <div class="input-group">
+                                        <button class="btn btn-outline-secondary dropdown-toggle text-dark border-secondary-subtle bg-light fw-semibold" type="button">🇺🇸 ▾</button>
+                                        <input type="tel" name="{{ $key }}" class="form-control-doc" placeholder="{{ $placeholder ?: 'Phone Number' }}" {{ $required ? 'required' : '' }}>
                                     </div>
-                                @elseif($format === 'simple')
-                                    <input type="text" name="{{ $key }}" class="form-control" placeholder="{{ $placeholder ?: 'Full Name' }}" {{ $required ? 'required' : '' }}>
+
+                                @elseif($type === 'captcha')
+                                    <div class="d-flex align-items-center gap-2 p-3 rounded-3" style="background:#f1f5f9; border: 1px solid #cbd5e1;">
+                                        <span class="fw-bold text-dark fs-5 font-monospace" style="letter-spacing:2px;">14 + 14 =</span>
+                                        <input type="text" name="{{ $key }}" class="form-control-doc" style="width: 120px;" placeholder="" required>
+                                    </div>
+
+                                @elseif($type === 'textarea')
+                                    <textarea name="{{ $key }}" class="form-control-doc" rows="4" placeholder="{{ $placeholder }}" {{ $required ? 'required' : '' }}>{{ old($key) }}</textarea>
+                                
+                                @elseif($type === 'select')
+                                    <select name="{{ $key }}" class="form-select-doc" {{ $required ? 'required' : '' }}>
+                                        <option value="">-- Select Option --</option>
+                                        @foreach($options as $opt)
+                                            <option value="{{ $opt }}" {{ old($key) === $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                                        @endforeach
+                                    </select>
+
+                                @elseif($type === 'radio')
+                                    <div class="mt-1 d-flex flex-wrap gap-4">
+                                        @foreach($options as $opt)
+                                            <div class="form-check">
+                                                <input class="form-check-input form-check-input-doc" type="radio" name="{{ $key }}" id="{{ $key }}_{{ $loop->index }}" value="{{ $opt }}" {{ old($key) === $opt ? 'checked' : '' }} {{ $required ? 'required' : '' }}>
+                                                <label class="form-check-label fw-semibold text-dark ms-1" for="{{ $key }}_{{ $loop->index }}">{{ $opt }}</label>
+                                            </div>
+                                        @endforeach
+                                    </div>
+
+                                @elseif($type === 'time')
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light text-secondary border-secondary-subtle"><i class="bx bx-time fs-5"></i></span>
+                                        <input type="text" name="{{ $key }}" class="form-control-doc flatpickr-time-input" placeholder="{{ $placeholder ?: 'Select Time (e.g. 10:30 PM)' }}" value="{{ old($key) }}" {{ $required ? 'required' : '' }}>
+                                    </div>
+
+                                @elseif($type === 'file')
+                                    @php
+                                        $exts = !empty($field['allowed_extensions']) ? implode(', ', array_filter(array_map('trim', explode(',', $field['allowed_extensions'])))) : 'pdf, doc, docx, png, jpg';
+                                        $maxMb = !empty($field['max_file_size']) ? $field['max_file_size'] : 5;
+                                        $maxCount = !empty($field['max_file_uploads']) ? $field['max_file_uploads'] : 1;
+                                        $acceptArr = !empty($field['allowed_extensions']) ? array_filter(array_map('trim', explode(',', $field['allowed_extensions']))) : ['pdf', 'doc', 'docx', 'png', 'jpg'];
+                                        $acceptAttr = '.' . implode(',.', $acceptArr);
+                                    @endphp
+                                    <div class="file-dropzone-doc">
+                                        <i class="bx bx-cloud-upload file-dropzone-icon"></i>
+                                        <div class="file-dropzone-text">Drag & Drop File or <span class="text-primary text-decoration-underline">Choose File to Upload</span></div>
+                                        <div class="text-muted micro-text mt-1">
+                                            Supported Formats: <strong>{{ $exts }}</strong> | Max Size: <strong>{{ $maxMb }}MB</strong> @if($maxCount > 1)| Max Files: <strong>{{ $maxCount }}</strong>@endif
+                                        </div>
+                                        <input type="file" name="{{ $key }}{{ $maxCount > 1 ? '[]' : '' }}" class="form-control-doc mt-3" accept="{{ $acceptAttr }}" {{ $maxCount > 1 ? 'multiple' : '' }} {{ $required ? 'required' : '' }}>
+                                    </div>
+
                                 @else
-                                    <div class="row g-2">
-                                        <div class="col-6">
-                                            <input type="text" name="{{ $key }}[first]" class="form-control" placeholder="" {{ $required ? 'required' : '' }}>
-                                            <div class="form-text text-muted micro-text mt-1">First</div>
-                                        </div>
-                                        <div class="col-6">
-                                            <input type="text" name="{{ $key }}[last]" class="form-control" placeholder="" {{ $required ? 'required' : '' }}>
-                                            <div class="form-text text-muted micro-text mt-1">Last</div>
-                                        </div>
-                                    </div>
+                                    <input type="{{ $type === 'phone' ? 'tel' : $type }}" name="{{ $key }}" class="form-control-doc" placeholder="{{ $placeholder }}" value="{{ old($key) }}" {{ $required ? 'required' : '' }}>
                                 @endif
 
-                            @elseif($type === 'phone')
-                                <div class="input-group">
-                                    <button class="btn btn-outline-secondary dropdown-toggle text-white border-secondary bg-dark" type="button">🇺🇸 ▾</button>
-                                    <input type="tel" name="{{ $key }}" class="form-control" placeholder="{{ $placeholder ?: 'Phone Number' }}" {{ $required ? 'required' : '' }}>
-                                </div>
-
-                            @elseif($type === 'captcha')
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="fw-bold text-white fs-5 font-monospace" style="letter-spacing:2px;">14 + 14 =</span>
-                                    <input type="text" name="{{ $key }}" class="form-control" style="width: 120px;" placeholder="" required>
-                                </div>
-
-                            @elseif($type === 'textarea')
-                                <textarea name="{{ $key }}" class="form-control" rows="4" placeholder="{{ $placeholder }}" {{ $required ? 'required' : '' }}>{{ old($key) }}</textarea>
-                            
-                            @elseif($type === 'select')
-                                <select name="{{ $key }}" class="form-select" {{ $required ? 'required' : '' }}>
-                                    <option value="">-- Choose Option --</option>
-                                    @foreach($options as $opt)
-                                        <option value="{{ $opt }}" {{ old($key) === $opt ? 'selected' : '' }}>{{ $opt }}</option>
-                                    @endforeach
-                                </select>
-
-                            @elseif($type === 'radio')
-                                <div class="mt-1">
-                                    @foreach($options as $opt)
-                                        <div class="form-check me-3 d-inline-block">
-                                            <input class="form-check-input" type="radio" name="{{ $key }}" id="{{ $key }}_{{ $loop->index }}" value="{{ $opt }}" {{ old($key) === $opt ? 'checked' : '' }} {{ $required ? 'required' : '' }}>
-                                            <label class="form-check-label text-light" for="{{ $key }}_{{ $loop->index }}">{{ $opt }}</label>
-                                        </div>
-                                    @endforeach
-                                </div>
-
-                            @elseif($type === 'time')
-                                <!-- Safari Compatible Flatpickr Time Picker -->
-                                <div class="input-group">
-                                    <span class="input-group-text bg-dark text-white border-secondary"><i class="bx bx-time"></i></span>
-                                    <input type="text" name="{{ $key }}" class="form-control flatpickr-time-input" placeholder="{{ $placeholder ?: 'Select Time (e.g. 10:30 PM)' }}" value="{{ old($key) }}" {{ $required ? 'required' : '' }}>
-                                </div>
-
-                            @elseif($type === 'file')
-                                @php
-                                    $exts = !empty($field['allowed_extensions']) ? implode(', ', array_filter(array_map('trim', explode(',', $field['allowed_extensions'])))) : 'pdf, doc, docx, png, jpg';
-                                    $maxMb = !empty($field['max_file_size']) ? $field['max_file_size'] : 5;
-                                    $maxCount = !empty($field['max_file_uploads']) ? $field['max_file_uploads'] : 1;
-                                    $acceptArr = !empty($field['allowed_extensions']) ? array_filter(array_map('trim', explode(',', $field['allowed_extensions']))) : ['pdf', 'doc', 'docx', 'png', 'jpg'];
-                                    $acceptAttr = '.' . implode(',.', $acceptArr);
-                                @endphp
-                                <input type="file" name="{{ $key }}{{ $maxCount > 1 ? '[]' : '' }}" class="form-control" accept="{{ $acceptAttr }}" {{ $maxCount > 1 ? 'multiple' : '' }} {{ $required ? 'required' : '' }}>
-                                <div class="form-text text-muted small mt-1">
-                                    <i class="bx bx-info-circle me-1"></i>Supported formats: <strong>{{ $exts }}</strong> | Max size: <strong>{{ $maxMb }}MB</strong> @if($maxCount > 1)| Max files: <strong>{{ $maxCount }}</strong>@endif
-                                </div>
-
-                            @else
-                                <input type="{{ $type === 'phone' ? 'tel' : $type }}" name="{{ $key }}" class="form-control" placeholder="{{ $placeholder }}" value="{{ old($key) }}" {{ $required ? 'required' : '' }}>
+                                @if($helpText)
+                                    <div class="form-text text-muted small mt-1.5"><i class="bx bx-info-circle me-1"></i>{{ $helpText }}</div>
+                                @endif
                             @endif
+                        </div>
+                    @endforeach
+                </div>
 
-                            @if($helpText)
-                                <div class="form-text text-muted small mt-1">{{ $helpText }}</div>
-                            @endif
-                        @endif
+                <!-- Submit Action Row & Security Footnote -->
+                <div class="mt-5 pt-3 border-top d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <button type="submit" class="btn-submit-doc">
+                        <i class="bx bx-paper-plane"></i> Submit Form
+                    </button>
+
+                    <div class="security-footer-note">
+                        <i class="bx bx-lock-alt text-primary fs-5"></i>
+                        <span>Protected by <strong>CartVIP 256-Bit SSL Encryption</strong> • Official & Confidential</span>
                     </div>
-                @endforeach
-            </div>
+                </div>
+            </form>
 
-            <div class="mt-4 text-end">
-                <button type="submit" class="btn btn-submit">
-                    <i class="bx bx-paper-plane me-1"></i> Submit Form
-                </button>
-            </div>
-        </form>
-    @endif
+        @endif
+
+    </div>
 
 </div>
 

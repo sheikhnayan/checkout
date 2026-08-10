@@ -332,8 +332,8 @@
     margin-bottom: 8px;
 }
 .btn-choice-icon {
-    width: 26px;
-    height: 26px;
+    width: 20px;
+    height: 18px;
     border-radius: 50%;
     display: inline-flex;
     align-items: center;

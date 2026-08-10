@@ -365,8 +365,14 @@ class CustomFormController extends Controller
             return response()->view('errors.404', [], 404);
         }
 
+        $targetWebsites = [];
+        if (!empty($form->website_ids)) {
+            $targetWebsites = Website::whereIn('id', $form->website_ids)->get(['id', 'name']);
+        }
+
         return view('forms.public_show', [
             'form' => $form,
+            'targetWebsites' => $targetWebsites,
         ]);
     }
 
