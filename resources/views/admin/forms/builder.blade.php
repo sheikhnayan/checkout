@@ -811,15 +811,33 @@
                         </h5>
                         
                         <div class="mb-4">
-                            <label class="form-label text-white fw-semibold small">Target Clubs / Website Access</label>
-                            <select name="website_ids[]" id="settingWebsiteIds" class="txn-filter-select w-100" multiple style="height: 140px;">
-                                @foreach($websites as $web)
-                                    <option value="{{ $web->id }}" {{ isset($form) && is_array($form->website_ids) && in_array($web->id, $form->website_ids) ? 'selected' : '' }}>
-                                        {{ $web->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <span class="form-text text-muted micro-text mt-1.5 d-block">Hold Ctrl/Cmd to select target venues. Leave empty to allow access across all clubs.</span>
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <label class="form-label text-white fw-semibold small mb-0">Target Clubs / Website Access</label>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-link text-primary micro-text p-0 text-decoration-none fw-semibold" id="btnSelectAllClubs">Select All</button>
+                                    <span class="text-muted micro-text">|</span>
+                                    <button type="button" class="btn btn-link text-muted micro-text p-0 text-decoration-none" id="btnClearAllClubs">Clear All</button>
+                                </div>
+                            </div>
+                            
+                            <div class="p-3 rounded-3" style="max-height: 220px; overflow-y: auto; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1);">
+                                <div class="row g-2">
+                                    @foreach($websites as $web)
+                                        @php
+                                            $isClubChecked = isset($form) && is_array($form->website_ids) && in_array($web->id, $form->website_ids);
+                                        @endphp
+                                        <div class="col-6 col-md-4">
+                                            <div class="form-check d-flex align-items-center gap-1.5 py-1.5 px-2.5 rounded" style="cursor:pointer; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);">
+                                                <input class="form-check-input club-checkbox mt-0 cursor-pointer" type="checkbox" name="website_ids[]" value="{{ $web->id }}" id="club_cb_{{ $web->id }}" {{ $isClubChecked ? 'checked' : '' }}>
+                                                <label class="form-check-label text-white micro-text cursor-pointer text-truncate mb-0 ms-1 fw-medium" for="club_cb_{{ $web->id }}">
+                                                    <i class="bx bx-building-house text-primary me-1"></i> {{ $web->name }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            <span class="form-text text-muted micro-text mt-1.5 d-block">Select target clubs/venues for this form. Leave all unchecked to allow access across all clubs.</span>
                         </div>
                     </div>
 
@@ -1814,6 +1832,13 @@ document.addEventListener('DOMContentLoaded', function() {
         renderCountryCheckboxes(document.getElementById('countrySearchInput')?.value || '');
     });
 
+    document.getElementById('btnSelectAllClubs')?.addEventListener('click', () => {
+        document.querySelectorAll('.club-checkbox').forEach(cb => cb.checked = true);
+    });
+    document.getElementById('btnClearAllClubs')?.addEventListener('click', () => {
+        document.querySelectorAll('.club-checkbox').forEach(cb => cb.checked = false);
+    });
+
     renderCountryCheckboxes();
 
     // Serialize Form & Full Settings Object on Save
@@ -1824,7 +1849,7 @@ document.addEventListener('DOMContentLoaded', function() {
             general: {
                 title: document.getElementById('formTitleInput')?.value || '',
                 description: document.getElementById('formDescInput')?.value || '',
-                website_ids: Array.from(document.querySelectorAll('#settingWebsiteIds option:checked')).map(o => o.value)
+                website_ids: Array.from(document.querySelectorAll('.club-checkbox:checked')).map(cb => cb.value)
             },
             spam: {
                 enable_modern_spam: document.getElementById('settingEnableModernSpam')?.checked ?? false,
