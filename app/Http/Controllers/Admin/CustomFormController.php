@@ -370,9 +370,16 @@ class CustomFormController extends Controller
             $targetWebsites = Website::whereIn('id', $form->website_ids)->get(['id', 'name']);
         }
 
+        // Dynamic CAPTCHA Generation
+        $num1 = rand(2, 18);
+        $num2 = rand(2, 18);
+        $captchaQuestion = "{$num1} + {$num2}";
+        session(['captcha_answer_' . $form->id => ($num1 + $num2)]);
+
         return view('forms.public_show', [
             'form' => $form,
             'targetWebsites' => $targetWebsites,
+            'captchaQuestion' => $captchaQuestion,
         ]);
     }
 
@@ -385,6 +392,21 @@ class CustomFormController extends Controller
         }
 
         $fieldsSchema = $form->fields_schema ?: [];
+
+        // Validate Dynamic CAPTCHA
+        foreach ($fieldsSchema as $f) {
+            if (($f['type'] ?? '') === 'captcha') {
+                $key = $f['name'] ?? $f['id'] ?? null;
+                if ($key) {
+                    $userAnswer = trim((string) $request->input($key));
+                    $expectedAnswer = session('captcha_answer_' . $form->id);
+                    if ($expectedAnswer === null || (int)$userAnswer !== (int)$expectedAnswer) {
+                        return back()->withErrors([$key => 'CAPTCHA math answer is incorrect. Please try again.'])->withInput();
+                    }
+                }
+            }
+        }
+
         $rules = [];
         $submissionData = [];
 

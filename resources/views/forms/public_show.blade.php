@@ -465,9 +465,9 @@
                                     </div>
 
                                 @elseif($type === 'captcha')
-                                    <div class="d-flex align-items-center gap-2 p-3 rounded-3" style="background:#f1f5f9; border: 1px solid #cbd5e1;">
-                                        <span class="fw-bold text-dark fs-5 font-monospace" style="letter-spacing:2px;">14 + 14 =</span>
-                                        <input type="text" name="{{ $key }}" class="form-control-doc" style="width: 120px;" placeholder="" required>
+                                    <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background:#f1f5f9; border: 1px solid #cbd5e1;">
+                                        <span class="fw-bold text-dark fs-5 font-monospace" style="letter-spacing:2px;">{{ $captchaQuestion ?? '8 + 5' }} =</span>
+                                        <input type="number" name="{{ $key }}" class="form-control-doc" style="width: 130px;" placeholder="Answer" required>
                                     </div>
 
                                 @elseif($type === 'textarea')
@@ -492,8 +492,8 @@
                                     </div>
 
                                 @elseif($type === 'time')
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light text-secondary border-secondary-subtle"><i class="bx bx-time fs-5"></i></span>
+                                    <div class="input-group d-flex align-items-center">
+                                        <span class="input-group-text bg-light text-secondary border-secondary-subtle time-icon-trigger" style="cursor: pointer;"><i class="bx bx-time fs-5"></i></span>
                                         <input type="text" name="{{ $key }}" class="form-control-doc flatpickr-time-input" placeholder="{{ $placeholder ?: 'Select Time (e.g. 10:30 PM)' }}" value="{{ old($key) }}" {{ $required ? 'required' : '' }}>
                                     </div>
 
@@ -549,24 +549,83 @@
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    flatpickr('.flatpickr-time-input', {
-        enableTime: true,
-        noCalendar: true,
-        dateFormat: "h:i K",
-        time_24hr: false,
-        minuteIncrement: 5
+    // 1. Time Picker with Icon Click Listener
+    document.querySelectorAll('.flatpickr-time-input').forEach(function(input) {
+        const fp = flatpickr(input, {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "h:i K",
+            time_24hr: false,
+            minuteIncrement: 5
+        });
+
+        const group = input.closest('.input-group');
+        if (group) {
+            const iconBtn = group.querySelector('.time-icon-trigger');
+            if (iconBtn) {
+                iconBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    fp.open();
+                });
+            }
+        }
     });
 
+    // 2. Intl Tel Input with Validation Map
+    const itiMap = new Map();
     document.querySelectorAll('.phone-intl-input').forEach(function(input) {
         if (window.intlTelInput) {
-            window.intlTelInput(input, {
+            const iti = window.intlTelInput(input, {
                 initialCountry: "us",
                 preferredCountries: ["us", "ca", "gb", "au", "de", "fr", "in"],
                 separateDialCode: true,
                 utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js"
             });
+            itiMap.set(input, iti);
         }
     });
+
+    // 3. Form Submit Validation for Phone & Country Match
+    const mainForm = document.querySelector('form');
+    if (mainForm) {
+        mainForm.addEventListener('submit', function(e) {
+            let isValid = true;
+            document.querySelectorAll('.phone-intl-input').forEach(function(input) {
+                const iti = itiMap.get(input);
+                if (iti) {
+                    const rawVal = input.value.trim();
+                    const container = input.closest('.phone-input-container');
+                    let errDiv = container ? container.querySelector('.phone-error-msg') : null;
+                    if (rawVal.length > 0) {
+                        if (!iti.isValidNumber()) {
+                            isValid = false;
+                            input.classList.add('is-invalid');
+                            if (!errDiv && container) {
+                                errDiv = document.createElement('div');
+                                errDiv.className = 'text-danger small mt-1 phone-error-msg fw-semibold';
+                                container.appendChild(errDiv);
+                            }
+                            const countryName = iti.getSelectedCountryData().name || 'selected country';
+                            if (errDiv) errDiv.innerHTML = '<i class="bx bx-error-circle me-1"></i>Invalid phone number format for ' + countryName + '.';
+                        } else {
+                            input.classList.remove('is-invalid');
+                            if (errDiv) errDiv.remove();
+                            // Standardize to full E.164 phone number including country dial code
+                            input.value = iti.getNumber();
+                        }
+                    } else if (input.hasAttribute('required')) {
+                        isValid = false;
+                        input.classList.add('is-invalid');
+                    }
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+    }
 });
 </script>
 </body>
