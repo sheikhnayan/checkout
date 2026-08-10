@@ -367,7 +367,7 @@
             </form>
 
             <!-- Table Container with Internal Padding & Border Radius -->
-            <div class="table-responsive forms-table-wrapper text-nowrap">
+            <div class="table-responsive forms-table-wrapper text-nowrap p-4">
                 <table class="forms-table">
                     <thead>
                         <tr>
