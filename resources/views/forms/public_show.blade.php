@@ -412,6 +412,11 @@
             <!-- Form Fields Render Grid -->
             <form method="POST" action="{{ route('forms.public.submit', $form->slug) }}" enctype="multipart/form-data">
                 @csrf
+                <!-- Honeypot Anti-Spam & Submission Timestamp -->
+                <div style="display:none !important; visibility:hidden !important; opacity:0 !important; position:absolute !important; left:-9999px !important;">
+                    <input type="text" name="_hp_security_check" value="" tabindex="-1" autocomplete="off">
+                    <input type="hidden" name="_form_render_timestamp" value="{{ time() }}">
+                </div>
                 
                 <div class="row g-4">
                     @foreach(($form->fields_schema ?: []) as $field)

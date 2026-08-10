@@ -9,6 +9,8 @@ use App\Models\CustomFormSubmission;
 use App\Models\Website;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
@@ -391,9 +393,44 @@ class CustomFormController extends Controller
             return response()->json(['error' => 'Form is not active.'], 400);
         }
 
+        $settings = $form->settings ?: [];
+        $spamSettings = $settings['spam'] ?? [];
+
+        // 1. Honeypot Anti-Spam Check
+        if (!empty($spamSettings['enable_antispam'])) {
+            if (!empty($request->input('_hp_security_check'))) {
+                Log::warning("Honeypot caught spam submission on form #{$form->id} IP: {$request->ip()}");
+                return back()->withErrors(['form' => 'Spam detected. Submission rejected.'])->withInput();
+            }
+        }
+
+        // 2. Minimum Time to Submit Check
+        if (!empty($spamSettings['min_time'])) {
+            $renderTime = (int) $request->input('_form_render_timestamp');
+            $minSeconds = !empty($spamSettings['min_time_seconds']) ? (int) $spamSettings['min_time_seconds'] : 3;
+            if ($renderTime > 0 && (time() - $renderTime) < $minSeconds) {
+                return back()->withErrors(['form' => "Form submitted too quickly (minimum {$minSeconds} seconds required). Please take a moment and try again."])->withInput();
+            }
+        }
+
+        // 3. Country Filter Check
+        if (!empty($spamSettings['country_filter']) && !empty($spamSettings['restricted_countries'])) {
+            $restrictedCountries = array_filter(array_map('trim', explode(',', strtoupper($spamSettings['restricted_countries']))));
+            if (!empty($restrictedCountries)) {
+                $userCountry = strtoupper(
+                    $request->header('CF-IPCountry') ?: 
+                    $request->header('X-Country') ?: 
+                    $request->header('GEOIP_COUNTRY_CODE') ?: ''
+                );
+                if (!empty($userCountry) && in_array($userCountry, $restrictedCountries)) {
+                    return back()->withErrors(['form' => "Submissions from your location ({$userCountry}) are restricted for this form."])->withInput();
+                }
+            }
+        }
+
         $fieldsSchema = $form->fields_schema ?: [];
 
-        // Validate Dynamic CAPTCHA
+        // 4. Validate Dynamic CAPTCHA
         foreach ($fieldsSchema as $f) {
             if (($f['type'] ?? '') === 'captcha') {
                 $key = $f['name'] ?? $f['id'] ?? null;
@@ -501,6 +538,22 @@ class CustomFormController extends Controller
             $request->validate($rules, [], $customAttributes);
         }
 
+        // 5. Keyword Filter Check (Scan submitted data for blacklisted words/links)
+        if (!empty($spamSettings['keyword_filter']) && !empty($spamSettings['restricted_keywords'])) {
+            $keywords = array_filter(array_map('trim', explode(',', strtolower($spamSettings['restricted_keywords']))));
+            if (!empty($keywords)) {
+                foreach ($submissionData as $k => $val) {
+                    $valStr = strtolower(is_array($val) ? json_encode($val) : (string) $val);
+                    foreach ($keywords as $kw) {
+                        if (!empty($kw) && str_contains($valStr, $kw)) {
+                            $fieldLabel = $customAttributes[$k] ?? $k;
+                            return back()->withErrors([$k => "The {$fieldLabel} field contains a restricted word or link: \"{$kw}\"."])->withInput();
+                        }
+                    }
+                }
+            }
+        }
+
         $submission = CustomFormSubmission::create([
             'custom_form_id' => $form->id,
             'website_id' => $request->input('website_id') ? (int) $request->input('website_id') : null,
@@ -509,7 +562,44 @@ class CustomFormController extends Controller
             'submission_data' => $submissionData,
         ]);
 
-        $settings = $form->settings ?: [];
+        // 6. Send Email Notification
+        $notifySettings = $settings['notifications'] ?? [];
+        if (!empty($notifySettings['enabled']) && !empty($notifySettings['send_to'])) {
+            try {
+                $toEmail = $notifySettings['send_to'];
+                $subject = !empty($notifySettings['subject']) ? str_replace('{form_title}', $form->title, $notifySettings['subject']) : "New Form Submission: {$form->title}";
+                $fromName = !empty($notifySettings['from_name']) ? $notifySettings['from_name'] : "CartVIP Forms";
+                $fromEmail = !empty($notifySettings['from_email']) ? $notifySettings['from_email'] : (config('mail.from.address') ?: 'no-reply@cartvip.com');
+
+                $tableHtml = "<h3 style='font-family:sans-serif;color:#0f172a;'>New Submission Received: " . htmlspecialchars($form->title) . "</h3>";
+                $tableHtml .= "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse:collapse;width:100%;font-family:sans-serif;border-color:#e2e8f0;'>";
+                $tableHtml .= "<tr style='background:#f8fafc;color:#0f172a;'><th>Field</th><th>Value</th></tr>";
+
+                foreach ($fieldsSchema as $f) {
+                    $key = $f['name'] ?? $f['id'] ?? null;
+                    if (!$key || ($f['type'] ?? '') === 'heading') continue;
+                    $label = $f['label'] ?? $key;
+                    $val = $submissionData[$key] ?? '-';
+                    if (is_array($val)) $val = implode(', ', $val);
+                    $tableHtml .= "<tr><td style='width:35%;'><strong>" . htmlspecialchars($label) . "</strong></td><td>" . nl2br(htmlspecialchars((string)$val)) . "</td></tr>";
+                }
+                $tableHtml .= "</table>";
+                $tableHtml .= "<p style='font-size:12px;color:#64748b;margin-top:20px;'>Submitted on " . now()->format('M d, Y h:i A') . " | IP: {$request->ip()}</p>";
+
+                $customTemplate = !empty($notifySettings['message']) ? $notifySettings['message'] : '{all_fields}';
+                $finalBody = str_replace('{all_fields}', $tableHtml, $customTemplate);
+
+                Mail::html($finalBody, function ($message) use ($toEmail, $subject, $fromName, $fromEmail) {
+                    $message->to($toEmail)
+                            ->subject($subject)
+                            ->from($fromEmail, $fromName);
+                });
+            } catch (\Exception $e) {
+                Log::error("Form Notification Email Exception: " . $e->getMessage());
+            }
+        }
+
+        // 7. Confirmation Response
         $confirmationSettings = $settings['confirmation'] ?? [];
         $confType = $confirmationSettings['type'] ?? 'message';
         $redirectUrl = $confirmationSettings['redirect_url'] ?? null;

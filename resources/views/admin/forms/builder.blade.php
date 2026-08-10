@@ -865,15 +865,21 @@
                                 </label>
                             </div>
 
-                            <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);">
-                                <div>
-                                    <div class="text-white fw-semibold small">Enable minimum time to submit</div>
-                                    <div class="text-muted micro-text">Reject rapid automated form submissions.</div>
+                            <div class="p-3 rounded-3 mb-3" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <div>
+                                        <div class="text-white fw-semibold small">Enable minimum time to submit</div>
+                                        <div class="text-muted micro-text">Reject rapid automated form submissions.</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="settingMinTime" class="toggle-switch-input" {{ isset($initialSettings['spam']['min_time']) && $initialSettings['spam']['min_time'] ? 'checked' : '' }}>
+                                        <span class="toggle-switch-slider"></span>
+                                    </label>
                                 </div>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="settingMinTime" class="toggle-switch-input" {{ isset($initialSettings['spam']['min_time']) && $initialSettings['spam']['min_time'] ? 'checked' : '' }}>
-                                    <span class="toggle-switch-slider"></span>
-                                </label>
+                                <div class="mt-2">
+                                    <label class="form-label text-white micro-text fw-semibold mb-1">Minimum Submission Time (Seconds)</label>
+                                    <input type="number" id="settingMinTimeSeconds" class="txn-search-input" min="1" max="60" placeholder="3" value="{{ $initialSettings['spam']['min_time_seconds'] ?? 3 }}">
+                                </div>
                             </div>
                         </div>
 
@@ -881,26 +887,54 @@
                         <div>
                             <div class="fw-semibold text-white small mb-3 text-uppercase" style="letter-spacing:0.05em">Filtering</div>
 
-                            <div class="d-flex align-items-center justify-content-between mb-3 p-3 rounded-3" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);">
-                                <div>
-                                    <div class="text-white fw-semibold small">Enable country filter</div>
-                                    <div class="text-muted micro-text">Restrict entries based on visitor country.</div>
+                            <div class="p-3 rounded-3 mb-3" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <div>
+                                        <div class="text-white fw-semibold small">Enable country filter</div>
+                                        <div class="text-muted micro-text">Restrict entries based on visitor country.</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="settingCountryFilter" class="toggle-switch-input" {{ isset($initialSettings['spam']['country_filter']) && $initialSettings['spam']['country_filter'] ? 'checked' : '' }}>
+                                        <span class="toggle-switch-slider"></span>
+                                    </label>
                                 </div>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="settingCountryFilter" class="toggle-switch-input" {{ isset($initialSettings['spam']['country_filter']) && $initialSettings['spam']['country_filter'] ? 'checked' : '' }}>
-                                    <span class="toggle-switch-slider"></span>
-                                </label>
+                                <div class="mt-3">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <label class="form-label text-white micro-text fw-semibold mb-0">Select Restricted / Blocked Countries</label>
+                                        <div class="d-flex gap-2">
+                                            <button type="button" class="btn btn-link text-primary micro-text p-0 text-decoration-none fw-semibold" id="btnSelectAllCountries">Select All</button>
+                                            <span class="text-muted micro-text">|</span>
+                                            <button type="button" class="btn btn-link text-muted micro-text p-0 text-decoration-none" id="btnClearAllCountries">Clear All</button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-2">
+                                        <input type="text" id="countrySearchInput" class="txn-search-input py-1.5 px-3 micro-text" placeholder="Search country name or ISO code...">
+                                    </div>
+
+                                    <div class="country-checkbox-grid p-3 rounded-3" style="max-height: 240px; overflow-y: auto; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1);">
+                                        <div class="row g-2" id="countryCheckboxContainer">
+                                            <!-- Dynamically rendered country checkboxes with flags -->
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);">
-                                <div>
-                                    <div class="text-white fw-semibold small">Enable keyword filter</div>
-                                    <div class="text-muted micro-text">Block blacklisted words and links.</div>
+                            <div class="p-3 rounded-3" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <div>
+                                        <div class="text-white fw-semibold small">Enable keyword filter</div>
+                                        <div class="text-muted micro-text">Block blacklisted words and links.</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="settingKeywordFilter" class="toggle-switch-input" {{ isset($initialSettings['spam']['keyword_filter']) && $initialSettings['spam']['keyword_filter'] ? 'checked' : '' }}>
+                                        <span class="toggle-switch-slider"></span>
+                                    </label>
                                 </div>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="settingKeywordFilter" class="toggle-switch-input" {{ isset($initialSettings['spam']['keyword_filter']) && $initialSettings['spam']['keyword_filter'] ? 'checked' : '' }}>
-                                    <span class="toggle-switch-slider"></span>
-                                </label>
+                                <div class="mt-2">
+                                    <label class="form-label text-white micro-text fw-semibold mb-1">Restricted Keywords / Blacklisted Words (comma or line separated)</label>
+                                    <textarea id="settingRestrictedKeywords" class="txn-search-input" rows="3" placeholder="e.g. casino, viagra, crypto, http://, https://">{{ $initialSettings['spam']['restricted_keywords'] ?? '' }}</textarea>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1665,6 +1699,123 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Interactive Country Selector Checkboxes with Names & Flag Emojis
+    const countriesData = [
+        { code: 'US', name: 'United States', flag: '🇺🇸' },
+        { code: 'CA', name: 'Canada', flag: '🇨🇦' },
+        { code: 'GB', name: 'United Kingdom', flag: '🇬🇧' },
+        { code: 'AU', name: 'Australia', flag: '🇦🇺' },
+        { code: 'DE', name: 'Germany', flag: '🇩🇪' },
+        { code: 'FR', name: 'France', flag: '🇫🇷' },
+        { code: 'IN', name: 'India', flag: '🇮🇳' },
+        { code: 'RU', name: 'Russia', flag: '🇷🇺' },
+        { code: 'CN', name: 'China', flag: '🇨🇳' },
+        { code: 'BR', name: 'Brazil', flag: '🇧🇷' },
+        { code: 'MX', name: 'Mexico', flag: '🇲🇽' },
+        { code: 'IT', name: 'Italy', flag: '🇮🇹' },
+        { code: 'ES', name: 'Spain', flag: '🇪🇸' },
+        { code: 'JP', name: 'Japan', flag: '🇯🇵' },
+        { code: 'KR', name: 'South Korea', flag: '🇰🇷' },
+        { code: 'NL', name: 'Netherlands', flag: '🇳🇱' },
+        { code: 'SE', name: 'Sweden', flag: '🇸🇪' },
+        { code: 'NO', name: 'Norway', flag: '🇳🇴' },
+        { code: 'CH', name: 'Switzerland', flag: '🇨🇭' },
+        { code: 'AT', name: 'Austria', flag: '🇦🇹' },
+        { code: 'BE', name: 'Belgium', flag: '🇧🇪' },
+        { code: 'DK', name: 'Denmark', flag: '🇩🇰' },
+        { code: 'FI', name: 'Finland', flag: '🇫🇮' },
+        { code: 'IE', name: 'Ireland', flag: '🇮🇪' },
+        { code: 'PL', name: 'Poland', flag: '🇵🇱' },
+        { code: 'PT', name: 'Portugal', flag: '🇵🇹' },
+        { code: 'UA', name: 'Ukraine', flag: '🇺🇦' },
+        { code: 'ZA', name: 'South Africa', flag: '🇿🇦' },
+        { code: 'AE', name: 'United Arab Emirates', flag: '🇦🇪' },
+        { code: 'SA', name: 'Saudi Arabia', flag: '🇸🇦' },
+        { code: 'SG', name: 'Singapore', flag: '🇸🇬' },
+        { code: 'NZ', name: 'New Zealand', flag: '🇳🇿' },
+        { code: 'IR', name: 'Iran', flag: '🇮🇷' },
+        { code: 'KP', name: 'North Korea', flag: '🇰🇵' },
+        { code: 'PK', name: 'Pakistan', flag: '🇵🇰' },
+        { code: 'NG', name: 'Nigeria', flag: '🇳🇬' },
+        { code: 'EG', name: 'Egypt', flag: '🇪🇬' },
+        { code: 'VN', name: 'Vietnam', flag: '🇻🇳' },
+        { code: 'TH', name: 'Thailand', flag: '🇹🇭' },
+        { code: 'ID', name: 'Indonesia', flag: '🇮🇩' },
+        { code: 'PH', name: 'Philippines', flag: '🇵🇭' },
+        { code: 'MY', name: 'Malaysia', flag: '🇲🇾' },
+        { code: 'AR', name: 'Argentina', flag: '🇦🇷' },
+        { code: 'CL', name: 'Chile', flag: '🇨🇱' },
+        { code: 'CO', name: 'Colombia', flag: '🇨🇴' },
+        { code: 'TR', name: 'Turkey', flag: '🇹🇷' },
+        { code: 'IL', name: 'Israel', flag: '🇮🇱' }
+    ];
+
+    let selectedCountries = [];
+    const rawSavedCountries = {!! json_encode($initialSettings['spam']['restricted_countries'] ?? '') !!};
+    if (typeof rawSavedCountries === 'string' && rawSavedCountries.trim() !== '') {
+        selectedCountries = rawSavedCountries.split(',').map(s => s.trim().toUpperCase());
+    } else if (Array.isArray(rawSavedCountries)) {
+        selectedCountries = rawSavedCountries.map(s => String(s).trim().toUpperCase());
+    }
+
+    function renderCountryCheckboxes(filterText = '') {
+        const container = document.getElementById('countryCheckboxContainer');
+        if (!container) return;
+        container.innerHTML = '';
+
+        const query = filterText.toLowerCase().trim();
+        const filtered = countriesData.filter(c => 
+            c.name.toLowerCase().includes(query) || c.code.toLowerCase().includes(query)
+        );
+
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="text-muted micro-text py-2 text-center col-12">No countries match search.</div>';
+            return;
+        }
+
+        filtered.forEach(c => {
+            const isChecked = selectedCountries.includes(c.code);
+            const col = document.createElement('div');
+            col.className = 'col-6 col-md-4';
+            col.innerHTML = `
+                <div class="form-check d-flex align-items-center gap-1.5 py-1 px-2 rounded" style="cursor:pointer; background: rgba(255,255,255,0.03);">
+                    <input class="form-check-input country-checkbox mt-0 cursor-pointer" type="checkbox" value="${c.code}" id="country_cb_${c.code}" ${isChecked ? 'checked' : ''}>
+                    <label class="form-check-label text-white micro-text cursor-pointer text-truncate mb-0 ms-1" for="country_cb_${c.code}">
+                        <span>${c.flag}</span> ${c.name} <span class="text-muted">(${c.code})</span>
+                    </label>
+                </div>
+            `;
+            container.appendChild(col);
+        });
+
+        container.querySelectorAll('.country-checkbox').forEach(cb => {
+            cb.addEventListener('change', () => {
+                const val = cb.value;
+                if (cb.checked) {
+                    if (!selectedCountries.includes(val)) selectedCountries.push(val);
+                } else {
+                    selectedCountries = selectedCountries.filter(x => x !== val);
+                }
+            });
+        });
+    }
+
+    document.getElementById('countrySearchInput')?.addEventListener('input', (e) => {
+        renderCountryCheckboxes(e.target.value);
+    });
+
+    document.getElementById('btnSelectAllCountries')?.addEventListener('click', () => {
+        selectedCountries = countriesData.map(c => c.code);
+        renderCountryCheckboxes(document.getElementById('countrySearchInput')?.value || '');
+    });
+
+    document.getElementById('btnClearAllCountries')?.addEventListener('click', () => {
+        selectedCountries = [];
+        renderCountryCheckboxes(document.getElementById('countrySearchInput')?.value || '');
+    });
+
+    renderCountryCheckboxes();
+
     // Serialize Form & Full Settings Object on Save
     document.getElementById('builderForm').addEventListener('submit', function(e) {
         document.getElementById('fieldsSchemaInput').value = JSON.stringify(fields);
@@ -1680,8 +1831,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 enable_antispam: document.getElementById('settingEnableAntispam')?.checked ?? true,
                 store_spam: document.getElementById('settingStoreSpam')?.checked ?? false,
                 min_time: document.getElementById('settingMinTime')?.checked ?? false,
+                min_time_seconds: document.getElementById('settingMinTimeSeconds')?.value || 3,
                 country_filter: document.getElementById('settingCountryFilter')?.checked ?? false,
-                keyword_filter: document.getElementById('settingKeywordFilter')?.checked ?? false
+                restricted_countries: selectedCountries.join(','),
+                keyword_filter: document.getElementById('settingKeywordFilter')?.checked ?? false,
+                restricted_keywords: document.getElementById('settingRestrictedKeywords')?.value || ''
             },
             confirmation: {
                 type: document.getElementById('settingConfirmationType')?.value || 'message',
