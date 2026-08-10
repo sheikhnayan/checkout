@@ -573,6 +573,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // 1. Time Picker with Icon Click Listener
@@ -597,7 +598,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 2. Intl Tel Input with Validation Map
+    // 2. Intl Tel Input with Dynamic Country Auto-Formatter
     const itiMap = new Map();
     document.querySelectorAll('.phone-intl-input').forEach(function(input) {
         if (window.intlTelInput) {
@@ -605,9 +606,54 @@ document.addEventListener('DOMContentLoaded', function() {
                 initialCountry: "us",
                 preferredCountries: ["us", "ca", "gb", "au", "de", "fr", "in"],
                 separateDialCode: true,
+                autoPlaceholder: "aggressive",
+                formatOnDisplay: true,
+                nationalMode: true,
                 utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js"
             });
             itiMap.set(input, iti);
+
+            // Auto-format placeholder & current value on country change
+            input.addEventListener('countrychange', function() {
+                const countryData = iti.getSelectedCountryData();
+                if (window.intlTelInputUtils && countryData && countryData.iso2) {
+                    const example = window.intlTelInputUtils.getExampleNumber(
+                        countryData.iso2,
+                        true,
+                        window.intlTelInputUtils.numberType.MOBILE
+                    );
+                    if (example) input.placeholder = example;
+
+                    if (input.value.trim().length > 0) {
+                        const formatted = window.intlTelInputUtils.formatNumber(
+                            input.value,
+                            countryData.iso2,
+                            window.intlTelInputUtils.numberFormat.NATIONAL
+                        );
+                        if (formatted) input.value = formatted;
+                    }
+                }
+            });
+
+            // Live auto-format on input typing without blocking extra digits
+            input.addEventListener('input', function() {
+                if (window.intlTelInputUtils && input.value.trim().length > 0) {
+                    const countryData = iti.getSelectedCountryData();
+                    if (countryData && countryData.iso2) {
+                        const rawDigits = input.value.replace(/\D/g, '');
+                        if (rawDigits.length >= 3) {
+                            const formatted = window.intlTelInputUtils.formatNumber(
+                                input.value,
+                                countryData.iso2,
+                                window.intlTelInputUtils.numberFormat.NATIONAL
+                            );
+                            if (formatted && formatted !== input.value && !input.value.endsWith(' ')) {
+                                input.value = formatted;
+                            }
+                        }
+                    }
+                }
+            });
         }
     });
 
