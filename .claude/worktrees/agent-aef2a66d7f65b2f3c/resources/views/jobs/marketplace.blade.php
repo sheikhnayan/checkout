@@ -192,7 +192,7 @@
             <option value="employee" {{ $filters['job_type'] === 'employee' ? 'selected' : '' }}>Employee</option>
         </select>
         <button type="submit" class="search-btn">Find jobs</button>
-        <a href="{{ route('jobs.pre-apply') }}" class="ghost-btn">Preferred Club Form</a>
+        <a href="{{ route('jobs.pre-apply') }}" class="ghost-btn">General Employment Application</a>
     </form>
 
     <div class="layout">

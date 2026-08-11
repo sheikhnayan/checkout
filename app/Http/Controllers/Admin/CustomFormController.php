@@ -571,34 +571,41 @@ class CustomFormController extends Controller
         $notifySettings = $settings['notifications'] ?? [];
         if (!empty($notifySettings['enabled']) && !empty($notifySettings['send_to'])) {
             try {
-                $toEmail = $notifySettings['send_to'];
-                $subject = !empty($notifySettings['subject']) ? str_replace('{form_title}', $form->title, $notifySettings['subject']) : "New Form Submission: {$form->title}";
-                $fromName = !empty($notifySettings['from_name']) ? $notifySettings['from_name'] : "CartVIP Forms";
-                $fromEmail = !empty($notifySettings['from_email']) ? $notifySettings['from_email'] : (config('mail.from.address') ?: 'no-reply@cartvip.com');
+                $rawSendTo = $notifySettings['send_to'];
+                $parsedEmails = preg_split('/[\s,;]+/', $rawSendTo);
+                $recipients = array_values(array_unique(array_filter(array_map('trim', $parsedEmails), function ($e) {
+                    return filter_var($e, FILTER_VALIDATE_EMAIL);
+                })));
 
-                $tableHtml = "<h3 style='font-family:sans-serif;color:#0f172a;'>New Submission Received: " . htmlspecialchars($form->title) . "</h3>";
-                $tableHtml .= "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse:collapse;width:100%;font-family:sans-serif;border-color:#e2e8f0;'>";
-                $tableHtml .= "<tr style='background:#f8fafc;color:#0f172a;'><th>Field</th><th>Value</th></tr>";
+                if (!empty($recipients)) {
+                    $subject = !empty($notifySettings['subject']) ? str_replace('{form_title}', $form->title, $notifySettings['subject']) : "New Form Submission: {$form->title}";
+                    $fromName = !empty($notifySettings['from_name']) ? $notifySettings['from_name'] : "CartVIP Forms";
+                    $fromEmail = !empty($notifySettings['from_email']) ? $notifySettings['from_email'] : (config('mail.from.address') ?: 'no-reply@cartvip.com');
 
-                foreach ($fieldsSchema as $f) {
-                    $key = $f['name'] ?? $f['id'] ?? null;
-                    if (!$key || ($f['type'] ?? '') === 'heading') continue;
-                    $label = $f['label'] ?? $key;
-                    $val = $submissionData[$key] ?? '-';
-                    if (is_array($val)) $val = implode(', ', $val);
-                    $tableHtml .= "<tr><td style='width:35%;'><strong>" . htmlspecialchars($label) . "</strong></td><td>" . nl2br(htmlspecialchars((string)$val)) . "</td></tr>";
+                    $tableHtml = "<h3 style='font-family:sans-serif;color:#0f172a;'>New Submission Received: " . htmlspecialchars($form->title) . "</h3>";
+                    $tableHtml .= "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse:collapse;width:100%;font-family:sans-serif;border-color:#e2e8f0;'>";
+                    $tableHtml .= "<tr style='background:#f8fafc;color:#0f172a;'><th>Field</th><th>Value</th></tr>";
+
+                    foreach ($fieldsSchema as $f) {
+                        $key = $f['name'] ?? $f['id'] ?? null;
+                        if (!$key || ($f['type'] ?? '') === 'heading') continue;
+                        $label = $f['label'] ?? $key;
+                        $val = $submissionData[$key] ?? '-';
+                        if (is_array($val)) $val = implode(', ', $val);
+                        $tableHtml .= "<tr><td style='width:35%;'><strong>" . htmlspecialchars($label) . "</strong></td><td>" . nl2br(htmlspecialchars((string)$val)) . "</td></tr>";
+                    }
+                    $tableHtml .= "</table>";
+                    $tableHtml .= "<p style='font-size:12px;color:#64748b;margin-top:20px;'>Submitted on " . now()->format('M d, Y h:i A') . " | IP: {$request->ip()}</p>";
+
+                    $customTemplate = !empty($notifySettings['message']) ? $notifySettings['message'] : '{all_fields}';
+                    $finalBody = str_replace('{all_fields}', $tableHtml, $customTemplate);
+
+                    Mail::html($finalBody, function ($message) use ($recipients, $subject, $fromName, $fromEmail) {
+                        $message->to($recipients)
+                                ->subject($subject)
+                                ->from($fromEmail, $fromName);
+                    });
                 }
-                $tableHtml .= "</table>";
-                $tableHtml .= "<p style='font-size:12px;color:#64748b;margin-top:20px;'>Submitted on " . now()->format('M d, Y h:i A') . " | IP: {$request->ip()}</p>";
-
-                $customTemplate = !empty($notifySettings['message']) ? $notifySettings['message'] : '{all_fields}';
-                $finalBody = str_replace('{all_fields}', $tableHtml, $customTemplate);
-
-                Mail::html($finalBody, function ($message) use ($toEmail, $subject, $fromName, $fromEmail) {
-                    $message->to($toEmail)
-                            ->subject($subject)
-                            ->from($fromEmail, $fromName);
-                });
             } catch (\Exception $e) {
                 Log::error("Form Notification Email Exception: " . $e->getMessage());
             }

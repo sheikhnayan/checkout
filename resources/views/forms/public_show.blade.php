@@ -1,3 +1,19 @@
+@php
+    $selectedFont = $form->settings['font_family'] ?? 'Plus Jakarta Sans';
+    $fontMap = [
+        'Plus Jakarta Sans' => 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap',
+        'Inter'             => 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap',
+        'Roboto'            => 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap',
+        'Outfit'            => 'https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap',
+        'Poppins'           => 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap',
+        'Open Sans'         => 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap',
+        'Space Grotesk'     => 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap',
+        'Playfair Display'  => 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&display=swap',
+        'Lora'              => 'https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&display=swap',
+    ];
+    $activeFontUrl = $fontMap[$selectedFont] ?? $fontMap['Plus Jakarta Sans'];
+    $isSerifFont = in_array($selectedFont, ['Playfair Display', 'Lora']);
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,6 +25,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link href="{{ $activeFontUrl }}" rel="stylesheet">
 
     <!-- Bootstrap 5, Boxicons & Intl Tel Input -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
@@ -47,13 +64,15 @@
             --doc-text-subtle: #64748b;
         }
 
-        body {
+        body, input, select, textarea, button, label, .doc-form-title, .doc-form-desc {
             background-color: var(--doc-bg);
             color: var(--doc-text-main);
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: '{{ $selectedFont }}', {{ $isSerifFont ? 'serif' : 'sans-serif' }} !important;
+            -webkit-font-smoothing: antialiased;
+        }
+        body {
             min-height: 100vh;
             padding: 40px 15px;
-            -webkit-font-smoothing: antialiased;
         }
 
         /* Wider Standard Form Container */
@@ -375,20 +394,7 @@
             </div>
         @else
 
-            <!-- Club Details Header (If Form Belongs to Clubs) -->
-            @if(!empty($targetWebsites) && count($targetWebsites) > 0)
-                <div class="club-banner">
-                    <div class="club-info-title">
-                        <i class="bx bx-building-house text-primary fs-5"></i>
-                        <span>Associated Venue / Club: 
-                            <strong class="text-dark">{{ $targetWebsites->pluck('name')->implode(', ') }}</strong>
-                        </span>
-                    </div>
-                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-1.5 rounded-pill">
-                        <i class="bx bx-badge-check me-1"></i>Verified Official Club Document
-                    </span>
-                </div>
-            @endif
+
 
             <!-- Form Header Title & Description -->
             <div class="border-bottom pb-4 mb-4">
@@ -568,6 +574,14 @@
                         <span>Protected by <strong>CartVIP 256-Bit SSL Encryption</strong> • Official & Confidential</span>
                     </div>
                 </div>
+
+                @if(!empty($targetWebsites) && count($targetWebsites) > 0)
+                    <div class="mt-4 pt-3 border-top border-secondary border-opacity-10 text-center text-muted d-flex align-items-center justify-content-center flex-wrap gap-2" style="font-size: 0.78rem; color: #64748b;">
+                        <span><i class="bx bx-building-house me-1 text-primary"></i>Official Form for: <strong class="text-secondary">{{ $targetWebsites->pluck('name')->implode(', ') }}</strong></span>
+                        <span class="text-secondary opacity-50">•</span>
+                        <span class="text-success"><i class="bx bx-badge-check me-1"></i>Verified Venue Document</span>
+                    </div>
+                @endif
             </form>
 
         @endif

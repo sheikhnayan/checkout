@@ -926,6 +926,28 @@
                             </div>
                             <span class="form-text text-muted micro-text mt-1.5 d-block">Select target clubs/venues for this form. Leave all unchecked to allow access across all clubs.</span>
                         </div>
+
+                        <!-- Form Design & Typography (Font Selector) -->
+                        <div class="pt-3 border-top border-secondary border-opacity-10">
+                            <label class="form-label text-white fw-semibold small mb-2">
+                                <i class="bx bx-font me-1.5 text-primary"></i>Form Typography / Font Family
+                            </label>
+                            @php
+                                $selectedFont = $initialSettings['font_family'] ?? 'Plus Jakarta Sans';
+                            @endphp
+                            <select name="setting_font_family" id="settingFontFamily" class="txn-filter-select w-100 fs-6">
+                                <option value="Plus Jakarta Sans" {{ $selectedFont === 'Plus Jakarta Sans' ? 'selected' : '' }}>Plus Jakarta Sans (Default Modern)</option>
+                                <option value="Inter" {{ $selectedFont === 'Inter' ? 'selected' : '' }}>Inter (Sleek UI)</option>
+                                <option value="Roboto" {{ $selectedFont === 'Roboto' ? 'selected' : '' }}>Roboto (Google Classic)</option>
+                                <option value="Outfit" {{ $selectedFont === 'Outfit' ? 'selected' : '' }}>Outfit (Geometric Modern)</option>
+                                <option value="Poppins" {{ $selectedFont === 'Poppins' ? 'selected' : '' }}>Poppins (Friendly Round)</option>
+                                <option value="Open Sans" {{ $selectedFont === 'Open Sans' ? 'selected' : '' }}>Open Sans (Neutral Clean)</option>
+                                <option value="Space Grotesk" {{ $selectedFont === 'Space Grotesk' ? 'selected' : '' }}>Space Grotesk (Tech Display)</option>
+                                <option value="Playfair Display" {{ $selectedFont === 'Playfair Display' ? 'selected' : '' }}>Playfair Display (Elegant Serif)</option>
+                                <option value="Lora" {{ $selectedFont === 'Lora' ? 'selected' : '' }}>Lora (Editorial Serif)</option>
+                            </select>
+                            <span class="form-text text-muted micro-text mt-1.5 d-block">Choose the typography font family applied to the public form title, labels, and text.</span>
+                        </div>
                     </div>
 
                     <!-- SECTION 2: SPAM PROTECTION AND SECURITY (Matching Image 2) -->
@@ -1110,8 +1132,12 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label text-white small fw-semibold">Send To Email Address</label>
-                                <input type="text" id="settingNotifySendTo" class="txn-search-input" placeholder="admin@cartvip.com" value="{{ $initialSettings['notifications']['send_to'] ?? 'admin@cartvip.com' }}">
+                                <label class="form-label text-white small fw-semibold d-flex justify-content-between align-items-center">
+                                    <span>Send To Email Address(es) <span class="text-danger">*</span></span>
+                                    <span class="text-muted micro-text">Multiple recipients supported</span>
+                                </label>
+                                <textarea id="settingNotifySendTo" class="txn-search-input" rows="2" placeholder="admin@cartvip.com, sales@cartvip.com">{{ $initialSettings['notifications']['send_to'] ?? 'admin@cartvip.com' }}</textarea>
+                                <span class="form-text text-muted micro-text mt-1 d-block"><i class="bx bx-info-circle me-1 text-primary"></i>Enter one or multiple email addresses separated by commas (<code>,</code>), semicolons (<code>;</code>), or new lines.</span>
                             </div>
 
                             <div class="mb-3">
@@ -1983,6 +2009,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('fieldsSchemaInput').value = JSON.stringify(fields);
 
         const settingsPayload = {
+            font_family: document.getElementById('settingFontFamily')?.value || 'Plus Jakarta Sans',
             general: {
                 title: document.getElementById('formTitleInput')?.value || '',
                 description: document.getElementById('formDescInput')?.value || '',
