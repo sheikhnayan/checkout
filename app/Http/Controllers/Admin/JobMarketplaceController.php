@@ -25,8 +25,10 @@ class JobMarketplaceController extends Controller
     public function create()
     {
         $websites = $this->accessibleWebsites();
+        $statesAndCities = \App\Helpers\UsLocations::getStatesAndCities();
+        $states = \App\Helpers\UsLocations::getStates();
 
-        return view('admin.jobs.create', compact('websites'));
+        return view('admin.jobs.create', compact('websites', 'states', 'statesAndCities'));
     }
 
     public function store(Request $request)
@@ -86,8 +88,10 @@ class JobMarketplaceController extends Controller
     {
         $this->ensureWebsiteAccess((int) $job->website_id);
         $websites = $this->accessibleWebsites();
+        $statesAndCities = \App\Helpers\UsLocations::getStatesAndCities();
+        $states = \App\Helpers\UsLocations::getStates();
 
-        return view('admin.jobs.edit', compact('job', 'websites'));
+        return view('admin.jobs.edit', compact('job', 'websites', 'states', 'statesAndCities'));
     }
 
     public function update(Request $request, JobPost $job)

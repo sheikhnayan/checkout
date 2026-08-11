@@ -588,11 +588,39 @@ class CustomFormController extends Controller
 
                     foreach ($fieldsSchema as $f) {
                         $key = $f['name'] ?? $f['id'] ?? null;
-                        if (!$key || ($f['type'] ?? '') === 'heading') continue;
+                        $type = strtolower($f['type'] ?? '');
+
+                        // Skip heading and captcha fields
+                        if (!$key || $type === 'heading' || $type === 'captcha' || str_contains(strtolower($key), 'captcha')) {
+                            continue;
+                        }
+
                         $label = $f['label'] ?? $key;
                         $val = $submissionData[$key] ?? '-';
-                        if (is_array($val)) $val = implode(', ', $val);
-                        $tableHtml .= "<tr><td style='width:35%;'><strong>" . htmlspecialchars($label) . "</strong></td><td>" . nl2br(htmlspecialchars((string)$val)) . "</td></tr>";
+                        if (is_array($val)) {
+                            $val = implode(', ', array_filter($val));
+                        }
+                        $valStr = (string) $val;
+
+                        // Render File Upload fields as a styled button to open in a new tab
+                        if ($type === 'file' || str_contains($valStr, '/storage/') || str_contains($valStr, 'form_uploads') || preg_match('/\.(pdf|png|jpg|jpeg|doc|docx|webp|gif)$/i', $valStr)) {
+                            if (!empty($valStr) && $valStr !== '-') {
+                                $urls = array_filter(array_map('trim', explode(',', $valStr)));
+                                $btnList = [];
+                                foreach ($urls as $u) {
+                                    $fullUrl = str_starts_with($u, 'http') ? $u : asset($u);
+                                    $fileName = basename($u) ?: 'View File';
+                                    $btnList[] = '<a href="' . htmlspecialchars($fullUrl) . '" target="_blank" rel="noopener noreferrer" style="display:inline-block; padding:8px 16px; margin:4px 6px 4px 0; background-color:#4f46e5; color:#ffffff; text-decoration:none; border-radius:6px; font-weight:600; font-size:13px; font-family:sans-serif;">📎 View ' . htmlspecialchars($fileName) . ' &rarr;</a>';
+                                }
+                                $renderedVal = implode(' ', $btnList);
+                            } else {
+                                $renderedVal = '<span style="color:#94a3b8; font-style:italic;">No file uploaded</span>';
+                            }
+                        } else {
+                            $renderedVal = nl2br(htmlspecialchars($valStr));
+                        }
+
+                        $tableHtml .= "<tr><td style='width:35%;'><strong>" . htmlspecialchars($label) . "</strong></td><td>" . $renderedVal . "</td></tr>";
                     }
                     $tableHtml .= "</table>";
                     $tableHtml .= "<p style='font-size:12px;color:#64748b;margin-top:20px;'>Submitted on " . now()->format('M d, Y h:i A') . " | IP: {$request->ip()}</p>";

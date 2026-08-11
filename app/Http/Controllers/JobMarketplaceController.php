@@ -17,25 +17,25 @@ class JobMarketplaceController extends Controller
     {
         $jobs = $this->marketplaceQuery($request)->paginate(12);
 
-        $baseQuery = JobPost::where('status', true)->where('is_archived', false);
+        $statesAndCities = \App\Helpers\UsLocations::getStatesAndCities();
+        $allStates = \App\Helpers\UsLocations::getStates();
+        $selectedState = (string) $request->get('state', '');
 
-        $locations = (clone $baseQuery)->whereNotNull('location')->where('location', '!=', '')->distinct()->orderBy('location')->pluck('location');
-        $states = \Illuminate\Support\Facades\Schema::hasColumn('job_posts', 'state')
-            ? (clone $baseQuery)->whereNotNull('state')->where('state', '!=', '')->distinct()->orderBy('state')->pluck('state')
-            : collect();
-        $cities = \Illuminate\Support\Facades\Schema::hasColumn('job_posts', 'city')
-            ? (clone $baseQuery)->whereNotNull('city')->where('city', '!=', '')->distinct()->orderBy('city')->pluck('city')
-            : collect();
+        if ($selectedState && isset($statesAndCities[$selectedState])) {
+            $cities = $statesAndCities[$selectedState];
+        } else {
+            $cities = (clone $baseQuery)->whereNotNull('city')->where('city', '!=', '')->distinct()->orderBy('city')->pluck('city')->toArray();
+        }
 
         return view('jobs.marketplace', [
             'jobs' => $jobs,
-            'locations' => $locations,
-            'states' => $states,
+            'states' => $allStates,
             'cities' => $cities,
+            'statesAndCities' => $statesAndCities,
             'filters' => [
                 'q' => (string) $request->get('q', ''),
                 'location' => (string) $request->get('location', ''),
-                'state' => (string) $request->get('state', ''),
+                'state' => $selectedState,
                 'city' => (string) $request->get('city', ''),
                 'job_type' => (string) $request->get('job_type', ''),
                 'employment_type' => (string) $request->get('employment_type', ''),

@@ -46,13 +46,20 @@
                         </div>
 
                         <div class="col-md-3">
-                            <label class="form-label">City <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="City where this job is based."></i></label>
-                            <input type="text" name="city" class="form-control" value="{{ old('city') }}" placeholder="Miami">
+                            <label class="form-label">State <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="State where this job is based. Select State first to choose City."></i></label>
+                            <select name="state" id="stateSelect" class="form-select">
+                                <option value="">Select State</option>
+                                @foreach($states as $st)
+                                    <option value="{{ $st }}" {{ old('state') === $st ? 'selected' : '' }}>{{ $st }}</option>
+                                @endforeach
+                            </select>
                         </div>
 
                         <div class="col-md-3">
-                            <label class="form-label">State <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="State where this job is based."></i></label>
-                            <input type="text" name="state" class="form-control" value="{{ old('state') }}" placeholder="FL">
+                            <label class="form-label">City <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="City where this job is based. Populated based on selected State."></i></label>
+                            <select name="city" id="citySelect" class="form-select" disabled>
+                                <option value="">Select State First</option>
+                            </select>
                         </div>
 
                         <div class="col-md-4">
@@ -110,4 +117,40 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statesAndCities = {!! json_encode($statesAndCities) !!};
+    const stateSelect = document.getElementById('stateSelect');
+    const citySelect = document.getElementById('citySelect');
+    const oldCity = "{!! old('city') !!}";
+
+    function updateCities(selectedState, selectedCity = '') {
+        citySelect.innerHTML = '<option value="">Select City</option>';
+        if (selectedState && statesAndCities[selectedState]) {
+            citySelect.disabled = false;
+            statesAndCities[selectedState].forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                if (c === selectedCity) {
+                    opt.selected = true;
+                }
+                citySelect.appendChild(opt);
+            });
+        } else {
+            citySelect.disabled = true;
+            citySelect.innerHTML = '<option value="">Select State First</option>';
+        }
+    }
+
+    stateSelect.addEventListener('change', function() {
+        updateCities(this.value);
+    });
+
+    if (stateSelect.value) {
+        updateCities(stateSelect.value, oldCity);
+    }
+});
+</script>
 @endsection

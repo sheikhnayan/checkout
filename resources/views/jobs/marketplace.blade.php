@@ -240,6 +240,7 @@
 
 <script>
     (function() {
+        const statesAndCities = {!! json_encode($statesAndCities) !!};
         const form = document.getElementById('jobSearchForm');
         const list = document.getElementById('jobList');
         const resultCount = document.getElementById('resultCount');
@@ -251,6 +252,20 @@
         const type = document.getElementById('searchType');
 
         let timer;
+
+        function updateCityDropdown(selectedState) {
+            const currentSelectedCity = city.value;
+            city.innerHTML = '<option value="">All Cities</option>';
+            if (selectedState && statesAndCities[selectedState]) {
+                statesAndCities[selectedState].forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c;
+                    opt.textContent = c;
+                    if (c === currentSelectedCity) opt.selected = true;
+                    city.appendChild(opt);
+                });
+            }
+        }
 
         async function fetchJobs() {
             const params = new URLSearchParams({
@@ -295,11 +310,20 @@
         });
 
         if (q) q.addEventListener('input', debouncedFetch);
-        if (state) state.addEventListener('change', fetchJobs);
+        if (state) {
+            state.addEventListener('change', function() {
+                updateCityDropdown(this.value);
+                fetchJobs();
+            });
+        }
         if (city) city.addEventListener('change', fetchJobs);
         if (empType) empType.addEventListener('change', fetchJobs);
         if (payFreq) payFreq.addEventListener('change', fetchJobs);
         if (type) type.addEventListener('change', fetchJobs);
+
+        if (state && state.value) {
+            updateCityDropdown(state.value);
+        }
     })();
 </script>
 </body>
