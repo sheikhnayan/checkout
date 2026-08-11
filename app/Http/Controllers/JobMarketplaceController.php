@@ -24,6 +24,7 @@ class JobMarketplaceController extends Controller
         if ($selectedState && isset($statesAndCities[$selectedState])) {
             $cities = $statesAndCities[$selectedState];
         } else {
+            $baseQuery = JobPost::where('status', true)->where('is_archived', false);
             $cities = (clone $baseQuery)->whereNotNull('city')->where('city', '!=', '')->distinct()->orderBy('city')->pluck('city')->toArray();
         }
 
