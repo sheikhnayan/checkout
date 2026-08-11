@@ -160,8 +160,30 @@
 .forms-table-wrapper {
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
-    overflow: hidden;
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
     background: rgba(0, 0, 0, 0.12);
+    width: 100%;
+}
+.forms-table-wrapper::-webkit-scrollbar {
+    height: 6px;
+}
+.forms-table-wrapper::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.6);
+    border-radius: 6px;
+}
+.forms-table-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(124, 58, 237, 0.4);
+    border-radius: 6px;
+}
+.forms-table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(124, 58, 237, 0.7);
+}
+.dataTables_wrapper {
+    width: 100%;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
 }
 .forms-table {
     border-collapse: separate;
@@ -355,7 +377,7 @@
             </form>
 
             <!-- Table Container with Internal Padding & Border Radius -->
-            <div class="table-responsive forms-table-wrapper text-nowrap p-4">
+            <div class="table-responsive forms-table-wrapper text-nowrap p-2 p-md-4">
                 <table class="forms-table">
                     <thead>
                         <tr>

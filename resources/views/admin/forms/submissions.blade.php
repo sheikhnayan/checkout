@@ -32,7 +32,7 @@
 
         <!-- Submissions Table Card -->
         <div class="card bg-dark text-white border-secondary">
-            <div class="table-responsive text-nowrap">
+            <div class="table-responsive text-nowrap" style="overflow-x: auto !important; -webkit-overflow-scrolling: touch;">
                 <table class="table table-hover align-middle">
                     <thead>
                         <tr class="table-dark">

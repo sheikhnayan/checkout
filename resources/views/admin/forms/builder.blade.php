@@ -21,6 +21,10 @@
     padding: 4px;
     display: inline-flex;
     gap: 4px;
+    max-width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
 }
 .builder-mode-btn {
     border: none;
@@ -97,6 +101,10 @@
     padding: 4px;
     display: flex;
     gap: 4px;
+    max-width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
 }
 .builder-nav-tab {
     flex: 1;
@@ -161,6 +169,10 @@
     gap: 16px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 16px;
+    max-width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
 }
 .inspector-sub-tab {
     background: transparent;
@@ -236,6 +248,15 @@
     width: 100%;
     transition: all 0.2s ease;
 }
+.input-group .txn-search-input {
+    flex: 1 1 auto;
+    width: 1px !important;
+}
+.input-group .input-group-text {
+    border-color: rgba(255, 255, 255, 0.12);
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
 .txn-search-input:focus {
     border-color: rgba(124, 58, 237, 0.6);
     background: rgba(255, 255, 255, 0.08);
@@ -243,6 +264,72 @@
 }
 .txn-search-input::placeholder {
     color: rgba(255, 255, 255, 0.35);
+}
+
+/* Drag Target Line Indicator */
+.drag-over-top {
+    position: relative;
+}
+.drag-over-top::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #7c3aed;
+    border-radius: 4px;
+    box-shadow: 0 0 12px #7c3aed;
+    z-index: 10;
+}
+.drag-over-bottom {
+    position: relative;
+}
+.drag-over-bottom::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #7c3aed;
+    border-radius: 4px;
+    box-shadow: 0 0 12px #7c3aed;
+    z-index: 10;
+}
+
+/* Section Heading Cards */
+.field-card-heading {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(15, 23, 42, 0.6) 100%) !important;
+    border: 1px solid rgba(124, 58, 237, 0.4) !important;
+    border-left: 5px solid #7c3aed !important;
+    border-radius: 12px;
+}
+
+/* Quick Action Toolbar on Field Cards */
+.field-quick-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.08);
+}
+.btn-quick-pill {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.btn-quick-pill:hover, .btn-quick-pill.active {
+    background: rgba(124, 58, 237, 0.3);
+    color: #ffffff;
+    border-color: rgba(124, 58, 237, 0.6);
 }
 
 .txn-filter-select {
@@ -490,7 +577,7 @@
             <div id="builderModeFieldsView" class="row g-4">
                 
                 <!-- Left Sidebar Column: Tabbed Inspector & Categorized Palette (4 Cols) -->
-                <div class="col-lg-4 col-xl-3.5">
+                <div class="col-12 col-lg-4 col-xl-3">
                     <div class="forms-card h-100">
                         
                         <!-- Top Navigation Tabs (Add Fields vs Field Options) -->
@@ -745,7 +832,7 @@
                 </div>
 
                 <!-- Right Canvas Column: Wide Layout Canvas (8 Cols) -->
-                <div class="col-lg-8 col-xl-8.5">
+                <div class="col-12 col-lg-8 col-xl-9">
                     <div class="forms-card">
                         <div class="d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-10 pb-3 mb-4">
                             <h5 class="mb-0 text-white fw-bold fs-6">
@@ -777,7 +864,7 @@
             <div id="builderModeSettingsView" class="row g-4" style="display: none;">
                 
                 <!-- Left Secondary Settings Navigation Menu (3.5 Cols) -->
-                <div class="col-lg-3.5 col-xl-3">
+                <div class="col-12 col-lg-4 col-xl-3">
                     <div class="forms-card">
                         <div class="fw-bold text-white small text-uppercase mb-3" style="letter-spacing:0.06em;">Form Settings</div>
                         <div class="settings-menu-list">
@@ -802,7 +889,7 @@
                 </div>
 
                 <!-- Right Workspace Area for Settings (8.5 Cols) -->
-                <div class="col-lg-8.5 col-xl-9">
+                <div class="col-12 col-lg-8 col-xl-9">
                     
                     <!-- SECTION 1: GENERAL SETTINGS -->
                     <div class="settings-section-card" id="setSecGeneral">
@@ -1112,6 +1199,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let selectedFieldIndex = null;
     let draggedCanvasIdx = null;
+    let dragInsertTarget = null;
+
+    window.setQuickWidth = function(idx, widthClass) {
+        if (fields[idx]) {
+            fields[idx].width_class = widthClass;
+            selectField(idx);
+        }
+    };
+
+    window.toggleQuickRequired = function(idx) {
+        if (fields[idx]) {
+            fields[idx].required = !fields[idx].required;
+            selectField(idx);
+        }
+    };
 
     const canvas = document.getElementById('canvasContainer');
     const emptyNotice = document.getElementById('emptyCanvasNotice');
@@ -1140,7 +1242,7 @@ document.addEventListener('DOMContentLoaded', function() {
         builderModeSettingsView.style.display = 'flex';
     });
 
-    // Settings Secondary Sub-Menu Switching (General, Spam, Confirmations, Notifications)
+    // Settings Secondary Sub-Menu Switching
     const settingsMenuItems = document.querySelectorAll('.settings-menu-item');
     settingsMenuItems.forEach(item => {
         item.addEventListener('click', () => {
@@ -1156,24 +1258,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Confirmation Type Toggle (Message vs Redirect URL)
-    const settingConfirmationType = document.getElementById('settingConfirmationType');
-    const confirmationMessageGroup = document.getElementById('confirmationMessageGroup');
-    const confirmationRedirectGroup = document.getElementById('confirmationRedirectGroup');
-
-    if (settingConfirmationType) {
-        settingConfirmationType.addEventListener('change', (e) => {
-            if (e.target.value === 'redirect') {
-                confirmationMessageGroup.style.display = 'none';
-                confirmationRedirectGroup.style.display = 'block';
-            } else {
-                confirmationMessageGroup.style.display = 'block';
-                confirmationRedirectGroup.style.display = 'none';
-            }
-        });
-    }
-
-    // Left Panel Tabs inside Fields view (Add Fields vs Field Options)
+    // Left Panel Tabs inside Fields view
     const tabAddFieldsBtn = document.getElementById('tabAddFieldsBtn');
     const tabFieldOptionsBtn = document.getElementById('tabFieldOptionsBtn');
     const tabContentAddFields = document.getElementById('tabContentAddFields');
@@ -1197,7 +1282,7 @@ document.addEventListener('DOMContentLoaded', function() {
     tabAddFieldsBtn.addEventListener('click', () => switchLeftTab('add'));
     tabFieldOptionsBtn.addEventListener('click', () => switchLeftTab('options'));
 
-    // Inspector Sub-Tabs (General / Advanced / Smart Logic)
+    // Inspector Sub-Tabs
     const subTabGeneral = document.getElementById('subTabGeneral');
     const subTabAdvanced = document.getElementById('subTabAdvanced');
     const subTabLogic = document.getElementById('subTabLogic');
@@ -1240,24 +1325,33 @@ document.addEventListener('DOMContentLoaded', function() {
     canvas.addEventListener('dragover', (e) => e.preventDefault());
     canvas.addEventListener('drop', (e) => {
         e.preventDefault();
+        document.querySelectorAll('.field-card-wrapper').forEach(w => w.classList.remove('drag-over-top', 'drag-over-bottom'));
+        
         const source = e.dataTransfer.getData('source');
+        let targetIdx = fields.length;
+        if (dragInsertTarget !== null) {
+            targetIdx = dragInsertTarget.position === 'after' ? dragInsertTarget.idx + 1 : dragInsertTarget.idx;
+        }
+
         if (source === 'palette') {
             const type = e.dataTransfer.getData('field-type');
-            if (type) addField(type);
+            if (type) addFieldAt(type, targetIdx);
         } else if (source === 'canvas') {
-            const targetIdxStr = e.target.closest('.field-card-wrapper')?.getAttribute('data-idx');
-            if (targetIdxStr !== null && targetIdxStr !== undefined) {
-                const targetIdx = parseInt(targetIdxStr);
-                if (draggedCanvasIdx !== null && draggedCanvasIdx !== targetIdx) {
-                    const movedItem = fields.splice(draggedCanvasIdx, 1)[0];
-                    fields.splice(targetIdx, 0, movedItem);
-                    selectField(targetIdx);
-                }
+            if (draggedCanvasIdx !== null && draggedCanvasIdx !== targetIdx) {
+                const movedItem = fields.splice(draggedCanvasIdx, 1)[0];
+                const insertAt = (draggedCanvasIdx < targetIdx) ? targetIdx - 1 : targetIdx;
+                fields.splice(insertAt, 0, movedItem);
+                selectField(insertAt);
             }
         }
+        dragInsertTarget = null;
     });
 
     function addField(type) {
+        addFieldAt(type, fields.length);
+    }
+
+    function addFieldAt(type, insertIdx) {
         const id = 'field_' + Math.random().toString(36).substr(2, 9);
         let defaultLabel = ucfirst(type) + ' Field';
         if (type === 'name') defaultLabel = 'Name';
@@ -1266,6 +1360,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (type === 'checkbox') defaultLabel = 'I agree to the terms and conditions';
         if (type === 'file') defaultLabel = 'Resume required for server and/or bartender';
         if (type === 'captcha') defaultLabel = 'Captcha (To prevent spam)';
+        if (type === 'time') defaultLabel = 'Time Field';
 
         const newField = {
             id: id,
@@ -1283,8 +1378,9 @@ document.addEventListener('DOMContentLoaded', function() {
             options: ['Option 1', 'Option 2', 'Option 3']
         };
 
-        fields.push(newField);
-        selectField(fields.length - 1);
+        const targetPos = (insertIdx >= 0 && insertIdx <= fields.length) ? insertIdx : fields.length;
+        fields.splice(targetPos, 0, newField);
+        selectField(targetPos);
     }
 
     function renderCanvas() {
@@ -1306,8 +1402,28 @@ document.addEventListener('DOMContentLoaded', function() {
             wrapper.className = (f.width_class || 'col-12') + ' field-card-wrapper';
             wrapper.setAttribute('data-idx', idx);
 
+            wrapper.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                document.querySelectorAll('.field-card-wrapper').forEach(w => w.classList.remove('drag-over-top', 'drag-over-bottom'));
+                const rect = wrapper.getBoundingClientRect();
+                const offsetY = e.clientY - rect.top;
+                if (offsetY < rect.height / 2) {
+                    wrapper.classList.add('drag-over-top');
+                    dragInsertTarget = { idx: idx, position: 'before' };
+                } else {
+                    wrapper.classList.add('drag-over-bottom');
+                    dragInsertTarget = { idx: idx, position: 'after' };
+                }
+            });
+
+            wrapper.addEventListener('dragleave', () => {
+                wrapper.classList.remove('drag-over-top', 'drag-over-bottom');
+            });
+
             const card = document.createElement('div');
-            card.className = 'field-card' + (selectedFieldIndex === idx ? ' selected' : '');
+            const isHeading = f.type === 'heading';
+            card.className = 'field-card' + (isHeading ? ' field-card-heading' : '') + (selectedFieldIndex === idx ? ' selected' : '');
             card.setAttribute('draggable', 'true');
 
             let inputPreview = '';
@@ -1398,14 +1514,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 inputPreview = `
                     <div class="input-group d-flex align-items-center">
                         <span class="input-group-text bg-dark text-secondary border-secondary border-end-0"><i class="bx bx-time text-primary fs-5"></i></span>
-                        <input type="text" class="txn-search-input" style="border-top-left-radius:0; border-bottom-left-radius:0;" placeholder="Select Time (e.g. 10:30 PM)" disabled>
+                        <input type="text" class="txn-search-input flex-grow-1" style="border-top-left-radius:0; border-bottom-left-radius:0; width: auto !important;" placeholder="Select Time (e.g. 10:30 PM)" disabled>
                     </div>
                 `;
             } else if (f.type === 'heading') {
-                inputPreview = `<h5 class="text-white fw-bold mb-0 border-bottom border-secondary border-opacity-25 pb-2">${f.label}</h5>`;
+                inputPreview = `<h5 class="text-white fw-bold mb-0 border-bottom border-secondary border-opacity-25 pb-2 d-flex align-items-center gap-2"><i class="bx bx-heading text-primary fs-4"></i> ${f.label}</h5>`;
             } else {
                 inputPreview = `<input type="${f.type === 'phone' ? 'tel' : f.type}" class="txn-search-input" placeholder="${f.placeholder || ''}" disabled>`;
             }
+
+            const widthVal = f.width_class || 'col-12';
 
             card.innerHTML = `
                 <div class="field-actions">
@@ -1424,10 +1542,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <div class="d-flex align-items-center mb-1">
                     <i class="bx bx-move field-drag-handle" title="Drag to relocate field"></i>
-                    ${f.type !== 'heading' && f.type !== 'checkbox' ? `<label class="form-label text-white mb-0 fw-semibold small me-2">${f.label} ${f.required ? '<span class="text-danger">*</span>' : ''}</label>` : ''}
+                    ${!isHeading && f.type !== 'checkbox' ? `<label class="form-label text-white mb-0 fw-semibold small me-2">${f.label} ${f.required ? '<span class="text-danger">*</span>' : ''}</label>` : ''}
                 </div>
                 ${inputPreview}
                 ${f.help_text ? `<div class="text-muted micro-text mt-1.5"><i class="bx bx-info-circle me-1 text-primary"></i>${f.help_text}</div>` : ''}
+
+                <div class="field-quick-bar">
+                    <span class="micro-text text-muted me-1"><i class="bx bx-slider"></i> Quick:</span>
+                    <button type="button" class="btn-quick-pill ${widthVal === 'col-12' ? 'active' : ''}" onclick="event.stopPropagation(); setQuickWidth(${idx}, 'col-12')" title="Full Width (100%)">100%</button>
+                    <button type="button" class="btn-quick-pill ${widthVal === 'col-md-6' ? 'active' : ''}" onclick="event.stopPropagation(); setQuickWidth(${idx}, 'col-md-6')" title="Half Width (50%)">50%</button>
+                    <button type="button" class="btn-quick-pill ${widthVal === 'col-md-4' ? 'active' : ''}" onclick="event.stopPropagation(); setQuickWidth(${idx}, 'col-md-4')" title="One Third (33%)">33%</button>
+                    
+                    ${!isHeading ? `
+                        <button type="button" class="btn-quick-pill ms-auto ${f.required ? 'active' : ''}" onclick="event.stopPropagation(); toggleQuickRequired(${idx})" title="Toggle Required Field">
+                            <i class="bx ${f.required ? 'bx-check-circle text-danger' : 'bx-circle'} me-1"></i> ${f.required ? 'Required' : 'Optional'}
+                        </button>
+                    ` : ''}
+                </div>
             `;
 
             card.addEventListener('dragstart', (e) => {
@@ -1441,7 +1572,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             card.addEventListener('click', (e) => {
-                if (e.target.closest('.field-actions')) return;
+                if (e.target.closest('.field-actions') || e.target.closest('.field-quick-bar')) return;
                 selectField(idx);
             });
 
@@ -1507,6 +1638,12 @@ document.addEventListener('DOMContentLoaded', function() {
         updateInspector();
         switchLeftTab('options');
         switchInspectorSubTab('general');
+
+        // Smoothly bring the inspector panel into focus
+        const inspectorEl = document.getElementById('tabContentFieldOptions');
+        if (inspectorEl && window.innerWidth < 992) {
+            inspectorEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
     }
 
     function updateInspector() {

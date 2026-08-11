@@ -524,8 +524,8 @@
 
                                 @elseif($type === 'time')
                                     <div class="input-group d-flex align-items-center">
-                                        <span class="input-group-text bg-light text-secondary border-secondary-subtle time-icon-trigger" style="cursor: pointer;"><i class="bx bx-time fs-5"></i></span>
-                                        <input type="text" name="{{ $key }}" class="form-control-doc flatpickr-time-input" placeholder="{{ $placeholder ?: 'Select Time (e.g. 10:30 PM)' }}" value="{{ old($key) }}" {{ $required ? 'required' : '' }}>
+                                        <span class="input-group-text bg-light text-secondary border-secondary-subtle time-icon-trigger" style="cursor: pointer; border-top-right-radius: 0; border-bottom-right-radius: 0;"><i class="bx bx-time fs-5"></i></span>
+                                        <input type="text" name="{{ $key }}" class="form-control-doc flatpickr-time-input flex-grow-1" style="border-top-left-radius: 0; border-bottom-left-radius: 0; width: auto !important;" placeholder="{{ $placeholder ?: 'Select Time (e.g. 10:30 PM)' }}" value="{{ old($key) }}" {{ $required ? 'required' : '' }}>
                                     </div>
 
                                 @elseif($type === 'file')
