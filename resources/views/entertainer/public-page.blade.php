@@ -9398,15 +9398,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     }
                 }
 
-                if (stepNumber === 2 && window.requiresTransportation) {
-                    const transportationSelfDriveAck = $('#transportation_self_drive_ack');
-                    if (!transportationSelfDriveAck.is(':checked')) {
-                        isValid = false;
-                        firstInvalidField = firstInvalidField || transportationSelfDriveAck;
-                        alertMessage = 'Please confirm your transportation arrival acknowledgment before proceeding.';
-                    }
-                }
-
                 if (!isValid && stepNumber === 2 && window.requiresTransportation && alertMessage === 'Please fill in all required fields.') {
                     alertMessage = 'Please complete the required transportation details before proceeding.';
                 }
@@ -10779,6 +10770,25 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 updateSidebarDate();
             }
 
+            function getPacificTodayDateString() {
+                try {
+                    const timezone = @json($data->resolved_timezone ?? 'America/Los_Angeles');
+                    const formatter = new Intl.DateTimeFormat('en-CA', {
+                        timeZone: timezone || 'America/Los_Angeles',
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    });
+                    return formatter.format(new Date());
+                } catch (error) {
+                    const now = new Date();
+                    const year = now.getFullYear();
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+                    const day = String(now.getDate()).padStart(2, '0');
+                    return year + '-' + month + '-' + day;
+                }
+            }
+
             function initReservationDatePicker() {
                 var dateInput = document.getElementById('package_use_date');
                 if (!dateInput) return;
@@ -10794,16 +10804,27 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     dateInput._flatpickr.destroy();
                 }
 
+                const pacificTodayDate = getPacificTodayDateString();
+
                 flatpickr(dateInput, {
                     mode: 'single',
-                    minDate: 'today',
+                    minDate: pacificTodayDate,
                     dateFormat: 'Y-m-d',
+                    altInput: true,
+                    altFormat: 'M j, Y',
                     enableTime: false,
                     disableMobile: false,
+                    disable: [function(date) {
+                        return (typeof isDateAllowed === 'function') ? !isDateAllowed(date) : false;
+                    }],
+                    onReady: function(selectedDates, dateStr, instance) {
+                        if (typeof clearReservationDateError === 'function') clearReservationDateError();
+                    },
                     onChange: function(selectedDates, dateStr, instance) {
                         // Trigger change event for sidebar sync
                         var event = new Event('change', { bubbles: true });
                         dateInput.dispatchEvent(event);
+                        if (typeof clearReservationDateError === 'function') clearReservationDateError();
                     }
                 });
             }
