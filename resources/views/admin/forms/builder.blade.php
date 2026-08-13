@@ -351,6 +351,71 @@
     color: #ffffff;
 }
 
+/* Toggle Switch Components (Matching Website Edit/Create Page Aesthetics) */
+.toggle-field {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    background: rgba(15, 23, 42, 0.6);
+}
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 28px;
+    flex-shrink: 0;
+}
+.toggle-switch-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+.toggle-switch-slider {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.2);
+    transition: background .2s ease, border-color .2s ease;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.toggle-switch-slider::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    left: 3px;
+    top: 3px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    transition: transform .2s ease;
+}
+.toggle-switch-input:checked + .toggle-switch-slider {
+    background: #ffcc00;
+    border-color: #ffcc00;
+}
+.toggle-switch-input:checked + .toggle-switch-slider::before {
+    transform: translateX(20px);
+    background: #0f172a;
+}
+.toggle-switch-input:focus-visible + .toggle-switch-slider {
+    box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.3);
+}
+
+/* Smart Logic Rule Card Micro-Styling */
+.logic-rule-card {
+    transition: all 0.2s ease;
+}
+.logic-rule-card:hover {
+    border-color: rgba(124, 58, 237, 0.5) !important;
+    box-shadow: 0 6px 18px rgba(124, 58, 237, 0.25) !important;
+}
+
 /* Canvas Area (Wider Layout) */
 .builder-canvas {
     min-height: 580px;
@@ -819,38 +884,42 @@
                                 </div>
 
                                 <div id="subTabContentLogic" style="display: none;">
-                                    <div class="p-3 rounded-3 mb-3" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.08);">
-                                        <div class="d-flex align-items-center justify-content-between">
-                                            <div>
-                                                <div class="text-white fw-bold small">Enable Conditional Logic</div>
-                                                <div class="text-muted micro-text">Dynamically show or hide this field based on previous answers.</div>
+                                    <!-- Toggle Header Card -->
+                                    <div class="toggle-field mb-3" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%); border: 1px solid rgba(124, 58, 237, 0.35); padding: 14px 16px; border-radius: 12px;">
+                                        <div class="me-3">
+                                            <div class="text-white fw-bold fs-6 d-flex align-items-center gap-2">
+                                                <i class="bx bx-git-repo-forked text-primary fs-5"></i> Smart Conditional Logic
                                             </div>
-                                            <label class="toggle-switch">
-                                                <input type="checkbox" id="propLogicEnabled" class="toggle-switch-input">
-                                                <span class="toggle-switch-slider"></span>
-                                            </label>
+                                            <div class="text-muted micro-text mt-1">Show or hide this field dynamically based on answers to previous fields.</div>
                                         </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="propLogicEnabled" class="toggle-switch-input">
+                                            <span class="toggle-switch-slider"></span>
+                                        </label>
                                     </div>
 
+                                    <!-- Active Logic Configuration Container -->
                                     <div id="logicRulesContainer" style="display: none;">
-                                        <div class="p-3 rounded-3" style="background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1);">
-                                            <div class="d-flex align-items-center gap-1.5 flex-wrap text-white micro-text fw-semibold mb-3">
-                                                <select id="propLogicAction" class="txn-filter-select py-1 px-2 text-white micro-text" style="width: auto;">
-                                                    <option value="show">Show</option>
-                                                    <option value="hide">Hide</option>
-                                                </select>
-                                                <span>this field if</span>
-                                                <select id="propLogicGate" class="txn-filter-select py-1 px-2 text-white micro-text" style="width: auto;">
-                                                    <option value="all">ALL</option>
-                                                    <option value="any">ANY</option>
-                                                </select>
-                                                <span>of the following match:</span>
+                                        <div class="p-3 rounded-3" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.1);">
+                                            <div class="p-2.5 rounded-3 mb-3" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.07);">
+                                                <div class="d-flex align-items-center gap-1.5 flex-wrap text-white micro-text fw-semibold">
+                                                    <select id="propLogicAction" class="txn-filter-select py-1 px-2.5 text-white micro-text fw-bold" style="width: auto; background: rgba(124, 58, 237, 0.3); border-color: rgba(124, 58, 237, 0.5);">
+                                                        <option value="show">Show</option>
+                                                        <option value="hide">Hide</option>
+                                                    </select>
+                                                    <span>this field if</span>
+                                                    <select id="propLogicGate" class="txn-filter-select py-1 px-2.5 text-white micro-text fw-bold" style="width: auto; background: rgba(6, 182, 212, 0.25); border-color: rgba(6, 182, 212, 0.5);">
+                                                        <option value="all">ALL (AND)</option>
+                                                        <option value="any">ANY (OR)</option>
+                                                    </select>
+                                                    <span>of the following match:</span>
+                                                </div>
                                             </div>
 
-                                            <div id="logicRulesList" class="d-flex flex-column gap-2.5 mb-3"></div>
+                                            <div id="logicRulesList" class="d-flex flex-column gap-2 mb-3"></div>
 
-                                            <button type="button" class="btn btn-outline-primary btn-sm micro-text w-100 py-2 d-flex align-items-center justify-content-center gap-1" id="btnAddLogicRule" style="border-radius: 8px;">
-                                                <i class="bx bx-plus fs-6"></i> Add Condition Rule
+                                            <button type="button" class="btn btn-create-form w-100 py-2 d-flex align-items-center justify-content-center gap-2 shadow-sm" id="btnAddLogicRule">
+                                                <i class="bx bx-plus-circle fs-5"></i> Add New Condition Rule
                                             </button>
                                         </div>
                                     </div>
@@ -1834,8 +1903,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         rules.forEach((rule, rIdx) => {
             const ruleCard = document.createElement('div');
-            ruleCard.className = 'p-2.5 rounded';
-            ruleCard.style.cssText = 'background: rgba(15,23,42,0.85); border: 1px solid rgba(255,255,255,0.12);';
+            ruleCard.className = 'logic-rule-card p-3 rounded-3 mb-2';
+            ruleCard.style.cssText = 'background: linear-gradient(145deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95)); border: 1px solid rgba(124, 58, 237, 0.25); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);';
 
             const targetFieldObj = otherFields.find(of => (of.id && of.id === rule.field) || (of.name && of.name === rule.field));
             const targetOptions = targetFieldObj && ['select', 'radio'].includes(targetFieldObj.type) ? (targetFieldObj.options || []) : [];
@@ -1855,12 +1924,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             ruleCard.innerHTML = `
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-primary micro-text fw-bold">Condition #${rIdx + 1}</span>
-                    <button type="button" class="btn-choice-icon btn-choice-remove delete-logic-rule-btn" data-ridx="${rIdx}" title="Remove rule">-</button>
+                <div class="d-flex align-items-center justify-content-between pb-2 mb-2.5 border-bottom border-secondary border-opacity-20">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge rounded-pill bg-primary bg-opacity-25 text-primary border border-primary border-opacity-30 px-2.5 py-1 micro-text fw-bold">
+                            Condition #${rIdx + 1}
+                        </span>
+                    </div>
+                    <button type="button" class="btn btn-link text-danger p-0 delete-logic-rule-btn text-decoration-none d-flex align-items-center gap-1 micro-text fw-semibold ms-auto" data-ridx="${rIdx}" title="Remove Condition Rule">
+                        <i class="bx bx-trash fs-6"></i> Remove
+                    </button>
                 </div>
-                <div class="mb-2">
-                    <label class="text-muted micro-text fw-semibold d-block mb-1">If Field:</label>
+                <div class="mb-2.5">
+                    <label class="form-label text-white-50 micro-text fw-semibold mb-1 d-flex align-items-center gap-1">
+                        <i class="bx bx-list-ul text-primary"></i> If Field (User Selection):
+                    </label>
                     <select class="txn-filter-select w-100 micro-text logic-rule-target-select" data-ridx="${rIdx}">
                         <option value="">-- Select Field --</option>
                         ${otherFields.map(of => {
@@ -1872,18 +1949,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <div class="row g-2">
                     <div class="col-6">
-                        <label class="text-muted micro-text fw-semibold d-block mb-1">Condition:</label>
+                        <label class="form-label text-white-50 micro-text fw-semibold mb-1 d-flex align-items-center gap-1">
+                            <i class="bx bx-git-compare text-info"></i> Condition:
+                        </label>
                         <select class="txn-filter-select w-100 micro-text logic-rule-operator-select" data-ridx="${rIdx}">
-                            <option value="is" ${rule.operator === 'is' ? 'selected' : ''}>is (equals)</option>
-                            <option value="is_not" ${rule.operator === 'is_not' ? 'selected' : ''}>is not</option>
-                            <option value="contains" ${rule.operator === 'contains' ? 'selected' : ''}>contains</option>
-                            <option value="not_contains" ${rule.operator === 'not_contains' ? 'selected' : ''}>does not contain</option>
-                            <option value="is_empty" ${rule.operator === 'is_empty' ? 'selected' : ''}>is empty</option>
-                            <option value="is_not_empty" ${rule.operator === 'is_not_empty' ? 'selected' : ''}>is not empty</option>
+                            <option value="is" ${rule.operator === 'is' ? 'selected' : ''}>Is (Equals)</option>
+                            <option value="is_not" ${rule.operator === 'is_not' ? 'selected' : ''}>Is Not</option>
+                            <option value="contains" ${rule.operator === 'contains' ? 'selected' : ''}>Contains</option>
+                            <option value="not_contains" ${rule.operator === 'not_contains' ? 'selected' : ''}>Does Not Contain</option>
+                            <option value="is_empty" ${rule.operator === 'is_empty' ? 'selected' : ''}>Is Empty</option>
+                            <option value="is_not_empty" ${rule.operator === 'is_not_empty' ? 'selected' : ''}>Is Not Empty</option>
                         </select>
                     </div>
                     <div class="col-6">
-                        <label class="text-muted micro-text fw-semibold d-block mb-1">Matching Value:</label>
+                        <label class="form-label text-white-50 micro-text fw-semibold mb-1 d-flex align-items-center gap-1">
+                            <i class="bx bx-check-shield text-success"></i> Value to Match:
+                        </label>
                         ${valueFieldHtml}
                     </div>
                 </div>
