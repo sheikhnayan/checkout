@@ -9162,9 +9162,10 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             }
                         }
                     }
-                });
                 }
-            })();
+                return isValid;
+            }
+            window.validateStep = validateStep;
 
             document.getElementById('payment-form')?.addEventListener('submit', function(e) {
                 if (!ensureReservationDateSelected()) {
