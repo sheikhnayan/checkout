@@ -9170,6 +9170,63 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             }
             window.validateStep = validateStep;
 
+            // Navigation Event Handlers
+            $(document).ready(function() {
+                // Next to Transportation / Arrival Time
+                $(document).on('click', '#next-to-transport', function(e) {
+                    e.preventDefault();
+                    if (validateStep(1)) {
+                        showStep(2);
+                    }
+                });
+
+                $(document).on('change', '#transportation_self_drive_ack', function() {
+                    if (typeof syncDerivedTransportationFields === 'function') syncDerivedTransportationFields();
+                    if (typeof updateTransportationSelfDriveState === 'function') updateTransportationSelfDriveState();
+                });
+
+                // Previous to Package from Transportation confirmation
+                $(document).on('click', '#prev-to-package', function(e) {
+                    e.preventDefault();
+                    showStep(1);
+                });
+
+                // Previous to Package from Transportation form
+                $(document).on('click', '#prev-to-package-from-form', function(e) {
+                    e.preventDefault();
+                    showStep(1);
+                });
+
+                // Next to Payment from Transportation confirmation
+                $(document).on('click', '#next-to-payment-from-confirm', function(e) {
+                    e.preventDefault();
+                    if (validateStep(2)) {
+                        if (typeof populatePaymentFields === 'function') populatePaymentFields();
+                        showStep(3);
+                    }
+                });
+
+                // Next to Payment from Transportation form
+                $(document).on('click', '#next-to-payment', function(e) {
+                    e.preventDefault();
+                    if (validateStep(2)) {
+                        if (typeof populatePaymentFields === 'function') populatePaymentFields();
+                        showStep(3);
+                    }
+                });
+
+                // Previous to Transportation from Payment
+                $(document).on('click', '#prev-to-transport', function(e) {
+                    e.preventDefault();
+                    showStep(2);
+                });
+
+                // Remove required field styling on input
+                $(document).on('input change', 'input, select, textarea', function() {
+                    $(this).removeClass('required-field');
+                });
+            });
+
             document.getElementById('payment-form')?.addEventListener('submit', function(e) {
                 if (!ensureReservationDateSelected()) {
                     e.preventDefault();
