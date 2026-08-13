@@ -420,7 +420,7 @@
                     {{ session('form_success') }}
                 </p>
                 <a href="{{ url()->current() }}" class="btn btn-outline-dark px-4 py-2 rounded-pill fw-semibold">
-                    <i class="bx bx-refresh me-1"></i> Submit Another Response
+                    <i class="bx bx-refresh me-1"></i> Back to Forms Portal
                 </a>
             </div>
         @else

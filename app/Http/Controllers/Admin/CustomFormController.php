@@ -308,10 +308,19 @@ class CustomFormController extends Controller
 
         $this->authorizeFormAccess($form, $user);
 
-        $submissions = CustomFormSubmission::query()
+        $query = CustomFormSubmission::query()
             ->where('custom_form_id', $form->id)
-            ->orderByDesc('id')
-            ->get();
+            ->orderByDesc('id');
+
+        if ($request->filled('ids')) {
+            $rawIds = is_array($request->input('ids')) ? $request->input('ids') : explode(',', (string) $request->input('ids'));
+            $ids = array_filter(array_map('intval', $rawIds));
+            if (!empty($ids)) {
+                $query->whereIn('id', $ids);
+            }
+        }
+
+        $submissions = $query->get();
 
         $fieldsSchema = $form->fields_schema ?: [];
         $headers = ['Submission ID', 'Submitted At', 'Club / Website', 'IP Address'];

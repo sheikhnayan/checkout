@@ -20,9 +20,12 @@
                 <h4 class="mb-1 text-white fw-bold"><i class="bx bx-receipt me-2 text-primary"></i>Submissions for: {{ $form->title }}</h4>
                 <p class="text-muted mb-0 small">Viewing all submitted data records collected through this form.</p>
             </div>
-            <div class="d-flex gap-2">
-                <a href="{{ route('admin.forms.submissions.export', $form->id) }}" class="btn btn-outline-success">
-                    <i class="bx bx-download me-1"></i> Export to CSV
+            <div class="d-flex gap-2 flex-wrap align-items-center">
+                <button type="button" id="btnExportSelected" class="btn btn-success d-none" data-base-url="{{ route('admin.forms.submissions.export', $form->id) }}">
+                    <i class="bx bx-download me-1"></i> Export Selected (<span id="selectedCount">0</span>)
+                </button>
+                <a href="{{ route('admin.forms.submissions.export', $form->id) }}" id="btnExportAll" class="btn btn-outline-success">
+                    <i class="bx bx-download me-1"></i> Export All to CSV
                 </a>
                 <a href="{{ route('admin.forms.index') }}" class="btn btn-outline-secondary">
                     <i class="bx bx-left-arrow-alt me-1"></i> Back to Forms
@@ -36,6 +39,9 @@
                 <table class="table table-hover align-middle">
                     <thead>
                         <tr class="table-dark">
+                            <th style="width: 40px;" class="text-center">
+                                <input type="checkbox" id="selectAllSubmissions" class="form-check-input cursor-pointer" title="Select All Submissions">
+                            </th>
                             <th># ID</th>
                             <th>Submitted Date</th>
                             <th>Club / Venue</th>
@@ -46,6 +52,9 @@
                     <tbody class="table-border-bottom-0">
                         @forelse($submissions as $sub)
                             <tr>
+                                <td class="text-center">
+                                    <input type="checkbox" value="{{ $sub->id }}" class="form-check-input sub-checkbox cursor-pointer">
+                                </td>
                                 <td><strong class="text-white">#{{ $sub->id }}</strong></td>
                                 <td>
                                     <i class="bx bx-time me-1 text-primary"></i>
@@ -73,7 +82,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center py-5 text-muted">
+                                <td colspan="6" class="text-center py-5 text-muted">
                                     <i class="bx bx-inbox fs-1 d-block mb-2"></i>
                                     No submissions received for this form yet.
                                 </td>
@@ -131,6 +140,56 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const selectAllCb = document.getElementById('selectAllSubmissions');
+    const btnExportSelected = document.getElementById('btnExportSelected');
+    const selectedCountSpan = document.getElementById('selectedCount');
+
+    function updateSelectionUI() {
+        const subCbs = document.querySelectorAll('.sub-checkbox');
+        const checkedCbs = document.querySelectorAll('.sub-checkbox:checked');
+        const count = checkedCbs.length;
+
+        if (selectedCountSpan) selectedCountSpan.innerText = count;
+
+        if (count > 0) {
+            if (btnExportSelected) btnExportSelected.classList.remove('d-none');
+        } else {
+            if (btnExportSelected) btnExportSelected.classList.add('d-none');
+        }
+
+        if (selectAllCb && subCbs.length > 0) {
+            selectAllCb.checked = (count === subCbs.length);
+        }
+    }
+
+    if (selectAllCb) {
+        selectAllCb.addEventListener('change', function() {
+            document.querySelectorAll('.sub-checkbox').forEach(cb => {
+                cb.checked = selectAllCb.checked;
+            });
+            updateSelectionUI();
+        });
+    }
+
+    document.addEventListener('change', function(e) {
+        if (e.target && e.target.classList.contains('sub-checkbox')) {
+            updateSelectionUI();
+        }
+    });
+
+    if (btnExportSelected) {
+        btnExportSelected.addEventListener('click', function() {
+            const checkedCbs = Array.from(document.querySelectorAll('.sub-checkbox:checked'));
+            const ids = checkedCbs.map(cb => cb.value);
+            if (ids.length === 0) {
+                alert('Please select at least one submission to export.');
+                return;
+            }
+            const baseUrl = this.getAttribute('data-base-url');
+            window.location.href = baseUrl + '?ids=' + ids.join(',');
+        });
+    }
+
     const modal = new bootstrap.Modal(document.getElementById('payloadModal'));
     document.querySelectorAll('.view-sub-btn').forEach(btn => {
         btn.addEventListener('click', function() {
