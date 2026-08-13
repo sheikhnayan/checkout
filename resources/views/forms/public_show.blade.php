@@ -447,7 +447,7 @@
             @endif
 
             <!-- Form Fields Render Grid -->
-            <form method="POST" action="{{ route('forms.public.submit', $form->slug) }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('forms.public.submit', $form->slug) }}" enctype="multipart/form-data" novalidate>
                 @csrf
                 <!-- Honeypot Anti-Spam & Submission Timestamp -->
                 <div style="display:none !important; visibility:hidden !important; opacity:0 !important; position:absolute !important; left:-9999px !important;">
@@ -767,6 +767,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // 3. Robust Mobile-Friendly Submit Validation & Smooth Auto-Scroll Engine
     const mainForm = document.querySelector('form');
     if (mainForm) {
+        // Enforce novalidate so browser native validation doesn't silently block submit listener
+        mainForm.setAttribute('novalidate', 'novalidate');
+
         // Prevent browser's silent native invalid event behavior on iOS Safari
         mainForm.addEventListener('invalid', function(e) {
             e.preventDefault();
@@ -903,19 +906,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Smoothly auto-scroll to the very first invalid field with offset for mobile viewports
                 if (firstInvalidWrapper) {
-                    const headerOffset = 90;
-                    const elementPosition = firstInvalidWrapper.getBoundingClientRect().top + window.pageYOffset;
-                    const offsetPosition = elementPosition - headerOffset;
+                    const rect = firstInvalidWrapper.getBoundingClientRect();
+                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    const targetY = rect.top + scrollTop - 90;
 
                     window.scrollTo({
-                        top: Math.max(0, offsetPosition),
+                        top: Math.max(0, targetY),
                         behavior: 'smooth'
                     });
+
+                    try {
+                        firstInvalidWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    } catch (err) {}
 
                     if (firstInvalidInput && typeof firstInvalidInput.focus === 'function') {
                         setTimeout(function() {
                             try { firstInvalidInput.focus({ preventScroll: true }); } catch (err) {}
-                        }, 350);
+                        }, 300);
                     }
                 }
             }
