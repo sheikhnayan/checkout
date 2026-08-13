@@ -548,7 +548,7 @@
                                                 <button type="button" class="btn btn-link btn-sm p-0 text-secondary fw-semibold multiselect-btn-clear-all" style="font-size: 0.78rem; text-decoration: none;">Clear All</button>
                                             </div>
                                         </div>
-                                        <div class="multiselect-options-wrapper p-2 rounded-2 bg-white border border-secondary-subtle" style="max-height: 220px; overflow-y: auto;">
+                                        <div class="multiselect-options-wrapper p-4 rounded-2 bg-white border border-secondary-subtle" style="max-height: 220px; overflow-y: auto;">
                                             @foreach($options as $opt)
                                                 @php
                                                     $oldValues = old($key, []);
