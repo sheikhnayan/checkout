@@ -589,6 +589,20 @@
     border-radius: 50%;
     background: #7c3aed;
 }
+
+/* Sticky Inspector Sidebar & Viewport Scroll */
+@media (min-width: 992px) {
+    .builder-sidebar-sticky-col {
+        position: sticky;
+        top: 85px;
+        z-index: 100;
+        align-self: flex-start;
+    }
+    .builder-sidebar-card {
+        max-height: calc(100vh - 105px);
+        overflow-y: auto;
+    }
+}
 </style>
 
 <div class="content-wrapper">
@@ -642,8 +656,8 @@
             <div id="builderModeFieldsView" class="row g-4">
                 
                 <!-- Left Sidebar Column: Tabbed Inspector & Categorized Palette (4 Cols) -->
-                <div class="col-12 col-lg-4 col-xl-3">
-                    <div class="forms-card h-100">
+                <div class="col-12 col-lg-4 col-xl-3 builder-sidebar-sticky-col">
+                    <div class="forms-card builder-sidebar-card">
                         
                         <!-- Top Navigation Tabs (Add Fields vs Field Options) -->
                         <div class="builder-nav-tabs mb-4">
@@ -905,25 +919,25 @@
 
                                     <!-- Active Logic Configuration Container -->
                                     <div id="logicRulesContainer" style="display: none;">
-                                        <div class="p-3 rounded-3" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.1);">
-                                            <div class="p-2.5 rounded-3 mb-3" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.07);">
-                                                <div class="d-flex align-items-center gap-1.5 flex-wrap text-white micro-text fw-semibold">
-                                                    <select id="propLogicAction" class="txn-filter-select py-1 px-2.5 text-white micro-text fw-bold" style="width: auto; background: rgba(124, 58, 237, 0.3); border-color: rgba(124, 58, 237, 0.5);">
+                                        <div class="p-3.5 p-md-4 rounded-3" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.1);">
+                                            <div class="p-3 rounded-3 mb-3.5" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);">
+                                                <div class="d-flex align-items-center gap-2 flex-wrap text-white small fw-semibold">
+                                                    <select id="propLogicAction" class="txn-filter-select py-1.5 px-3 text-white small fw-bold rounded-3 shadow-sm" style="width: auto; background: rgba(124, 58, 237, 0.35); border-color: rgba(124, 58, 237, 0.6); font-size: 0.88rem;">
                                                         <option value="show">Show</option>
                                                         <option value="hide">Hide</option>
                                                     </select>
-                                                    <span>this field if</span>
-                                                    <select id="propLogicGate" class="txn-filter-select py-1 px-2.5 text-white micro-text fw-bold" style="width: auto; background: rgba(6, 182, 212, 0.25); border-color: rgba(6, 182, 212, 0.5);">
+                                                    <span style="font-size: 0.9rem;">this field if</span>
+                                                    <select id="propLogicGate" class="txn-filter-select py-1.5 px-3 text-white small fw-bold rounded-3 shadow-sm" style="width: auto; background: rgba(6, 182, 212, 0.3); border-color: rgba(6, 182, 212, 0.6); font-size: 0.88rem;">
                                                         <option value="all">ALL (AND)</option>
                                                         <option value="any">ANY (OR)</option>
                                                     </select>
-                                                    <span>of the following match:</span>
+                                                    <span style="font-size: 0.9rem;">of the following match:</span>
                                                 </div>
                                             </div>
 
-                                            <div id="logicRulesList" class="d-flex flex-column gap-2 mb-3"></div>
+                                            <div id="logicRulesList" class="d-flex flex-column gap-3 mb-3.5"></div>
 
-                                            <button type="button" class="btn btn-create-form w-100 py-2 d-flex align-items-center justify-content-center gap-2 shadow-sm" id="btnAddLogicRule">
+                                            <button type="button" class="btn btn-create-form w-100 py-2.5 fs-6 fw-bold d-flex align-items-center justify-content-center gap-2 shadow" id="btnAddLogicRule">
                                                 <i class="bx bx-plus-circle fs-5"></i> Add New Condition Rule
                                             </button>
                                         </div>
@@ -1650,7 +1664,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `;
             } else if (f.type === 'heading') {
-                inputPreview = `<h5 class="text-white fw-bold mb-0 border-bottom border-secondary border-opacity-25 pb-2 d-flex align-items-center gap-2"><i class="bx bx-heading text-primary fs-4"></i> ${f.label}</h5>`;
+                inputPreview = `<div class="text-white fw-bold border-bottom border-secondary border-opacity-25 pb-2 d-flex align-items-center gap-2" style="font-size: 1.05rem; letter-spacing: -0.01em;"><i class="bx bx-heading text-primary fs-5"></i> ${f.label}</div>`;
             } else if (f.type === 'multiselect_search') {
                 const choices = f.options || ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
                 inputPreview = `
@@ -1666,11 +1680,11 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <span class="text-secondary cursor-pointer">Clear All</span>
                             </div>
                         </div>
-                        <div class="d-flex flex-wrap gap-1.5 pt-1">
+                        <div class="d-flex flex-wrap gap-2 pt-1">
                             ${choices.map(c => `
-                                <div class="form-check form-check-inline px-2 py-1 rounded bg-dark border border-secondary border-opacity-30 m-0">
-                                    <input class="form-check-input mt-0" type="checkbox" disabled>
-                                    <label class="form-check-label text-white micro-text ms-1">${c}</label>
+                                <div class="d-inline-flex align-items-center gap-1.5 px-2.5 py-1 rounded bg-dark border border-secondary border-opacity-30 m-0">
+                                    <input type="checkbox" class="form-check-input m-0 cursor-pointer" style="position:static; width:13px; height:13px;" disabled>
+                                    <span class="text-white micro-text">${c}</span>
                                 </div>
                             `).join('')}
                         </div>
@@ -1800,7 +1814,13 @@ document.addEventListener('DOMContentLoaded', function() {
         switchLeftTab('options');
         switchInspectorSubTab('general');
 
-        // Smoothly bring the inspector panel into focus
+        // Reset sidebar scroll position so settings are immediately visible at the top
+        const sidebarCard = document.querySelector('.builder-sidebar-card');
+        if (sidebarCard) {
+            sidebarCard.scrollTop = 0;
+        }
+
+        // Smoothly bring the inspector panel into focus on mobile viewports
         const inspectorEl = document.getElementById('tabContentFieldOptions');
         if (inspectorEl && window.innerWidth < 992) {
             inspectorEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -1934,8 +1954,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         rules.forEach((rule, rIdx) => {
             const ruleCard = document.createElement('div');
-            ruleCard.className = 'logic-rule-card p-3 rounded-3 mb-2';
-            ruleCard.style.cssText = 'background: linear-gradient(145deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95)); border: 1px solid rgba(124, 58, 237, 0.25); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);';
+            ruleCard.className = 'logic-rule-card p-3.5 p-md-4 rounded-3 mb-3';
+            ruleCard.style.cssText = 'background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95)); border: 1px solid rgba(124, 58, 237, 0.35); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);';
 
             const targetFieldObj = otherFields.find(of => (of.id && of.id === rule.field) || (of.name && of.name === rule.field));
             const targetOptions = targetFieldObj && ['select', 'radio', 'multiselect_search'].includes(targetFieldObj.type) ? (targetFieldObj.options || []) : [];
@@ -1943,33 +1963,33 @@ document.addEventListener('DOMContentLoaded', function() {
             let valueFieldHtml = '';
             if (targetOptions.length > 0) {
                 valueFieldHtml = `
-                    <select class="txn-filter-select w-100 micro-text logic-rule-val-select" data-ridx="${rIdx}">
+                    <select class="txn-filter-select w-100 logic-rule-val-select py-2 px-3 small rounded-3" style="font-size: 0.88rem;" data-ridx="${rIdx}">
                         <option value="">-- Select Choice --</option>
                         ${targetOptions.map(opt => `<option value="${opt}" ${rule.value === opt ? 'selected' : ''}>${opt}</option>`).join('')}
                     </select>
                 `;
             } else {
                 valueFieldHtml = `
-                    <input type="text" class="txn-search-input micro-text logic-rule-val-input" data-ridx="${rIdx}" value="${rule.value || ''}" placeholder="Value to match...">
+                    <input type="text" class="txn-search-input logic-rule-val-input py-2 px-3 small rounded-3" style="font-size: 0.88rem;" data-ridx="${rIdx}" value="${rule.value || ''}" placeholder="Value to match...">
                 `;
             }
 
             ruleCard.innerHTML = `
-                <div class="d-flex align-items-center justify-content-between pb-2 mb-2.5 border-bottom border-secondary border-opacity-20">
+                <div class="d-flex align-items-center justify-content-between pb-2.5 mb-3 border-bottom border-secondary border-opacity-25">
                     <div class="d-flex align-items-center gap-2">
-                        <span class="badge rounded-pill bg-primary bg-opacity-25 text-primary border border-primary border-opacity-30 px-2.5 py-1 micro-text fw-bold">
+                        <span class="badge rounded-pill bg-primary bg-opacity-25 text-primary border border-primary border-opacity-35 px-3 py-1.5 small fw-bold" style="font-size: 0.82rem;">
                             Condition #${rIdx + 1}
                         </span>
                     </div>
-                    <button type="button" class="btn btn-link text-danger p-0 delete-logic-rule-btn text-decoration-none d-flex align-items-center gap-1 micro-text fw-semibold ms-auto" data-ridx="${rIdx}" title="Remove Condition Rule">
+                    <button type="button" class="btn btn-link text-danger p-0 delete-logic-rule-btn text-decoration-none d-flex align-items-center gap-1.5 small fw-semibold ms-auto" style="font-size: 0.86rem;" data-ridx="${rIdx}" title="Remove Condition Rule">
                         <i class="bx bx-trash fs-6"></i> Remove
                     </button>
                 </div>
-                <div class="mb-2.5">
-                    <label class="form-label text-white-50 micro-text fw-semibold mb-1 d-flex align-items-center gap-1">
-                        <i class="bx bx-list-ul text-primary"></i> If Field (User Selection):
+                <div class="mb-3.5">
+                    <label class="form-label text-white-50 small fw-semibold mb-1.5 d-flex align-items-center gap-1.5" style="font-size: 0.88rem;">
+                        <i class="bx bx-list-ul text-primary fs-6"></i> If Field (User Selection):
                     </label>
-                    <select class="txn-filter-select w-100 micro-text logic-rule-target-select" data-ridx="${rIdx}">
+                    <select class="txn-filter-select w-100 logic-rule-target-select py-2 px-3 small rounded-3" style="font-size: 0.88rem;" data-ridx="${rIdx}">
                         <option value="">-- Select Field --</option>
                         ${otherFields.map(of => {
                             const targetKey = of.name || of.id;
@@ -1978,12 +1998,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         }).join('')}
                     </select>
                 </div>
-                <div class="row g-2">
-                    <div class="col-6">
-                        <label class="form-label text-white-50 micro-text fw-semibold mb-1 d-flex align-items-center gap-1">
-                            <i class="bx bx-git-compare text-info"></i> Condition:
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label text-white-50 small fw-semibold mb-1.5 d-flex align-items-center gap-1.5" style="font-size: 0.88rem;">
+                            <i class="bx bx-git-compare text-info fs-6"></i> Condition:
                         </label>
-                        <select class="txn-filter-select w-100 micro-text logic-rule-operator-select" data-ridx="${rIdx}">
+                        <select class="txn-filter-select w-100 logic-rule-operator-select py-2 px-3 small rounded-3" style="font-size: 0.88rem;" data-ridx="${rIdx}">
                             <option value="is" ${rule.operator === 'is' ? 'selected' : ''}>Is (Equals)</option>
                             <option value="is_not" ${rule.operator === 'is_not' ? 'selected' : ''}>Is Not</option>
                             <option value="contains" ${rule.operator === 'contains' ? 'selected' : ''}>Contains</option>
@@ -1992,9 +2012,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             <option value="is_not_empty" ${rule.operator === 'is_not_empty' ? 'selected' : ''}>Is Not Empty</option>
                         </select>
                     </div>
-                    <div class="col-6">
-                        <label class="form-label text-white-50 micro-text fw-semibold mb-1 d-flex align-items-center gap-1">
-                            <i class="bx bx-check-shield text-success"></i> Value to Match:
+                    <div class="col-12 col-md-6">
+                        <label class="form-label text-white-50 small fw-semibold mb-1.5 d-flex align-items-center gap-1.5" style="font-size: 0.88rem;">
+                            <i class="bx bx-check-shield text-success fs-6"></i> Value to Match:
                         </label>
                         ${valueFieldHtml}
                     </div>
