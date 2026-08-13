@@ -8646,10 +8646,106 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 });
             }
             
-            // On DOM ready, also populate country select
+            // Fallback states map for instant population & offline support
+            const fallbackStatesMap = {
+                'United States': [
+                    'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware',
+                    'District of Columbia', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa',
+                    'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota',
+                    'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey',
+                    'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon',
+                    'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah',
+                    'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'
+                ],
+                'Canada': [
+                    'Alberta', 'British Columbia', 'Manitoba', 'New Brunswick', 'Newfoundland and Labrador',
+                    'Northwest Territories', 'Nova Scotia', 'Nunavut', 'Ontario', 'Prince Edward Island',
+                    'Quebec', 'Saskatchewan', 'Yukon'
+                ],
+                'Australia': [
+                    'Australian Capital Territory', 'New South Wales', 'Northern Territory', 'Queensland',
+                    'South Australia', 'Tasmania', 'Victoria', 'Western Australia'
+                ]
+            };
+
+            function populateStatesForCountry(countryValue, targetStateSelectId) {
+                const $state = $(`#${targetStateSelectId}`);
+                if (!$state.length) return;
+
+                if (!countryValue) {
+                    $state.html('<option value="null" selected disabled>Select State/Province</option>');
+                    return;
+                }
+
+                function renderStates(statesList) {
+                    if (Array.isArray(statesList) && statesList.length > 0) {
+                        let options = '<option value="null" selected disabled>Select State/Province</option>';
+                        statesList.forEach(function(st) {
+                            const name = typeof st === 'string' ? st : (st.name || st);
+                            options += `<option value="${name}">${name}</option>`;
+                        });
+                        $state.html(options);
+                    } else {
+                        $state.html('<option value="null" selected disabled>No states found</option>');
+                    }
+                }
+
+                // Populate fallback states immediately for instant UI response
+                if (fallbackStatesMap[countryValue]) {
+                    renderStates(fallbackStatesMap[countryValue]);
+                } else {
+                    $state.html('<option value="">Loading...</option>');
+                }
+
+                // Fetch full list from API
+                $.ajax({
+                    url: 'https://countriesnow.space/api/v0.1/countries/states',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ country: countryValue }),
+                    success: function(res) {
+                        if (res && res.data && res.data.states && res.data.states.length > 0) {
+                            renderStates(res.data.states);
+                        } else if (!fallbackStatesMap[countryValue]) {
+                            $state.html('<option value="null" selected disabled>No states found</option>');
+                        }
+                    },
+                    error: function() {
+                        if (!fallbackStatesMap[countryValue]) {
+                            $state.html('<option value="null" selected disabled>Error loading states</option>');
+                        }
+                    }
+                });
+            }
+
+            $(document).on('change', '#country, select[name="payment_country"]', function() {
+                const countryVal = $(this).val();
+                populateStatesForCountry(countryVal, 'st-pv');
+            });
+
+            $(document).on('change', '#country2', function() {
+                const countryVal = $(this).val();
+                populateStatesForCountry(countryVal, 'st-pv2');
+            });
+
+            // On DOM ready, also populate country select & state select
             $(function () {
                 populateCountrySelect('country');
                 populateCountrySelect2('country2');
+
+                // Trigger initial state population for selected/default country
+                const initialCountry = $('#country').val();
+                if (initialCountry) {
+                    populateStatesForCountry(initialCountry, 'st-pv');
+                } else {
+                    $('#country').val('United States');
+                    populateStatesForCountry('United States', 'st-pv');
+                }
+
+                const initialCountry2 = $('#country2').val();
+                if (initialCountry2) {
+                    populateStatesForCountry(initialCountry2, 'st-pv2');
+                }
                 
                 // Apply styling after population with a slight delay for Safari
                 setTimeout(function() {

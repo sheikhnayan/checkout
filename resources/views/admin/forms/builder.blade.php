@@ -741,6 +741,11 @@
                                         <i class="bx bx-heading fs-5 text-light"></i> Heading
                                     </div>
                                 </div>
+                                <div class="col-6">
+                                    <div class="builder-palette-item text-white" draggable="true" data-type="multiselect_search">
+                                        <i class="bx bx-list-check fs-5 text-warning"></i> Multi-Select Search
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Form Meta Info Section -->
@@ -1487,13 +1492,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (type === 'file') defaultLabel = 'Resume required for server and/or bartender';
         if (type === 'captcha') defaultLabel = 'Captcha (To prevent spam)';
         if (type === 'time') defaultLabel = 'Time Field';
+        if (type === 'multiselect_search') defaultLabel = 'Searchable Multi-Select';
 
         const newField = {
             id: id,
             type: type,
             label: defaultLabel,
             name: id,
-            placeholder: '',
+            placeholder: type === 'multiselect_search' ? 'Search and select options...' : '',
             help_text: '',
             format: type === 'name' ? 'first_last' : (type === 'phone' ? 'smart' : ''),
             allowed_extensions: type === 'file' ? 'pdf, doc, docx, png, jpg' : '',
@@ -1501,7 +1507,7 @@ document.addEventListener('DOMContentLoaded', function() {
             max_file_uploads: type === 'file' ? 1 : null,
             width_class: 'col-12',
             required: false,
-            options: ['Option 1', 'Option 2', 'Option 3']
+            options: type === 'multiselect_search' ? ['Option 1', 'Option 2', 'Option 3', 'Option 4'] : ['Option 1', 'Option 2', 'Option 3']
         };
 
         const targetPos = (insertIdx >= 0 && insertIdx <= fields.length) ? insertIdx : fields.length;
@@ -1645,6 +1651,31 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
             } else if (f.type === 'heading') {
                 inputPreview = `<h5 class="text-white fw-bold mb-0 border-bottom border-secondary border-opacity-25 pb-2 d-flex align-items-center gap-2"><i class="bx bx-heading text-primary fs-4"></i> ${f.label}</h5>`;
+            } else if (f.type === 'multiselect_search') {
+                const choices = f.options || ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
+                inputPreview = `
+                    <div class="multiselect-search-canvas-preview p-3 rounded-3 mt-1" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(124, 58, 237, 0.35);">
+                        <div class="input-group mb-2">
+                            <span class="input-group-text bg-dark text-secondary border-secondary border-end-0"><i class="bx bx-search text-warning fs-5"></i></span>
+                            <input type="text" class="txn-search-input flex-grow-1" style="border-top-left-radius:0; border-bottom-left-radius:0;" placeholder="${f.placeholder || 'Search options...'}" disabled>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between mb-2 micro-text text-muted">
+                            <span><i class="bx bx-check-double text-warning me-1"></i>Advanced Searchable Multi-Select</span>
+                            <div class="d-flex gap-2">
+                                <span class="text-primary cursor-pointer fw-semibold">Select All</span>
+                                <span class="text-secondary cursor-pointer">Clear All</span>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-wrap gap-1.5 pt-1">
+                            ${choices.map(c => `
+                                <div class="form-check form-check-inline px-2 py-1 rounded bg-dark border border-secondary border-opacity-30 m-0">
+                                    <input class="form-check-input mt-0" type="checkbox" disabled>
+                                    <label class="form-check-label text-white micro-text ms-1">${c}</label>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
             } else {
                 inputPreview = `<input type="${f.type === 'phone' ? 'tel' : f.type}" class="txn-search-input" placeholder="${f.placeholder || ''}" disabled>`;
             }
@@ -1815,9 +1846,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const choicesManagerGroup = document.getElementById('choicesManagerGroup');
-        if (['select', 'radio'].includes(f.type)) {
+        if (['select', 'radio', 'multiselect_search'].includes(f.type)) {
             choicesManagerGroup.style.display = 'block';
-            renderChoicesManager(f.options || ['Option 1', 'Option 2']);
+            renderChoicesManager(f.options || ['Option 1', 'Option 2', 'Option 3']);
         } else {
             choicesManagerGroup.style.display = 'none';
         }
@@ -1907,7 +1938,7 @@ document.addEventListener('DOMContentLoaded', function() {
             ruleCard.style.cssText = 'background: linear-gradient(145deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95)); border: 1px solid rgba(124, 58, 237, 0.25); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);';
 
             const targetFieldObj = otherFields.find(of => (of.id && of.id === rule.field) || (of.name && of.name === rule.field));
-            const targetOptions = targetFieldObj && ['select', 'radio'].includes(targetFieldObj.type) ? (targetFieldObj.options || []) : [];
+            const targetOptions = targetFieldObj && ['select', 'radio', 'multiselect_search'].includes(targetFieldObj.type) ? (targetFieldObj.options || []) : [];
 
             let valueFieldHtml = '';
             if (targetOptions.length > 0) {

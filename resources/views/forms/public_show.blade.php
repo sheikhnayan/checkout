@@ -534,6 +534,43 @@
                                         <input type="text" name="{{ $key }}" class="form-control-doc flatpickr-time-input flex-grow-1" style="border-top-left-radius: 0; border-bottom-left-radius: 0; width: auto !important;" placeholder="{{ $placeholder ?: 'Select Time (e.g. 10:30 PM)' }}" value="{{ old($key) }}" {{ $required ? 'required' : '' }}>
                                     </div>
 
+                                @elseif($type === 'multiselect_search')
+                                    <div class="multiselect-search-container p-3 rounded-3" style="background: #f8fafc; border: 1px solid #cbd5e1;" data-field-key="{{ $key }}">
+                                        <div class="input-group mb-2">
+                                            <span class="input-group-text bg-white text-secondary border-secondary-subtle"><i class="bx bx-search fs-5"></i></span>
+                                            <input type="text" class="form-control-doc multiselect-search-filter-input" placeholder="{{ $placeholder ?: 'Type to search options...' }}" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-between mb-2 micro-text text-muted" style="font-size: 0.8rem;">
+                                            <span class="text-secondary fw-medium"><i class="bx bx-check-double me-1 text-primary"></i>Multi-Select Searchable Choices</span>
+                                            <div class="d-flex gap-2">
+                                                <button type="button" class="btn btn-link btn-sm p-0 text-primary fw-semibold multiselect-btn-select-all" style="font-size: 0.78rem; text-decoration: none;">Select All</button>
+                                                <span class="text-muted opacity-50">|</span>
+                                                <button type="button" class="btn btn-link btn-sm p-0 text-secondary fw-semibold multiselect-btn-clear-all" style="font-size: 0.78rem; text-decoration: none;">Clear All</button>
+                                            </div>
+                                        </div>
+                                        <div class="multiselect-options-wrapper p-2 rounded-2 bg-white border border-secondary-subtle" style="max-height: 220px; overflow-y: auto;">
+                                            @foreach($options as $opt)
+                                                @php
+                                                    $oldValues = old($key, []);
+                                                    if (!is_array($oldValues)) $oldValues = array_map('trim', explode(',', (string)$oldValues));
+                                                    $isChecked = in_array($opt, $oldValues, true);
+                                                @endphp
+                                                <div class="form-check multiselect-option-item py-1.5 px-2 rounded mb-1 d-flex align-items-center" style="cursor: pointer; transition: background 0.15s ease;">
+                                                    <input class="form-check-input multiselect-checkbox mt-0 cursor-pointer" type="checkbox" name="{{ $key }}[]" id="{{ $key }}_{{ $loop->index }}" value="{{ $opt }}" {{ $isChecked ? 'checked' : '' }}>
+                                                    <label class="form-check-label text-dark fw-medium small cursor-pointer ms-2 w-100 mb-0" for="{{ $key }}_{{ $loop->index }}">
+                                                        {{ $opt }}
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                            <div class="multiselect-no-results text-muted text-center py-2 micro-text d-none">
+                                                <i class="bx bx-search-alt me-1"></i>No matching options found.
+                                            </div>
+                                        </div>
+                                        <div class="multiselect-selected-pills mt-2.5 d-flex flex-wrap gap-1.5">
+                                            <!-- Selected badge pills rendered via JS -->
+                                        </div>
+                                    </div>
+
                                 @elseif($type === 'file')
                                     @php
                                         $exts = !empty($field['allowed_extensions']) ? implode(', ', array_filter(array_map('trim', explode(',', $field['allowed_extensions'])))) : 'pdf, doc, docx, png, jpg';
@@ -738,7 +775,102 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // 4. Smart Conditional Logic Engine
+    // 4. Interactive Searchable Multi-Select Component Engine
+    document.querySelectorAll('.multiselect-search-container').forEach(function(container) {
+        const filterInput = container.querySelector('.multiselect-search-filter-input');
+        const items = container.querySelectorAll('.multiselect-option-item');
+        const noResults = container.querySelector('.multiselect-no-results');
+        const selectAllBtn = container.querySelector('.multiselect-btn-select-all');
+        const clearAllBtn = container.querySelector('.multiselect-btn-clear-all');
+        const pillsContainer = container.querySelector('.multiselect-selected-pills');
+
+        function updateSelectedPills() {
+            if (!pillsContainer) return;
+            pillsContainer.innerHTML = '';
+            const checkedBoxes = container.querySelectorAll('.multiselect-checkbox:checked');
+            
+            if (checkedBoxes.length === 0) {
+                pillsContainer.innerHTML = '<span class="text-muted micro-text fst-italic me-1" style="font-size:0.75rem;">No options selected yet</span>';
+                return;
+            }
+
+            checkedBoxes.forEach(function(cb) {
+                const val = cb.value;
+                const pill = document.createElement('span');
+                pill.className = 'badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2.5 py-1 rounded-pill d-inline-flex align-items-center gap-1 small fw-semibold';
+                pill.innerHTML = `<span>${val}</span> <i class="bx bx-x remove-pill-btn cursor-pointer" style="font-size:1.1rem; line-height:1;" title="Remove option"></i>`;
+                
+                pill.querySelector('.remove-pill-btn').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    cb.checked = false;
+                    cb.dispatchEvent(new Event('change', { bubbles: true }));
+                    updateSelectedPills();
+                });
+                pillsContainer.appendChild(pill);
+            });
+        }
+
+        if (filterInput) {
+            filterInput.addEventListener('input', function(e) {
+                const query = e.target.value.toLowerCase().trim();
+                let matchCount = 0;
+
+                items.forEach(function(item) {
+                    const text = item.textContent.toLowerCase();
+                    if (text.includes(query)) {
+                        item.style.setProperty('display', 'flex', 'important');
+                        matchCount++;
+                    } else {
+                        item.style.setProperty('display', 'none', 'important');
+                    }
+                });
+
+                if (noResults) {
+                    noResults.classList.toggle('d-none', matchCount > 0);
+                }
+            });
+        }
+
+        if (selectAllBtn) {
+            selectAllBtn.addEventListener('click', function() {
+                items.forEach(function(item) {
+                    if (item.style.display !== 'none') {
+                        const cb = item.querySelector('.multiselect-checkbox');
+                        if (cb) cb.checked = true;
+                    }
+                });
+                updateSelectedPills();
+                const firstCb = container.querySelector('.multiselect-checkbox');
+                if (firstCb) firstCb.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+        }
+
+        if (clearAllBtn) {
+            clearAllBtn.addEventListener('click', function() {
+                container.querySelectorAll('.multiselect-checkbox').forEach(function(cb) {
+                    cb.checked = false;
+                });
+                updateSelectedPills();
+                const firstCb = container.querySelector('.multiselect-checkbox');
+                if (firstCb) firstCb.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+        }
+
+        container.querySelectorAll('.multiselect-checkbox').forEach(function(cb) {
+            cb.addEventListener('change', function() {
+                updateSelectedPills();
+                if (typeof evaluateAllConditionalRules === 'function') {
+                    evaluateAllConditionalRules();
+                }
+            });
+        });
+
+        // Initialize pills on page load
+        updateSelectedPills();
+    });
+
+    // 5. Smart Conditional Logic Engine
     const formFieldsSchema = {!! json_encode($form->fields_schema ?: []) !!};
 
     function getFieldValue(fieldKey) {
