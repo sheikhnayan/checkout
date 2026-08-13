@@ -8242,11 +8242,12 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 if (timeInput && timeInput._flatpickr) {
                                     try { timeInput._flatpickr.close(); } catch (e) {}
                                 }
-                            }
                         }
                     }
-                });
-            })();
+                }
+                return isValid;
+            }
+            window.validateStep = validateStep;
         </script>
         <script>
             function prepareCheckoutCartPayload(form) {
