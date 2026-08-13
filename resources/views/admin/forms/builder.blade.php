@@ -1974,7 +1974,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         ${otherFields.map(of => {
                             const targetKey = of.name || of.id;
                             const isSelected = (rule.field === targetKey || rule.field === of.id);
-                            return `<option value="${targetKey}" ${isSelected ? 'selected' : ''}>${of.label} (${targetKey})</option>`;
+                            return `<option value="${targetKey}" ${isSelected ? 'selected' : ''}>${of.label || targetKey}</option>`;
                         }).join('')}
                     </select>
                 </div>
