@@ -62,6 +62,14 @@ class JobMarketplaceController extends Controller
             $location = trim($city . ' ' . $state);
         }
 
+        $notifySettings = [
+            'enabled' => $request->has('notify_enabled'),
+            'send_to' => trim($request->input('notify_send_to', '')),
+            'subject' => trim($request->input('notify_subject', 'New Application: {job_title}')),
+            'from_name' => trim($request->input('notify_from_name', 'CartVIP Job Portal')),
+            'from_email' => trim($request->input('notify_from_email', 'no-reply@cartvip.com')),
+        ];
+
         JobPost::create([
             'website_id' => $validated['website_id'],
             'posted_by_user_id' => auth()->id(),
@@ -77,6 +85,7 @@ class JobMarketplaceController extends Controller
             'description' => $validated['description'],
             'skills' => $this->parseLines($validated['skills_text'] ?? null),
             'traits' => $this->parseLines($validated['traits_text'] ?? null),
+            'meta' => ['notifications' => $notifySettings],
             'status' => (bool) ($validated['status'] ?? true),
             'is_archived' => false,
         ]);
@@ -128,6 +137,17 @@ class JobMarketplaceController extends Controller
             $location = trim($city . ' ' . $state);
         }
 
+        $notifySettings = [
+            'enabled' => $request->has('notify_enabled'),
+            'send_to' => trim($request->input('notify_send_to', '')),
+            'subject' => trim($request->input('notify_subject', 'New Application: {job_title}')),
+            'from_name' => trim($request->input('notify_from_name', 'CartVIP Job Portal')),
+            'from_email' => trim($request->input('notify_from_email', 'no-reply@cartvip.com')),
+        ];
+
+        $meta = $job->meta ?: [];
+        $meta['notifications'] = $notifySettings;
+
         $job->update([
             'website_id' => $validated['website_id'],
             'job_type' => $validated['job_type'],
@@ -142,6 +162,7 @@ class JobMarketplaceController extends Controller
             'description' => $validated['description'],
             'skills' => $this->parseLines($validated['skills_text'] ?? null),
             'traits' => $this->parseLines($validated['traits_text'] ?? null),
+            'meta' => $meta,
             'status' => (bool) ($validated['status'] ?? true),
             'is_archived' => (bool) ($validated['is_archived'] ?? false),
         ]);

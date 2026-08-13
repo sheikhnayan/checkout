@@ -9,7 +9,8 @@ use App\Models\Website;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class JobMarketplaceController extends Controller
 {
@@ -83,6 +84,8 @@ class JobMarketplaceController extends Controller
             $application = $this->storeEmployeeApplication($job, $data, $request);
         }
 
+        $this->sendJobApplicationNotification($job, $application);
+
         return redirect()
             ->route('jobs.apply', $job)
             ->with('success', 'Application submitted successfully. We will contact you soon. Ref #' . $application->id);
@@ -130,7 +133,7 @@ class JobMarketplaceController extends Controller
             $attachments['headshot'] = $this->storeUploadedFile($request->file('headshot'), 'headshot');
         }
 
-        JobPreferenceRequest::create([
+        $preferenceRequest = JobPreferenceRequest::create([
             'website_id' => $data['website_id'],
             'name' => $data['name'],
             'email' => $data['email'],
@@ -154,7 +157,151 @@ class JobMarketplaceController extends Controller
             'submitted_at' => Carbon::now(),
         ]);
 
+        $this->sendPreApplyNotification($preferenceRequest);
+
         return redirect()->route('jobs.pre-apply')->with('success', 'Your preferred-work profile has been sent.');
+    }
+
+    private function sendJobApplicationNotification(JobPost $job, JobApplication $application): void
+    {
+        try {
+            $meta = $job->meta ?? [];
+            $notifySettings = $meta['notifications'] ?? [];
+            
+            $enabled = !isset($notifySettings['enabled']) || $notifySettings['enabled'];
+            $rawSendTo = $notifySettings['send_to'] ?? 'admin@cartvip.com';
+
+            if (!$enabled || empty($rawSendTo)) {
+                return;
+            }
+
+            $parsedEmails = preg_split('/[\s,;]+/', $rawSendTo);
+            $recipients = array_values(array_unique(array_filter(array_map('trim', $parsedEmails), function ($e) {
+                return filter_var($e, FILTER_VALIDATE_EMAIL);
+            })));
+
+            if (empty($recipients)) {
+                return;
+            }
+
+            $jobTitle = $job->title;
+            $subjectTemplate = !empty($notifySettings['subject']) ? $notifySettings['subject'] : 'New Application: {job_title}';
+            $subject = str_replace('{job_title}', $jobTitle, $subjectTemplate);
+            $fromName = !empty($notifySettings['from_name']) ? $notifySettings['from_name'] : 'CartVIP Job Portal';
+            $fromEmail = !empty($notifySettings['from_email']) ? $notifySettings['from_email'] : (config('mail.from.address') ?: 'no-reply@cartvip.com');
+
+            $applicantName = trim(($application->legal_first_name ?? '') . ' ' . ($application->legal_last_name ?? ''));
+            if (empty($applicantName)) {
+                $applicantName = trim(($application->display_first_name ?? '') . ' ' . ($application->display_last_name ?? ''));
+            }
+
+            $tableHtml = "<h3 style='font-family:sans-serif;color:#0f172a;'>New Job Application Received</h3>";
+            $tableHtml .= "<p style='font-family:sans-serif;color:#475569;'><strong>Job Opening:</strong> " . htmlspecialchars($jobTitle) . " (" . ucfirst($job->job_type) . ")</p>";
+            $tableHtml .= "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse:collapse;width:100%;font-family:sans-serif;border-color:#e2e8f0;'>";
+            $tableHtml .= "<tr style='background:#f8fafc;color:#0f172a;'><th>Information Field</th><th>Applicant Details</th></tr>";
+
+            $rows = [
+                'Applicant Name' => $applicantName,
+                'Email Address' => $application->email,
+                'Phone Number' => $application->phone,
+                'City / State' => trim(($application->city ?? '') . ', ' . ($application->state ?? ''), ', '),
+                'Preferred Contact Method' => $application->preferred_contact_method ?? null,
+                'Positions Applied' => is_array($application->positions) ? implode(', ', $application->positions) : $application->positions,
+                'Availability' => is_array($application->availability) ? implode(', ', $application->availability) : $application->availability,
+                'Traits' => is_array($application->traits) ? implode(', ', $application->traits) : $application->traits,
+                'Skills' => is_array($application->skills) ? implode(', ', $application->skills) : $application->skills,
+                'Additional Notes' => $application->additional_notes ?? null,
+            ];
+
+            foreach ($rows as $label => $val) {
+                if (empty($val)) continue;
+                $tableHtml .= "<tr><td style='width:35%;'><strong>" . htmlspecialchars($label) . "</strong></td><td>" . nl2br(htmlspecialchars((string)$val)) . "</td></tr>";
+            }
+
+            $attachments = $application->attachments ?? [];
+            if (!empty($attachments)) {
+                $btnList = [];
+                foreach ($attachments as $key => $fileData) {
+                    if (empty($fileData)) continue;
+                    $fileUrls = is_array($fileData) ? $fileData : [$fileData];
+                    foreach ($fileUrls as $u) {
+                        if (!is_string($u) || empty($u)) continue;
+                        $fullUrl = str_starts_with($u, 'http') ? $u : asset($u);
+                        $fileName = ucfirst(str_replace('_', ' ', $key)) . ' (' . (basename($u) ?: 'View File') . ')';
+                        $btnList[] = '<a href="' . htmlspecialchars($fullUrl) . '" target="_blank" rel="noopener noreferrer" style="display:inline-block; padding:8px 16px; margin:4px 6px 4px 0; background-color:#4f46e5; color:#ffffff; text-decoration:none; border-radius:6px; font-weight:600; font-size:13px; font-family:sans-serif;">📎 View ' . htmlspecialchars($fileName) . ' &rarr;</a>';
+                    }
+                }
+                if (!empty($btnList)) {
+                    $tableHtml .= "<tr><td style='width:35%;'><strong>Attached Documents / Photos</strong></td><td>" . implode(' ', $btnList) . "</td></tr>";
+                }
+            }
+
+            $tableHtml .= "</table>";
+            $tableHtml .= "<p style='font-size:12px;color:#64748b;margin-top:20px;'>Submitted on " . now()->format('M d, Y h:i A') . " | Application Ref #" . $application->id . "</p>";
+
+            Mail::html($tableHtml, function ($message) use ($recipients, $subject, $fromName, $fromEmail) {
+                $message->to($recipients)
+                        ->subject($subject)
+                        ->from($fromEmail, $fromName);
+            });
+        } catch (\Exception $e) {
+            Log::error("Job Application Notification Email Exception: " . $e->getMessage());
+        }
+    }
+
+    private function sendPreApplyNotification(JobPreferenceRequest $preferenceRequest): void
+    {
+        try {
+            $recipients = ['admin@cartvip.com'];
+            $subject = "New General Employment Application: " . $preferenceRequest->name;
+            $fromName = "CartVIP Job Portal";
+            $fromEmail = config('mail.from.address') ?: 'no-reply@cartvip.com';
+
+            $tableHtml = "<h3 style='font-family:sans-serif;color:#0f172a;'>New General Employment Application Received</h3>";
+            $tableHtml .= "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse:collapse;width:100%;font-family:sans-serif;border-color:#e2e8f0;'>";
+            $tableHtml .= "<tr style='background:#f8fafc;color:#0f172a;'><th>Information Field</th><th>Applicant Details</th></tr>";
+
+            $rows = [
+                'Applicant Name' => $preferenceRequest->name,
+                'Email Address' => $preferenceRequest->email,
+                'Phone Number' => $preferenceRequest->phone,
+                'City / State' => trim(($preferenceRequest->city ?? '') . ', ' . ($preferenceRequest->state ?? ''), ', '),
+                'Preferred Role' => $preferenceRequest->preferred_role,
+                'Availability' => is_array($preferenceRequest->availability) ? implode(', ', $preferenceRequest->availability) : $preferenceRequest->availability,
+                'Experience Summary' => is_array($preferenceRequest->experience) ? ($preferenceRequest->experience['summary'] ?? json_encode($preferenceRequest->experience)) : $preferenceRequest->experience,
+                'Message' => $preferenceRequest->message,
+            ];
+
+            foreach ($rows as $label => $val) {
+                if (empty($val)) continue;
+                $tableHtml .= "<tr><td style='width:35%;'><strong>" . htmlspecialchars($label) . "</strong></td><td>" . nl2br(htmlspecialchars((string)$val)) . "</td></tr>";
+            }
+
+            $attachments = $preferenceRequest->attachments ?? [];
+            if (!empty($attachments)) {
+                $btnList = [];
+                foreach ($attachments as $key => $u) {
+                    if (!is_string($u) || empty($u)) continue;
+                    $fullUrl = str_starts_with($u, 'http') ? $u : asset($u);
+                    $fileName = ucfirst(str_replace('_', ' ', $key)) . ' (' . (basename($u) ?: 'View File') . ')';
+                    $btnList[] = '<a href="' . htmlspecialchars($fullUrl) . '" target="_blank" rel="noopener noreferrer" style="display:inline-block; padding:8px 16px; margin:4px 6px 4px 0; background-color:#4f46e5; color:#ffffff; text-decoration:none; border-radius:6px; font-weight:600; font-size:13px; font-family:sans-serif;">📎 View ' . htmlspecialchars($fileName) . ' &rarr;</a>';
+                }
+                if (!empty($btnList)) {
+                    $tableHtml .= "<tr><td style='width:35%;'><strong>Attached Documents / Photos</strong></td><td>" . implode(' ', $btnList) . "</td></tr>";
+                }
+            }
+
+            $tableHtml .= "</table>";
+            $tableHtml .= "<p style='font-size:12px;color:#64748b;margin-top:20px;'>Submitted on " . now()->format('M d, Y h:i A') . " | Request Ref #" . $preferenceRequest->id . "</p>";
+
+            Mail::html($tableHtml, function ($message) use ($recipients, $subject, $fromName, $fromEmail) {
+                $message->to($recipients)
+                        ->subject($subject)
+                        ->from($fromEmail, $fromName);
+            });
+        } catch (\Exception $e) {
+            Log::error("Job PreApply Notification Email Exception: " . $e->getMessage());
+        }
     }
 
     private function marketplaceQuery(Request $request)

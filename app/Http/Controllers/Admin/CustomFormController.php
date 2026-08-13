@@ -462,8 +462,68 @@ class CustomFormController extends Controller
             $label = $f['label'] ?? $key;
             $customAttributes[$key] = $label;
 
+            // Evaluate server-side conditional logic
+            $isFieldConditionallyHidden = false;
+            if (!empty($f['conditional_logic']) && !empty($f['conditional_logic']['enabled']) && !empty($f['conditional_logic']['rules'])) {
+                $cl = $f['conditional_logic'];
+                $rulesList = $cl['rules'];
+                $gate = $cl['logic_gate'] ?? 'all';
+                $action = $cl['action'] ?? 'show';
+                $matches = [];
+
+                foreach ($rulesList as $r) {
+                    $targetFieldKey = $r['field'] ?? null;
+                    if (!$targetFieldKey) {
+                        $matches[] = true;
+                        continue;
+                    }
+
+                    $submittedVal = $request->input($targetFieldKey);
+                    if (is_array($submittedVal)) {
+                        $submittedValStr = strtolower(trim(implode(', ', array_filter($submittedVal))));
+                    } else {
+                        $submittedValStr = strtolower(trim((string) $submittedVal));
+                    }
+
+                    $targetValStr = strtolower(trim((string) ($r['value'] ?? '')));
+                    $op = $r['operator'] ?? 'is';
+
+                    $rMatch = false;
+                    switch ($op) {
+                        case 'is':
+                            $rMatch = ($submittedValStr === $targetValStr);
+                            break;
+                        case 'is_not':
+                            $rMatch = ($submittedValStr !== $targetValStr);
+                            break;
+                        case 'contains':
+                            $rMatch = (str_contains($submittedValStr, $targetValStr));
+                            break;
+                        case 'not_contains':
+                            $rMatch = (!str_contains($submittedValStr, $targetValStr));
+                            break;
+                        case 'is_empty':
+                            $rMatch = ($submittedValStr === '');
+                            break;
+                        case 'is_not_empty':
+                            $rMatch = ($submittedValStr !== '');
+                            break;
+                        default:
+                            $rMatch = ($submittedValStr === $targetValStr);
+                            break;
+                    }
+                    $matches[] = $rMatch;
+                }
+
+                $overallMatch = ($gate === 'all') ? !in_array(false, $matches, true) : in_array(true, $matches, true);
+                $shouldBeVisible = ($action === 'show') ? $overallMatch : !$overallMatch;
+                if (!$shouldBeVisible) {
+                    $isFieldConditionallyHidden = true;
+                }
+            }
+
             $fieldRules = [];
-            if (!empty($f['required'])) {
+            if (!empty($f['required']) && !$isFieldConditionallyHidden) {
                 $fieldRules[] = 'required';
             } else {
                 $fieldRules[] = 'nullable';
@@ -481,7 +541,7 @@ class CustomFormController extends Controller
                 $maxCount = !empty($f['max_file_uploads']) ? (int) $f['max_file_uploads'] : 1;
 
                 if ($maxCount > 1 || ($request->hasFile($key) && is_array($request->file($key)))) {
-                    if (!empty($f['required'])) {
+                    if (!empty($f['required']) && !$isFieldConditionallyHidden) {
                         $rules[$key] = 'required';
                     } else {
                         $rules[$key] = 'nullable';
@@ -494,7 +554,7 @@ class CustomFormController extends Controller
                     $customAttributes["{$key}.*"] = $label;
                 } else {
                     $fileRules = [];
-                    if (!empty($f['required'])) {
+                    if (!empty($f['required']) && !$isFieldConditionallyHidden) {
                         $fileRules[] = 'required';
                     } else {
                         $fileRules[] = 'nullable';

@@ -114,6 +114,52 @@
                             <label class="form-label">Suggested Skills (one per line) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Professional or technical skills required for this role, one per line."></i></label>
                             <textarea name="skills_text" class="form-control" rows="6">{{ old('skills_text', is_array($job->skills) ? implode("\n", $job->skills) : '') }}</textarea>
                         </div>
+
+                        @php
+                            $jobMeta = $job->meta ?? [];
+                            $jobNotifySettings = $jobMeta['notifications'] ?? [];
+                        @endphp
+
+                        <!-- Notification Settings Card -->
+                        <div class="col-12 mt-4">
+                            <div class="card border-0 shadow-sm" style="background: rgba(15, 23, 42, 0.03); border: 1px solid #cbd5e1 !important;">
+                                <div class="card-header bg-dark text-white fw-bold d-flex align-items-center justify-content-between">
+                                    <span><i class="fas fa-bell text-warning me-2"></i> Application Email Notification Settings</span>
+                                    <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25">Multi-Recipient Supported</span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" name="notify_enabled" id="notifyEnabled" value="1" {{ old('notify_enabled', $jobNotifySettings['enabled'] ?? true) ? 'checked' : '' }}>
+                                        <label class="form-check-label fw-bold" for="notifyEnabled">Enable Email Notifications for New Applicants</label>
+                                        <div class="text-muted small">Automatically send email alerts to managers when an application is submitted for this job.</div>
+                                    </div>
+
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <label class="form-label fw-semibold">Send To Email Address(es) <span class="text-danger">*</span></label>
+                                            <textarea name="notify_send_to" class="form-control" rows="2" placeholder="admin@cartvip.com, sales@cartvip.com">{{ old('notify_send_to', $jobNotifySettings['send_to'] ?? 'admin@cartvip.com') }}</textarea>
+                                            <span class="form-text text-muted small"><i class="fas fa-info-circle me-1 text-primary"></i>Enter one or multiple notification email addresses separated by commas (<code>,</code>), semicolons (<code>;</code>), or new lines.</span>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Email Subject Line</label>
+                                            <input type="text" name="notify_subject" class="form-control" value="{{ old('notify_subject', $jobNotifySettings['subject'] ?? 'New Application: {job_title}') }}" placeholder="New Application: {job_title}">
+                                            <span class="form-text text-muted small">Supports placeholder <code>{job_title}</code></span>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold">From Name</label>
+                                            <input type="text" name="notify_from_name" class="form-control" value="{{ old('notify_from_name', $jobNotifySettings['from_name'] ?? 'CartVIP Job Portal') }}" placeholder="CartVIP Job Portal">
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold">From Email</label>
+                                            <input type="email" name="notify_from_email" class="form-control" value="{{ old('notify_from_email', $jobNotifySettings['from_email'] ?? 'no-reply@cartvip.com') }}" placeholder="no-reply@cartvip.com">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="mt-4">

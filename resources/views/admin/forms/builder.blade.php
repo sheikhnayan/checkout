@@ -819,9 +819,40 @@
                                 </div>
 
                                 <div id="subTabContentLogic" style="display: none;">
-                                    <div class="p-3 rounded-3 text-muted micro-text" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.08);">
-                                        <i class="bx bx-bulb text-warning fs-5 d-block mb-1"></i>
-                                        Smart logic allow you to show/hide this field dynamically based on answers to previous fields.
+                                    <div class="p-3 rounded-3 mb-3" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.08);">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <div class="text-white fw-bold small">Enable Conditional Logic</div>
+                                                <div class="text-muted micro-text">Dynamically show or hide this field based on previous answers.</div>
+                                            </div>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" id="propLogicEnabled" class="toggle-switch-input">
+                                                <span class="toggle-switch-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div id="logicRulesContainer" style="display: none;">
+                                        <div class="p-3 rounded-3" style="background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1);">
+                                            <div class="d-flex align-items-center gap-1.5 flex-wrap text-white micro-text fw-semibold mb-3">
+                                                <select id="propLogicAction" class="txn-filter-select py-1 px-2 text-white micro-text" style="width: auto;">
+                                                    <option value="show">Show</option>
+                                                    <option value="hide">Hide</option>
+                                                </select>
+                                                <span>this field if</span>
+                                                <select id="propLogicGate" class="txn-filter-select py-1 px-2 text-white micro-text" style="width: auto;">
+                                                    <option value="all">ALL</option>
+                                                    <option value="any">ANY</option>
+                                                </select>
+                                                <span>of the following match:</span>
+                                            </div>
+
+                                            <div id="logicRulesList" class="d-flex flex-column gap-2.5 mb-3"></div>
+
+                                            <button type="button" class="btn btn-outline-primary btn-sm micro-text w-100 py-2 d-flex align-items-center justify-content-center gap-1" id="btnAddLogicRule" style="border-radius: 8px;">
+                                                <i class="bx bx-plus fs-6"></i> Add Condition Rule
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -1551,6 +1582,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const widthVal = f.width_class || 'col-12';
 
+            const hasLogic = f.conditional_logic && f.conditional_logic.enabled && f.conditional_logic.rules && f.conditional_logic.rules.length > 0;
+            const logicBadge = hasLogic ? `<span class="badge text-white ms-1 micro-text" style="background: rgba(124, 58, 237, 0.35) !important; border: 1px solid rgba(124, 58, 237, 0.6); padding: 3px 8px;" title="Smart Logic active"><i class="bx bx-git-repo-forked me-1"></i>Conditional</span>` : '';
+
             card.innerHTML = `
                 <div class="field-actions">
                     <button type="button" class="field-action-icon-btn move-up-btn" data-idx="${idx}" title="Move Up" ${idx === 0 ? 'disabled' : ''}>
@@ -1566,9 +1600,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         <i class="bx bx-trash"></i>
                     </button>
                 </div>
-                <div class="d-flex align-items-center mb-1">
+                <div class="d-flex align-items-center mb-1 flex-wrap gap-1">
                     <i class="bx bx-move field-drag-handle" title="Drag to relocate field"></i>
-                    ${!isHeading && f.type !== 'checkbox' ? `<label class="form-label text-white mb-0 fw-semibold small me-2">${f.label} ${f.required ? '<span class="text-danger">*</span>' : ''}</label>` : ''}
+                    ${!isHeading && f.type !== 'checkbox' ? `<label class="form-label text-white mb-0 fw-semibold small me-1">${f.label} ${f.required ? '<span class="text-danger">*</span>' : ''}</label>` : ''}
+                    ${logicBadge}
                 </div>
                 ${inputPreview}
                 ${f.help_text ? `<div class="text-muted micro-text mt-1.5"><i class="bx bx-info-circle me-1 text-primary"></i>${f.help_text}</div>` : ''}
@@ -1734,7 +1769,209 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             placeholderGroup.style.display = 'block';
         }
+
+        renderLogicInspector();
     }
+
+    function renderLogicInspector() {
+        if (selectedFieldIndex === null || !fields[selectedFieldIndex]) return;
+        const f = fields[selectedFieldIndex];
+
+        if (!f.conditional_logic) {
+            f.conditional_logic = {
+                enabled: false,
+                action: 'show',
+                logic_gate: 'all',
+                rules: []
+            };
+        }
+
+        const cl = f.conditional_logic;
+        const enabledInput = document.getElementById('propLogicEnabled');
+        const rulesContainer = document.getElementById('logicRulesContainer');
+        const actionSelect = document.getElementById('propLogicAction');
+        const gateSelect = document.getElementById('propLogicGate');
+
+        if (!enabledInput || !rulesContainer) return;
+
+        enabledInput.checked = !!cl.enabled;
+        rulesContainer.style.display = cl.enabled ? 'block' : 'none';
+        if (actionSelect) actionSelect.value = cl.action || 'show';
+        if (gateSelect) gateSelect.value = cl.logic_gate || 'all';
+
+        renderLogicRulesList();
+    }
+
+    function renderLogicRulesList() {
+        if (selectedFieldIndex === null || !fields[selectedFieldIndex]) return;
+        const f = fields[selectedFieldIndex];
+        const cl = f.conditional_logic || {};
+        const rules = cl.rules || [];
+        const rulesList = document.getElementById('logicRulesList');
+        if (!rulesList) return;
+
+        rulesList.innerHTML = '';
+
+        const otherFields = fields.filter((otherF, oIdx) => oIdx !== selectedFieldIndex && otherF.type !== 'heading' && otherF.type !== 'captcha');
+
+        if (otherFields.length === 0) {
+            rulesList.innerHTML = `
+                <div class="text-warning micro-text p-2 rounded" style="background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.2);">
+                    <i class="bx bx-error-circle me-1"></i>Add at least one other field to set up conditional rules.
+                </div>
+            `;
+            return;
+        }
+
+        if (rules.length === 0) {
+            rulesList.innerHTML = `
+                <div class="text-muted micro-text p-2 text-center rounded" style="background: rgba(255,255,255,0.03);">
+                    No rules yet. Click button below to add one.
+                </div>
+            `;
+            return;
+        }
+
+        rules.forEach((rule, rIdx) => {
+            const ruleCard = document.createElement('div');
+            ruleCard.className = 'p-2.5 rounded';
+            ruleCard.style.cssText = 'background: rgba(15,23,42,0.85); border: 1px solid rgba(255,255,255,0.12);';
+
+            const targetFieldObj = otherFields.find(of => (of.id && of.id === rule.field) || (of.name && of.name === rule.field));
+            const targetOptions = targetFieldObj && ['select', 'radio'].includes(targetFieldObj.type) ? (targetFieldObj.options || []) : [];
+
+            let valueFieldHtml = '';
+            if (targetOptions.length > 0) {
+                valueFieldHtml = `
+                    <select class="txn-filter-select w-100 micro-text logic-rule-val-select" data-ridx="${rIdx}">
+                        <option value="">-- Select Choice --</option>
+                        ${targetOptions.map(opt => `<option value="${opt}" ${rule.value === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+                    </select>
+                `;
+            } else {
+                valueFieldHtml = `
+                    <input type="text" class="txn-search-input micro-text logic-rule-val-input" data-ridx="${rIdx}" value="${rule.value || ''}" placeholder="Value to match...">
+                `;
+            }
+
+            ruleCard.innerHTML = `
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-primary micro-text fw-bold">Condition #${rIdx + 1}</span>
+                    <button type="button" class="btn-choice-icon btn-choice-remove delete-logic-rule-btn" data-ridx="${rIdx}" title="Remove rule">-</button>
+                </div>
+                <div class="mb-2">
+                    <label class="text-muted micro-text fw-semibold d-block mb-1">If Field:</label>
+                    <select class="txn-filter-select w-100 micro-text logic-rule-target-select" data-ridx="${rIdx}">
+                        <option value="">-- Select Field --</option>
+                        ${otherFields.map(of => {
+                            const targetKey = of.name || of.id;
+                            const isSelected = (rule.field === targetKey || rule.field === of.id);
+                            return `<option value="${targetKey}" ${isSelected ? 'selected' : ''}>${of.label} (${targetKey})</option>`;
+                        }).join('')}
+                    </select>
+                </div>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <label class="text-muted micro-text fw-semibold d-block mb-1">Condition:</label>
+                        <select class="txn-filter-select w-100 micro-text logic-rule-operator-select" data-ridx="${rIdx}">
+                            <option value="is" ${rule.operator === 'is' ? 'selected' : ''}>is (equals)</option>
+                            <option value="is_not" ${rule.operator === 'is_not' ? 'selected' : ''}>is not</option>
+                            <option value="contains" ${rule.operator === 'contains' ? 'selected' : ''}>contains</option>
+                            <option value="not_contains" ${rule.operator === 'not_contains' ? 'selected' : ''}>does not contain</option>
+                            <option value="is_empty" ${rule.operator === 'is_empty' ? 'selected' : ''}>is empty</option>
+                            <option value="is_not_empty" ${rule.operator === 'is_not_empty' ? 'selected' : ''}>is not empty</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="text-muted micro-text fw-semibold d-block mb-1">Matching Value:</label>
+                        ${valueFieldHtml}
+                    </div>
+                </div>
+            `;
+            rulesList.appendChild(ruleCard);
+        });
+
+        rulesList.querySelectorAll('.delete-logic-rule-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const ridx = parseInt(btn.getAttribute('data-ridx'));
+                fields[selectedFieldIndex].conditional_logic.rules.splice(ridx, 1);
+                renderLogicInspector();
+                renderCanvas();
+            });
+        });
+
+        rulesList.querySelectorAll('.logic-rule-target-select').forEach(sel => {
+            sel.addEventListener('change', (e) => {
+                const ridx = parseInt(sel.getAttribute('data-ridx'));
+                fields[selectedFieldIndex].conditional_logic.rules[ridx].field = e.target.value;
+                renderLogicInspector();
+                renderCanvas();
+            });
+        });
+
+        rulesList.querySelectorAll('.logic-rule-operator-select').forEach(sel => {
+            sel.addEventListener('change', (e) => {
+                const ridx = parseInt(sel.getAttribute('data-ridx'));
+                fields[selectedFieldIndex].conditional_logic.rules[ridx].operator = e.target.value;
+                renderCanvas();
+            });
+        });
+
+        rulesList.querySelectorAll('.logic-rule-val-input, .logic-rule-val-select').forEach(inp => {
+            const updateVal = (e) => {
+                const ridx = parseInt(inp.getAttribute('data-ridx'));
+                if (fields[selectedFieldIndex] && fields[selectedFieldIndex].conditional_logic && fields[selectedFieldIndex].conditional_logic.rules[ridx]) {
+                    fields[selectedFieldIndex].conditional_logic.rules[ridx].value = e.target.value;
+                    renderCanvas();
+                }
+            };
+            inp.addEventListener('input', updateVal);
+            inp.addEventListener('change', updateVal);
+        });
+    }
+
+    document.getElementById('propLogicEnabled')?.addEventListener('change', (e) => {
+        if (selectedFieldIndex !== null && fields[selectedFieldIndex]) {
+            if (!fields[selectedFieldIndex].conditional_logic) {
+                fields[selectedFieldIndex].conditional_logic = { enabled: false, action: 'show', logic_gate: 'all', rules: [] };
+            }
+            fields[selectedFieldIndex].conditional_logic.enabled = e.target.checked;
+            renderLogicInspector();
+            renderCanvas();
+        }
+    });
+
+    document.getElementById('propLogicAction')?.addEventListener('change', (e) => {
+        if (selectedFieldIndex !== null && fields[selectedFieldIndex] && fields[selectedFieldIndex].conditional_logic) {
+            fields[selectedFieldIndex].conditional_logic.action = e.target.value;
+            renderCanvas();
+        }
+    });
+
+    document.getElementById('propLogicGate')?.addEventListener('change', (e) => {
+        if (selectedFieldIndex !== null && fields[selectedFieldIndex] && fields[selectedFieldIndex].conditional_logic) {
+            fields[selectedFieldIndex].conditional_logic.logic_gate = e.target.value;
+            renderCanvas();
+        }
+    });
+
+    document.getElementById('btnAddLogicRule')?.addEventListener('click', () => {
+        if (selectedFieldIndex !== null && fields[selectedFieldIndex]) {
+            if (!fields[selectedFieldIndex].conditional_logic) {
+                fields[selectedFieldIndex].conditional_logic = { enabled: true, action: 'show', logic_gate: 'all', rules: [] };
+            }
+            const otherFields = fields.filter((otherF, oIdx) => oIdx !== selectedFieldIndex && otherF.type !== 'heading' && otherF.type !== 'captcha');
+            const defaultTarget = otherFields.length > 0 ? (otherFields[0].name || otherFields[0].id) : '';
+
+            fields[selectedFieldIndex].conditional_logic.rules.push({
+                field: defaultTarget,
+                operator: 'is',
+                value: ''
+            });
+            renderLogicInspector();
+            renderCanvas();
+        }
+    });
 
     function renderChoicesManager(optionsArr) {
         const container = document.getElementById('choicesListContainer');

@@ -437,7 +437,7 @@
                             $options = $field['options'] ?? [];
                         @endphp
 
-                        <div class="{{ $widthClass }}">
+                        <div class="{{ $widthClass }} form-field-wrapper" id="wrapper_{{ $key }}" data-field-key="{{ $key }}" data-field-id="{{ $field['id'] ?? $key }}" data-originally-required="{{ $required ? 'true' : 'false' }}">
                             @if($type === 'heading')
                                 <h4 class="doc-section-heading">{{ $label }}</h4>
                                 @if($helpText)
@@ -737,6 +737,114 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // 4. Smart Conditional Logic Engine
+    const formFieldsSchema = {!! json_encode($form->fields_schema ?: []) !!};
+
+    function getFieldValue(fieldKey) {
+        if (!fieldKey) return '';
+        // 1. Radio buttons
+        const checkedRadio = document.querySelector(`input[name="${fieldKey}"]:checked, input[name="${fieldKey}[first]"]:checked`);
+        if (checkedRadio) return checkedRadio.value || '';
+
+        // 2. Checkboxes
+        const checkboxes = document.querySelectorAll(`input[name="${fieldKey}"][type="checkbox"]:checked, input[name="${fieldKey}[]"][type="checkbox"]:checked`);
+        if (checkboxes.length > 0) {
+            return Array.from(checkboxes).map(cb => cb.value).join(', ');
+        }
+
+        // 3. Inputs, selects, textareas by name or id
+        const el = document.querySelector(`[name="${fieldKey}"], [name="${fieldKey}[]"], [name="${fieldKey}[first]"], #${fieldKey}`);
+        if (el) {
+            return el.value || '';
+        }
+
+        // Fallback: search by data-field-id
+        const wrapper = document.querySelector(`[data-field-id="${fieldKey}"]`);
+        if (wrapper) {
+            const innerInp = wrapper.querySelector('input, select, textarea');
+            if (innerInp) return innerInp.value || '';
+        }
+
+        return '';
+    }
+
+    function evaluateSingleRule(rule) {
+        if (!rule || !rule.field) return true;
+        const val = getFieldValue(rule.field).toString().trim().toLowerCase();
+        const targetVal = (rule.value || '').toString().trim().toLowerCase();
+        const op = rule.operator || 'is';
+
+        switch (op) {
+            case 'is':
+                return val === targetVal;
+            case 'is_not':
+                return val !== targetVal;
+            case 'contains':
+                return val.includes(targetVal);
+            case 'not_contains':
+                return !val.includes(targetVal);
+            case 'is_empty':
+                return val === '';
+            case 'is_not_empty':
+                return val !== '';
+            default:
+                return val === targetVal;
+        }
+    }
+
+    function evaluateConditionalLogic() {
+        if (!Array.isArray(formFieldsSchema)) return;
+
+        formFieldsSchema.forEach(field => {
+            const cl = field.conditional_logic;
+            if (!cl || !cl.enabled || !cl.rules || !Array.isArray(cl.rules) || cl.rules.length === 0) return;
+
+            const fieldKey = field.name || field.id;
+            const fieldId = field.id;
+            
+            let wrapper = document.getElementById('wrapper_' + fieldKey);
+            if (!wrapper && fieldId) wrapper = document.getElementById('wrapper_' + fieldId);
+            if (!wrapper) wrapper = document.querySelector(`[data-field-key="${fieldKey}"]`) || document.querySelector(`[data-field-id="${fieldId}"]`);
+
+            if (!wrapper) return;
+
+            const rules = cl.rules;
+            const gate = cl.logic_gate || 'all';
+            let match = false;
+
+            if (gate === 'all') {
+                match = rules.every(r => evaluateSingleRule(r));
+            } else {
+                match = rules.some(r => evaluateSingleRule(r));
+            }
+
+            const action = cl.action || 'show';
+            let shouldShow = (action === 'show') ? match : !match;
+
+            if (shouldShow) {
+                wrapper.style.display = '';
+                wrapper.querySelectorAll('input, select, textarea').forEach(inp => {
+                    if (wrapper.getAttribute('data-originally-required') === 'true') {
+                        inp.setAttribute('required', 'required');
+                    }
+                });
+            } else {
+                wrapper.style.display = 'none';
+                wrapper.querySelectorAll('input, select, textarea').forEach(inp => {
+                    inp.removeAttribute('required');
+                });
+            }
+        });
+    }
+
+    if (mainForm) {
+        mainForm.addEventListener('change', evaluateConditionalLogic);
+        mainForm.addEventListener('input', evaluateConditionalLogic);
+    }
+
+    // Run initial check
+    evaluateConditionalLogic();
 });
 </script>
 </body>
