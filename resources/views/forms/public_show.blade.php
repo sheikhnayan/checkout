@@ -250,6 +250,37 @@
             outline: none;
         }
 
+        /* Validation Error Styling & Smooth Mobile Scroll Highlighting */
+        .form-field-wrapper.has-validation-error {
+            animation: fieldPulseErr 0.35s ease;
+        }
+        .form-field-wrapper.has-validation-error .form-control-doc,
+        .form-field-wrapper.has-validation-error .form-select-doc,
+        .form-field-wrapper.has-validation-error .multiselect-search-container,
+        .form-field-wrapper.has-validation-error .phone-input-container,
+        .form-field-wrapper.has-validation-error .file-dropzone-doc {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18) !important;
+        }
+        .form-field-wrapper.has-validation-error .form-check-input-doc {
+            border-color: #ef4444 !important;
+            outline: 2px solid rgba(239, 68, 68, 0.3);
+        }
+        .field-validation-error-msg {
+            color: #dc2626;
+            font-size: 0.82rem;
+            font-weight: 600;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        @keyframes fieldPulseErr {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+
         /* Sub-labels for Name & Phone */
         .sub-label-text {
             font-size: 0.75rem;
@@ -733,44 +764,160 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 3. Form Submit Validation for Phone & Country Match
+    // 3. Robust Mobile-Friendly Submit Validation & Smooth Auto-Scroll Engine
     const mainForm = document.querySelector('form');
     if (mainForm) {
+        // Prevent browser's silent native invalid event behavior on iOS Safari
+        mainForm.addEventListener('invalid', function(e) {
+            e.preventDefault();
+        }, true);
+
+        function clearWrapperError(wrapper) {
+            if (!wrapper) return;
+            wrapper.classList.remove('has-validation-error');
+            const errBadge = wrapper.querySelector('.field-validation-error-msg');
+            if (errBadge) errBadge.remove();
+        }
+
+        function setWrapperError(wrapper, message, targetInput) {
+            if (!wrapper) return;
+            wrapper.classList.add('has-validation-error');
+            let errBadge = wrapper.querySelector('.field-validation-error-msg');
+            if (!errBadge) {
+                errBadge = document.createElement('div');
+                errBadge.className = 'field-validation-error-msg';
+                wrapper.appendChild(errBadge);
+            }
+            errBadge.innerHTML = '<i class="bx bx-error-circle fs-6"></i> ' + message;
+            if (targetInput && typeof targetInput.classList !== 'undefined') {
+                targetInput.classList.add('is-invalid');
+            }
+        }
+
+        // Live clear errors on user interaction
+        mainForm.addEventListener('input', function(e) {
+            const wrapper = e.target.closest('.form-field-wrapper');
+            if (wrapper) clearWrapperError(wrapper);
+        });
+        mainForm.addEventListener('change', function(e) {
+            const wrapper = e.target.closest('.form-field-wrapper');
+            if (wrapper) clearWrapperError(wrapper);
+        });
+
         mainForm.addEventListener('submit', function(e) {
             let isValid = true;
-            document.querySelectorAll('.phone-intl-input').forEach(function(input) {
-                const iti = itiMap.get(input);
-                if (iti) {
-                    const rawVal = input.value.trim();
-                    const container = input.closest('.phone-input-container');
-                    let errDiv = container ? container.querySelector('.phone-error-msg') : null;
-                    if (rawVal.length > 0) {
-                        if (!iti.isValidNumber()) {
-                            isValid = false;
-                            input.classList.add('is-invalid');
-                            if (!errDiv && container) {
-                                errDiv = document.createElement('div');
-                                errDiv.className = 'text-danger small mt-1 phone-error-msg fw-semibold';
-                                container.appendChild(errDiv);
-                            }
-                            const countryName = iti.getSelectedCountryData().name || 'selected country';
-                            if (errDiv) errDiv.innerHTML = '<i class="bx bx-error-circle me-1"></i>Invalid phone number format for ' + countryName + '.';
-                        } else {
-                            input.classList.remove('is-invalid');
-                            if (errDiv) errDiv.remove();
-                            // Standardize to full E.164 phone number including country dial code
-                            input.value = iti.getNumber();
-                        }
-                    } else if (input.hasAttribute('required')) {
+            let firstInvalidWrapper = null;
+            let firstInvalidInput = null;
+
+            // Clear all previous validation error highlights
+            document.querySelectorAll('.form-field-wrapper').forEach(clearWrapperError);
+
+            // Iterate over all visible field wrappers
+            const wrappers = document.querySelectorAll('.form-field-wrapper');
+            wrappers.forEach(function(wrapper) {
+                // Ignore conditionally hidden wrappers
+                if (wrapper.offsetWidth === 0 && wrapper.offsetHeight === 0) return;
+                if (window.getComputedStyle(wrapper).display === 'none') return;
+
+                const isRequired = wrapper.getAttribute('data-originally-required') === 'true' || wrapper.querySelector('[required]') !== null;
+                const fieldKey = wrapper.getAttribute('data-field-key');
+
+                // A. Check Radio Group Fields
+                const radioInputs = wrapper.querySelectorAll('input[type="radio"]');
+                if (radioInputs.length > 0 && isRequired) {
+                    const checked = wrapper.querySelector('input[type="radio"]:checked');
+                    if (!checked) {
                         isValid = false;
-                        input.classList.add('is-invalid');
+                        setWrapperError(wrapper, 'Please select an option to proceed.', radioInputs[0]);
+                        if (!firstInvalidWrapper) {
+                            firstInvalidWrapper = wrapper;
+                            firstInvalidInput = radioInputs[0];
+                        }
                     }
                 }
+
+                // B. Check Searchable Multi-Select Fields
+                const multiselectCheckboxes = wrapper.querySelectorAll('.multiselect-checkbox');
+                if (multiselectCheckboxes.length > 0 && isRequired) {
+                    const checkedCount = wrapper.querySelectorAll('.multiselect-checkbox:checked').length;
+                    if (checkedCount === 0) {
+                        isValid = false;
+                        setWrapperError(wrapper, 'Please select at least one option.', multiselectCheckboxes[0]);
+                        if (!firstInvalidWrapper) {
+                            firstInvalidWrapper = wrapper;
+                            firstInvalidInput = multiselectCheckboxes[0];
+                        }
+                    }
+                }
+
+                // C. Check Phone Number Inputs
+                const phoneInput = wrapper.querySelector('.phone-intl-input');
+                if (phoneInput) {
+                    const iti = itiMap.get(phoneInput);
+                    const rawVal = phoneInput.value.trim();
+                    if (rawVal.length > 0) {
+                        if (iti && !iti.isValidNumber()) {
+                            isValid = false;
+                            const countryData = iti.getSelectedCountryData();
+                            const countryName = (countryData && countryData.name) ? countryData.name : 'selected country';
+                            setWrapperError(wrapper, 'Invalid phone number format for ' + countryName + '.', phoneInput);
+                            if (!firstInvalidWrapper) {
+                                firstInvalidWrapper = wrapper;
+                                firstInvalidInput = phoneInput;
+                            }
+                        } else if (iti) {
+                            phoneInput.value = iti.getNumber();
+                        }
+                    } else if (isRequired) {
+                        isValid = false;
+                        setWrapperError(wrapper, 'Phone number is required.', phoneInput);
+                        if (!firstInvalidWrapper) {
+                            firstInvalidWrapper = wrapper;
+                            firstInvalidInput = phoneInput;
+                        }
+                    }
+                }
+
+                // D. Check General Inputs (Text, Number, Email, Select, Textarea)
+                const standardInputs = wrapper.querySelectorAll('input:not([type="radio"]):not([type="checkbox"]):not(.multiselect-search-filter-input):not(.phone-intl-input), select, textarea');
+                standardInputs.forEach(function(input) {
+                    if (input.hasAttribute('required') || isRequired) {
+                        const val = input.value ? input.value.trim() : '';
+                        if (val === '') {
+                            isValid = false;
+                            const labelEl = wrapper.querySelector('.form-label-doc');
+                            const fieldLabel = labelEl ? labelEl.textContent.replace('*', '').trim() : 'This field';
+                            setWrapperError(wrapper, fieldLabel + ' is required.', input);
+                            if (!firstInvalidWrapper) {
+                                firstInvalidWrapper = wrapper;
+                                firstInvalidInput = input;
+                            }
+                        }
+                    }
+                });
             });
 
             if (!isValid) {
                 e.preventDefault();
                 e.stopPropagation();
+
+                // Smoothly auto-scroll to the very first invalid field with offset for mobile viewports
+                if (firstInvalidWrapper) {
+                    const headerOffset = 90;
+                    const elementPosition = firstInvalidWrapper.getBoundingClientRect().top + window.pageYOffset;
+                    const offsetPosition = elementPosition - headerOffset;
+
+                    window.scrollTo({
+                        top: Math.max(0, offsetPosition),
+                        behavior: 'smooth'
+                    });
+
+                    if (firstInvalidInput && typeof firstInvalidInput.focus === 'function') {
+                        setTimeout(function() {
+                            try { firstInvalidInput.focus({ preventScroll: true }); } catch (err) {}
+                        }, 350);
+                    }
+                }
             }
         });
     }
