@@ -1317,6 +1317,29 @@
             document.body.style.overflow = '';
         }
 
+        function isAgeVerifiedToday() {
+            try {
+                const today = new Date().toDateString();
+                const savedDate = localStorage.getItem('age_verified_date');
+                if (savedDate === today) {
+                    return true;
+                }
+                const match = document.cookie.match(/(?:^|; )age_verified_date=([^;]*)/);
+                if (match && decodeURIComponent(match[1]) === today) {
+                    return true;
+                }
+            } catch (e) {}
+            return false;
+        }
+
+        function markAgeVerifiedToday() {
+            try {
+                const today = new Date().toDateString();
+                localStorage.setItem('age_verified_date', today);
+                document.cookie = "age_verified_date=" + encodeURIComponent(today) + "; path=/; max-age=86400; SameSite=Lax";
+            } catch (e) {}
+        }
+
         function closeAgeGate() {
             if (!ageGate) {
                 return;
@@ -1328,20 +1351,26 @@
         }
 
         if (ageGate) {
-            lockPage();
-            ageGate.setAttribute('aria-hidden', 'false');
+            if (isAgeVerifiedToday()) {
+                ageGate.style.display = 'none';
+                ageGate.setAttribute('aria-hidden', 'true');
+            } else {
+                lockPage();
+                ageGate.setAttribute('aria-hidden', 'false');
 
-            if (ageEnterButton) {
-                ageEnterButton.addEventListener('click', function () {
-                    closeAgeGate();
-                });
-            }
+                if (ageEnterButton) {
+                    ageEnterButton.addEventListener('click', function () {
+                        markAgeVerifiedToday();
+                        closeAgeGate();
+                    });
+                }
 
-            if (ageExitButton) {
-                ageExitButton.addEventListener('click', function () {
-                    const exitUrl = ageGate.getAttribute('data-exit-url') || '/';
-                    window.location.href = exitUrl;
-                });
+                if (ageExitButton) {
+                    ageExitButton.addEventListener('click', function () {
+                        const exitUrl = ageGate.getAttribute('data-exit-url') || '/';
+                        window.location.href = exitUrl;
+                    });
+                }
             }
         }
 
