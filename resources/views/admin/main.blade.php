@@ -963,6 +963,12 @@
       <div class="text-truncate">Form Builder</div>
     </a>
   </li>
+  <li class="menu-item {{ request()->is('admins/help-center*') || request()->is('admin/help-center*') ? 'active' : '' }}">
+    <a href="{{ route('admin.help-center.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-help-circle"></i>
+      <div class="text-truncate">Help Center</div>
+    </a>
+  </li>
   @endif
 
   @if(($authUser && $canAccessRoute('admin.feed-model.index')) || ($authUser && $canAccessRoute('admin.feed-post.index')) || (auth()->check() && auth()->user()->isAdmin()) || ($authUser && $canAccessRoute('admin.entertainer.index')) || ($authUser && $canAccessRoute('admin.affiliate.index')))

@@ -41,6 +41,7 @@ use App\Http\Controllers\Admin\WebsiteRoleController;
 use App\Http\Controllers\WithdrawController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\AnalyticsV2Controller;
+use App\Http\Controllers\Admin\HelpCenterController;
 
 
 // Authentication Routes
@@ -465,7 +466,6 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::get('/data', [AnalyticsV2Controller::class, 'getData'])->name('data');
         Route::get('/export', [AnalyticsV2Controller::class, 'export'])->name('export');
     });
-
     // Custom Drag & Drop Form Builder
     Route::group(['prefix' => 'forms', 'as' => 'forms.'], function () {
         Route::get('/', [CustomFormController::class, 'index'])->name('index');
@@ -477,6 +477,23 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::delete('/{form}', [CustomFormController::class, 'destroy'])->name('destroy');
         Route::get('/{form}/submissions', [CustomFormController::class, 'submissions'])->name('submissions');
         Route::get('/{form}/submissions/export', [CustomFormController::class, 'exportSubmissions'])->name('submissions.export');
+    });
+
+    // Help Center Portal & Collaborator System
+    Route::group(['prefix' => 'help-center', 'as' => 'help-center.'], function () {
+        Route::get('/', [HelpCenterController::class, 'index'])->name('index');
+        Route::post('/store-or-update', [HelpCenterController::class, 'storeOrUpdate'])->name('store-or-update');
+        Route::get('/{id}/builder', [HelpCenterController::class, 'builder'])->name('builder');
+        Route::post('/{page}/sections', [HelpCenterController::class, 'storeSection'])->name('sections.store');
+        Route::put('/sections/{section}', [HelpCenterController::class, 'updateSection'])->name('sections.update');
+        Route::delete('/sections/{section}', [HelpCenterController::class, 'destroySection'])->name('sections.destroy');
+        Route::post('/sections/{section}/items', [HelpCenterController::class, 'storeItem'])->name('items.store');
+        Route::put('/items/{item}', [HelpCenterController::class, 'updateItem'])->name('items.update');
+        Route::delete('/items/{item}', [HelpCenterController::class, 'destroyItem'])->name('items.destroy');
+        Route::post('/{page}/invite-collaborator', [HelpCenterController::class, 'inviteCollaborator'])->name('invite-collaborator');
+        Route::get('/invitation/accept/{token}', [HelpCenterController::class, 'acceptInvitation'])->name('invitation.accept');
+        Route::get('/invitation/decline/{token}', [HelpCenterController::class, 'declineInvitation'])->name('invitation.decline');
+        Route::delete('/collaborators/{collaborator}', [HelpCenterController::class, 'removeCollaborator'])->name('collaborators.remove');
     });
 });
 
@@ -555,6 +572,9 @@ Route::get('/demo-checkout/template-1/{slug}', [FrontendController::class, 'chec
 Route::get('/demo-checkout/template-2/{slug}', [FrontendController::class, 'checkoutTemplateTwo'])->name('demo.checkout.template2');
 Route::get('/demo-checkout/template-3/{slug}', [FrontendController::class, 'checkoutTemplateThree'])->name('demo.checkout.template3');
 Route::get('/demo-checkout/template-4/{slug}', [FrontendController::class, 'checkoutTemplateFour'])->name('demo.checkout.template4');
+
+// Protected Help Center Public Link (Login Boundary: Any CartVIP user can view after logging in)
+Route::middleware(['auth'])->get('/help-center/{slug}', [HelpCenterController::class, 'publicShow'])->name('help-center.public');
 
 // Frontend catch-all route with slug parameter
 // Keep this at the very end so it does not shadow admin/auth/portal routes.
