@@ -10781,6 +10781,82 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 color: #ff6b6b;
                 display: block;
             }
+
+            /* Flatpickr time-only popup — desktop theme matching Index Two */
+            .flatpickr-calendar.hasTime.noCalendar {
+                background: #1a1d2e !important;
+                border: 1px solid rgba(167,116,255,0.4) !important;
+                border-radius: 16px !important;
+                box-shadow: 0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(167,116,255,0.12) !important;
+                padding: 22px 20px !important;
+                min-width: 288px !important;
+                width: auto !important;
+                max-width: min(340px, calc(100vw - 32px)) !important;
+                z-index: 999999 !important;
+            }
+            .flatpickr-calendar.hasTime.noCalendar .flatpickr-time {
+                border-top: none !important;
+                background: transparent !important;
+                max-height: none !important;
+                height: auto !important;
+                line-height: 1 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 8px !important;
+            }
+            .flatpickr-time input.numInput,
+            .flatpickr-time .flatpickr-am-pm {
+                color: #fff !important;
+                background: rgba(255,255,255,0.07) !important;
+                border: 1px solid rgba(255,255,255,0.14) !important;
+                border-radius: 10px !important;
+                font-size: 18px !important;
+                font-weight: 700 !important;
+                height: 54px !important;
+                min-height: 54px !important;
+                line-height: 54px !important;
+                padding: 0 8px !important;
+                text-align: center !important;
+                overflow: visible !important;
+                box-sizing: border-box !important;
+                cursor: pointer !important;
+                user-select: none !important;
+                -webkit-user-select: none !important;
+            }
+            .flatpickr-time .numInputWrapper {
+                height: 54px !important;
+                display: flex !important;
+                align-items: center !important;
+            }
+            .flatpickr-time input.numInput {
+                min-width: 60px !important;
+                width: 100% !important;
+                display: block !important;
+                appearance: textfield !important;
+                -moz-appearance: textfield !important;
+                padding: 0 8px 2px !important;
+            }
+            .flatpickr-time .flatpickr-am-pm {
+                min-width: 72px !important;
+                width: 72px !important;
+                padding: 0 8px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            .flatpickr-time input.numInput:focus,
+            .flatpickr-time .flatpickr-am-pm:focus,
+            .flatpickr-time .flatpickr-am-pm:hover {
+                background: rgba(167,116,255,0.18) !important;
+                border-color: #a774ff !important;
+                outline: none !important;
+                color: #fff !important;
+            }
+            .flatpickr-time .numInputWrapper span.arrowUp:after { border-bottom-color: rgba(255,255,255,0.75) !important; }
+            .flatpickr-time .numInputWrapper span.arrowDown:after { border-top-color: rgba(255,255,255,0.75) !important; }
+            .flatpickr-time .numInputWrapper span:hover { background: rgba(167,116,255,0.2) !important; }
+            .flatpickr-time .flatpickr-time-separator { color: rgba(255,255,255,0.6) !important; font-size: 20px !important; font-weight: 700 !important; }
         </style>
 
         <script>
@@ -11437,59 +11513,139 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     </script>
     </body>
 
+    <!-- PST Time Picker & 15-Minute Advance Validation Engine (Index Two Match) -->
     <script>
-    (function(){
-        if (!window.matchMedia('(max-width: 767px)').matches) return;
-        function ensureTimePickerBelow() {
-            var selectors = ['#Pick-up-time', 'input[name="transportation_pickup_time"]'];
-            selectors.forEach(function(sel){
-                var el = document.querySelector(sel);
-                if (!el) return;
-                var hasError = el.classList.contains('is-invalid') || el.getAttribute('aria-invalid') === 'true' || (el.nextElementSibling && el.nextElementSibling.classList && el.nextElementSibling.classList.contains('invalid-feedback')) || (el.closest && el.closest('.form-group') && el.closest('.form-group').querySelector('.invalid-feedback'));
-                if (hasError) {
-                    var rect = el.getBoundingClientRect();
-                    var desiredTop = 120;
-                    var scrollY = window.scrollY + rect.top - desiredTop;
-                    if (scrollY < 0) scrollY = 0;
-                    window.scrollTo({ top: scrollY, behavior: 'smooth' });
-                }
-            });
+    (function () {
+        function getPSTNowDate() {
+            try {
+                var pstStr = new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' });
+                return new Date(pstStr);
+            } catch (e) {
+                return new Date();
+            }
         }
 
-        document.addEventListener('DOMContentLoaded', function(){
-            setTimeout(ensureTimePickerBelow, 60);
-            setTimeout(ensureTimePickerBelow, 300);
-            setTimeout(ensureTimePickerBelow, 900);
-        });
-
-        document.addEventListener('invalid', function(e){
-            var t = e.target;
-            if (!t) return;
-            if (t.matches && (t.matches('#Pick-up-time') || t.matches('input[name="transportation_pickup_time"]'))) {
-                setTimeout(function(){
-                    var rect = t.getBoundingClientRect();
-                    var scrollY = window.scrollY + rect.top - 120;
-                    if (scrollY < 0) scrollY = 0;
-                    window.scrollTo({ top: scrollY, behavior: 'smooth' });
-                }, 10);
+        function parseTimeToMinutes(t) {
+            if (!t) return null;
+            var m = String(t).trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+            if (!m) return null;
+            var hh = parseInt(m[1], 10);
+            var mm = parseInt(m[2], 10);
+            if (m[3]) {
+                var mer = m[3].toUpperCase();
+                if (mer === 'PM' && hh < 12) hh += 12;
+                else if (mer === 'AM' && hh === 12) hh = 0;
             }
-        }, true);
+            return hh * 60 + mm;
+        }
 
-        var timeEls = document.querySelectorAll('#Pick-up-time, input[name="transportation_pickup_time"]');
-        Array.prototype.forEach.call(timeEls, function(el){
-            el.addEventListener('focus', function(){
-                setTimeout(function(){
-                    var rect = el.getBoundingClientRect();
-                    var spaceBelow = window.innerHeight - rect.bottom;
-                    var needed = 360;
-                    if (spaceBelow < needed) {
-                        var scrollY = window.scrollY + rect.top - 120;
-                        if (scrollY < 0) scrollY = 0;
-                        window.scrollTo({ top: scrollY, behavior: 'smooth' });
+        function isPickupTimeInvalidPST(timeValue, selectedDateStr) {
+            var timeMinutes = parseTimeToMinutes(timeValue);
+            if (timeMinutes === null) return false;
+
+            var nowPST = getPSTNowDate();
+            var nowYear = nowPST.getFullYear();
+            var nowMonth = String(nowPST.getMonth() + 1).padStart(2, '0');
+            var nowDate = String(nowPST.getDate()).padStart(2, '0');
+            var todayPSTStr = nowYear + '-' + nowMonth + '-' + nowDate;
+
+            var dateStr = selectedDateStr || todayPSTStr;
+
+            if (dateStr < todayPSTStr) {
+                return true; // Past date
+            }
+
+            if (dateStr === todayPSTStr) {
+                var nowPSTMinutes = nowPST.getHours() * 60 + nowPST.getMinutes();
+                var minAllowedMinutes = nowPSTMinutes + 15;
+                if (timeMinutes < minAllowedMinutes) {
+                    return true; // In past or less than 15 mins away
+                }
+            }
+
+            return false;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var pickupEls = document.querySelectorAll('#Pick-up-time, input[name="transportation_pickup_time"]');
+            if (!pickupEls.length) return;
+
+            var isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+                || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+            pickupEls.forEach(function (el) {
+                function validateField() {
+                    var dateEl = document.querySelector('input[name="package_use_date"], #package_use_date, .package_use_date');
+                    var selectedDate = dateEl ? dateEl.value : '';
+                    if (el.value && isPickupTimeInvalidPST(el.value, selectedDate)) {
+                        el.classList.add('is-invalid');
+                        if (typeof el.setCustomValidity === 'function') {
+                            el.setCustomValidity('Pickup time must be at least 15 minutes in advance of current PST time.');
+                        }
+                    } else {
+                        el.classList.remove('is-invalid');
+                        if (typeof el.setCustomValidity === 'function') {
+                            el.setCustomValidity('');
+                        }
                     }
-                }, 120);
+                }
+
+                if (isMobileDevice) {
+                    el.type = 'time';
+                    el.removeAttribute('readonly');
+                    el.step = 300;
+                    el.addEventListener('change', validateField);
+                    el.addEventListener('input', validateField);
+                    return;
+                }
+
+                el.type = 'text';
+                el.removeAttribute('readonly');
+
+                if (typeof flatpickr !== 'undefined') {
+                    var fp = flatpickr(el, {
+                        enableTime: true,
+                        noCalendar: true,
+                        time_24hr: false,
+                        minuteIncrement: 5,
+                        dateFormat: 'h:i K',
+                        allowInput: true,
+                        clickOpens: true,
+                        onChange: function (selectedDates, dateStr, instance) {
+                            validateField();
+                        }
+                    });
+
+                    el.addEventListener('focus', function () {
+                        if (fp && typeof fp.open === 'function') fp.open();
+                    });
+                    el.addEventListener('click', function () {
+                        if (fp && typeof fp.open === 'function') fp.open();
+                    });
+                }
+
+                el.addEventListener('change', validateField);
+                el.addEventListener('input', validateField);
+            });
+
+            // Re-validate pickup time when reservation date changes
+            document.addEventListener('change', function (e) {
+                if (e.target && (e.target.name === 'package_use_date' || e.target.id === 'package_use_date' || e.target.classList.contains('package_use_date'))) {
+                    pickupEls.forEach(function (el) {
+                        if (el.value) {
+                            var dateVal = e.target.value;
+                            if (isPickupTimeInvalidPST(el.value, dateVal)) {
+                                el.classList.add('is-invalid');
+                                el.value = '';
+                            } else {
+                                el.classList.remove('is-invalid');
+                            }
+                        }
+                    });
+                }
             });
         });
     })();
     </script>
+    </body>
     </html>
