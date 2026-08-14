@@ -573,8 +573,12 @@ Route::get('/demo-checkout/template-2/{slug}', [FrontendController::class, 'chec
 Route::get('/demo-checkout/template-3/{slug}', [FrontendController::class, 'checkoutTemplateThree'])->name('demo.checkout.template3');
 Route::get('/demo-checkout/template-4/{slug}', [FrontendController::class, 'checkoutTemplateFour'])->name('demo.checkout.template4');
 
-// Protected Help Center Public Link (Login Boundary: Any CartVIP user can view after logging in)
-Route::middleware(['auth'])->get('/help-center/{slug}', [HelpCenterController::class, 'publicShow'])->name('help-center.public');
+// Help Center Invitations & Public Viewer (Protected by auth middleware - accessible to any logged in CartVIP user)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/help-center/invitation/accept/{token}', [HelpCenterController::class, 'acceptInvitation'])->name('help-center.invitation.accept');
+    Route::get('/help-center/invitation/decline/{token}', [HelpCenterController::class, 'declineInvitation'])->name('help-center.invitation.decline');
+    Route::get('/help-center/{slug}', [HelpCenterController::class, 'publicShow'])->name('help-center.public');
+});
 
 // Frontend catch-all route with slug parameter
 // Keep this at the very end so it does not shadow admin/auth/portal routes.

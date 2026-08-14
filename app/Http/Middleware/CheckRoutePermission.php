@@ -26,8 +26,8 @@ class CheckRoutePermission
             return $next($request);
         }
 
-        // Profile is available for any authenticated backoffice user.
-        if (in_array($routeName, ['admin.profile.edit', 'admin.profile.update-password'], true)) {
+        // Profile & Help Center invitations/portal routes are available for authenticated users.
+        if (in_array($routeName, ['admin.profile.edit', 'admin.profile.update-password', 'admin.help-center.invitation.accept', 'admin.help-center.invitation.decline', 'help-center.invitation.accept', 'help-center.invitation.decline'], true) || str_contains($routeName, 'help-center.')) {
             return $next($request);
         }
 

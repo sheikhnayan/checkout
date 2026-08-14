@@ -37,9 +37,10 @@ class HelpCenterController extends Controller
             ->get();
 
         // Pending invitations for this user
-        $pendingInvitations = HelpCenterCollaborator::where(function($q) use ($user) {
+        $userEmail = strtolower(trim($user->email));
+        $pendingInvitations = HelpCenterCollaborator::where(function($q) use ($user, $userEmail) {
                 $q->where('user_id', $user->id)
-                  ->orWhere('email', strtolower($user->email));
+                  ->orWhereRaw('LOWER(email) = ?', [$userEmail]);
             })
             ->where('status', 'pending')
             ->with(['page.owner', 'inviter'])
@@ -306,7 +307,7 @@ class HelpCenterController extends Controller
 
         // Send Email Notification
         try {
-            $inviteUrl = route('admin.help-center.invitation.accept', $token);
+            $inviteUrl = route('help-center.invitation.accept', $token);
             $subject = "Collaboration Invitation: " . $page->title . " Help Center";
             $html = "
                 <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f8fafc; border-radius: 8px;'>
@@ -336,15 +337,20 @@ class HelpCenterController extends Controller
     public function acceptInvitation($token)
     {
         $user = auth()->user();
-        if (!$user) abort(401);
+        if (!$user) {
+            return redirect()->route('login');
+        }
 
         $invite = HelpCenterCollaborator::where('invitation_token', $token)->first();
         if (!$invite) {
             return redirect()->route('admin.help-center.index')->with('error', 'Invalid or expired invitation token.');
         }
 
-        if (strtolower($invite->email) !== strtolower($user->email) && $invite->user_id !== $user->id) {
-            return redirect()->route('admin.help-center.index')->with('error', 'This invitation was sent to a different email account.');
+        $inviteEmail = strtolower(trim($invite->email));
+        $userEmail = strtolower(trim($user->email));
+
+        if ($inviteEmail !== $userEmail && (int)$invite->user_id !== (int)$user->id) {
+            return redirect()->route('admin.help-center.index')->with('error', 'This invitation was sent to ' . $invite->email . '. You are currently logged in as ' . $user->email . '.');
         }
 
         $invite->status = 'accepted';
@@ -352,7 +358,7 @@ class HelpCenterController extends Controller
         $invite->save();
 
         return redirect()->route('admin.help-center.builder', $invite->help_center_page_id)
-            ->with('success', 'Invitation accepted! You are now a collaborator on "' . $invite->page->title . '".');
+            ->with('success', 'Invitation accepted! You are now a collaborator on "' . ($invite->page->title ?? 'Help Center') . '".');
     }
 
     /**
