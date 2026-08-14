@@ -230,19 +230,18 @@ class AuthController extends Controller
 
     private function redirectByUserType(User $user)
     {
+        $defaultUrl = route('admin.index');
+
         if ($user->isAffiliate()) {
-            return redirect()->route('affiliate.portal.dashboard');
+            $defaultUrl = route('affiliate.portal.dashboard');
+        } elseif ($user->isEntertainer()) {
+            $defaultUrl = route('entertainer.portal.dashboard');
+        } elseif ($user->isWebsiteUser() || $user->isBouncer() || $user->isManager()) {
+            $defaultUrl = route('admin.index');
+        } else {
+            $defaultUrl = route('admin.transaction.index');
         }
 
-        if ($user->isEntertainer()) {
-            return redirect()->route('entertainer.portal.dashboard');
-        }
-
-        if ($user->isWebsiteUser() || $user->isBouncer() || $user->isManager()) {
-            // Always land on the dashboard — it's always accessible regardless of permissions
-            return redirect()->route('admin.index');
-        }
-
-        return redirect()->route('admin.transaction.index');
+        return redirect()->intended($defaultUrl);
     }
 }

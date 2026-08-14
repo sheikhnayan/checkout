@@ -963,12 +963,29 @@
       <div class="text-truncate">Form Builder</div>
     </a>
   </li>
-  <li class="menu-item {{ request()->is('admins/help-center*') || request()->is('admin/help-center*') ? 'active' : '' }}">
+  @php
+      $userHasHelpCenterAccess = false;
+      if (isset($authUser) && $authUser) {
+          if ($authUser->isAdmin() || (isset($canAccessRoute) && is_callable($canAccessRoute) && $canAccessRoute('admin.help-center.index'))) {
+              $userHasHelpCenterAccess = true;
+          } else {
+              $userHasHelpCenterAccess = \App\Models\HelpCenterPage::where('user_id', $authUser->id)->exists()
+                  || \App\Models\HelpCenterCollaborator::where(function($q) use ($authUser) {
+                          $q->where('user_id', $authUser->id)
+                            ->orWhereRaw('LOWER(email) = ?', [strtolower(trim($authUser->email))]);
+                      })->whereIn('status', ['accepted', 'pending'])->exists();
+          }
+      }
+  @endphp
+
+  @if($userHasHelpCenterAccess)
+  <li class="menu-item {{ request()->is('admins/help-center*') || request()->is('admin/help-center*') || request()->is('help-center*') ? 'active' : '' }}">
     <a href="{{ route('admin.help-center.index') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-help-circle"></i>
       <div class="text-truncate">Help Center</div>
     </a>
   </li>
+  @endif
   @endif
 
   @if(($authUser && $canAccessRoute('admin.feed-model.index')) || ($authUser && $canAccessRoute('admin.feed-post.index')) || (auth()->check() && auth()->user()->isAdmin()) || ($authUser && $canAccessRoute('admin.entertainer.index')) || ($authUser && $canAccessRoute('admin.affiliate.index')))
