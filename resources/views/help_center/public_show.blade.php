@@ -45,20 +45,42 @@
             background: #1e293b;
             border: 1px solid #334155;
             border-radius: 14px;
-            padding: 6px 16px;
+            padding: 8px 18px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        .hc-search-box i {
+            color: #ffffff !important;
         }
         .hc-search-box input {
             background: transparent;
             border: none;
-            color: #ffffff;
+            color: #ffffff !important;
             font-size: 16px;
+        }
+        .hc-search-box input::placeholder {
+            color: rgba(255, 255, 255, 0.8) !important;
+            opacity: 1 !important;
+        }
+        .hc-search-box input:-ms-input-placeholder {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+        .hc-search-box input::-ms-input-placeholder {
+            color: rgba(255, 255, 255, 0.8) !important;
         }
         .hc-search-box input:focus {
             outline: none;
             box-shadow: none;
             background: transparent;
-            color: #ffffff;
+            color: #ffffff !important;
+        }
+        footer.hc-footer {
+            border-top: 1px solid #1e293b !important;
+            color: #ffffff !important;
+            padding: 1.5rem 0;
+        }
+        footer.hc-footer p,
+        footer.hc-footer strong {
+            color: #ffffff !important;
         }
         .hc-card {
             background: #1e293b;
@@ -162,7 +184,7 @@
         <!-- Search Bar -->
         <div class="mb-5">
             <div class="hc-search-box d-flex align-items-center max-w-xl mx-auto">
-                <i class="bx bx-search text-muted fs-4 me-2"></i>
+                <i class="bx bx-search text-white fs-4 me-2"></i>
                 <input type="text" id="hcSearchInput" class="form-control text-white" placeholder="Search forms, guides, and resources..." onkeyup="filterHelpCenterItems()">
             </div>
         </div>
@@ -222,9 +244,9 @@
         @endif
     </main>
 
-    <footer class="text-center py-4 border-top border-slate-800 text-muted fs-7" style="border-color: #1e293b !important;">
+    <footer class="text-center py-4 hc-footer fs-7">
         <div class="container">
-            <p class="mb-0">Powered by <strong>CartVIP Help Center Portal</strong> &copy; {{ date('Y') }}. All rights reserved.</p>
+            <p class="mb-0 text-white">Powered by <strong class="text-white">CartVIP Help Center Portal</strong> &copy; {{ date('Y') }}. All rights reserved.</p>
         </div>
     </footer>
 
