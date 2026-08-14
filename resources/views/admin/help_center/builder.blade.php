@@ -3,6 +3,90 @@
 @section('title', 'Help Center Builder - ' . $page->title)
 
 @section('content')
+<style>
+    /* High contrast text overrides */
+    .hc-white-title,
+    .card-title,
+    .modal-title,
+    .form-label,
+    .hc-page-heading {
+        color: #ffffff !important;
+    }
+    .text-dark {
+        color: #ffffff !important;
+    }
+    .text-muted {
+        color: #a1a5b7 !important;
+    }
+    .hc-subtitle {
+        color: #cbd5e1 !important;
+    }
+
+    /* Modal styling & padding fixes */
+    .modal-content {
+        background-color: #1b1b29 !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        border-radius: 14px !important;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6) !important;
+    }
+    .modal-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        padding-bottom: 1.25rem !important;
+    }
+    .modal-title {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: 1.15rem !important;
+    }
+    .modal-body {
+        padding-top: 1.25rem !important;
+        padding-bottom: 1.25rem !important;
+    }
+    .modal-body .form-label {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        margin-bottom: 0.5rem !important;
+    }
+    .modal-body .form-control,
+    .modal-body .form-select {
+        background-color: rgba(255, 255, 255, 0.07) !important;
+        border: 1px solid rgba(255, 255, 255, 0.18) !important;
+        color: #ffffff !important;
+        border-radius: 8px !important;
+    }
+    .modal-body .form-control:focus,
+    .modal-body .form-select:focus {
+        border-color: #6366f1 !important;
+        box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25) !important;
+        color: #ffffff !important;
+    }
+    .modal-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+        padding-top: 1.25rem !important;
+        padding-bottom: 1rem !important;
+        margin-top: 0.5rem !important;
+        display: flex !important;
+        gap: 0.75rem !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+    }
+
+    /* Standardized action buttons */
+    .btn-icon-custom {
+        width: 34px !important;
+        height: 34px !important;
+        padding: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 8px !important;
+    }
+    .btn-icon-custom i {
+        font-size: 17px !important;
+        line-height: 1 !important;
+    }
+</style>
+
 <div class="container-xxl flex-grow-1 container-p-y">
     <!-- Header Bar -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
@@ -13,8 +97,8 @@
                 </a>
                 <span class="badge bg-label-primary">Page Builder</span>
             </div>
-            <h4 class="fw-bold mb-1">{{ $page->title }}</h4>
-            <p class="text-muted mb-0">Organize sections, forms, and external links for this Help Center page.</p>
+            <h4 class="fw-bold mb-1 hc-white-title">{{ $page->title }}</h4>
+            <p class="hc-subtitle mb-0">Organize sections, forms, and external links for this Help Center page.</p>
         </div>
         <div class="d-flex gap-2">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSectionModal">
@@ -47,8 +131,8 @@
                 <div class="avatar avatar-xl bg-label-primary rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center">
                     <i class="bx bx-layer fs-1"></i>
                 </div>
-                <h5 class="fw-bold mb-2">No Sections Added Yet</h5>
-                <p class="text-muted max-w-md mx-auto mb-4">Start structuring your Help Center page by creating your first section (e.g. "Customer Registration", "Policy Documents", "Employee Forms").</p>
+                <h5 class="fw-bold mb-2 hc-white-title">No Sections Added Yet</h5>
+                <p class="hc-subtitle max-w-md mx-auto mb-4">Start structuring your Help Center page by creating your first section (e.g. "Customer Registration", "Policy Documents", "Employee Forms").</p>
                 <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addSectionModal">
                     <i class="bx bx-plus me-1"></i> Create First Section
                 </button>
@@ -62,9 +146,9 @@
                         <div class="d-flex align-items-center gap-2">
                             <i class="bx bx-dots-vertical-rounded text-muted"></i>
                             <div>
-                                <h5 class="fw-bold mb-0 text-dark">{{ $section->title }}</h5>
+                                <h5 class="fw-bold mb-0 hc-white-title">{{ $section->title }}</h5>
                                 @if($section->description)
-                                    <small class="text-muted">{{ $section->description }}</small>
+                                    <small class="hc-subtitle">{{ $section->description }}</small>
                                 @endif
                             </div>
                         </div>
@@ -72,13 +156,13 @@
                             <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addItemModal-{{ $section->id }}">
                                 <i class="bx bx-plus me-1"></i> Add Link Item
                             </button>
-                            <button type="button" class="btn btn-sm btn-icon btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editSectionModal-{{ $section->id }}">
+                            <button type="button" class="btn btn-icon-custom btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editSectionModal-{{ $section->id }}">
                                 <i class="bx bx-pencil"></i>
                             </button>
                             <form action="{{ route('admin.help-center.sections.destroy', $section->id) }}" method="POST" onsubmit="return confirm('Delete this section and all its links?');" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-icon btn-outline-danger">
+                                <button type="submit" class="btn btn-icon-custom btn-outline-danger">
                                     <i class="bx bx-trash"></i>
                                 </button>
                             </form>
@@ -87,8 +171,8 @@
 
                     <div class="card-body py-3">
                         @if($section->items->count() === 0)
-                            <div class="p-4 text-center border rounded bg-label-secondary my-2">
-                                <p class="text-muted fs-7 mb-2">No links in this section yet.</p>
+                            <div class="p-4 text-center border rounded my-2" style="background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.1) !important;">
+                                <p class="hc-subtitle fs-7 mb-2">No links in this section yet.</p>
                                 <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addItemModal-{{ $section->id }}">
                                     <i class="bx bx-plus me-1"></i> Add Custom Form or External Link
                                 </button>
@@ -103,7 +187,7 @@
                                             </div>
                                             <div>
                                                 <div class="d-flex align-items-center gap-2">
-                                                    <h6 class="mb-0 fw-semibold text-dark">{{ $item->resolved_title }}</h6>
+                                                    <h6 class="mb-0 fw-semibold hc-white-title">{{ $item->resolved_title }}</h6>
                                                     @if($item->type === 'form')
                                                         <span class="badge bg-label-info fs-8">Form Link</span>
                                                     @else
@@ -111,7 +195,7 @@
                                                     @endif
                                                 </div>
                                                 @if($item->description)
-                                                    <small class="text-muted d-block mt-1">{{ $item->description }}</small>
+                                                    <small class="hc-subtitle d-block mt-1">{{ $item->description }}</small>
                                                 @endif
                                                 <a href="{{ $item->resolved_url }}" target="_blank" class="text-primary fs-8 d-inline-block mt-1 text-decoration-none">
                                                     <i class="bx bx-link me-1"></i> {{ Str::limit($item->resolved_url, 70) }}
@@ -119,13 +203,13 @@
                                             </div>
                                         </div>
                                         <div class="d-flex align-items-center gap-2">
-                                            <button type="button" class="btn btn-icon btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editItemModal-{{ $item->id }}">
+                                            <button type="button" class="btn btn-icon-custom btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editItemModal-{{ $item->id }}">
                                                 <i class="bx bx-pencil"></i>
                                             </button>
                                             <form action="{{ route('admin.help-center.items.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Delete this link item?');" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-icon btn-sm btn-outline-danger">
+                                                <button type="submit" class="btn btn-icon-custom btn-outline-danger">
                                                     <i class="bx bx-trash"></i>
                                                 </button>
                                             </form>
@@ -138,13 +222,13 @@
                                             <form action="{{ route('admin.help-center.items.update', $item->id) }}" method="POST" class="modal-content">
                                                 @csrf
                                                 @method('PUT')
-                                                <div class="modal-header border-bottom">
-                                                    <h5 class="modal-title fw-bold">Edit Link Item</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Edit Link Item</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
-                                                <div class="modal-body py-3">
+                                                <div class="modal-body">
                                                     <div class="mb-3">
-                                                        <label class="form-label fw-semibold">Item Type</label>
+                                                        <label class="form-label">Item Type</label>
                                                         <select name="type" class="form-select item-type-select" onchange="toggleItemEditFields(this, {{ $item->id }})" required>
                                                             <option value="form" {{ $item->type === 'form' ? 'selected' : '' }}>Custom Form Link</option>
                                                             <option value="external" {{ $item->type === 'external' ? 'selected' : '' }}>External URL Link</option>
@@ -152,17 +236,17 @@
                                                     </div>
 
                                                     <div class="mb-3">
-                                                        <label class="form-label fw-semibold">Link Title <span class="text-danger">*</span></label>
+                                                        <label class="form-label">Link Title <span class="text-danger">*</span></label>
                                                         <input type="text" name="title" class="form-control" value="{{ $item->title }}" required>
                                                     </div>
 
                                                     <div class="mb-3">
-                                                        <label class="form-label fw-semibold">Description</label>
+                                                        <label class="form-label">Description</label>
                                                         <textarea name="description" class="form-control" rows="2">{{ $item->description }}</textarea>
                                                     </div>
 
                                                     <div class="mb-3 form-group-form-edit-{{ $item->id }}" style="{{ $item->type === 'form' ? '' : 'display:none;' }}">
-                                                        <label class="form-label fw-semibold">Select Form <span class="text-danger">*</span></label>
+                                                        <label class="form-label">Select Form <span class="text-danger">*</span></label>
                                                         <select name="custom_form_id" class="form-select">
                                                             <option value="">-- Choose a Custom Form --</option>
                                                             @foreach($customForms as $cf)
@@ -172,16 +256,16 @@
                                                     </div>
 
                                                     <div class="mb-3 form-group-url-edit-{{ $item->id }}" style="{{ $item->type === 'external' ? '' : 'display:none;' }}">
-                                                        <label class="form-label fw-semibold">External URL <span class="text-danger">*</span></label>
+                                                        <label class="form-label">External URL <span class="text-danger">*</span></label>
                                                         <input type="url" name="url" class="form-control" value="{{ $item->url }}" placeholder="https://example.com/document">
                                                     </div>
 
                                                     <div class="mb-3">
-                                                        <label class="form-label fw-semibold">Icon Class</label>
+                                                        <label class="form-label">Icon Class</label>
                                                         <input type="text" name="icon" class="form-control" value="{{ $item->icon ?: 'bx-link' }}" placeholder="bx-link">
                                                     </div>
                                                 </div>
-                                                <div class="modal-footer border-top">
+                                                <div class="modal-footer">
                                                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                                                     <button type="submit" class="btn btn-primary">Save Changes</button>
                                                 </div>
@@ -200,21 +284,21 @@
                         <form action="{{ route('admin.help-center.sections.update', $section->id) }}" method="POST" class="modal-content">
                             @csrf
                             @method('PUT')
-                            <div class="modal-header border-bottom">
-                                <h5 class="modal-title fw-bold">Edit Section</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <div class="modal-header">
+                                <h5 class="modal-title">Edit Section</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <div class="modal-body py-3">
+                            <div class="modal-body">
                                 <div class="mb-3">
-                                    <label class="form-label fw-semibold">Section Title <span class="text-danger">*</span></label>
+                                    <label class="form-label">Section Title <span class="text-danger">*</span></label>
                                     <input type="text" name="title" class="form-control" value="{{ $section->title }}" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label fw-semibold">Description</label>
+                                    <label class="form-label">Description</label>
                                     <textarea name="description" class="form-control" rows="2">{{ $section->description }}</textarea>
                                 </div>
                             </div>
-                            <div class="modal-footer border-top">
+                            <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                                 <button type="submit" class="btn btn-primary">Update Section</button>
                             </div>
@@ -227,13 +311,13 @@
                     <div class="modal-dialog modal-dialog-centered">
                         <form action="{{ route('admin.help-center.items.store', $section->id) }}" method="POST" class="modal-content">
                             @csrf
-                            <div class="modal-header border-bottom">
-                                <h5 class="modal-title fw-bold">Add Link Item to "{{ $section->title }}"</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <div class="modal-header">
+                                <h5 class="modal-title">Add Link Item to "{{ $section->title }}"</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <div class="modal-body py-3">
+                            <div class="modal-body">
                                 <div class="mb-3">
-                                    <label class="form-label fw-semibold">Link Type <span class="text-danger">*</span></label>
+                                    <label class="form-label">Link Type <span class="text-danger">*</span></label>
                                     <select name="type" class="form-select" onchange="toggleItemCreateFields(this, {{ $section->id }})" required>
                                         <option value="form" selected>Custom Form Link</option>
                                         <option value="external">External URL Link</option>
@@ -241,17 +325,17 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label fw-semibold">Link Title <span class="text-danger">*</span></label>
+                                    <label class="form-label">Link Title <span class="text-danger">*</span></label>
                                     <input type="text" name="title" class="form-control" placeholder="e.g., VIP Event Booking Form" required>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label fw-semibold">Description</label>
+                                    <label class="form-label">Description</label>
                                     <textarea name="description" class="form-control" rows="2" placeholder="Brief details about what this form or document is for..."></textarea>
                                 </div>
 
                                 <div class="mb-3 form-group-form-create-{{ $section->id }}">
-                                    <label class="form-label fw-semibold">Select Custom Form <span class="text-danger">*</span></label>
+                                    <label class="form-label">Select Custom Form <span class="text-danger">*</span></label>
                                     <select name="custom_form_id" class="form-select">
                                         <option value="">-- Select a Form --</option>
                                         @foreach($customForms as $cf)
@@ -261,12 +345,12 @@
                                 </div>
 
                                 <div class="mb-3 form-group-url-create-{{ $section->id }}" style="display:none;">
-                                    <label class="form-label fw-semibold">External URL <span class="text-danger">*</span></label>
+                                    <label class="form-label">External URL <span class="text-danger">*</span></label>
                                     <input type="url" name="url" class="form-control" placeholder="https://example.com/resource">
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label fw-semibold">Icon</label>
+                                    <label class="form-label">Icon</label>
                                     <select name="icon" class="form-select">
                                         <option value="bx-file">📄 File / Document (bx-file)</option>
                                         <option value="bx-list-check">📋 Form (bx-list-check)</option>
@@ -276,7 +360,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="modal-footer border-top">
+                            <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                                 <button type="submit" class="btn btn-primary">Add Link Item</button>
                             </div>
@@ -293,21 +377,21 @@
     <div class="modal-dialog modal-dialog-centered">
         <form action="{{ route('admin.help-center.sections.store', $page->id) }}" method="POST" class="modal-content">
             @csrf
-            <div class="modal-header border-bottom">
-                <h5 class="modal-title fw-bold">Add New Section</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Section</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body py-3">
+            <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Section Title <span class="text-danger">*</span></label>
+                    <label class="form-label">Section Title <span class="text-danger">*</span></label>
                     <input type="text" name="title" class="form-control" placeholder="e.g., Daily Operations Forms" required>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Description</label>
+                    <label class="form-label">Description</label>
                     <textarea name="description" class="form-control" rows="2" placeholder="Optional summary for this section..."></textarea>
                 </div>
             </div>
-            <div class="modal-footer border-top">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="submit" class="btn btn-primary">Create Section</button>
             </div>
