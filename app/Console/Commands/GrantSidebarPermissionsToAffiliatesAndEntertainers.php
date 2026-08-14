@@ -28,6 +28,7 @@ class GrantSidebarPermissionsToAffiliatesAndEntertainers extends Command
             'affiliate.portal.wallet',
             // Profile page (common)
             'admin.profile.edit',
+            'admin.help-center.index',
         ];
 
         $roles = WebsiteRole::whereIn('slug', ['affiliate', 'entertainer'])->get();

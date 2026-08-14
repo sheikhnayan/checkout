@@ -982,7 +982,7 @@
   <li class="menu-item {{ request()->is('admins/help-center*') || request()->is('admin/help-center*') || request()->is('help-center*') ? 'active' : '' }}">
     <a href="{{ route('admin.help-center.index') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-help-circle"></i>
-      <div class="text-truncate">Help Center</div>
+      <div class="text-truncate">Form Portal</div>
     </a>
   </li>
   @endif

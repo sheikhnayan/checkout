@@ -34,7 +34,11 @@ class Permission extends Model
 
         foreach ($routeNames as $routeName) {
             $parts = explode('.', $routeName);
-            $module = $parts[1] ?? 'general';
+            $moduleRaw = $parts[1] ?? 'general';
+            $moduleMap = [
+                'help-center' => 'Form Portal',
+            ];
+            $module = $moduleMap[$moduleRaw] ?? ucfirst(str_replace(['-', '_'], ' ', $moduleRaw));
 
             $superAdminOnly = str_starts_with($routeName, 'admin.website.')
                 || str_starts_with($routeName, 'admin.setting.');
@@ -60,6 +64,7 @@ class Permission extends Model
     {
         $labels = [
             'admin' => 'Admin',
+            'help-center' => 'Form Portal',
             'index' => 'View List',
             'show' => 'View Details',
             'create' => 'Open Create Form',
