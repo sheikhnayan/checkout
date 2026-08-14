@@ -112,6 +112,11 @@ class User extends Authenticatable
         return $this->user_type === 'admin';
     }
 
+    public function isSuperAdmin()
+    {
+        return $this->user_type === 'admin';
+    }
+
     /**
      * Check if the user is a website user.
      */

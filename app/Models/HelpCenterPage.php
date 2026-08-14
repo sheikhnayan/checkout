@@ -46,7 +46,7 @@ class HelpCenterPage extends Model
     public function canUserEdit(?User $user): bool
     {
         if (!$user) return false;
-        if ($user->isSuperAdmin() || $user->id === $this->user_id) return true;
+        if ($user->isAdmin() || $user->isSuperAdmin() || $user->id === $this->user_id) return true;
         return $this->collaborators()
             ->where('user_id', $user->id)
             ->where('status', 'accepted')
