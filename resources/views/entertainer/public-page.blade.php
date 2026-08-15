@@ -2016,7 +2016,6 @@ nav .tab:hover {
 }
 .package-category-wrap { flex: 1 1 auto; min-width: 0; margin-bottom: 12px; }
 .package-category-tile {
-    width: 100%;
     flex: 1 1 auto !important;
     min-width: 0 !important;
     background: rgba(167,116,255,0.08) !important;
@@ -10752,10 +10751,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         }
                     });
 
-                    // Hide all package groups until the user opens a category manually.
-                    document.querySelectorAll('.package-category-group').forEach(function(group) {
-                        group.classList.remove('is-active');
-                    });
+                    // Auto-open first visible category tile so packages show immediately
+                    var $visibleTabs = $('.package-category-tile.visible-tab');
+                    if ($visibleTabs.length && !$('.package-category-tile.active:visible').length) {
+                        $visibleTabs.first().trigger('click');
+                    }
                 }
 
                 locationFilter.addEventListener('change', filterPackages);
