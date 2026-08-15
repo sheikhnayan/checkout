@@ -281,8 +281,16 @@ class AffiliatePortalController extends Controller
             })
             ->latest()
             ->paginate(20);
-        $bookingTransactions = Transaction::where('affiliate_id', $affiliate->id)
-            ->with(['website', 'event', 'package'])
+
+        if ($affiliate->isSubAffiliate()) {
+            $affiliateIds = [$affiliate->id];
+        } else {
+            $subIds = Affiliate::where('parent_affiliate_id', $affiliate->id)->pluck('id')->toArray();
+            $affiliateIds = array_merge([$affiliate->id], $subIds);
+        }
+
+        $bookingTransactions = Transaction::whereIn('affiliate_id', $affiliateIds)
+            ->with(['website', 'event', 'package', 'affiliate.user'])
             ->latest()
             ->get();
 

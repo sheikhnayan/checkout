@@ -213,8 +213,12 @@
                         <input type="text" name="name" class="form-control" placeholder="e.g., Jane Doe" required>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label text-white-force">Display Name <span class="text-danger">*</span></label>
-                        <input type="text" name="display_name" class="form-control" placeholder="e.g., Jane VIP Events" required>
+                        <label class="form-label text-white-force font-weight-bold d-flex align-items-center justify-content-between">
+                            <span>Display Name <span class="text-danger">*</span></span>
+                            <span class="badge bg-warning text-dark fs-8"><i class="bx bx-star me-1"></i> Public Title & URL</span>
+                        </label>
+                        <input type="text" name="display_name" class="form-control border-warning shadow-sm" placeholder="e.g., Jane VIP Events" required>
+                        <small class="text-warning fs-8 d-block mt-1"><i class="bx bx-info-circle me-1"></i> This name appears on the public landing page & URL.</small>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-white-force">Email Address <span class="text-danger">*</span></label>

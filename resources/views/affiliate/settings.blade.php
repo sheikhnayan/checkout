@@ -51,8 +51,8 @@
                         <button class="btn btn-primary" type="button" onclick="copySettingsShareUrl()">
                             <i class="bx bx-copy me-1"></i> Copy Link
                         </button>
-                        <a href="{{ $publicUrl }}" target="_blank" class="btn btn-outline-secondary">
-                            <i class="bx bx-external-link"></i> Visit Page
+                        <a href="{{ $publicUrl }}" target="_blank" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2">
+                            <i class="bx bx-external-link"></i> <span>Visit Page</span>
                         </a>
                     </div>
                     <span id="copySettingsSuccessMsg" class="text-success fs-7 d-none"><i class="bx bx-check me-1"></i> Link copied to clipboard!</span>

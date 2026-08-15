@@ -207,8 +207,12 @@
                         <input type="text" name="name" class="form-control" placeholder="e.g., Alex Johnson" required>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label text-white">Display Name <span class="text-danger">*</span></label>
-                        <input type="text" name="display_name" class="form-control" placeholder="e.g., Alex VIP Events" required>
+                        <label class="form-label text-white font-weight-bold d-flex align-items-center justify-content-between">
+                            <span>Display Name <span class="text-danger">*</span></span>
+                            <span class="badge bg-warning text-dark fs-8"><i class="bx bx-star me-1"></i> Public Title & URL</span>
+                        </label>
+                        <input type="text" name="display_name" class="form-control border-warning shadow-sm" placeholder="e.g., Alex VIP Events" required>
+                        <small class="text-warning fs-8 d-block mt-1"><i class="bx bx-info-circle me-1"></i> This name appears on the public landing page & URL.</small>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-white">Email Address <span class="text-danger">*</span></label>
@@ -328,8 +332,12 @@
             <div class="modal-body py-4">
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
-                        <label class="form-label text-white">Display Name <span class="text-danger">*</span></label>
-                        <input type="text" name="display_name" class="form-control" value="{{ $sub->display_name }}" required>
+                        <label class="form-label text-white font-weight-bold d-flex align-items-center justify-content-between">
+                            <span>Display Name <span class="text-danger">*</span></span>
+                            <span class="badge bg-warning text-dark fs-8"><i class="bx bx-star me-1"></i> Public Title & URL</span>
+                        </label>
+                        <input type="text" name="display_name" class="form-control border-warning shadow-sm" value="{{ $sub->display_name }}" required>
+                        <small class="text-warning fs-8 d-block mt-1"><i class="bx bx-info-circle me-1"></i> This name appears on the public landing page & URL.</small>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-white">Email Address</label>

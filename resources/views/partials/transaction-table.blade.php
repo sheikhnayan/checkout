@@ -132,11 +132,21 @@
                     @endphp
                     <tr data-transaction-id="{{ $transaction->id }}" data-date="{{ optional($transaction->created_at)->format('Y-m-d') }}">
                         <td><input type="checkbox" class="txn-row-check" value="{{ $transaction->id }}"></td>
-                        <td><strong>{{ $transaction->transaction_id ?? 'N/A' }}</strong></td>
-                        <td><small>{{ optional($transaction->created_at)->format('M d, Y') }}</small></td>
                         <td>
-                            <div style="font-weight:600;margin-bottom:6px;">{{ optional($transaction->website)->name ?? 'N/A' }}</div>
-                            <div style="font-size:0.85rem;">{{ $transaction->type === 'package' ? ($transaction->package_table_label ?: 'Package') : 'Reservation' }}</div>
+                            <strong>#{{ $transaction->transaction_id ?? 'N/A' }}</strong>
+                            @if(optional($transaction->affiliate)->isSubAffiliate())
+                                <div class="badge bg-label-info text-wrap mt-1 text-start d-block" style="font-size: 0.7rem;">
+                                    <i class="bx bx-user me-1"></i> Sub: {{ $transaction->affiliate->display_name ?: optional($transaction->affiliate->user)->name }}
+                                </div>
+                            @endif
+                        </td>
+                        <td><small>{{ optional($transaction->created_at)->format('M d, Y H:i') }}</small></td>
+                        <td>
+                            <div style="font-weight:700;color:#ffcc00;margin-bottom:2px;">{{ optional($transaction->package)->title ?: ($transaction->package_table_label ?: 'Package Sale') }}</div>
+                            <div style="font-size:0.8rem;opacity:0.8;">{{ optional($transaction->website)->name ?? 'N/A' }}</div>
+                            @if($transaction->name)
+                                <div style="font-size:0.75rem;opacity:0.9;margin-top:2px;" class="text-info"><i class="bx bx-user me-1"></i>{{ $transaction->name }} @if($transaction->email)({{ $transaction->email }})@endif</div>
+                            @endif
                         </td>
                         <td>
                             @if($paymentStatus === 'Paid')
