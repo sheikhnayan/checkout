@@ -30,14 +30,28 @@ class AffiliateAdminController extends Controller
         $this->ensureAdmin();
         $status = $request->input('status', 'pending');
 
-        $query = Affiliate::with('user', 'approved_by_user', 'rejected_by_user');
+        $query = Affiliate::with('user', 'approved_by_user', 'rejected_by_user', 'parent');
         if (in_array($status, ['pending', 'approved', 'rejected'], true)) {
             $query->where('status', $status);
         }
 
         $affiliates = $query->latest()->get();
 
-        return view('admin.affiliate.index', compact('affiliates', 'status'));
+        $parentAffiliates = Affiliate::where('status', 'approved')
+            ->where(function($q) {
+                $q->where('is_sub_affiliate', false)->orWhereNull('is_sub_affiliate');
+            })
+            ->with('user')
+            ->get();
+
+        $allWebsites = Website::where('is_archieved', 0)
+            ->where('status', 1)
+            ->with(['packages' => function ($q) {
+                $q->clubVisible()->where('status', 1)->where('is_archieved', 0);
+            }])
+            ->get();
+
+        return view('admin.affiliate.index', compact('affiliates', 'status', 'parentAffiliates', 'allWebsites'));
     }
 
     public function show(Affiliate $affiliate)
@@ -261,6 +275,100 @@ class AffiliateAdminController extends Controller
         $affiliate->save();
 
         return redirect()->back()->with('success', 'Promoter commission updated successfully.');
+    }
+
+    public function storeSubAffiliate(Request $request)
+    {
+        $this->ensureAdmin();
+
+        $request->validate([
+            'parent_affiliate_id' => 'required|exists:affiliates,id',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6',
+            'display_name' => 'nullable|string|max:255',
+            'website_ids' => 'nullable|array',
+            'package_ids' => 'nullable|array',
+        ]);
+
+        $parent = Affiliate::findOrFail($request->input('parent_affiliate_id'));
+        $requireForm = $request->boolean('require_onboarding_form');
+
+        // Create User
+        $user = \App\Models\User::create([
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'password' => bcrypt($request->input('password')),
+            'user_type' => 'affiliate',
+        ]);
+
+        $displayName = $request->input('display_name') ?: $request->input('name');
+        $slug = Affiliate::generateUniqueSlug($displayName);
+
+        // Create Sub-Affiliate
+        $sub = Affiliate::create([
+            'user_id' => $user->id,
+            'parent_affiliate_id' => $parent->id,
+            'is_sub_affiliate' => true,
+            'display_name' => $displayName,
+            'slug' => $slug,
+            'status' => $requireForm ? 'pending' : 'approved',
+            'is_active' => true,
+            'approved_at' => $requireForm ? null : now(),
+            'approved_by' => $requireForm ? null : auth()->id(),
+            'require_onboarding_form' => $requireForm,
+            'sub_affiliate_permissions' => [
+                'show_packages' => $request->boolean('show_packages', true),
+                'show_settings' => $request->boolean('show_settings', true),
+                'show_qr_code' => $request->boolean('show_qr_code', true),
+                'show_sales_stats' => $request->boolean('show_sales_stats', true),
+            ],
+        ]);
+
+        // Allocate Websites
+        if ($request->has('website_ids')) {
+            foreach ($request->input('website_ids', []) as $webId) {
+                AffiliateWebsite::create([
+                    'affiliate_id' => $sub->id,
+                    'website_id' => $webId,
+                    'is_active' => true,
+                ]);
+            }
+        }
+
+        // Allocate Packages
+        if ($request->has('package_ids')) {
+            foreach ($request->input('package_ids', []) as $pkgId) {
+                $pkg = Package::find($pkgId);
+                AffiliatePackage::create([
+                    'affiliate_id' => $sub->id,
+                    'package_id' => $pkgId,
+                    'website_id' => $pkg->website_id ?? null,
+                    'commission_percentage' => 0,
+                    'is_active' => true,
+                ]);
+            }
+        }
+
+        // Email Notification
+        try {
+            $this->applyGlobalSmtp();
+            $subject = "Welcome to CartVIP Promoter Portal";
+            if ($requireForm) {
+                $onboardUrl = route('entertainer.apply');
+                $html = "<div style='font-family:sans-serif;padding:20px;'><h3 style='color:#4f46e5;'>Welcome {$user->name}</h3><p>You have been added as a sub-promoter under <strong>{$parent->display_name}</strong>.</p><p>Please complete your onboarding application form to activate your portal: <a href='{$onboardUrl}' style='color:#4f46e5;font-weight:bold;'>Complete Form</a></p><p>Login Email: <strong>{$user->email}</strong></p></div>";
+            } else {
+                $loginUrl = route('login');
+                $html = "<div style='font-family:sans-serif;padding:20px;'><h3 style='color:#4f46e5;'>Welcome {$user->name}</h3><p>You have been added as an active sub-promoter under <strong>{$parent->display_name}</strong>.</p><p>Login Email: <strong>{$user->email}</strong><br>Password: <strong>{$request->input('password')}</strong></p><p><a href='{$loginUrl}' style='color:#4f46e5;font-weight:bold;'>Click here to login</a></p></div>";
+            }
+            Mail::html($html, function($msg) use ($user, $subject) {
+                $msg->to($user->email)->subject($subject);
+            });
+        } catch (\Exception $e) {
+            Log::error('Admin sub-affiliate email error: ' . $e->getMessage());
+        }
+
+        return redirect()->back()->with('success', 'Sub-promoter created successfully by Admin!');
     }
 
     private function applyGlobalSmtp(): void

@@ -366,6 +366,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
     // affiliate admin routes
     Route::group(['prefix'=> 'affiliate', 'as' => 'affiliate.'], function () {
         Route::get('/', [AffiliateAdminController::class, 'index'])->name('index');
+        Route::post('/sub-affiliate/store', [AffiliateAdminController::class, 'storeSubAffiliate'])->name('sub-affiliate.store');
         Route::get('/{affiliate}', [AffiliateAdminController::class, 'show'])->name('show');
         Route::post('/{affiliate}/approve', [AffiliateAdminController::class, 'approve'])->name('approve');
         Route::post('/{affiliate}/unapprove', [AffiliateAdminController::class, 'unapprove'])->name('unapprove');

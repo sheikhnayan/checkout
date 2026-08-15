@@ -22,18 +22,57 @@
     .text-muted-sub {
         color: #cbd5e1 !important;
     }
-    .form-switch .form-check-input {
-        width: 3em !important;
-        height: 1.5em !important;
-        cursor: pointer !important;
-    }
     .alloc-box {
         background: rgba(255, 255, 255, 0.04) !important;
         border: 1px solid rgba(255, 255, 255, 0.12) !important;
         border-radius: 8px !important;
-        max-height: 200px;
+        max-height: 220px;
         overflow-y: auto;
-        padding: 12px;
+        padding: 14px;
+    }
+    /* Sleek Custom CartVIP Switch */
+    .cartvip-switch {
+        position: relative;
+        display: inline-block;
+        width: 48px;
+        height: 26px;
+        flex-shrink: 0;
+    }
+    .cartvip-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .cartvip-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #334155;
+        transition: .3s ease;
+        border-radius: 26px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .cartvip-slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: #ffffff;
+        transition: .3s ease;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .cartvip-switch input:checked + .cartvip-slider {
+        background-color: #4f46e5;
+        border-color: #6366f1;
+    }
+    .cartvip-switch input:checked + .cartvip-slider:before {
+        transform: translateX(22px);
     }
 </style>
 
@@ -77,7 +116,7 @@
                         <i class="bx bx-user-plus fs-1"></i>
                     </div>
                     <h5 class="text-white-title mb-2">No Sub-Promoters Added Yet</h5>
-                    <p class="text-muted-sub max-w-md mx-auto mb-4">Expand your reach by creating sub-promoter accounts. Allocate clubs, packages, and custom dashboard access permissions.</p>
+                    <p class="text-muted-sub max-w-md mx-auto mb-4">Expand your reach by creating sub-promoter accounts. Allocate clubs and custom dashboard access permissions.</p>
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createSubAffiliateModal">
                         <i class="bx bx-user-plus me-1"></i> Create First Sub-Promoter
                     </button>
@@ -90,7 +129,7 @@
                                 <th class="text-white">Sub-Promoter Name</th>
                                 <th class="text-white">Email & Login</th>
                                 <th class="text-white">Public Link</th>
-                                <th class="text-white">Allocated Clubs & Packages</th>
+                                <th class="text-white">Allocated Clubs</th>
                                 <th class="text-white">Status</th>
                                 <th class="text-white text-end">Actions</th>
                             </tr>
@@ -118,8 +157,7 @@
                                         </a>
                                     </td>
                                     <td>
-                                        <span class="badge bg-label-primary me-1">{{ $sub->affiliateWebsites->count() }} Clubs</span>
-                                        <span class="badge bg-label-info">{{ $sub->affiliatePackages->count() }} Packages</span>
+                                        <span class="badge bg-label-primary">{{ $sub->affiliateWebsites->count() }} Clubs Allocated</span>
                                     </td>
                                     <td>
                                         @if(!$sub->is_active)
@@ -184,35 +222,18 @@
 
                 <hr class="border-secondary my-4">
 
-                <!-- ALLOCATE CLUBS & PACKAGES -->
-                <h6 class="text-white-title mb-2"><i class="bx bx-building-house me-1 text-primary"></i> Allocate Clubs & Packages</h6>
-                <p class="text-muted-sub fs-7 mb-3">Sub-promoters can only access and sell packages from the clubs allocated by you below.</p>
+                <!-- ALLOCATE CLUBS / WEBSITES -->
+                <h6 class="text-white-title mb-2"><i class="bx bx-building-house me-1 text-primary"></i> Allocate Clubs / Websites</h6>
+                <p class="text-muted-sub fs-7 mb-3">Sub-promoters can only access packages from the clubs allocated below.</p>
 
-                <div class="row g-3 mb-4">
-                    <div class="col-md-6">
-                        <label class="form-label text-white">Allocated Clubs / Websites</label>
-                        <div class="alloc-box">
-                            @foreach($websites as $web)
-                                <div class="form-check mb-2">
-                                    <input type="checkbox" name="website_ids[]" value="{{ $web->id }}" id="create_web_{{ $web->id }}" class="form-check-input" checked>
-                                    <label class="form-check-label text-white fs-7" for="create_web_{{ $web->id }}">{{ $web->name }}</label>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label text-white">Allocated Packages</label>
-                        <div class="alloc-box">
-                            @foreach($websites as $web)
-                                <div class="fw-bold text-primary fs-8 uppercase mb-1 mt-2">{{ $web->name }}</div>
-                                @foreach($web->packages as $pkg)
-                                    <div class="form-check mb-2">
-                                        <input type="checkbox" name="package_ids[]" value="{{ $pkg->id }}" id="create_pkg_{{ $pkg->id }}" class="form-check-input" checked>
-                                        <label class="form-check-label text-white fs-7" for="create_pkg_{{ $pkg->id }}">{{ $pkg->title }} (${{ number_format($pkg->price, 2) }})</label>
-                                    </div>
-                                @endforeach
-                            @endforeach
-                        </div>
+                <div class="mb-4">
+                    <div class="alloc-box">
+                        @foreach($websites as $web)
+                            <div class="form-check mb-2">
+                                <input type="checkbox" name="website_ids[]" value="{{ $web->id }}" id="create_web_{{ $web->id }}" class="form-check-input" checked>
+                                <label class="form-check-label text-white fs-7" for="create_web_{{ $web->id }}">{{ $web->name }}</label>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
 
@@ -227,9 +248,10 @@
                         <h6 class="mb-0 text-white font-weight-bold">Require Extra Onboarding Form Before Activation</h6>
                         <small class="text-muted-sub">If enabled, an email with a form link is sent. Status remains pending until form is submitted.</small>
                     </div>
-                    <div class="form-check form-switch mb-0">
-                        <input class="form-check-input" type="checkbox" name="require_onboarding_form" value="1">
-                    </div>
+                    <label class="cartvip-switch mb-0">
+                        <input type="checkbox" name="require_onboarding_form" value="1">
+                        <span class="cartvip-slider"></span>
+                    </label>
                 </div>
 
                 <!-- Dashboard Feature Visibility Toggles -->
@@ -238,11 +260,12 @@
                         <div class="p-3 bg-dark rounded border border-secondary d-flex align-items-center justify-content-between">
                             <div>
                                 <h6 class="mb-0 text-white fs-7">Show Packages Tab</h6>
-                                <small class="text-muted-sub fs-8">Allow sub-promoter to view allocated packages.</small>
+                                <small class="text-muted-sub fs-8">Allow sub-promoter to view packages.</small>
                             </div>
-                            <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" name="show_packages" value="1" checked>
-                            </div>
+                            <label class="cartvip-switch mb-0">
+                                <input type="checkbox" name="show_packages" value="1" checked>
+                                <span class="cartvip-slider"></span>
+                            </label>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -251,9 +274,10 @@
                                 <h6 class="mb-0 text-white fs-7">Show Page Customization Tab</h6>
                                 <small class="text-muted-sub fs-8">Allow editing bio, photos, and branding.</small>
                             </div>
-                            <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" name="show_settings" value="1" checked>
-                            </div>
+                            <label class="cartvip-switch mb-0">
+                                <input type="checkbox" name="show_settings" value="1" checked>
+                                <span class="cartvip-slider"></span>
+                            </label>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -262,9 +286,10 @@
                                 <h6 class="mb-0 text-white fs-7">Show QR Code & Share Link</h6>
                                 <small class="text-muted-sub fs-8">Display shareable public page link & QR code.</small>
                             </div>
-                            <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" name="show_qr_code" value="1" checked>
-                            </div>
+                            <label class="cartvip-switch mb-0">
+                                <input type="checkbox" name="show_qr_code" value="1" checked>
+                                <span class="cartvip-slider"></span>
+                            </label>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -273,9 +298,10 @@
                                 <h6 class="mb-0 text-white fs-7">Show Sales Statistics</h6>
                                 <small class="text-muted-sub fs-8">Display booking counts and gross sales stats.</small>
                             </div>
-                            <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" name="show_sales_stats" value="1" checked>
-                            </div>
+                            <label class="cartvip-switch mb-0">
+                                <input type="checkbox" name="show_sales_stats" value="1" checked>
+                                <span class="cartvip-slider"></span>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -313,37 +339,19 @@
 
                 <hr class="border-secondary my-4">
 
-                <!-- ALLOCATE CLUBS & PACKAGES -->
-                <h6 class="text-white-title mb-2"><i class="bx bx-building-house me-1 text-primary"></i> Allocated Clubs & Packages</h6>
+                <!-- ALLOCATE CLUBS / WEBSITES -->
+                <h6 class="text-white-title mb-2"><i class="bx bx-building-house me-1 text-primary"></i> Allocated Clubs / Websites</h6>
                 @php
                     $subWebIds = $sub->affiliateWebsites->pluck('website_id')->toArray();
-                    $subPkgIds = $sub->affiliatePackages->pluck('package_id')->toArray();
                 @endphp
-                <div class="row g-3 mb-4">
-                    <div class="col-md-6">
-                        <label class="form-label text-white">Allocated Clubs / Websites</label>
-                        <div class="alloc-box">
-                            @foreach($websites as $web)
-                                <div class="form-check mb-2">
-                                    <input type="checkbox" name="website_ids[]" value="{{ $web->id }}" id="edit_web_{{ $sub->id }}_{{ $web->id }}" class="form-check-input" {{ in_array($web->id, $subWebIds) ? 'checked' : '' }}>
-                                    <label class="form-check-label text-white fs-7" for="edit_web_{{ $sub->id }}_{{ $web->id }}">{{ $web->name }}</label>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label text-white">Allocated Packages</label>
-                        <div class="alloc-box">
-                            @foreach($websites as $web)
-                                <div class="fw-bold text-primary fs-8 uppercase mb-1 mt-2">{{ $web->name }}</div>
-                                @foreach($web->packages as $pkg)
-                                    <div class="form-check mb-2">
-                                        <input type="checkbox" name="package_ids[]" value="{{ $pkg->id }}" id="edit_pkg_{{ $sub->id }}_{{ $pkg->id }}" class="form-check-input" {{ in_array($pkg->id, $subPkgIds) ? 'checked' : '' }}>
-                                        <label class="form-check-label text-white fs-7" for="edit_pkg_{{ $sub->id }}_{{ $pkg->id }}">{{ $pkg->title }} (${{ number_format($pkg->price, 2) }})</label>
-                                    </div>
-                                @endforeach
-                            @endforeach
-                        </div>
+                <div class="mb-4">
+                    <div class="alloc-box">
+                        @foreach($websites as $web)
+                            <div class="form-check mb-2">
+                                <input type="checkbox" name="website_ids[]" value="{{ $web->id }}" id="edit_web_{{ $sub->id }}_{{ $web->id }}" class="form-check-input" {{ in_array($web->id, $subWebIds) ? 'checked' : '' }}>
+                                <label class="form-check-label text-white fs-7" for="edit_web_{{ $sub->id }}_{{ $web->id }}">{{ $web->name }}</label>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
 
@@ -358,9 +366,10 @@
                         <h6 class="mb-0 text-white font-weight-bold">Require Extra Onboarding Form Before Activation</h6>
                         <small class="text-muted-sub">If enabled, an email with a form link is sent.</small>
                     </div>
-                    <div class="form-check form-switch mb-0">
-                        <input class="form-check-input" type="checkbox" name="require_onboarding_form" value="1" {{ $sub->require_onboarding_form ? 'checked' : '' }}>
-                    </div>
+                    <label class="cartvip-switch mb-0">
+                        <input type="checkbox" name="require_onboarding_form" value="1" {{ $sub->require_onboarding_form ? 'checked' : '' }}>
+                        <span class="cartvip-slider"></span>
+                    </label>
                 </div>
 
                 <!-- Dashboard Feature Visibility Toggles -->
@@ -370,9 +379,10 @@
                             <div>
                                 <h6 class="mb-0 text-white fs-7">Show Packages Tab</h6>
                             </div>
-                            <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" name="show_packages" value="1" {{ $sub->hasSubPermission('show_packages') ? 'checked' : '' }}>
-                            </div>
+                            <label class="cartvip-switch mb-0">
+                                <input type="checkbox" name="show_packages" value="1" {{ $sub->hasSubPermission('show_packages') ? 'checked' : '' }}>
+                                <span class="cartvip-slider"></span>
+                            </label>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -380,9 +390,10 @@
                             <div>
                                 <h6 class="mb-0 text-white fs-7">Show Page Customization Tab</h6>
                             </div>
-                            <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" name="show_settings" value="1" {{ $sub->hasSubPermission('show_settings') ? 'checked' : '' }}>
-                            </div>
+                            <label class="cartvip-switch mb-0">
+                                <input type="checkbox" name="show_settings" value="1" {{ $sub->hasSubPermission('show_settings') ? 'checked' : '' }}>
+                                <span class="cartvip-slider"></span>
+                            </label>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -390,9 +401,10 @@
                             <div>
                                 <h6 class="mb-0 text-white fs-7">Show QR Code & Share Link</h6>
                             </div>
-                            <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" name="show_qr_code" value="1" {{ $sub->hasSubPermission('show_qr_code') ? 'checked' : '' }}>
-                            </div>
+                            <label class="cartvip-switch mb-0">
+                                <input type="checkbox" name="show_qr_code" value="1" {{ $sub->hasSubPermission('show_qr_code') ? 'checked' : '' }}>
+                                <span class="cartvip-slider"></span>
+                            </label>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -400,9 +412,10 @@
                             <div>
                                 <h6 class="mb-0 text-white fs-7">Show Sales Statistics</h6>
                             </div>
-                            <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" name="show_sales_stats" value="1" {{ $sub->hasSubPermission('show_sales_stats') ? 'checked' : '' }}>
-                            </div>
+                            <label class="cartvip-switch mb-0">
+                                <input type="checkbox" name="show_sales_stats" value="1" {{ $sub->hasSubPermission('show_sales_stats') ? 'checked' : '' }}>
+                                <span class="cartvip-slider"></span>
+                            </label>
                         </div>
                     </div>
                 </div>
