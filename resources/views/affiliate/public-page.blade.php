@@ -5920,22 +5920,23 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                         $catRgbStr = "$cr,$cg,$cb";
                                                     }
                                                 @endphp
-                                                <div class="package-category-wrap">
-                                                    @php $catClub = !empty($category['packages']) ? ($category['packages'][0]->website->name ?? '') : ''; @endphp
-                                                    <button
-                                                        type="button"
-                                                        class="package-category-tile{{ $catRgbStr ? ' has-cat-color' : '' }}"
-                                                        data-target="#category-group-{{ $category['id'] }}"
-                                                        @if($catRgbStr) style="--cat-rgb: {{ $catRgbStr }}" @endif
-                                                    >
-                                                        @if(!empty($category['icon']))
-                                                            <i class="fas {{ $category['icon'] }} package-category-tile-icon"></i>
-                                                        @endif
-                                                        <span class="package-category-name">{{ $category['name'] }}</span>
-                                                        <span class="package-category-indicator">+</span>
-                                                    </button>
+                                                <button
+                                                    type="button"
+                                                    class="package-category-tile{{ $catRgbStr ? ' has-cat-color' : '' }}"
+                                                    data-target="#category-group-{{ $category['id'] }}"
+                                                    @if($catRgbStr) style="--cat-rgb: {{ $catRgbStr }}" @endif
+                                                >
+                                                    @if(!empty($category['icon']))
+                                                        <i class="fas {{ $category['icon'] }} package-category-tile-icon"></i>
+                                                    @endif
+                                                    <span class="package-category-name">{{ $category['name'] }}</span>
+                                                    <span class="package-category-indicator">+</span>
+                                                </button>
+                                            @endforeach
+                                        </div>
 
-                                                    <div id="category-group-{{ $category['id'] }}" class="package-category-group" style="display: none;">
+                                        @foreach ($packageCategories as $category)
+                                            <div id="category-group-{{ $category['id'] }}" class="package-category-group aff-location-gated" style="display: none;">
                                                 @foreach ($category['packages'] as $item)
                                                     @php
                                                         $pkgGuestCap = max(1, (int) ($item->guests_per_table ?: $item->number_of_guest ?: 1));
@@ -6073,10 +6074,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                         </div>
                                                     </div>
                                                 @endforeach
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
+                                            </div>
+                                        @endforeach
                                     @else
                                         <p style="opacity:.6;">No packages are available yet.</p>
                                     @endif
