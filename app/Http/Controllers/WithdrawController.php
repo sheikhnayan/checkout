@@ -26,8 +26,8 @@ class WithdrawController extends Controller
 
         if ($user->isAffiliate()) {
             $owner = $user->affiliate;
-            if (!$owner || $owner->status !== 'approved' || !$owner->is_active) {
-                abort(403, 'affiliate access denied.');
+            if (!$owner || $owner->status !== 'approved' || !$owner->is_active || $owner->isSubAffiliate()) {
+                abort(403, 'Withdrawals are disabled for sub-promoters. All sales commissions accrue to the primary promoter account.');
             }
             return ['owner' => $owner, 'type' => 'affiliate'];
         }

@@ -1127,6 +1127,7 @@
   @endif
 
   @if(auth()->check() && auth()->user()->isAffiliate())
+  @php $currentAffiliate = auth()->user()->affiliate; @endphp
   <li class="menu-item {{ request()->is('affiliate-portal/dashboard') ? 'active' : '' }}">
     <a href="{{ route('affiliate.portal.dashboard') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-home-alt-2"></i>
@@ -1134,19 +1135,32 @@
     </a>
   </li>
 
+  @if(!$currentAffiliate || !$currentAffiliate->isSubAffiliate() || $currentAffiliate->hasSubPermission('show_packages'))
   <li class="menu-item {{ request()->is('affiliate-portal/packages') ? 'active' : '' }}">
     <a href="{{ route('affiliate.portal.packages') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-list-ul"></i>
       <div class="text-truncate">My Packages</div>
     </a>
   </li>
+  @endif
 
+  @if(!$currentAffiliate || !$currentAffiliate->isSubAffiliate() || $currentAffiliate->hasSubPermission('show_settings'))
   <li class="menu-item {{ request()->is('affiliate-portal/settings') ? 'active' : '' }}">
     <a href="{{ route('affiliate.portal.settings') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-palette"></i>
       <div class="text-truncate">Page Customization</div>
     </a>
   </li>
+  @endif
+
+  @if($currentAffiliate && !$currentAffiliate->isSubAffiliate())
+  <li class="menu-item {{ request()->is('affiliate-portal/sub-affiliates*') ? 'active' : '' }}">
+    <a href="{{ route('affiliate.portal.sub-affiliates.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-group"></i>
+      <div class="text-truncate">Sub-Promoters</div>
+    </a>
+  </li>
+  @endif
 
   <li class="menu-item {{ request()->is('affiliate-portal/wallet') ? 'active' : '' }}">
     <a href="{{ route('affiliate.portal.wallet') }}" class="menu-link">
@@ -1155,18 +1169,20 @@
     </a>
   </li>
 
+  @if(!$currentAffiliate || !$currentAffiliate->isSubAffiliate())
   <li class="menu-item {{ request()->is('affiliate-portal/withdraw*') ? 'active' : '' }}">
     <a href="{{ route('affiliate.portal.withdraw') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-money-withdraw"></i>
       <div class="text-truncate">Withdraw</div>
     </a>
   </li>
+  @endif
 
-  @if(auth()->user()->affiliate && auth()->user()->affiliate->slug)
+  @if($currentAffiliate && $currentAffiliate->slug)
   <li class="menu-item">
-    <a href="{{ route('affiliate.public', auth()->user()->affiliate->slug) }}" target="_blank" class="menu-link">
+    <a href="{{ route('affiliate.public', $currentAffiliate->slug) }}" target="_blank" class="menu-link">
       <i class="menu-icon tf-icons bx bx-link-external"></i>
-      <div class="text-truncate">My affiliate Page</div>
+      <div class="text-truncate">My Promoter Page</div>
     </a>
   </li>
   @endif

@@ -288,4 +288,212 @@ class AffiliatePortalController extends Controller
 
         return view('affiliate.wallet', compact('affiliate', 'transactions', 'bookingTransactions'));
     }
+
+    /**
+     * List parent's sub-affiliates.
+     */
+    public function subAffiliates()
+    {
+        $affiliate = $this->getAffiliateOrAbort();
+        if ($affiliate->isSubAffiliate()) {
+            abort(403, 'Sub-promoters cannot manage sub-promoters.');
+        }
+
+        $subAffiliates = Affiliate::where('parent_affiliate_id', $affiliate->id)
+            ->with(['user', 'affiliateWebsites', 'affiliatePackages.package'])
+            ->orderBy('id', 'desc')
+            ->get();
+
+        // Allowed websites and packages for this parent affiliate
+        $allowedWebsiteIds = AffiliateWebsite::where('affiliate_id', $affiliate->id)
+            ->where('is_active', true)
+            ->pluck('website_id')
+            ->toArray();
+
+        $websites = Website::where('is_archieved', 0)
+            ->where('status', 1)
+            ->whereIn('id', $allowedWebsiteIds)
+            ->with(['packages' => function ($q) use ($affiliate) {
+                $parentPackageIds = AffiliatePackage::where('affiliate_id', $affiliate->id)
+                    ->pluck('package_id')
+                    ->toArray();
+                $q->clubVisible()->where('status', 1)->where('is_archieved', 0)->whereIn('id', $parentPackageIds);
+            }])
+            ->get();
+
+        return view('affiliate.sub_affiliates', compact('affiliate', 'subAffiliates', 'websites'));
+    }
+
+    /**
+     * Store new sub-affiliate created by parent promoter.
+     */
+    public function storeSubAffiliate(Request $request)
+    {
+        $affiliate = $this->getAffiliateOrAbort();
+        if ($affiliate->isSubAffiliate()) {
+            abort(403, 'Sub-promoters cannot create sub-promoters.');
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6',
+            'display_name' => 'nullable|string|max:255',
+            'website_ids' => 'nullable|array',
+            'package_ids' => 'nullable|array',
+        ]);
+
+        $parentWebsiteIds = AffiliateWebsite::where('affiliate_id', $affiliate->id)->where('is_active', true)->pluck('website_id')->toArray();
+        $allowedWebsiteIds = array_values(array_intersect($request->input('website_ids', []), $parentWebsiteIds));
+
+        $parentPackageIds = AffiliatePackage::where('affiliate_id', $affiliate->id)->pluck('package_id')->toArray();
+        $allowedPackageIds = array_values(array_intersect($request->input('package_ids', []), $parentPackageIds));
+
+        $requireForm = $request->boolean('require_onboarding_form');
+
+        // Create User
+        $user = \App\Models\User::create([
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'password' => bcrypt($request->input('password')),
+            'user_type' => 'affiliate',
+        ]);
+
+        $displayName = $request->input('display_name') ?: $request->input('name');
+        $slug = Affiliate::generateUniqueSlug($displayName);
+
+        // Create Sub-Affiliate
+        $sub = Affiliate::create([
+            'user_id' => $user->id,
+            'parent_affiliate_id' => $affiliate->id,
+            'is_sub_affiliate' => true,
+            'display_name' => $displayName,
+            'slug' => $slug,
+            'status' => $requireForm ? 'pending' : 'approved',
+            'is_active' => true,
+            'approved_at' => $requireForm ? null : now(),
+            'approved_by' => $requireForm ? null : auth()->id(),
+            'require_onboarding_form' => $requireForm,
+            'sub_affiliate_permissions' => [
+                'show_packages' => $request->boolean('show_packages', true),
+                'show_settings' => $request->boolean('show_settings', true),
+                'show_qr_code' => $request->boolean('show_qr_code', true),
+                'show_sales_stats' => $request->boolean('show_sales_stats', true),
+            ],
+        ]);
+
+        // Allocate Websites
+        foreach ($allowedWebsiteIds as $webId) {
+            AffiliateWebsite::create([
+                'affiliate_id' => $sub->id,
+                'website_id' => $webId,
+                'is_active' => true,
+            ]);
+        }
+
+        // Allocate Packages
+        foreach ($allowedPackageIds as $pkgId) {
+            $parentPkg = AffiliatePackage::where('affiliate_id', $affiliate->id)->where('package_id', $pkgId)->first();
+            AffiliatePackage::create([
+                'affiliate_id' => $sub->id,
+                'package_id' => $pkgId,
+                'website_id' => $parentPkg->website_id ?? null,
+                'commission_percentage' => 0,
+                'is_active' => true,
+            ]);
+        }
+
+        // Mail Notification
+        try {
+            $subject = "Welcome to CartVIP Promoter Portal";
+            if ($requireForm) {
+                $onboardUrl = route('entertainer.apply');
+                $html = "<div style='font-family:sans-serif;padding:20px;'><h3 style='color:#4f46e5;'>Welcome {$user->name}</h3><p>You have been added as a sub-promoter by <strong>{$affiliate->display_name}</strong>.</p><p>Please complete your onboarding application form to activate your portal: <a href='{$onboardUrl}' style='color:#4f46e5;font-weight:bold;'>Complete Form</a></p><p>Login Email: <strong>{$user->email}</strong></p></div>";
+            } else {
+                $loginUrl = route('login');
+                $html = "<div style='font-family:sans-serif;padding:20px;'><h3 style='color:#4f46e5;'>Welcome {$user->name}</h3><p>You have been added as an active sub-promoter by <strong>{$affiliate->display_name}</strong>.</p><p>Login Email: <strong>{$user->email}</strong><br>Password: <strong>{$request->input('password')}</strong></p><p><a href='{$loginUrl}' style='color:#4f46e5;font-weight:bold;'>Click here to login</a></p></div>";
+            }
+            \Illuminate\Support\Facades\Mail::html($html, function($msg) use ($user, $subject) {
+                $msg->to($user->email)->subject($subject);
+            });
+        } catch (\Exception $e) {
+            // Log mail error silently
+        }
+
+        return redirect()->back()->with('success', 'Sub-promoter successfully created and allocated clubs/packages!');
+    }
+
+    /**
+     * Update existing sub-affiliate permissions, allocated clubs, and packages.
+     */
+    public function updateSubAffiliate(Request $request, Affiliate $subAffiliate)
+    {
+        $affiliate = $this->getAffiliateOrAbort();
+        if ($subAffiliate->parent_affiliate_id !== $affiliate->id) {
+            abort(403, 'Unauthorized sub-promoter edit.');
+        }
+
+        $request->validate([
+            'display_name' => 'required|string|max:255',
+            'website_ids' => 'nullable|array',
+            'package_ids' => 'nullable|array',
+        ]);
+
+        $parentWebsiteIds = AffiliateWebsite::where('affiliate_id', $affiliate->id)->where('is_active', true)->pluck('website_id')->toArray();
+        $allowedWebsiteIds = array_values(array_intersect($request->input('website_ids', []), $parentWebsiteIds));
+
+        $parentPackageIds = AffiliatePackage::where('affiliate_id', $affiliate->id)->pluck('package_id')->toArray();
+        $allowedPackageIds = array_values(array_intersect($request->input('package_ids', []), $parentPackageIds));
+
+        $subAffiliate->display_name = $request->input('display_name');
+        $subAffiliate->sub_affiliate_permissions = [
+            'show_packages' => $request->boolean('show_packages'),
+            'show_settings' => $request->boolean('show_settings'),
+            'show_qr_code' => $request->boolean('show_qr_code'),
+            'show_sales_stats' => $request->boolean('show_sales_stats'),
+        ];
+        $subAffiliate->require_onboarding_form = $request->boolean('require_onboarding_form');
+        $subAffiliate->save();
+
+        // Sync Allocated Websites
+        AffiliateWebsite::where('affiliate_id', $subAffiliate->id)->delete();
+        foreach ($allowedWebsiteIds as $webId) {
+            AffiliateWebsite::create([
+                'affiliate_id' => $subAffiliate->id,
+                'website_id' => $webId,
+                'is_active' => true,
+            ]);
+        }
+
+        // Sync Allocated Packages
+        AffiliatePackage::where('affiliate_id', $subAffiliate->id)->delete();
+        foreach ($allowedPackageIds as $pkgId) {
+            $parentPkg = AffiliatePackage::where('affiliate_id', $affiliate->id)->where('package_id', $pkgId)->first();
+            AffiliatePackage::create([
+                'affiliate_id' => $subAffiliate->id,
+                'package_id' => $pkgId,
+                'website_id' => $parentPkg->website_id ?? null,
+                'commission_percentage' => 0,
+                'is_active' => true,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Sub-promoter settings and allocated clubs/packages updated successfully!');
+    }
+
+    /**
+     * Toggle active status of sub-affiliate.
+     */
+    public function toggleSubAffiliateStatus(Affiliate $subAffiliate)
+    {
+        $affiliate = $this->getAffiliateOrAbort();
+        if ($subAffiliate->parent_affiliate_id !== $affiliate->id) {
+            abort(403, 'Unauthorized sub-promoter status update.');
+        }
+
+        $subAffiliate->is_active = !$subAffiliate->is_active;
+        $subAffiliate->save();
+
+        return redirect()->back()->with('success', 'Sub-promoter status updated.');
+    }
 }

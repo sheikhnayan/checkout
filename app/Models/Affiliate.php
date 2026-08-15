@@ -43,12 +43,19 @@ class Affiliate extends Model
         'rejected_by',
         'rejection_reason',
         'is_active',
+        'parent_affiliate_id',
+        'is_sub_affiliate',
+        'sub_affiliate_permissions',
+        'require_onboarding_form',
     ];
 
     protected $casts = [
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
         'is_active' => 'boolean',
+        'is_sub_affiliate' => 'boolean',
+        'require_onboarding_form' => 'boolean',
+        'sub_affiliate_permissions' => 'array',
         'wallet_balance' => 'decimal:2',
         'default_commission_percentage' => 'decimal:2',
         'gallery_images' => 'array',
@@ -58,6 +65,41 @@ class Affiliate extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(Affiliate::class, 'parent_affiliate_id');
+    }
+
+    public function subAffiliates()
+    {
+        return $this->hasMany(Affiliate::class, 'parent_affiliate_id');
+    }
+
+    public function isSubAffiliate(): bool
+    {
+        return (bool) $this->is_sub_affiliate || !empty($this->parent_affiliate_id);
+    }
+
+    public function hasSubPermission(string $key): bool
+    {
+        if (!$this->isSubAffiliate()) {
+            return true;
+        }
+        $perms = $this->sub_affiliate_permissions ?? [];
+        if (!array_key_exists($key, $perms)) {
+            return true;
+        }
+        return (bool) $perms[$key];
+    }
+
+    public function getCommissionTargetAffiliate(): self
+    {
+        if ($this->isSubAffiliate() && $this->parent) {
+            return $this->parent;
+        }
+        return $this;
     }
 
     public function approver()

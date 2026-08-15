@@ -3209,23 +3209,31 @@ class TransactionController extends Controller
         $transaction->affiliate_source = $affiliate->slug;
         $transaction->save();
 
+        $targetAffiliate = $affiliate->getCommissionTargetAffiliate();
+
         if ($commissionAmount > 0) {
             $publicTransactionId = trim((string) ($transaction->transaction_id ?? ''));
             if ($publicTransactionId === '') {
                 $publicTransactionId = (string) $transaction->id;
             }
 
+            $desc = 'Commission pending hold period for purchase #' . $publicTransactionId;
+            if ($affiliate->isSubAffiliate()) {
+                $desc .= ' (via sub-promoter: ' . ($affiliate->display_name ?: optional($affiliate->user)->name) . ')';
+            }
+
             AffiliateWalletTransaction::create([
-                'affiliate_id' => $affiliate->id,
+                'affiliate_id' => $targetAffiliate->id,
                 'transaction_id' => $transaction->id,
                 'type' => 'commission',
                 'status' => 'pending',
                 'amount' => $commissionAmount,
-                'balance_after' => (float) $affiliate->wallet_balance,
-                'description' => 'Commission pending hold period for purchase #' . $publicTransactionId,
+                'balance_after' => (float) $targetAffiliate->wallet_balance,
+                'description' => $desc,
                 'meta' => [
                     'package_id' => $packageId,
                     'website_id' => $transaction->website_id,
+                    'sub_affiliate_id' => $affiliate->isSubAffiliate() ? $affiliate->id : null,
                     'commission_percentage' => $commissionPercentage,
                     'commission_base_amount' => round(max($baseAmount, 0), 2),
                     'commission_amount' => $commissionAmount,
