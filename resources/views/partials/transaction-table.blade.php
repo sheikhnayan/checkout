@@ -135,8 +135,13 @@
                         <td>
                             <strong>#{{ $transaction->transaction_id ?? 'N/A' }}</strong>
                             @if(optional($transaction->affiliate)->isSubAffiliate())
+                                @php
+                                    $parent = $transaction->affiliate->parent;
+                                    $parentName = $parent ? ($parent->display_name ?: optional($parent->user)->name) : 'Primary Promoter';
+                                    $subName = $transaction->affiliate->display_name ?: optional($transaction->affiliate->user)->name;
+                                @endphp
                                 <div class="badge bg-label-info text-wrap mt-1 text-start d-block" style="font-size: 0.7rem;">
-                                    <i class="bx bx-user me-1"></i> Sub: {{ $transaction->affiliate->display_name ?: optional($transaction->affiliate->user)->name }}
+                                    <i class="bx bx-user me-1"></i> {{ $subName }} <span class="text-white-50">(Primary: {{ $parentName }})</span>
                                 </div>
                             @endif
                         </td>

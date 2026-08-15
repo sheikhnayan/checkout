@@ -10,10 +10,12 @@ class AffiliateWebsite extends Model
         'affiliate_id',
         'website_id',
         'is_active',
+        'commission_percentage',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'commission_percentage' => 'decimal:2',
     ];
 
     public function affiliate()

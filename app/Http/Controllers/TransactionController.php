@@ -1807,7 +1807,17 @@ class TransactionController extends Controller
      */
     private function buildDetailsHtml(Transaction $transaction): string
     {
-        $affiliateName = $transaction->affiliate ? ($transaction->affiliate->display_name ?: optional($transaction->affiliate->user)->name) : '';
+        $affiliateName = '';
+        if ($transaction->affiliate) {
+            if ($transaction->affiliate->isSubAffiliate()) {
+                $parent = $transaction->affiliate->parent;
+                $parentName = $parent ? ($parent->display_name ?: optional($parent->user)->name) : 'Primary Promoter';
+                $subName = $transaction->affiliate->display_name ?: optional($transaction->affiliate->user)->name;
+                $affiliateName = $subName . ' (Primary: ' . $parentName . ')';
+            } else {
+                $affiliateName = $transaction->affiliate->display_name ?: optional($transaction->affiliate->user)->name;
+            }
+        }
         $entertainerName = $transaction->entertainer ? ($transaction->entertainer->display_name ?: optional($transaction->entertainer->user)->name) : '';
         $esc = static function ($value): string {
             return htmlspecialchars((string) ($value ?? ''), ENT_QUOTES, 'UTF-8');
@@ -3193,7 +3203,31 @@ class TransactionController extends Controller
             return true;
         }
 
-        $commissionPercentage = (float) ($mapping->commission_percentage ?? $affiliate->default_commission_percentage);
+        $targetAffiliate = $affiliate->getCommissionTargetAffiliate();
+
+        // Dynamic Commission Hierarchy:
+        // 1. Package-level custom commission override on AffiliatePackage (if set > 0)
+        // 2. Club-level custom commission on AffiliateWebsite for target main promoter & website_id
+        // 3. Fallback to target main promoter's default_commission_percentage
+        $commissionPercentage = null;
+
+        if ($mapping && $mapping->commission_percentage !== null && (float)$mapping->commission_percentage > 0) {
+            $commissionPercentage = (float) $mapping->commission_percentage;
+        }
+
+        if ($commissionPercentage === null && !empty($transaction->website_id)) {
+            $clubWebsite = AffiliateWebsite::where('affiliate_id', $targetAffiliate->id)
+                ->where('website_id', $transaction->website_id)
+                ->first();
+            if ($clubWebsite && $clubWebsite->commission_percentage !== null && (float)$clubWebsite->commission_percentage > 0) {
+                $commissionPercentage = (float) $clubWebsite->commission_percentage;
+            }
+        }
+
+        if ($commissionPercentage === null) {
+            $commissionPercentage = (float) ($targetAffiliate->default_commission_percentage ?? 0);
+        }
+
         $baseAmount = $commissionBaseAmount !== null
             ? (float) $commissionBaseAmount
             : (float) ($transaction->actual_total ?? $transaction->total ?? 0);
@@ -3208,8 +3242,6 @@ class TransactionController extends Controller
         $transaction->affiliate_commission_reversed_at = null;
         $transaction->affiliate_source = $affiliate->slug;
         $transaction->save();
-
-        $targetAffiliate = $affiliate->getCommissionTargetAffiliate();
 
         if ($commissionAmount > 0) {
             $publicTransactionId = trim((string) ($transaction->transaction_id ?? ''));

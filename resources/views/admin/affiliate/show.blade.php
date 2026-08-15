@@ -135,22 +135,38 @@
         @endif
 
         <div class="card p-4 mb-4">
-            <h5 class="mb-3">Assign Clubs / Websites</h5>
+            <h5 class="mb-2"><i class="bx bx-building-house me-1 text-primary"></i> Assign Clubs / Websites & Dynamic Commissions</h5>
+            <p class="text-muted fs-7 mb-3">Select the clubs this promoter can access and optionally set a custom dynamic commission % for each club. If left blank, the promoter's default commission ({{ number_format((float) ($affiliate->default_commission_percentage ?? 0), 2) }}%) will apply.</p>
             <form method="POST" action="{{ route('admin.affiliate.packages.update', $affiliate->id) }}">
                 @csrf
                 @foreach($websites as $website)
+                    @php
+                        $affWeb = \App\Models\AffiliateWebsite::where('affiliate_id', $affiliate->id)->where('website_id', $website->id)->first();
+                        $clubCommValue = $affWeb && $affWeb->commission_percentage !== null ? $affWeb->commission_percentage : '';
+                    @endphp
                     <div class="border rounded p-3 mb-3">
-                        <label class="form-check-label d-flex align-items-center justify-content-between">
-                            <span>
-                                <input class="form-check-input me-2" type="checkbox" name="website_ids[]" value="{{ $website->id }}" {{ in_array($website->id, $selectedWebsiteIds ?? []) ? 'checked' : '' }}>
-                                {{ $website->name }}
-                            </span>
-                            <span class="text-muted" style="font-size:12px;">{{ $website->packages_count }} active packages</span>
-                        </label>
+                        <div class="row align-items-center g-3">
+                            <div class="col-md-6">
+                                <label class="form-check-label d-flex align-items-center mb-0 cursor-pointer">
+                                    <input class="form-check-input me-2" type="checkbox" name="website_ids[]" value="{{ $website->id }}" {{ in_array($website->id, $selectedWebsiteIds ?? []) ? 'checked' : '' }}>
+                                    <div>
+                                        <div class="fw-bold">{{ $website->name }}</div>
+                                        <small class="text-muted">{{ $website->packages_count }} active packages</small>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-dark text-white border-secondary fs-8">Club Commission</span>
+                                    <input type="number" min="0" max="100" step="0.01" name="club_commissions[{{ $website->id }}]" class="form-control bg-dark text-white border-secondary" value="{{ old('club_commissions.' . $website->id, $clubCommValue) }}" placeholder="Default ({{ number_format((float) ($affiliate->default_commission_percentage ?? 0), 2) }}%)">
+                                    <span class="input-group-text bg-dark text-white border-secondary">%</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 @endforeach
 
-                <button type="submit" class="btn btn-primary">Save Club Access</button>
+                <button type="submit" class="btn btn-primary"><i class="bx bx-save me-1"></i> Save Club Access & Dynamic Commissions</button>
             </form>
         </div>
 

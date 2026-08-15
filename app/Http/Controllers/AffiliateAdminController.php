@@ -235,15 +235,22 @@ class AffiliateAdminController extends Controller
         $request->validate([
             'website_ids' => 'nullable|array',
             'website_ids.*' => 'integer|exists:websites,id',
+            'club_commissions' => 'nullable|array',
+            'club_commissions.*' => 'nullable|numeric|min:0|max:100',
         ]);
 
         $websiteIds = collect($request->input('website_ids', []))->map(fn ($id) => (int) $id)->unique()->values();
+        $clubCommissions = $request->input('club_commissions', []);
 
         AffiliateWebsite::where('affiliate_id', $affiliate->id)
             ->whereNotIn('website_id', $websiteIds->all())
             ->delete();
 
         foreach ($websiteIds as $websiteId) {
+            $commission = isset($clubCommissions[$websiteId]) && $clubCommissions[$websiteId] !== '' && $clubCommissions[$websiteId] !== null
+                ? (float) $clubCommissions[$websiteId]
+                : null;
+
             AffiliateWebsite::updateOrCreate(
                 [
                     'affiliate_id' => $affiliate->id,
@@ -251,6 +258,7 @@ class AffiliateAdminController extends Controller
                 ],
                 [
                     'is_active' => true,
+                    'commission_percentage' => $commission,
                 ]
             );
         }
@@ -260,7 +268,7 @@ class AffiliateAdminController extends Controller
             ->whereNotIn('website_id', $websiteIds->all())
             ->delete();
 
-        return redirect()->back()->with('success', 'affiliate club access updated successfully.');
+        return redirect()->back()->with('success', 'Promoter club access & dynamic commissions updated successfully.');
     }
 
     public function updateCommission(Request $request, Affiliate $affiliate)

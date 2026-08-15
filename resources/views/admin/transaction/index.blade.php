@@ -1400,8 +1400,16 @@ body.modal-open .admin-mobile-menu-toggle {
                         @php
                             try {
                                 $affiliateName = null;
-                                if (!empty($item->affiliate_id) && !empty($item->affiliate))
-                                    $affiliateName = $item->affiliate->display_name ?: optional($item->affiliate->user)->name ?: ('affiliate #' . $item->affiliate_id);
+                                if (!empty($item->affiliate_id) && !empty($item->affiliate)) {
+                                    if ($item->affiliate->isSubAffiliate()) {
+                                        $parent = $item->affiliate->parent;
+                                        $parentName = $parent ? ($parent->display_name ?: optional($parent->user)->name) : 'Primary Promoter';
+                                        $subName = $item->affiliate->display_name ?: optional($item->affiliate->user)->name;
+                                        $affiliateName = $subName . ' (Primary: ' . $parentName . ')';
+                                    } else {
+                                        $affiliateName = $item->affiliate->display_name ?: optional($item->affiliate->user)->name ?: ('affiliate #' . $item->affiliate_id);
+                                    }
+                                }
                                 elseif (!empty($item->entertainer_id) && !empty($item->entertainer))
                                     $affiliateName = $item->entertainer->display_name ?: optional($item->entertainer->user)->name ?: ('Entertainer #' . $item->entertainer_id);
 
