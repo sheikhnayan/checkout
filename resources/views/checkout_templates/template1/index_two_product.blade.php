@@ -8346,9 +8346,19 @@
             }
 
             function updateGuestControlAvailability($field, maxSelectable, soldOutMessage) {
+                const packageId = $field.data('id');
+                const existingCartPackage = (typeof window.cart !== 'undefined' && Array.isArray(window.cart))
+                    ? window.cart.find(function(pkg) { return String(pkg.packageId) === String(packageId); })
+                    : null;
                 const currentVal = $field.val();
-                const hasPlaceholder = !currentVal || currentVal === '';
-                const current = parseInt(currentVal, 10) || 1;
+                let current = parseInt(currentVal, 10);
+                if ((!current || isNaN(current)) && existingCartPackage) {
+                    current = parseInt(existingCartPackage.guests, 10);
+                }
+                if (!current || isNaN(current)) {
+                    current = 1;
+                }
+                const hasPlaceholder = (!currentVal || currentVal === '') && !existingCartPackage;
                 const safeMax = Math.max(0, parseInt(maxSelectable, 10) || 0);
                 const isTicketInput = $field.is('input[type="number"]');
                 const isTicketSelect = $field.hasClass('ticket-select-lazy');
@@ -8379,7 +8389,7 @@
                 }
 
                 if (isTicketSelect) {
-                    const showMax = Math.min(15, safeMax);
+                    const showMax = Math.min(Math.max(15, current), safeMax);
                     $field.data('ticket-max', safeMax).attr('data-ticket-max', safeMax);
                     let ticketHtml = '<option value=""># of Tickets</option>';
                     for (let i = 1; i <= showMax; i++) {
@@ -8405,7 +8415,8 @@
                 if (hasPlaceholder) {
                     $field.val('');
                 } else {
-                    $field.val(String(Math.min(current, safeMax)));
+                    const safeValue = Math.min(Math.max(current, 1), safeMax);
+                    $field.val(String(safeValue));
                 }
                 $field.prop('disabled', false);
             }
@@ -8452,19 +8463,32 @@
                                 maxSelectable = parseInt(response.capacity, 10) || 0;
                             }
 
+                            const existingCartPackage = (typeof window.cart !== 'undefined' && Array.isArray(window.cart))
+                                ? window.cart.find(function(pkg) { return String(pkg.packageId) === String(packageId); })
+                                : null;
+                            const cartGuestsBefore = existingCartPackage ? (parseInt(existingCartPackage.guests, 10) || 1) : null;
+
                             updateGuestControlAvailability($field, maxSelectable, response.message || 'Sold Out for Selected Date');
 
-                            const reducedTo = parseInt($field.val(), 10) || 1;
-                            const existingCartPackage = window.cart.find(function(pkg) { return String(pkg.packageId) === String(packageId); });
-                            if (existingCartPackage && (parseInt(existingCartPackage.guests, 10) || 1) !== reducedTo) {
-                                existingCartPackage.guests = reducedTo;
-                                syncCheckoutCartFields();
-                                window.renderCart();
-                                window.calculateCartTotal();
-                            }
-
-                            if (showAlertWhenReduced && previous > reducedTo) {
-                                alert('Your guest count was adjusted to match current availability for the selected date.');
+                            if (existingCartPackage && cartGuestsBefore !== null) {
+                                const safeMax = Math.max(0, maxSelectable);
+                                if (safeMax <= 0) {
+                                    window.removePackageFromCart(packageId);
+                                    if (showAlertWhenReduced) {
+                                        alert('A package in your cart is sold out for the selected date and was removed.');
+                                    }
+                                } else if (cartGuestsBefore > safeMax) {
+                                    existingCartPackage.guests = safeMax;
+                                    $field.val(String(safeMax));
+                                    syncCheckoutCartFields();
+                                    window.renderCart();
+                                    window.calculateCartTotal();
+                                    if (showAlertWhenReduced) {
+                                        alert('Your guest count was adjusted to match current availability for the selected date.');
+                                    }
+                                } else {
+                                    $field.val(String(cartGuestsBefore));
+                                }
                             }
 
                             const $button = $('.vip-btn[data-id="' + packageId + '"]');

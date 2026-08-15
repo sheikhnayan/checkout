@@ -1539,7 +1539,7 @@ body {
     position: relative !important;
     box-shadow: 0 8px 32px rgba(0,0,0,0.25) !important;
     width: 100% !important;
-    max-width: 100% !important;
+    max-width: 340px !important;
 }
 
 .hero-date-card label {
@@ -1755,6 +1755,7 @@ body {
     background: #0f172a !important;
     border: 1px solid rgba(148, 163, 184, 0.35) !important;
     box-shadow: 0 16px 32px rgba(2, 6, 23, 0.45) !important;
+    border-radius: 12px !important;
 }
 
 .flatpickr-calendar .flatpickr-months,
@@ -1775,21 +1776,21 @@ body {
 }
 
 .flatpickr-day:hover {
-    background: rgba(221, 183, 116, 0.28) !important;
-    border-color: rgba(201, 156, 77, 0.62) !important;
+    background: rgba(167, 116, 255, 0.28) !important;
+    border-color: rgba(167, 116, 255, 0.62) !important;
 }
 
 .flatpickr-day.today {
     border-color: #a774ff !important;
-    color: #ffde6b !important;
+    color: #a774ff !important;
 }
 
 .flatpickr-day.selected,
 .flatpickr-day.startRange,
 .flatpickr-day.endRange {
-    background: #a774ff !important;
-    border-color: #a774ff !important;
-    color: #1f1400 !important;
+    background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%) !important;
+    border-color: #7c3aed !important;
+    color: #ffffff !important;
 }
 
 .flatpickr-day.prevMonthDay,
@@ -1799,32 +1800,37 @@ body {
     color: rgba(226, 232, 240, 0.35) !important;
 }
 
-.flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months,
-.flatpickr-calendar .flatpickr-current-month input.cur-year {
-    background: #111d33 !important;
-    color: #e2e8f0 !important;
-    border: 1px solid rgba(148, 163, 184, 0.45) !important;
-    height: 32px;
-    line-height: 32px;
-    box-sizing: border-box;
+.flatpickr-calendar .flatpickr-months .flatpickr-month {
+    background: #0f172a !important;
+    height: 44px !important;
+}
+
+.flatpickr-calendar .flatpickr-current-month {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding-top: 4px !important;
+    height: 44px !important;
+    overflow: visible !important;
 }
 
 .flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months {
-    padding: 0 26px 0 10px;
-    -webkit-appearance: menulist;
-    appearance: menulist;
-}
-
-.flatpickr-calendar .flatpickr-current-month input.cur-year {
-    padding: 0 8px !important;
-}
-
-@media (max-width: 767.98px) {
-    .flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months,
-    .flatpickr-calendar .flatpickr-current-month input.cur-year {
-        height: 34px;
-        line-height: 34px;
-    }
+    background: #111d33 !important;
+    color: #e2e8f0 !important;
+    border: 1px solid rgba(148, 163, 184, 0.45) !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    height: 32px !important;
+    line-height: 32px !important;
+    padding: 0 20px 0 8px !important;
+    box-sizing: border-box !important;
+    -webkit-appearance: menulist !important;
+    appearance: menulist !important;
+    max-width: 120px !important;
+    width: auto !important;
+    display: inline-block !important;
 }
 
 .flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months option {
@@ -1832,30 +1838,37 @@ body {
     color: #e2e8f0 !important;
 }
 
-/* Final override: keep month/year selectors fully visible on mobile */
-.flatpickr-calendar .flatpickr-months,
-.flatpickr-calendar .flatpickr-month,
-.flatpickr-calendar .flatpickr-current-month {
-    overflow: visible !important;
-}
-
-.flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months,
-.flatpickr-calendar .flatpickr-current-month input.cur-year,
 .flatpickr-calendar .flatpickr-current-month .numInputWrapper {
-    height: 34px !important;
-    line-height: 34px !important;
-}
-
-.flatpickr-calendar .flatpickr-current-month .flatpickr-monthDropdown-months {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    -webkit-appearance: menulist !important;
-    appearance: menulist !important;
+    width: 72px !important;
+    height: 32px !important;
+    display: inline-block !important;
 }
 
 .flatpickr-calendar .flatpickr-current-month input.cur-year {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
+    background: #111d33 !important;
+    color: #e2e8f0 !important;
+    border: 1px solid rgba(148, 163, 184, 0.45) !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    height: 32px !important;
+    line-height: 32px !important;
+    padding: 0 6px !important;
+    width: 72px !important;
+    box-sizing: border-box !important;
+    display: inline-block !important;
+}
+
+.flatpickr-calendar .flatpickr-current-month .numInputWrapper span {
+    border-color: rgba(148, 163, 184, 0.55) !important;
+}
+
+.flatpickr-calendar .flatpickr-current-month .numInputWrapper span.arrowUp::after {
+    border-bottom-color: #ffffff !important;
+}
+
+.flatpickr-calendar .flatpickr-current-month .numInputWrapper span.arrowDown::after {
+    border-top-color: #ffffff !important;
 }
 
 .hero-gallery-grid {
@@ -8261,9 +8274,19 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             }
 
             function updateGuestSelectOptions($field, maxSelectable, soldOutMessage) {
+                var packageId = $field.data('id');
+                var existingCartPackage = (typeof window.cart !== 'undefined' && Array.isArray(window.cart))
+                    ? window.cart.find(function(pkg) { return String(pkg.packageId) === String(packageId); })
+                    : null;
                 var currentVal = $field.val();
-                var hasPlaceholder = !currentVal || currentVal === '';
-                var current = parseInt(currentVal, 10) || 1;
+                var current = parseInt(currentVal, 10);
+                if ((!current || isNaN(current)) && existingCartPackage) {
+                    current = parseInt(existingCartPackage.guests, 10);
+                }
+                if (!current || isNaN(current)) {
+                    current = 1;
+                }
+                var hasPlaceholder = (!currentVal || currentVal === '') && !existingCartPackage;
                 var safeMax = Math.max(0, parseInt(maxSelectable, 10) || 0);
                 var isTicketInput = $field.is('input[type="number"]');
                 var isTicketSelect = $field.hasClass('ticket-select-lazy');
@@ -8295,7 +8318,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 }
 
                 if (isTicketSelect) {
-                    var showMax = Math.min(15, safeMax);
+                    var showMax = Math.min(Math.max(15, current), safeMax);
                     $field.data('ticket-max', safeMax).attr('data-ticket-max', safeMax);
                     var ticketHtml = '<option value=""># of Tickets</option>';
                     for (var i = 1; i <= showMax; i++) {
@@ -8321,7 +8344,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 if (hasPlaceholder) {
                     $field.val('');
                 } else {
-                    $field.val(String(Math.min(current, safeMax)));
+                    $field.val(String(Math.min(Math.max(current, 1), safeMax)));
                 }
                 $field.prop('disabled', false);
             }
@@ -8384,19 +8407,32 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 }
                             }
 
+                            var existingCartPackage = (typeof window.cart !== 'undefined' && Array.isArray(window.cart))
+                                ? window.cart.find(function(pkg) { return String(pkg.packageId) === String(packageId); })
+                                : null;
+                            var cartGuestsBefore = existingCartPackage ? (parseInt(existingCartPackage.guests, 10) || 1) : null;
+
                             updateGuestSelectOptions($field, cartRemaining, response.message || 'Sold Out for Selected Date');
 
-                            var reducedTo = parseInt($field.val(), 10) || 1;
-                            var existingCartPackage = window.cart.find(function(pkg) { return String(pkg.packageId) === String(packageId); });
-                            if (existingCartPackage && (parseInt(existingCartPackage.guests, 10) || 1) !== reducedTo) {
-                                existingCartPackage.guests = reducedTo;
-                                syncCheckoutCartFields();
-                                window.renderCart();
-                                window.calculateCartTotal();
-                            }
-
-                            if (showAlertWhenReduced && previous > reducedTo) {
-                                alert('Your guest count was adjusted to match current availability for the selected date.');
+                            if (existingCartPackage && cartGuestsBefore !== null) {
+                                var safeMax = Math.max(0, cartRemaining);
+                                if (safeMax <= 0) {
+                                    window.removePackageFromCart(packageId);
+                                    if (showAlertWhenReduced) {
+                                        alert('A package in your cart is sold out for the selected date and was removed.');
+                                    }
+                                } else if (cartGuestsBefore > safeMax) {
+                                    existingCartPackage.guests = safeMax;
+                                    $field.val(String(safeMax));
+                                    syncCheckoutCartFields();
+                                    window.renderCart();
+                                    window.calculateCartTotal();
+                                    if (showAlertWhenReduced) {
+                                        alert('Your guest count was adjusted to match current availability for the selected date.');
+                                    }
+                                } else {
+                                    $field.val(String(cartGuestsBefore));
+                                }
                             }
 
                             var $button = $('.vip-btn[data-id="' + packageId + '"]');
