@@ -2034,6 +2034,12 @@ nav .tab:hover {
     text-align: left !important;
     box-shadow: none !important;
 }
+.package-category-name {
+    flex: 1;
+    text-align: center;
+    font-weight: 700;
+    font-size: 14px;
+}
 .package-category-tile:hover {
     background: rgba(167,116,255,0.16) !important;
     border-color: rgba(167,116,255,0.6) !important;
@@ -6088,12 +6094,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                         @if(!empty($category['icon']))
                                                             <i class="fas {{ $category['icon'] }} package-category-tile-icon"></i>
                                                         @endif
-                                                        <span class="package-category-label-wrap">
-                                                            <span class="package-category-name">{{ $category['name'] }}</span>
-                                                            @if($catClub)
-                                                                <span class="package-category-club-name">{{ $catClub }}</span>
-                                                            @endif
-                                                        </span>
+                                                        <span class="package-category-name">{{ $category['name'] }}</span>
                                                         <span class="package-category-indicator">+</span>
                                                     </button>
 
