@@ -85,7 +85,11 @@ class AffiliatePortalController extends Controller
             ->where('status', 1)
             ->whereIn('id', $allowedWebsiteIds)
             ->with(['packages' => function ($query) {
-                $query->clubVisible()->where('status', 1)->where('is_archieved', 0);
+                $query->clubVisible()
+                    ->where('status', 1)
+                    ->where(function ($q) {
+                        $q->whereNull('is_archieved')->orWhere('is_archieved', 0);
+                    });
             }])
             ->get();
 
@@ -122,7 +126,9 @@ class AffiliatePortalController extends Controller
             ->clubVisible()
             ->whereIn('website_id', $allowedWebsiteIds)
             ->where('status', 1)
-            ->where('is_archieved', 0)
+            ->where(function ($q) {
+                $q->whereNull('is_archieved')->orWhere('is_archieved', 0);
+            })
             ->pluck('id')
             ->values();
 

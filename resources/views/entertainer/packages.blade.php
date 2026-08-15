@@ -1,5 +1,7 @@
 @extends('admin.main')
 
+@section('title', 'Select Entertainer Packages')
+
 @section('content')
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
@@ -75,7 +77,21 @@
         </style>
 
         <div class="card p-4">
-            <h4 class="mb-4">Select Packages From {{ $entertainer->website->name ?? 'Your Club' }}</h4>
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <div>
+                    <h4 class="fw-bold mb-1 text-white">Select Packages From {{ $entertainer->website->name ?? 'Your Club' }}</h4>
+                    <p class="text-muted mb-0">Choose which packages to showcase on your entertainer public page.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="selectAllEntPackagesBtn">
+                        <i class="bx bx-check-double me-1"></i> Select All
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="deselectAllEntPackagesBtn">
+                        <i class="bx bx-x-circle me-1"></i> Deselect All
+                    </button>
+                </div>
+            </div>
+
             <form method="POST" action="{{ route('entertainer.portal.packages.save') }}">
                 @csrf
 
@@ -83,7 +99,7 @@
                     @forelse($packages as $package)
                         <div class="col-md-6">
                             <label class="package-checkbox">
-                                <input type="checkbox" name="package_ids[]" value="{{ $package->id }}" {{ in_array($package->id, $selected) ? 'checked' : '' }}>
+                                <input type="checkbox" name="package_ids[]" value="{{ $package->id }}" class="ent-package-cb" {{ in_array($package->id, $selected) ? 'checked' : '' }}>
                                 <div class="package-info">
                                     <div class="package-name">{{ $package->name }}</div>
                                     <div class="package-price">${{ number_format($package->price, 2) }}</div>
@@ -95,9 +111,29 @@
                     @endforelse
                 </div>
 
-                <button type="submit" class="btn btn-primary mt-4">Save Selection</button>
+                <button type="submit" class="btn btn-primary mt-4">
+                    <i class="bx bx-save me-1"></i> Save Selection
+                </button>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const selectAllBtn = document.getElementById('selectAllEntPackagesBtn');
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('click', function () {
+            document.querySelectorAll('.ent-package-cb').forEach(cb => cb.checked = true);
+        });
+    }
+
+    const deselectAllBtn = document.getElementById('deselectAllEntPackagesBtn');
+    if (deselectAllBtn) {
+        deselectAllBtn.addEventListener('click', function () {
+            document.querySelectorAll('.ent-package-cb').forEach(cb => cb.checked = false);
+        });
+    }
+});
+</script>
 @endsection

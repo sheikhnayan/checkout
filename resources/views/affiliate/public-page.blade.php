@@ -1424,45 +1424,64 @@ body {
 }
 
 .hero-date-card {
-    margin-top: 5px;
-    width: 100%;
-    max-width: 440px;
-    padding: 7px 10px;
-    border-radius: 14px;
-    border: 1px solid rgba(255,255,255,0.08);
-    background: rgba(255,255,255,0.04);
-}
-
-.back-to-packages-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    margin-top: 10px;
-    padding: 8px 11px;
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.2);
-    background: rgba(255,255,255,0.06);
-    color: #fff;
-    text-decoration: none;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-    transition: all .2s ease;
-}
-
-.back-to-packages-btn:hover {
-    color: #fff;
-    background: rgba(255,255,255,0.12);
-    transform: translateY(-1px);
+    background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)) !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    border-radius: 16px !important;
+    padding: 16px 20px !important;
+    margin-bottom: 24px !important;
+    position: relative !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25) !important;
+    width: 100% !important;
+    max-width: 100% !important;
 }
 
 .hero-date-card label {
-    margin-bottom: 3px;
-    text-transform: uppercase;
-    font-size: 9px;
-    letter-spacing: .8px;
-    opacity: .7;
+    display: block !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.08em !important;
+    color: rgba(255,255,255,0.65) !important;
+    margin-bottom: 8px !important;
+}
+
+.date-input-wrapper {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+#package_use_date, .aff-date-input, .ent-date-input {
+    width: 100% !important;
+    height: 48px !important;
+    background: rgba(0,0,0,0.4) !important;
+    border: 1px solid rgba(167,116,255,0.3) !important;
+    border-radius: 12px !important;
+    color: #fff !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    padding: 0 45px 0 16px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+#package_use_date:focus, #package_use_date:active,
+.aff-date-input:focus, .ent-date-input:focus {
+    border-color: #a774ff !important;
+    box-shadow: 0 0 18px rgba(167,116,255,0.35) !important;
+    outline: none !important;
+}
+
+.custom-calendar-icon {
+    position: absolute !important;
+    right: 14px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 20px !important;
+    height: 20px !important;
+    pointer-events: none !important;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23a774ff'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 002-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3E%3C/svg%3E") center center / contain no-repeat !important;
+    opacity: 0.9 !important;
 }
 
 .reservation-date-error {
@@ -1878,19 +1897,22 @@ nav .tab:hover {
     color: #000 !important;
 }
 
-/* Package category tabs - vibrant purple */
+/* Package category tabs - vibrant purple matching index_two exactly */
 .package-category-tiles {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 18px;
+    display: flex !important;
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+    margin-bottom: 18px !important;
+    width: 100% !important;
 }
 .package-category-wrap { flex: 1 1 auto; min-width: 0; margin-bottom: 12px; }
 .package-category-tile {
     width: 100%;
-    background: rgba(167,116,255,0.16) !important;
-    color: #fff !important;
-    border: 1px solid rgba(167,116,255,0.6) !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    background: rgba(167,116,255,0.08) !important;
+    color: rgba(255,255,255,0.88) !important;
+    border: 1px solid rgba(167,116,255,0.35) !important;
     border-radius: 12px !important;
     padding: 13px 18px !important;
     font-size: 14px !important;
@@ -1901,18 +1923,20 @@ nav .tab:hover {
     cursor: pointer;
     transition: all .2s;
     text-align: left !important;
+    box-shadow: none !important;
 }
 .package-category-tile:hover {
-    background: rgba(167,116,255,0.22) !important;
-    border-color: rgba(167,116,255,0.75) !important;
+    background: rgba(167,116,255,0.16) !important;
+    border-color: rgba(167,116,255,0.6) !important;
     color: #fff !important;
     transform: translateY(-1px);
+    filter: none !important;
 }
 .package-category-tile.active {
     background: linear-gradient(135deg, #a774ff 0%, #7c3aed 100%) !important;
     color: #fff !important;
     border-color: #7c3aed !important;
-    box-shadow: 0 4px 14px rgba(124,58,237,0.4);
+    box-shadow: 0 4px 14px rgba(124,58,237,0.4) !important;
 }
 .package-category-tile .package-category-indicator {
     width: 22px;
@@ -1927,6 +1951,7 @@ nav .tab:hover {
     line-height: 1;
     flex-shrink: 0;
     transition: all .2s;
+    opacity: 1 !important;
 }
 .package-category-tile.active .package-category-indicator {
     background: rgba(255,255,255,0.25);
@@ -1934,7 +1959,7 @@ nav .tab:hover {
 }
 .package-category-tile-icon {
     font-size: 13px;
-    opacity: 1;
+    opacity: 0.85;
     margin-right: 7px;
     flex-shrink: 0;
     display: inline-flex;
@@ -1944,8 +1969,7 @@ nav .tab:hover {
     height: 32px;
     padding: 4px 8px;
     border-radius: 8px;
-    background: rgba(255,255,255,0.25);
-    border: 1px solid rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.03);
     box-shadow: none;
     transition: all .18s;
 }
@@ -5850,7 +5874,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     <div class="hero-date-card" style="margin-bottom: 24px;">
                                         <label>Choose Your Reservation Date</label>
                                         <div class="date-input-wrapper">
-                                            <input type="text" id="package_use_date" class="aff-date-input" style="width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; font-size: 16px; font-weight: 500;" required aria-required="true" aria-describedby="package_use_date_error" placeholder="{{ \Carbon\Carbon::now($data->resolved_timezone)->format('M d, Y') }}">
+                                            <input type="text" id="package_use_date" class="aff-date-input" readonly required aria-required="true" aria-describedby="package_use_date_error" placeholder="{{ \Carbon\Carbon::now($data->resolved_timezone)->format('M d, Y') }}">
+                                            <span class="custom-calendar-icon"></span>
                                         </div>
                                         <small id="package_use_date_error" class="reservation-date-error" style="display:none;">Please select a reservation date.</small>
                                     </div>

@@ -79,7 +79,9 @@ class EntertainerPortalController extends Controller
             ->where('website_id', $entertainer->website_id)
             ->clubVisible()
             ->where('status', 1)
-            ->where('is_archieved', 0)
+            ->where(function ($q) {
+                $q->whereNull('is_archieved')->orWhere('is_archieved', 0);
+            })
             ->orderBy('name')
             ->get();
 
@@ -106,7 +108,9 @@ class EntertainerPortalController extends Controller
             ->clubVisible()
             ->where('website_id', $entertainer->website_id)
             ->where('status', 1)
-            ->where('is_archieved', 0)
+            ->where(function ($q) {
+                $q->whereNull('is_archieved')->orWhere('is_archieved', 0);
+            })
             ->pluck('id')
             ->values();
 

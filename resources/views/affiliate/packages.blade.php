@@ -1,5 +1,7 @@
 @extends('admin.main')
 
+@section('title', 'Select Promoter Packages')
+
 @section('content')
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
@@ -30,7 +32,7 @@
             .website-section h6 {
                 font-weight: 800;
                 color: #f8f9ff;
-                margin-bottom: 16px;
+                margin-bottom: 0;
                 font-size: 14px;
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
@@ -90,7 +92,21 @@
         </style>
 
         <div class="card p-4">
-            <h4 class="mb-4">Select Packages From Your Assigned Clubs</h4>
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <div>
+                    <h4 class="fw-bold mb-1 text-white">Select Packages From Your Assigned Clubs</h4>
+                    <p class="text-muted mb-0">Choose which packages you want to feature on your promoter landing page.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="selectAllGlobalBtn">
+                        <i class="bx bx-check-double me-1"></i> Select All Packages
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="deselectAllGlobalBtn">
+                        <i class="bx bx-x-circle me-1"></i> Deselect All
+                    </button>
+                </div>
+            </div>
+
             <form method="POST" action="{{ route('affiliate.portal.packages.save') }}">
                 @csrf
                 @if($websites->isEmpty())
@@ -99,14 +115,23 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 @endif
+
                 @foreach($websites as $website)
                     <div class="website-section">
-                        <h6>📍 {{ $website->name }}</h6>
+                        <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2 border-bottom border-secondary pb-3">
+                            <h6 class="mb-0 text-white"><i class="bx bx-building-house text-primary me-1"></i> {{ $website->name }}</h6>
+                            @if($website->packages->isNotEmpty())
+                                <button type="button" class="btn btn-sm btn-outline-primary py-1 px-3 toggle-club-packages-btn" data-club-target="club-group-{{ $website->id }}">
+                                    <i class="bx bx-check-square me-1"></i> Select All in {{ $website->name }}
+                                </button>
+                            @endif
+                        </div>
+
                         <div class="row g-3">
                             @forelse($website->packages as $package)
                                 <div class="col-md-6">
                                     <label class="package-checkbox">
-                                        <input type="checkbox" name="package_ids[]" value="{{ $package->id }}" {{ in_array($package->id, $selected) ? 'checked' : '' }}>
+                                        <input type="checkbox" name="package_ids[]" value="{{ $package->id }}" class="package-item-cb" data-club-group="club-group-{{ $website->id }}" {{ in_array($package->id, $selected) ? 'checked' : '' }}>
                                         <div class="package-info">
                                             <div class="package-name">{{ $package->name }}</div>
                                             <div class="package-price">${{ number_format($package->price, 2) }}</div>
@@ -119,9 +144,46 @@
                         </div>
                     </div>
                 @endforeach
-                <button type="submit" class="btn btn-primary">Save Selection</button>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bx bx-save me-1"></i> Save Selection
+                    </button>
+                </div>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Global Select All
+    const selectAllBtn = document.getElementById('selectAllGlobalBtn');
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('click', function () {
+            document.querySelectorAll('.package-item-cb').forEach(cb => cb.checked = true);
+        });
+    }
+
+    // Global Deselect All
+    const deselectAllBtn = document.getElementById('deselectAllGlobalBtn');
+    if (deselectAllBtn) {
+        deselectAllBtn.addEventListener('click', function () {
+            document.querySelectorAll('.package-item-cb').forEach(cb => cb.checked = false);
+        });
+    }
+
+    // Per-Club Select All / Deselect All Toggle Buttons
+    document.querySelectorAll('.toggle-club-packages-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const targetGroup = this.getAttribute('data-club-target');
+            const checkboxes = document.querySelectorAll(`.package-item-cb[data-club-group="${targetGroup}"]`);
+            if (!checkboxes.length) return;
+
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            checkboxes.forEach(cb => cb.checked = !allChecked);
+        });
+    });
+});
+</script>
 @endsection
