@@ -154,6 +154,64 @@
             </form>
         </div>
 
+        @if($affiliate->isSubAffiliate())
+        <div class="card p-4 mb-4">
+            <h5 class="mb-3"><i class="bx bx-slider-alt text-primary me-1"></i> Sub-Promoter Dashboard Toggles</h5>
+            <p class="text-muted fs-7 mb-3">Configure what feature tabs and onboarding rules apply to this sub-promoter.</p>
+            <form method="POST" action="{{ route('admin.affiliate.sub-permissions.update', $affiliate->id) }}">
+                @csrf
+                <div class="p-3 border rounded mb-3 d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="mb-0 font-weight-bold">Require Extra Onboarding Form Before Activation</h6>
+                    </div>
+                    <label class="cartvip-switch mb-0">
+                        <input type="checkbox" name="require_onboarding_form" value="1" {{ $affiliate->require_onboarding_form ? 'checked' : '' }}>
+                        <span class="cartvip-slider"></span>
+                    </label>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0 fs-7">Show Packages Tab</h6>
+                            <label class="cartvip-switch mb-0">
+                                <input type="checkbox" name="show_packages" value="1" {{ $affiliate->hasSubPermission('show_packages') ? 'checked' : '' }}>
+                                <span class="cartvip-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0 fs-7">Show Page Customization Tab</h6>
+                            <label class="cartvip-switch mb-0">
+                                <input type="checkbox" name="show_settings" value="1" {{ $affiliate->hasSubPermission('show_settings') ? 'checked' : '' }}>
+                                <span class="cartvip-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0 fs-7">Show QR Code & Share Link</h6>
+                            <label class="cartvip-switch mb-0">
+                                <input type="checkbox" name="show_qr_code" value="1" {{ $affiliate->hasSubPermission('show_qr_code') ? 'checked' : '' }}>
+                                <span class="cartvip-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0 fs-7">Show Sales Statistics</h6>
+                            <label class="cartvip-switch mb-0">
+                                <input type="checkbox" name="show_sales_stats" value="1" {{ $affiliate->hasSubPermission('show_sales_stats') ? 'checked' : '' }}>
+                                <span class="cartvip-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Sub-Promoter Toggles</button>
+            </form>
+        </div>
+        @endif
+
         <div class="card p-4">
             <h5 class="mb-3">Transactions</h5>
 

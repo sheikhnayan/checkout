@@ -373,6 +373,7 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::post('/{affiliate}/reject', [AffiliateAdminController::class, 'reject'])->name('reject');
         Route::post('/{affiliate}/commission', [AffiliateAdminController::class, 'updateCommission'])->name('commission.update');
         Route::post('/{affiliate}/packages', [AffiliateAdminController::class, 'updatePackages'])->name('packages.update');
+        Route::post('/{affiliate}/sub-permissions', [AffiliateAdminController::class, 'updateSubAffiliatePermissions'])->name('sub-permissions.update');
     });
 
     Route::group(['prefix'=> 'entertainer', 'as' => 'entertainer.'], function () {

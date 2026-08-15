@@ -371,6 +371,22 @@ class AffiliateAdminController extends Controller
         return redirect()->back()->with('success', 'Sub-promoter created successfully by Admin!');
     }
 
+    public function updateSubAffiliatePermissions(Request $request, Affiliate $affiliate)
+    {
+        $this->ensureAdmin();
+
+        $affiliate->sub_affiliate_permissions = [
+            'show_packages' => $request->boolean('show_packages'),
+            'show_settings' => $request->boolean('show_settings'),
+            'show_qr_code' => $request->boolean('show_qr_code'),
+            'show_sales_stats' => $request->boolean('show_sales_stats'),
+        ];
+        $affiliate->require_onboarding_form = $request->boolean('require_onboarding_form');
+        $affiliate->save();
+
+        return redirect()->back()->with('success', 'Sub-promoter dashboard toggles updated successfully by Admin!');
+    }
+
     private function applyGlobalSmtp(): void
     {
         $smtp = SMTP::latest()->first();
