@@ -16,6 +16,7 @@ class HelpCenterItem extends Model
         'description',
         'custom_form_id',
         'url',
+        'file_path',
         'icon',
         'sort_order',
     ];
@@ -34,6 +35,9 @@ class HelpCenterItem extends Model
     {
         if ($this->type === 'form' && $this->customForm) {
             return route('forms.public.show', $this->customForm->slug);
+        }
+        if ($this->type === 'file' && $this->file_path) {
+            return asset($this->file_path);
         }
         return $this->url ?: '#';
     }

@@ -487,6 +487,8 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::post('/{page}/sections', [HelpCenterController::class, 'storeSection'])->name('sections.store');
         Route::put('/sections/{section}', [HelpCenterController::class, 'updateSection'])->name('sections.update');
         Route::delete('/sections/{section}', [HelpCenterController::class, 'destroySection'])->name('sections.destroy');
+        Route::post('/pages/{page}/reorder-sections', [HelpCenterController::class, 'reorderSections'])->name('sections.reorder');
+        Route::post('/sections/{section}/reorder-items', [HelpCenterController::class, 'reorderItems'])->name('items.reorder');
         Route::post('/sections/{section}/items', [HelpCenterController::class, 'storeItem'])->name('items.store');
         Route::put('/items/{item}', [HelpCenterController::class, 'updateItem'])->name('items.update');
         Route::delete('/items/{item}', [HelpCenterController::class, 'destroyItem'])->name('items.destroy');

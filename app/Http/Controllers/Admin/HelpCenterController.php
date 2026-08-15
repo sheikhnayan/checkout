@@ -182,15 +182,24 @@ class HelpCenterController extends Controller
         }
 
         $request->validate([
-            'type' => 'required|in:form,external',
+            'type' => 'required|in:form,external,file',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'custom_form_id' => 'nullable|required_if:type,form|exists:custom_forms,id',
-            'url' => 'nullable|required_if:type,external|url',
+            'url' => 'nullable|string|max:1000',
+            'file' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,txt,zip,rar,png,jpg,jpeg,webp|max:25600',
             'icon' => 'nullable|string|max:100',
         ]);
 
         $maxSort = $section->items()->max('sort_order') ?? 0;
+
+        $filePath = null;
+        if ($request->input('type') === 'file' && $request->hasFile('file')) {
+            $uploadedFile = $request->file('file');
+            $filename = time() . '_' . Str::slug(pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $uploadedFile->getClientOriginalExtension();
+            $uploadedFile->move(public_path('uploads/help_center_files'), $filename);
+            $filePath = 'uploads/help_center_files/' . $filename;
+        }
 
         $section->items()->create([
             'type' => $request->input('type'),
@@ -198,7 +207,8 @@ class HelpCenterController extends Controller
             'description' => $request->input('description'),
             'custom_form_id' => $request->input('type') === 'form' ? $request->input('custom_form_id') : null,
             'url' => $request->input('type') === 'external' ? $request->input('url') : null,
-            'icon' => $request->input('icon', 'bx-link'),
+            'file_path' => $request->input('type') === 'file' ? $filePath : null,
+            'icon' => $request->input('icon', 'bx-file'),
             'sort_order' => $maxSort + 1,
         ]);
 
@@ -216,13 +226,22 @@ class HelpCenterController extends Controller
         }
 
         $request->validate([
-            'type' => 'required|in:form,external',
+            'type' => 'required|in:form,external,file',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'custom_form_id' => 'nullable|required_if:type,form|exists:custom_forms,id',
-            'url' => 'nullable|required_if:type,external|url',
+            'url' => 'nullable|string|max:1000',
+            'file' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,txt,zip,rar,png,jpg,jpeg,webp|max:25600',
             'icon' => 'nullable|string|max:100',
         ]);
+
+        $filePath = $item->file_path;
+        if ($request->input('type') === 'file' && $request->hasFile('file')) {
+            $uploadedFile = $request->file('file');
+            $filename = time() . '_' . Str::slug(pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $uploadedFile->getClientOriginalExtension();
+            $uploadedFile->move(public_path('uploads/help_center_files'), $filename);
+            $filePath = 'uploads/help_center_files/' . $filename;
+        }
 
         $item->update([
             'type' => $request->input('type'),
@@ -230,7 +249,8 @@ class HelpCenterController extends Controller
             'description' => $request->input('description'),
             'custom_form_id' => $request->input('type') === 'form' ? $request->input('custom_form_id') : null,
             'url' => $request->input('type') === 'external' ? $request->input('url') : null,
-            'icon' => $request->input('icon', 'bx-link'),
+            'file_path' => $request->input('type') === 'file' ? $filePath : $item->file_path,
+            'icon' => $request->input('icon', 'bx-file'),
         ]);
 
         return redirect()->back()->with('success', 'Link item updated successfully!');
@@ -248,6 +268,46 @@ class HelpCenterController extends Controller
 
         $item->delete();
         return redirect()->back()->with('success', 'Item deleted successfully!');
+    }
+
+    /**
+     * Re-order sections within a Help Center page.
+     */
+    public function reorderSections(Request $request, HelpCenterPage $page)
+    {
+        $user = auth()->user();
+        if (!$page->canUserEdit($user)) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $orders = $request->input('orders', []);
+        foreach ($orders as $index => $sectionId) {
+            HelpCenterSection::where('id', $sectionId)
+                ->where('help_center_page_id', $page->id)
+                ->update(['sort_order' => $index + 1]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Sections re-ordered successfully!']);
+    }
+
+    /**
+     * Re-order items within a section.
+     */
+    public function reorderItems(Request $request, HelpCenterSection $section)
+    {
+        $user = auth()->user();
+        if (!$section->page->canUserEdit($user)) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $orders = $request->input('orders', []);
+        foreach ($orders as $index => $itemId) {
+            HelpCenterItem::where('id', $itemId)
+                ->where('help_center_section_id', $section->id)
+                ->update(['sort_order' => $index + 1]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Link items re-ordered successfully!']);
     }
 
     /**

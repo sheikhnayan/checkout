@@ -142,6 +142,15 @@
             border-radius: 6px;
             font-weight: 600;
         }
+        .hc-badge-file {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -216,10 +225,12 @@
                                             <div>
                                                 <div class="d-flex align-items-center justify-content-between mb-3">
                                                     <div class="hc-item-icon">
-                                                        <i class="bx {{ $item->icon ?: ($item->type === 'form' ? 'bx-file' : 'bx-link-external') }}"></i>
+                                                        <i class="bx {{ $item->icon ?: ($item->type === 'form' ? 'bx-file' : ($item->type === 'file' ? 'bx-cloud-download' : 'bx-link-external')) }}"></i>
                                                     </div>
                                                     @if($item->type === 'form')
                                                         <span class="hc-badge-form"><i class="bx bx-list-check me-1"></i> Form</span>
+                                                    @elseif($item->type === 'file')
+                                                        <span class="hc-badge-file"><i class="bx bx-download me-1"></i> Document</span>
                                                     @else
                                                         <span class="hc-badge-ext"><i class="bx bx-link-external me-1"></i> Link</span>
                                                     @endif
@@ -230,8 +241,8 @@
                                                 @endif
                                             </div>
                                             <div class="pt-3 border-top border-slate-700/50 d-flex align-items-center justify-content-between text-indigo-400 fs-7 fw-semibold" style="border-color: #334155 !important; color: #818cf8;">
-                                                <span>{{ $item->type === 'form' ? 'Open Form' : 'Visit Resource' }}</span>
-                                                <i class="bx bx-right-arrow-alt fs-5"></i>
+                                                <span>{{ $item->type === 'form' ? 'Open Form' : ($item->type === 'file' ? 'Download Document' : 'Visit Link') }}</span>
+                                                <i class="bx {{ $item->type === 'file' ? 'bx-download' : 'bx-right-arrow-alt' }} fs-5"></i>
                                             </div>
                                         </a>
                                     </div>
