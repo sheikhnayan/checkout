@@ -676,9 +676,9 @@
     </div>
 </header>
 
-@if(!empty($affiliate->gallery_images))
+@if(!empty($affiliate->gallery_images) && is_array($affiliate->gallery_images))
 <div class="hero-gallery-grid">
-    @foreach($affiliate->gallery_images as $galleryImage)
+    @foreach((array) $affiliate->gallery_images as $galleryImage)
         <button type="button" class="hero-gallery-item">
             <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery">
         </button>

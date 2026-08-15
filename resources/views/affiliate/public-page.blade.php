@@ -5735,16 +5735,16 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         </div>
 
                         <!-- Right Column: Gallery (Desktop Only) -->
-                        @if(!empty($affiliate->gallery_images))
+                        @if(!empty($affiliate->gallery_images) && is_array($affiliate->gallery_images))
                             <div class="aff-hero-gallery-carousel">
                                 <div class="aff-hero-carousel-track" id="affHeroCarouselTrack" style="display: flex; flex-direction: column; height: 100%; position: relative; overflow: hidden; border-radius: 12px;">
-                                    @foreach($affiliate->gallery_images as $galleryImage)
+                                    @foreach((array)$affiliate->gallery_images as $galleryImage)
                                         <div class="aff-hero-carousel-item" style="display: none; width: 100%; height: 100%; flex: 0 0 100%;">
                                             <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image" style="width: 100%; height: 100%; object-fit: contain; background: rgba(0,0,0,0.5);">
                                         </div>
                                     @endforeach
                                 </div>
-                                @if(count($affiliate->gallery_images) > 1)
+                                @if(is_array($affiliate->gallery_images) && count($affiliate->gallery_images) > 1)
                                     <button class="aff-hero-carousel-prev" id="affHeroCarouselPrev" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); border: none; color: #fff; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: background 0.2s;">
                                         <i class="fas fa-chevron-up" style="font-size: 16px;"></i>
                                     </button>
@@ -5757,11 +5757,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     </div>
                 </section>
 
-                @if(!empty($affiliate->gallery_images))
+                @if(!empty($affiliate->gallery_images) && is_array($affiliate->gallery_images))
                     <!-- Mobile Carousel Gallery (Horizontal) - Hidden, shown in modal -->
                     <div class="aff-mobile-gallery-carousel" id="affMobileGalleryCarousel" style="display: none !important; margin: 24px 0;">
                         <div class="aff-mgc-track" id="affMgcTrack" style="display: flex; flex-direction: row; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; height: auto; gap: 0; padding: 0; scroll-behavior: smooth;">
-                            @foreach($affiliate->gallery_images as $galleryImage)
+                            @foreach((array)$affiliate->gallery_images as $galleryImage)
                                 <button type="button" class="aff-mgc-slide js-checkout-gallery-trigger"
                                         data-gallery-src="{{ asset('uploads/' . $galleryImage) }}"
                                         data-gallery-alt="Gallery image {{ $loop->iteration }}"
@@ -5770,9 +5770,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 </button>
                             @endforeach
                         </div>
-                        @if(count($affiliate->gallery_images) > 1)
+                        @if(is_array($affiliate->gallery_images) && count($affiliate->gallery_images) > 1)
                             <div class="aff-mgc-dots" id="affMgcDots" style="display: flex; justify-content: center; gap: 8px; padding: 12px 0; flex-wrap: wrap;">
-                                @foreach($affiliate->gallery_images as $galleryImage)
+                                @foreach((array)$affiliate->gallery_images as $galleryImage)
                                     <button type="button" class="aff-mgc-dot{{ $loop->first ? ' is-active' : '' }}" data-slide="{{ $loop->index }}" style="width: 8px; height: 8px; border-radius: 50%; border: none; background: rgba(255,255,255,0.25); cursor: pointer; padding: 0; transition: background .2s, width .25s;"></button>
                                 @endforeach
                             </div>
@@ -5781,7 +5781,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                     <!-- Desktop Grid Gallery (4 columns) - Hidden, shown in modal -->
                     <div class="aff-desktop-gallery-grid" style="display: none !important; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 24px 0;">
-                        @foreach($affiliate->gallery_images as $galleryImage)
+                        @foreach((array)$affiliate->gallery_images as $galleryImage)
                             <button type="button" class="aff-dgc-item js-checkout-gallery-trigger"
                                     data-gallery-src="{{ asset('uploads/' . $galleryImage) }}"
                                     data-gallery-alt="Gallery image {{ $loop->iteration }}"
@@ -10077,6 +10077,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         </div>
 
         <!-- affiliate Gallery Carousel Modal -->
+        @if(!empty($affiliate->gallery_images) && is_array($affiliate->gallery_images))
         <div class="modal fade" id="affGalleryModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content aff-gallery-modal-content">
@@ -10087,13 +10088,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     <div class="modal-body aff-gallery-modal-body">
                         <div class="aff-gallery-carousel-container">
                             <div class="aff-gallery-carousel" id="affGalleryCarousel">
-                                @foreach($affiliate->gallery_images as $galleryImage)
+                                @foreach((array) $affiliate->gallery_images as $galleryImage)
                                     <div class="aff-gallery-carousel-item" style="display: none;">
                                         <img src="{{ asset('uploads/' . $galleryImage) }}" alt="Gallery image" data-index="{{ $loop->index }}">
                                     </div>
                                 @endforeach
                             </div>
-                            @if(count($affiliate->gallery_images) > 1)
+                            @if(is_array($affiliate->gallery_images) && count($affiliate->gallery_images) > 1)
                                 <button type="button" class="aff-gallery-carousel-nav aff-gallery-carousel-prev" id="affGalleryPrev" aria-label="Previous image">
                                     <i class="fas fa-chevron-left"></i>
                                 </button>
@@ -10102,9 +10103,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 </button>
                             @endif
                         </div>
-                        @if(count($affiliate->gallery_images) > 1)
+                        @if(is_array($affiliate->gallery_images) && count($affiliate->gallery_images) > 1)
                             <div class="aff-gallery-carousel-indicators" id="affGalleryIndicators">
-                                @foreach($affiliate->gallery_images as $galleryImage)
+                                @foreach((array) $affiliate->gallery_images as $galleryImage)
                                     <button type="button" class="aff-gallery-carousel-indicator{{ $loop->first ? ' active' : '' }}" data-index="{{ $loop->index }}" aria-label="Go to image {{ $loop->iteration }}"></button>
                                 @endforeach
                             </div>
@@ -10113,6 +10114,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 </div>
             </div>
         </div>
+        @endif
 
         <script>
         </script>
