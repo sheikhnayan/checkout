@@ -5718,9 +5718,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 </div>
                                 <div class="aff-hero-feature">
                                     <div class="aff-hero-feature-icon">
-                                        <i class="fas fa-headset"></i>
+                                        <i class="fas fa-star"></i>
                                     </div>
-                                    <div class="aff-hero-feature-label">VIP<br>EXPERIENCES</div>
+                                    <div class="aff-hero-feature-label">PREMIUM<br>ACCESS</div>
                                 </div>
                             </div>
 
