@@ -7354,27 +7354,61 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 var useDate = $('#package_use_date').val() || $('input[name="package_use_date"]').val() || $('.package_use_date').val() || '';
                 if (useDate) fields.package_use_date = useDate;
 
-                // 2. Transportation & Arrival Details
-                var pickupTime = $('#Pick-up-time').val() || $('input[name="transportation_pickup_time"]').val() || '';
+                // 2. Preselected Club / Location Filter
+                var selectedClub = $('#locationFilter').val() || $('.cv-location-tile.active').data('location-id') || $('.location-tab.active').data('id') || $('input[name="location_id"]').val() || '';
+                if (selectedClub) fields.selected_club = selectedClub;
+
+                // 3. Opened Category
+                var openedCategory = $('.category-tile.active, .cat-tab.active, [data-category-id].active').data('category-id') || $('.category-tile.active, .cat-tab.active').data('id') || '';
+                if (!openedCategory) {
+                    var activeAccordion = $('.accordion-item .accordion-button:not(.collapsed)');
+                    if (activeAccordion.length) {
+                        openedCategory = activeAccordion.data('category-id') || activeAccordion.attr('data-category-id') || (activeAccordion.attr('data-bs-target') || '').replace('#cat-', '').replace('#category-', '');
+                    }
+                }
+                if (openedCategory) fields.opened_category_id = openedCategory;
+
+                // 4. Transportation & Arrival Details
+                var transportMode = $('input[name="transportation_mode"]:checked').val() || $('[name="transportation_mode"]').val() || '';
+                if (transportMode) fields.transportation_mode = transportMode;
+
+                var pickupTime = $('#Pick-up-time').val() || $('input[name="transportation_pickup_time"]').val() || $('#transportation_pickup_time').val() || '';
                 if (pickupTime) fields.transportation_pickup_time = pickupTime;
 
-                var pickupAddress = $('#address').val() || $('input[name="transportation_address"]').val() || '';
+                var pickupAddress = $('#address').val() || $('input[name="transportation_address"]').val() || $('#transportation_address').val() || '';
                 if (pickupAddress) fields.transportation_address = pickupAddress;
 
-                var arrivalTime = $('#Arrival-time').val() || $('input[name="transportation_arrival_time"]').val() || '';
+                var arrivalTime = $('#Arrival-time').val() || $('input[name="transportation_arrival_time"]').val() || $('#transportation_arrival_time').val() || '';
                 if (arrivalTime) fields.transportation_arrival_time = arrivalTime;
+
+                var transportPhone = $('#transportation_phone').val() || $('input[name="transportation_phone"]').val() || '';
+                if (transportPhone) fields.transportation_phone = transportPhone;
+
+                var transportNote = $('#transportation_note').val() || $('[name="transportation_note"]').val() || '';
+                if (transportNote) fields.transportation_note = transportNote;
 
                 var destination = $('#destination').val() || $('input[name="transportation_destination"]').val() || '';
                 if (destination) fields.transportation_destination = destination;
 
-                // 3. Host Name & Booking / Pickup Notes
+                if ($('#transportation_self_drive_ack').length) {
+                    fields.transportation_self_drive_ack = $('#transportation_self_drive_ack').is(':checked');
+                }
+
+                // 5. Guest Counts (Men / Women)
+                var menCount = $('#package_men').val() || $('[name="package_men"]').val() || '';
+                if (menCount) fields.package_men = menCount;
+
+                var womenCount = $('#package_women').val() || $('[name="package_women"]').val() || '';
+                if (womenCount) fields.package_women = womenCount;
+
+                // 6. Host Name & Booking / Pickup Notes
                 var hostName = $('#host').val() || $('[name="host_name"]').val() || $('[name="package_host_name"]').val() || $('[name="reservation_host_name"]').val() || $('[name="host"]').val() || '';
                 if (hostName) fields.host_name = hostName;
 
-                var bookingNote = $('#note').val() || $('[name="reservation_description"]').val() || $('[name="package_note"]').val() || $('[name="transportation_note"]').val() || $('[name="notes"]').val() || $('[name="special_requests"]').val() || '';
+                var bookingNote = $('#note').val() || $('[name="reservation_description"]').val() || $('[name="package_note"]').val() || $('[name="notes"]').val() || $('[name="special_requests"]').val() || '';
                 if (bookingNote) fields.booking_note = bookingNote;
 
-                // 4. DOB Fields (Month, Day, Year)
+                // 7. DOB Fields (Month, Day, Year)
                 var dobMonth = $('#dob-month').val() || $('#package-dob-month').val() || $('#payment-dob-month').val() || $('[name="dob_month"]').val() || $('[name="package_dob_month"]').val() || $('[name="reservation_dob_month"]').val() || $('[name="reservation_month"]').val() || '';
                 if (dobMonth) fields.dob_month = dobMonth;
 
@@ -7384,7 +7418,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 var dobYear = $('#dob-year').val() || $('#package-dob-year').val() || $('#payment-dob-year').val() || $('[name="dob_year"]').val() || $('[name="package_dob_year"]').val() || $('[name="reservation_dob_year"]').val() || $('[name="reservation_year"]').val() || '';
                 if (dobYear) fields.dob_year = dobYear;
 
-                // 5. Customer Contact & Personal Information (including prefixed field names)
+                // 8. Customer Contact & Personal Information (including prefixed field names)
                 var fieldNames = [
                     'first_name', 'package_first_name', 'reservation_first_name', 'payment_first_name',
                     'last_name', 'package_last_name', 'reservation_last_name', 'payment_last_name',
@@ -7442,6 +7476,17 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             }
 
             function setSelectionsFromParams(params) {
+                if (!params) {
+                    var urlParams = new URLSearchParams(window.location.search);
+                    var cartVal = urlParams.get('cart');
+                    var couponVal = urlParams.get('coupon');
+                    if (cartVal) {
+                        params = {
+                            cart: cartVal,
+                            coupon: couponVal
+                        };
+                    }
+                }
                 if (!params || !params.cart) return;
 
                 if (typeof openPackageTab === 'function') openPackageTab();
@@ -7509,6 +7554,37 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     if (formFields && Object.keys(formFields).length > 0) {
                         if (typeof populateDobSelects === 'function') {
                             try { populateDobSelects(); } catch(e) {}
+                        }
+
+                        // Restore Preselected Club / Location
+                        if (formFields.selected_club) {
+                            var locEl = $('#locationFilter, .location-filter-select, select[name="location_id"]');
+                            if (locEl.length) {
+                                locEl.val(formFields.selected_club).trigger('change');
+                            }
+                            var locTile = $('.cv-location-tile[data-location-id="' + formFields.selected_club + '"], .location-tab[data-id="' + formFields.selected_club + '"], [data-club-id="' + formFields.selected_club + '"]');
+                            if (locTile.length) {
+                                locTile.trigger('click');
+                            }
+                        }
+
+                        // Restore Opened Category
+                        if (formFields.opened_category_id) {
+                            var catTile = $('.category-tile[data-category-id="' + formFields.opened_category_id + '"], .cat-tab[data-id="' + formFields.opened_category_id + '"], [data-bs-target="#cat-' + formFields.opened_category_id + '"], [data-bs-target="#category-' + formFields.opened_category_id + '"], [data-category-id="' + formFields.opened_category_id + '"]');
+                            if (catTile.length) {
+                                catTile.trigger('click');
+                                if (catTile.hasClass('accordion-button') && catTile.hasClass('collapsed')) {
+                                    catTile.trigger('click');
+                                }
+                            }
+                        }
+
+                        // Restore Transportation Mode & Self Drive
+                        if (formFields.transportation_mode) {
+                            $('input[name="transportation_mode"][value="' + formFields.transportation_mode + '"]').prop('checked', true).trigger('change');
+                        }
+                        if (formFields.transportation_self_drive_ack) {
+                            $('#transportation_self_drive_ack').prop('checked', true).trigger('change');
                         }
 
                         setTimeout(function() {
@@ -8546,13 +8622,15 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     }
                     
                     var selections = getCurrentSelections();
+                    var selectedClubSlug = $('#locationFilter option:selected').data('slug') || $('.cv-location-tile.active').data('slug') || @json($data->slug);
                     
                     $.ajax({
                         url: '/cart/share',
                         type: 'POST',
                         data: {
-                            cart: JSON.stringify(selections.cart),
-                            website_slug: @json($data->slug),
+                            cart: selections.cart,
+                            website_slug: selectedClubSlug,
+                            club_slug: selectedClubSlug,
                             affiliate_slug: @json($affiliate->slug),
                             event_name: @json($affiliate->display_name ?? $affiliate->user->name),
                             _token: $('meta[name="csrf-token"]').attr('content')
