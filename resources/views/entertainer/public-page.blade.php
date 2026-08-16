@@ -8841,49 +8841,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 return data;
             }
 
-            function setSelectionsFromParams() {
-                var params = new URLSearchParams(window.location.search);
-                var cartParam = params.get('cart');
-                var couponParam = params.get('coupon');
 
-                if (cartParam) {
-                    openPackageTab();
-                    try {
-                        var decoded = JSON.parse(decodeURIComponent(cartParam));
-                        window.cart = decoded.map(function(pkg) {
-                            if (typeof pkg.isMultiple === 'undefined') {
-                                pkg.isMultiple = getPackageMultipleFromDom(pkg.packageId);
-                            }
-                            return pkg;
-                        });
-                        if (window.cart.length > 0) {
-                            $('#package_id').val(window.cart[0].packageId);
-                            $('.package_number_of_guest').val(window.cart[0].guests);
-                            window.cart.forEach(function(pkg) {
-                                $('.package_number_of_guestss[data-id="' + pkg.packageId + '"]').val(pkg.guests || 1);
-                                $('#pkg-card-' + pkg.packageId).addClass('selected');
-                            });
-                            $('#cart-section').show();
-                            $('#shareLinkContainer').show();
-                            window.renderCart();
-                            window.calculateCartTotal();
-                            syncTransportationStateFromCart();
-                            syncEventCapacityUi();
-                            $('.dynamic-price').show();
-                            $('.default-price').hide();
-                            $('#checkout-steps').show();
-                            showStep(1);
-                        }
-                    } catch(e) {
-                        console.error('Failed to parse cart param', e);
-                    }
-                }
-
-                if (couponParam) {
-                    $('#promo_code').val(couponParam);
-                    $('#applyPromoBtn').trigger('click');
-                }
-            }
 
             function getUrlWithSelections() {
                 var data = getCurrentSelections();
