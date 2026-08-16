@@ -82,6 +82,14 @@ class EntertainerPortalController extends Controller
             ->where(function ($q) {
                 $q->whereNull('is_archieved')->orWhere('is_archieved', 0);
             })
+            ->where(function ($q) {
+                $q->whereNull('package_category_id')
+                    ->orWhereHas('category', function ($catQ) {
+                        $catQ->where(function ($cq) {
+                            $cq->whereNull('is_archieved')->orWhere('is_archieved', 0);
+                        });
+                    });
+            })
             ->orderBy('name')
             ->get();
 
@@ -110,6 +118,14 @@ class EntertainerPortalController extends Controller
             ->where('status', 1)
             ->where(function ($q) {
                 $q->whereNull('is_archieved')->orWhere('is_archieved', 0);
+            })
+            ->where(function ($q) {
+                $q->whereNull('package_category_id')
+                    ->orWhereHas('category', function ($catQ) {
+                        $catQ->where(function ($cq) {
+                            $cq->whereNull('is_archieved')->orWhere('is_archieved', 0);
+                        });
+                    });
             })
             ->pluck('id')
             ->values();

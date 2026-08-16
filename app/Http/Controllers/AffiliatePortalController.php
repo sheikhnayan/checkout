@@ -89,6 +89,14 @@ class AffiliatePortalController extends Controller
                     ->where('status', 1)
                     ->where(function ($q) {
                         $q->whereNull('is_archieved')->orWhere('is_archieved', 0);
+                    })
+                    ->where(function ($q) {
+                        $q->whereNull('package_category_id')
+                            ->orWhereHas('category', function ($catQ) {
+                                $catQ->where(function ($cq) {
+                                    $cq->whereNull('is_archieved')->orWhere('is_archieved', 0);
+                                });
+                            });
                     });
             }])
             ->get();
@@ -128,6 +136,14 @@ class AffiliatePortalController extends Controller
             ->where('status', 1)
             ->where(function ($q) {
                 $q->whereNull('is_archieved')->orWhere('is_archieved', 0);
+            })
+            ->where(function ($q) {
+                $q->whereNull('package_category_id')
+                    ->orWhereHas('category', function ($catQ) {
+                        $catQ->where(function ($cq) {
+                            $cq->whereNull('is_archieved')->orWhere('is_archieved', 0);
+                        });
+                    });
             })
             ->pluck('id')
             ->values();
@@ -331,7 +347,15 @@ class AffiliatePortalController extends Controller
                 $parentPackageIds = AffiliatePackage::where('affiliate_id', $affiliate->id)
                     ->pluck('package_id')
                     ->toArray();
-                $q->clubVisible()->where('status', 1)->where('is_archieved', 0)->whereIn('id', $parentPackageIds);
+                $q->clubVisible()->where('status', 1)->where('is_archieved', 0)->whereIn('id', $parentPackageIds)
+                    ->where(function ($catCheck) {
+                        $catCheck->whereNull('package_category_id')
+                            ->orWhereHas('category', function ($catQ) {
+                                $catQ->where(function ($cq) {
+                                    $cq->whereNull('is_archieved')->orWhere('is_archieved', 0);
+                                });
+                            });
+                    });
             }])
             ->get();
 

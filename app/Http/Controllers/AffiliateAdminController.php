@@ -47,7 +47,15 @@ class AffiliateAdminController extends Controller
         $allWebsites = Website::where('is_archieved', 0)
             ->where('status', 1)
             ->with(['packages' => function ($q) {
-                $q->clubVisible()->where('status', 1)->where('is_archieved', 0);
+                $q->clubVisible()->where('status', 1)->where('is_archieved', 0)
+                    ->where(function ($catCheck) {
+                        $catCheck->whereNull('package_category_id')
+                            ->orWhereHas('category', function ($catQ) {
+                                $catQ->where(function ($cq) {
+                                    $cq->whereNull('is_archieved')->orWhere('is_archieved', 0);
+                                });
+                            });
+                    });
             }])
             ->get();
 
