@@ -1192,6 +1192,10 @@ body.modal-open .admin-mobile-menu-toggle {
                                 <span>Checked In</span>
                             </label>
                             <label class="polaris-checkbox-label">
+                                <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="not_checked_in" {{ $filterReservation === 'not_checked_in' ? 'checked' : '' }}>
+                                <span>Not Checked In</span>
+                            </label>
+                            <label class="polaris-checkbox-label">
                                 <input type="checkbox" class="polaris-filter-cb" data-category="reservation" value="no_show" {{ $filterReservation === 'no_show' ? 'checked' : '' }}>
                                 <span>No Show</span>
                             </label>
@@ -2586,7 +2590,10 @@ body.modal-open .admin-mobile-menu-toggle {
 
                         const todayStr = (typeof getPstMoment === 'function') ? getPstMoment().format('YYYY-MM-DD') : moment().format('YYYY-MM-DD');
 
-                        const matches = activeReservations.some(r => {
+                        const dateFilters = activeReservations.filter(r => ['upcoming', 'today', 'past', 'no_show'].includes(r));
+                        const checkInFilters = activeReservations.filter(r => ['checked_in', 'not_checked_in'].includes(r));
+
+                        const matchesDateFilter = function(r) {
                             if (r === 'upcoming') {
                                 return useDateIso !== '' && useDateIso > todayStr && rawStatus !== '0' && rawStatus !== '2' && rawStatus !== 'canceled' && rawStatus !== 'cancelled' && rawStatus !== 'refunded';
                             }
@@ -2596,15 +2603,26 @@ body.modal-open .admin-mobile-menu-toggle {
                             if (r === 'past') {
                                 return useDateIso !== '' && useDateIso < todayStr;
                             }
-                            if (r === 'checked_in') {
-                                return checkedIn;
-                            }
                             if (r === 'no_show') {
                                 return useDateIso !== '' && useDateIso < todayStr && (rawStatus === '1' || rawStatus === 'completed' || rawStatus === 'approved') && !checkedIn;
                             }
                             return true;
-                        });
-                        if (!matches) return false;
+                        };
+
+                        const matchesCheckInFilter = function(r) {
+                            if (r === 'checked_in') {
+                                return checkedIn;
+                            }
+                            if (r === 'not_checked_in') {
+                                return !checkedIn && rawStatus !== '0' && rawStatus !== '2' && rawStatus !== 'canceled' && rawStatus !== 'cancelled' && rawStatus !== 'refunded';
+                            }
+                            return true;
+                        };
+
+                        const dateMatch = dateFilters.length === 0 ? true : dateFilters.some(matchesDateFilter);
+                        const checkInMatch = checkInFilters.length === 0 ? true : checkInFilters.some(matchesCheckInFilter);
+
+                        if (!dateMatch || !checkInMatch) return false;
                     }
 
                     // 6. Date Range & Target Filter (Sale Date vs Reservation Date vs Either)
@@ -5060,6 +5078,8 @@ body.modal-open .admin-mobile-menu-toggle {
                 }
                 var transportationPickup = String($(this).data('transportation_pickup_time') || '').trim();
                 var transportationPickupDisplay = formatPickupTime(transportationPickup);
+                var hasPickupTime = transportationPickup !== '' && transportationPickupDisplay !== 'N/A' && transportationPickupDisplay !== '';
+                var transportSectionTitle = hasPickupTime ? 'Transportation Details' : 'Arrival Details';
                 var transportationArrival = String(
                     $(this).data('transportation_arrival_time') ||
                     ($(this).closest('tr').find('.view-btn').data('transportation_arrival_time') || '')
@@ -5252,7 +5272,7 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += row('Guest Note', guestNote);
                 html += '</div>';
                 html += '<div class="txn-detail-card" style="margin-top:8px;margin-bottom:0;">';
-                html += '<div class="txn-detail-title">Transportation Details</div>';
+                html += '<div class="txn-detail-title">' + transportSectionTitle + '</div>';
                 html += row('Transport Mode', transportMode);
                 html += row('Transportation Date', transportationDate || 'N/A');
                 html += row('Pickup Time', transportationPickupDisplay);
@@ -5440,7 +5460,7 @@ body.modal-open .admin-mobile-menu-toggle {
                     sections: [
                         { name: 'Guest Details', rows: guestRows },
                         { name: 'Booking Details', rows: bookingRows },
-                        { name: 'Transportation Details', rows: transportationRows }
+                        { name: transportSectionTitle, rows: transportationRows }
                     ],
                     packageItems: packageItemsForPdf,
                     priceRows: priceRows

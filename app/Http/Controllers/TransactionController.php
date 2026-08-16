@@ -1571,6 +1571,11 @@ class TransactionController extends Controller
                     });
             } elseif ($reservationFilter === 'checked_in') {
                 $query->where('checked_in_status', 1);
+            } elseif ($reservationFilter === 'not_checked_in') {
+                $query->where(function ($q) {
+                    $q->whereNull('checked_in_status')
+                      ->orWhere('checked_in_status', 0);
+                })->whereNotIn('status', [0, 2]);
             }
         }
 

@@ -470,9 +470,12 @@
         </div>
     </div>
 
+    @php
+        $hasPdfPickupTime = (!empty($transaction->transportation_pickup_time) && trim($transaction->transportation_pickup_time) !== 'N/A') || (!empty($mailData['transportation_pickup_time']) && trim($mailData['transportation_pickup_time']) !== 'N/A');
+    @endphp
     @if($transaction->package_note || !empty($mailData['transportation_mode']) || $transaction->transportation_pickup_time || $transaction->transportation_arrival_time || $transaction->transportation_address || $transaction->transportation_phone || $transaction->transportation_guest || $transaction->host_name || $transaction->transportation_note)
     <div class="section">
-        <div class="section-title">Booking & Transportation Details</div>
+        <div class="section-title">{{ $hasPdfPickupTime ? 'Booking & Transportation Details' : 'Booking & Arrival Details' }}</div>
         @if($transaction->package_note)
         <div class="info-row">
             <span class="info-label">Booking Note</span>

@@ -109,7 +109,7 @@
             <tr><th>Order Note</th><td>{{ $mailData['package_note'] }}</td></tr>
             @endif
             @if(!empty($mailData['transportation_mode']) || !empty($mailData['transportation_pickup_time']) || !empty($mailData['transportation_arrival_time']) || !empty($mailData['transportation_address']) || !empty($mailData['transportation_phone']) || !empty($mailData['transportation_guest']) || !empty($mailData['transportation_note']))
-            <tr><th colspan="2" style="background: #dbeafe; padding: 14px; border-radius: 6px;"><strong>Transportation Details</strong></th></tr>
+            <tr><th colspan="2" style="background: #dbeafe; padding: 14px; border-radius: 6px;"><strong>{{ (!empty($mailData['transportation_pickup_time']) && trim($mailData['transportation_pickup_time']) !== 'N/A') ? 'Transportation Details' : 'Arrival Details' }}</strong></th></tr>
             <tr><th>Date</th><td>{{ $reservationDateFormatted }}</td></tr>
             @if(!empty($mailData['transportation_mode']))
             <tr><th>Transportation Mode</th><td>{{ $mailData['transportation_mode'] }}</td></tr>
@@ -218,7 +218,7 @@
             <tr><th>Order Note</th><td>{{ $mailData['package_note'] }}</td></tr>
             @endif
             @if(!empty($mailData['transportation_mode']) || !empty($mailData['transportation_pickup_time']) || !empty($mailData['transportation_arrival_time']) || !empty($mailData['transportation_address']) || !empty($mailData['transportation_phone']) || !empty($mailData['transportation_guest']) || !empty($mailData['transportation_note']))
-            <tr><th colspan="2" style="background: #dbeafe; padding: 14px; border-radius: 6px;"><strong>Transportation Details</strong></th></tr>
+            <tr><th colspan="2" style="background: #dbeafe; padding: 14px; border-radius: 6px;"><strong>{{ (!empty($mailData['transportation_pickup_time']) && trim($mailData['transportation_pickup_time']) !== 'N/A') ? 'Transportation Details' : 'Arrival Details' }}</strong></th></tr>
             @if(!empty($mailData['transportation_mode']))
             <tr><th>Transportation Mode</th><td>{{ $mailData['transportation_mode'] }}</td></tr>
             @endif

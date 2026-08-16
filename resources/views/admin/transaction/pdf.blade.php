@@ -56,8 +56,11 @@
                     </ul>
                 </div>
 
+                @php
+                    $hasAdminPdfPickupTime = !empty($transaction->transportation_pickup_time) && trim($transaction->transportation_pickup_time) !== 'N/A';
+                @endphp
                 <div class="section">
-                    <div class="section-title">Transportation Details</div>
+                    <div class="section-title">{{ $hasAdminPdfPickupTime ? 'Transportation Details' : 'Arrival Details' }}</div>
                     <ul class="list-group">
                         <li class="list-group-item"><strong>Pickup Time:</strong> <span>{{ htmlspecialchars($transaction->transportation_pickup_time ?? '') }}</span></li>
                         <li class="list-group-item"><strong>Arrival Time:</strong> <span>{{ htmlspecialchars($transaction->transportation_arrival_time ?? '') }}</span></li>
