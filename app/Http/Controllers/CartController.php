@@ -83,7 +83,7 @@ class CartController extends Controller
 
         // cart_data is already an array due to the cast
         $cartJson = json_encode($sharedCart->cart_data);
-        $cartParam = rawurlencode($cartJson);
+        $cartParam = $cartJson;
 
         // Redirect to affiliate page if this is an affiliate cart
         if ($sharedCart->affiliate_slug) {

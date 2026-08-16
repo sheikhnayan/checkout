@@ -7735,6 +7735,31 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 };
             }
 
+            function parseCartString(cartStr) {
+                if (!cartStr) return null;
+                if (typeof cartStr !== 'string') return cartStr;
+                var current = cartStr;
+                for (var i = 0; i < 5; i++) {
+                    try {
+                        var parsed = JSON.parse(current);
+                        if (typeof parsed === 'string') {
+                            current = parsed;
+                            continue;
+                        }
+                        return parsed;
+                    } catch(e) {
+                        try {
+                            var decoded = decodeURIComponent(current.replace(/\+/g, '%20'));
+                            if (decoded === current) break;
+                            current = decoded;
+                        } catch(err) {
+                            break;
+                        }
+                    }
+                }
+                return null;
+            }
+
             function setSelectionsFromParams(params) {
                 if (!params) {
                     var urlParams = new URLSearchParams(window.location.search);
@@ -7752,15 +7777,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 if (typeof openPackageTab === 'function') openPackageTab();
 
                 try {
-                    var cartStr = params.cart;
-                    if (typeof cartStr === 'string') {
-                        try {
-                            cartStr = cartStr.replace(/\+/g, '%20');
-                            cartStr = decodeURIComponent(cartStr);
-                        } catch(e) {}
-                    }
-
-                    var parsed = (typeof cartStr === 'string') ? JSON.parse(cartStr) : cartStr;
+                    var parsed = parseCartString(params.cart);
 
                     var cartItems = [];
                     var couponCode = params.coupon || '';
@@ -7983,12 +8000,6 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             
 
             
-
-            function getUrlWithSelections() {
-                var sel = getCurrentSelections();
-                var url = window.location.origin + window.location.pathname + '?package=' + encodeURIComponent(sel.packageId) + '&addons=' + encodeURIComponent(sel.addons) + '&guests=' + encodeURIComponent(sel.guests) + '&use_date=' + encodeURIComponent(sel.useDate);
-                return url;
-            }
 
             // --- End Shareable Link Logic ---
 
