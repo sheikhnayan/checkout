@@ -6757,8 +6757,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         if (pkgCard.length) {
                             var clubId = formFields.selected_club || pkgCard.data('club-id') || pkgCard.attr('data-club-id');
                             if (clubId) {
-                                var locEl = $('#locationFilter, .location-filter-select, select[name="location_id"]');
-                                if (locEl.length && locEl.val() !== String(clubId)) {
+                                var locEl = $('#package-location-filter-main, #locationFilter, .aff-location-mobile-select, .location-filter-select, select[name="location_id"]');
+                                if (locEl.length) {
                                     locEl.val(clubId).trigger('change');
                                 }
                                 var locTile = $('.cv-location-tile[data-location-id="' + clubId + '"], .location-tab[data-id="' + clubId + '"], [data-club-id="' + clubId + '"]');
@@ -6771,7 +6771,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             if (catGroup.length) {
                                 var catId = formFields.opened_category_id || (catGroup.attr('id') || '').replace('category-group-', '').replace('cat-', '');
                                 if (catId) {
-                                    var catTile = $('.category-tile[data-category-id="' + catId + '"], .cat-tab[data-id="' + catId + '"], [data-bs-target="#cat-' + catId + '"], [data-bs-target="#category-' + catId + '"], [data-category-id="' + catId + '"]');
+                                    var catTile = $('button.package-category-tile[data-target="#category-group-' + catId + '"], .category-tile[data-category-id="' + catId + '"], .cat-tab[data-id="' + catId + '"], [data-bs-target="#cat-' + catId + '"], [data-bs-target="#category-' + catId + '"], [data-category-id="' + catId + '"]');
                                     if (catTile.length) {
                                         catTile.trigger('click');
                                     }
