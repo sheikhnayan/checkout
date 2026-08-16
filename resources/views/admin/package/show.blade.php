@@ -140,6 +140,24 @@
 
                         @php
                             $activeTab = request('tab', 'categories');
+                            $categoryIconOptions = [
+                                ''                => '— No Icon —',
+                                'fa-star'         => 'Star',
+                                'fa-crown'        => 'Crown',
+                                'fa-gem'          => 'Gem',
+                                'fa-fire'         => 'Fire',
+                                'fa-bolt'         => 'Bolt',
+                                'fa-wine-bottle'  => 'Bottle',
+                                'fa-chair'        => 'Table',
+                                'fa-user-shield'  => 'VIP',
+                                'fa-shield-alt'   => 'Entry',
+                                'fa-music'        => 'Music',
+                                'fa-cocktail'     => 'Cocktail',
+                                'fa-ticket-alt'   => 'Ticket',
+                                'fa-users'        => 'Group',
+                                'fa-calendar-alt' => 'Calendar',
+                                'fa-glass-cheers' => 'Cheers',
+                            ];
                         @endphp
 
                         <!-- Tabs for Active / Archived Packages + Categories -->
@@ -157,6 +175,11 @@
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link {{ $activeTab === 'categories' ? 'active' : '' }}" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categoriesPanel" type="button" role="tab" aria-controls="categoriesPanel" aria-selected="{{ $activeTab === 'categories' ? 'true' : 'false' }}">
                                     Categories
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link {{ $activeTab === 'archived-categories' ? 'active' : '' }}" id="archived-categories-tab" data-bs-toggle="tab" data-bs-target="#archivedCategoriesPanel" type="button" role="tab" aria-controls="archivedCategoriesPanel" aria-selected="{{ $activeTab === 'archived-categories' ? 'true' : 'false' }}">
+                                    Archived Categories
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
@@ -311,26 +334,6 @@
                             </div>
                             {{-- ===== CATEGORIES TAB ===== --}}
                             <div class="tab-pane fade {{ $activeTab === 'categories' ? 'show active' : '' }}" id="categoriesPanel" role="tabpanel" aria-labelledby="categories-tab">
-                                @php
-                                    $categoryIconOptions = [
-                                        ''                => '— No Icon —',
-                                        'fa-star'         => 'Star',
-                                        'fa-crown'        => 'Crown',
-                                        'fa-gem'          => 'Gem',
-                                        'fa-fire'         => 'Fire',
-                                        'fa-bolt'         => 'Bolt',
-                                        'fa-wine-bottle'  => 'Bottle',
-                                        'fa-chair'        => 'Table',
-                                        'fa-user-shield'  => 'VIP',
-                                        'fa-shield-alt'   => 'Entry',
-                                        'fa-music'        => 'Music',
-                                        'fa-cocktail'     => 'Cocktail',
-                                        'fa-ticket-alt'   => 'Ticket',
-                                        'fa-users'        => 'Group',
-                                        'fa-calendar-alt' => 'Calendar',
-                                        'fa-glass-cheers' => 'Cheers',
-                                    ];
-                                @endphp
                                 @if(session('success'))
                                     <div class="alert alert-success">{{ session('success') }}</div>
                                 @endif
@@ -432,63 +435,136 @@
                                     </div>
                                 </div>
 
-                                {{-- Archived categories --}}
-                                @if(!$archivedCategories->isEmpty())
-                                <div class="card mb-3">
+                                @if(!empty($selectedCategoryKey))
+                                    <div class="card mt-3">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 class="card-title fw-bold mb-0">
+                                                    {{ $selectedCategoryKey === 'uncategorized' ? 'Uncategorized Packages' : 'Packages in ' . ($selectedCategory->name ?? 'Category') }}
+                                                </h6>
+                                                <small class="text-muted">Drag rows to reorder packages for this category.</small>
+                                            </div>
+
+                                            @if($categoryPackages->isEmpty())
+                                                <p class="text-muted mb-0">No packages found in this category.</p>
+                                            @else
+                                                <table class="table" id="categoryPackagesTable">
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="width:40px;"></th>
+                                                            <th>#</th>
+                                                            <th>Name</th>
+                                                            <th>Status</th>
+                                                            <th>Archive</th>
+                                                            <th>Price</th>
+                                                            <th>Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="packageSortableBody">
+                                                        @foreach($categoryPackages as $idx => $pkg)
+                                                            <tr data-id="{{ $pkg->id }}">
+                                                                <td class="text-center align-middle"><i class="fas fa-grip-vertical drag-handle" title="Drag to reorder"></i></td>
+                                                                <td>{{ $idx + 1 }}</td>
+                                                                <td>{{ $pkg->name }}</td>
+                                                                <td>
+                                                                    @if((int) ($pkg->status ?? 0) === 1)
+                                                                        <span class="badge bg-success">Active</span>
+                                                                    @else
+                                                                        <span class="badge bg-secondary">Inactive</span>
+                                                                    @endif
+                                                                </td>
+                                                                <td>
+                                                                    @if((int) ($pkg->is_archieved ?? 0) === 1)
+                                                                        <span class="badge bg-warning text-dark">Archived</span>
+                                                                    @else
+                                                                        <span class="badge bg-primary">Live</span>
+                                                                    @endif
+                                                                </td>
+                                                                <td>{{ $pkg->price }}</td>
+                                                                <td>
+                                                                    <button type="button"
+                                                                        class="btn btn-sm btn-dark js-copy-single-checkout"
+                                                                        data-checkout-url="{{ route('package.checkout.single', ['slug' => $website->slug, 'packageId' => ((\Illuminate\Support\Str::slug((string) $pkg->name) ?: 'package') . '-' . $pkg->id)]) }}"
+                                                                        title="Copy Single Checkout Link">
+                                                                        Copy Link
+                                                                    </button>
+                                                                    <form action="{{ route('admin.package.duplicate', $pkg->id) }}" method="POST" style="display:inline;">
+                                                                        @csrf
+                                                                        <button type="submit" class="btn btn-sm btn-info" onclick="return confirm('Duplicate this package?');">Duplicate</button>
+                                                                    </form>
+                                                                    <a href="{{ route('admin.package.edit', $pkg->id) }}" class="btn btn-sm btn-primary">Edit</a>
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+
+                            {{-- ===== ARCHIVED CATEGORIES TAB ===== --}}
+                            <div class="tab-pane fade {{ $activeTab === 'archived-categories' ? 'show active' : '' }}" id="archivedCategoriesPanel" role="tabpanel" aria-labelledby="archived-categories-tab">
+                                <div class="card">
                                     <div class="card-body">
-                                        <h6 class="card-title fw-bold text-muted"><i class="fas fa-archive me-1"></i> Archived Categories</h6>
-                                        <table class="table text-muted" id="archivedCategoriesTable">
-                                            <thead>
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>Icon &amp; Name</th>
-                                                    <th>State</th>
-                                                    <th>Packages</th>
-                                                    <th>Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($archivedCategories->values() as $i => $cat)
-                                                <tr data-id="{{ $cat->id }}">
-                                                    <td>{{ $i + 1 }}</td>
-                                                    <td>
-                                                        <form method="POST" action="{{ route('admin.package-category.update', $cat->id) }}" class="d-flex gap-2 align-items-center flex-wrap">
-                                                            @csrf
-                                                            <div class="package-feature-icon-preview cat-icon-preview"><i class="fas {{ $cat->icon ?: 'fa-star' }}"></i></div>
-                                                            <select name="icon" class="form-control form-control-sm cat-icon-select" style="max-width:155px;">
-                                                                @foreach($categoryIconOptions as $iconClass => $iconLabel)
-                                                                    <option value="{{ $iconClass }}" {{ ($cat->icon ?? '') === $iconClass ? 'selected' : '' }}>{{ $iconLabel }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                            <input type="text" name="name" value="{{ $cat->name }}" class="form-control form-control-sm" style="max-width:200px;" required>
-                                                            <input type="color" name="color" value="{{ $cat->color ?? '#a774ff' }}" title="Category color" style="width:34px;height:31px;padding:2px;border-radius:6px;border:1px solid #d7dce4;cursor:pointer;flex-shrink:0;">
-                                                            <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
-                                                        </form>
-                                                    </td>
-                                                    <td>
-                                                        <span class="badge bg-warning text-dark">Archived</span>
-                                                    </td>
-                                                    <td>{{ $cat->packages()->count() }}</td>
-                                                    <td>
-                                                        <div class="d-flex gap-2 align-items-center flex-wrap">
-                                                            <a href="{{ route('admin.package.show', ['id' => $website_id, 'tab' => 'categories', 'category_id' => $cat->id]) }}" class="btn btn-sm category-open-btn {{ (string) ($selectedCategoryKey ?? '') === (string) $cat->id ? 'is-selected' : '' }}">Open</a>
-                                                            <form method="POST" action="{{ route('admin.package-category.unarchive', $cat->id) }}" onsubmit="return confirm('Unarchive this category?')">
+                                        <h6 class="card-title fw-bold">Archived Categories</h6>
+                                        @if($archivedCategories->isEmpty())
+                                            <p class="text-muted mb-0">No archived categories found for this website.</p>
+                                        @else
+                                            <table class="table text-muted" id="archivedCategoriesTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Icon &amp; Name</th>
+                                                        <th>State</th>
+                                                        <th>Packages</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($archivedCategories->values() as $i => $cat)
+                                                    <tr data-id="{{ $cat->id }}">
+                                                        <td>{{ $i + 1 }}</td>
+                                                        <td>
+                                                            <form method="POST" action="{{ route('admin.package-category.update', $cat->id) }}" class="d-flex gap-2 align-items-center flex-wrap">
                                                                 @csrf
-                                                                <button type="submit" class="btn btn-sm btn-success">Unarchive</button>
+                                                                <div class="package-feature-icon-preview cat-icon-preview"><i class="fas {{ $cat->icon ?: 'fa-star' }}"></i></div>
+                                                                <select name="icon" class="form-control form-control-sm cat-icon-select" style="max-width:155px;">
+                                                                    @foreach($categoryIconOptions as $iconClass => $iconLabel)
+                                                                        <option value="{{ $iconClass }}" {{ ($cat->icon ?? '') === $iconClass ? 'selected' : '' }}>{{ $iconLabel }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                                <input type="text" name="name" value="{{ $cat->name }}" class="form-control form-control-sm" style="max-width:200px;" required>
+                                                                <input type="color" name="color" value="{{ $cat->color ?? '#a774ff' }}" title="Category color" style="width:34px;height:31px;padding:2px;border-radius:6px;border:1px solid #d7dce4;cursor:pointer;flex-shrink:0;">
+                                                                <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
                                                             </form>
-                                                            <form method="POST" action="{{ route('admin.package-category.destroy', $cat->id) }}" onsubmit="return confirm('Delete this category? Packages will become Uncategorized.')">
-                                                                @csrf
-                                                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                                            </form>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
+                                                        </td>
+                                                        <td>
+                                                            <span class="badge bg-warning text-dark">Archived</span>
+                                                        </td>
+                                                        <td>{{ $cat->packages()->count() }}</td>
+                                                        <td>
+                                                            <div class="d-flex gap-2 align-items-center flex-wrap">
+                                                                <a href="{{ route('admin.package.show', ['id' => $website_id, 'tab' => 'archived-categories', 'category_id' => $cat->id]) }}" class="btn btn-sm category-open-btn {{ (string) ($selectedCategoryKey ?? '') === (string) $cat->id ? 'is-selected' : '' }}">Open</a>
+                                                                <form method="POST" action="{{ route('admin.package-category.unarchive', $cat->id) }}" onsubmit="return confirm('Unarchive this category?')">
+                                                                    @csrf
+                                                                    <button type="submit" class="btn btn-sm btn-success">Unarchive</button>
+                                                                </form>
+                                                                <form method="POST" action="{{ route('admin.package-category.destroy', $cat->id) }}" onsubmit="return confirm('Delete this category? Packages will become Uncategorized.')">
+                                                                    @csrf
+                                                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                                                </form>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        @endif
                                     </div>
                                 </div>
-                                @endif
+                            </div>
 
                                 @if(!empty($selectedCategoryKey))
                                     <div class="card mt-3">

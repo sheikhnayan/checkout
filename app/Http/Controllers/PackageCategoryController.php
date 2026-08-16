@@ -84,7 +84,7 @@ class PackageCategoryController extends Controller
         $category->is_archieved = 1;
         $category->save();
 
-        return redirect()->route('admin.package.show', ['id' => $category->website_id, 'tab' => 'categories'])
+        return redirect()->route('admin.package.show', ['id' => $category->website_id, 'tab' => 'archived-categories'])
             ->with('success', 'Category archived successfully.');
     }
 
