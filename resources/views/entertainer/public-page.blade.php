@@ -7813,6 +7813,48 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             $('.package_number_of_guestss[data-id="' + pkg.packageId + '"]').val(pkg.guests || 1);
                             $('#pkg-card-' + pkg.packageId).addClass('selected');
                         });
+
+                        // Smart Auto-detect Club, Category and Fees from Cart Items if not explicitly set
+                        var firstPkgId = window.cart[0].packageId;
+                        var pkgCard = $('#pkg-card-' + firstPkgId);
+                        if (pkgCard.length) {
+                            var clubId = formFields.selected_club || pkgCard.data('club-id') || pkgCard.attr('data-club-id');
+                            if (clubId) {
+                                var locEl = $('#locationFilter, .location-filter-select, select[name="location_id"]');
+                                if (locEl.length && locEl.val() !== String(clubId)) {
+                                    locEl.val(clubId).trigger('change');
+                                }
+                                var locTile = $('.cv-location-tile[data-location-id="' + clubId + '"], .location-tab[data-id="' + clubId + '"], [data-club-id="' + clubId + '"]');
+                                if (locTile.length) {
+                                    locTile.trigger('click');
+                                }
+                            }
+
+                            var catGroup = pkgCard.closest('.package-category-group');
+                            if (catGroup.length) {
+                                var catId = formFields.opened_category_id || (catGroup.attr('id') || '').replace('category-group-', '').replace('cat-', '');
+                                if (catId) {
+                                    var catTile = $('.category-tile[data-category-id="' + catId + '"], .cat-tab[data-id="' + catId + '"], [data-bs-target="#cat-' + catId + '"], [data-bs-target="#category-' + catId + '"], [data-category-id="' + catId + '"]');
+                                    if (catTile.length) {
+                                        catTile.trigger('click');
+                                    }
+                                }
+                                catGroup.show();
+                            }
+
+                            var vipBtn = pkgCard.find('.vip-btn');
+                            if (vipBtn.length) {
+                                var svc = vipBtn.data('service_charge');
+                                var stax = vipBtn.data('sales_tax');
+                                var grat = vipBtn.data('gratuity');
+                                var ref = vipBtn.data('refundable');
+                                if (typeof svc !== 'undefined' && svc !== null) $('#service_charge').val(svc);
+                                if (typeof stax !== 'undefined' && stax !== null) $('#sales_tax').val(stax);
+                                if (typeof grat !== 'undefined' && grat !== null) $('#gratuity').val(grat);
+                                if (typeof ref !== 'undefined' && ref !== null) $('#refundable').val(ref);
+                            }
+                        }
+
                         $('#cart-section').show();
                         $('#shareLinkContainer').show();
                         $('.dynamic-price').show();
