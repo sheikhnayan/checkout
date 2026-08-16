@@ -29,8 +29,14 @@ class CartController extends Controller
                 ], 400);
             }
 
-            // Decode the cart JSON string to an array for storage
-            $cartArray = json_decode($cartData, true);
+            // Decode the cart JSON string or use array directly
+            if (is_array($cartData)) {
+                $cartArray = $cartData;
+            } elseif (is_string($cartData)) {
+                $cartArray = json_decode($cartData, true);
+            } else {
+                $cartArray = null;
+            }
 
             if (!is_array($cartArray)) {
                 return response()->json([
