@@ -34,6 +34,7 @@
                             @php
                                 $exportType = $run->report_params['export_type'] ?? optional($run->schedule)->export_type ?: 'executive';
                                 $hostnameFilter = $run->report_params['hostname_filter'] ?? optional($run->schedule)->hostname_filter ?: 'all';
+                                $fileFormat = $run->report_params['file_format'] ?? $run->report_params['format'] ?? optional($run->schedule)->file_format ?: 'pdf';
                             @endphp
                             <tr>
                                 <td>{{ $run->id }}</td>
@@ -41,7 +42,12 @@
                                 <td>
                                     @if($exportType === 'transactions_only')
                                         <span class="badge bg-info text-dark">Transactions Only</span>
-                                        <div class="small text-muted mt-1">
+                                        <div class="small text-muted mt-1 d-flex flex-wrap gap-1 align-items-center">
+                                            @if($fileFormat === 'csv')
+                                                <span class="badge bg-success" style="font-size: 0.7rem;">CSV</span>
+                                            @else
+                                                <span class="badge bg-danger" style="font-size: 0.7rem;">PDF</span>
+                                            @endif
                                             @if($hostnameFilter === 'with_hostname')
                                                 <span class="badge bg-primary" style="font-size: 0.7rem;">WITH Host Name Only</span>
                                             @elseif($hostnameFilter === 'without_hostname')

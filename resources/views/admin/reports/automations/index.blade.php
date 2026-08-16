@@ -71,6 +71,15 @@
                             <small class="text-muted">Filter which transactions are included based on Host Name presence.</small>
                         </div>
 
+                        <div class="mb-3" id="fileFormatGroup" style="{{ old('export_type') === 'transactions_only' ? '' : 'display: none;' }}">
+                            <label class="form-label">File Format</label>
+                            <select name="file_format" class="form-select" id="fileFormat">
+                                <option value="pdf" {{ old('file_format', 'pdf') === 'pdf' ? 'selected' : '' }}>PDF Document (Formatted Report)</option>
+                                <option value="csv" {{ old('file_format') === 'csv' ? 'selected' : '' }}>CSV Spreadsheet (Data Export)</option>
+                            </select>
+                            <small class="text-muted">Choose whether to receive the transactions export as a PDF or CSV file.</small>
+                        </div>
+
                         <div class="mb-3">
                             <label class="form-label">Report Date Range</label>
                             <select name="report_period_type" class="form-select" id="reportPeriodType" required>
@@ -209,7 +218,12 @@
                                         <td>
                                             @if($schedule->export_type === 'transactions_only')
                                                 <span class="badge bg-info text-dark">Transactions Only</span>
-                                                <div class="small text-muted mt-1">
+                                                <div class="small text-muted mt-1 d-flex flex-wrap gap-1 align-items-center">
+                                                    @if(($schedule->file_format ?: 'pdf') === 'csv')
+                                                        <span class="badge bg-success" style="font-size: 0.7rem;">CSV</span>
+                                                    @else
+                                                        <span class="badge bg-danger" style="font-size: 0.7rem;">PDF</span>
+                                                    @endif
                                                     @if($schedule->hostname_filter === 'with_hostname')
                                                         <span class="badge bg-primary" style="font-size: 0.7rem;">WITH Host Name Only</span>
                                                     @elseif($schedule->hostname_filter === 'without_hostname')
@@ -397,10 +411,13 @@
 
     const exportType = document.getElementById('exportType');
     const hostnameFilterGroup = document.getElementById('hostnameFilterGroup');
+    const fileFormatGroup = document.getElementById('fileFormatGroup');
 
     function updateExportTypeVisibility() {
-        if (!exportType || !hostnameFilterGroup) return;
-        hostnameFilterGroup.style.display = exportType.value === 'transactions_only' ? 'block' : 'none';
+        if (!exportType) return;
+        const isTxOnly = exportType.value === 'transactions_only';
+        if (hostnameFilterGroup) hostnameFilterGroup.style.display = isTxOnly ? 'block' : 'none';
+        if (fileFormatGroup) fileFormatGroup.style.display = isTxOnly ? 'block' : 'none';
     }
 
     renderClubs();

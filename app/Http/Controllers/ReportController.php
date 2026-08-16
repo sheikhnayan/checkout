@@ -503,7 +503,7 @@ class ReportController extends Controller
                 ->orderBy('name')
                 ->get(['id', 'name']);
 
-            if ($request->get('format') === 'csv' || $request->boolean('csv')) {
+            if ($request->get('format') === 'csv' || $request->get('file_format') === 'csv' || $request->boolean('csv')) {
                 return $this->downloadTransactionsCsv($transactions, $periodLabel);
             }
 
@@ -1470,6 +1470,7 @@ class ReportController extends Controller
             'report_period_type' => 'required|in:daily,weekly,monthly,yearly,custom_range',
             'export_type' => 'nullable|in:executive,transactions_only',
             'hostname_filter' => 'nullable|in:all,with_hostname,without_hostname',
+            'file_format' => 'nullable|in:pdf,csv',
             'website_ids' => 'required|array|min:1',
             'website_ids.*' => 'integer|exists:websites,id',
             'email_recipients' => 'required',
@@ -1550,6 +1551,7 @@ class ReportController extends Controller
             'report_period_type' => $validated['report_period_type'],
             'export_type' => $validated['export_type'] ?? 'executive',
             'hostname_filter' => $validated['hostname_filter'] ?? 'all',
+            'file_format' => $validated['file_format'] ?? 'pdf',
             'website_ids' => $requestedWebsiteIds,
             'email_recipients' => $emails->all(),
             'timezone' => 'America/Los_Angeles',
@@ -1624,6 +1626,8 @@ class ReportController extends Controller
             'timezone' => $schedule->timezone ?: 'America/Los_Angeles',
             'export_type' => $schedule->export_type ?: 'executive',
             'hostname_filter' => $schedule->hostname_filter ?: 'all',
+            'file_format' => $schedule->file_format ?: 'pdf',
+            'format' => $schedule->file_format ?: 'pdf',
         ]);
 
         $run = AutomationReportRun::create([
@@ -1645,6 +1649,7 @@ class ReportController extends Controller
             $tz = 'America/Los_Angeles';
             $pstNow = now()->setTimezone($tz);
             $modeLabel = ($schedule->export_type === 'transactions_only') ? 'Transactions Only' : 'Executive Analytics';
+            $formatLabel = strtoupper($schedule->file_format ?: 'pdf');
             $hostnameText = match ($schedule->hostname_filter) {
                 'with_hostname' => 'WITH Host Name Only',
                 'without_hostname' => 'WITHOUT Host Name Only',
@@ -1655,6 +1660,7 @@ class ReportController extends Controller
             $body = "Your automated report is ready.\n\n";
             $body .= "Schedule: {$schedule->name}\n";
             $body .= "Report Mode: {$modeLabel}\n";
+            $body .= "File Format: {$formatLabel}\n";
             if ($schedule->export_type === 'transactions_only') {
                 $body .= "Host Name Filter: {$hostnameText}\n";
             }

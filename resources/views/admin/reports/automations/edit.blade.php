@@ -75,6 +75,18 @@
                         <small class="text-muted">Filter which transactions are included based on Host Name presence.</small>
                     </div>
 
+                    <div class="col-md-6" id="fileFormatGroup" style="{{ $exportTypeVal === 'transactions_only' ? '' : 'display: none;' }}">
+                        <label class="form-label">File Format</label>
+                        @php
+                            $fileFormatVal = old('file_format', $schedule->file_format ?: 'pdf');
+                        @endphp
+                        <select name="file_format" class="form-select" id="fileFormat">
+                            <option value="pdf" {{ $fileFormatVal === 'pdf' ? 'selected' : '' }}>PDF Document (Formatted Report)</option>
+                            <option value="csv" {{ $fileFormatVal === 'csv' ? 'selected' : '' }}>CSV Spreadsheet (Data Export)</option>
+                        </select>
+                        <small class="text-muted">Choose whether to receive the transactions export as a PDF or CSV file.</small>
+                    </div>
+
                     <div class="col-md-6">
                         <label class="form-label">Report Date Range</label>
                         @php
@@ -314,10 +326,13 @@
 
     const exportType = document.getElementById('exportType');
     const hostnameFilterGroup = document.getElementById('hostnameFilterGroup');
+    const fileFormatGroup = document.getElementById('fileFormatGroup');
 
     function updateExportTypeVisibility() {
-        if (!exportType || !hostnameFilterGroup) return;
-        hostnameFilterGroup.style.display = exportType.value === 'transactions_only' ? 'block' : 'none';
+        if (!exportType) return;
+        const isTxOnly = exportType.value === 'transactions_only';
+        if (hostnameFilterGroup) hostnameFilterGroup.style.display = isTxOnly ? 'block' : 'none';
+        if (fileFormatGroup) fileFormatGroup.style.display = isTxOnly ? 'block' : 'none';
     }
 
     renderClubs();
