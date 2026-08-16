@@ -8832,14 +8832,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             };
             console.log('Cart functions initialized:', typeof window.addPackageToCart);
 
-            // Shareable link functions
-            function getCurrentSelections() {
-                var data = {
-                    cart: window.cart,
-                    coupon: window.cartCoupon ? window.cartCoupon.code : null
-                };
-                return data;
-            }
+
 
 
 

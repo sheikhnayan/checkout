@@ -29,13 +29,13 @@ class CartController extends Controller
                 ], 400);
             }
 
-            // Decode the cart JSON string or use array directly
-            if (is_array($cartData)) {
-                $cartArray = $cartData;
-            } elseif (is_string($cartData)) {
-                $cartArray = json_decode($cartData, true);
-            } else {
-                $cartArray = null;
+            // Decode the cart JSON string (up to 2 levels if double stringified) or use array directly
+            $cartArray = $cartData;
+            if (is_string($cartArray)) {
+                $cartArray = json_decode($cartArray, true);
+            }
+            if (is_string($cartArray)) {
+                $cartArray = json_decode($cartArray, true);
             }
 
             if (!is_array($cartArray)) {
