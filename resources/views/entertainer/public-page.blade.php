@@ -8813,6 +8813,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         data: {
                             cart: JSON.stringify(selections.cart),
                             website_slug: @json($data->slug),
+                            affiliate_slug: @json($entertainer->slug),
                             event_name: @json($entertainer->display_name ?? $entertainer->user->name),
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },

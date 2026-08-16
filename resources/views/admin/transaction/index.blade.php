@@ -5168,13 +5168,13 @@ body.modal-open .admin-mobile-menu-toggle {
                 ]);
 
                 var transportationRows = sectionRows([
-                    ['Transport Mode', transportMode],
-                    ['Transportation Date', transportationDate || 'N/A'],
+                    [hasPickupTime ? 'Transport Mode' : 'Transport Mode', transportMode],
+                    [hasPickupTime ? 'Transportation Date' : 'Date Of Use', transportationDate || 'N/A'],
                     ['Pickup Time', transportationPickupDisplay],
                     ['Arrival Time', transportationArrivalDisplay],
                     ['Pickup Address', transportationAddress || 'N/A'],
-                    ['Transport Phone', transportationPhone || 'N/A'],
-                    ['Transport Note', transportationNote || 'N/A']
+                    [hasPickupTime ? 'Transport Phone' : 'Contact Phone', transportationPhone || 'N/A'],
+                    [hasPickupTime ? 'Transport Note' : 'Arrival Note', transportationNote || 'N/A']
                 ]);
 
                 var priceRows = [];
@@ -5273,13 +5273,13 @@ body.modal-open .admin-mobile-menu-toggle {
                 html += '</div>';
                 html += '<div class="txn-detail-card" style="margin-top:8px;margin-bottom:0;">';
                 html += '<div class="txn-detail-title">' + transportSectionTitle + '</div>';
-                html += row('Transport Mode', transportMode);
-                html += row('Transportation Date', transportationDate || 'N/A');
+                html += row(hasPickupTime ? 'Transport Mode' : 'Transport Mode', transportMode);
+                html += row(hasPickupTime ? 'Transportation Date' : 'Date Of Use', transportationDate || 'N/A');
                 html += row('Pickup Time', transportationPickupDisplay);
                 html += row('Arrival Time', transportationArrivalDisplay);
                 html += row('Pickup Address', transportationAddress || 'N/A');
-                html += row('Transport Phone', transportationPhone || 'N/A');
-                html += row('Transport Note', transportationNote || 'N/A');
+                html += row(hasPickupTime ? 'Transport Phone' : 'Contact Phone', transportationPhone || 'N/A');
+                html += row(hasPickupTime ? 'Transport Note' : 'Arrival Note', transportationNote || 'N/A');
                 html += '</div>';
                 html += '</div>';
 

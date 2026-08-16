@@ -484,7 +484,7 @@
         @endif
         @if(!empty($mailData['transportation_mode']))
         <div class="info-row">
-            <span class="info-label">Transportation Mode</span>
+            <span class="info-label">{{ $hasPdfPickupTime ? 'Transportation Mode' : 'Arrival Mode' }}</span>
             <span class="info-value">{{ $mailData['transportation_mode'] }}</span>
         </div>
         @endif
@@ -506,18 +506,6 @@
             <span class="info-value">{{ $transaction->transportation_address }}</span>
         </div>
         @endif
-        {{-- @if($transaction->transportation_phone)
-        <div class="info-row">
-            <span class="info-label">Contact Phone</span>
-            <span class="info-value">{{ $transaction->transportation_phone }}</span>
-        </div>
-        @endif --}}
-        <!-- @if($transaction->transportation_guest)
-        <div class="info-row">
-            <span class="info-label">Transportation Guests</span>
-            <span class="info-value">{{ $transaction->transportation_guest }}</span>
-        </div>
-        @endif -->
         @if($transaction->host_name)
         <div class="info-row">
             <span class="info-label">Host Name</span>
@@ -526,7 +514,7 @@
         @endif
         @if($transaction->transportation_note)
         <div class="info-row">
-            <span class="info-label">Transportation Note</span>
+            <span class="info-label">{{ $hasPdfPickupTime ? 'Transportation Note' : 'Arrival Note' }}</span>
             <span class="info-value">{{ $transaction->transportation_note }}</span>
         </div>
         @endif

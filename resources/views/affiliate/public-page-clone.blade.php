@@ -7630,6 +7630,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         data: {
                             cart: JSON.stringify(selections.cart),
                             website_slug: '{{ $data->slug }}',
+                            affiliate_slug: @json($affiliate->slug),
                             event_name: @json($affiliate->name),
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },

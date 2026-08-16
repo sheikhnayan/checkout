@@ -6417,7 +6417,19 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         <input type="hidden" name="website_id" value="{{ $data->id }}">
 
                                         <input type="hidden" name="affiliate_slug" value="{{ $affiliate->slug }}">
-    
+
+                                        <input type="hidden" id="gratuity" value="{{ $data->gratuity_fee ?? 0 }}">
+
+                                        <input type="hidden" id="refundable" value="{{ $data->refundable_fee ?? 0 }}">
+
+                                        <input type="hidden" id="sales_tax" value="{{ $data->sales_tax_fee ?? 10 }}">
+
+                                        <input type="hidden" id="service_charge" value="{{ $data->service_charge_fee ?? 10 }}">
+
+                                        <input type="hidden" id="processing_fee" value="{{ (float) ($data->processing_fee ?? 0) }}">
+
+                                        <input type="hidden" id="processing_fee_type" value="{{ $data->processing_fee_type ?? 'percentage' }}">
+
                                         <input type="hidden" name="package_number_of_guest" class="package_number_of_guest" value="2">
     
                                         <!-- Step 3: Payment Information -->
@@ -8541,6 +8553,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         data: {
                             cart: JSON.stringify(selections.cart),
                             website_slug: @json($data->slug),
+                            affiliate_slug: @json($affiliate->slug),
                             event_name: @json($affiliate->display_name ?? $affiliate->user->name),
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },

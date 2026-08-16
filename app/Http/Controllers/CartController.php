@@ -89,12 +89,16 @@ class CartController extends Controller
         if ($sharedCart->affiliate_slug) {
             $affiliateExists = Affiliate::where('slug', $sharedCart->affiliate_slug)
                 ->where('status', 'approved')
-                ->where('is_active', true)
+                ->where(function ($q) {
+                    $q->whereNull('is_active')->orWhere('is_active', true);
+                })
                 ->exists();
 
             $entertainerExists = Entertainer::where('slug', $sharedCart->affiliate_slug)
                 ->where('status', 'approved')
-                ->where('is_active', true)
+                ->where(function ($q) {
+                    $q->whereNull('is_active')->orWhere('is_active', true);
+                })
                 ->exists();
 
             $params = ['cart' => $cartParam];
