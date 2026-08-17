@@ -90,8 +90,17 @@ class AffiliateAdminController extends Controller
 
         // Calculate commission amounts
         $now = now();
+        if ($affiliate->isSubAffiliate()) {
+            $affiliateIds = [$affiliate->id];
+        } else {
+            $subIds = Affiliate::where('parent_affiliate_id', $affiliate->id)->pluck('id')->toArray();
+            $affiliateIds = array_merge([$affiliate->id], $subIds);
+        }
+
         $transactions = Transaction::query()
-            ->where('affiliate_id', $affiliate->id)
+            ->whereIn('affiliate_id', $affiliateIds)
+            ->with(['website', 'event', 'package', 'affiliate.user', 'affiliate.parent.user'])
+            ->latest()
             ->get();
 
         $pendingAmount = $transactions->sum(function ($t) use ($now) {

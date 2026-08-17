@@ -229,7 +229,12 @@
         @endif
 
         <div class="card p-4">
-            <h5 class="mb-3">Transactions</h5>
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <h5 class="mb-0">Transactions</h5>
+                @if(!$affiliate->isSubAffiliate())
+                    <span class="badge bg-label-info"><i class="bx bx-group me-1"></i> Includes Team Sub-Promoters</span>
+                @endif
+            </div>
 
             <!-- Stat Cards -->
             @php
@@ -365,7 +370,17 @@
                                 @endphp
                                 <tr data-transaction-id="{{ $transaction->id }}">
                                     <td><input type="checkbox" class="txn-row-check" value="{{ $transaction->id }}"></td>
-                                    <td><strong>{{ $transaction->transaction_id ?? 'N/A' }}</strong></td>
+                                    <td>
+                                        <strong>{{ $transaction->transaction_id ?? 'N/A' }}</strong>
+                                        @if(optional($transaction->affiliate)->isSubAffiliate())
+                                            @php
+                                                $subName = $transaction->affiliate->display_name ?: optional($transaction->affiliate->user)->name ?: ('Sub Promoter #' . $transaction->affiliate_id);
+                                            @endphp
+                                            <div class="badge bg-label-info text-wrap mt-1 text-start d-block" style="font-size: 0.72rem;">
+                                                <i class="bx bx-user me-1"></i> Sub Promoter: {{ $subName }}
+                                            </div>
+                                        @endif
+                                    </td>
                                     <td><small>{{ optional($transaction->created_at)->format('M d, Y') }}</small></td>
                                     <td>
                                         <div style="font-weight:600;margin-bottom:6px;">{{ optional($transaction->website)->name ?? 'N/A' }}</div>
