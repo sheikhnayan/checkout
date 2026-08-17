@@ -1816,9 +1816,9 @@ class TransactionController extends Controller
         if ($transaction->affiliate) {
             if ($transaction->affiliate->isSubAffiliate()) {
                 $parent = $transaction->affiliate->parent;
-                $parentName = $parent ? ($parent->display_name ?: optional($parent->user)->name) : 'Primary Promoter';
+                $parentName = $parent ? ($parent->display_name ?: optional($parent->user)->name) : 'Main Promoter';
                 $subName = $transaction->affiliate->display_name ?: optional($transaction->affiliate->user)->name;
-                $affiliateName = $subName . ' (Primary: ' . $parentName . ')';
+                $affiliateName = $subName . ' (Main Promoter: ' . $parentName . ')';
             } else {
                 $affiliateName = $transaction->affiliate->display_name ?: optional($transaction->affiliate->user)->name;
             }
@@ -2038,9 +2038,18 @@ class TransactionController extends Controller
     public function portalDetails($id)
     {
         $user = auth()->user();
-        $transaction = Transaction::with(['event', 'package', 'affiliate.user', 'entertainer.user'])->findOrFail($id);
+        $transaction = Transaction::with(['event', 'package', 'affiliate.user', 'affiliate.parent.user', 'entertainer.user'])->findOrFail($id);
 
-        $ownsViaAffiliate = $user && $user->affiliate && (int) $transaction->affiliate_id === (int) $user->affiliate->id;
+        $ownsViaAffiliate = false;
+        if ($user && $user->affiliate) {
+            $userAffId = (int) $user->affiliate->id;
+            if ((int) $transaction->affiliate_id === $userAffId) {
+                $ownsViaAffiliate = true;
+            } elseif ($transaction->affiliate && (int) $transaction->affiliate->parent_affiliate_id === $userAffId) {
+                $ownsViaAffiliate = true;
+            }
+        }
+
         $ownsViaEntertainer = $user && $user->entertainer && (int) $transaction->entertainer_id === (int) $user->entertainer->id;
 
         if (!$ownsViaAffiliate && !$ownsViaEntertainer) {
@@ -4400,8 +4409,14 @@ class TransactionController extends Controller
         }
 
         // Affiliates and entertainers may download PDFs for their own transactions.
-        if ($user->isAffiliate() && $user->affiliate && (int) $user->affiliate->id === (int) $transaction->affiliate_id) {
-            return;
+        if ($user->isAffiliate() && $user->affiliate) {
+            $userAffId = (int) $user->affiliate->id;
+            if ((int) $transaction->affiliate_id === $userAffId) {
+                return;
+            }
+            if ($transaction->affiliate && (int) $transaction->affiliate->parent_affiliate_id === $userAffId) {
+                return;
+            }
         }
 
         if ($user->isEntertainer() && $user->entertainer && (int) $user->entertainer->id === (int) $transaction->entertainer_id) {
