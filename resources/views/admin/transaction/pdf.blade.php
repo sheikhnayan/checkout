@@ -155,7 +155,17 @@
             <div class="section-title">🏆 Commission & Dates</div>
             <ul class="list-group">
                 @php
-                    $affiliateName = $transaction->affiliate ? ($transaction->affiliate->display_name ?: optional($transaction->affiliate->user)->name) : '';
+                    $affiliateName = '';
+                    if ($transaction->affiliate) {
+                        if ($transaction->affiliate->isSubAffiliate()) {
+                            $parent = $transaction->affiliate->parent;
+                            $parentName = $parent ? ($parent->display_name ?: optional($parent->user)->name) : 'Main Promoter';
+                            $subName = $transaction->affiliate->display_name ?: optional($transaction->affiliate->user)->name ?: ('Sub Promoter #' . $transaction->affiliate_id);
+                            $affiliateName = 'Sub Promoter: ' . $subName . ' (Main Promoter: ' . $parentName . ')';
+                        } else {
+                            $affiliateName = $transaction->affiliate->display_name ?: optional($transaction->affiliate->user)->name ?: ('Promoter #' . $transaction->affiliate_id);
+                        }
+                    }
                     $entertainerName = $transaction->entertainer ? ($transaction->entertainer->display_name ?: optional($transaction->entertainer->user)->name) : '';
                     $totalCommission = (float)($transaction->affiliate_commission_amount ?? 0) + (float)($transaction->entertainer_commission_amount ?? 0);
                 @endphp

@@ -312,7 +312,7 @@ class AffiliatePortalController extends Controller
         }
 
         $bookingTransactions = Transaction::whereIn('affiliate_id', $affiliateIds)
-            ->with(['website', 'event', 'package', 'affiliate.user'])
+            ->with(['website', 'event', 'package', 'affiliate.user', 'affiliate.parent.user'])
             ->latest()
             ->get();
 

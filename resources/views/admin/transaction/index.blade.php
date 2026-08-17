@@ -892,8 +892,15 @@ body.modal-open .admin-mobile-menu-toggle {
 
             // affiliate names for filter
             $referralRows = $data->map(function ($row) {
-                if (!empty($row->affiliate_id) && !empty($row->affiliate))
+                if (!empty($row->affiliate_id) && !empty($row->affiliate)) {
+                    if ($row->affiliate->isSubAffiliate()) {
+                        $parent = $row->affiliate->parent;
+                        $parentName = $parent ? ($parent->display_name ?: optional($parent->user)->name) : 'Main Promoter';
+                        $subName = $row->affiliate->display_name ?: optional($row->affiliate->user)->name ?: ('Sub Promoter #' . $row->affiliate_id);
+                        return $subName . ' (Main: ' . $parentName . ')';
+                    }
                     return $row->affiliate->display_name ?: optional($row->affiliate->user)->name ?: ('affiliate #' . $row->affiliate_id);
+                }
                 if (!empty($row->entertainer_id) && !empty($row->entertainer))
                     return $row->entertainer->display_name ?: optional($row->entertainer->user)->name ?: ('Entertainer #' . $row->entertainer_id);
                 return null;
@@ -1407,9 +1414,9 @@ body.modal-open .admin-mobile-menu-toggle {
                                 if (!empty($item->affiliate_id) && !empty($item->affiliate)) {
                                     if ($item->affiliate->isSubAffiliate()) {
                                         $parent = $item->affiliate->parent;
-                                        $parentName = $parent ? ($parent->display_name ?: optional($parent->user)->name) : 'Primary Promoter';
-                                        $subName = $item->affiliate->display_name ?: optional($item->affiliate->user)->name;
-                                        $affiliateName = $subName . ' (Primary: ' . $parentName . ')';
+                                        $parentName = $parent ? ($parent->display_name ?: optional($parent->user)->name) : 'Main Promoter';
+                                        $subName = $item->affiliate->display_name ?: optional($item->affiliate->user)->name ?: ('Sub Promoter #' . $item->affiliate_id);
+                                        $affiliateName = $subName . ' (Main Promoter: ' . $parentName . ')';
                                     } else {
                                         $affiliateName = $item->affiliate->display_name ?: optional($item->affiliate->user)->name ?: ('affiliate #' . $item->affiliate_id);
                                     }
@@ -1590,7 +1597,7 @@ body.modal-open .admin-mobile-menu-toggle {
                             <td class="txn-confirmation-num">{{ $item->transaction_id ?? 'N/A' }}</td>
                             <td class="txn-pkg-name">
                                 <div style="font-size:0.85rem;font-weight:600;margin-bottom:8px;">{{ $venueName }}</div>
-                                <button type="button" class="btn btn-sm btn-link-package view-btn" data-date="{{ $purchaseAtLocal?->format('M d, Y') ?? '' }}" data-date-iso="{{ $purchaseAtLocal?->format('Y-m-d') ?? '' }}" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-id="{{ $item->id }}" data-requires_transportation="{{ $requiresTransportationForRow ? 1 : 0 }}" data-admin_notes="{{ $item->admin_notes ?? '' }}" data-admin_notes_by="{{ $item->admin_notes_by ?? '' }}" data-admin_notes_at="{{ $item->admin_notes_at ? optional($item->admin_notes_at)->timezone('America/Los_Angeles')->format('M d, Y h:i A \P\D\T') : '' }}" data-confirmation-number="{{ $item->transaction_id ?? 'N/A' }}" data-cart-items='@json($cartItems)' data-package-descriptions-b64="{{ base64_encode(json_encode($packageDescriptionsPayload)) }}" data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" data-package_use_date="{{ $item->package_use_date ?? '' }}" data-checked_in_status="{{ $item->checked_in_status ?? $item->checked_in ?? 0 }}" data-package_number_of_guest="{{ $item->package_number_of_guest ?? 0 }}" data-package_first_name="{{ $item->package_first_name ?? '' }}" data-package_last_name="{{ $item->package_last_name ?? '' }}" data-package_phone="{{ $item->package_phone ?? '' }}" data-package_email="{{ $item->package_email ?? '' }}" data-package_dob="{{ $item->package_dob ?? '' }}" data-package_note="{{ $item->package_note ?? '' }}" data-host_name="{{ $item->host_name ?? '' }}" data-transportation_pickup_time="{{ $item->transportation_pickup_time ?? '' }}" data-transportation_arrival_time="{{ $item->transportation_arrival_time ?? '' }}" data-transportation_address="{{ $item->transportation_address ?? '' }}" data-transportation_phone="{{ $item->transportation_phone ?? '' }}" data-transportation_note="{{ $item->transportation_note ?? '' }}" data-payment_first_name="{{ $item->payment_first_name ?? '' }}" data-payment_last_name="{{ $item->payment_last_name ?? '' }}" data-payment_phone="{{ $item->payment_phone ?? '' }}" data-payment_email="{{ $item->payment_email ?? '' }}" data-payment_address="{{ $item->payment_address ?? '' }}" data-payment_city="{{ $item->payment_city ?? '' }}" data-payment_state="{{ $item->payment_state ?? '' }}" data-payment_country="{{ $item->payment_country ?? '' }}" data-payment_dob="{{ $item->payment_dob ?? '' }}" data-payment_zip_code="{{ $item->payment_zip_code ?? '' }}" data-type="{{ $item->type }}" data-status="{{ $item->status }}" data-ip_address="{{ $item->ip_address ?? '' }}" data-website_id="{{ $item->website->name ?? '' }}" data-affiliate_name="{{ $item->affiliate ? ($item->affiliate->display_name ?: optional($item->affiliate->user)->name) : '' }}" data-entertainer_name="{{ $item->entertainer ? ($item->entertainer->display_name ?: optional($item->entertainer->user)->name) : '' }}" data-addons="{{ $addons }}" style="font-size:0.85rem;min-width:72px;">Quick View</button>
+                                <button type="button" class="btn btn-sm btn-link-package view-btn" data-date="{{ $purchaseAtLocal?->format('M d, Y') ?? '' }}" data-date-iso="{{ $purchaseAtLocal?->format('Y-m-d') ?? '' }}" data-bs-toggle="modal" data-bs-target="#packageDetailsModal" data-transaction-id="{{ $item->id }}" data-id="{{ $item->id }}" data-requires_transportation="{{ $requiresTransportationForRow ? 1 : 0 }}" data-admin_notes="{{ $item->admin_notes ?? '' }}" data-admin_notes_by="{{ $item->admin_notes_by ?? '' }}" data-admin_notes_at="{{ $item->admin_notes_at ? optional($item->admin_notes_at)->timezone('America/Los_Angeles')->format('M d, Y h:i A \P\D\T') : '' }}" data-confirmation-number="{{ $item->transaction_id ?? 'N/A' }}" data-cart-items='@json($cartItems)' data-package-descriptions-b64="{{ base64_encode(json_encode($packageDescriptionsPayload)) }}" data-breakdown='@json($item->price_breakdown)' data-transaction-type='{{ $item->type }}' data-men='{{ $item->package_men ?? 0 }}' data-women='{{ $item->package_women ?? 0 }}' data-package-label="{{ $packageDetailsText }}" data-package_use_date="{{ $item->package_use_date ?? '' }}" data-checked_in_status="{{ $item->checked_in_status ?? $item->checked_in ?? 0 }}" data-package_number_of_guest="{{ $item->package_number_of_guest ?? 0 }}" data-package_first_name="{{ $item->package_first_name ?? '' }}" data-package_last_name="{{ $item->package_last_name ?? '' }}" data-package_phone="{{ $item->package_phone ?? '' }}" data-package_email="{{ $item->package_email ?? '' }}" data-package_dob="{{ $item->package_dob ?? '' }}" data-package_note="{{ $item->package_note ?? '' }}" data-host_name="{{ $item->host_name ?? '' }}" data-transportation_pickup_time="{{ $item->transportation_pickup_time ?? '' }}" data-transportation_arrival_time="{{ $item->transportation_arrival_time ?? '' }}" data-transportation_address="{{ $item->transportation_address ?? '' }}" data-transportation_phone="{{ $item->transportation_phone ?? '' }}" data-transportation_note="{{ $item->transportation_note ?? '' }}" data-payment_first_name="{{ $item->payment_first_name ?? '' }}" data-payment_last_name="{{ $item->payment_last_name ?? '' }}" data-payment_phone="{{ $item->payment_phone ?? '' }}" data-payment_email="{{ $item->payment_email ?? '' }}" data-payment_address="{{ $item->payment_address ?? '' }}" data-payment_city="{{ $item->payment_city ?? '' }}" data-payment_state="{{ $item->payment_state ?? '' }}" data-payment_country="{{ $item->payment_country ?? '' }}" data-payment_dob="{{ $item->payment_dob ?? '' }}" data-payment_zip_code="{{ $item->payment_zip_code ?? '' }}" data-type="{{ $item->type }}" data-status="{{ $item->status }}" data-ip_address="{{ $item->ip_address ?? '' }}" data-website_id="{{ $item->website->name ?? '' }}" data-affiliate_name="{{ $affiliateName ?: '' }}" data-entertainer_name="{{ $item->entertainer ? ($item->entertainer->display_name ?: optional($item->entertainer->user)->name) : '' }}" data-addons="{{ $addons }}" style="font-size:0.85rem;min-width:72px;">Quick View</button>
                             </td>
                             <td class="txn-host-name">
                                 @if(!empty($item->host_name))
@@ -1605,14 +1612,23 @@ body.modal-open .admin-mobile-menu-toggle {
                                     $sourceBadgeColor = '#6b7280';
                                     $sourceLink = null;
                                     $sourceType = null;
+                                    $subAffiliateParentName = null;
 
                                     if (!empty($item->affiliate_id) && !empty($item->affiliate)) {
-                                        $sourceText = $item->affiliate->display_name ?: optional($item->affiliate->user)->name ?: 'Affiliate #' . $item->affiliate_id;
+                                        if ($item->affiliate->isSubAffiliate()) {
+                                            $parent = $item->affiliate->parent;
+                                            $parentName = $parent ? ($parent->display_name ?: optional($parent->user)->name) : 'Main Promoter';
+                                            $subName = $item->affiliate->display_name ?: optional($item->affiliate->user)->name ?: ('Sub Promoter #' . $item->affiliate_id);
+                                            $sourceText = $subName;
+                                            $subAffiliateParentName = $parentName;
+                                        } else {
+                                            $sourceText = $item->affiliate->display_name ?: optional($item->affiliate->user)->name ?: ('Affiliate #' . $item->affiliate_id);
+                                        }
                                         $sourceBadgeColor = '#8b5cf6';
                                         $sourceLink = route('admin.affiliate.show', $item->affiliate_id);
                                         $sourceType = 'affiliate';
                                     } elseif (!empty($item->entertainer_id) && !empty($item->entertainer)) {
-                                        $sourceText = $item->entertainer->display_name ?: optional($item->entertainer->user)->name ?: 'Entertainer #' . $item->entertainer_id;
+                                        $sourceText = $item->entertainer->display_name ?: optional($item->entertainer->user)->name ?: ('Entertainer #' . $item->entertainer_id);
                                         $sourceBadgeColor = '#ec4899';
                                         $sourceLink = route('admin.entertainer.show', $item->entertainer_id);
                                         $sourceType = 'entertainer';
@@ -1622,6 +1638,11 @@ body.modal-open .admin-mobile-menu-toggle {
                                     <a href="{{ $sourceLink }}" style="background:{{ $sourceBadgeColor }};color:white;padding:4px 10px;border-radius:4px;font-size:0.85rem;font-weight:600;text-decoration:none;display:inline-block;cursor:pointer;" title="View {{ $sourceType }} profile">{{ $sourceText }}</a>
                                 @else
                                     <span style="background:{{ $sourceBadgeColor }};color:white;padding:4px 10px;border-radius:4px;font-size:0.85rem;font-weight:600;">{{ $sourceText }}</span>
+                                @endif
+                                @if($subAffiliateParentName)
+                                    <div style="font-size:0.73rem;color:#c084fc;margin-top:3px;font-weight:500;">
+                                        <i class="fas fa-sitemap me-1" style="font-size:0.68rem;"></i>Main: {{ $subAffiliateParentName }}
+                                    </div>
                                 @endif
                             </td>
                             <td>
@@ -1906,7 +1927,7 @@ body.modal-open .admin-mobile-menu-toggle {
                                         data-men="{{ $item->men ?? '' }}"
                                         data-women="{{ $item->women ?? '' }}"
                                         data-requires_transportation="{{ $requiresTransportationForRow ? 1 : 0 }}"
-                                        data-affiliate_name="{{ !empty($item->affiliate_id) && !empty($item->affiliate) ? ($item->affiliate->display_name ?: optional($item->affiliate->user)->name ?: ('affiliate #' . $item->affiliate_id)) : '' }}"
+                                        data-affiliate_name="{{ $affiliateName ?: '' }}"
                                         data-entertainer_name="{{ !empty($item->entertainer_id) && !empty($item->entertainer) ? ($item->entertainer->display_name ?: optional($item->entertainer->user)->name ?: ('Entertainer #' . $item->entertainer_id)) : '' }}"
                                         data-affiliate_commission_percentage="{{ (float) ($item->affiliate_commission_percentage ?? 0) }}"
                                         data-affiliate_commission_amount="{{ (float) ($item->affiliate_commission_amount ?? 0) }}"

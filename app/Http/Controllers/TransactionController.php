@@ -1580,7 +1580,7 @@ class TransactionController extends Controller
         }
 
         $transactions = $query
-            ->with(['event.website', 'package.website', 'website', 'affiliate.user', 'entertainer.user'])
+            ->with(['event.website', 'package.website', 'website', 'affiliate.user', 'affiliate.parent.user', 'entertainer.user'])
             ->latest()
             ->get();
 
@@ -4374,7 +4374,7 @@ class TransactionController extends Controller
 
     public function downloadPdf($id)
     {
-        $transaction = Transaction::with(['website', 'event', 'package', 'affiliate.user', 'entertainer.user'])->findOrFail($id);
+        $transaction = Transaction::with(['website', 'event', 'package', 'affiliate.user', 'affiliate.parent.user', 'entertainer.user'])->findOrFail($id);
 
         $this->ensureCanAccess($transaction);
 
