@@ -6355,7 +6355,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         This experience is fulfilled by the venue. Entry is subject to venue rules including minimum age requirements (18+ or 21+ depending on venue), valid ID, and dress code.
                                     </div>
 
-                                    <form action="{{ route('checkout.store', ['slug' => $data->slug]) }}" id="payment-form" method="post">
+                                    <form action="{{ route('checkout.store', ['slug' => $data->slug]) }}" id="payment-form" method="post" novalidate>
                                         @csrf
                                         
 
@@ -6499,7 +6499,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                 <div class="form-group" style="width: 100%;">
                                                                     <label for="phone">Contact Phone Number or WhatsApp</label>
                                                                     <input type="tel" name="transportation_phone" id="phone"
-                                                                        placeholder="For driver/dispatch to coordinate pickup"   required />
+                                                                        placeholder="For driver/dispatch to coordinate pickup" />
                                                                     <div class="phone-note" style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-top: 4px;">Phone formatting may vary by country. International SMS delivery is not guaranteed.</div>
                                                                 </div>
     
@@ -6511,7 +6511,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     
                                                                     <input type="number" class="form-control"
                                                                         name="transportation_guest" value="0" min="0"
-                                                                        style="width: 120px; max-width: 120px; color: #fff;" required />
+                                                                        style="width: 120px; max-width: 120px; color: #fff;" />
     
     
     
@@ -6613,11 +6613,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                             </div>
     
                                                             <!-- Hidden fields for phone, email, and DOB - will be auto-populated from package holder info -->
-                                                            <input type="hidden" name="payment_phone" id="hidden_payment_phone"  required />
-                                                            <input type="hidden" name="payment_email" id="hidden_payment_email"  required />
-                                                            <input type="hidden" name="payment_month" id="hidden_payment_month"  required />
-                                                            <input type="hidden" name="payment_day" id="hidden_payment_day"  required />
-                                                            <input type="hidden" name="payment_year" id="hidden_payment_year"  required />
+                                                            <input type="hidden" name="payment_phone" id="hidden_payment_phone" />
+                                                            <input type="hidden" name="payment_email" id="hidden_payment_email" />
+                                                            <input type="hidden" name="payment_month" id="hidden_payment_month" />
+                                                            <input type="hidden" name="payment_day" id="hidden_payment_day" />
+                                                            <input type="hidden" name="payment_year" id="hidden_payment_year" />
     
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 100%;">

@@ -6610,7 +6610,7 @@
                                     </div>
 
                                     <form action="{{ route('checkout.store', ['slug' => $data->slug]) }}"
-                                        id="payment-form" method="post">
+                                        id="payment-form" method="post" novalidate>
                                         @csrf
 
 
