@@ -6544,7 +6544,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                             'name' => $method['name'],
                                                                         ])->values();
                                                                     }
-                                                                @endphp
+                                                                                                                <div id="checkout-card-fields">
                                                             @if ($data->payment_method == 'authorize')
                                                                 <div class="form-row">
                                                                     <div class="form-group" style="width: 100%;">
@@ -6556,7 +6556,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                         </div>
                                                                         <label for="card_number">Card Number</label>
                                                                         <input type="tel" name="card_number" id="card_number"
-                                                                            placeholder="" inputmode="numeric" autocomplete="cc-number" maxlength="19" required />
+                                                                            placeholder="" inputmode="numeric" autocomplete="cc-number" maxlength="19" required data-card-required="1" />
                                                                     </div>
 
                                                                 </div>
@@ -6564,45 +6564,51 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                     <div class="form-group" style="width: 25%;">
                                                                         <label>Month</label>
                                                                         <input type="tel" maxlength="2" name="card_month"
-                                                                            id="city" placeholder="(MM)" required />
+                                                                            id="city" placeholder="(MM)" required data-card-required="1" />
                                                                     </div>
                                                                     <div class="form-group" style="width: 25%;">
                                                                         <label>Year</label>
                                                                         <input type="tel" maxlength="2" name="card_year"
-                                                                            placeholder="(YY)" required />
+                                                                            placeholder="(YY)" required data-card-required="1" />
                                                                     </div>
                                                                     <div class="form-group" style="width: 25%;">
                                                                         <label>CVV</label>
                                                                         <input type="tel" name="card_cvv" id="cvv"
-                                                                            placeholder="CVV" required />
+                                                                            placeholder="CVV" required data-card-required="1" />
                                                                     </div>
-                                                                @else
-                                                                    <div class="form-row">
-                                                                        @foreach($paymentLogosToRender as $logo)
-                                                                            <img src="{{ $logo['src'] }}" alt="{{ $logo['name'] }}" style="height:32px; margin-right:4px;">
-                                                                        @endforeach
+                                                                </div>
+                                                            @else
+                                                                <div class="form-row">
+                                                                    @foreach($paymentLogosToRender as $logo)
+                                                                        <img src="{{ $logo['src'] }}" alt="{{ $logo['name'] }}" style="height:32px; margin-right:4px;">
+                                                                    @endforeach
+                                                                </div>
+                                                                <div style="margin-bottom: 10px;">
+                                                                    <div class="form-group" style="width: 100%;" id="card_number">
+                                                                        <label for="card_number">Card Number</label>
+                                                                        {{-- <input type="tel" name="card_number" 
+                                                                        placeholder="" required /> --}}
                                                                     </div>
-                                                                    <div style="margin-bottom: 10px;">
-                                                                        <div class="form-group" style="width: 100%;" id="card_number">
-                                                                            <label for="card_number">Card Number</label>
-                                                                            {{-- <input type="tel" name="card_number" 
-                                                                            placeholder="" required /> --}}
-                                                                        </div>
 
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <div class="form-group" style="width: 50%;" id="expiration_date">
+                                                                        <label>Expiry Date</label>
+                                                                        {{-- <input type="text"  name="expiration_date"
+                                                                             placeholder="MM/YY" required /> --}}
                                                                     </div>
-                                                                    <div class="form-row">
-                                                                        <div class="form-group" style="width: 50%;" id="expiration_date">
-                                                                            <label>Expiry Date</label>
-                                                                            {{-- <input type="text"  name="expiration_date"
-                                                                                 placeholder="MM/YY" required /> --}}
-                                                                        </div>
-                                                                        <div class="form-group" style="width: 50%;" id="cvv">
-                                                                            <label>CVV</label>
-                                                                            {{-- <input type="tel" name="card_cvv" 
-                                                                            placeholder="CVV" required /> --}}
-                                                                        </div>
-                                                                @endif
+                                                                    <div class="form-group" style="width: 50%;" id="cvv">
+                                                                        <label>CVV</label>
+                                                                        {{-- <input type="tel" name="card_cvv" 
+                                                                        placeholder="CVV" required /> --}}
+                                                                    </div>
+                                                                </div>
+                                                            @endif
                                                             </div>
+                                                            <div id="zero-total-payment-note" style="display: none; margin: 0 0 18px; padding: 14px 16px; border: 1px solid rgba(34, 197, 94, 0.35); border-radius: 12px; background: rgba(34, 197, 94, 0.08); color: #d1fae5; font-size: 13px; line-height: 1.5;">
+                                                                <i class="fas fa-check-circle" style="margin-right: 6px;"></i> This order total is $0.00. No card information is required to complete checkout.
+                                                            </div>
+                                                            <div id="card-errors" style="margin-bottom: 14px; color: #ff9b9b; font-size: 13px;"></div>              </div>
                                                             <div class="checkbox-container payment-consent-group" style="margin-top: 1.5rem; display: none;">
                                                                 <label class="consent-label">
                                                                     <input type="checkbox" id="businessExpenseCheckbox" />
@@ -8482,6 +8488,46 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 syncCheckoutCartFields();
             };
 
+            window.isZeroTotalCheckout = function() {
+                var totalField = document.querySelector('.payment_total');
+                var total = parseFloat(totalField ? totalField.value : '0');
+                return Number.isFinite(total) && Math.abs(total) < 0.00001;
+            };
+
+            window.updateCheckoutPaymentRequirement = function() {
+                var form = document.getElementById('payment-form');
+                var cardFieldsWrapper = document.getElementById('checkout-card-fields');
+                var zeroTotalNote = document.getElementById('zero-total-payment-note');
+                var cardErrors = document.getElementById('card-errors');
+                var isFreeCheckout = window.isZeroTotalCheckout();
+
+                if (form) {
+                    form.dataset.zeroTotalCheckout = isFreeCheckout ? '1' : '0';
+                }
+
+                if (cardFieldsWrapper) {
+                    cardFieldsWrapper.style.display = isFreeCheckout ? 'none' : '';
+                }
+
+                if (zeroTotalNote) {
+                    zeroTotalNote.style.display = isFreeCheckout ? 'block' : 'none';
+                }
+
+                if (cardErrors && isFreeCheckout) {
+                    cardErrors.textContent = '';
+                }
+
+                document.querySelectorAll('[data-card-required="1"]').forEach(function(field) {
+                    field.required = !isFreeCheckout;
+                    field.disabled = isFreeCheckout;
+
+                    if (isFreeCheckout) {
+                        field.value = '';
+                        field.setCustomValidity('');
+                    }
+                });
+            };
+
             window.calculateCartTotal = function() {
                 ensureCartArray();
                 var subtotal = 0;
@@ -8556,6 +8602,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 }
 
                 $('.payment_total').val(grandTotal.toFixed(2));
+                if (typeof window.updateCheckoutPaymentRequirement === 'function') {
+                    window.updateCheckoutPaymentRequirement();
+                }
                 $('#subtotal').val(refundableRate > 0 ? refundableAmount.toFixed(2) : grandTotal.toFixed(2));
                 $('#commission_base_amount').val(Math.max(subtotal - couponDiscount, 0).toFixed(2));
                 $('.default-refundable .refundable-amount').text(formatCurrency(refundableAmount));
@@ -9940,6 +9989,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                 visibleField.value = e164Field.value;
                             }
                         });
+
+                        if (typeof window.isZeroTotalCheckout === 'function' && window.isZeroTotalCheckout()) {
+                            setTimeout(function() {
+                                form.submit();
+                            }, 100);
+                            return;
+                        }
 
                         const {token, error} = await stripe.createToken(cardNumber);
 
