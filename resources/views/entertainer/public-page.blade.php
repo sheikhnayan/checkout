@@ -6698,7 +6698,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                             'name' => $method['name'],
                                                                         ])->values();
                                                                     }
-                                                                                              <div id="checkout-card-fields">
+                                                                @endphp
+                                                                <div id="checkout-card-fields">
                                                             @if ($data->payment_method == 'authorize')
                                                                 <div class="form-row">
                                                                     <div class="form-group" style="width: 100%;">
