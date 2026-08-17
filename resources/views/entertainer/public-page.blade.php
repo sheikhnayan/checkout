@@ -6067,7 +6067,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         <select id="package-location-filter-main" class="ent-location-mobile-select" style="width: 100%; min-height: 48px; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.2) !important; border-radius: 10px !important; color: #fff !important; padding: 12px 14px !important; font-size: 14px; font-weight: 600; -webkit-appearance: none; -moz-appearance: none; appearance: none;">
                                             <option value="">-- Select a Location --</option>
                                             @foreach($uniqueClubsForFilter as $clubOption)
-                                                <option value="{{ $clubOption->id }}">{{ $clubOption->name }}</option>
+                                                <option value="{{ $clubOption->id }}" data-logo="{{ $clubOption->logo ? asset('uploads/' . $clubOption->logo) : '' }}">{{ $clubOption->name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -6126,7 +6126,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                         $tierIcons = [1 => 'fa-crown', 2 => 'fa-star', 3 => 'fa-gem', 4 => 'fa-fire'];
                                                         $tierIcon = $tierIcons[$tierIndex] ?? 'fa-crown';
                                                     @endphp
-                                                    <div class="vip-card cv-exact-card cv-tier-{{ $tierIndex }}" id="pkg-card-{{ $item->id }}" data-package-name="{{ $item->name }}" data-club-name="{{ $item->website->name ?? '' }}" data-location="{{ $item->website->location ?? '' }}" data-club-id="{{ $item->website->id ?? '' }}">
+                                                    <div class="vip-card cv-exact-card cv-tier-{{ $tierIndex }}" id="pkg-card-{{ $item->id }}" data-package-name="{{ $item->name }}" data-club-name="{{ $item->website->name ?? '' }}" data-location="{{ $item->website->location ?? '' }}" data-club-id="{{ $item->website->id ?? '' }}" data-club-logo="{{ ($item->website && $item->website->logo) ? asset('uploads/' . $item->website->logo) : '' }}">
                                                         <div class="cv-pkg-media-wrap">
                                                             <picture>
                                                                 <source media="(max-width: 767px)" srcset="{{ $packageMobileVisual }}">
@@ -6843,10 +6843,12 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     </div>
 
                     @php
-                        $sidebarVenueImage = !empty($entertainer->banner_image ?? null) ? asset('uploads/' . $entertainer->banner_image) : ($data->logo ? asset('uploads/' . $data->logo) : null);
+                        $sidebarVenueImage = $data->logo ? asset('uploads/' . $data->logo) : null;
                     @endphp
                     @if($sidebarVenueImage)
-                        <img src="{{ $sidebarVenueImage }}" class="cv-sidebar-venue-image" alt="{{ $data->name }}">
+                        <img src="{{ $sidebarVenueImage }}" class="cv-sidebar-venue-image" alt="{{ $data->name }}" data-default-src="{{ $sidebarVenueImage }}">
+                    @else
+                        <img src="" class="cv-sidebar-venue-image" alt="{{ $data->name }}" style="display:none;" data-default-src="">
                     @endif
 
                     <div class="cv-sidebar-venue-row" style="border-bottom:none; padding-bottom:0; margin-bottom:14px;">
@@ -9350,7 +9352,12 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     var guests = parseInt(guestValue) || 1;
 
                     $('.vip-card').removeClass('selected');
-                    $btn.closest('.vip-card').addClass('selected');
+                    var $card = $btn.closest('.vip-card');
+                    $card.addClass('selected');
+                    var cardClubId = $card.data('club-id') || $card.attr('data-club-id');
+                    if (cardClubId && typeof window.updateOrderSummaryVenue === 'function') {
+                        window.updateOrderSummaryVenue(cardClubId);
+                    }
 
                     $.ajax({
                         url: "/{{ $data->slug }}/addons/" + packageId,
@@ -10790,20 +10797,52 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     tab.classList.remove('visible-tab');
                 });
 
+                window.updateOrderSummaryVenue = function(locationId) {
+                    var venueNameEl = document.querySelector('.cv-sidebar-venue-name');
+                    var venueImgEl = document.querySelector('.cv-sidebar-venue-image');
+                    if (!venueNameEl && !venueImgEl) return;
+
+                    var clubName = '';
+                    var clubLogo = '';
+
+                    if (locationId) {
+                        var clubCard = document.querySelector('[id^="pkg-card-"][data-club-id="' + locationId + '"]');
+                        if (clubCard) {
+                            clubName = clubCard.getAttribute('data-club-name') || '';
+                            clubLogo = clubCard.getAttribute('data-club-logo') || '';
+                        }
+                        if (!clubName || !clubLogo) {
+                            var locSelect = document.getElementById('package-location-filter-main');
+                            if (locSelect) {
+                                var opt = locSelect.querySelector('option[value="' + locationId + '"]');
+                                if (opt) {
+                                    if (!clubName) clubName = opt.textContent.trim();
+                                    if (!clubLogo) clubLogo = opt.getAttribute('data-logo') || '';
+                                }
+                            }
+                        }
+                    }
+
+                    if (venueNameEl) {
+                        venueNameEl.textContent = clubName;
+                    }
+
+                    if (venueImgEl) {
+                        var logoToUse = clubLogo || venueImgEl.getAttribute('data-default-src') || '';
+                        if (logoToUse) {
+                            venueImgEl.src = logoToUse;
+                            venueImgEl.style.display = 'block';
+                        } else {
+                            venueImgEl.style.display = 'none';
+                        }
+                    }
+                };
+
                 function filterPackages() {
                     var locationId = String(locationFilter.value || '').trim();
                     console.log('Filter called with locationId:', locationId);
 
-                    // Order summary venue name follows the selected club (empty until one is chosen)
-                    var venueNameEl = document.querySelector('.cv-sidebar-venue-name');
-                    if (venueNameEl) {
-                        if (!locationId) {
-                            venueNameEl.textContent = '';
-                        } else {
-                            var clubCard = document.querySelector('[id^="pkg-card-"][data-club-id="' + locationId + '"]');
-                            venueNameEl.textContent = clubCard ? (clubCard.getAttribute('data-club-name') || '') : '';
-                        }
-                    }
+                    updateOrderSummaryVenue(locationId);
                     var packageHeader = document.querySelector('.ent-package-header-gated');
 
                     if (!locationId) {
