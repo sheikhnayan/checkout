@@ -5884,8 +5884,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                     <p class="cv-hero-venue-title">{{ $affiliate->display_name ?: $affiliate->user->name }}<span class="cv-hero-venue-verified" title="Verified Partner">&check;</span></p>
                                     <p class="cv-hero-venue-meta">Premium Packages</p>
                                     <!-- Social Links beside profile -->
-                                    @if($affiliate->facebook_url || $affiliate->instagram_url)
-                                        <div class="aff-social-links" style="display: flex; gap: 8px; margin-top: 6px;">
+                                    @if($affiliate->facebook_url || $affiliate->instagram_url || $affiliate->youtube_url || $affiliate->tiktok_url)
+                                        <div class="aff-social-links" style="display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap;">
                                             @if($affiliate->facebook_url)
                                                 <a href="{{ $affiliate->facebook_url }}" target="_blank" rel="noopener noreferrer" class="aff-social-link" style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; text-decoration: none; transition: all 0.2s ease;" title="Facebook">
                                                     <i class="fab fa-facebook-f" style="font-size: 15px;"></i>
@@ -5894,6 +5894,16 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                             @if($affiliate->instagram_url)
                                                 <a href="{{ $affiliate->instagram_url }}" target="_blank" rel="noopener noreferrer" class="aff-social-link" style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; text-decoration: none; transition: all 0.2s ease;" title="Instagram">
                                                     <i class="fab fa-instagram" style="font-size: 15px;"></i>
+                                                </a>
+                                            @endif
+                                            @if($affiliate->youtube_url)
+                                                <a href="{{ $affiliate->youtube_url }}" target="_blank" rel="noopener noreferrer" class="aff-social-link" style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; text-decoration: none; transition: all 0.2s ease;" title="YouTube">
+                                                    <i class="fab fa-youtube" style="font-size: 15px;"></i>
+                                                </a>
+                                            @endif
+                                            @if($affiliate->tiktok_url)
+                                                <a href="{{ $affiliate->tiktok_url }}" target="_blank" rel="noopener noreferrer" class="aff-social-link" style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; text-decoration: none; transition: all 0.2s ease;" title="TikTok">
+                                                    <i class="fab fa-tiktok" style="font-size: 15px;"></i>
                                                 </a>
                                             @endif
                                         </div>
