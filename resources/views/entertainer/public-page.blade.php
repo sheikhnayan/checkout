@@ -5548,6 +5548,212 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     opacity: 1 !important;
     -webkit-text-fill-color: rgba(255, 255, 255, 0.7) !important;
 }
+
+/* ===== Luxury Custom Location Dropdown Styling ===== */
+.cv-custom-dropdown-container {
+    position: relative;
+    width: 100%;
+    user-select: none;
+    font-family: inherit;
+}
+
+.cv-custom-dropdown-trigger {
+    width: 100%;
+    min-height: 52px;
+    background: rgba(255, 255, 255, 0.06) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    border-radius: 14px !important;
+    padding: 8px 16px !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.cv-custom-dropdown-trigger:hover,
+.cv-custom-dropdown-container.is-open .cv-custom-dropdown-trigger {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(168, 85, 247, 0.6) !important;
+    box-shadow: 0 0 25px rgba(168, 85, 247, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+
+.cv-custom-dropdown-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.cv-custom-dropdown-icon-box {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(99, 102, 241, 0.25));
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #c084fc;
+    font-size: 14px;
+    overflow: hidden;
+}
+
+.cv-custom-dropdown-icon-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 9px;
+}
+
+.cv-custom-dropdown-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.01em;
+}
+
+.cv-custom-dropdown-text.is-placeholder {
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 500;
+}
+
+.cv-custom-dropdown-chevron {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 13px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s ease;
+    flex-shrink: 0;
+}
+
+.cv-custom-dropdown-container.is-open .cv-custom-dropdown-chevron {
+    transform: rotate(180deg);
+    color: #c084fc;
+}
+
+.cv-custom-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    z-index: 999999;
+    background: rgba(14, 17, 27, 0.96);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 16px;
+    padding: 8px;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.8), 0 0 35px rgba(168, 85, 247, 0.2);
+    max-height: 320px;
+    overflow-y: auto;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px) scale(0.98);
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.2s;
+}
+
+.cv-custom-dropdown-container.is-open .cv-custom-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+.cv-custom-dropdown-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.cv-custom-dropdown-menu::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+}
+
+.cv-custom-dropdown-menu::-webkit-scrollbar-thumb {
+    background: rgba(168, 85, 247, 0.4);
+    border-radius: 10px;
+}
+
+.cv-custom-dropdown-option {
+    padding: 12px 14px;
+    border-radius: 10px;
+    margin-bottom: 4px;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cv-custom-dropdown-option:last-child {
+    margin-bottom: 0;
+}
+
+.cv-custom-dropdown-option:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    transform: translateX(4px);
+}
+
+.cv-custom-dropdown-option.is-selected {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.3) 0%, rgba(99, 102, 241, 0.3) 100%);
+    border: 1px solid rgba(168, 85, 247, 0.5);
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.2);
+}
+
+.cv-custom-dropdown-option-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.cv-custom-dropdown-option-logo {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.cv-custom-dropdown-option-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+    flex-shrink: 0;
+}
+
+.cv-custom-dropdown-check {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 10px;
+    box-shadow: 0 2px 8px rgba(168, 85, 247, 0.4);
+    flex-shrink: 0;
+}
 .ent-date-input::-webkit-input-placeholder {
     color: rgba(255, 255, 255, 0.7) !important;
     -webkit-text-fill-color: rgba(255, 255, 255, 0.7) !important;
@@ -10976,6 +11182,134 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 locationFilter.addEventListener('change', filterPackages);
                 // Call filterPackages once on init to set initial state
                 filterPackages();
+
+                initCustomLocationDropdown();
+            }
+
+            function initCustomLocationDropdown() {
+                var selectEl = document.getElementById('package-location-filter-main');
+                if (!selectEl) return;
+
+                selectEl.style.setProperty('display', 'none', 'important');
+
+                var existingContainer = document.getElementById('cv-custom-location-dropdown-wrapper');
+                if (existingContainer) {
+                    existingContainer.remove();
+                }
+
+                var container = document.createElement('div');
+                container.id = 'cv-custom-location-dropdown-wrapper';
+                container.className = 'cv-custom-dropdown-container';
+
+                var options = Array.from(selectEl.options);
+                var selectedOption = selectEl.options[selectEl.selectedIndex] || options[0];
+
+                function getOptionDetails(opt) {
+                    return {
+                        value: opt.value,
+                        text: opt.text,
+                        logo: opt.getAttribute('data-logo') || '',
+                        isPlaceholder: !opt.value
+                    };
+                }
+
+                function renderTriggerContent(details) {
+                    var iconHtml = details.logo
+                        ? '<img src="' + details.logo + '" alt="' + details.text + '">'
+                        : '<i class="fas fa-map-marker-alt"></i>';
+
+                    var textClass = details.isPlaceholder ? 'cv-custom-dropdown-text is-placeholder' : 'cv-custom-dropdown-text';
+
+                    return '<div class="cv-custom-dropdown-left">'
+                        + '<div class="cv-custom-dropdown-icon-box">' + iconHtml + '</div>'
+                        + '<span class="' + textClass + '">' + (details.isPlaceholder ? 'Choose Your Location' : details.text) + '</span>'
+                        + '</div>'
+                        + '<i class="fas fa-chevron-down cv-custom-dropdown-chevron"></i>';
+                }
+
+                var selectedDetails = getOptionDetails(selectedOption);
+
+                var trigger = document.createElement('div');
+                trigger.className = 'cv-custom-dropdown-trigger';
+                trigger.innerHTML = renderTriggerContent(selectedDetails);
+
+                var menu = document.createElement('div');
+                menu.className = 'cv-custom-dropdown-menu';
+
+                options.forEach(function (opt) {
+                    var details = getOptionDetails(opt);
+                    var item = document.createElement('div');
+                    item.className = 'cv-custom-dropdown-option' + (opt.selected ? ' is-selected' : '');
+                    item.setAttribute('data-value', details.value);
+
+                    var optIconHtml = details.logo
+                        ? '<img src="' + details.logo + '" class="cv-custom-dropdown-option-logo" alt="' + details.text + '">'
+                        : '<div class="cv-custom-dropdown-option-icon"><i class="fas ' + (details.isPlaceholder ? 'fa-globe' : 'fa-building') + '"></i></div>';
+
+                    var checkHtml = opt.selected ? '<span class="cv-custom-dropdown-check"><i class="fas fa-check"></i></span>' : '';
+
+                    item.innerHTML = '<div class="cv-custom-dropdown-option-left">'
+                        + optIconHtml
+                        + '<span>' + details.text + '</span>'
+                        + '</div>'
+                        + checkHtml;
+
+                    item.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        selectEl.value = details.value;
+                        $(selectEl).trigger('change');
+                        updateUi();
+                        container.classList.remove('is-open');
+                    });
+
+                    menu.appendChild(item);
+                });
+
+                function updateUi() {
+                    var curOpt = selectEl.options[selectEl.selectedIndex] || options[0];
+                    var curDetails = getOptionDetails(curOpt);
+                    trigger.innerHTML = renderTriggerContent(curDetails);
+
+                    Array.from(menu.children).forEach(function (child) {
+                        var val = child.getAttribute('data-value');
+                        if (val === curDetails.value) {
+                            child.classList.add('is-selected');
+                            if (!child.querySelector('.cv-custom-dropdown-check')) {
+                                child.insertAdjacentHTML('beforeend', '<span class="cv-custom-dropdown-check"><i class="fas fa-check"></i></span>');
+                            }
+                        } else {
+                            child.classList.remove('is-selected');
+                            var chk = child.querySelector('.cv-custom-dropdown-check');
+                            if (chk) chk.remove();
+                        }
+                    });
+                }
+
+                trigger.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    container.classList.toggle('is-open');
+                });
+
+                document.addEventListener('click', function (e) {
+                    if (!container.contains(e.target)) {
+                        container.classList.remove('is-open');
+                    }
+                });
+
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape') {
+                        container.classList.remove('is-open');
+                    }
+                });
+
+                $(selectEl).on('change', function () {
+                    updateUi();
+                });
+
+                container.appendChild(trigger);
+                container.appendChild(menu);
+
+                selectEl.parentNode.insertBefore(container, selectEl.nextSibling);
             }
 
             function initMobileGalleryCarousel() {
