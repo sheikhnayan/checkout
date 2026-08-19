@@ -7064,13 +7064,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     </div>
 
                     @php
-                        $sidebarVenueImage = $data->logo ? asset('uploads/' . $data->logo) : null;
+                        $defaultCartVipLogo = asset('images/logo.png');
                     @endphp
-                    @if($sidebarVenueImage)
-                        <img src="{{ $sidebarVenueImage }}" class="cv-sidebar-venue-image" alt="{{ $data->name }}" data-default-src="{{ $sidebarVenueImage }}">
-                    @else
-                        <img src="" class="cv-sidebar-venue-image" alt="{{ $data->name }}" style="display:none;" data-default-src="">
-                    @endif
+                    <img src="{{ $defaultCartVipLogo }}" class="cv-sidebar-venue-image" alt="CartVIP" data-default-src="{{ $defaultCartVipLogo }}">
 
                     <div class="cv-sidebar-venue-row" style="border-bottom:none; padding-bottom:0; margin-bottom:14px;">
                         <div style="flex:1; min-width:0;">
@@ -11121,7 +11117,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     }
 
                     if (venueImgEl) {
-                        var logoToUse = clubLogo || venueImgEl.getAttribute('data-default-src') || '';
+                        var defaultSrc = venueImgEl.getAttribute('data-default-src') || '';
+                        var logoToUse = (locationId && clubLogo) ? clubLogo : defaultSrc;
                         if (logoToUse) {
                             venueImgEl.src = logoToUse;
                             venueImgEl.style.display = 'block';
