@@ -8637,6 +8637,28 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             window.addPackageToCart = function(packageId, packageName, packagePrice, guests, addons, transportation, isMultiple) {
                 console.log('addPackageToCart called', packageId, packageName);
                 ensureCartArray();
+
+                // Check if cart already has items from a different venue/location
+                var $card = $('#pkg-card-' + packageId);
+                var targetClubId = $card.length ? ($card.data('club-id') || $card.attr('data-club-id')) : null;
+
+                if (window.cart.length > 0 && targetClubId) {
+                    var existingItemWithClub = window.cart.find(function(item) {
+                        if (item.clubId) return true;
+                        var itemCard = $('#pkg-card-' + item.packageId);
+                        if (itemCard.length) {
+                            item.clubId = itemCard.data('club-id') || itemCard.attr('data-club-id');
+                            return true;
+                        }
+                        return false;
+                    });
+
+                    if (existingItemWithClub && existingItemWithClub.clubId && String(existingItemWithClub.clubId) !== String(targetClubId)) {
+                        alert("One Location Per Order\nComplete your current order before selecting another location. Or empty your cart and try again.");
+                        return Promise.resolve(false);
+                    }
+                }
+
                 var normalizedGuests = parseInt(guests, 10) || 1;
                 var useDate = window.getSelectedUseDate();
 
