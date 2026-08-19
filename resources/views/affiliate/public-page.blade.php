@@ -10655,7 +10655,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                     if (!locationId) {
                         // No location selected - hide everything
-                        if (categoriesGate) categoriesGate.classList.remove('is-visible');
+                        document.querySelectorAll('.aff-location-gated').forEach(function(el) {
+                            el.classList.remove('is-visible');
+                        });
                         if (noLocationMsg) noLocationMsg.style.display = 'block';
                         if (packageHeader) packageHeader.style.display = 'none';
                         document.querySelectorAll('.package-category-tile').forEach(function(tab) {
@@ -10666,7 +10668,9 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     }
 
                     // Location selected - show categories gate and package header
-                    if (categoriesGate) categoriesGate.classList.add('is-visible');
+                    document.querySelectorAll('.aff-location-gated').forEach(function(el) {
+                        el.classList.add('is-visible');
+                    });
                     if (noLocationMsg) noLocationMsg.style.display = 'none';
                     if (packageHeader) packageHeader.style.display = 'flex';
 
@@ -10723,6 +10727,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         $visibleTabs.first().trigger('click');
                     }
                 }
+
+                window.filterPackages = filterPackages;
 
                 locationFilter.addEventListener('change', filterPackages);
                 // Call filterPackages once on init to set initial state
@@ -10802,7 +10808,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                     item.addEventListener('click', function (e) {
                         e.stopPropagation();
                         selectEl.value = details.value;
+                        selectEl.dispatchEvent(new Event('change', { bubbles: true }));
                         $(selectEl).trigger('change');
+                        if (typeof window.filterPackages === 'function') {
+                            window.filterPackages();
+                        }
                         updateUi();
                         container.classList.remove('is-open');
                     });
