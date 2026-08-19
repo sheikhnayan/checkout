@@ -5279,8 +5279,14 @@ body #package_use_date::-webkit-calendar-picker-indicator {
         width: 100% !important;
     }
 
-    .aff-location-gated {
-        display: block !important;
+    .package-category-group {
+        display: none !important;
+    }
+
+    .package-category-group.is-active {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
     }
 
     /* Final Tagline Box - Mobile */
@@ -6077,6 +6083,52 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             <div class="row">
                                 <div class="col-md-12">
 
+                                    <!-- Primary Club Info & Map Section (Controlled by Affiliate Setting: show_location_section) -->
+                                    @if(!isset($affiliate->show_location_section) || (bool)$affiliate->show_location_section)
+                                        @php
+                                            $primaryWebsite = $website ?? ($data ?? null);
+                                            $primaryLocation = $primaryWebsite->location ?? '';
+                                            $primaryName = $primaryWebsite->name ?? '';
+                                        @endphp
+                                        @if($primaryLocation || $primaryName)
+                                            <div class="cv-primary-club-section" style="margin-bottom: 24px; padding: 22px; border-radius: 16px; background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                                                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 14px;">
+                                                    <div style="display: flex; align-items: center; gap: 14px; min-width: 0;">
+                                                        <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, rgba(168,85,247,0.25), rgba(99,102,241,0.25)); border: 1px solid rgba(168,85,247,0.4); display: flex; align-items: center; justify-content: center; color: #c084fc; font-size: 18px; flex-shrink: 0;">
+                                                            <i class="fas fa-building"></i>
+                                                        </div>
+                                                        <div style="min-width: 0;">
+                                                            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #c084fc; font-weight: 700;">Primary Venue</div>
+                                                            <h3 style="font-size: 18px; font-weight: 700; color: #ffffff; margin: 2px 0 0 0; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $primaryName ?: 'Primary Location' }}</h3>
+                                                            @if($primaryLocation)
+                                                                <p style="font-size: 13.5px; color: rgba(255, 255, 255, 0.7); margin: 3px 0 0 0; display: flex; align-items: center; gap: 6px;">
+                                                                    <i class="fas fa-map-marker-alt" style="color: #c084fc; font-size: 12px;"></i> {{ $primaryLocation }}
+                                                                </p>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                    @if($primaryLocation)
+                                                        <a href="https://www.google.com/maps/search/?api=1&query={{ urlencode($primaryLocation) }}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 12px; background: linear-gradient(135deg, rgba(168,85,247,0.25) 0%, rgba(99,102,241,0.25) 100%); border: 1px solid rgba(168,85,247,0.5); color: #ffffff; font-size: 13.5px; font-weight: 600; text-decoration: none; transition: all 0.25s ease; box-shadow: 0 4px 15px rgba(168,85,247,0.2);">
+                                                            <i class="fas fa-directions"></i> Get Directions
+                                                        </a>
+                                                    @endif
+                                                </div>
+
+                                                @if($primaryLocation)
+                                                    <div style="width: 100%; height: 240px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); margin-top: 12px;">
+                                                        <iframe 
+                                                            src="https://www.google.com/maps?q={{ urlencode($primaryLocation) }}&output=embed" 
+                                                            style="width: 100%; height: 100%; border: 0; filter: brightness(0.88) contrast(1.05);" 
+                                                            allowfullscreen 
+                                                            loading="lazy" 
+                                                            referrerpolicy="no-referrer-when-downgrade">
+                                                        </iframe>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endif
+                                    @endif
+
                                     @php
                                         $mostPopularPackageName = '';
                                         if (isset($packageCategories) && count($packageCategories)) {
@@ -6109,7 +6161,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         <label style="display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .6px; opacity: .68; font-weight: 700; margin: 0 0 8px 0;">Choose Your Location</label>
                                         <select id="package-location-filter-main" class="aff-location-mobile-select" style="width: 100%; min-height: 48px; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.2) !important; border-radius: 10px !important; color: #fff !important; padding: 12px 14px !important; font-size: 14px; font-weight: 600; -webkit-appearance: none; -moz-appearance: none; appearance: none;">
                                             <option value="">-- Select a Location --</option>
-                                            @foreach($uniqueClubsForFilter as $clubOption)
+                                            @foreach($uniqueClubsForFilter->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE) as $clubOption)
                                                 <option value="{{ $clubOption->id }}" data-logo="{{ $clubOption->logo ? asset('uploads/' . $clubOption->logo) : '' }}">{{ $clubOption->name }}</option>
                                             @endforeach
                                         </select>
@@ -10663,6 +10715,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         document.querySelectorAll('.package-category-tile').forEach(function(tab) {
                             tab.classList.add('hidden-tab');
                             tab.classList.remove('visible-tab');
+                            tab.classList.remove('active');
+                        });
+                        document.querySelectorAll('.package-category-group').forEach(function(group) {
+                            group.style.display = 'none';
+                            group.classList.remove('is-active');
                         });
                         return;
                     }

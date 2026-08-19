@@ -6272,7 +6272,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                         <label style="display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .6px; opacity: .68; font-weight: 700; margin: 0 0 8px 0;">Choose Your Location</label>
                                         <select id="package-location-filter-main" class="ent-location-mobile-select" style="width: 100%; min-height: 48px; background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.2) !important; border-radius: 10px !important; color: #fff !important; padding: 12px 14px !important; font-size: 14px; font-weight: 600; -webkit-appearance: none; -moz-appearance: none; appearance: none;">
                                             <option value="">-- Select a Location --</option>
-                                            @foreach($uniqueClubsForFilter as $clubOption)
+                                            @foreach($uniqueClubsForFilter->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE) as $clubOption)
                                                 <option value="{{ $clubOption->id }}" data-logo="{{ $clubOption->logo ? asset('uploads/' . $clubOption->logo) : '' }}">{{ $clubOption->name }}</option>
                                             @endforeach
                                         </select>
@@ -11118,6 +11118,11 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         document.querySelectorAll('.package-category-tile').forEach(function(tab) {
                             tab.classList.add('hidden-tab');
                             tab.classList.remove('visible-tab');
+                            tab.classList.remove('active');
+                        });
+                        document.querySelectorAll('.package-category-group').forEach(function(group) {
+                            group.style.display = 'none';
+                            group.classList.remove('is-active');
                         });
                         return;
                     }

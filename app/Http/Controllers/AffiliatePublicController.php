@@ -78,6 +78,7 @@ class AffiliatePublicController extends Controller
                 return $group->first()->package->website;
             })
             ->unique('id')
+            ->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)
             ->values();
 
         // Generate date options for next 30 days
