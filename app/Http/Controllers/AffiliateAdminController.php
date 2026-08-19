@@ -263,6 +263,11 @@ class AffiliateAdminController extends Controller
             ->whereNotIn('website_id', $websiteIds->all())
             ->delete();
 
+        // Remove package mappings from clubs no longer assigned.
+        AffiliatePackage::where('affiliate_id', $affiliate->id)
+            ->whereNotIn('website_id', $websiteIds->all())
+            ->delete();
+
         foreach ($websiteIds as $websiteId) {
             $commission = isset($clubCommissions[$websiteId]) && $clubCommissions[$websiteId] !== '' && $clubCommissions[$websiteId] !== null
                 ? (float) $clubCommissions[$websiteId]
@@ -278,12 +283,37 @@ class AffiliateAdminController extends Controller
                     'commission_percentage' => $commission,
                 ]
             );
-        }
 
-        // Remove previously selected package mappings from clubs no longer assigned.
-        AffiliatePackage::where('affiliate_id', $affiliate->id)
-            ->whereNotIn('website_id', $websiteIds->all())
-            ->delete();
+            // Sync active packages for this website into AffiliatePackage
+            $activePackages = Package::where('website_id', $websiteId)
+                ->where('status', 1)
+                ->where(function ($q) {
+                    $q->whereNull('is_archieved')->orWhere('is_archieved', 0);
+                })
+                ->where(function ($q) {
+                    $q->whereNull('package_category_id')
+                        ->orWhereHas('category', function ($catQ) {
+                            $catQ->where(function ($cq) {
+                                $cq->whereNull('is_archieved')->orWhere('is_archieved', 0);
+                            });
+                        });
+                })
+                ->get();
+
+            foreach ($activePackages as $pkg) {
+                AffiliatePackage::updateOrCreate(
+                    [
+                        'affiliate_id' => $affiliate->id,
+                        'package_id' => $pkg->id,
+                    ],
+                    [
+                        'website_id' => $websiteId,
+                        'commission_percentage' => $commission ?? $affiliate->default_commission_percentage ?? 0,
+                        'is_active' => true,
+                    ]
+                );
+            }
+        }
 
         return redirect()->back()->with('success', 'Promoter club access & dynamic commissions updated successfully.');
     }
