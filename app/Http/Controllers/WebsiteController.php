@@ -121,6 +121,7 @@ class WebsiteController extends Controller
         return view('admin.website.create', [
             'timezoneOptions' => WebsiteTimezone::options(),
             'defaultTimezone' => WebsiteTimezone::DEFAULT,
+            'stockPaymentLogos' => $this->getStockPaymentLogos(),
         ]);
     }
 
@@ -166,12 +167,18 @@ class WebsiteController extends Controller
             'name' => 'required|string|max:255',
             'short_name' => 'nullable|string|max:80',
             'domain' => 'required|string|max:255',
+            'google_analytics_id' => 'nullable|string|max:64|regex:/^[A-Za-z0-9_-]+$/',
             'email' => 'required|email|max:255',
             'dispatcher_phone' => ['nullable', 'string', 'max:40', 'regex:/^[0-9+\-\s().]{7,40}$/'],
             'hero_badge_1_label' => 'nullable|string|max:80',
             'hero_badge_1_sub' => 'nullable|string|max:120',
             'hero_badge_2_label' => 'nullable|string|max:80',
             'hero_badge_2_sub' => 'nullable|string|max:120',
+            'guest_tab_color' => 'nullable|string|max:20',
+            'guest_tab_icon' => 'nullable|string|max:60',
+            'package_tab_color' => 'nullable|string|max:20',
+            'package_tab_icon' => 'nullable|string|max:60',
+            'package_tab_ribbon' => 'nullable|string|max:60',
             'package_section_title' => 'nullable|string|max:120',
             'package_section_subtext' => 'nullable|string|max:255',
             'guest_tab_subtitle' => 'nullable|string|max:120',
@@ -224,6 +231,9 @@ class WebsiteController extends Controller
         $add->name = $request->name;
         $add->short_name = $request->filled('short_name') ? trim((string) $request->short_name) : null;
         $add->domain = $request->domain;
+        $add->google_analytics_id = $request->filled('google_analytics_id')
+            ? strtoupper(trim((string) $request->google_analytics_id))
+            : null;
         $add->status = '1';
         
         // Generate slug from name or use provided slug

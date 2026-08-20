@@ -1034,6 +1034,17 @@
   @endif
   @endif
 
+  {{-- The Nightly Reports Operations Suite --}}
+  <li class="menu-header small text-uppercase">
+    <span class="menu-header-text">Operations Suite</span>
+  </li>
+  <li class="menu-item {{ request()->is('admins/nightly-reports*') ? 'active' : '' }}">
+    <a href="{{ route('admin.nightly-reports.dashboard') }}" class="menu-link" style="border-left: 3px solid #ffcc00;">
+      <i class="menu-icon tf-icons fas fa-moon" style="color: #ffcc00;"></i>
+      <div class="text-truncate fw-bold text-white">Nightly Reports</div>
+    </a>
+  </li>
+
   <li class="menu-header small text-uppercase">
     <span class="menu-header-text">Analytics</span>
   </li>

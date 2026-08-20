@@ -88,6 +88,40 @@ class User extends Authenticatable
     }
 
     /**
+     * The Nightly Reports locations this user is allocated to manage (pivot).
+     */
+    public function nrLocations()
+    {
+        return $this->belongsToMany(\App\Models\NightlyReports\NrLocation::class, 'nr_user_locations', 'user_id', 'location_id')->withTimestamps();
+    }
+
+    /**
+     * Return the Nightly Report Location IDs this user is allowed to access.
+     * Admin/SuperAdmin → all locations.
+     * Manager/Ambassador/WebsiteUser → specifically allocated locations (plus any mapped via accessibleWebsiteIds).
+     */
+    public function accessibleNrLocationIds(): array
+    {
+        if ($this->isAdmin() || $this->isSuperAdmin()) {
+            return \App\Models\NightlyReports\NrLocation::pluck('id')->map(fn ($id) => (int) $id)->all();
+        }
+
+        $directLocationIds = $this->nrLocations()->pluck('nr_locations.id')->map(fn ($id) => (int) $id)->all();
+
+        // Also check if any locations are mapped to their accessible websites
+        $websiteIds = $this->accessibleWebsiteIds();
+        $websiteLocationIds = [];
+        if (!empty($websiteIds)) {
+            $websiteLocationIds = \App\Models\NightlyReports\NrLocation::whereIn('website_id', $websiteIds)
+                ->pluck('id')
+                ->map(fn ($id) => (int) $id)
+                ->all();
+        }
+
+        return array_values(array_unique(array_merge($directLocationIds, $websiteLocationIds)));
+    }
+
+    /**
      * Return the website IDs this user is allowed to access.
      * Admin → all. Manager → allocated websites. Website user/bouncer → their single website.
      */

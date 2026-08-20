@@ -37,11 +37,15 @@ class Permission extends Model
             $moduleRaw = $parts[1] ?? 'general';
             $moduleMap = [
                 'help-center' => 'Form Portal',
+                'nightly-reports' => 'Nightly Reports',
             ];
             $module = $moduleMap[$moduleRaw] ?? ucfirst(str_replace(['-', '_'], ' ', $moduleRaw));
 
             $superAdminOnly = str_starts_with($routeName, 'admin.website.')
-                || str_starts_with($routeName, 'admin.setting.');
+                || str_starts_with($routeName, 'admin.setting.')
+                || str_starts_with($routeName, 'admin.nightly-reports.users.')
+                || str_starts_with($routeName, 'admin.nightly-reports.form-builder.')
+                || str_starts_with($routeName, 'admin.nightly-reports.legal.');
 
             // Payment settings is website-level and allowed for website admins.
             if (str_starts_with($routeName, 'admin.website.payment-settings')) {
@@ -65,6 +69,17 @@ class Permission extends Model
         $labels = [
             'admin' => 'Admin',
             'help-center' => 'Form Portal',
+            'nightly-reports' => 'Nightly Reports',
+            'fourweek' => '4-Week Reports',
+            'quarterly' => 'Quarterly Reports',
+            'coh' => 'COH Reports',
+            'witness-qr' => 'Witness QR Codes',
+            'high-transactions' => 'High Transactions',
+            'model-releases' => 'Model Release Vault',
+            'document-requests' => 'Document Requests',
+            'form-builder' => 'Form Builder',
+            'backups' => 'Data Backup',
+            'boutique-import' => 'Boutique Import',
             'index' => 'View List',
             'show' => 'View Details',
             'create' => 'Open Create Form',

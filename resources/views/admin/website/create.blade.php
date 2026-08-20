@@ -100,6 +100,36 @@ label{
 .toggle-switch-input:focus-visible + .toggle-switch-slider {
     box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.25);
 }
+
+.payment-method-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+}
+
+.payment-method-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid var(--admin-border);
+    border-radius: 10px;
+    padding: 10px;
+    background: var(--admin-surface-2);
+}
+
+.payment-method-option img {
+    width: 44px;
+    height: 28px;
+    object-fit: contain;
+    background: #fff;
+    border-radius: 6px;
+    padding: 3px;
+}
+
+.payment-method-option input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+}
 </style>
 <style>
   #suggestions {
@@ -186,13 +216,13 @@ label{
                                             </div>
                                             <h4 class="mb-3 website-section-title">Basic Information</h4>
                                             <div class="row">
-                                                <div class="col-md-12">
+                                                <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="name" class="form-label">Website Name <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The display name of the venue or club. Shown throughout the platform and in customer emails."></i></label>
-                                                        <input type="text" name="name" class="form-control" id="name" placeholder="Website Name" required>
+                                                        <input type="text" name="name" class="form-control" id="name" placeholder="Website Name" value="{{ old('name') }}" required>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-12">
+                                                <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="short_name" class="form-label">Club Short Name (Optional)</label>
                                                         <input type="text" name="short_name" class="form-control @error('short_name') is-invalid @enderror" id="short_name" value="{{ old('short_name') }}" placeholder="Short name for dispatcher SMS">
@@ -202,16 +232,35 @@ label{
                                                         @enderror
                                                     </div>
                                                 </div>
-                                            </div>
-
-                                            <h4 class="mt-4 mb-3 website-section-title">Website Content</h4>
-                                            <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="name" class="form-label">Domain <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The domain or subdomain for this venue (e.g. www.myvenue.com)."></i></label>
-                                                        <input type="text" name="domain" class="form-control" id="name" placeholder="Enter Domain" required>
+                                                        <label for="slug" class="form-label">Slug (URL Path) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The URL-friendly path for the checkout page (e.g. my-venue). Auto-generated from the name if left blank."></i></label>
+                                                        <input type="text" name="slug" class="form-control" id="slug" value="{{ old('slug') }}" placeholder="e.g., my-website (leave empty to auto-generate)">
+                                                        <small class="form-text text-muted">Will be used in URL: www.domain.com/<strong id="slug-preview">slug</strong></small>
                                                     </div>
                                                 </div>
+                                            </div>
+
+                                            <h4 class="mt-4 mb-3 website-section-title">Website Content & Branding</h4>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="domain" class="form-label">Domain <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The domain or subdomain for this venue (e.g. www.myvenue.com)."></i></label>
+                                                        <input type="text" name="domain" class="form-control" id="domain" value="{{ old('domain') }}" placeholder="Enter Domain" required>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="google_analytics_id" class="form-label">Google Analytics Measurement ID (Optional) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional GA4 Measurement ID for this website, for example G-XXXXXXXXXX."></i></label>
+                                                        <input type="text" name="google_analytics_id" class="form-control @error('google_analytics_id') is-invalid @enderror" id="google_analytics_id" value="{{ old('google_analytics_id') }}" placeholder="e.g. G-XXXXXXXXXX">
+                                                        <small class="form-text text-muted">Leave blank to disable Google Analytics for this website.</small>
+                                                        @error('google_analytics_id')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
                                                         <label for="timezone" class="form-label">Website Timezone <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Used for this club's local dates and times. Existing clubs will remain on Pacific time unless you change this setting."></i></label>
@@ -226,43 +275,52 @@ label{
                                                         @enderror
                                                     </div>
                                                 </div>
-                                            </div>
 
-                                            <h4 class="mt-4 mb-3 website-section-title">SMTP Configuration</h4>
-                                            <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="mb-3">
-                                                        <label for="slug" class="form-label">Slug (URL Path) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The URL-friendly path for the checkout page (e.g. my-venue). Auto-generated from the name if left blank."></i></label>
-                                                        <input type="text" name="slug" class="form-control" id="slug" placeholder="e.g., my-website (leave empty to auto-generate)">
-                                                        <small class="form-text text-muted">Will be used in URL: www.domain.com/<strong id="slug-preview">slug</strong></small>
+                                                        <label class="form-label">Payment Icons <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Select which payment method logos should appear on this website's checkout page."></i></label>
+                                                        <div class="payment-method-grid">
+                                                            @foreach($stockPaymentLogos as $paymentKey => $paymentMethod)
+                                                                <label class="payment-method-option" for="payment_method_{{ $paymentKey }}">
+                                                                    <input id="payment_method_{{ $paymentKey }}" type="checkbox" name="payment_methods[]" value="{{ $paymentKey }}" {{ in_array($paymentKey, old('payment_methods', array_keys($stockPaymentLogos)), true) ? 'checked' : '' }}>
+                                                                    <img src="{{ $paymentMethod['logo'] }}" alt="{{ $paymentMethod['name'] }}">
+                                                                    <span>{{ $paymentMethod['name'] }}</span>
+                                                                </label>
+                                                            @endforeach
+                                                        </div>
+                                                        <small class="form-text text-muted">Only selected logos will be shown on checkout for this website.</small>
+                                                        @error('payment_methods')
+                                                            <div class="text-danger mt-1">{{ $message }}</div>
+                                                        @enderror
+                                                        @error('payment_methods.*')
+                                                            <div class="text-danger mt-1">{{ $message }}</div>
+                                                        @enderror
                                                     </div>
                                                 </div>
-                                            </div>
 
-                                            <h4 class="mt-4 mb-3 website-section-title">Redirect & Policy Pages</h4>
-                                            <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="logo" class="form-label">Logo <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Upload the venue's logo. Displayed on the checkout page and in booking confirmation emails."></i></label>
-                                                        <input type="file" name="logo" class="form-control" id="logo" placeholder="Logo" required>
+                                                        <input type="file" name="logo" class="form-control" id="logo">
                                                     </div>
                                                 </div>
                                                 <div class="col-md-3">
                                                     <div class="mb-3">
                                                         <label for="logo_width" class="form-label">Logo Width (px) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional pixel width for the logo. Leave blank for default auto-sizing."></i></label>
-                                                        <input type="number" name="logo_width" class="form-control" id="logo_width" placeholder="Width in pixels" min="1">
+                                                        <input type="number" name="logo_width" class="form-control" id="logo_width" value="{{ old('logo_width') }}" placeholder="Width in pixels" min="1">
                                                         <small class="form-text text-muted">Optional: Leave blank for auto-sizing</small>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-3">
                                                     <div class="mb-3">
                                                         <label for="logo_height" class="form-label">Logo Height (px) <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional pixel height for the logo. Leave blank for default auto-sizing."></i></label>
-                                                        <input type="number" name="logo_height" class="form-control" id="logo_height" placeholder="Height in pixels" min="1">
+                                                        <input type="number" name="logo_height" class="form-control" id="logo_height" value="{{ old('logo_height') }}" placeholder="Height in pixels" min="1">
                                                         <small class="form-text text-muted">Optional: Leave blank for auto-sizing</small>
                                                     </div>
                                                 </div>
                                             </div>
 
+                                            <h4 class="mt-4 mb-3 website-section-title">Venue Contact & Location</h4>
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
@@ -291,8 +349,8 @@ label{
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="phone" class="form-label">Email <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The venue's main public contact email address."></i></label>
-                                                        <input type="text" name="email" class="form-control" id="email" placeholder="Email" required>
+                                                        <label for="email" class="form-label">Email <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The venue's main public contact email address."></i></label>
+                                                        <input type="email" name="email" class="form-control" id="email" placeholder="Email" required>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
@@ -319,10 +377,11 @@ label{
                                                         <small class="form-text text-muted">Enable to use product checkout flow with shipping details and no transportation step.</small>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-12 mt-2">
-                                                    <h5 class="website-section-title">Website Admin Access</h5>
-                                                    <p class="text-muted">This user will have full access for this website (except super-admin-only platform features).</p>
-                                                </div>
+                                            </div>
+                                            <div class="col-md-12 mt-2">
+                                                <h5 class="website-section-title">Website Admin Access</h5>
+                                                <p class="text-muted">This user will have full access for this website (except super-admin-only platform features).</p>
+                                            </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="website_admin_name" class="form-label">Website Admin Name <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Full name for the primary admin account of this website."></i></label>
@@ -422,6 +481,10 @@ label{
                                                     </div>
                                                 </div> --}}
 
+                                                <div class="col-md-12 mt-2">
+                                                    <h4 class="mt-4 mb-3 website-section-title">Public Checkout Page Customization</h4>
+                                                </div>
+
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="hero_title" class="form-label">Hero Title <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Main headline shown at the top of the public-facing checkout page."></i></label>
@@ -482,10 +545,46 @@ label{
                                                     </div>
                                                 </div>
                                                 
+                                                @php
+                                                    $tabIconOptions = [
+                                                        'fa-car-side'     => 'Car (Side)',
+                                                        'fa-car'          => 'Car',
+                                                        'fa-star'         => 'Star',
+                                                        'fa-crown'        => 'Crown',
+                                                        'fa-gem'          => 'Gem',
+                                                        'fa-fire'         => 'Fire',
+                                                        'fa-bolt'         => 'Bolt',
+                                                        'fa-ticket-alt'   => 'Ticket',
+                                                        'fa-glass-cheers' => 'Cheers',
+                                                        'fa-cocktail'     => 'Cocktail',
+                                                        'fa-wine-glass'   => 'Wine Glass',
+                                                        'fa-wine-bottle'  => 'Wine Bottle',
+                                                        'fa-user-shield'  => 'VIP',
+                                                        'fa-shield-alt'   => 'Shield',
+                                                        'fa-music'        => 'Music',
+                                                        'fa-users'        => 'Group',
+                                                        'fa-id-card'      => 'ID Card',
+                                                        'fa-door-open'    => 'Door Open',
+                                                        'fa-list-ul'      => 'List',
+                                                        'fa-calendar-alt' => 'Calendar',
+                                                    ];
+                                                @endphp
+
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="guest_list_button_text" class="form-label">Guest List Button Text <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The label displayed on the guest list / reservation tab button on the checkout page."></i></label>
-                                                        <input type="text" name="guest_list_button_text" class="form-control" id="guest_list_button_text" value="Guest List" placeholder="Guest List Button Text">
+                                                        <label for="guest_list_button_text" class="form-label">Guest Tab <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Icon, label text and accent color for the Guest List tab."></i></label>
+                                                        <div class="d-flex gap-2 align-items-center">
+                                                            <div class="tab-icon-preview flex-shrink-0" id="guest-tab-icon-preview" style="width:34px;height:34px;border-radius:8px;border:1px solid #d7dce4;display:flex;align-items:center;justify-content:center;background:#f5f6fa;font-size:16px;color:#5a6082;">
+                                                                <i class="fas {{ old('guest_tab_icon', 'fa-car-side') }}"></i>
+                                                            </div>
+                                                            <select name="guest_tab_icon" id="guest_tab_icon" class="form-control form-control-sm tab-icon-select flex-shrink-0" style="max-width:130px;" data-preview="#guest-tab-icon-preview i">
+                                                                @foreach($tabIconOptions as $iconClass => $iconLabel)
+                                                                    <option value="{{ $iconClass }}" {{ old('guest_tab_icon', 'fa-car-side') === $iconClass ? 'selected' : '' }}>{{ $iconLabel }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                            <input type="text" name="guest_list_button_text" class="form-control" id="guest_list_button_text" value="{{ old('guest_list_button_text', 'Guest List') }}" placeholder="Label text">
+                                                            <input type="color" name="guest_tab_color" id="guest_tab_color" value="{{ old('guest_tab_color', '#34d399') }}" title="Guest tab accent color" class="form-control form-control-color flex-shrink-0" style="width:38px;height:34px;padding:2px;cursor:pointer;">
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
@@ -497,14 +596,46 @@ label{
                                                 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label for="package_button_text" class="form-label">Package Button Text <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="The label displayed on the packages tab button on the checkout page."></i></label>
-                                                        <input type="text" name="package_button_text" class="form-control" id="package_button_text" value="Packages" placeholder="Package Button Text">
+                                                        <label for="package_button_text" class="form-label">Package Tab <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Icon, label text and accent color for the VIP Packages tab."></i></label>
+                                                        <div class="d-flex gap-2 align-items-center">
+                                                            <div class="tab-icon-preview flex-shrink-0" id="package-tab-icon-preview" style="width:34px;height:34px;border-radius:8px;border:1px solid #d7dce4;display:flex;align-items:center;justify-content:center;background:#f5f6fa;font-size:16px;color:#5a6082;">
+                                                                <i class="fas {{ old('package_tab_icon', 'fa-star') }}"></i>
+                                                            </div>
+                                                            <select name="package_tab_icon" id="package_tab_icon" class="form-control form-control-sm tab-icon-select flex-shrink-0" style="max-width:130px;" data-preview="#package-tab-icon-preview i">
+                                                                @foreach($tabIconOptions as $iconClass => $iconLabel)
+                                                                    <option value="{{ $iconClass }}" {{ old('package_tab_icon', 'fa-star') === $iconClass ? 'selected' : '' }}>{{ $iconLabel }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                            <input type="text" name="package_button_text" class="form-control" id="package_button_text" value="{{ old('package_button_text', 'Packages') }}" placeholder="Label text">
+                                                            <input type="color" name="package_tab_color" id="package_tab_color" value="{{ old('package_tab_color', '#e8be6a') }}" title="Package tab accent color" class="form-control form-control-color flex-shrink-0" style="width:38px;height:34px;padding:2px;cursor:pointer;">
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="package_tab_subtitle" class="form-label">Package Tab Subtitle <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional subtitle shown below the package tab title on the checkout page."></i></label>
-                                                        <input type="text" name="package_tab_subtitle" class="form-control" id="package_tab_subtitle" value="{{ old('package_tab_subtitle', 'VIP table packages &amp; experiences') }}" placeholder="Package Tab Subtitle">
+                                                        <input type="text" name="package_tab_subtitle" class="form-control" id="package_tab_subtitle" value="{{ old('package_tab_subtitle', 'VIP table packages & experiences') }}" placeholder="Package Tab Subtitle">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="package_tab_ribbon" class="form-label">Package Tab Ribbon Text <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional corner ribbon on the VIP Packages tab (e.g. 'Best Value', 'Popular'). Leave blank to hide."></i></label>
+                                                        <input type="text" name="package_tab_ribbon" class="form-control" id="package_tab_ribbon" value="{{ old('package_tab_ribbon') }}" placeholder="e.g. Best Value (leave blank to hide)">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="package_section_title" class="form-label">Package Section Title <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Heading shown above package cards on checkout and promoter public pages."></i></label>
+                                                        <input type="text" name="package_section_title" class="form-control" id="package_section_title" value="{{ old('package_section_title') }}" placeholder="Select Your Package">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="package_section_subtext" class="form-label">Package Section Subtext <i class="fas fa-circle-info ms-1 field-tip" data-bs-toggle="tooltip" data-bs-placement="top" title="Supporting line shown under the package section title."></i></label>
+                                                        <input type="text" name="package_section_subtext" class="form-control" id="package_section_subtext" value="{{ old('package_section_subtext') }}" placeholder="All packages include free ride, club entry, and priority access.">
                                                     </div>
                                                 </div>
                                                 
@@ -579,7 +710,7 @@ label{
                                                     </div>
                                                     <p class="text-muted small">Select operating and pickup hours for each day of the week. Days marked closed will not allow reservations.</p>
                                                     <div class="table-responsive">
-                                                        <table class="table table-bordered align-middle">
+                                                        <table class="table table-bordered align-middle no-datatable">
                                                             <thead class="table-light">
                                                                 <tr>
                                                                     <th style="width: 15%;">Day</th>
@@ -698,7 +829,7 @@ label{
 
                                             <div class="row">
                                                 <div class="col-md-12">
-                                                    <h3>Redirect Pages</h3>
+                                                    <h3 class="website-section-title">Redirect & Policy Pages</h3>
                                                     <div class="row">
                                                         <div class="col-md-4">
                                                             <div class="mb-3">
@@ -1184,6 +1315,15 @@ label{
             }
 
             initGalleryUploader('website_gallery_picker', 'gallery_images', 'website-gallery-preview', 'existing_gallery_images');
+
+            // Tab icon picker live preview
+            $(document).on('change', '.tab-icon-select', function() {
+                var val = $(this).val();
+                var previewSel = $(this).data('preview');
+                if (previewSel) {
+                    $(previewSel).attr('class', 'fas ' + val);
+                }
+            });
 
             document.getElementById('btn-copy-global-hours')?.addEventListener('click', function() {
                 const opStart = document.getElementById('operating_start_time')?.value || '';

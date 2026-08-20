@@ -499,7 +499,120 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::get('/invitation/decline/{token}', [HelpCenterController::class, 'declineInvitation'])->name('invitation.decline');
         Route::delete('/collaborators/{collaborator}', [HelpCenterController::class, 'removeCollaborator'])->name('collaborators.remove');
     });
+
+    // =========================================================================
+    // NIGHTLY REPORTS PORTAL (Dedicated 24-Item Management Suite)
+    // =========================================================================
+    Route::group(['prefix' => 'nightly-reports', 'as' => 'nightly-reports.'], function () {
+        Route::get('/', [\App\Http\Controllers\Admin\NightlyReports\NightlyDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [\App\Http\Controllers\Admin\NightlyReports\NightlyDashboardController::class, 'index'])->name('dashboard.view');
+
+        // Reports
+        Route::get('/reports', [\App\Http\Controllers\Admin\NightlyReports\NightlyReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/{type}/{id}', [\App\Http\Controllers\Admin\NightlyReports\NightlyReportController::class, 'show'])->name('reports.show');
+        Route::get('/reports/{type}/{id}/edit', [\App\Http\Controllers\Admin\NightlyReports\NightlyReportController::class, 'edit'])->name('reports.edit');
+        Route::put('/reports/{type}/{id}', [\App\Http\Controllers\Admin\NightlyReports\NightlyReportController::class, 'update'])->name('reports.update');
+        Route::delete('/reports/{type}/{id}', [\App\Http\Controllers\Admin\NightlyReports\NightlyReportController::class, 'destroy'])->name('reports.destroy');
+        Route::get('/reports/{type}/{id}/email-preview', [\App\Http\Controllers\Admin\NightlyReports\NightlyReportController::class, 'previewEmail'])->name('reports.email-preview');
+
+        // Trends & YoY
+        Route::get('/trends', [\App\Http\Controllers\Admin\NightlyReports\NightlyTrendController::class, 'index'])->name('trends.index');
+
+        // Missing Reports Tracker
+        Route::get('/missing', [\App\Http\Controllers\Admin\NightlyReports\NightlyMissingController::class, 'index'])->name('missing.index');
+        Route::post('/missing/reminder', [\App\Http\Controllers\Admin\NightlyReports\NightlyMissingController::class, 'sendReminder'])->name('missing.reminder');
+
+        // Locations Directory
+        Route::get('/locations', [\App\Http\Controllers\Admin\NightlyReports\NightlyLocationController::class, 'index'])->name('locations.index');
+        Route::post('/locations', [\App\Http\Controllers\Admin\NightlyReports\NightlyLocationController::class, 'store'])->name('locations.store');
+        Route::put('/locations/{id}', [\App\Http\Controllers\Admin\NightlyReports\NightlyLocationController::class, 'update'])->name('locations.update');
+        Route::post('/locations/{id}/toggle-active', [\App\Http\Controllers\Admin\NightlyReports\NightlyLocationController::class, 'toggleActive'])->name('locations.toggle-active');
+
+        // Boutique Summary & Import
+        Route::get('/boutique', [\App\Http\Controllers\Admin\NightlyReports\NightlyBoutiqueController::class, 'index'])->name('boutique.index');
+        Route::get('/boutique-import', [\App\Http\Controllers\Admin\NightlyReports\NightlyBoutiqueController::class, 'import'])->name('boutique-import.index');
+
+        // 4-Week & Quarterly
+        Route::get('/fourweek', [\App\Http\Controllers\Admin\NightlyReports\NightlyFourWeekController::class, 'index'])->name('fourweek.index');
+        Route::get('/quarterly', [\App\Http\Controllers\Admin\NightlyReports\NightlyQuarterlyController::class, 'index'])->name('quarterly.index');
+
+        // Cash On Hand (COH)
+        Route::get('/coh', [\App\Http\Controllers\Admin\NightlyReports\NightlyCohController::class, 'index'])->name('coh.index');
+
+        // Incidents
+        Route::get('/incidents', [\App\Http\Controllers\Admin\NightlyReports\NightlyIncidentController::class, 'index'])->name('incidents.index');
+        Route::get('/incidents/{id}', [\App\Http\Controllers\Admin\NightlyReports\NightlyIncidentController::class, 'show'])->name('incidents.show');
+        Route::post('/incidents/{id}/status', [\App\Http\Controllers\Admin\NightlyReports\NightlyIncidentController::class, 'updateStatus'])->name('incidents.status');
+
+        // Witnesses & QR Codes
+        Route::get('/witness', [\App\Http\Controllers\Admin\NightlyReports\NightlyWitnessController::class, 'index'])->name('witness.index');
+        Route::post('/witness/{id}/link', [\App\Http\Controllers\Admin\NightlyReports\NightlyWitnessController::class, 'linkIncident'])->name('witness.link');
+        Route::get('/witness-qr', [\App\Http\Controllers\Admin\NightlyReports\NightlyWitnessQrController::class, 'index'])->name('witness-qr.index');
+        Route::post('/witness-qr/send', [\App\Http\Controllers\Admin\NightlyReports\NightlyWitnessQrController::class, 'sendQrEmail'])->name('witness-qr.send');
+
+        // High Transactions ($10k+)
+        Route::get('/high-transactions', [\App\Http\Controllers\Admin\NightlyReports\NightlyHighTransactionController::class, 'index'])->name('high-transactions.index');
+        Route::get('/high-transactions/{id}', [\App\Http\Controllers\Admin\NightlyReports\NightlyHighTransactionController::class, 'show'])->name('high-transactions.show');
+
+        // Model Release Vault
+        Route::get('/model-releases', [\App\Http\Controllers\Admin\NightlyReports\NightlyModelReleaseController::class, 'index'])->name('model-releases.index');
+        Route::get('/model-releases/{id}', [\App\Http\Controllers\Admin\NightlyReports\NightlyModelReleaseController::class, 'show'])->name('model-releases.show');
+
+        // Legal Access & Document Requests
+        Route::get('/legal', [\App\Http\Controllers\Admin\NightlyReports\NightlyLegalController::class, 'index'])->name('legal.index');
+        Route::post('/legal/token', [\App\Http\Controllers\Admin\NightlyReports\NightlyLegalController::class, 'createToken'])->name('legal.create-token');
+        Route::post('/legal/{id}/revoke', [\App\Http\Controllers\Admin\NightlyReports\NightlyLegalController::class, 'revokeToken'])->name('legal.revoke-token');
+        Route::get('/document-requests', [\App\Http\Controllers\Admin\NightlyReports\NightlyDocumentRequestController::class, 'index'])->name('document-requests.index');
+        Route::post('/document-requests/{id}/approve', [\App\Http\Controllers\Admin\NightlyReports\NightlyDocumentRequestController::class, 'approve'])->name('document-requests.approve');
+        Route::post('/document-requests/{id}/deny', [\App\Http\Controllers\Admin\NightlyReports\NightlyDocumentRequestController::class, 'deny'])->name('document-requests.deny');
+
+        // Ambassadors & Multi-Club Allocation
+        Route::get('/ambassadors', [\App\Http\Controllers\Admin\NightlyReports\NightlyAmbassadorController::class, 'index'])->name('ambassadors.index');
+        Route::post('/ambassadors/{id}/assign', [\App\Http\Controllers\Admin\NightlyReports\NightlyAmbassadorController::class, 'assignLocations'])->name('ambassadors.assign');
+
+        // Benchmarks
+        Route::get('/benchmarks', [\App\Http\Controllers\Admin\NightlyReports\NightlyBenchmarkController::class, 'index'])->name('benchmarks.index');
+        Route::post('/benchmarks', [\App\Http\Controllers\Admin\NightlyReports\NightlyBenchmarkController::class, 'upsert'])->name('benchmarks.upsert');
+        Route::get('/benchmarks/preview-email', [\App\Http\Controllers\Admin\NightlyReports\NightlyBenchmarkController::class, 'previewPerformanceEmail'])->name('benchmarks.preview-email');
+        Route::post('/benchmarks/send-email', [\App\Http\Controllers\Admin\NightlyReports\NightlyBenchmarkController::class, 'sendPerformanceEmail'])->name('benchmarks.send-email');
+
+        // Form Builder
+        Route::get('/form-builder', [\App\Http\Controllers\Admin\NightlyReports\NightlyFormBuilderController::class, 'index'])->name('form-builder.index');
+        Route::post('/form-builder', [\App\Http\Controllers\Admin\NightlyReports\NightlyFormBuilderController::class, 'update'])->name('form-builder.update');
+
+        // Quotes
+        Route::get('/quotes', [\App\Http\Controllers\Admin\NightlyReports\NightlyQuoteController::class, 'index'])->name('quotes.index');
+        Route::post('/quotes', [\App\Http\Controllers\Admin\NightlyReports\NightlyQuoteController::class, 'store'])->name('quotes.store');
+        Route::put('/quotes/{id}', [\App\Http\Controllers\Admin\NightlyReports\NightlyQuoteController::class, 'update'])->name('quotes.update');
+        Route::delete('/quotes/{id}', [\App\Http\Controllers\Admin\NightlyReports\NightlyQuoteController::class, 'destroy'])->name('quotes.destroy');
+
+        // Imports & Backups
+        Route::get('/imports', [\App\Http\Controllers\Admin\NightlyReports\NightlyImportController::class, 'index'])->name('imports.index');
+        Route::post('/imports/upload', [\App\Http\Controllers\Admin\NightlyReports\NightlyImportController::class, 'upload'])->name('imports.upload');
+        Route::get('/backups', [\App\Http\Controllers\Admin\NightlyReports\NightlyBackupController::class, 'index'])->name('backups.index');
+        Route::post('/backups/generate', [\App\Http\Controllers\Admin\NightlyReports\NightlyBackupController::class, 'generate'])->name('backups.generate');
+
+        // Users
+        Route::get('/users', [\App\Http\Controllers\Admin\NightlyReports\NightlyAdminUserController::class, 'index'])->name('users.index');
+        Route::post('/users', [\App\Http\Controllers\Admin\NightlyReports\NightlyAdminUserController::class, 'store'])->name('users.store');
+        Route::put('/users/{id}', [\App\Http\Controllers\Admin\NightlyReports\NightlyAdminUserController::class, 'update'])->name('users.update');
+        Route::post('/users/{id}/reset-password', [\App\Http\Controllers\Admin\NightlyReports\NightlyAdminUserController::class, 'resetPassword'])->name('users.reset-password');
+        Route::delete('/users/{id}', [\App\Http\Controllers\Admin\NightlyReports\NightlyAdminUserController::class, 'destroy'])->name('users.destroy');
+    });
 });
+
+// Public Mobile Intake Routes for Nightly Reports Platform
+Route::get('/nightly-report/submit', [\App\Http\Controllers\Admin\NightlyReports\NightlyPublicSubmitController::class, 'showNightly'])->name('nightly.submit.nightly');
+Route::post('/nightly-report/submit', [\App\Http\Controllers\Admin\NightlyReports\NightlyPublicSubmitController::class, 'storeNightly'])->name('nightly.store.nightly');
+Route::get('/nightly-report/submit/boutique', [\App\Http\Controllers\Admin\NightlyReports\NightlyPublicSubmitController::class, 'showBoutique'])->name('nightly.submit.boutique');
+Route::post('/nightly-report/submit/boutique', [\App\Http\Controllers\Admin\NightlyReports\NightlyPublicSubmitController::class, 'storeBoutique'])->name('nightly.store.boutique');
+Route::get('/nightly-report/submit/coh', [\App\Http\Controllers\Admin\NightlyReports\NightlyPublicSubmitController::class, 'showCOH'])->name('nightly.submit.coh');
+Route::post('/nightly-report/submit/coh', [\App\Http\Controllers\Admin\NightlyReports\NightlyPublicSubmitController::class, 'storeCOH'])->name('nightly.store.coh');
+Route::get('/nightly-report/submit/incident', [\App\Http\Controllers\Admin\NightlyReports\NightlyPublicSubmitController::class, 'showIncident'])->name('nightly.submit.incident');
+Route::post('/nightly-report/submit/incident', [\App\Http\Controllers\Admin\NightlyReports\NightlyPublicSubmitController::class, 'storeIncident'])->name('nightly.store.incident');
+Route::get('/witness', [\App\Http\Controllers\Admin\NightlyReports\NightlyPublicSubmitController::class, 'showWitness'])->name('nightly.submit.witness');
+Route::post('/witness', [\App\Http\Controllers\Admin\NightlyReports\NightlyPublicSubmitController::class, 'storeWitness'])->name('nightly.store.witness');
+Route::get('/nightly-report/success', [\App\Http\Controllers\Admin\NightlyReports\NightlyPublicSubmitController::class, 'success'])->name('nightly.submit.success');
 
 // Public Shareable Custom Form URLs
 Route::get('/forms/{slug}', [CustomFormController::class, 'showPublic'])->name('forms.public.show');
