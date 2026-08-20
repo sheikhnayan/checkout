@@ -36,7 +36,7 @@
             <td>
               <div class="fw-bold text-white">{{ $loc->name }}</div>
               @if($loc->website)
-                <div class="small text-warning"><i class="fas fa-link me-1"></i> Mapped: {{ $loc->website->website_name }}</div>
+                <div class="small text-warning"><i class="fas fa-link me-1"></i> Mapped: {{ $loc->website->name }}</div>
               @endif
             </td>
             <td><span class="badge bg-secondary">{{ $loc->type }}</span></td>
@@ -100,7 +100,7 @@
                           <option value="">-- Standalone Location --</option>
                           @foreach($websites as $web)
                             <option value="{{ $web->id }}" {{ (string)$loc->website_id === (string)$web->id ? 'selected' : '' }}>
-                              {{ $web->website_name }} ({{ $web->domain ?? $web->slug }})
+                              {{ $web->name }} ({{ $web->domain ?? $web->slug }})
                             </option>
                           @endforeach
                         </select>
@@ -179,7 +179,7 @@
                 <select name="website_id" class="form-select">
                   <option value="">-- Standalone Location --</option>
                   @foreach($websites as $web)
-                    <option value="{{ $web->id }}">{{ $web->website_name }}</option>
+                    <option value="{{ $web->id }}">{{ $web->name }}</option>
                   @endforeach
                 </select>
               </div>

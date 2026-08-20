@@ -15,7 +15,7 @@ class NightlyLocationController extends BaseNightlyReportsController
             ->orderBy('name')
             ->get();
 
-        $websites = Website::orderBy('website_name')->get();
+        $websites = Website::orderBy('name')->get();
 
         return view('admin.nightly-reports.locations.index', compact('locations', 'websites'));
     }
