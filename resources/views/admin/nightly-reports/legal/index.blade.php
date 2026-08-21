@@ -79,19 +79,19 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label class="form-label text-muted small fw-bold">Attorney / Investigator Name</label>
+              <label class="form-label text-white small fw-bold">Attorney / Investigator Name</label>
               <input type="text" name="attorney_name" class="form-control" required placeholder="e.g. Robert Shapiro, Esq." />
             </div>
             <div class="mb-3">
-              <label class="form-label text-muted small fw-bold">Law Firm / Agency</label>
+              <label class="form-label text-white small fw-bold">Law Firm / Agency</label>
               <input type="text" name="firm_name" class="form-control" placeholder="e.g. Shafer & Associates" />
             </div>
             <div class="mb-3">
-              <label class="form-label text-muted small fw-bold">Case Reference #</label>
+              <label class="form-label text-white small fw-bold">Case Reference #</label>
               <input type="text" name="case_reference" class="form-control" placeholder="e.g. CL-2026-8812" />
             </div>
             <div class="mb-3">
-              <label class="form-label text-muted small fw-bold">Days Valid</label>
+              <label class="form-label text-white small fw-bold">Days Valid</label>
               <select name="days_valid" class="form-select">
                 <option value="7">7 Days</option>
                 <option value="14" selected>14 Days</option>

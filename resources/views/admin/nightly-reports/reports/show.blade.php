@@ -133,7 +133,7 @@
           <div class="row g-3">
             @if($report->night_summary)
             <div class="col-md-12">
-              <label class="small text-muted text-uppercase fw-bold">Executive Night Summary</label>
+              <label class="small text-white text-uppercase fw-bold">Executive Night Summary</label>
               <div class="p-3 rounded" style="background: var(--nr-surface-2); border: 1px solid var(--nr-border);">
                 {{ $report->night_summary }}
               </div>
@@ -142,7 +142,7 @@
 
             @if($report->super_star_nomination)
             <div class="col-md-6">
-              <label class="small text-muted text-uppercase fw-bold">Superstar Shift MVP Nomination</label>
+              <label class="small text-white text-uppercase fw-bold">Superstar Shift MVP Nomination</label>
               <div class="p-3 rounded text-warning fw-bold" style="background: var(--nr-surface-2); border: 1px solid var(--nr-border);">
                 <i class="fas fa-star me-2"></i> {{ $report->super_star_nomination }}
               </div>
@@ -151,7 +151,7 @@
 
             @if($report->team_member_notes)
             <div class="col-md-6">
-              <label class="small text-muted text-uppercase fw-bold">Staff & Team Member Notes</label>
+              <label class="small text-white text-uppercase fw-bold">Staff & Team Member Notes</label>
               <div class="p-3 rounded" style="background: var(--nr-surface-2); border: 1px solid var(--nr-border);">
                 {{ $report->team_member_notes }}
               </div>
@@ -160,7 +160,7 @@
 
             @if($report->ipe_notes)
             <div class="col-md-6">
-              <label class="small text-muted text-uppercase fw-bold">IPE / Entertainer Shift Notes</label>
+              <label class="small text-white text-uppercase fw-bold">IPE / Entertainer Shift Notes</label>
               <div class="p-3 rounded" style="background: var(--nr-surface-2); border: 1px solid var(--nr-border);">
                 {{ $report->ipe_notes }}
               </div>
@@ -169,7 +169,7 @@
 
             @if($report->ordering_notes)
             <div class="col-md-6">
-              <label class="small text-muted text-uppercase fw-bold">Inventory & Supply Ordering Notes</label>
+              <label class="small text-white text-uppercase fw-bold">Inventory & Supply Ordering Notes</label>
               <div class="p-3 rounded" style="background: var(--nr-surface-2); border: 1px solid var(--nr-border);">
                 {{ $report->ordering_notes }}
               </div>
@@ -178,7 +178,7 @@
 
             @if($report->social_media_content)
             <div class="col-md-6">
-              <label class="small text-muted text-uppercase fw-bold">Social Media Content & Promotions</label>
+              <label class="small text-white text-uppercase fw-bold">Social Media Content & Promotions</label>
               <div class="p-3 rounded" style="background: var(--nr-surface-2); border: 1px solid var(--nr-border);">
                 {{ $report->social_media_content }}
               </div>
@@ -187,7 +187,7 @@
 
             @if($report->pass_distribution_locations)
             <div class="col-md-6">
-              <label class="small text-muted text-uppercase fw-bold">Pass Distribution Locations</label>
+              <label class="small text-white text-uppercase fw-bold">Pass Distribution Locations</label>
               <div class="p-3 rounded" style="background: var(--nr-surface-2); border: 1px solid var(--nr-border);">
                 {{ $report->pass_distribution_locations }}
               </div>
@@ -196,7 +196,7 @@
 
             @if($report->shift_comments)
             <div class="col-md-12">
-              <label class="small text-muted text-uppercase fw-bold">Additional GM Closing Comments</label>
+              <label class="small text-white text-uppercase fw-bold">Additional GM Closing Comments</label>
               <div class="p-3 rounded" style="background: var(--nr-surface-2); border: 1px solid var(--nr-border);">
                 {{ $report->shift_comments }}
               </div>

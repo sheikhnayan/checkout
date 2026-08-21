@@ -25,7 +25,7 @@
       <form method="GET" action="{{ route('admin.nightly-reports.dashboard') }}" class="row g-3 align-items-center">
         <!-- Location Selector -->
         <div class="col-md-4 col-lg-3">
-          <label class="form-label small text-muted text-uppercase fw-bold mb-1">Club / Location</label>
+          <label class="form-label small text-white text-uppercase fw-bold mb-1">Club / Location</label>
           <select name="location_id" class="form-select form-select-sm" onchange="this.form.submit()">
             <option value="">All Accessible Locations ({{ count($locations) }})</option>
             @foreach($locations as $loc)
@@ -38,7 +38,7 @@
 
         <!-- Date Range Presets -->
         <div class="col-md-4 col-lg-3">
-          <label class="form-label small text-muted text-uppercase fw-bold mb-1">Period</label>
+          <label class="form-label small text-white text-uppercase fw-bold mb-1">Period</label>
           <select name="date_range" class="form-select form-select-sm" id="period-selector" onchange="toggleCustomDates(this.value)">
             <option value="yesterday" {{ $dateRange === 'yesterday' ? 'selected' : '' }}>Yesterday</option>
             <option value="today" {{ $dateRange === 'today' ? 'selected' : '' }}>Today</option>
@@ -52,11 +52,11 @@
         <!-- Custom Dates -->
         <div class="col-md-4 col-lg-4 d-flex gap-2 custom-dates {{ $dateRange === 'custom' ? '' : 'd-none' }}">
           <div>
-            <label class="form-label small text-muted text-uppercase fw-bold mb-1">Start</label>
+            <label class="form-label small text-white text-uppercase fw-bold mb-1">Start</label>
             <input type="date" name="start_date" class="form-control form-control-sm" value="{{ $startDate }}" />
           </div>
           <div>
-            <label class="form-label small text-muted text-uppercase fw-bold mb-1">End</label>
+            <label class="form-label small text-white text-uppercase fw-bold mb-1">End</label>
             <input type="date" name="end_date" class="form-control form-control-sm" value="{{ $endDate }}" />
           </div>
         </div>

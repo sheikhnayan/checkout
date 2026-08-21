@@ -16,7 +16,7 @@
     .card-luxury { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; margin-bottom: 1.5rem; }
     .section-title { font-size: 0.95rem; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
     .section-title i { color: var(--gold); }
-    .form-label { font-size: 0.8rem; font-weight: 600; color: #94a3b8; margin-bottom: 0.35rem; }
+    .form-label, label, .form-check-label { font-size: 0.82rem; font-weight: 600; color: #ffffff !important; margin-bottom: 0.35rem; opacity: 1 !important; }
     .form-control, .form-select, textarea { background-color: var(--surface-2) !important; border: 1px solid var(--border) !important; color: #fff !important; border-radius: 8px; }
     .form-control:focus, .form-select:focus, textarea:focus { border-color: var(--gold) !important; box-shadow: 0 0 0 0.2rem var(--gold-glow) !important; }
     .btn-submit { background: linear-gradient(135deg, #c9a84c 0%, #b3923d 100%); border: none; color: #07111f; font-weight: 700; font-size: 1rem; border-radius: 10px; padding: 0.85rem 2rem; width: 100%; }

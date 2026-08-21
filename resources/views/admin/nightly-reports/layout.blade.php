@@ -308,16 +308,39 @@
       font-weight: 600;
     }
 
+    /* Universal Pure White Form Labels */
+    label,
+    .form-label,
+    .col-form-label,
+    .form-check-label,
+    legend,
+    fieldset label,
+    .form-label.text-muted,
+    label.text-muted,
+    .form-label.small,
+    label.small,
+    .modal-body label,
+    .modal-body .form-label,
+    .modal-content label,
+    .modal-content .form-label {
+      color: #ffffff !important;
+      font-weight: 600;
+      opacity: 1 !important;
+    }
+
     /* Forms & Inputs */
     .form-control, .form-select, select, input, textarea {
       background-color: var(--nr-surface-2) !important;
       border: 1px solid var(--nr-border) !important;
-      color: var(--nr-text) !important;
+      color: #ffffff !important;
       border-radius: 8px;
     }
 
     .form-control:focus, .form-select:focus, select:focus, input:focus, textarea:focus {
       border-color: var(--nr-gold) !important;
+      box-shadow: 0 0 0 0.2rem var(--nr-gold-glow) !important;
+      color: #ffffff !important;
+    }
       box-shadow: 0 0 0 0.2rem var(--nr-gold-glow) !important;
     }
 

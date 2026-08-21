@@ -82,11 +82,11 @@
                   <div class="modal-body">
                     <div class="row g-3">
                       <div class="col-md-8">
-                        <label class="form-label text-muted small fw-bold">Location Name</label>
+                        <label class="form-label text-white small fw-bold">Location Name</label>
                         <input type="text" name="name" class="form-control" value="{{ $loc->name }}" required />
                       </div>
                       <div class="col-md-4">
-                        <label class="form-label text-muted small fw-bold">Venue Type</label>
+                        <label class="form-label text-white small fw-bold">Venue Type</label>
                         <select name="type" class="form-select" required>
                           <option value="Adult with Liquor" {{ $loc->type === 'Adult with Liquor' ? 'selected' : '' }}>Adult with Liquor</option>
                           <option value="Adult Alcohol Free" {{ $loc->type === 'Adult Alcohol Free' ? 'selected' : '' }}>Adult Alcohol Free</option>
@@ -95,7 +95,7 @@
                         </select>
                       </div>
                       <div class="col-md-6">
-                        <label class="form-label text-muted small fw-bold">Map to CartVIP Website (Optional)</label>
+                        <label class="form-label text-white small fw-bold">Map to CartVIP Website (Optional)</label>
                         <select name="website_id" class="form-select">
                           <option value="">-- Standalone Location --</option>
                           @foreach($websites as $web)
@@ -106,31 +106,31 @@
                         </select>
                       </div>
                       <div class="col-md-3">
-                        <label class="form-label text-muted small fw-bold">City</label>
+                        <label class="form-label text-white small fw-bold">City</label>
                         <input type="text" name="city" class="form-control" value="{{ $loc->city }}" />
                       </div>
                       <div class="col-md-3">
-                        <label class="form-label text-muted small fw-bold">State</label>
+                        <label class="form-label text-white small fw-bold">State</label>
                         <input type="text" name="state" class="form-control" value="{{ $loc->state }}" />
                       </div>
                       <div class="col-md-4">
-                        <label class="form-label text-muted small fw-bold">Nightly Sales Goal ($)</label>
+                        <label class="form-label text-white small fw-bold">Nightly Sales Goal ($)</label>
                         <input type="number" step="0.01" name="nightly_goal" class="form-control" value="{{ $loc->nightly_goal }}" />
                       </div>
                       <div class="col-md-4">
-                        <label class="form-label text-muted small fw-bold">Monthly Break-Even ($)</label>
+                        <label class="form-label text-white small fw-bold">Monthly Break-Even ($)</label>
                         <input type="number" step="0.01" name="break_even" class="form-control" value="{{ $loc->break_even }}" />
                       </div>
                       <div class="col-md-4">
-                        <label class="form-label text-muted small fw-bold">Historical Best Sales ($)</label>
+                        <label class="form-label text-white small fw-bold">Historical Best Sales ($)</label>
                         <input type="number" step="0.01" name="historical_best" class="form-control" value="{{ $loc->historical_best }}" />
                       </div>
                       <div class="col-md-6">
-                        <label class="form-label text-muted small fw-bold">General Manager Name</label>
+                        <label class="form-label text-white small fw-bold">General Manager Name</label>
                         <input type="text" name="gm_name" class="form-control" value="{{ $loc->gm_name }}" />
                       </div>
                       <div class="col-md-6">
-                        <label class="form-label text-muted small fw-bold">GM Email Address</label>
+                        <label class="form-label text-white small fw-bold">GM Email Address</label>
                         <input type="email" name="gm_email" class="form-control" value="{{ $loc->gm_email }}" />
                       </div>
                     </div>
@@ -162,11 +162,11 @@
           <div class="modal-body">
             <div class="row g-3">
               <div class="col-md-8">
-                <label class="form-label text-muted small fw-bold">Location Name</label>
+                <label class="form-label text-white small fw-bold">Location Name</label>
                 <input type="text" name="name" class="form-control" required placeholder="e.g. Larry Flynt's Hustler Club Miami" />
               </div>
               <div class="col-md-4">
-                <label class="form-label text-muted small fw-bold">Venue Type</label>
+                <label class="form-label text-white small fw-bold">Venue Type</label>
                 <select name="type" class="form-select" required>
                   <option value="Adult with Liquor">Adult with Liquor</option>
                   <option value="Adult Alcohol Free">Adult Alcohol Free</option>
@@ -175,7 +175,7 @@
                 </select>
               </div>
               <div class="col-md-6">
-                <label class="form-label text-muted small fw-bold">Map to CartVIP Website (Optional)</label>
+                <label class="form-label text-white small fw-bold">Map to CartVIP Website (Optional)</label>
                 <select name="website_id" class="form-select">
                   <option value="">-- Standalone Location --</option>
                   @foreach($websites as $web)
@@ -184,31 +184,31 @@
                 </select>
               </div>
               <div class="col-md-3">
-                <label class="form-label text-muted small fw-bold">City</label>
+                <label class="form-label text-white small fw-bold">City</label>
                 <input type="text" name="city" class="form-control" />
               </div>
               <div class="col-md-3">
-                <label class="form-label text-muted small fw-bold">State</label>
+                <label class="form-label text-white small fw-bold">State</label>
                 <input type="text" name="state" class="form-control" />
               </div>
               <div class="col-md-4">
-                <label class="form-label text-muted small fw-bold">Nightly Sales Goal ($)</label>
+                <label class="form-label text-white small fw-bold">Nightly Sales Goal ($)</label>
                 <input type="number" step="0.01" name="nightly_goal" class="form-control" placeholder="15000" />
               </div>
               <div class="col-md-4">
-                <label class="form-label text-muted small fw-bold">Monthly Break-Even ($)</label>
+                <label class="form-label text-white small fw-bold">Monthly Break-Even ($)</label>
                 <input type="number" step="0.01" name="break_even" class="form-control" placeholder="250000" />
               </div>
               <div class="col-md-4">
-                <label class="form-label text-muted small fw-bold">Historical Best Sales ($)</label>
+                <label class="form-label text-white small fw-bold">Historical Best Sales ($)</label>
                 <input type="number" step="0.01" name="historical_best" class="form-control" placeholder="45000" />
               </div>
               <div class="col-md-6">
-                <label class="form-label text-muted small fw-bold">General Manager Name</label>
+                <label class="form-label text-white small fw-bold">General Manager Name</label>
                 <input type="text" name="gm_name" class="form-control" />
               </div>
               <div class="col-md-6">
-                <label class="form-label text-muted small fw-bold">GM Email Address</label>
+                <label class="form-label text-white small fw-bold">GM Email Address</label>
                 <input type="email" name="gm_email" class="form-control" />
               </div>
             </div>

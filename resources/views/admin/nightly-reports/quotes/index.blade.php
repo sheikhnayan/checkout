@@ -59,15 +59,15 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label class="form-label text-muted small fw-bold">Quote Text</label>
+              <label class="form-label text-white small fw-bold">Quote Text</label>
               <textarea name="quote_text" class="form-control" rows="3" required placeholder="e.g. Excellence is not an act but a habit..."></textarea>
             </div>
             <div class="mb-3">
-              <label class="form-label text-muted small fw-bold">Author Name</label>
+              <label class="form-label text-white small fw-bold">Author Name</label>
               <input type="text" name="author" class="form-control" required placeholder="e.g. Operations / Reports" />
             </div>
             <div class="mb-3">
-              <label class="form-label text-muted small fw-bold">Category</label>
+              <label class="form-label text-white small fw-bold">Category</label>
               <input type="text" name="category" class="form-control" placeholder="e.g. Leadership, Hospitality" />
             </div>
           </div>

@@ -62,7 +62,7 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                   </div>
                   <div class="modal-body">
-                    <label class="form-label text-muted small fw-bold">New Password (leave blank for random)</label>
+                    <label class="form-label text-white small fw-bold">New Password (leave blank for random)</label>
                     <input type="text" name="password" class="form-control" placeholder="Enter new password or leave blank" />
                   </div>
                   <div class="modal-footer">
@@ -91,19 +91,19 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label class="form-label text-muted small fw-bold">Full Name</label>
+              <label class="form-label text-white small fw-bold">Full Name</label>
               <input type="text" name="name" class="form-control" required />
             </div>
             <div class="mb-3">
-              <label class="form-label text-muted small fw-bold">Email Address</label>
+              <label class="form-label text-white small fw-bold">Email Address</label>
               <input type="email" name="email" class="form-control" required />
             </div>
             <div class="mb-3">
-              <label class="form-label text-muted small fw-bold">Initial Password</label>
+              <label class="form-label text-white small fw-bold">Initial Password</label>
               <input type="password" name="password" class="form-control" required minlength="8" />
             </div>
             <div class="mb-3">
-              <label class="form-label text-muted small fw-bold">Role</label>
+              <label class="form-label text-white small fw-bold">Role</label>
               <select name="user_type" class="form-select" required>
                 <option value="admin">Admin / Super Admin</option>
                 <option value="manager" selected>Manager / Field Ambassador</option>

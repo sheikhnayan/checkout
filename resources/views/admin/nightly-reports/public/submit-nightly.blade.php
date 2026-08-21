@@ -54,11 +54,12 @@
       gap: 8px;
     }
     .section-title i { color: var(--gold); }
-    .form-label {
-      font-size: 0.8rem;
+    .form-label, label, .form-check-label {
+      font-size: 0.82rem;
       font-weight: 600;
-      color: #94a3b8;
+      color: #ffffff !important;
       margin-bottom: 0.35rem;
+      opacity: 1 !important;
     }
     .form-control, .form-select, textarea {
       background-color: var(--surface-2) !important;
