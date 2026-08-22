@@ -6058,7 +6058,8 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
                                                                     <label for="email">Email</label>
                                                                     <input type="email" id="email" name="package_email"
                                                                         placeholder="sample@sample.com" required />
-                                                                </div>
+                                                                    <div class="email-note" style="font-size: 0.75rem; color: yellow; margin-top: 4px;">Your booking confirmation will be sent to this email. Please make sure it’s correct.</div>
+</div>
                                                             </div>
     
                                                             <div class="form-row">

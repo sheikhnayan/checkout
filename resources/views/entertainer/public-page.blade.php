@@ -6340,7 +6340,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                         $tierIcons = [1 => 'fa-crown', 2 => 'fa-star', 3 => 'fa-gem', 4 => 'fa-fire'];
                                                         $tierIcon = $tierIcons[$tierIndex] ?? 'fa-crown';
                                                     @endphp
-                                                    <div class="vip-card cv-exact-card cv-tier-{{ $tierIndex }}" id="pkg-card-{{ $item->id }}" data-package-name="{{ $item->name }}" data-club-name="{{ $item->website->name ?? '' }}" data-location="{{ $item->website->location ?? '' }}" data-club-id="{{ $item->website->id ?? '' }}" data-club-logo="{{ ($item->website && $item->website->logo) ? asset('uploads/' . $item->website->logo) : '' }}">
+                                                    <div class="vip-card cv-exact-card cv-tier-{{ $tierIndex }}" id="pkg-card-{{ $item->id }}" data-package-name="{{ $item->name }}" data-club-name="{{ $item->website->name ?? '' }}" data-location="{{ $item->website->location ?? '' }}" data-club-id="{{ $item->website->id ?? '' }}" data-club-logo="{{ ($item->website && $item->website->logo) ? asset('uploads/' . $item->website->logo) : '' }}" data-operating-start="{{ $item->website->operating_start_time ?? '' }}" data-operating-end="{{ $item->website->operating_end_time ?? '' }}" data-pickup-start="{{ $item->website->pickup_start_time ?? '' }}" data-pickup-end="{{ $item->website->pickup_end_time ?? '' }}" data-daily-hours="{{ $item->website ? htmlspecialchars(json_encode($item->website->getDailyOperatingHoursMap()), ENT_QUOTES, 'UTF-8') : '{}' }}">
                                                         <div class="cv-pkg-media-wrap">
                                                             <picture>
                                                                 <source media="(max-width: 767px)" srcset="{{ $packageMobileVisual }}">
@@ -6613,7 +6613,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                     <label for="email">Email</label>
                                                                     <input type="email" id="email" name="package_email"
                                                                         placeholder="sample@sample.com" required />
-                                                                </div>
+                                                                    <div class="email-note" style="font-size: 0.75rem; color: yellow; margin-top: 4px;">Your booking confirmation will be sent to this email. Please make sure it’s correct.</div>
+</div>
                                                             </div>
     
                                                             <div class="form-row">
@@ -10096,7 +10097,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 prepareCheckoutCartPayload(this);
             });
 
-            const dailyOperatingHoursMap = @json($data->getDailyOperatingHoursMap());
+            window.dailyOperatingHoursMap = @json($data->getDailyOperatingHoursMap());
 
             const transportationSchedule = {
                 startTime: @json($data->pickup_start_time ?: $data->operating_start_time),
@@ -10321,7 +10322,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 const targetEl = document.getElementById(targetElementId);
                 if (!targetEl) return;
 
-                if (!dailyOperatingHoursMap || Object.keys(dailyOperatingHoursMap).length === 0) {
+                if (!window.dailyOperatingHoursMap || Object.keys(dailyOperatingHoursMap).length === 0) {
                     const sched = scheduleType === 'pickup' ? transportationSchedule : arrivalTransportationSchedule;
                     const startLabel = formatOperatingTimeForDisplay(sched.startTime);
                     const endLabel = formatOperatingTimeForDisplay(sched.endTime);
@@ -10347,7 +10348,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                 const daySchedules = [];
                 dayKeys.forEach((key, idx) => {
-                    const config = dailyOperatingHoursMap[key];
+                    const config = window.dailyOperatingHoursMap[key];
                     if (!config || config.enabled === false) {
                         return;
                     }
@@ -11099,6 +11100,28 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         if (clubCard) {
                             clubName = clubCard.getAttribute('data-club-name') || '';
                             clubLogo = clubCard.getAttribute('data-club-logo') || '';
+                            
+                            // Update global operating schedules based on club
+                            if (typeof dailyOperatingHoursMap !== 'undefined') {
+                                try {
+                                    var hoursData = clubCard.getAttribute('data-daily-hours');
+                                    if (hoursData) {
+                                        window.dailyOperatingHoursMap = JSON.parse(hoursData);
+                                    }
+                                } catch(e) {}
+                            }
+                            if (typeof transportationSchedule !== 'undefined') {
+                                transportationSchedule.startTime = clubCard.getAttribute('data-pickup-start') || transportationSchedule.startTime;
+                                transportationSchedule.endTime = clubCard.getAttribute('data-pickup-end') || transportationSchedule.endTime;
+                            }
+                            if (typeof arrivalTransportationSchedule !== 'undefined') {
+                                arrivalTransportationSchedule.startTime = clubCard.getAttribute('data-operating-start') || arrivalTransportationSchedule.startTime;
+                                arrivalTransportationSchedule.endTime = clubCard.getAttribute('data-operating-end') || arrivalTransportationSchedule.endTime;
+                            }
+                            if (typeof renderGroupedScheduleBadge === 'function') {
+                                renderGroupedScheduleBadge('pickup', 'pickup-hours-badge');
+                                renderGroupedScheduleBadge('operating', 'arrival-hours-badge');
+                            }
                         }
                         if (!clubName || !clubLogo) {
                             var locSelect = document.getElementById('package-location-filter-main');

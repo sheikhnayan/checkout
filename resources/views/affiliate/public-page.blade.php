@@ -5808,7 +5808,46 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             transform-origin: bottom right !important;
         }
 
-        </style>
+        
+        .schedule-hours-badge {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.85);
+            margin-top: 10px;
+        }
+        .schedule-hours-badge .hours-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .schedule-hours-badge .hours-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .schedule-hours-badge .hours-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 4px;
+        }
+        .schedule-hours-badge .hours-line:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .schedule-hours-badge .hours-days { font-weight: 600; color: #fff; }
+        .schedule-hours-badge .hours-time { color: rgba(255, 255, 255, 0.75); }
+        
+</style>
         @php
             $gaMeasurementId = preg_replace('/[^A-Za-z0-9_-]/', '', (string) (optional($setting)->google_analytics_measurement_id ?? ''));
         @endphp
@@ -6231,7 +6270,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                         $tierIcons = [1 => 'fa-crown', 2 => 'fa-star', 3 => 'fa-gem', 4 => 'fa-fire'];
                                                         $tierIcon = $tierIcons[$tierIndex] ?? 'fa-crown';
                                                     @endphp
-                                                    <div class="vip-card cv-exact-card cv-tier-{{ $tierIndex }}" id="pkg-card-{{ $item->id }}" data-package-name="{{ $item->name }}" data-club-name="{{ $item->website->name ?? '' }}" data-location="{{ $item->website->location ?? '' }}" data-club-id="{{ $item->website->id ?? '' }}" data-club-logo="{{ ($item->website && $item->website->logo) ? asset('uploads/' . $item->website->logo) : '' }}">
+                                                    <div class="vip-card cv-exact-card cv-tier-{{ $tierIndex }}" id="pkg-card-{{ $item->id }}" data-package-name="{{ $item->name }}" data-club-name="{{ $item->website->name ?? '' }}" data-location="{{ $item->website->location ?? '' }}" data-club-id="{{ $item->website->id ?? '' }}" data-club-logo="{{ ($item->website && $item->website->logo) ? asset('uploads/' . $item->website->logo) : '' }}" data-operating-start="{{ $item->website->operating_start_time ?? '' }}" data-operating-end="{{ $item->website->operating_end_time ?? '' }}" data-pickup-start="{{ $item->website->pickup_start_time ?? '' }}" data-pickup-end="{{ $item->website->pickup_end_time ?? '' }}" data-daily-hours="{{ $item->website ? htmlspecialchars(json_encode($item->website->getDailyOperatingHoursMap()), ENT_QUOTES, 'UTF-8') : '{}' }}">
                                                         <div class="cv-pkg-media-wrap">
                                                             <picture>
                                                                 <source media="(max-width: 767px)" srcset="{{ $packageMobileVisual }}">
@@ -6504,7 +6543,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                     <label for="email">Email</label>
                                                                     <input type="email" id="email" name="package_email"
                                                                         placeholder="sample@sample.com" required />
-                                                                </div>
+                                                                    <div class="email-note" style="font-size: 0.75rem; color: yellow; margin-top: 4px;">Your booking confirmation will be sent to this email. Please make sure it’s correct.</div>
+</div>
                                                             </div>
 
                                                             <div class="form-row">
@@ -6588,6 +6628,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                             class="form-control"
                                                                             placeholder="Select pick-up time" required />
                                                                     </div>
+                                                                    <div id="pickup-hours-badge" class="schedule-hours-badge" style="display: none; margin-top: 12px;"></div>
                                                                 </div>
                                                             </div>
                                                             <div class="form-row" style="margin-top: 14px;">
@@ -6638,6 +6679,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                             class="form-control"
                                                                             placeholder="Select time of arrival" />
                                                                     </div>
+                                                                    <div id="arrival-hours-badge" class="schedule-hours-badge" style="display: none; margin-top: 12px;"></div>
                                                                     @if(($data->show_arrival_time_verbiage ?? 1) == 1)
                                                                         <small style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:rgba(255,255,255,0.6);">Required when self-driving or when package transportation is not included.</small>
                                                                     @endif
@@ -7243,7 +7285,46 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 #cv-cart-toast .cv-toast-title { font-size: 13.5px; }
                 #cv-cart-toast .cv-toast-sub { font-size: 11.5px; max-width: 150px; }
             }
-        </style>
+        
+        .schedule-hours-badge {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.85);
+            margin-top: 10px;
+        }
+        .schedule-hours-badge .hours-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .schedule-hours-badge .hours-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .schedule-hours-badge .hours-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 4px;
+        }
+        .schedule-hours-badge .hours-line:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .schedule-hours-badge .hours-days { font-weight: 600; color: #fff; }
+        .schedule-hours-badge .hours-time { color: rgba(255, 255, 255, 0.75); }
+        
+</style>
         <div id="cv-cart-toast" role="status" aria-live="polite" aria-atomic="true">
             <span class="cv-toast-icon"><i class="fas fa-check"></i></span>
             <span class="cv-toast-body">
@@ -9837,7 +9918,140 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 prepareCheckoutCartPayload(this);
             });
 
-            const dailyOperatingHoursMap = @json($data->getDailyOperatingHoursMap());
+            
+            window.dailyOperatingHoursMap = @json($data->getDailyOperatingHoursMap());
+            function renderGroupedScheduleBadge(scheduleType, targetElementId) {
+                const targetEl = document.getElementById(targetElementId);
+                if (!targetEl) return;
+
+                if (!window.dailyOperatingHoursMap || Object.keys(window.dailyOperatingHoursMap).length === 0) {
+                    const sched = scheduleType === 'pickup' ? transportationSchedule : arrivalTransportationSchedule;
+                    let startLabel = sched.startTime ? formatOperatingTimeForDisplay(sched.startTime) : '';
+                    let endLabel = sched.endTime ? formatOperatingTimeForDisplay(sched.endTime) : '';
+                    if (startLabel && endLabel) {
+                        const title = scheduleType === 'pickup' ? 'Pickup Hours' : 'Operating Hours';
+                        targetEl.innerHTML = `
+                            <div class="hours-title"><i class="fas fa-clock"></i> ${title}</div>
+                            <div class="hours-list">
+                                <div class="hours-line">
+                                    <span class="hours-time">${startLabel} to ${endLabel}</span>
+                                </div>
+                            </div>
+                        `;
+                        targetEl.style.display = 'block';
+                    } else {
+                        targetEl.style.display = 'none';
+                    }
+                    return;
+                }
+
+                const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+                const daySchedules = [];
+                dayKeys.forEach((key, idx) => {
+                    const config = window.dailyOperatingHoursMap[key];
+                    if (!config || config.enabled === false) {
+                        return;
+                    }
+
+                    let startVal, endVal;
+                    if (scheduleType === 'pickup') {
+                        startVal = config.pickup_start_time || @json($data->pickup_start_time);
+                        endVal = config.pickup_end_time || @json($data->pickup_end_time);
+                    } else {
+                        startVal = config.operating_start_time || @json($data->operating_start_time);
+                        endVal = config.operating_end_time || @json($data->operating_end_time);
+                    }
+
+                    if (startVal && endVal) {
+                        daySchedules.push({
+                            dayIndex: idx,
+                            label: dayLabels[idx],
+                            start: startVal,
+                            end: endVal
+                        });
+                    }
+                });
+
+                if (daySchedules.length === 0) {
+                    targetEl.style.display = 'none';
+                    return;
+                }
+
+                const grouped = [];
+                let currentGroup = null;
+
+                daySchedules.forEach(ds => {
+                    if (!currentGroup) {
+                        currentGroup = { start: ds.start, end: ds.end, days: [ds] };
+                    } else if (currentGroup.start === ds.start && currentGroup.end === ds.end) {
+                        currentGroup.days.push(ds);
+                    } else {
+                        grouped.push(currentGroup);
+                        currentGroup = { start: ds.start, end: ds.end, days: [ds] };
+                    }
+                });
+                if (currentGroup) {
+                    grouped.push(currentGroup);
+                }
+
+                let html = '<div class="hours-title"><i class="fas fa-clock"></i> ' + (scheduleType === 'pickup' ? 'Pickup Hours' : 'Operating Hours') + '</div>';
+                html += '<div class="hours-list">';
+
+                grouped.forEach(g => {
+                    const startLabel = formatOperatingTimeForDisplay(g.start);
+                    const endLabel = formatOperatingTimeForDisplay(g.end);
+                    
+                    let daysLabel = '';
+                    let contiguousSubgroups = [];
+                    let currentSub = [g.days[0]];
+
+                    for (let i = 1; i < g.days.length; i++) {
+                        if (g.days[i].dayIndex === g.days[i - 1].dayIndex + 1) {
+                            currentSub.push(g.days[i]);
+                        } else {
+                            contiguousSubgroups.push(currentSub);
+                            currentSub = [g.days[i]];
+                        }
+                    }
+                    contiguousSubgroups.push(currentSub);
+
+                    const formattedParts = contiguousSubgroups.map(sub => {
+                        if (sub.length === 1) {
+                            return sub[0].label;
+                        } else {
+                            return sub[0].label + '-' + sub[sub.length - 1].label;
+                        }
+                    });
+
+                    daysLabel = formattedParts.join(', ');
+
+                    html += `
+                        <div class="hours-line">
+                            <span class="hours-days">${daysLabel}</span>
+                            <span class="hours-time">${startLabel} to ${endLabel}</span>
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+                targetEl.innerHTML = html;
+                targetEl.style.display = 'block';
+            }
+            
+            function formatOperatingTimeForDisplay(timeStr) {
+                if (!timeStr) return '';
+                let parts = timeStr.split(':');
+                if (parts.length < 2) return timeStr;
+                let h = parseInt(parts[0], 10);
+                let m = parts[1];
+                let ampm = h >= 12 ? 'PM' : 'AM';
+                h = h % 12;
+                if (h === 0) h = 12;
+                return h + ':' + m + ' ' + ampm;
+            }
+        
 
             const transportationSchedule = {
                 startTime: @json($data->pickup_start_time ?: $data->operating_start_time),
@@ -10698,6 +10912,28 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         if (clubCard) {
                             clubName = clubCard.getAttribute('data-club-name') || '';
                             clubLogo = clubCard.getAttribute('data-club-logo') || '';
+                            
+                            // Update global operating schedules based on club
+                            if (typeof dailyOperatingHoursMap !== 'undefined') {
+                                try {
+                                    var hoursData = clubCard.getAttribute('data-daily-hours');
+                                    if (hoursData) {
+                                        window.dailyOperatingHoursMap = JSON.parse(hoursData);
+                                    }
+                                } catch(e) {}
+                            }
+                            if (typeof transportationSchedule !== 'undefined') {
+                                transportationSchedule.startTime = clubCard.getAttribute('data-pickup-start') || transportationSchedule.startTime;
+                                transportationSchedule.endTime = clubCard.getAttribute('data-pickup-end') || transportationSchedule.endTime;
+                            }
+                            if (typeof arrivalTransportationSchedule !== 'undefined') {
+                                arrivalTransportationSchedule.startTime = clubCard.getAttribute('data-operating-start') || arrivalTransportationSchedule.startTime;
+                                arrivalTransportationSchedule.endTime = clubCard.getAttribute('data-operating-end') || arrivalTransportationSchedule.endTime;
+                            }
+                            if (typeof renderGroupedScheduleBadge === 'function') {
+                                renderGroupedScheduleBadge('pickup', 'pickup-hours-badge');
+                                renderGroupedScheduleBadge('operating', 'arrival-hours-badge');
+                            }
                         }
                         if (!clubName || !clubLogo) {
                             var locSelect = document.getElementById('package-location-filter-main');
@@ -11541,7 +11777,46 @@ body #package_use_date::-webkit-calendar-picker-indicator {
             .flatpickr-time .numInputWrapper span.arrowDown:after { border-top-color: rgba(255,255,255,0.75) !important; }
             .flatpickr-time .numInputWrapper span:hover { background: rgba(167,116,255,0.2) !important; }
             .flatpickr-time .flatpickr-time-separator { color: rgba(255,255,255,0.6) !important; font-size: 20px !important; font-weight: 700 !important; }
-        </style>
+        
+        .schedule-hours-badge {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.85);
+            margin-top: 10px;
+        }
+        .schedule-hours-badge .hours-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .schedule-hours-badge .hours-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .schedule-hours-badge .hours-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 4px;
+        }
+        .schedule-hours-badge .hours-line:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .schedule-hours-badge .hours-days { font-weight: 600; color: #fff; }
+        .schedule-hours-badge .hours-time { color: rgba(255, 255, 255, 0.75); }
+        
+</style>
 
         <script>
         // ===== COUNTRY CODE PICKER - COMPREHENSIVE SOLUTION =====

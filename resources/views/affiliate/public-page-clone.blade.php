@@ -4619,7 +4619,46 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     .hero-gallery-grid { display: none !important; }
 }
 
-        </style>
+        
+        .schedule-hours-badge {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.85);
+            margin-top: 10px;
+        }
+        .schedule-hours-badge .hours-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .schedule-hours-badge .hours-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .schedule-hours-badge .hours-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 4px;
+        }
+        .schedule-hours-badge .hours-line:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .schedule-hours-badge .hours-days { font-weight: 600; color: #fff; }
+        .schedule-hours-badge .hours-time { color: rgba(255, 255, 255, 0.75); }
+        
+</style>
         @php
             $gaMeasurementId = preg_replace('/[^A-Za-z0-9_-]/', '', (string) ($data->google_analytics_id ?? ''));
         @endphp
@@ -5415,7 +5454,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                                                                     <label for="email">Email</label>
                                                                     <input type="email" id="email" name="package_email"
                                                                         placeholder="sample@sample.com" required />
-                                                                </div>
+                                                                    <div class="email-note" style="font-size: 0.75rem; color: yellow; margin-top: 4px;">Your booking confirmation will be sent to this email. Please make sure it’s correct.</div>
+</div>
                                                             </div>
     
                                                             <div class="form-row">
@@ -6246,7 +6286,46 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 #cv-cart-toast .cv-toast-title { font-size: 13.5px; }
                 #cv-cart-toast .cv-toast-sub { font-size: 11.5px; max-width: 150px; }
             }
-        </style>
+        
+        .schedule-hours-badge {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.85);
+            margin-top: 10px;
+        }
+        .schedule-hours-badge .hours-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .schedule-hours-badge .hours-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .schedule-hours-badge .hours-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 4px;
+        }
+        .schedule-hours-badge .hours-line:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .schedule-hours-badge .hours-days { font-weight: 600; color: #fff; }
+        .schedule-hours-badge .hours-time { color: rgba(255, 255, 255, 0.75); }
+        
+</style>
         <div id="cv-cart-toast" role="status" aria-live="polite" aria-atomic="true">
             <span class="cv-toast-icon"><i class="fas fa-check"></i></span>
             <span class="cv-toast-body">
