@@ -5955,7 +5955,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                         <div class="aff-hero-left-column">
                             <div class="cv-hero-bottom">
                                 <div class="cv-hero-content">
-                                    <div class="aff-kicker">affiliate Packages</div>
+                                    <div class="aff-kicker">Packages</div>
                                     @php
                                         $heroTitle = $affiliate->hero_title ?: ($affiliate->display_name ?: $affiliate->user->name);
                                         $titleWords = preg_split('/\s+/', trim($heroTitle));
