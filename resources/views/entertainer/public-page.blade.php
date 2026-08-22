@@ -5987,7 +5987,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 </div>
                 <div class="ent-nav-badge" style="display: flex; align-items: center; gap: 8px; font-size: 12px; white-space: nowrap;">
                     <i class="fas fa-award" style="color: #efbe6f; font-size: 16px; flex-shrink: 0;"></i>
-                    <span style="font-weight: 700; color: #fff;">{{ $entertainer->hero_badge_2_label ?: 'Verified' }} <span style="color: rgba(255,255,255,0.65); font-weight: 400;">{{ $entertainer->hero_badge_2_sub ?: 'Trusted Source' }}</span></span>
+                    <span style="font-weight: 700; color: #fff;">{{ $entertainer->hero_badge_2_label ?: 'Verified' }} <span style="color: rgba(255,255,255,0.65); font-weight: 400;">{{ $entertainer->hero_badge_2_sub ?: 'Official Checkout' }}</span></span>
                 </div>
             </div>
             <button class="cv-hamburger" id="cv-hamburger" aria-label="Open menu">
@@ -6142,8 +6142,8 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                             <div class="ent-hero-tagline">
                                 <i class="fas fa-shield-alt"></i>
                                 <div class="ent-hero-tagline-text">
-                                    <div class="ent-hero-tagline-main">Trusted. Verified. Premium.</div>
-                                    <div class="ent-hero-tagline-sub">Partner with confidence.</div>
+                                    <div class="ent-hero-tagline-main">Trusted. Verified.</div>
+                                    <div class="ent-hero-tagline-sub">Official Checkout.</div>
                                 </div>
                             </div>
                         </div>

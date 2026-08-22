@@ -242,6 +242,6 @@ class AuthController extends Controller
             $defaultUrl = route('admin.transaction.index');
         }
 
-        return redirect()->intended($defaultUrl);
+        return redirect()->to($defaultUrl);
     }
 }
