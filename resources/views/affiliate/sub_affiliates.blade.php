@@ -446,4 +446,56 @@
     </div>
 </div>
 @endforeach
+
+        <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll(".slug-input").forEach(input => {
+                const feedback = input.nextElementSibling;
+                const form = input.closest("form");
+                const submitBtn = form.querySelector("button[type='submit']");
+                let debounceTimer;
+
+                input.addEventListener("input", function() {
+                    clearTimeout(debounceTimer);
+                    const val = this.value.trim();
+                    const ignoreId = this.getAttribute("data-ignore");
+                    
+                    if (!val) {
+                        feedback.innerHTML = "";
+                        submitBtn.disabled = false;
+                        return;
+                    }
+
+                    feedback.innerHTML = "<span class='text-muted'>Checking...</span>";
+                    submitBtn.disabled = true;
+
+                    debounceTimer = setTimeout(() => {
+                        fetch("{{ route('affiliate.portal.check-slug') }}", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                            },
+                            body: JSON.stringify({ slug: val, ignore_id: ignoreId })
+                        })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.available) {
+                                feedback.innerHTML = "<span class='text-success'><i class='bx bx-check'></i> Available</span>";
+                                submitBtn.disabled = false;
+                            } else {
+                                feedback.innerHTML = "<span class='text-danger'><i class='bx bx-x'></i> Taken</span>";
+                                submitBtn.disabled = true;
+                            }
+                        })
+                        .catch(() => {
+                            feedback.innerHTML = "";
+                            submitBtn.disabled = false;
+                        });
+                    }, 400);
+                });
+            });
+        });
+        </script>
+        
 @endsection
