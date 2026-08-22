@@ -215,6 +215,11 @@
                         <small class="text-warning fs-8 d-block mt-1"><i class="bx bx-info-circle me-1"></i> This name appears on the public landing page & URL.</small>
                     </div>
                     <div class="col-md-6">
+                        <label class="form-label text-white">Checkout Page Slug <span class="text-danger">*</span></label>
+                        <input type="text" name="slug" class="form-control slug-input" placeholder="e.g., my-slug" required>
+                        <div class="form-text mt-1 slug-feedback"></div>
+                    </div>
+                    <div class="col-md-6">
                         <label class="form-label text-white">Email Address <span class="text-danger">*</span></label>
                         <input type="email" name="email" class="form-control" placeholder="alex@example.com" required>
                     </div>
@@ -338,6 +343,11 @@
                         </label>
                         <input type="text" name="display_name" class="form-control border-warning shadow-sm" value="{{ $sub->display_name }}" required>
                         <small class="text-warning fs-8 d-block mt-1"><i class="bx bx-info-circle me-1"></i> This name appears on the public landing page & URL.</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-white">Checkout Page Slug <span class="text-danger">*</span></label>
+                        <input type="text" name="slug" class="form-control slug-input border-warning shadow-sm" data-ignore="{{ $sub->id }}" value="{{ $sub->slug }}" required>
+                        <div class="form-text mt-1 slug-feedback"></div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-white">Email Address</label>

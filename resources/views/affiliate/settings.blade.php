@@ -95,6 +95,11 @@
                         <input type="text" class="form-control" name="display_name" value="{{ old('display_name', $affiliate->display_name) }}" required>
                     </div>
                     <div class="col-md-6">
+                        <label class="form-label">Checkout Page Slug <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="slug" id="settings_slug" data-ignore="{{ $affiliate->id }}" value="{{ old('slug', $affiliate->slug) }}" required>
+                        <div id="settings_slug_feedback" class="form-text mt-1"></div>
+                    </div>
+                    <div class="col-md-6">
                         <label class="form-label">Hero Title</label>
                         <input type="text" class="form-control" name="hero_title" value="{{ old('hero_title', $affiliate->hero_title) }}" placeholder="Main headline on your promoter page">
                     </div>

@@ -193,6 +193,7 @@ class AffiliatePortalController extends Controller
         $affiliate = $this->getAffiliateOrAbort();
 
         $request->validate([
+            'slug' => 'required|string|max:255|unique:affiliates,slug,' . $affiliate->id,
             'display_name' => 'required|string|max:255',
             'hero_title' => 'nullable|string|max:255',
             'hero_subtitle' => 'nullable|string|max:500',
@@ -373,6 +374,7 @@ class AffiliatePortalController extends Controller
         }
 
         $request->validate([
+            'slug' => 'required|string|max:255|unique:affiliates,slug',
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
@@ -398,7 +400,7 @@ class AffiliatePortalController extends Controller
         ]);
 
         $displayName = $request->input('display_name') ?: $request->input('name');
-        $slug = Affiliate::generateUniqueSlug($displayName);
+        $slug = \Illuminate\Support\Str::slug($request->input('slug'));
 
         // Create Sub-Affiliate
         $sub = Affiliate::create([
@@ -472,6 +474,7 @@ class AffiliatePortalController extends Controller
         }
 
         $request->validate([
+            'slug' => 'required|string|max:255|unique:affiliates,slug,' . $subAffiliate->id,
             'display_name' => 'required|string|max:255',
             'website_ids' => 'nullable|array',
             'package_ids' => 'nullable|array',
@@ -484,6 +487,7 @@ class AffiliatePortalController extends Controller
         $allowedPackageIds = array_values(array_intersect($request->input('package_ids', []), $parentPackageIds));
 
         $subAffiliate->display_name = $request->input('display_name');
+        $subAffiliate->slug = \Illuminate\Support\Str::slug($request->input('slug'));
         $subAffiliate->sub_affiliate_permissions = [
             'show_packages' => $request->boolean('show_packages'),
             'show_settings' => $request->boolean('show_settings'),
@@ -533,5 +537,30 @@ class AffiliatePortalController extends Controller
         $subAffiliate->save();
 
         return redirect()->back()->with('success', 'Sub-promoter status updated.');
+    }
+    
+    /**
+     * Check if a custom slug is available.
+     */
+    public function checkSlugAvailability(Request $request)
+    {
+        $request->validate([
+            'slug' => 'required|string|max:255',
+            'ignore_id' => 'nullable|integer'
+        ]);
+
+        $slug = \Illuminate\Support\Str::slug($request->slug);
+        
+        $query = \App\Models\Affiliate::where('slug', $slug);
+        if ($request->ignore_id) {
+            $query->where('id', '!=', $request->ignore_id);
+        }
+
+        $isTaken = $query->exists();
+
+        return response()->json([
+            'available' => !$isTaken,
+            'slug' => $slug
+        ]);
     }
 }

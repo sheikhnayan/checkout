@@ -1034,6 +1034,7 @@
   @endif
   @endif
 
+  @if($authUser && ($canAccessRoute('admin.nightly-reports.dashboard') || $authUser->isAdmin()))
   {{-- The Nightly Reports Operations Suite --}}
   <li class="menu-header small text-uppercase">
     <span class="menu-header-text">Operations Suite</span>
@@ -1044,6 +1045,7 @@
       <div class="text-truncate fw-bold text-white">Nightly Reports</div>
     </a>
   </li>
+  @endif
 
   <li class="menu-header small text-uppercase">
     <span class="menu-header-text">Analytics</span>

@@ -638,6 +638,9 @@ Route::group(['prefix'=> 'affiliate-portal', 'as' => 'affiliate.portal.', 'middl
     Route::post('/sub-affiliates', [AffiliatePortalController::class, 'storeSubAffiliate'])->name('sub-affiliates.store');
     Route::put('/sub-affiliates/{subAffiliate}', [AffiliatePortalController::class, 'updateSubAffiliate'])->name('sub-affiliates.update');
     Route::post('/sub-affiliates/{subAffiliate}/toggle-status', [AffiliatePortalController::class, 'toggleSubAffiliateStatus'])->name('sub-affiliates.toggle-status');
+    
+    // Slug validation
+    Route::post('/check-slug-availability', [AffiliatePortalController::class, 'checkSlugAvailability'])->name('check-slug');
 });
 
 Route::group(['prefix'=> 'entertainer-portal', 'as' => 'entertainer.portal.', 'middleware' => ['auth', 'image.upload.guard']], function () {
