@@ -391,6 +391,20 @@
       #nr-sidebar { left: -280px; }
       .nr-main-wrapper { margin-left: 0; }
       body.nr-mobile-open #nr-sidebar { left: 0; }
+      body.nr-mobile-open .nr-sidebar-overlay { display: block; }
+    }
+
+    .nr-sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1080;
+      backdrop-filter: blur(2px);
+    }
+    
+    @media (max-width: 575.98px) {
+      .nr-navbar { padding: 0.75rem 1rem; }
     }
   </style>
   @stack('styles')
@@ -572,21 +586,23 @@
   </aside>
 
   <!-- 2. Main Content Wrapper -->
+  <div class="nr-sidebar-overlay" id="nr-sidebar-overlay"></div>
   <div class="nr-main-wrapper">
     <!-- Top Navbar -->
     <header class="nr-navbar">
-      <div class="d-flex align-items-center gap-3">
+      <div class="d-flex align-items-center gap-2">
         <button class="btn btn-sm btn-outline-secondary d-lg-none" id="nr-toggle-btn" type="button">
           <i class="fas fa-bars"></i>
         </button>
-        <span class="badge badge-gold"><i class="fas fa-building me-1"></i> Executive Portal</span>
+        <span class="badge badge-gold d-none d-sm-inline-block"><i class="fas fa-building me-1"></i> Executive Portal</span>
       </div>
 
       <!-- Quick Action Buttons -->
-      <div class="d-flex align-items-center gap-2">
+      <div class="d-flex align-items-center gap-2 ms-auto">
         <div class="dropdown">
           <button class="btn btn-sm btn-gold dropdown-toggle" type="button" data-bs-toggle="dropdown">
-            <i class="fas fa-plus me-1"></i> Submit Intake
+            <i class="fas fa-plus d-sm-none"></i>
+            <span class="d-none d-sm-inline"><i class="fas fa-plus me-1"></i> Submit Intake</span>
           </button>
           <ul class="dropdown-menu dropdown-menu-end" style="background: var(--nr-surface-2); border-color: var(--nr-border);">
             <li><a class="dropdown-item text-white" href="{{ route('nightly.submit.nightly') }}" target="_blank"><i class="fas fa-moon me-2 text-warning"></i> Submit Nightly Report</a></li>
@@ -599,7 +615,8 @@
 
         <div class="dropdown">
           <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-            <i class="fas fa-user-circle me-1"></i> {{ auth()->user()->name ?? 'Administrator' }}
+            <i class="fas fa-user-circle d-sm-none"></i>
+            <span class="d-none d-sm-inline"><i class="fas fa-user-circle me-1"></i> {{ auth()->user()->name ?? 'Admin' }}</span>
           </button>
           <ul class="dropdown-menu dropdown-menu-end" style="background: var(--nr-surface-2); border-color: var(--nr-border);">
             <li><a class="dropdown-item text-white" href="{{ route('admin.profile.edit') }}"><i class="fas fa-cog me-2"></i> Profile Settings</a></li>
@@ -642,7 +659,7 @@
   <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 
   <script>
-    $('#nr-toggle-btn').on('click', function() {
+    $('#nr-toggle-btn, #nr-sidebar-overlay').on('click', function() {
       $('body').toggleClass('nr-mobile-open');
     });
   </script>
