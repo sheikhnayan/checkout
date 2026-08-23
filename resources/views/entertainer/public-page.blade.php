@@ -6619,7 +6619,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 100%;">
-                                                                    <label for="dob-month">Date of Birth</label>
+                                                                    <label for="dob-month">Date of Birth <span class="text-danger">*</span></label>
                                                                     <div class="form-row">
                                                                         <select id="package-dob-month" name="package_month"
                                                                             class="form-select"

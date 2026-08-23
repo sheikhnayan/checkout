@@ -5821,7 +5821,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
     
                                                 <div class="form-row" style="margin-bottom: 1rem;">
                                                     <div class="form-group ddoobb" style="width: 50%;">
-                                                        <label for="dob-month">Date of Birth</label>
+                                                        <label for="dob-month">Date of Birth <span class="text-danger">*</span></label>
                                                         <div class="form-row">
                                                             <select id="dob-month" name="reservation_day" class="form-select"
                                                                 style="width: 32%; display: inline-block; margin-right: 2%; text-align: center !important; padding-left: 5px !important"
@@ -6335,7 +6335,7 @@ body.embed-checkout-mode #cv-cart-toast .cv-toast-close {
     
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 100%;">
-                                                                    <label for="dob-month">Date of Birth</label>
+                                                                    <label for="dob-month">Date of Birth <span class="text-danger">*</span></label>
                                                                     <div class="form-row">
                                                                         <select id="package-dob-month" name="package_month"
                                                                             class="form-select"

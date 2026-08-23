@@ -100,6 +100,9 @@ class NightlyDashboardController extends BaseNightlyReportsController
             ? $locations->where('id', (int) $selectedLocationId)
             : $locations;
 
+        $reportsSubmittedCount = 0;
+        $missingReportsList = [];
+
         foreach ($activeLocations as $loc) {
             $report = NrNightlyReport::where('location_id', $loc->id)
                 ->where('business_date', $targetDate)
@@ -111,6 +114,18 @@ class NightlyDashboardController extends BaseNightlyReportsController
             $variancePct = $goal > 0 ? ($variance / $goal) * 100 : 0;
             $guests = $report ? (int) $report->total_guests : 0;
             $avgSpend = $report ? (float) $report->guest_average : ($guests > 0 ? $sales / $guests : 0);
+
+            if ($report) {
+                $reportsSubmittedCount++;
+            } else {
+                $lastReport = NrNightlyReport::where('location_id', $loc->id)
+                    ->orderBy('business_date', 'desc')
+                    ->first();
+                $missingReportsList[] = [
+                    'location_name' => $loc->name,
+                    'last_report_date' => $lastReport ? $lastReport->business_date->format('Y-m-d') : 'Never'
+                ];
+            }
 
             $dailyGrid[] = [
                 'location_id' => $loc->id,
@@ -131,6 +146,16 @@ class NightlyDashboardController extends BaseNightlyReportsController
             ];
         }
 
+        $totalActiveVenues = $activeLocations->count();
+        $missingReportsCount = $totalActiveVenues - $reportsSubmittedCount;
+
+        $topVenuesBySales = collect($dailyGrid)
+            ->where('net_sales', '>', 0)
+            ->sortByDesc('net_sales')
+            ->take(5)
+            ->values()
+            ->all();
+
         // 4. Daily Quote
         $quote = NrQuote::where('active', true)->inRandomOrder()->first();
 
@@ -145,9 +170,11 @@ class NightlyDashboardController extends BaseNightlyReportsController
                     'type' => 'nightly',
                     'id' => $r->id,
                     'location_name' => $r->location->name ?? 'Venue',
-                    'business_date' => $r->business_date->format('M d, Y'),
+                    'business_date' => $r->business_date->format('Y-m-d'),
                     'submitter_name' => $r->submitter_name,
-                    'summary' => '$' . number_format($r->net_sales, 2) . ' Net Sales (' . $r->total_guests . ' Guests)',
+                    'net_sales' => $r->net_sales,
+                    'guests' => $r->total_guests,
+                    'location_type' => $r->location->type ?? 'Boutique',
                     'created_at' => $r->created_at,
                     'is_viewed' => $r->is_viewed,
                     'url' => route('admin.nightly-reports.reports.show', ['type' => 'nightly', 'id' => $r->id]),
@@ -164,9 +191,11 @@ class NightlyDashboardController extends BaseNightlyReportsController
                     'type' => 'incident',
                     'id' => $inc->id,
                     'location_name' => $inc->location->name ?? 'Venue',
-                    'business_date' => $inc->incident_date->format('M d, Y'),
+                    'business_date' => $inc->incident_date->format('Y-m-d'),
                     'submitter_name' => $inc->submitter_name,
-                    'summary' => $inc->report_type_field . ': ' . substr($inc->incident_description, 0, 60) . '...',
+                    'net_sales' => 0,
+                    'guests' => 0,
+                    'location_type' => 'Incident',
                     'created_at' => $inc->created_at,
                     'is_viewed' => false,
                     'url' => route('admin.nightly-reports.incidents.show', $inc->id),
@@ -197,7 +226,12 @@ class NightlyDashboardController extends BaseNightlyReportsController
             'breakEvenPacePct',
             'dailyGrid',
             'quote',
-            'recentSubmissions'
+            'recentSubmissions',
+            'reportsSubmittedCount',
+            'missingReportsCount',
+            'totalActiveVenues',
+            'missingReportsList',
+            'topVenuesBySales'
         ));
     }
 }

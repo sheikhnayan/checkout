@@ -134,7 +134,7 @@
 
                                     <div class="form-row">
                                         <div class="form-group" style="width: 50%;">
-                                            <label for="dob-month">Date of Birth</label>
+                                            <label for="dob-month">Date of Birth <span class="text-danger">*</span></label>
                                             <div class="form-row">
                                                 <select id="dob-month" name="reservation_day" class="form-select" style="width: 32%; display: inline-block; margin-right: 2%;" required></select>
                                                 <select id="dob-day" name="reservation_month" class="form-select" style="width: 32%; display: inline-block; margin-right: 2%;" required></select>
@@ -258,7 +258,7 @@
                                                                 <select id="country2" name="payment_country" class="form-select" required></select>
                                                             </div>
                                                             <div class="form-group" style="width: 50%;">
-                                                                <label for="dob-month">Date of Birth</label>
+                                                                <label for="dob-month">Date of Birth <span class="text-danger">*</span></label>
                                                                 <div class="form-row">
                                                                     <select id="payment-dob-month2" name="payment_month" class="form-select" style="width: 32%; display: inline-block; margin-right: 2%;" required></select>
                                                                     <select id="payment-dob-day2" name="payment_day" class="form-select" style="width: 32%; display: inline-block; margin-right: 2%;" required></select>
@@ -458,7 +458,7 @@
 
                                                     <div class="form-row">
                                                         <div class="form-group" style="width: 100%;">
-                                                            <label for="dob-month">Date of Birth</label>
+                                                            <label for="dob-month">Date of Birth <span class="text-danger">*</span></label>
                                                             <div class="form-row">
                                                                 <select id="package-dob-month" name="package_month" class="form-select" style="width: 32%; display: inline-block; margin-right: 2%;" required></select>
                                                                 <select id="package-dob-day" name="package_day" class="form-select" style="width: 32%; display: inline-block; margin-right: 2%;" required></select>
@@ -631,7 +631,7 @@
                                                             <select id="country" name="payment_country" class="form-select" required></select>
                                                         </div>
                                                         <div class="form-group" style="width: 50%;">
-                                                            <label for="dob-month">Date of Birth</label>
+                                                            <label for="dob-month">Date of Birth <span class="text-danger">*</span></label>
                                                             <div class="form-row">
                                                                 <select id="payment-dob-month" name="payment_month" class="form-select" style="width: 32%; display: inline-block; margin-right: 2%;" required></select>
                                                                 <select id="payment-dob-day" name="payment_day" class="form-select" style="width: 32%; display: inline-block; margin-right: 2%;" required></select>
