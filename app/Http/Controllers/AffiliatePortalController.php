@@ -251,6 +251,10 @@ class AffiliatePortalController extends Controller
             'font_family',
         ]));
 
+        if ($request->filled('slug')) {
+            $affiliate->slug = \Illuminate\Support\Str::slug($request->input('slug'));
+        }
+
         $affiliate->show_location_section = $request->boolean('show_location_section');
 
         if ($request->hasFile('profile_image')) {
