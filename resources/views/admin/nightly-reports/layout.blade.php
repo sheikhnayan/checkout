@@ -54,9 +54,11 @@
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: var(--nr-bg); }
     ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--nr-gold); }    /* Dedicated Nightly Reports Sidebar */
+    ::-webkit-scrollbar-thumb:hover { background: var(--nr-gold); }
+
+    /* Dedicated Nightly Reports Sidebar */
     #nr-sidebar {
-      background: #101623 !important; /* Darker sidebar background */
+      background: var(--nr-surface) !important;
       border-right: 1px solid var(--nr-border) !important;
       width: 270px;
       height: 100vh;
@@ -70,62 +72,83 @@
     }
 
     .nr-sidebar-brand {
-      padding: 1.5rem 1.5rem 0.5rem;
+      padding: 1.25rem 1.25rem 1rem;
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--nr-border);
+      background: rgba(13, 26, 46, 0.95);
     }
 
     .nr-brand-title {
       font-family: 'Playfair Display', serif;
       font-weight: 700;
-      font-size: 1.75rem;
-      color: var(--nr-gold);
+      font-size: 1.15rem;
+      color: #fff;
       display: flex;
       align-items: center;
-      margin-bottom: 0;
-      line-height: 1.2;
+      gap: 9px;
+      letter-spacing: 0.02em;
     }
 
-    .nr-brand-subtitle {
-      font-size: 0.7rem;
-      color: #64748b;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
+    .nr-brand-title i {
+      color: var(--nr-gold);
+      font-size: 1.1rem;
+      filter: drop-shadow(0 0 6px var(--nr-gold-glow));
     }
 
     .nr-back-to-cartvip {
-      display: none; /* Hide for new design */
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 0.45rem 0.85rem;
+      margin: 0.85rem 0.85rem 0.35rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 8px;
+      color: var(--nr-text-muted);
+      font-size: 0.78rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .nr-back-to-cartvip:hover {
+      background: rgba(201, 168, 76, 0.12);
+      border-color: var(--nr-border-gold);
+      color: var(--nr-gold-bright);
     }
 
     .nr-sidebar-menu {
-      padding: 1rem 1rem;
-      list-style: none;
-      margin: 0;
       flex: 1 1 auto;
       overflow-y: auto;
+      padding: 0.5rem 0.65rem 2rem;
+      list-style: none;
+      margin: 0;
     }
 
     .nr-menu-header {
-      font-size: 0.65rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #475569;
+      font-size: 0.68rem;
       font-weight: 700;
-      margin: 1.25rem 0 0.5rem 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--nr-gold);
+      padding: 1rem 0.85rem 0.35rem;
+      opacity: 0.85;
     }
 
     .nr-menu-item {
-      margin-bottom: 0.15rem;
+      margin-bottom: 2px;
     }
 
     .nr-menu-link {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 0.65rem 1rem;
+      gap: 10px;
+      padding: 0.5rem 0.85rem;
       border-radius: 8px;
       color: var(--nr-text-muted);
-      font-size: 0.85rem;
+      font-size: 0.83rem;
       font-weight: 500;
       text-decoration: none;
       transition: all 0.18s ease-in-out;
@@ -149,20 +172,15 @@
     }
 
     .nr-menu-item.active .nr-menu-link {
-      background: var(--nr-gold);
-      color: #000;
+      background: linear-gradient(90deg, rgba(201, 168, 76, 0.18) 0%, rgba(201, 168, 76, 0.05) 100%);
+      color: #fff;
       font-weight: 600;
-      border-left: none;
+      border-left: 3px solid var(--nr-gold);
     }
 
     .nr-menu-item.active .nr-menu-link i {
-      color: #000;
+      color: var(--nr-gold-bright);
     }
-    
-    .nr-sidebar-footer {
-      padding: 1.5rem;
-      border-top: 1px solid var(--nr-border);
-    } }
 
     /* Main Content Wrapper */
     .nr-main-wrapper {
@@ -382,13 +400,21 @@
   <!-- 1. Dedicated 24-Item Nightly Reports Sidebar -->
   <aside id="nr-sidebar">
     <div class="nr-sidebar-brand">
-      <div class="nr-brand-title">Reports</div>
-      <div class="nr-brand-subtitle">Admin Console</div>
+      <div class="nr-brand-title">
+        <i class="fas fa-moon"></i>
+        <span>The Nightly Reports</span>
+      </div>
     </div>
+
+    <!-- Return to Main CartVIP Admin -->
+    <a href="{{ route('admin.index') }}" class="nr-back-to-cartvip">
+      <i class="fas fa-arrow-left"></i>
+      <span>Return to CartVIP Admin</span>
+    </a>
 
     <ul class="nr-sidebar-menu">
       <!-- Group 1: Overview & Daily -->
-      <li class="nr-menu-header">Sections</li>
+      <li class="nr-menu-header">Overview & Daily</li>
       <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.dashboard*') ? 'active' : '' }}">
         <a href="{{ route('admin.nightly-reports.dashboard') }}" class="nr-menu-link">
           <i class="fas fa-chart-pie"></i>
@@ -505,16 +531,23 @@
       </li>
 
       <!-- Group 4: Administration & Setup -->
+      <li class="nr-menu-header">Administration & Setup</li>
       <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.ambassadors*') ? 'active' : '' }}">
         <a href="{{ route('admin.nightly-reports.ambassadors.index') }}" class="nr-menu-link">
           <i class="fas fa-users-cog"></i>
           <span>Ambassadors</span>
         </a>
       </li>
-      <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.high-transactions*') ? 'active' : '' }}">
-        <a href="{{ route('admin.nightly-reports.high-transactions.index') }}" class="nr-menu-link">
-          <i class="fas fa-money-check-alt"></i>
-          <span>High Transactions</span>
+      <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.benchmarks*') ? 'active' : '' }}">
+        <a href="{{ route('admin.nightly-reports.benchmarks.index') }}" class="nr-menu-link">
+          <i class="fas fa-bullseye"></i>
+          <span>Benchmarks</span>
+        </a>
+      </li>
+      <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.form-builder*') ? 'active' : '' }}">
+        <a href="{{ route('admin.nightly-reports.form-builder.index') }}" class="nr-menu-link">
+          <i class="fas fa-sliders-h"></i>
+          <span>Form Builder</span>
         </a>
       </li>
       <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.quotes*') ? 'active' : '' }}">
@@ -523,28 +556,59 @@
           <span>Daily Quotes</span>
         </a>
       </li>
-      <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.legal*') ? 'active' : '' }}">
-        <a href="{{ route('admin.nightly-reports.legal.index') }}" class="nr-menu-link">
-          <i class="fas fa-balance-scale"></i>
-          <span>Legal Access</span>
+      <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.users*') ? 'active' : '' }}">
+        <a href="{{ route('admin.nightly-reports.users.index') }}" class="nr-menu-link">
+          <i class="fas fa-user-shield"></i>
+          <span>Admin Users</span>
+        </a>
+      </li>
+      <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.backups*') ? 'active' : '' }}">
+        <a href="{{ route('admin.nightly-reports.backups.index') }}" class="nr-menu-link">
+          <i class="fas fa-database"></i>
+          <span>Data Backup</span>
         </a>
       </li>
     </ul>
-
-    <!-- Sidebar Footer User Profile -->
-    <div class="nr-sidebar-footer">
-      <div class="d-flex flex-column">
-        <div class="fw-bold text-white mb-0" style="font-size: 0.9rem;">{{ auth()->user()->name ?? 'James Randall' }}</div>
-        <div class="text-uppercase mb-3" style="color: var(--nr-gold); font-size: 0.7rem; font-weight: 700;">SUPER ADMIN</div>
-        <a href="{{ route('logout') }}" class="btn btn-sm text-white mb-2" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); text-align: center; border-radius: 6px;">Sign out</a>
-        <a href="{{ route('admin.profile.edit') }}" class="text-muted text-decoration-none" style="font-size: 0.75rem; display: flex; align-items: center; gap: 6px;"><i class="fas fa-key"></i> Change my password</a>
-      </div>
-    </div>
   </aside>
 
   <!-- 2. Main Content Wrapper -->
   <div class="nr-main-wrapper">
+    <!-- Top Navbar -->
+    <header class="nr-navbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-sm btn-outline-secondary d-lg-none" id="nr-toggle-btn" type="button">
+          <i class="fas fa-bars"></i>
+        </button>
+        <span class="badge badge-gold"><i class="fas fa-building me-1"></i> Executive Portal</span>
+      </div>
 
+      <!-- Quick Action Buttons -->
+      <div class="d-flex align-items-center gap-2">
+        <div class="dropdown">
+          <button class="btn btn-sm btn-gold dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <i class="fas fa-plus me-1"></i> Submit Intake
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end" style="background: var(--nr-surface-2); border-color: var(--nr-border);">
+            <li><a class="dropdown-item text-white" href="{{ route('nightly.submit.nightly') }}" target="_blank"><i class="fas fa-moon me-2 text-warning"></i> Submit Nightly Report</a></li>
+            <li><a class="dropdown-item text-white" href="{{ route('nightly.submit.boutique') }}" target="_blank"><i class="fas fa-store me-2 text-info"></i> Submit Boutique Report</a></li>
+            <li><a class="dropdown-item text-white" href="{{ route('nightly.submit.coh') }}" target="_blank"><i class="fas fa-vault me-2 text-success"></i> Submit COH Audit</a></li>
+            <li><a class="dropdown-item text-white" href="{{ route('nightly.submit.incident') }}" target="_blank"><i class="fas fa-shield-alt me-2 text-danger"></i> Submit Incident</a></li>
+            <li><a class="dropdown-item text-white" href="{{ route('nightly.submit.witness') }}" target="_blank"><i class="fas fa-file-signature me-2 text-primary"></i> Witness Statement</a></li>
+          </ul>
+        </div>
+
+        <div class="dropdown">
+          <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <i class="fas fa-user-circle me-1"></i> {{ auth()->user()->name ?? 'Administrator' }}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end" style="background: var(--nr-surface-2); border-color: var(--nr-border);">
+            <li><a class="dropdown-item text-white" href="{{ route('admin.profile.edit') }}"><i class="fas fa-cog me-2"></i> Profile Settings</a></li>
+            <li><hr class="dropdown-divider" style="border-color: var(--nr-border);"></li>
+            <li><a class="dropdown-item text-danger" href="{{ route('logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Sign Out</a></li>
+          </ul>
+        </div>
+      </div>
+    </header>
 
     <!-- Feedback Alerts -->
     @if(session('success'))

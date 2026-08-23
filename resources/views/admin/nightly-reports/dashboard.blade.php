@@ -1,252 +1,269 @@
 @extends('admin.nightly-reports.layout')
 
 @section('content')
-<style>
-  .dash-card {
-    background: #0b1320 !important;
-    border: 1px solid rgba(255, 255, 255, 0.06) !important;
-    border-radius: 16px !important;
-    padding: 1.25rem;
-  }
-  .icon-circle {
-    width: 28px;
-    height: 28px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .pill-btn {
-    border-radius: 20px;
-    font-weight: 600;
-    padding: 0.35rem 1.15rem;
-    font-size: 0.75rem;
-    text-decoration: none;
-    transition: all 0.2s;
-  }
-  .pill-btn-active {
-    background: var(--nr-gold);
-    color: #000;
-  }
-  .pill-btn-outline {
-    background: rgba(255,255,255,0.05);
-    color: #fff;
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-  .pill-btn-outline:hover {
-    background: rgba(255,255,255,0.1);
-    color: #fff;
-  }
-  .table-dark th {
-    background: transparent;
-    color: #64748b;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    padding-bottom: 1rem;
-  }
-  .table-dark td {
-    background: transparent;
-    border-bottom: 1px solid rgba(255,255,255,0.02);
-    padding: 1rem 0.5rem;
-    color: #cbd5e1;
-  }
-  .badge-dark-outline {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: #94a3b8;
-    font-weight: 500;
-    padding: 0.3em 0.6em;
-    border-radius: 12px;
-  }
-</style>
-
 <div class="container-fluid p-0">
 
-  <!-- Header -->
-  <div class="d-flex justify-content-between align-items-end mb-4">
-    <div>
-      <h6 class="text-uppercase mb-1" style="color: var(--nr-gold); font-size: 0.75rem; letter-spacing: 0.1em; font-weight: 700;">Admin Dashboard</h6>
-      <h2 class="text-white mb-0" style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 2rem;">Performance Overview</h2>
-      <div class="text-muted small mt-1" style="font-size: 0.85rem;">{{ \Carbon\Carbon::parse($endDate)->format('D, M j, Y') }}</div>
+  <!-- 1. Daily Quote Carousel / Banner -->
+  @if($quote)
+  <div class="card mb-4" style="background: linear-gradient(90deg, #142238 0%, #0d1a2e 100%); border-left: 4px solid var(--nr-gold) !important;">
+    <div class="card-body py-3 d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center gap-3">
+        <i class="fas fa-quote-left text-warning fa-lg"></i>
+        <div>
+          <span class="text-white fw-medium font-italic">"{{ $quote->quote_text }}"</span>
+          <span class="text-muted ms-2 small">— {{ $quote->author }}</span>
+        </div>
+      </div>
+      <span class="badge badge-gold d-none d-md-inline-block">{{ $quote->category ?? 'Daily Inspiration' }}</span>
     </div>
-    
-    <div class="d-flex gap-2">
-      <a href="?date_range=yesterday" class="pill-btn {{ $dateRange == 'yesterday' ? 'pill-btn-active' : 'pill-btn-outline' }}">Yesterday</a>
-      <a href="?date_range=last_7_days" class="pill-btn {{ $dateRange == 'last_7_days' ? 'pill-btn-active' : 'pill-btn-outline' }}">This Week</a>
-      <a href="?date_range=mtd" class="pill-btn {{ $dateRange == 'mtd' ? 'pill-btn-active' : 'pill-btn-outline' }}">This Month</a>
-      <a href="?date_range=last_month" class="pill-btn {{ $dateRange == 'last_month' ? 'pill-btn-active' : 'pill-btn-outline' }}">Last Month</a>
-      <a href="?date_range=custom" class="pill-btn {{ $dateRange == 'custom' ? 'pill-btn-active' : 'pill-btn-outline' }}">Custom</a>
+  </div>
+  @endif
+
+  <!-- 2. Controls / Filter Toolbar -->
+  <div class="card mb-4">
+    <div class="card-body py-3">
+      <form method="GET" action="{{ route('admin.nightly-reports.dashboard') }}" class="row g-3 align-items-center">
+        <!-- Location Selector -->
+        <div class="col-md-4 col-lg-3">
+          <label class="form-label small text-white text-uppercase fw-bold mb-1">Club / Location</label>
+          <select name="location_id" class="form-select form-select-sm" onchange="this.form.submit()">
+            <option value="">All Accessible Locations ({{ count($locations) }})</option>
+            @foreach($locations as $loc)
+              <option value="{{ $loc->id }}" {{ (string)$selectedLocationId === (string)$loc->id ? 'selected' : '' }}>
+                {{ $loc->name }}
+              </option>
+            @endforeach
+          </select>
+        </div>
+
+        <!-- Date Range Presets -->
+        <div class="col-md-4 col-lg-3">
+          <label class="form-label small text-white text-uppercase fw-bold mb-1">Period</label>
+          <select name="date_range" class="form-select form-select-sm" id="period-selector" onchange="toggleCustomDates(this.value)">
+            <option value="yesterday" {{ $dateRange === 'yesterday' ? 'selected' : '' }}>Yesterday</option>
+            <option value="today" {{ $dateRange === 'today' ? 'selected' : '' }}>Today</option>
+            <option value="last_7_days" {{ $dateRange === 'last_7_days' ? 'selected' : '' }}>Last 7 Days</option>
+            <option value="mtd" {{ $dateRange === 'mtd' ? 'selected' : '' }}>Month to Date (MTD)</option>
+            <option value="ytd" {{ $dateRange === 'ytd' ? 'selected' : '' }}>Year to Date (YTD)</option>
+            <option value="custom" {{ $dateRange === 'custom' ? 'selected' : '' }}>Custom Date Range</option>
+          </select>
+        </div>
+
+        <!-- Custom Dates -->
+        <div class="col-md-4 col-lg-4 d-flex gap-2 custom-dates {{ $dateRange === 'custom' ? '' : 'd-none' }}">
+          <div>
+            <label class="form-label small text-white text-uppercase fw-bold mb-1">Start</label>
+            <input type="date" name="start_date" class="form-control form-control-sm" value="{{ $startDate }}" />
+          </div>
+          <div>
+            <label class="form-label small text-white text-uppercase fw-bold mb-1">End</label>
+            <input type="date" name="end_date" class="form-control form-control-sm" value="{{ $endDate }}" />
+          </div>
+        </div>
+
+        <div class="col-md-2 col-lg-2 mt-auto pb-1">
+          <button type="submit" class="btn btn-sm btn-gold w-100">
+            <i class="fas fa-filter me-1"></i> Apply Filter
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
-  <!-- KPI Cards -->
-  <div class="row g-4 mb-4">
-    <!-- Total Net Sales -->
-    <div class="col-md-3">
-      <div class="card dash-card h-100">
-        <div class="d-flex justify-content-between mb-3">
-          <h6 class="text-uppercase text-muted mb-0" style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em;">Total Net Sales</h6>
-          <div class="icon-circle">
-            <i class="fas fa-dollar-sign" style="color: var(--nr-gold); font-size: 0.8rem;"></i>
-          </div>
+  <!-- 3. KPI Metric Strip -->
+  <div class="row g-3 mb-4">
+    <!-- Net Sales -->
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="nr-kpi-card">
+        <div class="nr-kpi-label">Total Net Sales</div>
+        <div class="nr-kpi-value text-white">${{ number_format($totalNetSales, 0) }}</div>
+        <div class="nr-kpi-sub {{ $yoyGrowthPct >= 0 ? 'text-success' : 'text-danger' }}">
+          <i class="fas fa-arrow-{{ $yoyGrowthPct >= 0 ? 'up' : 'down' }} me-1"></i>
+          {{ number_format(abs($yoyGrowthPct), 1) }}% YoY
         </div>
-        <h2 class="text-white mb-1" style="font-family: 'Playfair Display', serif; font-weight: 700;">${{ number_format($totalNetSales, 0) }}</h2>
-        <div class="small text-muted" style="font-size: 0.75rem;">{{ $reportsSubmittedCount }} reports</div>
       </div>
     </div>
-    
+
+    <!-- Prior Year -->
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="nr-kpi-card">
+        <div class="nr-kpi-label">Prior Year Sales</div>
+        <div class="nr-kpi-value" style="color: var(--nr-text-muted);">${{ number_format($priorYearNetSales, 0) }}</div>
+        <div class="nr-kpi-sub text-muted">Same day last year</div>
+      </div>
+    </div>
+
     <!-- Total Guests -->
-    <div class="col-md-3">
-      <div class="card dash-card h-100">
-        <div class="d-flex justify-content-between mb-3">
-          <h6 class="text-uppercase text-muted mb-0" style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em;">Total Guests</h6>
-          <div class="icon-circle">
-            <i class="fas fa-user-friends" style="color: var(--nr-gold); font-size: 0.8rem;"></i>
-          </div>
-        </div>
-        <h2 class="text-white mb-1" style="font-family: 'Playfair Display', serif; font-weight: 700;">{{ number_format($totalGuests) }}</h2>
-        <div class="small text-muted" style="font-size: 0.75rem;">&nbsp;</div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="nr-kpi-card">
+        <div class="nr-kpi-label">Total Guests</div>
+        <div class="nr-kpi-value text-white">{{ number_format($totalGuests) }}</div>
+        <div class="nr-kpi-sub text-info">Door headcount</div>
       </div>
     </div>
-    
-    <!-- Reports Submitted -->
-    <div class="col-md-3">
-      <div class="card dash-card h-100">
-        <div class="d-flex justify-content-between mb-3">
-          <h6 class="text-uppercase text-muted mb-0" style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em;">Reports Submitted</h6>
-          <div class="icon-circle">
-            <i class="fas fa-calendar-alt" style="color: var(--nr-gold); font-size: 0.8rem;"></i>
-          </div>
-        </div>
-        <h2 class="text-white mb-1" style="font-family: 'Playfair Display', serif; font-weight: 700;">{{ $reportsSubmittedCount }}</h2>
-        <div class="small text-muted" style="font-size: 0.75rem;">of {{ $totalActiveVenues }} active venues</div>
+
+    <!-- Guest Average -->
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="nr-kpi-card">
+        <div class="nr-kpi-label">Guest Average</div>
+        <div class="nr-kpi-value" style="color: var(--nr-gold);">${{ number_format($guestAverage, 2) }}</div>
+        <div class="nr-kpi-sub text-muted">Spend per head</div>
       </div>
     </div>
-    
-    <!-- Missing Reports -->
-    <div class="col-md-3">
-      <div class="card dash-card h-100">
-        <div class="d-flex justify-content-between mb-3">
-          <h6 class="text-uppercase text-muted mb-0" style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em;">Missing Reports</h6>
-          <div class="icon-circle">
-            <i class="fas fa-exclamation-triangle" style="color: #94a3b8; font-size: 0.8rem;"></i>
-          </div>
-        </div>
-        <h2 class="text-white mb-1" style="font-family: 'Playfair Display', serif; font-weight: 700;">{{ $missingReportsCount }}</h2>
-        <div class="small text-muted" style="font-size: 0.75rem;">venues with no report</div>
+
+    <!-- Total Payouts -->
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="nr-kpi-card">
+        <div class="nr-kpi-label">Total Payouts</div>
+        <div class="nr-kpi-value text-warning">${{ number_format($totalPayouts, 0) }}</div>
+        <div class="nr-kpi-sub text-muted">Taxi, ATM, Other</div>
+      </div>
+    </div>
+
+    <!-- Break-Even Pace Gauge -->
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="nr-kpi-card">
+        <div class="nr-kpi-label">Break-Even Pace</div>
+        <div class="nr-kpi-value text-success">{{ $breakEvenPacePct }}%</div>
+        <div class="nr-kpi-sub text-muted">${{ number_format($mtdSales, 0) }} / ${{ number_format($totalBreakEven, 0) }}</div>
       </div>
     </div>
   </div>
 
-  <!-- Middle Section -->
-  <div class="row g-4 mb-4">
-    <!-- Top Venues -->
-    <div class="col-md-6">
-      <div class="card dash-card h-100">
-        <div class="d-flex justify-content-between mb-4">
-          <h6 class="text-white mb-0" style="font-size: 0.9rem; font-weight: 600;"><i class="fas fa-chart-line text-muted me-2"></i> Top Venues by Sales</h6>
-          <div class="text-muted small">{{ \Carbon\Carbon::parse($endDate)->format('D, M j, Y') }}</div>
-        </div>
-        
-        @if(count($topVenuesBySales) > 0)
-        <div class="d-flex flex-column gap-3">
-          @foreach($topVenuesBySales as $venue)
-          <div class="d-flex justify-content-between align-items-center">
-            <div class="text-white small">{{ $venue['location_name'] }}</div>
-            <div class="text-white fw-bold small">${{ number_format($venue['net_sales'], 0) }}</div>
+  <div class="row g-4">
+    <!-- 4. Daily Financial Matrix Grid Table -->
+    <div class="col-lg-8">
+      <div class="card h-100">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-2">
+            <i class="fas fa-table text-warning"></i>
+            <h5 class="card-title mb-0">Daily Financial Grid ({{ \Carbon\Carbon::parse($endDate)->format('M d, Y') }})</h5>
           </div>
-          @endforeach
+          <span class="badge badge-gold">{{ count($dailyGrid) }} Venues Active</span>
         </div>
-        @else
-        <div class="d-flex align-items-center justify-content-center h-100 pb-4">
-          <div class="text-muted small">No data for this period</div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Venue / Location</th>
+                <th>Net Sales</th>
+                <th>Nightly Goal</th>
+                <th>Variance</th>
+                <th>Guests</th>
+                <th>Avg Spend</th>
+                <th>Status</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @forelse($dailyGrid as $row)
+              <tr>
+                <td>
+                  <div class="fw-bold text-white">{{ $row['location_name'] }}</div>
+                  <div class="small text-muted">{{ $row['location_type'] }} @if($row['incident_flag']) <span class="badge bg-danger ms-1">Incident</span> @endif</div>
+                </td>
+                <td>
+                  <span class="fw-bold {{ $row['net_sales'] > 0 ? 'text-white' : 'text-muted' }}">
+                    ${{ number_format($row['net_sales'], 2) }}
+                  </span>
+                </td>
+                <td>
+                  <span class="text-muted">${{ number_format($row['nightly_goal'], 2) }}</span>
+                </td>
+                <td>
+                  @if($row['has_report'])
+                    <span class="fw-semibold {{ $row['variance'] >= 0 ? 'text-success' : 'text-danger' }}">
+                      {{ $row['variance'] >= 0 ? '+' : '' }}${{ number_format($row['variance'], 0) }}
+                      <small>({{ number_format($row['variance_pct'], 1) }}%)</small>
+                    </span>
+                  @else
+                    <span class="text-muted">—</span>
+                  @endif
+                </td>
+                <td>{{ number_format($row['total_guests']) }}</td>
+                <td>${{ number_format($row['guest_average'], 2) }}</td>
+                <td>
+                  @if(!$row['has_report'])
+                    <span class="badge bg-secondary">No Report</span>
+                  @elseif($row['met_goal'])
+                    <span class="badge-met"><i class="fas fa-check me-1"></i> Met Goal</span>
+                  @else
+                    <span class="badge-below"><i class="fas fa-arrow-down me-1"></i> Below Goal</span>
+                  @endif
+                </td>
+                <td class="text-end">
+                  @if($row['has_report'])
+                    <a href="{{ route('admin.nightly-reports.reports.show', ['type' => 'nightly', 'id' => $row['report_id']]) }}" class="btn btn-xs btn-outline-light" title="View Full Report">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                  @else
+                    <a href="{{ route('nightly.submit.nightly', ['location' => $row['location_id']]) }}" target="_blank" class="btn btn-xs btn-outline-warning" title="Submit Report">
+                      <i class="fas fa-plus"></i> Submit
+                    </a>
+                  @endif
+                </td>
+              </tr>
+              @empty
+              <tr>
+                <td colspan="8" class="text-center py-4 text-muted">No venue records match your filter criteria.</td>
+              </tr>
+              @endforelse
+            </tbody>
+          </table>
         </div>
-        @endif
       </div>
     </div>
-    
-    <!-- Missing Reports List -->
-    <div class="col-md-6">
-      <div class="card dash-card h-100">
-        <div class="d-flex justify-content-between mb-4">
-          <h6 class="text-white mb-0" style="font-size: 0.9rem; font-weight: 600;"><i class="fas fa-exclamation-triangle text-warning me-2"></i> Missing Reports</h6>
-          <a href="{{ route('admin.nightly-reports.missing.index') }}" class="small text-decoration-none" style="color: var(--nr-gold);">View all &gt;</a>
-        </div>
-        
-        @if(count($missingReportsList) > 0)
-        <div class="d-flex flex-column gap-3" style="max-height: 200px; overflow-y: auto;">
-          @foreach($missingReportsList as $missing)
-          <div class="d-flex justify-content-between align-items-center">
-            <div class="text-white small">{{ $missing['location_name'] }}</div>
-            <div class="small" style="color: var(--nr-gold);">Last: {{ $missing['last_report_date'] }}</div>
-          </div>
-          @endforeach
-        </div>
-        @else
-        <div class="d-flex align-items-center justify-content-center h-100 pb-4">
-          <div class="text-muted small">All venues submitted reports for this date</div>
-        </div>
-        @endif
-      </div>
-    </div>
-  </div>
 
-  <!-- Bottom Section: Recent Submissions -->
-  <div class="card dash-card mb-4">
-    <div class="d-flex justify-content-between mb-4">
-      <h6 class="text-white mb-0" style="font-size: 0.9rem; font-weight: 600;"><i class="fas fa-chart-bar text-muted me-2"></i> Recent Submissions</h6>
-      <a href="{{ route('admin.nightly-reports.reports.index') }}" class="small text-decoration-none" style="color: var(--nr-gold);">All reports &gt;</a>
-    </div>
-    
-    <div class="table-responsive">
-      <table class="table table-borderless table-dark align-middle mb-0">
-        <thead>
-          <tr>
-            <th class="ps-2">Venue</th>
-            <th>Date</th>
-            <th class="text-end">Net Sales</th>
-            <th class="text-end pe-4">Guests</th>
-          </tr>
-        </thead>
-        <tbody>
-          @forelse($recentSubmissions as $sub)
-          <tr>
-            <td class="ps-2">
-              <div class="d-flex align-items-center gap-2">
-                <span class="text-white" style="font-size: 0.85rem;">{{ Str::limit($sub['location_name'], 30) }}</span>
-                <span class="badge badge-dark-outline" style="font-size: 0.6rem;">{{ $sub['location_type'] }}</span>
+    <!-- 5. Real-Time Submissions Live Stream -->
+    <div class="col-lg-4">
+      <div class="card h-100">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-2">
+            <i class="fas fa-bolt text-warning"></i>
+            <h5 class="card-title mb-0">Recent Submissions Feed</h5>
+          </div>
+          <span class="badge bg-success">Live</span>
+        </div>
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush">
+            @forelse($recentSubmissions as $sub)
+            <a href="{{ $sub['url'] }}" class="list-group-item list-group-item-action d-flex align-items-start gap-3 p-3" style="background: transparent; border-color: var(--nr-border);">
+              <div class="avatar avatar-sm rounded-circle p-2 d-flex align-items-center justify-content-center" style="background: {{ $sub['type'] === 'incident' ? 'rgba(244,63,94,0.2)' : 'rgba(201,168,76,0.2)' }};">
+                <i class="fas {{ $sub['type'] === 'incident' ? 'fa-shield-alt text-danger' : 'fa-moon text-warning' }} fa-sm"></i>
               </div>
-            </td>
-            <td>
-              <span class="text-muted" style="font-size: 0.85rem;">{{ $sub['business_date'] }}</span>
-            </td>
-            <td class="text-end">
-              @if($sub['type'] == 'incident')
-                <span class="text-muted" style="font-size: 0.85rem;">—</span>
-              @else
-                <span style="color: var(--nr-gold); font-weight: 600; font-size: 0.85rem;">${{ number_format($sub['net_sales'], 0) }}</span>
-              @endif
-            </td>
-            <td class="text-end pe-4">
-              @if($sub['type'] == 'incident')
-                <span class="text-muted" style="font-size: 0.85rem;">—</span>
-              @else
-                <span class="text-muted" style="font-size: 0.85rem;">{{ number_format($sub['guests']) }}</span>
-              @endif
-            </td>
-          </tr>
-          @empty
-          <tr>
-            <td colspan="4" class="text-center py-4 text-muted">No recent submissions.</td>
-          </tr>
-          @endforelse
-        </tbody>
-      </table>
+              <div class="flex-grow-1">
+                <div class="d-flex align-items-center justify-content-between">
+                  <div class="fw-bold text-white small">{{ $sub['location_name'] }}</div>
+                  <small class="text-muted">{{ $sub['created_at']->diffForHumans() }}</small>
+                </div>
+                <div class="small text-muted mb-1">{{ $sub['summary'] }}</div>
+                <div class="small text-muted"><i class="fas fa-user-circle me-1"></i> {{ $sub['submitter_name'] }}</div>
+              </div>
+            </a>
+            @empty
+            <div class="text-center py-5 text-muted">
+              <i class="fas fa-inbox fa-2x mb-2 opacity-50"></i>
+              <div>No recent shift reports logged yet.</div>
+            </div>
+            @endforelse
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
 </div>
+
+@push('scripts')
+<script>
+  function toggleCustomDates(val) {
+    if (val === 'custom') {
+      $('.custom-dates').removeClass('d-none');
+    } else {
+      $('.custom-dates').addClass('d-none');
+      $('#period-selector').closest('form').submit();
+    }
+  }
+</script>
+@endpush
 @endsection
