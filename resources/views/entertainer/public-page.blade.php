@@ -5201,12 +5201,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     }
 
     .cv-hero-venue-title {
-        font-size: 38px !important;
+        font-size: 24px !important;
         font-weight: 900;
-        line-height: 1;
+        line-height: 1.2;
+        word-break: break-word;
         color: #fff !important;
         margin: 0 !important;
-        letter-spacing: -0.03em;
+        letter-spacing: -0.01em;
     }
 
     .cv-hero-venue-verified {
@@ -6625,7 +6626,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     
                                                             <div class="form-row">
                                                                 <div class="form-group" style="width: 100%;">
-                                                                    <label for="dob-month">Date of Birth <span class="text-danger">*</span></label>
+                                                                    <label for="dob-month">Date of Birth</label>
                                                                     <div class="form-row">
                                                                         <select id="package-dob-month" name="package_month"
                                                                             class="form-select"
