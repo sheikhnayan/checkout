@@ -937,10 +937,22 @@
   @endif
   @endif
 
-  @if($canAccessIncidentPortal || $canAccessJobMarketplace)
+  @php
+      $canAccessNightlyReports = $authUser && ((isset($canAccessRoute) && is_callable($canAccessRoute) && $canAccessRoute('admin.nightly-reports.dashboard')) || $authUser->isAdmin());
+  @endphp
+  
+  @if($canAccessIncidentPortal || $canAccessJobMarketplace || $canAccessNightlyReports)
   <li class="menu-header small text-uppercase">
     <span class="menu-header-text">Manager Portal</span>
   </li>
+  @if($canAccessNightlyReports)
+  <li class="menu-item {{ request()->is('admins/nightly-reports*') ? 'active' : '' }}">
+    <a href="{{ route('admin.nightly-reports.dashboard') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-moon"></i>
+      <div class="text-truncate">Nightly Reports</div>
+    </a>
+  </li>
+  @endif
   @if($canAccessIncidentPortal)
   <li class="menu-item {{ request()->is('admins/incident*') ? 'active' : '' }}">
     <a href="{{ route('admin.incident.index') }}" class="menu-link">
@@ -1034,18 +1046,7 @@
   @endif
   @endif
 
-  @if($authUser && ($canAccessRoute('admin.nightly-reports.dashboard') || $authUser->isAdmin()))
-  {{-- The Nightly Reports Operations Suite --}}
-  <li class="menu-header small text-uppercase">
-    <span class="menu-header-text">Operations Suite</span>
-  </li>
-  <li class="menu-item {{ request()->is('admins/nightly-reports*') ? 'active' : '' }}">
-    <a href="{{ route('admin.nightly-reports.dashboard') }}" class="menu-link" style="border-left: 3px solid #ffcc00;">
-      <i class="menu-icon tf-icons fas fa-moon" style="color: #ffcc00;"></i>
-      <div class="text-truncate fw-bold text-white">Nightly Reports</div>
-    </a>
-  </li>
-  @endif
+
 
   <li class="menu-header small text-uppercase">
     <span class="menu-header-text">Analytics</span>
