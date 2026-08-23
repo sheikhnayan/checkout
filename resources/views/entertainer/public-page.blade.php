@@ -3452,6 +3452,12 @@ body #package_use_date::-webkit-calendar-picker-indicator {
     padding: 16px 24px !important;
     gap: 12px;
 }
+@media (max-width: 576px) {
+    #addonSelectionModal .modal-footer .btn {
+        width: auto;
+        flex: 1;
+    }
+}
 #addonSelectionModal .addon-modal-row {
     background: linear-gradient(180deg, rgba(167,116,255,0.08), rgba(167,116,255,0.02)) !important;
     border: 1px solid rgba(167,116,255,0.22) !important;
@@ -9713,6 +9719,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                         bootstrap.Modal.getOrCreateInstance(document.getElementById('addonSelectionModal')).hide();
                         window.pendingPackageSelection = null;
+                        
+                        setTimeout(function() {
+                            var targetSection = document.getElementById('section-1') || document.querySelector('.checkout-section.active') || document.getElementById('checkout-steps');
+                            if (targetSection && targetSection.scrollIntoView) {
+                                targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                        }, 300);
                     });
                 });
 
@@ -9749,6 +9762,13 @@ body #package_use_date::-webkit-calendar-picker-indicator {
 
                         bootstrap.Modal.getOrCreateInstance(document.getElementById('addonSelectionModal')).hide();
                         window.pendingPackageSelection = null;
+                        
+                        setTimeout(function() {
+                            var targetSection = document.getElementById('section-1') || document.querySelector('.checkout-section.active') || document.getElementById('checkout-steps');
+                            if (targetSection && targetSection.scrollIntoView) {
+                                targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                        }, 300);
                     });
                 });
 
