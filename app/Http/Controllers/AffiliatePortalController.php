@@ -84,7 +84,14 @@ class AffiliatePortalController extends Controller
         $websites = Website::where('is_archieved', 0)
             ->where('status', 1)
             ->whereIn('id', $allowedWebsiteIds)
-            ->with(['packages' => function ($query) {
+            ->with(['packages' => function ($query) use ($affiliate) {
+                if ($affiliate->isSubAffiliate()) {
+                    $parentPackageIds = \App\Models\AffiliatePackage::where('affiliate_id', $affiliate->parent_affiliate_id)
+                        ->pluck('package_id')
+                        ->toArray();
+                    $query->whereIn('id', $parentPackageIds);
+                }
+                
                 $query->clubVisible()
                     ->where('status', 1)
                     ->where(function ($q) {
@@ -129,6 +136,13 @@ class AffiliatePortalController extends Controller
         }
 
         $requestedPackageIds = collect($request->input('package_ids', []))->map(fn ($id) => (int) $id)->unique()->values();
+
+        if ($affiliate->isSubAffiliate()) {
+            $parentPackageIds = \App\Models\AffiliatePackage::where('affiliate_id', $affiliate->parent_affiliate_id)
+                ->pluck('package_id')
+                ->toArray();
+            $requestedPackageIds = $requestedPackageIds->intersect($parentPackageIds);
+        }
 
         $packageIds = Package::whereIn('id', $requestedPackageIds->all())
             ->clubVisible()
