@@ -98,13 +98,22 @@
                 <div class="row g-3">
                     @forelse($packages as $package)
                         <div class="col-md-6">
-                            <label class="package-checkbox">
-                                <input type="checkbox" name="package_ids[]" value="{{ $package->id }}" class="ent-package-cb" {{ in_array($package->id, $selected) ? 'checked' : '' }}>
-                                <div class="package-info">
-                                    <div class="package-name">{{ $package->name }}</div>
-                                    <div class="package-price">${{ number_format($package->price, 2) }}</div>
-                                </div>
-                            </label>
+                            <div class="d-flex align-items-stretch gap-2 h-100">
+                                <label class="package-checkbox flex-grow-1 mb-0">
+                                    <input type="checkbox" name="package_ids[]" value="{{ $package->id }}" class="ent-package-cb" {{ in_array($package->id, $selected) ? 'checked' : '' }}>
+                                    <div class="package-info">
+                                        <div class="package-name">{{ $package->name }}</div>
+                                        <div class="package-price">${{ number_format($package->price, 2) }}</div>
+                                    </div>
+                                </label>
+                                <button type="button" 
+                                    class="btn btn-sm btn-dark js-copy-single-checkout d-flex align-items-center justify-content-center" 
+                                    data-checkout-url="{{ route('package.checkout.single', ['slug' => $package->website->slug ?? 'club', 'packageId' => ((\Illuminate\Support\Str::slug((string) $package->name) ?: 'package') . '-' . $package->id)]) }}?owner_slug={{ $entertainer->slug }}" 
+                                    title="Copy Direct Checkout Link"
+                                    style="border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); padding: 0 15px; transition: all 0.2s ease;">
+                                    <i class="bx bx-link"></i>
+                                </button>
+                            </div>
                         </div>
                     @empty
                         <div class="col-12"><small class="text-muted">No active packages in your club.</small></div>
@@ -134,6 +143,22 @@ document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('.ent-package-cb').forEach(cb => cb.checked = false);
         });
     }
+
+    // Copy Single Checkout Link
+    document.querySelectorAll('.js-copy-single-checkout').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var url = this.getAttribute('data-checkout-url');
+            navigator.clipboard.writeText(url).then(() => {
+                var icon = this.querySelector('i');
+                icon.className = 'bx bx-check text-success';
+                setTimeout(() => {
+                    icon.className = 'bx bx-link';
+                }, 2000);
+            });
+        });
+    });
 });
 </script>
 @endsection
