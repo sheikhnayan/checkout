@@ -200,24 +200,42 @@ class NightlyReportController extends BaseNightlyReportsController
     public function importCsv(Request $request)
     {
         $request->validate([
-            'csv_file' => 'required|file|mimes:csv,txt'
+            'csv_file' => 'required|file'
         ]);
 
         $file = $request->file('csv_file');
+        
+        ini_set('auto_detect_line_endings', true);
         $handle = fopen($file->getRealPath(), 'r');
         
         $header = fgetcsv($handle);
-        // Ensure BOM is removed from first column header if present
-        if (isset($header[0])) {
-            $header[0] = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $header[0]);
+        if (!$header) {
+            return redirect()->back()->with('error', 'Failed to read CSV header.');
         }
+
+        // Ensure BOM is removed from first column header if present
+        $header[0] = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $header[0]);
+        // Trim headers
+        $header = array_map('trim', $header);
         
         $importedCount = 0;
         $skippedCount = 0;
 
         while (($row = fgetcsv($handle)) !== false) {
+            // Skip empty rows
+            if (empty(array_filter($row))) continue;
+
+            // Handle column count mismatch
+            if (count($header) > count($row)) {
+                $row = array_pad($row, count($header), '');
+            } elseif (count($row) > count($header)) {
+                $row = array_slice($row, 0, count($header));
+            }
+
             $data = array_combine($header, $row);
             if (!$data) continue;
+
+            if (empty($data['Business Date'])) continue;
 
             $businessDate = date('Y-m-d', strtotime($data['Business Date']));
 
