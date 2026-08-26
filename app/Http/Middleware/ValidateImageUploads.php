@@ -111,6 +111,28 @@ class ValidateImageUploads
             ];
         }
 
+        if ($request->routeIs('admin.nightly-reports.imports.upload', 'admin.nightly-reports.reports.import')) {
+            return [
+                'allowed_mime_types' => [
+                    'text/csv',
+                    'text/plain',
+                    'application/vnd.ms-excel',
+                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'application/pdf',
+                    'application/csv',
+                    'text/x-csv',
+                    'application/x-csv',
+                    'text/x-comma-separated-values',
+                    'text/comma-separated-values',
+                ],
+                'allowed_extensions' => ['csv', 'txt', 'xls', 'xlsx', 'pdf'],
+                'max_bytes' => 20 * 1024 * 1024, // 20MB
+                'invalid_message' => 'Upload failed. Please select a valid spreadsheet or document and try again.',
+                'type_message' => 'Only CSV, XLS, XLSX, and PDF files are allowed.',
+                'size_message' => 'File is too large. Maximum allowed size is 20MB.',
+            ];
+        }
+
         return [
             'allowed_mime_types' => [
                 'image/jpeg',
