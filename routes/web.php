@@ -509,6 +509,8 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
 
         // Reports
         Route::get('/reports', [\App\Http\Controllers\Admin\NightlyReports\NightlyReportController::class, 'index'])->name('reports.index');
+        Route::post('/reports/import', [\App\Http\Controllers\Admin\NightlyReports\NightlyReportController::class, 'importCsv'])->name('reports.import');
+        Route::get('/reports/export', [\App\Http\Controllers\Admin\NightlyReports\NightlyReportController::class, 'exportCsv'])->name('reports.export');
         Route::get('/reports/{type}/{id}', [\App\Http\Controllers\Admin\NightlyReports\NightlyReportController::class, 'show'])->name('reports.show');
         Route::get('/reports/{type}/{id}/edit', [\App\Http\Controllers\Admin\NightlyReports\NightlyReportController::class, 'edit'])->name('reports.edit');
         Route::put('/reports/{type}/{id}', [\App\Http\Controllers\Admin\NightlyReports\NightlyReportController::class, 'update'])->name('reports.update');

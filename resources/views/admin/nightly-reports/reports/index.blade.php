@@ -11,7 +11,17 @@
           <h4 class="text-white mb-1 fw-bold"><i class="fas fa-clipboard-list text-warning me-2"></i> Shift Operations Reports</h4>
           <p class="text-muted small mb-0">Master register of all Nightly, Boutique, and COH shift submissions.</p>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 align-items-center">
+          <form action="{{ route('nightly-reports.reports.import') }}" method="POST" enctype="multipart/form-data" class="d-flex gap-2 m-0">
+            @csrf
+            <input type="file" name="csv_file" class="form-control form-control-sm" accept=".csv" required style="max-width: 200px;">
+            <button type="submit" class="btn btn-sm btn-primary">
+              <i class="fas fa-upload me-1"></i> Import CSV
+            </button>
+          </form>
+          <a href="{{ route('nightly-reports.reports.export') }}" class="btn btn-sm btn-success">
+            <i class="fas fa-download me-1"></i> Export CSV
+          </a>
           <a href="{{ route('nightly.submit.nightly') }}" target="_blank" class="btn btn-sm btn-gold">
             <i class="fas fa-plus me-1"></i> Submit Report
           </a>

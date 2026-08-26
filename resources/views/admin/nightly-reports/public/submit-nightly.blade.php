@@ -140,6 +140,10 @@
           <label class="form-label">Submitter Email *</label>
           <input type="email" name="submitter_email" class="form-control" placeholder="gm@venue.com" required />
         </div>
+        <div class="col-md-12">
+          <label class="form-label">Additional Recipient (Email)</label>
+          <input type="email" name="additional_recipient" class="form-control" placeholder="extra@venue.com" />
+        </div>
       </div>
     </div>
 
@@ -267,6 +271,10 @@
             <option value="1">YES — Incidents Occurred</option>
           </select>
         </div>
+        <div class="col-md-12">
+          <label class="form-label">Incident Details (If any)</label>
+          <textarea name="incident_notes" class="form-control" rows="2" placeholder="Describe incidents..."></textarea>
+        </div>
       </div>
     </div>
 
@@ -297,6 +305,10 @@
         <div class="col-12">
           <label class="form-label">Additional GM Comments</label>
           <textarea name="shift_comments" class="form-control" rows="2" placeholder="Any closing observations..."></textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Nightly Checklists / Forms</label>
+          <textarea name="nightly_checklists" class="form-control" rows="2" placeholder="Checklists completed..."></textarea>
         </div>
       </div>
     </div>

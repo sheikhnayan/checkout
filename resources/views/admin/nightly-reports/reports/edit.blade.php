@@ -91,6 +91,10 @@
               <label class="form-label text-white small text-uppercase fw-bold">Superstar Nomination</label>
               <input type="text" name="super_star_nomination" class="form-control" value="{{ $report->super_star_nomination }}" />
             </div>
+            <div class="mb-3">
+              <label class="form-label text-white small text-uppercase fw-bold">Additional Recipient (Email)</label>
+              <input type="email" name="additional_recipient" class="form-control" value="{{ $report->additional_recipient }}" />
+            </div>
           </div>
         </div>
       </div>
@@ -103,6 +107,14 @@
             <div class="mb-3">
               <label class="form-label text-white small text-uppercase fw-bold">Executive Night Summary</label>
               <textarea name="night_summary" class="form-control" rows="3">{{ $report->night_summary }}</textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label text-white small text-uppercase fw-bold">Incident Details</label>
+              <textarea name="incident_notes" class="form-control" rows="2">{{ $report->incident_notes }}</textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label text-white small text-uppercase fw-bold">Nightly Checklists / Forms</label>
+              <textarea name="nightly_checklists" class="form-control" rows="2">{{ $report->nightly_checklists }}</textarea>
             </div>
             <div class="row g-3">
               <div class="col-md-6">

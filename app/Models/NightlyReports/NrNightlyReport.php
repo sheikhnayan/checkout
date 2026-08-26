@@ -51,6 +51,13 @@ class NrNightlyReport extends Model
         'is_viewed',
         'source',
         'created_by_user_id',
+        'additional_recipient',
+        'incident_notes',
+        'nightly_checklists',
+        'browser',
+        'ip_address',
+        'unique_id',
+        'submission_location',
     ];
 
     protected $casts = [
