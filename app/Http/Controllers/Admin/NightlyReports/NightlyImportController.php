@@ -156,6 +156,6 @@ class NightlyImportController extends BaseNightlyReportsController
 
         fclose($handle);
 
-        return redirect()->back()->with('success', "Import complete: {$importedCount} records imported, {$skippedCount} duplicates skipped.");
+        return redirect()->route('admin.nightly-reports.reports.index')->with('success', "Import complete: {$importedCount} records imported, {$skippedCount} duplicates skipped.");
     }
 }

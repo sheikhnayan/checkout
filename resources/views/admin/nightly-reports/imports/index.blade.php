@@ -35,8 +35,8 @@
     </div>
   @endif
 
-  <div class="row g-4">
-    <div class="col-lg-5">
+  <div class="row g-4 justify-content-center">
+    <div class="col-lg-8">
       <div class="card">
         <div class="card-header"><h5 class="card-title mb-0">Upload Spreadsheets or Scans</h5></div>
         <div class="card-body">
@@ -44,24 +44,12 @@
             @csrf
             <div class="p-4 rounded text-center mb-3" style="background: var(--nr-surface-2); border: 2px dashed var(--nr-border-gold);">
               <i class="fas fa-cloud-upload-alt fa-3x text-warning mb-3"></i>
-              <div class="text-white fw-bold mb-1">Select Excel (.xlsx) or PDF Files</div>
+              <div class="text-white fw-bold mb-1">Select Excel (.xlsx), CSV, or PDF Files</div>
               <small class="text-muted d-block mb-3">Max file size 20MB</small>
               <input type="file" name="file" class="form-control form-control-sm mb-3" required />
-              <button type="submit" class="btn btn-gold w-100"><i class="fas fa-upload me-1"></i> Upload & Process Drafts</button>
+              <button type="submit" class="btn btn-gold w-100"><i class="fas fa-upload me-1"></i> Upload & Import Data</button>
             </div>
           </form>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-lg-7">
-      <div class="card">
-        <div class="card-header"><h5 class="card-title mb-0">Recent Import Draft Batches</h5></div>
-        <div class="card-body">
-          <div class="text-center py-5 text-muted">
-            <i class="fas fa-check-double fa-3x mb-3 opacity-50"></i>
-            <div>All previous import batches have been reviewed and confirmed.</div>
-          </div>
         </div>
       </div>
     </div>
