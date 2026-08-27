@@ -7344,7 +7344,7 @@ body #package_use_date::-webkit-calendar-picker-indicator {
                 }
 
                 if (isTicketSelect) {
-                    var showMax = Math.min(Math.max(15, current), safeMax);
+                    var showMax = safeMax;
                     $field.data('ticket-max', safeMax).attr('data-ticket-max', safeMax);
                     var ticketHtml = '';
                     for (var i = 1; i <= showMax; i++) {

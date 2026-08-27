@@ -253,7 +253,7 @@
                                     <!-- EDIT ITEM MODAL -->
                                     <div class="modal fade" id="editItemModal-{{ $item->id }}" tabindex="-1" aria-hidden="true">
                                         <div class="modal-dialog modal-dialog-centered">
-                                            <form action="{{ route('admin.help-center.items.update', $item->id) }}" method="POST" enctype="multipart/form-data" class="modal-content">
+                                            <form action="{{ route('admin.help-center.items.update', $item->id) }}" method="POST" enctype="multipart/form-data" class="modal-content" novalidate>
                                                 @csrf
                                                 @method('PUT')
                                                 <div class="modal-header">
@@ -306,8 +306,14 @@
                                                     </div>
 
                                                     <div class="mb-3">
-                                                        <label class="form-label">Icon Class</label>
-                                                        <input type="text" name="icon" class="form-control" value="{{ $item->icon ?: 'bx-file' }}" placeholder="bx-file">
+                                                        <label class="form-label">Icon</label>
+                                                        <select name="icon" class="form-select">
+                                                            <option value="bx-file" {{ $item->icon == 'bx-file' || empty($item->icon) ? 'selected' : '' }}>📄 File / Document (bx-file)</option>
+                                                            <option value="bx-list-check" {{ $item->icon == 'bx-list-check' ? 'selected' : '' }}>📋 Form (bx-list-check)</option>
+                                                            <option value="bx-link-external" {{ $item->icon == 'bx-link-external' ? 'selected' : '' }}>🔗 External Link (bx-link-external)</option>
+                                                            <option value="bx-book-open" {{ $item->icon == 'bx-book-open' ? 'selected' : '' }}>📖 Manual / Guide (bx-book-open)</option>
+                                                            <option value="bx-download" {{ $item->icon == 'bx-download' ? 'selected' : '' }}>📥 Download (bx-download)</option>
+                                                        </select>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
@@ -488,14 +494,16 @@ document.addEventListener('DOMContentLoaded', function () {
     // 2. Initialize Link Items Drag & Drop inside each Section
     var itemsContainers = document.querySelectorAll('.items-container');
     itemsContainers.forEach(function (container) {
-        var sectionId = container.getAttribute('data-section-id');
         if (typeof Sortable !== 'undefined') {
             new Sortable(container, {
+                group: 'items', // allows dragging between different sections
                 handle: '.drag-item-handle',
                 animation: 150,
                 ghostClass: 'sortable-ghost',
-                onEnd: function () {
-                    var itemRows = container.querySelectorAll('.item-row');
+                onEnd: function (evt) {
+                    var currentContainer = evt.to;
+                    var sectionId = currentContainer.getAttribute('data-section-id');
+                    var itemRows = currentContainer.querySelectorAll('.item-row');
                     var itemIds = Array.from(itemRows).map(function(row) {
                         return row.getAttribute('data-item-id');
                     });

@@ -111,7 +111,12 @@ class ValidateImageUploads
             ];
         }
 
-        if ($request->routeIs('admin.nightly-reports.imports.upload', 'admin.nightly-reports.reports.import')) {
+        if ($request->routeIs(
+            'admin.nightly-reports.imports.upload', 
+            'admin.nightly-reports.reports.import',
+            'admin.help-center.items.store',
+            'admin.help-center.items.update'
+        )) {
             return [
                 'allowed_mime_types' => [
                     'text/csv',

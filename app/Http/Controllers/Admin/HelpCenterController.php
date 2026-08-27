@@ -303,8 +303,10 @@ class HelpCenterController extends Controller
         $orders = $request->input('orders', []);
         foreach ($orders as $index => $itemId) {
             HelpCenterItem::where('id', $itemId)
-                ->where('help_center_section_id', $section->id)
-                ->update(['sort_order' => $index + 1]);
+                ->update([
+                    'sort_order' => $index + 1,
+                    'help_center_section_id' => $section->id
+                ]);
         }
 
         return response()->json(['success' => true, 'message' => 'Link items re-ordered successfully!']);

@@ -8405,7 +8405,7 @@
                 }
 
                 if (isTicketSelect) {
-                    const showMax = Math.min(Math.max(15, current), safeMax);
+                    const showMax = safeMax;
                     $field.data('ticket-max', safeMax).attr('data-ticket-max', safeMax);
                     let ticketHtml = '<option value=""># of Tickets</option>';
                     for (let i = 1; i <= showMax; i++) {
