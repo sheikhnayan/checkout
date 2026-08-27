@@ -545,7 +545,6 @@
       </li>
 
       <!-- Group 4: Administration & Setup (HIDDEN PER REQUEST) -->
-      @if(false)
       <li class="nr-menu-header">Administration & Setup</li>
       <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.ambassadors*') ? 'active' : '' }}">
         <a href="{{ route('admin.nightly-reports.ambassadors.index') }}" class="nr-menu-link">
@@ -553,6 +552,7 @@
           <span>Ambassadors</span>
         </a>
       </li>
+      @if(false)
       <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.benchmarks*') ? 'active' : '' }}">
         <a href="{{ route('admin.nightly-reports.benchmarks.index') }}" class="nr-menu-link">
           <i class="fas fa-bullseye"></i>

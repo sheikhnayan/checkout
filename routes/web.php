@@ -600,6 +600,12 @@ Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'i
         Route::put('/users/{id}', [\App\Http\Controllers\Admin\NightlyReports\NightlyAdminUserController::class, 'update'])->name('users.update');
         Route::post('/users/{id}/reset-password', [\App\Http\Controllers\Admin\NightlyReports\NightlyAdminUserController::class, 'resetPassword'])->name('users.reset-password');
         Route::delete('/users/{id}', [\App\Http\Controllers\Admin\NightlyReports\NightlyAdminUserController::class, 'destroy'])->name('users.destroy');
+
+        // Ambassadors
+        Route::get('/ambassadors', [\App\Http\Controllers\Admin\NightlyReports\NightlyAmbassadorController::class, 'index'])->name('ambassadors.index');
+        Route::post('/ambassadors', [\App\Http\Controllers\Admin\NightlyReports\NightlyAmbassadorController::class, 'store'])->name('ambassadors.store');
+        Route::put('/ambassadors/{id}', [\App\Http\Controllers\Admin\NightlyReports\NightlyAmbassadorController::class, 'update'])->name('ambassadors.update');
+        Route::get('/ambassadors/{id}/impersonate', [\App\Http\Controllers\Admin\NightlyReports\NightlyAmbassadorController::class, 'impersonate'])->name('ambassadors.impersonate');
     });
 });
 
@@ -711,3 +717,17 @@ Route::middleware(['auth'])->group(function () {
 // Frontend catch-all route with slug parameter
 // Keep this at the very end so it does not shadow admin/auth/portal routes.
 Route::get('/{slug}', [FrontendController::class, 'index'])->name('index');
+
+// Ambassador Auth & Dashboard
+Route::get('/ambassador/setup/{token}', [\App\Http\Controllers\Auth\AmbassadorAuthController::class, 'showSetupForm'])->name('ambassador.setup');
+Route::post('/ambassador/setup/{token}', [\App\Http\Controllers\Auth\AmbassadorAuthController::class, 'setupPassword']);
+Route::get('/ambassador/login', [\App\Http\Controllers\Auth\AmbassadorAuthController::class, 'showLoginForm'])->name('ambassador.login');
+Route::post('/ambassador/login', [\App\Http\Controllers\Auth\AmbassadorAuthController::class, 'login']);
+Route::post('/ambassador/logout', [\App\Http\Controllers\Auth\AmbassadorAuthController::class, 'logout'])->name('ambassador.logout');
+
+Route::middleware(['auth:ambassador'])->group(function () {
+    Route::get('/ambassador/dashboard', function () {
+        return 'Ambassador Dashboard - Work in progress';
+    })->name('ambassador.dashboard');
+});
+

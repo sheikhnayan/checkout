@@ -1,90 +1,155 @@
 @extends('admin.nightly-reports.layout')
 
-@section('content')
-<div class="container-fluid p-0">
-  <div class="card mb-4">
-    <div class="card-body">
-      <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-        <div>
-          <h4 class="text-white mb-1 fw-bold"><i class="fas fa-users-cog text-warning me-2"></i> Field Ambassadors & Multi-Club Assignments</h4>
-          <p class="text-muted small mb-0">Allocate staff and managers to multiple assigned clubs for dynamic dashboard scoping.</p>
-        </div>
-      </div>
+@section('nr-content')
+<div class="nr-content-header">
+    <h2 class="nr-content-title">Manage Ambassadors</h2>
+    <div class="nr-content-actions">
+        <button class="btn btn-primary" data-toggle="modal" data-target="#addAmbassadorModal">
+            <i class="fas fa-plus"></i> Add Ambassador
+        </button>
     </div>
-  </div>
+</div>
 
-  <div class="card">
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead>
-          <tr>
-            <th>User / Ambassador</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Assigned Clubs ({{ count($locations) }} Total Available)</th>
-            <th class="text-end">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          @foreach($ambassadors as $user)
-          <tr>
-            <td class="fw-bold text-white">{{ $user->name }}</td>
-            <td><small class="text-muted">{{ $user->email }}</small></td>
-            <td><span class="badge bg-secondary">{{ ucfirst($user->user_type) }}</span></td>
-            <td>
-              <div class="d-flex flex-wrap gap-1">
-                @forelse($user->nrLocations as $assignedLoc)
-                  <span class="badge badge-gold">{{ $assignedLoc->name }}</span>
-                @empty
-                  <span class="text-muted small font-italic">No specific clubs allocated (Default scoping)</span>
-                @endforelse
-              </div>
-            </td>
-            <td class="text-end">
-              <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#assignModal{{ $user->id }}" title="Assign Venues">
-                <i class="fas fa-tasks me-1"></i> Assign Clubs
-              </button>
-            </td>
-          </tr>
+<div class="nr-card">
+    <div class="nr-card-body p-0">
+        @if(session('success'))
+            <div class="alert alert-success m-3">{{ session('success') }}</div>
+        @endif
+        @if(session('error'))
+            <div class="alert alert-danger m-3">{{ session('error') }}</div>
+        @endif
 
-          <!-- Assign Modal -->
-          <div class="modal fade" id="assignModal{{ $user->id }}" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-              <div class="modal-content" style="background: var(--nr-surface-2); border-color: var(--nr-border);">
-                <form method="POST" action="{{ route('admin.nightly-reports.ambassadors.assign', $user->id) }}">
-                  @csrf
-                  <div class="modal-header">
-                    <h5 class="modal-title text-white">Allocate Assigned Clubs for {{ $user->name }}</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                  </div>
-                  <div class="modal-body">
-                    <p class="text-muted small">Select the venues this user is authorized to oversee, submit, and view reports for:</p>
-                    <div class="row g-2">
-                      @foreach($locations as $loc)
-                      <div class="col-md-6">
-                        <div class="form-check p-2 rounded" style="background: var(--nr-surface-3);">
-                          <input class="form-check-input ms-0 me-2" type="checkbox" name="location_ids[]" value="{{ $loc->id }}" id="user{{ $user->id }}_loc{{ $loc->id }}"
-                            {{ $user->nrLocations->contains($loc->id) ? 'checked' : '' }} />
-                          <label class="form-check-label text-white small" for="user{{ $user->id }}_loc{{ $loc->id }}">
-                            {{ $loc->name }}
-                          </label>
-                        </div>
-                      </div>
-                      @endforeach
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Clubs Assigned</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($ambassadors as $ambassador)
+                <tr>
+                    <td>{{ $ambassador->name }}</td>
+                    <td>{{ $ambassador->email }}</td>
+                    <td>
+                        @if($ambassador->is_active)
+                            <span class="badge badge-success">Active</span>
+                        @else
+                            <span class="badge badge-danger">Disabled</span>
+                        @endif
+                    </td>
+                    <td>
+                        {{ $ambassador->clubs->count() }} clubs
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#editAmbassadorModal{{ $ambassador->id }}">
+                            <i class="fas fa-edit"></i> Edit Access
+                        </button>
+                        <a href="{{ route('admin.nightly-reports.ambassadors.impersonate', $ambassador->id) }}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-user-secret"></i> Login As
+                        </a>
+                    </td>
+                </tr>
+
+                <!-- Edit Modal -->
+                <div class="modal fade" id="editAmbassadorModal{{ $ambassador->id }}" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <form action="{{ route('admin.nightly-reports.ambassadors.update', $ambassador->id) }}" method="POST">
+                            @csrf
+                            @method('PUT')
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Edit {{ $ambassador->name }}'s Access</h5>
+                                    <button type="button" class="close" data-dismiss="modal">
+                                        <span>&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label>Status</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="statusSwitch{{ $ambassador->id }}" name="is_active" {{ $ambassador->is_active ? 'checked' : '' }}>
+                                            <label class="custom-control-label" for="statusSwitch{{ $ambassador->id }}">Active Account</label>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <h6>Assign Clubs</h6>
+                                    <div class="row">
+                                        @foreach($websites as $website)
+                                        <div class="col-md-6 mb-2">
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="clubCheck{{ $ambassador->id }}_{{ $website->id }}" name="clubs[]" value="{{ $website->id }}" {{ $ambassador->clubs->contains($website->id) ? 'checked' : '' }}>
+                                                <label class="custom-control-label" for="clubCheck{{ $ambassador->id }}_{{ $website->id }}">{{ $website->name }}</label>
+                                            </div>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-gold">Save Club Assignments</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-          @endforeach
-        </tbody>
-      </table>
+                </div>
+                @empty
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">No ambassadors found.</td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
-  </div>
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addAmbassadorModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <form action="{{ route('admin.nightly-reports.ambassadors.store') }}" method="POST">
+            @csrf
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Ambassador</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">An email will be sent to the ambassador with a link to set their password.</p>
+                    
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" name="email" class="form-control" required>
+                    </div>
+
+                    <hr>
+                    <h6>Initial Club Access</h6>
+                    <div class="row">
+                        @foreach($websites as $website)
+                        <div class="col-md-6 mb-2">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="newClubCheck{{ $website->id }}" name="clubs[]" value="{{ $website->id }}">
+                                <label class="custom-control-label" for="newClubCheck{{ $website->id }}">{{ $website->name }}</label>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add & Send Invite</button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 @endsection

@@ -40,6 +40,11 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        
+        'ambassador' => [
+            'driver' => 'session',
+            'provider' => 'ambassadors',
+        ],
     ],
 
     /*
@@ -63,6 +68,11 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\User::class),
+        ],
+
+        'ambassadors' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\NightlyReportAmbassador::class,
         ],
 
         // 'users' => [

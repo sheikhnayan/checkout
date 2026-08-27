@@ -44,6 +44,12 @@ class BaseNightlyReportsController extends Controller
             return NrLocation::pluck('id')->map(fn ($id) => (int) $id)->all();
         }
 
+        // Ambassador guard: return clubs (websites) assigned to the ambassador
+        if (Auth::guard('ambassador')->check()) {
+            $ambassador = Auth::guard('ambassador')->user();
+            return $ambassador->clubs()->pluck('id')->map(fn ($id) => (int) $id)->all();
+        }
+
         return $user->accessibleNrLocationIds();
     }
 

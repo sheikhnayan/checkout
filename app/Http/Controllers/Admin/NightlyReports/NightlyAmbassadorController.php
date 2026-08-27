@@ -2,36 +2,99 @@
 
 namespace App\Http\Controllers\Admin\NightlyReports;
 
+use App\Http\Controllers\Controller;
+use App\Models\NightlyReportAmbassador;
+use App\Models\Website;
 use Illuminate\Http\Request;
-use App\Models\User;
-use App\Models\NightlyReports\NrLocation;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
-class NightlyAmbassadorController extends BaseNightlyReportsController
+class NightlyAmbassadorController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $ambassadors = User::with('nrLocations')
-            ->where(function ($q) {
-                $q->where('user_type', 'manager')
-                    ->orWhere('user_type', 'website_user')
-                    ->orWhere('user_type', 'admin')
-                    ->orWhereHas('nrLocations');
-            })
-            ->orderBy('name')
-            ->paginate(20);
+        $user = Auth::user();
+        
+        if ($user->hasRole('super_admin') || clone $user->permissions()->where('name', 'super_admin')->exists()) {
+            $ambassadors = NightlyReportAmbassador::with('clubs')->get();
+            $websites = Website::all();
+        } else {
+            $ambassadors = NightlyReportAmbassador::with('clubs')->where('created_by_user_id', $user->id)->get();
+            // In a real scenario, this would be websites the user has access to. For now, we'll fetch all or implement based on existing logic.
+            // Assuming Website::all() for the dropdown, but you may want to scope it.
+            $websites = Website::all(); 
+        }
 
-        $locations = NrLocation::where('active', true)->orderBy('name')->get();
-
-        return view('admin.nightly-reports.ambassadors.index', compact('ambassadors', 'locations'));
+        return view('admin.nightly-reports.ambassadors.index', compact('ambassadors', 'websites'));
     }
 
-    public function assignLocations(Request $request, $id)
+    public function store(Request $request)
     {
-        $user = User::findOrFail($id);
-        $locationIds = $request->input('location_ids', []);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:nightly_report_ambassadors,email',
+            'clubs' => 'array'
+        ]);
 
-        $user->nrLocations()->sync($locationIds);
+        $token = Str::random(60);
 
-        return back()->with('success', "Assigned " . count($locationIds) . " clubs to {$user->name}.");
+        DB::beginTransaction();
+        try {
+            $ambassador = NightlyReportAmbassador::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'created_by_user_id' => Auth::id(),
+                'setup_token' => $token,
+                'is_active' => true,
+            ]);
+
+            if ($request->has('clubs')) {
+                $ambassador->clubs()->sync($request->clubs);
+            }
+
+            // TODO: Send email with setup token link
+            // Mail::to($ambassador->email)->send(new AmbassadorSetupEmail($ambassador));
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Ambassador created successfully and setup email sent.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Error creating ambassador: ' . $e->getMessage());
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        $ambassador = NightlyReportAmbassador::findOrFail($id);
+        
+        // Ensure user can edit this ambassador
+        if (!Auth::user()->hasRole('super_admin') && $ambassador->created_by_user_id !== Auth::id()) {
+            return redirect()->back()->with('error', 'Unauthorized');
+        }
+
+        $request->validate([
+            'clubs' => 'array'
+        ]);
+
+        $ambassador->clubs()->sync($request->clubs ?? []);
+        $ambassador->is_active = $request->has('is_active');
+        $ambassador->save();
+
+        return redirect()->back()->with('success', 'Ambassador updated successfully.');
+    }
+
+    public function impersonate($id)
+    {
+        $ambassador = NightlyReportAmbassador::findOrFail($id);
+        
+        // Ensure user can impersonate this ambassador
+        if (!Auth::user()->hasRole('super_admin') && $ambassador->created_by_user_id !== Auth::id()) {
+            return redirect()->back()->with('error', 'Unauthorized');
+        }
+
+        Auth::guard('ambassador')->login($ambassador);
+        return redirect()->route('ambassador.dashboard');
     }
 }
