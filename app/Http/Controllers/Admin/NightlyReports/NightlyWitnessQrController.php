@@ -17,7 +17,8 @@ class NightlyWitnessQrController extends BaseNightlyReportsController
     public function sendQrEmail(Request $request)
     {
         $locationId = (int) $request->input('location_id');
-        $loc = NrLocation::findOrFail($locationId);
+        $loc = $this->accessibleLocations()->firstWhere('id', $locationId);
+        abort_unless($loc, 404);
 
         return back()->with('success', "Witness QR Code package dispatched to {$loc->gm_email} for {$loc->name}.");
     }

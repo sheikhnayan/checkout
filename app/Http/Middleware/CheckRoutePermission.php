@@ -16,8 +16,31 @@ class CheckRoutePermission
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (auth()->guard('ambassador')->check() && str_starts_with((string) $request->route()?->getName(), 'admin.nightly-reports.')) {
-            return $next($request);
+        $routeName = (string) $request->route()?->getName();
+        if (auth()->guard('ambassador')->check()) {
+            $ambassadorRoutes = [
+                'admin.nightly-reports.dashboard',
+                'admin.nightly-reports.reports.',
+                'admin.nightly-reports.trends.',
+                'admin.nightly-reports.missing.',
+                'admin.nightly-reports.boutique.',
+                'admin.nightly-reports.fourweek.',
+                'admin.nightly-reports.quarterly.',
+                'admin.nightly-reports.coh.',
+                'admin.nightly-reports.incidents.',
+                'admin.nightly-reports.witness.',
+                'admin.nightly-reports.witness-qr.',
+                'admin.nightly-reports.high-transactions.',
+                'admin.nightly-reports.model-releases.',
+            ];
+
+            foreach ($ambassadorRoutes as $allowedRoute) {
+                if ($routeName === rtrim($allowedRoute, '.') || str_starts_with($routeName, $allowedRoute)) {
+                    return $next($request);
+                }
+            }
+
+            abort(403, 'This administration area is not available to ambassadors.');
         }
 
         $user = auth()->user();

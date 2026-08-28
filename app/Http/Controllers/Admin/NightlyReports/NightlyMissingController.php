@@ -48,7 +48,8 @@ class NightlyMissingController extends BaseNightlyReportsController
         $locationId = (int) $request->input('location_id');
         $date = $request->input('business_date');
 
-        $loc = NrLocation::findOrFail($locationId);
+        $loc = $this->accessibleLocations()->firstWhere('id', $locationId);
+        abort_unless($loc, 404);
 
         // Simulated notification trigger
         return back()->with('success', "Reminder notification sent to GM for {$loc->name} for date {$date}.");

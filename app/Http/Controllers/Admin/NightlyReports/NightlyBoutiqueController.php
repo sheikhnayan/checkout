@@ -10,7 +10,7 @@ class NightlyBoutiqueController extends BaseNightlyReportsController
 {
     public function index(Request $request)
     {
-        $locations = NrLocation::where('type', 'Boutique')->where('active', true)->get();
+        $locations = $this->accessibleLocations()->where('type', 'Boutique')->values();
         $boutiqueLocationIds = $locations->pluck('id')->all();
 
         $selectedLocationId = $request->input('location_id');
@@ -20,7 +20,7 @@ class NightlyBoutiqueController extends BaseNightlyReportsController
         $query = NrBoutiqueReport::with('location')
             ->whereIn('location_id', $boutiqueLocationIds);
 
-        if ($selectedLocationId) {
+        if ($selectedLocationId && $locations->contains('id', (int) $selectedLocationId)) {
             $query->where('location_id', (int) $selectedLocationId);
         }
 

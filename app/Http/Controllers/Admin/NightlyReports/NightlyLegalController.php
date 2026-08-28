@@ -12,8 +12,19 @@ class NightlyLegalController extends BaseNightlyReportsController
 {
     public function index(Request $request)
     {
-        $tokens = NrLegalToken::orderByDesc('created_at')->paginate(20);
-        $locations = NrLocation::where('active', true)->orderBy('name')->get();
+        $allowedLocationIds = $this->accessibleLocationIds();
+        $tokensQuery = NrLegalToken::query();
+        if ($allowedLocationIds) {
+            $tokensQuery->where(function ($query) use ($allowedLocationIds) {
+                foreach ($allowedLocationIds as $locationId) {
+                    $query->orWhereJsonContains('location_ids', $locationId);
+                }
+            });
+        } else {
+            $tokensQuery->whereRaw('1 = 0');
+        }
+        $tokens = $tokensQuery->orderByDesc('created_at')->paginate(20);
+        $locations = $this->accessibleLocations();
 
         return view('admin.nightly-reports.legal.index', compact('tokens', 'locations'));
     }
