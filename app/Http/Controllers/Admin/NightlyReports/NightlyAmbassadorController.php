@@ -17,7 +17,7 @@ class NightlyAmbassadorController extends Controller
     {
         $user = Auth::user();
         
-        if ($user->isSuperAdmin()) {
+        if ($user->isAdmin() || $user->isSuperAdmin()) {
             $ambassadors = NightlyReportAmbassador::with('clubs')->get();
             $websites = Website::all();
         } else {
