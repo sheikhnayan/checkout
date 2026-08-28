@@ -412,6 +412,11 @@
 <body>
 
   <!-- 1. Dedicated 24-Item Nightly Reports Sidebar -->
+  @php
+    $isAmbassador = Auth::guard('ambassador')->check();
+  @endphp
+
+  <!-- 1. Dedicated 24-Item Nightly Reports Sidebar -->
   <aside id="nr-sidebar">
     <div class="nr-sidebar-brand">
       <div class="nr-brand-title">
@@ -420,11 +425,13 @@
       </div>
     </div>
 
+    @if(!$isAmbassador)
     <!-- Return to Main CartVIP Admin -->
     <a href="{{ route('admin.index') }}" class="nr-back-to-cartvip">
       <i class="fas fa-arrow-left"></i>
       <span>Return to CartVIP Admin</span>
     </a>
+    @endif
 
     <ul class="nr-sidebar-menu">
       <!-- Group 1: Overview & Daily -->
@@ -453,15 +460,18 @@
           <span>Missing Reports</span>
         </a>
       </li>
+      @if(!$isAmbassador)
       <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.locations*') ? 'active' : '' }}">
         <a href="{{ route('admin.nightly-reports.locations.index') }}" class="nr-menu-link">
           <i class="fas fa-map-marker-alt"></i>
           <span>Locations</span>
         </a>
       </li>
+      @endif
 
       <!-- Group 2: Retail & Financial Audits -->
       <li class="nr-menu-header">Financials & Audits</li>
+      @if(!$isAmbassador)
       <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.imports*') ? 'active' : '' }}">
         <a href="{{ route('admin.nightly-reports.imports.index') }}" class="nr-menu-link">
           <i class="fas fa-file-import"></i>
@@ -474,6 +484,7 @@
           <span>Boutique Import</span>
         </a>
       </li>
+      @endif
       <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.boutique.*') ? 'active' : '' }}">
         <a href="{{ route('admin.nightly-reports.boutique.index') }}" class="nr-menu-link">
           <i class="fas fa-store"></i>
@@ -531,6 +542,7 @@
           <span>Model Release Vault</span>
         </a>
       </li>
+      @if(!$isAmbassador)
       <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.legal*') ? 'active' : '' }}">
         <a href="{{ route('admin.nightly-reports.legal.index') }}" class="nr-menu-link">
           <i class="fas fa-balance-scale"></i>
@@ -543,44 +555,15 @@
           <span>Document Requests</span>
         </a>
       </li>
+      @endif
 
-      <!-- Group 4: Administration & Setup (HIDDEN PER REQUEST) -->
+      @if(!$isAmbassador)
+      <!-- Group 4: Administration & Setup -->
       <li class="nr-menu-header">Administration & Setup</li>
       <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.ambassadors*') ? 'active' : '' }}">
         <a href="{{ route('admin.nightly-reports.ambassadors.index') }}" class="nr-menu-link">
           <i class="fas fa-users-cog"></i>
           <span>Ambassadors</span>
-        </a>
-      </li>
-      @if(false)
-      <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.benchmarks*') ? 'active' : '' }}">
-        <a href="{{ route('admin.nightly-reports.benchmarks.index') }}" class="nr-menu-link">
-          <i class="fas fa-bullseye"></i>
-          <span>Benchmarks</span>
-        </a>
-      </li>
-      <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.form-builder*') ? 'active' : '' }}">
-        <a href="{{ route('admin.nightly-reports.form-builder.index') }}" class="nr-menu-link">
-          <i class="fas fa-sliders-h"></i>
-          <span>Form Builder</span>
-        </a>
-      </li>
-      <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.quotes*') ? 'active' : '' }}">
-        <a href="{{ route('admin.nightly-reports.quotes.index') }}" class="nr-menu-link">
-          <i class="fas fa-quote-left"></i>
-          <span>Daily Quotes</span>
-        </a>
-      </li>
-      <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.users*') ? 'active' : '' }}">
-        <a href="{{ route('admin.nightly-reports.users.index') }}" class="nr-menu-link">
-          <i class="fas fa-user-shield"></i>
-          <span>Admin Users</span>
-        </a>
-      </li>
-      <li class="nr-menu-item {{ request()->routeIs('admin.nightly-reports.backups*') ? 'active' : '' }}">
-        <a href="{{ route('admin.nightly-reports.backups.index') }}" class="nr-menu-link">
-          <i class="fas fa-database"></i>
-          <span>Data Backup</span>
         </a>
       </li>
       @endif
@@ -618,12 +601,23 @@
         <div class="dropdown">
           <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
             <i class="fas fa-user-circle d-sm-none"></i>
-            <span class="d-none d-sm-inline"><i class="fas fa-user-circle me-1"></i> {{ auth()->user()->name ?? 'Admin' }}</span>
+            <span class="d-none d-sm-inline"><i class="fas fa-user-circle me-1"></i> {{ Auth::guard('ambassador')->user()->name ?? auth()->user()->name ?? 'User' }}</span>
           </button>
           <ul class="dropdown-menu dropdown-menu-end" style="background: var(--nr-surface-2); border-color: var(--nr-border);">
+            @if(!$isAmbassador)
             <li><a class="dropdown-item text-white" href="{{ route('admin.profile.edit') }}"><i class="fas fa-cog me-2"></i> Profile Settings</a></li>
             <li><hr class="dropdown-divider" style="border-color: var(--nr-border);"></li>
             <li><a class="dropdown-item text-danger" href="{{ route('logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Sign Out</a></li>
+            @else
+            <li>
+              <form action="{{ route('ambassador.logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="dropdown-item text-danger bg-transparent border-0 w-100 text-start">
+                  <i class="fas fa-sign-out-alt me-2"></i> Sign Out
+                </button>
+              </form>
+            </li>
+            @endif
           </ul>
         </div>
       </div>
