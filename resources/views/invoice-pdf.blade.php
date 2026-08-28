@@ -321,7 +321,9 @@
                                     }
                                 }
                             @endphp
-                            @php($totalAddonQty += $addonQty)
+                            @php
+                                $totalAddonQty += $addonQty;
+                            @endphp
                             <tr class="addon-row">
                                 <td>+ {{ $addon['name'] }} x{{ $addonQty }}</td>
                                 <td class="text-right">{{ $addonQty }}</td>

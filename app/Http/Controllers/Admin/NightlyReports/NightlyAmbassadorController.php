@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class NightlyAmbassadorController extends Controller
 {
@@ -54,13 +55,21 @@ class NightlyAmbassadorController extends Controller
                 $ambassador->clubs()->sync($request->clubs);
             }
 
-            // TODO: Send email with setup token link
-            // Mail::to($ambassador->email)->send(new AmbassadorSetupEmail($ambassador));
+            Mail::to($ambassador->email)->send(new AmbassadorSetupEmail($ambassador));
+            Log::info('Nightly report ambassador setup email sent', [
+                'ambassador_id' => $ambassador->id,
+                'email' => $ambassador->email,
+            ]);
 
             DB::commit();
             return redirect()->back()->with('success', 'Ambassador created successfully and setup email sent.');
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
+            Log::error('Nightly report ambassador setup email failed', [
+                'email' => $request->email,
+                'error' => $e->getMessage(),
+                'exception' => get_class($e),
+            ]);
             return redirect()->back()->with('error', 'Error creating ambassador: ' . $e->getMessage());
         }
     }
