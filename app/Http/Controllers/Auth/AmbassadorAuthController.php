@@ -25,10 +25,10 @@ class AmbassadorAuthController extends Controller
         $ambassador = NightlyReportAmbassador::where('setup_token', $token)->firstOrFail();
         
         $ambassador->password = Hash::make($request->password);
-        $ambassador->setup_token = null; // Clear the token so it can't be used again
-        $ambassador->save();
-
         Auth::guard('ambassador')->login($ambassador);
+
+        $ambassador->setup_token = null;
+        $ambassador->save();
 
         return redirect()->route('ambassador.dashboard')->with('success', 'Password set successfully! Welcome to your dashboard.');
     }
