@@ -14,9 +14,16 @@ class BaseNightlyReportsController extends Controller
      */
     protected function accessibleLocations()
     {
-        $user = Auth::user();
+        $user = Auth::guard('ambassador')->user() ?: Auth::user();
         if (!$user) {
             return NrLocation::whereRaw('1=0')->get();
+        }
+
+        if ($ambassador = Auth::guard('ambassador')->user()) {
+            return NrLocation::whereIn('website_id', $ambassador->clubs()->pluck('websites.id'))
+                ->where('active', true)
+                ->orderBy('name')
+                ->get();
         }
 
         if ($user->isAdmin() || $user->isSuperAdmin()) {
@@ -35,19 +42,22 @@ class BaseNightlyReportsController extends Controller
      */
     protected function accessibleLocationIds(): array
     {
-        $user = Auth::user();
+        $ambassadorGuard = Auth::guard('ambassador');
+        $ambassador = $ambassadorGuard->user();
+        $user = $ambassador ?: Auth::user();
         if (!$user) {
             return [];
         }
 
-        if ($user->isAdmin() || $user->isSuperAdmin()) {
-            return NrLocation::pluck('id')->map(fn ($id) => (int) $id)->all();
+        if ($ambassador) {
+            return NrLocation::whereIn('website_id', $ambassador->clubs()->pluck('websites.id'))
+                ->pluck('id')
+                ->map(fn ($id) => (int) $id)
+                ->all();
         }
 
-        // Ambassador guard: return clubs (websites) assigned to the ambassador
-        if (Auth::guard('ambassador')->check()) {
-            $ambassador = Auth::guard('ambassador')->user();
-            return $ambassador->clubs()->pluck('id')->map(fn ($id) => (int) $id)->all();
+        if ($user->isAdmin() || $user->isSuperAdmin()) {
+            return NrLocation::pluck('id')->map(fn ($id) => (int) $id)->all();
         }
 
         return $user->accessibleNrLocationIds();

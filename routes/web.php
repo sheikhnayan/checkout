@@ -726,8 +726,7 @@ Route::post('/ambassador/login', [\App\Http\Controllers\Auth\AmbassadorAuthContr
 Route::post('/ambassador/logout', [\App\Http\Controllers\Auth\AmbassadorAuthController::class, 'logout'])->name('ambassador.logout');
 
 Route::middleware(['auth:ambassador'])->group(function () {
-    Route::get('/ambassador/dashboard', function () {
-        return 'Ambassador Dashboard - Work in progress';
-    })->name('ambassador.dashboard');
+    Route::get('/ambassador/dashboard', [\App\Http\Controllers\Admin\NightlyReports\NightlyDashboardController::class, 'index'])
+        ->name('ambassador.dashboard');
 });
 
