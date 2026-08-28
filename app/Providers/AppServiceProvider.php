@@ -24,5 +24,18 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(191);
         Paginator::useBootstrapFive();
+
+        if (!config('auth.guards.ambassador')) {
+            config([
+                'auth.guards.ambassador' => [
+                    'driver' => 'session',
+                    'provider' => 'ambassadors',
+                ],
+                'auth.providers.ambassadors' => [
+                    'driver' => 'eloquent',
+                    'model' => \App\Models\NightlyReportAmbassador::class,
+                ],
+            ]);
+        }
     }
 }
