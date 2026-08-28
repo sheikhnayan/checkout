@@ -79,7 +79,7 @@ class NightlyAmbassadorController extends Controller
         $ambassador = NightlyReportAmbassador::findOrFail($id);
         
         // Ensure user can edit this ambassador
-        if (!Auth::user()->hasRole('super_admin') && $ambassador->created_by_user_id !== Auth::id()) {
+        if (!Auth::user()->isSuperAdmin() && $ambassador->created_by_user_id !== Auth::id()) {
             return redirect()->back()->with('error', 'Unauthorized');
         }
 
@@ -99,7 +99,7 @@ class NightlyAmbassadorController extends Controller
         $ambassador = NightlyReportAmbassador::findOrFail($id);
         
         // Ensure user can impersonate this ambassador
-        if (!Auth::user()->hasRole('super_admin') && $ambassador->created_by_user_id !== Auth::id()) {
+        if (!Auth::user()->isSuperAdmin() && $ambassador->created_by_user_id !== Auth::id()) {
             return redirect()->back()->with('error', 'Unauthorized');
         }
 
