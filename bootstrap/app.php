@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'website.user' => \App\Http\Middleware\WebsiteUserAccess::class,
             'image.upload.guard' => \App\Http\Middleware\ValidateImageUploads::class,
             'route.permission' => \App\Http\Middleware\CheckRoutePermission::class,
+            'admin.or.ambassador' => \App\Http\Middleware\AuthenticateAdminOrAmbassador::class,
             'mrrollcall.restrict' => \App\Http\Middleware\RestrictMrRollCallDomain::class,
         ]);
 

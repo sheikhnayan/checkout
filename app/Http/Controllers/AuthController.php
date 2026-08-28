@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use App\Models\User;
+use App\Models\NightlyReportAmbassador;
 
 class AuthController extends Controller
 {
@@ -18,6 +19,10 @@ class AuthController extends Controller
     {
         if (Auth::check()) {
             return $this->redirectByUserType(Auth::user());
+        }
+
+        if (Auth::guard('ambassador')->check()) {
+            return redirect()->route('ambassador.dashboard');
         }
         
         return view('auth.login');
@@ -44,6 +49,17 @@ class AuthController extends Controller
         })->values();
 
         if ($matching->isEmpty()) {
+            $ambassador = NightlyReportAmbassador::where('email', $email)
+                ->where('is_active', true)
+                ->first();
+
+            if ($ambassador && $ambassador->password && Hash::check($password, $ambassador->password)) {
+                Auth::guard('ambassador')->login($ambassador, $remember);
+                $request->session()->regenerate();
+
+                return redirect()->intended(route('ambassador.dashboard'));
+            }
+
             return back()->withErrors([
                 'email' => 'The provided credentials do not match our records.',
             ])->onlyInput('email');
@@ -221,6 +237,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         Auth::logout();
+        Auth::guard('ambassador')->logout();
         
         $request->session()->invalidate();
         $request->session()->regenerateToken();

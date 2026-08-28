@@ -194,7 +194,7 @@ Route::post('/{slug}/reservation/store', [TransactionController::class, 'reserva
 Route::post('/cart/share', [CartController::class, 'generateSharedLink'])->name('cart.generate-share');
 Route::get('/cart/{code}', [CartController::class, 'viewSharedCart'])->name('shared-cart.view');
 
-Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['auth', 'image.upload.guard', 'route.permission']], function () {
+Route::group(['prefix'=> 'admins', 'as' => 'admin.', 'middleware' => ['admin.or.ambassador', 'image.upload.guard', 'route.permission']], function () {
     Route::get('/', [AdminController::class,'index'])->name('index');
 
     Route::group(['prefix'=> 'website', 'as' => 'website.'], function () {

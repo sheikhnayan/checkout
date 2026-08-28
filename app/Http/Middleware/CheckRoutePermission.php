@@ -16,6 +16,10 @@ class CheckRoutePermission
      */
     public function handle(Request $request, Closure $next): Response
     {
+        if (auth()->guard('ambassador')->check() && str_starts_with((string) $request->route()?->getName(), 'admin.nightly-reports.')) {
+            return $next($request);
+        }
+
         $user = auth()->user();
         if (!$user) {
             return redirect()->route('login');
