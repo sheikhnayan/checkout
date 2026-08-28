@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\NightlyReports;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AmbassadorSetupEmail;
 use App\Models\NightlyReportAmbassador;
 use App\Models\Website;
 use Illuminate\Http\Request;
